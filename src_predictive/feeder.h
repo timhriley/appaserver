@@ -105,7 +105,7 @@ typedef struct
 LIST *feeder_exist_row_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
-		char *exchange_minimum_date_string );
+		char *feeder_match_minimum_date );
 
 /* Process */
 /* ------- */
@@ -114,7 +114,7 @@ LIST *feeder_exist_row_list(
 /* --------------------- */
 char *feeder_exist_row_where(
 		char *feeder_account_name,
-		char *feeder_load_file_minimum_date );
+		char *feeder_match_minimum_date );
 
 /* Returns heap memory */
 /* ------------------- */

@@ -14,10 +14,10 @@
 #include "transaction.h"
 
 #define FEEDER_INIT_CASH_FEEDER_PHRASE	\
-	"Card Bill Payment|CARD ONLINE PAYMENT"
+	"card bill payment|credit card|card online payment"
 
 #define FEEDER_INIT_CARD_FEEDER_PHRASE	\
-	"PAYMENT - THANK YOU|PAYMENT, THANK YOU"
+	"payment - thank you|payment, thank you"
 
 #define FEEDER_INIT_INPUT_DAYS_AGO	180
 

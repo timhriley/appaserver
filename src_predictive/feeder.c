@@ -683,12 +683,6 @@ FEEDER *feeder_fetch(
 			FEEDER_PHRASE_SELECT,
 			FEEDER_PHRASE_TABLE );
 
-	feeder->feeder_exist_row_list =
-		feeder_exist_row_list(
-			FEEDER_ROW_TABLE,
-			feeder_account_name,
-			exchange_minimum_date_string );
-
 	feeder->match_days_ago =
 		/* -------------- */
 		/* Safely returns */
@@ -704,6 +698,12 @@ FEEDER *feeder_fetch(
 		feeder_match_minimum_date(
 			exchange_minimum_date_string,
 			feeder->match_days_ago );
+
+	feeder->feeder_exist_row_list =
+		feeder_exist_row_list(
+			FEEDER_ROW_TABLE,
+			feeder_account_name,
+			feeder->match_minimum_date );
 
 	feeder->feeder_matched_journal_list =
 		feeder_matched_journal_list(
@@ -853,13 +853,13 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 char *feeder_exist_row_where(
 		char *feeder_account_name,
-		char *feeder_load_file_minimum_date )
+		char *feeder_match_minimum_date )
 {
 	static char where[ 128 ];
 
 	if ( !feeder_account_name
 	||   strcmp( feeder_account_name, "feeder_account" ) == 0
-	||   !feeder_load_file_minimum_date )
+	||   !feeder_match_minimum_date )
 	{
 		char message[ 128 ];
 
@@ -872,11 +872,13 @@ char *feeder_exist_row_where(
 			message );
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"feeder_account = '%s' and "
 		"feeder_date >= '%s'",
 		feeder_account_name,
-		feeder_load_file_minimum_date );
+		feeder_match_minimum_date );
 
 	return where;
 }
@@ -1509,14 +1511,14 @@ FILE *feeder_exist_row_input_open( char *feeder_exist_row_system_string )
 LIST *feeder_exist_row_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
-		char *exchange_minimum_date_string )
+		char *feeder_match_minimum_date )
 {
 	LIST *list;
 	FILE *input_open;
 	char input[ 1024 ];
 
 	if ( !feeder_account_name
-	||   !exchange_minimum_date_string )
+	||   !feeder_match_minimum_date )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1541,7 +1543,7 @@ LIST *feeder_exist_row_list(
 				/* --------------------- */
 				feeder_exist_row_where(
 					feeder_account_name,
-					exchange_minimum_date_string ) ) );
+					feeder_match_minimum_date ) ) );
 
 	while ( string_input( input, input_open, 1024 ) )
 	{
