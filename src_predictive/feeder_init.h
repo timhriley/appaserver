@@ -152,7 +152,7 @@
 	"Banks no longer log their bookkeeping records this way, but "	\
 	"the debit/credit terms remain."				\
 	"<br />"							\
-	"<br />It is important to get used to the fact that 'debit' "	\
+	"<br />Get used to the idea that 'debit' "			\
 	"means the left column and 'credit' means the right column. "	\
 	"The checking account asset accumulates on the left; "		\
 	"the credit card liability accumulates on the right. If you "	\
