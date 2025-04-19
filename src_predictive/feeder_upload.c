@@ -139,7 +139,9 @@ int main( int argc, char **argv )
 		}
 	}
 
-	if ( !feeder || execute_boolean )
+	if ( !feeder
+	||   !feeder->feeder_row_insert_count
+	||   execute_boolean )
 	{
 		feeder_audit =
 			/* -------------- */
