@@ -160,6 +160,22 @@
 	"Element"
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
+	"<h3>Pay Liabilities</h3>\n"					\
+	"<p style=\"margin: 3\%;\">"					\
+	"If you manually write a check, then enter the "		\
+	"transaction using the path: Feeder --> Insert Expense "	\
+	"Transaction. The transaction will be posted to the Uncleared "	\
+	"Checks liability account. When the check clears, it will "	\
+	"appear in a feeder file. PredictBooks will seek out the check "\
+	"number and reassign the transaction to the checking account.\n"\
+	"<br />"							\
+	"<br />PredictBooks generates checks to print. "		\
+	"Printable check paper is available from your bank. "		\
+	"To generate a check, the transaction needs to be entered via " \
+	"the menu path: Insert --> Transaction --> Transaction. "	\
+	"The debit column will likely be an expense account. Set the "	\
+	"credit column to Account Payable. "				\
+	"To print the check, execute: Alter --> Pay Liabilities"	\
 	"<h3>Next Step</h3>\n"						\
 	"<p style=\"margin: 3\%;\">"					\
 	"The next step is to upload this feeder file to generate "	\
@@ -187,23 +203,7 @@
 	"Duplicate Tab. You will then have two instances of "		\
 	"PredictBooks open. The left tab is for the Feeder Upload "	\
 	"process. "							\
-	"The right tab is for Feeder --> Insert Feeder Phrase.\n"	\
-	"<h3>Pay Liabilities</h3>\n"					\
-	"<p style=\"margin: 3\%;\">"					\
-	"If you manually write a check, then enter the "		\
-	"transaction using the path: Feeder --> Insert Expense "	\
-	"Transaction. The transaction will be posted to the Uncleared "	\
-	"Checks liability account. When the check clears, it will "	\
-	"appear in a feeder file. PredictBooks will seek out the check "\
-	"number and reassign the transaction to the checking account.\n"\
-	"<br />"							\
-	"<br />PredictBooks generates checks to print. "		\
-	"Printable check paper is available from your bank. "		\
-	"To generate a check, the transaction needs to be entered via " \
-	"the menu path: Insert --> Transaction --> Transaction. "	\
-	"The debit column will likely be an expense account. Set the "	\
-	"credit column to Account Payable. "				\
-	"To print the check, execute: Alter --> Pay Liabilities"
+	"The right tab is for Feeder --> Insert Feeder Phrase."
 
 #define FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE 				\
 	"<h3>Messages Available</h3>\n"					\
