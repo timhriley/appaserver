@@ -188,16 +188,16 @@
 	"PredictBooks open. The left tab is for the Feeder Upload "	\
 	"process. "							\
 	"The right tab is for Feeder --> Insert Feeder Phrase.\n"	\
-	"<br />"							\
-	"<br />If you manually write a check, then enter the "		\
+	"<h3>Pay Liabilities</h3>\n"					\
+	"<p style=\"margin: 3\%;\">"					\
+	"If you manually write a check, then enter the "		\
 	"transaction using the path: Feeder --> Insert Expense "	\
 	"Transaction. The transaction will be posted to the Uncleared "	\
 	"Checks liability account. When the check clears, it will "	\
 	"appear in a feeder file. PredictBooks will seek out the check "\
 	"number and reassign the transaction to the checking account.\n"\
-	"<h3>Pay Liabilities</h3>\n"					\
-	"<p style=\"margin: 3\%;\">"					\
-	"PredictBooks generates checks to print. "			\
+	"<br />"							\
+	"<br />PredictBooks generates checks to print. "		\
 	"Printable check paper is available from your bank. "		\
 	"To generate a check, the transaction needs to be entered via " \
 	"the menu path: Insert --> Transaction --> Transaction. "	\
