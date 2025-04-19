@@ -336,9 +336,6 @@ FEEDER_LOAD_ROW *feeder_load_row_calloc(
 char *feeder_load_row_international_date(
 		char *transaction_date_time );
 
-int feeder_load_row_check_number(
-		char *feeder_load_row_description_space_trim );
-
 /* Usage */
 /* ----- */
 
@@ -387,6 +384,29 @@ void feeder_load_row_calculate_balance_set(
 /* ----- */
 LIST *feeder_load_row_list(
 		LIST *exchange_journal_list );
+
+/* Usage */
+/* ----- */
+int feeder_load_row_check_number(
+		char *feeder_load_row_description_space_trim );
+
+/* Process */
+/* ------- */
+
+/* If like "VETERANS AFFAIRS DES:PAYMENT CHECK #:1827" */
+/* --------------------------------------------------- */
+int feeder_load_row_pound_colon_number(
+		char *feeder_load_row_description_space_trim );
+
+/* If like "#1827" */
+/* --------------- */
+int feeder_load_row_pound_number(
+		char *feeder_load_row_description_space_trim );
+
+/* If like "check 1827" or "CHECK 1827" */
+/* ------------------------------------ */
+int feeder_load_row_check_text_number(
+		char *feeder_load_row_description_space_trim );
 
 /* Usage */
 /* ----- */

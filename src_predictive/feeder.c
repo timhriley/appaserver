@@ -1162,13 +1162,114 @@ char *feeder_matched_journal_where(
 	return strdup( where );
 }
 
-int feeder_load_row_check_number( char *description_space_trim )
+int feeder_load_row_position_check_number(
+		char *description_space_trim,
+		int position,
+		int strlen_substr )
 {
-	char buffer[ 512 ];
-	char *substr = "CHECK #:";
+	if ( position > -1 )
+	{
+		return
+		atoi( description_space_trim + position + strlen_substr );
+	}
+	else
+	{
+		return 0;
+	}
+}
 
+int feeder_load_row_pound_colon_number( char *description_space_trim )
+{
+	char *substr = "#:";
 	int position;
 
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	return
+	feeder_load_row_position_check_number(
+		description_space_trim,
+		position,
+		strlen( substr ) );
+}
+
+int feeder_load_row_pound_number( char *description_space_trim )
+{
+	char *substr = "#";
+	int position;
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	return
+	feeder_load_row_position_check_number(
+		description_space_trim,
+		position,
+		strlen( substr ) );
+}
+
+int feeder_load_row_check_text_number( char *description_space_trim )
+{
+	char *substr;
+	int strlen_substr;
+	int position;
+	int check_number;
+
+	substr = "check";
+	strlen_substr = strlen( substr );
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	if ( ( check_number =
+		feeder_load_row_position_check_number(
+			description_space_trim,
+			position,
+			strlen_substr ) ) )
+	{
+		return check_number;
+	}
+
+	substr = "CHECK";
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	return
+	feeder_load_row_position_check_number(
+		description_space_trim,
+		position,
+		strlen_substr );
+}
+
+int feeder_load_row_check_number( char *description_space_trim )
+{
+	int check_number;
+       
 	if ( !description_space_trim )
 	{
 		char message[ 128 ];
@@ -1182,37 +1283,21 @@ int feeder_load_row_check_number( char *description_space_trim )
 			message );
 	}
 
-	string_strcpy( buffer, description_space_trim, 512 );
-
-	/* If like: VETERANS AFFAIRS DES:PAYMENT CHECK #:1827 */
-	/* -------------------------------------------------- */
-	position =
-		/* ------------------------ */
-		/* Returns -1 if not found. */
-		/* ------------------------ */
-		string_instr( 
-			substr,
-			buffer /* string */,
-			1 /* occurrence */ );
-
-	if ( position > -1 )
+	if ( ( check_number = feeder_load_row_pound_colon_number(
+		description_space_trim ) ) )
 	{
-		return atoi( buffer + position + strlen( substr ) );
-	}
-	else
-	if ( *buffer == '#' && isdigit( * ( buffer + 1 ) ) )
-	{
-		return atoi( buffer + 1 );
-	}
-	else
-	if ( string_strncmp( buffer, "check " ) == 0 )
-	{
-		string_search_replace( buffer, "check ", "" );
-		string_search_replace( buffer, "CHECK ", "" );
-		return atoi( buffer );
+		return check_number;
 	}
 
-	return 0;
+	if ( ( check_number = feeder_load_row_pound_number(
+		description_space_trim ) ) )
+	{
+		return check_number;
+	}
+
+	return
+	feeder_load_row_check_text_number(
+		description_space_trim );
 }
 
 void feeder_row_list_insert(
