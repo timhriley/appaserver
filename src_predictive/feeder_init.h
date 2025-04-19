@@ -137,26 +137,25 @@
 #define FEEDER_INIT_DEBIT_CREDIT_MESSAGE				\
 	"<h3>Debit/Credit Jargon</h3>\n"				\
 	"<p style=\"margin: 3\%;\">"					\
-	"It's tempting to try to figure out the correct journal "	\
+	"It is tempting to try to figure out the correct journal "	\
 	"entry by applying the common definitions of 'debit' and "	\
 	"'credit' to the transaction. "					\
-	"Unfortunitely, the common definitions are ambiguous and won't "\
-	"help. "							\
-	"The debit/credit terms were formed from the bank's "		\
-	"perspective back when bank services were simple.\n"		\
+	"Unfortunitely, the common definitions of debt and "		\
+	"credit mean the same thing and don't apply today. "		\
 	"<br />"							\
-	"<br />It's important to get used to the fact that 'Debit' "	\
-	"means the left column, and 'Credit' means the right column.\n"	\
+	"<br />The debit/credit terms were formed from the bank's "	\
+	"perspective back when banks' bookkeeping were simple. "	\
+	"In the past, when a bank received a deposit, it was logged to "\
+	"the left column and generated a <i>debt</i> to the bank. "	\
+	"When a bank gave out a loan, it was logged to the right "	\
+	"column and generated a <i>credit</i> to the customer. "	\
+	"Banks no longer log their bookkeeping records this way, but "	\
+	"the debit/credit terms remain."				\
 	"<br />"							\
-	"<br />If the left column is posted to the Checking account, "	\
-	"then your assets increase. "					\
-	"If the right column is posted to the Checking account, then "	\
-	"your assets decrease.\n"					\
-	"<br />"							\
-	"<br />If the right column is posted to the Credit Card "	\
-	"account, then your liabilities increase. "			\
-	"If the left column is posted to the Credit Card account, "	\
-	"then your liabilities decrease.\n"				\
+	"<br />It is important to get used to the fact that 'Debit' "	\
+	"means the left column and 'Credit' means the right column."	\
+	"The Checking account asset accumulates on the left; "		\
+	"the Credit Card liability accumulates on the right."
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
 	"<h3>Next Step</h3>\n"						\
