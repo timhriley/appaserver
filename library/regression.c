@@ -1,7 +1,8 @@
-/* library/regression.c					   */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/regression.c	 			*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,13 +12,15 @@
 #include "regression.h"
 #include "timlib.h"
 #include "column.h"
+#include "regression.h"
 
-REGRESSION *regression_new(	char *lowest_outlier,
-				char *highest_outlier )
+REGRESSION *regression_new(
+		char *lowest_outlier,
+		char *highest_outlier )
 {
 	REGRESSION *r;
 
-	r = (REGRESSION *)calloc( 1, sizeof( REGRESSION ) );
+	r = (REGRESSION *)calloc( 1, sizeof ( REGRESSION ) );
 	if ( !r )
 	{
 		fprintf(	stderr,
@@ -42,37 +45,35 @@ REGRESSION *regression_new(	char *lowest_outlier,
 	}
 
 	return r;
-
 }
 
 REGRESSION_PREDICTIVE_NODE *regression_predictive_node_new( void )
 {
 	REGRESSION_PREDICTIVE_NODE *r;
 
-	r = (REGRESSION_PREDICTIVE_NODE *)
-		calloc( 1, sizeof( REGRESSION_PREDICTIVE_NODE ) );
+	r = calloc( 1, sizeof ( REGRESSION_PREDICTIVE_NODE ) );
 
 	if ( !r )
 	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s(): memory allocation error.\n",
+			__FILE__,
+			__FUNCTION__ );
 		exit( 1 );
 	}
 
 	return r;
-
 }
 
-void regression_set_output_file(	FILE *output_file,
-					double *lowest_x,
-					double *highest_x,
-					int lowest_outlier,
-					int highest_outlier,
-					boolean exists_outliers,
-					double x,
-					double y )
+void regression_set_output_file(
+		FILE *output_file,
+		double *lowest_x,
+		double *highest_x,
+		int lowest_outlier,
+		int highest_outlier,
+		boolean exists_outliers,
+		double x,
+		double y )
 {
 
 	if ( exists_outliers )
@@ -108,48 +109,41 @@ char *regression_temp_filename( void )
 	return strdup( temp_filename );
 }
 
-LINEAR_REGRESSION *regression_linear_regression_new(
-					void )
+LINEAR_REGRESSION *regression_linear_regression_new( void )
 {
 	LINEAR_REGRESSION *r;
 
-	r = (LINEAR_REGRESSION *)
-		calloc( 1, sizeof( LINEAR_REGRESSION ) );
+	r = calloc( 1, sizeof ( LINEAR_REGRESSION ) );
 	if ( !r )
 	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s(): memory allocation error.\n",
+			__FILE__,
+			__FUNCTION__ );
 		exit( 1 );
 	}
 
 	return r;
-
 }
 
-CURVILINEAR_REGRESSION *regression_curvilinear_regression_new(
-					void )
+CURVILINEAR_REGRESSION *regression_curvilinear_regression_new( void )
 {
 	CURVILINEAR_REGRESSION *r;
 
-	r = (CURVILINEAR_REGRESSION *)
-		calloc( 1, sizeof( CURVILINEAR_REGRESSION ) );
+	r = calloc( 1, sizeof ( CURVILINEAR_REGRESSION ) );
 	if ( !r )
 	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s(): memory allocation error.\n",
+			__FILE__,
+			__FUNCTION__ );
 		exit( 1 );
 	}
 
 	return r;
-
 }
 
-LINEAR_REGRESSION *regression_get_linear_regression(
-						char *temp_filename )
+LINEAR_REGRESSION *regression_get_linear_regression( char *temp_filename )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 128 ];
@@ -318,12 +312,12 @@ LINEAR_REGRESSION *regression_get_linear_regression(
 		}
 	}
 	pclose( input_pipe );
-	return linear_regression;
 
+	return linear_regression;
 }
 
 CURVILINEAR_REGRESSION *regression_get_curvilinear_regression(
-						char *temp_filename )
+			char *temp_filename )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 128 ];
@@ -506,11 +500,9 @@ void regression_remove_temp_file( char *temp_filename )
 
 	sprintf( sys_string, "rm -f %s", temp_filename );
 	if ( system( sys_string ) ){};
-
 }
 
-void regression_output_statistics_table(
-				char *statistics_filename )
+void regression_output_statistics_table( char *statistics_filename )
 {
 	FILE *input_file;
 	char sys_string[ 1024 ];
@@ -578,7 +570,8 @@ void regression_output_statistics_table(
 		      CURVILINEAR_REGRESSION_QUADRATIC_BETA_STANDARD_DEVIATION )
 				== 0 )
 		{
-			fprintf( output_pipe, "%s|%s\n",
+			fprintf(output_pipe,
+				"%s|%s\n",
 				format_initial_capital(
 					 regression_label,
 					 regression_label ),
@@ -672,6 +665,4 @@ void regression_output_statistics_table(
 
 	fclose( input_file );
 	pclose( output_pipe );
-
 }
-

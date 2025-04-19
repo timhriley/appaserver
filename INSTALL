@@ -54,7 +54,7 @@ D) Install Appaserver source code:
 ----------------------------------
 1) $ cd /var
 2) $ sudo mkdir appaserver
-3) $ sudo chown `whoami`:$appaserver appaserver
+3) $ sudo chown `whoami`:appaserver appaserver
 4) $ chmod g+ws appaserver
 5) $ chmod o+rx appaserver
 6) $ git clone https://github.com/timhriley/appaserver.git
@@ -231,12 +231,4 @@ W) Import PredictBooks (optional):
 Your first application may be PredictBooks Home Edition.
 1) <Role> <Supervisor>
 2) <Alter> <Import PredictBooks>
-
-Notes after installing PredictBooks:
-1) Press the <Menu Refresh> button for the top menu to display correctly.
-2) Execute two output processes to see the state of PredictBooks.
-	1) <Output> <Trial Balance>
-		Bookkeeping rule #1: Total Debit = Total Credit
-	2) <Output> <Financial Position>
-		Bookkeeping rule #2: Asset = Liability + Equity
 

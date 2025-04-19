@@ -40,9 +40,9 @@ slope_standard_deviation = summary( fit )[[4]][4]
 slope_t_value = abs( summary( fit )[[4]][6] )
 slope_test_statistic = abs( qt( 0.05 / 2, degrees_of_freedom ) )
 
-slope_is_significant = 0
+slope_is_significant = FALSE
 if ( slope_t_value >= slope_test_statistic )
-	slope_is_significant = 1
+	slope_is_significant = TRUE
 
 minimum_slope = slope -
 			( slope_test_statistic *

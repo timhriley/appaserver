@@ -1,9 +1,8 @@
-/* library/r.h						   */
-/* ------------------------------------------------------- */
-/* This is an interface to R.				   */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/regression.h	 			*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #ifndef REGRESSION_H
 #define REGRESSION_H
@@ -11,8 +10,6 @@
 #include "boolean.h"
 #include "list.h"
 
-/* Constants */
-/*----------- */
 #define CURVILINEAR_REGRESSION_COEFFICIENT_OF_DETERMINATION		\
 		"curvilinear_coefficient_of_determination"
 #define CURVILINEAR_REGRESSION_QUADRATIC_BETA				\

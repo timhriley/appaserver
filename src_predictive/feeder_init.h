@@ -134,6 +134,30 @@
 	"<br />Bookkeeping rule #2: "					\
 	"Asset Element = Liability Element + Equity Element\n"
 
+#define FEEDER_INIT_DEBIT_CREDIT_MESSAGE				\
+	"<h3>Debit/Credit Jargon</h3>\n"				\
+	"<p style=\"margin: 3\%;\">"					\
+	"It's tempting to try to figure out the correct journal "	\
+	"entry by applying the common definitions of 'debit' and "	\
+	"'credit' to the transaction. "					\
+	"Unfortunitely, the common definitions are ambiguous and won't "\
+	"help. "							\
+	"The debit/credit terms were formed from the bank's "		\
+	"perspective back when bank services were simple.\n"		\
+	"<br />"							\
+	"<br />It's important to get used to the fact that 'Debit' "	\
+	"means the left column, and 'Credit' means the right column.\n"	\
+	"<br />"							\
+	"<br />If the left column is posted to the Checking account, "	\
+	"then your assets increase. "					\
+	"If the right column is posted to the Checking account, then "	\
+	"your assets decrease.\n"					\
+	"<br />"							\
+	"<br />If the right column is posted to the Credit Card "	\
+	"account, then your liabilities increase. "			\
+	"If the left column is posted to the Credit Card account, "	\
+	"then your liabilities decrease.\n"				\
+
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
 	"<h3>Next Step</h3>\n"						\
 	"<p style=\"margin: 3\%;\">"					\

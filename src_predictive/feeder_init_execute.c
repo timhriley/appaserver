@@ -337,6 +337,9 @@ feeder_init_display_continue:
 		}
 
 		printf( "%s\n",
+			FEEDER_INIT_DEBIT_CREDIT_MESSAGE );
+
+		printf( "%s\n",
 			FEEDER_INIT_UPLOAD_MESSAGE );
 	}
 

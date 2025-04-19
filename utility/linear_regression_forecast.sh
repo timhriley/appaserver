@@ -22,6 +22,12 @@ cat > $regression_out
 a=`grep ^a $regression_out | column.e 1`
 b=`grep ^b $regression_out | column.e 1`
 
+if [ "$a" = "" ]
+then
+	echo "0,0"
+	exit 0
+fi
+
 slope_expression=`bc.sh $forecast_julian x $a`
 forecast=`bc.sh $slope_expression + $b`
 
