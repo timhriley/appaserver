@@ -61,9 +61,9 @@
 	"PredictBooks implements "					  \
 	"<a href=https://en.wikipedia.org/wiki/Double-entry_bookkeeping " \
 	"target=_new>double-entry bookkeeping</a>. Each transaction is "  \
-	"timestamped to the second. This opening entry is timestamped "   \
-	"to midnight. No two transactions can share the "   		  \
-	"same second. Here is your opening entry transaction:"
+	"timestamped to the second. "					  \
+	"This opening entry is timestamped to midnight. "		  \
+	"No two transactions can share the same second."
 
 #define FEEDER_INIT_TRIAL_BALANCE_MESSAGE				\
 	"<h3>Trial Balance</h3>\n"					\
@@ -71,52 +71,52 @@
 	"The Trial Balance is the first financial statement to "	\
 	"generate.\n"							\
 	"<br />"							\
-	"<br />Journal entries with a Checking account <i>debit</i> "	\
-	"amount (the left column) will <i>increase</i> the Checking "	\
+	"<br />Journal entries with a checking account <i>debit</i> "	\
+	"amount (the left column) will <i>increase</i> the checking "	\
 	"balance. The corresponding <i>credit</i> amount (the right "	\
         "column) will probably be a revenue (income) account.\n"	\
 	"<br />"							\
-	"<br />Journal entries with a Checking account <i>credit</i> "	\
-	"amount (the right column) will <i>decrease</i> the Checking "	\
+	"<br />Journal entries with a checking account <i>credit</i> "	\
+	"amount (the right column) will <i>decrease</i> the checking "	\
 	"balance. The corresponding <i>debit</i> amount "		\
 	"(the left column) will probably be an expense account.\n"	\
 	"<br />"							\
-	"<br />If the journal entry above is for a Checking account, "	\
+	"<br />If the journal entry above is for a checking account, "	\
 	"the <i>credit</i> amount is posted to the Net Asset account. "	\
 	"Net Asset is an Equity element. Equity elements are rarely "	\
 	"used to record normal activities. However, this opening "	\
 	"entry is not a normal activity.\n"				\
 	"<br />"							\
-	"<br /><big>Become familiar with the seven elements</big>. "	\
+	"<br /><i>Become familiar with the seven elements</i>. "	\
 	"See Lookup --> Transaction --> Element\n"			\
 	"<br />"							\
 	"<br />The only normal activity that will post to an Equity "	\
-	"element is when you transfer money from your checking account "\
-	"to pay down your credit card account. The transfer activity "	\
-	"generates two transactions. "					\
-	"One transaction posts the decrease in checking cash. "		\
+	"element is when you transfer money from your checking asset "	\
+	"to pay down your credit card liability. "			\
+	"The transfer activity generates two transactions. "		\
+	"One transaction posts the decrease in checking asset. "	\
 	"The other transaction posts the decrease in "			\
 	"credit card liability. The common account in both "		\
 	"transactions is called Credit Card Passthru. It is an Equity "	\
-	"account.\n"							\
+	"element.\n"							\
 	"<br />"							\
 	"<br />Your Trial Balance follows. It contains Bookkeeping "	\
 	"rule #1.\n"							\
 	"<br />"							\
 	"<br />Bookkeeping rule #1: Total Debit = Total Credit\n"	\
 	"<br />"							\
-	"<br />If Total Debit != Total Credit, then <i>stop</i> "	\
-	"generating financial statements. "				\
-	"Instead, execute Audit --> Ledger Debit Credit Audit"
+	"<br />If Total Debit != Total Credit, then <i>stop</i>. "	\
+	"Execute: Audit --> Ledger Debit Credit Audit"
 
 #define FEEDER_INIT_ACTIVITY_MESSAGE					\
 	"<h3>Statement of Activities</h3>\n"				\
 	"<p style=\"margin: 3\%;\">"					\
 	"The second financial statement to generate is the Statement "	\
 	"of Activities. It will be blank if there are no activities. "	\
-	"Common activities are revenue (income) and expense "		\
-	"transactions. "						\
-	"Uncommon actitites are gain and loss transactions.\n"		\
+	"The Statement of Activities summarizes the common activities "	\
+	"of revenue (income) and expense transactions. "		\
+	"Omitted from the statement are the uncommon actitites of gain "\
+	"and loss transactions.\n"					\
 	"<br />"							\
 	"<br />A note about bookkeeping jargon: "			\
 	"The elements of revenue, expense, gain, and loss are known "	\
@@ -144,7 +144,7 @@
 	"credit mean the same thing and don't apply today. "		\
 	"<br />"							\
 	"<br />The debit/credit terms were formed from the bank's "	\
-	"perspective back when banks' bookkeeping were simple. "	\
+	"perspective back when a bank's bookkeeping was simple. "	\
 	"In the past, when a bank received a deposit, it was logged to "\
 	"the left column and generated a <i>debt</i> to the bank. "	\
 	"When a bank gave out a loan, it was logged to the right "	\
@@ -152,10 +152,12 @@
 	"Banks no longer log their bookkeeping records this way, but "	\
 	"the debit/credit terms remain."				\
 	"<br />"							\
-	"<br />It is important to get used to the fact that 'Debit' "	\
-	"means the left column and 'Credit' means the right column."	\
-	"The Checking account asset accumulates on the left; "		\
-	"the Credit Card liability accumulates on the right."
+	"<br />It is important to get used to the fact that 'debit' "	\
+	"means the left column and 'credit' means the right column. "	\
+	"The checking account asset accumulates on the left; "		\
+	"the credit card liability accumulates on the right. If you "	\
+	"need a reminder of this, see Lookup --> Transaction --> "	\
+	"Element"
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
 	"<h3>Next Step</h3>\n"						\
@@ -169,12 +171,12 @@
 	"<br />In this feeder file, each transaction is described with "\
 	"some text that contains the vendor's name. "			\
 	"PredictBooks calls the vendor's name and any descriptive "	\
-	"words a feeder phrase.\n"					\
+	"words a <i>feeder phrase</i>.\n"				\
 	"<br />"							\
 	"<br />Execute the Feeder Upload process with "			\
 	"Execute yn set to 'No' or left as 'Select'. "			\
 	"A Feeder Error Table will display containing a row for each "	\
-	"activity that will not generate a journal entry. "		\
+	"activity that will not yet generate a journal entry. "		\
 	"Each row contains the vendor's name. "				\
 	"Copy and paste the vendor's name and any adjoining "		\
 	"descriptive words into the following path:\n"			\
@@ -183,8 +185,25 @@
 	"<br />"							\
 	"<br />Hint: [Right Click] your browser's tab and select "	\
 	"Duplicate Tab. You will then have two instances of "		\
-	"PredictBooks open. One tab is for the Feeder Upload process. "	\
-	"The other tab is for Feeder --> Insert Feeder Phrase.\n"
+	"PredictBooks open. The left tab is for the Feeder Upload "	\
+	"process. "							\
+	"The right tab is for Feeder --> Insert Feeder Phrase.\n"	\
+	"<br />"							\
+	"<br />If you manually write a check, then enter the "		\
+	"transaction using the path: Feeder --> Insert Expense "	\
+	"Transaction. The transaction will be posted to the Uncleared "	\
+	"Checks liability account. When the check clears, it will "	\
+	"appear in a feeder file. PredictBooks will seek out the check "\
+	"number and reassign the transaction to the checking account.\n"\
+	"<h3>Pay Liabilities</h3>\n"					\
+	"<p style=\"margin: 3\%;\">"					\
+	"PredictBooks generates checks to print. "			\
+	"Printable check paper is available from your bank. "		\
+	"To generate a check, the transaction needs to be entered via " \
+	"the menu path: Insert --> Transaction --> Transaction. "	\
+	"The debit column will likely be an expense account. Set the "	\
+	"credit column to Account Payable. "				\
+	"To print the check, execute: Alter --> Pay Liabilities"
 
 #define FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE 				\
 	"<h3>Messages Available</h3>\n"					\
