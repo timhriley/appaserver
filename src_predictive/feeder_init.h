@@ -141,7 +141,7 @@
 	"entry by applying the common definitions of 'debit' and "	\
 	"'credit' to the transaction. "					\
 	"Unfortunitely, the common definitions of debt and "		\
-	"credit mean the same thing and don't apply today. "		\
+	"credit mean the same thing and don't apply.\n"			\
 	"<br />"							\
 	"<br />The debit/credit terms were formed from the bank's "	\
 	"perspective back when a bank's bookkeeping was simple. "	\
