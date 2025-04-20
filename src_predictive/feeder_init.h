@@ -115,7 +115,7 @@
 	"of Activities. It will be blank if there are no activities. "	\
 	"The Statement of Activities summarizes the common activities "	\
 	"of revenue (income) and expense transactions. "		\
-	"It also summerizes the uncommon actitites of gain and loss "	\
+	"It also summarizes the uncommon actitites of gain and loss "	\
 	"transactions.\n"						\
 	"<br />"							\
 	"<br />A note about bookkeeping jargon: "			\
