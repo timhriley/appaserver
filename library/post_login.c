@@ -77,15 +77,15 @@ POST_LOGIN *post_login_new(
 	&&   !post_login->post_login_input->user_not_found_boolean )
 	{
 		post_login->security_encrypt_password =
-			/* ---------------------------------------- */
-			/* Returns database_password or heap memory */
-			/* ---------------------------------------- */
+			/* ------------------------------- */
+			/* Returns password or heap memory */
+			/* ------------------------------- */
 			post_login_security_encrypt_password(
 				post_login->post_login_input->form_password,
 				post_login->
 					post_login_input->
 					appaserver_user->
-					database_password );
+					password );
 
 	}
 
@@ -101,7 +101,7 @@ POST_LOGIN *post_login_new(
 				post_login->
 					post_login_input->
 					appaserver_user->
-					database_password,
+					password,
 				post_login->
 					post_login_input->
 					form_password_blank_boolean,
@@ -482,22 +482,22 @@ char *post_login_success_email_system_string(
 
 char *post_login_security_encrypt_password(
 		char *post_login_password,
-		char *database_password )
+		char *appaserver_user_password )
 {
 	enum password_function password_function;
 
-	/* If database_password isn't encrypted */
-	/* ------------------------------------ */
+	/* If appaserver_user_password isn't encrypted */
+	/* ------------------------------------------- */
 	if ( string_strcmp(
-		database_password,
+		appaserver_user_password,
 		post_login_password ) == 0 )
 	{
-		return database_password;
+		return appaserver_user_password;
 	}
 
 	password_function =
-		security_database_password_function(
-			database_password );
+		security_password_function(
+			appaserver_user_password );
 
 	return
 	/* ------------------- */
@@ -547,11 +547,14 @@ POST_LOGIN_SUCCESS *post_login_success_new(
 
 	post_login_success = post_login_success_calloc();
 
-	post_login_success->session_key =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		session_key( application_name );
+	post_login_success->session =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		session_new(
+			application_name,
+			login_name,
+			1 /* appaserver_user_boolean */ );
 
 	post_login_success->output_pipe_string =
 		/* ------------------- */
@@ -566,7 +569,7 @@ POST_LOGIN_SUCCESS *post_login_success_new(
 			/* Returns component of global_appaserver_parameter */
 			/* ------------------------------------------------ */
 			appaserver_parameter_document_root(),
-			post_login_success->session_key );
+			post_login_success->session->session_key );
 
 	post_login_success->appaserver_error_filename =
 		/* ------------------- */
@@ -581,7 +584,7 @@ POST_LOGIN_SUCCESS *post_login_success_new(
 		/* ------------------- */
 		execute_system_string_frameset(
 		   FRAMESET_EXECUTABLE,
-		   post_login_success->session_key,
+		   post_login_success->session->session_key,
 		   login_name,
 		   post_login_success->output_pipe_string,
 		   post_login_success->appaserver_error_filename );
@@ -604,7 +607,7 @@ POST_LOGIN_SUCCESS *post_login_success_new(
 			post_login_success_email_link_url(
 				POST_LOGIN_EMAIL_HTTP_TEMPLATE,
 				application_name,
-				post_login_success->session_key );
+				post_login_success->session->session_key );
 
 		post_login_success->sendmail_message =
 			/* --------------------- */
@@ -972,7 +975,7 @@ boolean post_login_input_invalid_login_name_boolean( char *login_name )
 }
 
 char *post_login_input_login_name(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		DICTIONARY *dictionary )
 {
 	char *login_name = {0};
@@ -980,7 +983,7 @@ char *post_login_input_login_name(
 
 	get =
 		dictionary_get(
-			(char *)appaserver_user_primary_key,
+			(char *)appaserver_user_login_name,
 			dictionary );
 
 	if ( get ) login_name = string_low( get );
@@ -997,14 +1000,14 @@ boolean post_login_user_not_found_boolean( APPASERVER_USER *appaserver_user )
 }
 
 boolean post_login_input_deactivated_boolean(
-		char *database_password,
+		char *appaserver_user_password,
 		boolean deactivated_boolean,
 		boolean public_boolean )
 {
 	if ( deactivated_boolean ) return 1;
 	if ( public_boolean ) return 0;
 
-	if ( database_password )
+	if ( appaserver_user_password )
 		return 0;
 	else
 		return 1;
@@ -1020,7 +1023,7 @@ boolean post_login_input_form_password_blank_boolean( char *form_password )
 
 boolean post_login_password_fail_boolean(
 		boolean email_address_boolean,
-		char *database_password,
+		char *appaserver_user_password,
 		boolean form_password_blank_boolean,
 		char *security_encrypt_password )
 {
@@ -1033,7 +1036,7 @@ boolean post_login_password_fail_boolean(
 	return
 	( string_strcmp(
 		security_encrypt_password,
-		database_password ) != 0 );
+		appaserver_user_password ) != 0 );
 }
 
 char *post_login_document_filename( DICTIONARY *dictionary )
@@ -1191,7 +1194,7 @@ POST_LOGIN_INPUT *post_login_input_new(
 		/* Returns component of dictionary, or null. */
 		/* ----------------------------------------- */
 		post_login_input_login_name(
-			APPASERVER_USER_PRIMARY_KEY,
+			APPASERVER_USER_LOGIN_NAME,
 			post_login_input->dictionary );
 
 	post_login_input->missing_login_name_boolean =
@@ -1234,7 +1237,7 @@ POST_LOGIN_INPUT *post_login_input_new(
 		return post_login_input;
 
 	post_login_input->appaserver_user =
-		appaserver_user_fetch(
+		appaserver_user_login_fetch(
 			post_login_input->login_name,
 			0 /* not fetch_role_name_list */ );
 
@@ -1253,7 +1256,7 @@ POST_LOGIN_INPUT *post_login_input_new(
 		post_login_input_deactivated_boolean(
 			post_login_input->
 				appaserver_user->
-				database_password,
+				password,
 			post_login_input->
 				appaserver_user->
 				deactivated_boolean,

@@ -12,7 +12,6 @@
 #include "process.h"
 
 #define ROLE_TABLE 			"role"
-#define ROLE_APPASERVER_USER_TABLE	"role_appaserver_user"
 
 #define ROLE_PERMISSION_LOOKUP		"lookup"
 #define ROLE_PERMISSION_INSERT		"insert"
@@ -28,6 +27,9 @@
 
 #define ROLE_ATTRIBUTE_EXCLUDE_TABLE	"column_exclude"
 #define ROLE_ATTRIBUTE_EXCLUDE_SELECT	"column_name,permission"
+
+#define ROLE_PROCESS_SELECT		"process"
+#define ROLE_PROCESS_TABLE		"role_process"
 
 typedef struct
 {
@@ -184,35 +186,6 @@ ROLE *role_calloc(
 /* ----- */
 LIST *role_name_list(
 		const char *role_table );
-
-typedef struct
-{
-	/* stub */
-} ROLE_APPASERVER_USER;
-
-/* Usage */
-/* ----- */
-LIST *role_appaserver_user_role_name_list(
-		char *login_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *role_appaserver_user_where(
-		char *role_login_name_column,
-		char *login_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *role_appaserver_user_system_string(
-		char *role_name_column,
-		char *role_appaserver_user_table,
-		char *role_appaserver_user_where );
-
-#define ROLE_PROCESS_SELECT		"process"
-#define ROLE_PROCESS_TABLE		"role_process"
 
 typedef struct
 {

@@ -21,13 +21,12 @@
 #include "appaserver.h"
 #include "sql.h"
 #include "appaserver_user.h"
+#include "appaserver.h"
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
 #include "environ.h"
 #include "session.h"
-
-#define SLEEP_SECONDS	2
 
 void session_message_ip_address_changed_exit(
 		char *application_name,
@@ -75,7 +74,7 @@ void session_message_ip_address_changed_exit(
 	printf( "<h3>%s</h3>\n", msg );
 
 	document_close();
-	sleep( SLEEP_SECONDS );
+	sleep( SESSION_SLEEP_SECONDS );
 	exit( 1 );
 }
 
@@ -91,7 +90,7 @@ void session_sql_injection_message_exit(
 		argv_0,
 		environment_remote_ip_address );
 
-	sleep( SLEEP_SECONDS );
+	sleep( SESSION_SLEEP_SECONDS );
 	exit( 1 );
 }
 
@@ -116,7 +115,7 @@ void session_access_failed_message_exit(
 	printf( "<h3>%s</h3>\n", msg );
 
 	document_close();
-	sleep( SLEEP_SECONDS );
+	sleep( SESSION_SLEEP_SECONDS );
 	exit( 1 );
 }
 
@@ -137,66 +136,67 @@ SESSION *session_calloc( void )
 	return session;
 }
 
-void session_update_access_date_time( char *session )
+char *session_update_sql(
+		const char *session_table,
+		char *session_key,
+		char *session_last_access_date,
+		char *session_last_access_time )
 {
-	DATE *now;
-	char system_string[ 1024 ];
+	static char update_sql[ 256 ];
 
-	now = date_now_new( date_utc_offset() );
+	if ( !session_key
+	||   !session_last_access_date
+	||   !session_last_access_time )
+	{
+		char message[ 128 ];
 
-	sprintf( system_string,
-		 "echo \"update %s					 "
-		 "	 set last_access_date = '%s',			 "
-		 "	     last_access_time = '%s'			 "
-		 "	 where session = '%s';\"			|"
-		 "sql 1>&2 &						 ",
-		 SESSION_TABLE,
-		 date_yyyy_mm_dd_static_display( now ),
-		 date_hhmm_static_display( now ),
-		 session );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
 
-	if ( system( system_string ) ){}
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		update_sql,
+		sizeof ( update_sql ),
+		"update %s "
+		"set last_access_date = '%s', "
+		"last_access_time = '%s' "
+		"where session = '%s';",
+		session_table,
+		session_key,
+		session_last_access_date,
+		session_last_access_time );
+
+	return update_sql;
 }
 
-boolean session_remote_ip_address_changed(
+boolean session_remote_ip_address_changed_boolean(
 		char *remote_ip_address,
 		char *current_ip_address )
 {
-	return ( string_strcmp(
-			remote_ip_address,
-			current_ip_address ) != 0 );
-}
-
-LIST *session_system_list( char *system_string )
-{
-	FILE *pipe;
-	SESSION *session;
-	char input[ 1024 ];
-	LIST *list = {0};
-
-	pipe = popen( system_string, "r" );
-
-	while ( string_input( input, pipe, 1024 ) )
-	{
-		if ( ( session = session_parse( input ) ) )
-		{
-			if ( !list ) list = list_new();
-			list_set( list, session );
-		}
-	}
-
-	pclose( pipe );
-	return list;
+	return
+	( string_strcmp(
+		remote_ip_address,
+		current_ip_address ) != 0 );
 }
 
 char *session_system_string(
-		char *session_select,
-		char *session_table,
+		const char *session_select,
+		const char *session_table,
 		char *where )
 {
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh '%s' %s \"%s\" none",
 		session_select,
 		session_table,
@@ -205,40 +205,56 @@ char *session_system_string(
 	return strdup( system_string );
 }
 
-SESSION *session_parse(	char *input )
+SESSION *session_parse(
+		boolean appaserver_user_boolean,
+		char *string_fetch )
 {
 	SESSION *session;
-	char buffer[ 1024 ];
+	char buffer[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
 
-	if ( !input || !*input ) return (SESSION *)0;
+	if ( !string_fetch ) return NULL;
 
 	session = session_calloc();
 
 	/* See SESSION_SELECT */
 	/* ------------------ */
-	piece( buffer, SQL_DELIMITER, input, 0 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 0 );
 	session->session_key = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	if ( *buffer ) session->login_name = strdup( buffer );
+	piece( full_name, SQL_DELIMITER, string_fetch, 1 );
+	piece( street_address, SQL_DELIMITER, string_fetch, 2 );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 3 );
 	if ( *buffer ) session->login_date = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 4 );
 	if ( *buffer ) session->login_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 5 );
 	if ( *buffer ) session->last_access_date = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 6 );
 	if ( *buffer ) session->last_access_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 6 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 7 );
 	if ( *buffer ) session->http_user_agent = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 8 );
 	if ( *buffer ) session->remote_ip_address = strdup( buffer );
+
+	if ( appaserver_user_boolean )
+	{
+		if ( ! ( session->appaserver_user =
+				appaserver_user_fetch(
+					full_name,
+					street_address,
+					0 /* not fetch_role_name_list */ ) ) )
+		{
+			return NULL;
+		}
+	}
 
 	return session;
 }
@@ -287,20 +303,23 @@ char *session_primary_where( char *session_key )
 SESSION *session_fetch(
 		char *application_name,
 		char *session_key,
-		char *login_name )
+		char *login_name,
+		boolean appaserver_user_boolean )
 {
 	SESSION *session;
+	char *current_ip_address;
 
 	session =
 		session_parse(
+			appaserver_user_boolean,
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			string_pipe_fetch(
+			string_fetch(
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
-				session_system_string(
+				appaserver_system_string(
 					SESSION_SELECT,
 					SESSION_TABLE,
 					/* --------------------- */
@@ -309,33 +328,27 @@ SESSION *session_fetch(
 					session_primary_where(
 					      	session_key ) ) ) );
 
-	if ( !session
-	||   ( login_name
-	&&     string_strcmp(
-		session->login_name,
-		login_name ) != 0 ) )
+	current_ip_address =
+		session_current_ip_address(
+			environment_remote_ip_address(
+				ENVIRONMENT_REMOTE_ADDR_KEY ) );
+
+	if ( !session )
 	{
 		session_access_failed_message_exit(
 			application_name,
 			login_name,
-			session_current_ip_address(
-				environment_remote_ip_address(
-					ENVIRONMENT_REMOTE_KEY ) ) );
+			current_ip_address );
 	}
 
-	session->application_name = application_name;
+	session->current_ip_address = current_ip_address;
 
-	session->current_ip_address =
-		/* ---------------------------- */
-		/* Returns heap memory or exits */
-		/* ---------------------------- */
-		session_current_ip_address(
-			environment_remote_ip_address(
-				ENVIRONMENT_REMOTE_KEY ) );
+	session->remote_ip_address_changed_boolean =
+		session_remote_ip_address_changed_boolean(
+			session->remote_ip_address,
+			session->current_ip_address );
 
-	if ( session_remote_ip_address_changed(
-		session->remote_ip_address,
-		session->current_ip_address ) )
+	if ( session->remote_ip_address_changed_boolean )
 	{
 		session_message_ip_address_changed_exit(
 			application_name,
@@ -345,8 +358,44 @@ SESSION *session_fetch(
 			session->current_ip_address );
 	}
 
-	session_update_access_date_time( session_key );
-	session_purge_temporary_files( application_name );
+	session->last_access_date =
+		/* --------------------*/
+		/* Returns heap memory */
+		/* --------------------*/
+		session_last_access_date();
+
+	session->last_access_time =
+		/* --------------------*/
+		/* Returns heap memory */
+		/* --------------------*/
+		session_last_access_time();
+
+	session->update_sql =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		session_update_sql(
+			SESSION_TABLE,
+			session_key,
+			session->last_access_date,
+			session->last_access_time );
+
+	(void)sql_execute(
+		SQL_EXECUTABLE,
+		appaserver_error_filespecification( application_name ),
+		(LIST *)0 /* sql_list */,
+		session->update_sql );
+
+	session->purge_temporary_files_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		session_purge_temporary_files_system_string(
+			application_name );
+
+	if ( system(
+		session->
+			purge_temporary_files_system_string ) ){}
 
 	return session;
 }
@@ -387,7 +436,7 @@ SESSION_PROCESS *session_process_integrity_exit(
 		session_sql_injection_message_exit(
 			argv[ 0 ],
 			environment_remote_ip_address(
-				ENVIRONMENT_REMOTE_KEY ) );
+				ENVIRONMENT_REMOTE_ADDR_KEY ) );
 	}
 
 	session_environment_set( application_name );
@@ -407,7 +456,8 @@ SESSION_PROCESS *session_process_integrity_exit(
 		session_fetch(
 			application_name,
 			session_key,
-			login_name );
+			login_name,
+			1 /* appaserver_user_boolean */ );
 
 	session_process->role_name =
 		/* ---------------------------- */
@@ -492,37 +542,33 @@ void session_environment_set( char *application_name )
 	environment_session_set( application_name );
 }
 
-char *session_login_name( char *session_key )
+char *session_purge_temporary_files_system_string( char *application_name )
 {
-	SESSION *session;
+	static char system_string[ 128 ];
 
-	if ( ! ( session =
-			session_parse(
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				string_pipe_fetch(
-					session_system_string(
-						SESSION_SELECT,
-						SESSION_TABLE,
-						session_primary_where(
-							session_key ) ) ) ) ) )
+	if ( !application_name )
 	{
-		return NULL;
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"application_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	return session->login_name;
-}
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"appaserver_purge_temporary_files.sh %s &",
+		application_name );
 
-void session_purge_temporary_files( char *application_name )
-{
-	char sys_string[ 128 ];
-
-	sprintf( sys_string,
-		 "appaserver_purge_temporary_files.sh %s &",
-		 application_name );
-
-	if ( system( sys_string ) ){};
+	return system_string;
 }
 
 boolean session_sql_injection_strcmp_okay(
@@ -681,7 +727,8 @@ SESSION_FOLDER *session_folder_integrity_exit(
 		session_fetch(
 			session_folder->application_name,
 			session_folder->session_key,
-			session_folder->login_name );
+			session_folder->login_name,
+			1 /* appaserver_user_boolean */ );
 
 	session_folder->role_folder_list =
 		role_folder_list(
@@ -797,9 +844,39 @@ SESSION_PROCESS *session_process_calloc( void )
 	return session_process;
 }
 
-void session_delete( char *session_key )
+void session_delete(
+		const char *session_table,
+		char *application_name,
+		char *session_key )
 {
-	char system_string[ 1024 ];
+	if ( !application_name
+	||   !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	(void)sql_execute(
+		SQL_EXECUTABLE,
+		appaserver_error_filespecification( application_name ),
+		(LIST *)0 /* sql_list */,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		session_delete_sql(
+			session_table,
+			session_key ) );
+}
+
+char *session_delete_sql(
+		const char *session_table,
+		char *session_key )
+{
+	static char delete_sql[ 128 ];
 
 	if ( !session_key )
 	{
@@ -811,38 +888,84 @@ void session_delete( char *session_key )
 		exit( 1 );
 	}
 
-	sprintf(system_string,
-		"echo \"delete from %s where session = '%s';\" | sql",
-		SESSION_TABLE,
+	snprintf(
+		delete_sql,
+		sizeof ( delete_sql ),
+		"delete from %s where session = '%s';",
+		session_table,
 		session_key );
 
-	if ( system( system_string ) ){}
+	return delete_sql;
+}
+
+char *session_insert_string(
+		char *session_key,
+		char *login_date,
+		char *login_time,
+		char *remote_ip_address,
+		char *http_user_agent,
+		APPASERVER_USER *appaserver_user )
+{
+	char insert_string[ 1024 ];
+
+	if ( !session_key
+	||   !login_date
+	||   !login_time
+	||   !remote_ip_address
+	||   !http_user_agent )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		insert_string,
+		sizeof ( insert_string ),
+		"%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+		session_key,
+		(appaserver_user) ? appaserver_user->full_name : "",
+		(appaserver_user) ? appaserver_user->street_address : "",
+		login_date,
+		login_time,
+		login_date,
+		login_time,
+		http_user_agent,
+		remote_ip_address );
+
+	return strdup( insert_string );
 }
 
 void session_insert(
-		const char *session_table,
-		const char *session_insert_columns,
-		char *session_key,
-		char *login_name,
-		char *login_date,
-		char *login_time,
-		char *http_user_agent,
-		char *remote_ip_address )
+		char *insert_string,
+		char *insert_system_string )
 {
 	FILE *output_pipe;
 
-	if ( !session_key
-	||   !login_time
-	||   !login_time
-	||   !http_user_agent
-	||   !remote_ip_address )
+	if ( !insert_string
+	||   !insert_system_string )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
 	}
 
 	output_pipe =
@@ -850,23 +973,12 @@ void session_insert(
 		/* Safely returns */
 		/* -------------- */
 		appaserver_output_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			session_insert_system_string(
-				session_table,
-				session_insert_columns ) );
+			insert_system_string );
 
-	fprintf(output_pipe,
-		"%s|%s|%s|%s|%s|%s|%s|%s\n",
-		session_key,
-		(login_name) ? login_name : "",
-		login_date,
-		login_time,
-		login_date,
-		login_time,
-		http_user_agent,
-		remote_ip_address );
+	fprintf(
+		output_pipe,
+		"%s\n",
+		insert_string );
 
 	pclose( output_pipe );
 }
@@ -886,7 +998,9 @@ char *session_key( char *application_name )
 		exit( 1 );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"session_number_new.sh %s",
 		application_name );
 
@@ -914,8 +1028,7 @@ char *session_right_trim( char *filename_session )
 
         ptr = filename_session + strlen( filename_session ) - 1;
 
-        while ( *ptr && isdigit( *ptr ) )
-        	ptr--;
+        while ( *ptr && isdigit( *ptr ) ) ptr--;
 
 	if ( *ptr == '_' )
 	{
@@ -923,17 +1036,6 @@ char *session_right_trim( char *filename_session )
 	}
 
         return filename_session;
-}
-
-void session_access_or_exit(
-		char *application_name,
-		char *session_key,
-		char *login_name )
-{
-	(void)session_fetch(
-		application_name,
-		session_key,
-		login_name );
 }
 
 char *session_http_user_agent(
@@ -988,8 +1090,7 @@ char *session_last_access_date( void )
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	date_now_yyyy_mm_dd(
-		date_utc_offset() );
+	session_login_date();
 }
 
 char *session_last_access_time( void )
@@ -998,8 +1099,7 @@ char *session_last_access_time( void )
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	date_now_hhmm(
-		date_utc_offset() );
+	session_login_time();
 }
 
 char *session_insert_system_string(
@@ -1023,14 +1123,12 @@ char *session_insert_system_string(
 SESSION *session_new(
 		char *application_name,
 		char *login_name,
-		char *environment_http_user_agent,
-		char *environment_remote_ip_address )
+		boolean appaserver_user_boolean )
 {
 	SESSION *session;
 
 	if ( !application_name
-	||   !environment_http_user_agent
-	||   !environment_remote_ip_address )
+	||   !login_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1041,11 +1139,6 @@ SESSION *session_new(
 	}
 
 	session = session_calloc();
-
-	session->application_name = application_name;
-	session->login_name = login_name;
-	session->environment_http_user_agent = environment_http_user_agent;
-	session->remote_ip_address = environment_remote_ip_address;
 
 	/* Returns heap memory */
 	/* ------------------- */
@@ -1065,7 +1158,67 @@ SESSION *session_new(
 		/* --------------------*/
 		session_http_user_agent(
 			SESSION_USER_AGENT_WIDTH,
-			environment_http_user_agent );
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			environment_http_user_agent(
+				ENVIRONMENT_HTTP_USER_AGENT_KEY ) );
+
+	session->remote_ip_address =
+		/* ---------------------------- */
+		/* Returns heap memory or exits */
+		/* ---------------------------- */
+		session_current_ip_address(
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			environment_remote_ip_address(
+				ENVIRONMENT_REMOTE_ADDR_KEY ) );
+
+	if ( appaserver_user_boolean )
+	{
+		session->appaserver_user =
+			appaserver_user_login_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */ );
+
+		if ( !session->appaserver_user )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+				login_name );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+	}
+
+	session->insert_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		session_insert_string(
+			session->session_key,
+			session->login_date,
+			session->login_time,
+			session->http_user_agent,
+			session->remote_ip_address,
+			session->appaserver_user );
+
+	session->insert_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		session_insert_system_string(
+			SESSION_TABLE,
+			SESSION_INSERT );
 
 	return session;
 }

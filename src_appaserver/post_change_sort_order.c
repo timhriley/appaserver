@@ -90,9 +90,9 @@ int main( int argc, char **argv )
 	if ( strcmp( sort_state, "one" ) == 0 )
 	{
 		state_one(
-			session_folder->session->application_name,
+			session_folder->application_name,
 			session_folder->session->session_key,
-			session_folder->session->login_name,
+			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name,
 			post_dictionary->original_post_dictionary );
@@ -103,8 +103,8 @@ int main( int argc, char **argv )
 		document_content_type_output();
 
 		state_two(
-			session_folder->session->application_name,
-			session_folder->session->login_name,
+			session_folder->application_name,
+			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name,
 			post_dictionary->original_post_dictionary );

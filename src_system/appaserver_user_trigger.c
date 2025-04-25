@@ -65,7 +65,8 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) == 0 )
 	{
 		appaserver_user_update(
-			password /* database_password */,
+			APPASERVER_USER_TABLE,
+			password,
 			login_name );
 	}
 

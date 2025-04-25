@@ -133,12 +133,14 @@ boolean security_system_string_valid_boolean(
 FILE *security_read_pipe(
 		char *system_string );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 enum password_function
-	security_database_password_function(
+	security_password_function(
 		char *database_password );
 
+/* Public */
+/* ------ */
 enum password_function
 	security_mysql_version_password_function(
 		char *mysql_version );

@@ -33,20 +33,29 @@ boolean security_password_match(
 		database_password ) == 0 );
 }
 
-enum password_function
-	security_database_password_function(
-		char *database_password )
+enum password_function security_password_function(
+		char *password )
 {
 	int str_len;
 
-	str_len = strlen( database_password );
+	if ( !password )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: password is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	str_len = strlen( password );
 
 	if ( str_len == 16 )
 	{
 		return old_password_function;
 	}
 	else
-	if ( str_len == 41 && *database_password == '*' )
+	if ( str_len == 41 && *password == '*' )
 	{
 		return regular_password_function;
 	}
@@ -245,7 +254,7 @@ boolean security_password_encrypted( char *password )
 	enum password_function password_function;
 
 	password_function =
-		security_database_password_function(
+		security_password_function(
 			password );
 
 	if ( password_function == no_encryption )

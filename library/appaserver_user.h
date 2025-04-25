@@ -12,13 +12,25 @@
 #include "security.h"
 
 #define APPASERVER_USER_TABLE		"appaserver_user"
-#define APPASERVER_USER_PRIMARY_KEY	"login_name"
+
+#define APPASERVER_USER_SELECT		"full_name,"		\
+					"street_address,"	\
+					"login_name,"		\
+					"password,"		\
+					"user_date_format,"	\
+					"deactivated_yn"
+
+#define APPASERVER_USER_LOGIN_NAME	"login_name"
 
 typedef struct
 {
-	char *login_name;
 	char *full_name;
+	char *street_address;
+	char *login_name;
+	char *password;
+	char *user_date_format;
 	boolean deactivated_boolean;
+	LIST *role_appaserver_user_name_list;
 
 	/* Set externally */
 	/* -------------- */
@@ -27,10 +39,7 @@ typedef struct
 	/* -------------------------------- */
 	char *typed_in_password;
 
-	char *database_password;
 	char *encrypted_password;
-	char *user_date_format;
-	LIST *role_name_list;
 	enum password_function password_function;
 	boolean appaserver_user_password_encrypted;
 } APPASERVER_USER;
@@ -38,27 +47,16 @@ typedef struct
 /* Usage */
 /* ----- */
 
-APPASERVER_USER *appaserver_user_fetch(
+/* Safely returns */
+/* -------------- */
+APPASERVER_USER *appaserver_user_login_fetch(
 		char *login_name,
 		boolean fetch_role_name_list );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *appaserver_user_select(
-		boolean full_name_exists,
-		boolean person_full_name_exists );
-
 /* Usage */
 /* ----- */
-
-/* Returns null if login_name not found */
-/* ------------------------------------ */
 APPASERVER_USER *appaserver_user_parse(
 		boolean fetch_role_name_list,
-		boolean full_name_exists,
 		char *input );
 
 /* Usage */
@@ -66,7 +64,8 @@ APPASERVER_USER *appaserver_user_parse(
 
 /* Returns static memory */
 /* --------------------- */
-char *appaserver_user_primary_where(
+char *appaserver_user_login_where(
+		const char *appaserver_user_login_name,
 		char *login_name );
 
 /* Usage */
@@ -75,7 +74,8 @@ char *appaserver_user_primary_where(
 /* Safely returns */
 /* -------------- */
 APPASERVER_USER *appaserver_user_new(
-		char *login_name );
+		char *full_name,
+		char *street_address );
 
 /* Process */
 /* ------- */
@@ -84,20 +84,10 @@ APPASERVER_USER *appaserver_user_calloc(
 
 /* Usage */
 /* ----- */
-void appaserver_user_update(
-		char *password,
-		char *login_name );
-
-/* Process */
-/* ------- */
-FILE *appaserver_user_update_open(
-		char *appaserver_user_table,
-		char *appaserver_user_primary_key );
-
-void appaserver_user_update_pipe(
-		FILE *update_open,
-		char *injection_escaped_password,
-		char *login_name );
+APPASERVER_USER *appaserver_user_fetch(
+		char *full_name,
+		char *street_address,
+		boolean fetch_role_name_list );
 
 /* Usage */
 /* ----- */
@@ -119,23 +109,28 @@ char *appaserver_user_date_convert_string(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_user_person_full_name(
-		char *login_name );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *appaserver_user_default_role_name(
-		char *login_name );
-
-/* Usage */
-/* ----- */
 LIST *appaserver_user_role_name_list(
+		char *login_name );
+
+/* Usage */
+/* ----- */
+/* --------- */
+/* To retire */
+/* --------- */
+void appaserver_user_update(
+		const char *appaserver_user_table,
+		char *password,
+		char *login_name );
+
+/* Process */
+/* ------- */
+FILE *appaserver_user_update_open(
+		const char *appaserver_user_table,
+		const char *appaserver_user_login_name );
+
+void appaserver_user_update_pipe(
+		FILE *update_open,
+		char *injection_escaped_password,
 		char *login_name );
 
 #endif

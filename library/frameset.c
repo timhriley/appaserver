@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "application.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
@@ -15,8 +16,9 @@
 #include "role.h"
 #include "folder.h"
 #include "choose_role.h"
-#include "String.h"
 #include "execute_system_string.h"
+#include "appaserver_user.h"
+#include "login_default_role.h"
 #include "frameset.h"
 
 FRAMESET *frameset_calloc( void )
@@ -94,12 +96,26 @@ FRAMESET *frameset_new(
 			/* ------------------------- */
 			application_title_string( application_name ) );
 
+	frameset->appaserver_user =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_user_login_fetch(
+			login_name,
+			1 /* fetch_role_name_list */ );
+
+	frameset->login_default_role_name =
+		login_default_role_name(
+			LOGIN_DEFAULT_ROLE_TABLE,
+			frameset->appaserver_user->full_name,
+			frameset->appaserver_user->street_address );
+
 	frameset->role_name =
 		frameset_role_name(
-			role_appaserver_user_role_name_list(
-				login_name ),
-			appaserver_user_default_role_name(
-				login_name ) );
+			frameset->
+				appaserver_user->
+				role_appaserver_user_name_list,
+			frameset->login_default_role_name );
 
 	if ( frameset->role_name )
 	{

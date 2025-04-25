@@ -68,17 +68,15 @@ int main( int argc, char **argv )
 
 	choose_isa =
 		choose_isa_new(
-			session_folder->session->application_name,
+			session_folder->application_name,
 			session_folder->session->session_key,
-			session_folder->session->login_name,
+			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name
 				/* insert_folder_name */,
 			one_isa_folder_name,
 			application_menu_horizontal_boolean(
-				session_folder->
-					session->
-					application_name ) );
+				session_folder->application_name ) );
 
 	if ( !choose_isa || !choose_isa->document_form_html )
 	{

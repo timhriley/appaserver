@@ -784,7 +784,7 @@ DRILLDOWN *drilldown_calloc( void )
 }
 
 void drilldown_table_edit_output(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		TABLE_EDIT *table_edit )
 {
@@ -819,7 +819,7 @@ void drilldown_table_edit_output(
 			row_list /* query_fetch_row_list */ );
 
 	table_edit_output(
-		appaserver_user_primary_key,
+		appaserver_user_login_name,
 		login_name,
 		table_edit->
 			table_edit_input->

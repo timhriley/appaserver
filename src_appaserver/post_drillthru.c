@@ -87,9 +87,9 @@ int main( int argc, char **argv )
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
-			session_folder->session->application_name,
+			session_folder->application_name,
 			session_folder->session->session_key,
-			session_folder->session->login_name,
+			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name,
 			session_folder->state,

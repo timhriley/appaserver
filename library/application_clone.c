@@ -122,14 +122,14 @@ APPLICATION_CLONE *application_clone_new(
 		application_clone_appaserver_user(
 			login_name );
 
-	if ( !application_clone->appaserver_user->database_password )
+	if ( !application_clone->appaserver_user->password )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"appaserver_user->database_password is empty." );
+			"appaserver_user->password is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -397,7 +397,7 @@ char *application_clone_insert_user_system_string(
 		(appaserver_user->full_name)
 			? appaserver_user->full_name
 			: "",
-		appaserver_user->database_password,
+		appaserver_user->password,
 		(appaserver_user->user_date_format)
 			? appaserver_user->user_date_format
 			: "",
@@ -499,7 +499,7 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 	}
 
 	if ( ( appaserver_user =
-		appaserver_user_fetch(
+		appaserver_user_login_fetch(
 			login_name,
 			0 /* not fetch_role_name_list */ ) ) )
 	{
@@ -511,9 +511,10 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_new(
-			login_name );
+			login_name /* full_name */,
+			"unknown" /* street_address */ );
 
-	appaserver_user->database_password =
+	appaserver_user->password =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */

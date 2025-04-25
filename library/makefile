@@ -34,6 +34,8 @@ APPASERVER_LIBRARY=						\
 		basename.o					\
 		role.o						\
 		role_folder.o					\
+		role_appaserver_user.o				\
+		login_default_role.o				\
 		folder_operation.o				\
 		token.o						\
 		make_date_time_between_compatable.o		\
@@ -477,6 +479,12 @@ vertical_new_post.o: vertical_new_post.c vertical_new_post.h
 
 role_folder.o: role_folder.c role_folder.h
 	${CC} ${CFLAGS} -c role_folder.c
+
+role_appaserver_user.o: role_appaserver_user.c role_appaserver_user.h
+	${CC} ${CFLAGS} -c role_appaserver_user.c
+
+login_default_role.o: login_default_role.c login_default_role.h
+	${CC} ${CFLAGS} -c login_default_role.c
 
 folder_operation.o: folder_operation.c folder_operation.h
 	${CC} ${CFLAGS} -c folder_operation.c

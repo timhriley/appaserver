@@ -99,6 +99,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
+		${LIBRARY}/role_appaserver_user.o			\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\

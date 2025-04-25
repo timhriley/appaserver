@@ -9,7 +9,6 @@
 #include <string.h>
 #include "String.h"
 #include "sql.h"
-#include "timlib.h"
 #include "piece.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
@@ -26,15 +25,16 @@ ROLE *role_calloc( void )
 {
 	ROLE *role;
 
-	if ( ! ( role = (ROLE *)calloc( 1, sizeof ( ROLE ) ) ) )
+	if ( ! ( role = calloc( 1, sizeof ( ROLE ) ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
+
 	return role;
 }
 
@@ -77,8 +77,7 @@ boolean role_attribute_exclude_exists_permission(
 			message );
 	}
 
-	if ( !list_rewind( role_attribute_exclude_list ) ) return 0;
-
+	if ( list_rewind( role_attribute_exclude_list ) )
 	do {
 		role_attribute_exclude =
 			list_get(
@@ -111,7 +110,9 @@ char *role_primary_where( char *role_name )
 		exit( 1 );
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"role = '%s'",
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -208,22 +209,7 @@ ROLE *role_parse(
 	return role;
 }
 
-char *role_appaserver_user_primary_where(
-			char *login_name,
-			char *role_name )
-{
-	static char where[ 256 ];
-
-	sprintf(where,
-		"login_name = '%s' and role = '%s'",
-		login_name,
-		role_name );
-
-	return where;
-}
-
-LIST *role_exclude_lookup_attribute_name_list(
-			LIST *attribute_exclude_list )
+LIST *role_exclude_lookup_attribute_name_list( LIST *attribute_exclude_list )
 {
 	LIST *exclude_attribute_name_list;
 	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
@@ -966,87 +952,6 @@ LIST *role_process_set_member_process_name_list(
 	}
 
 	return name_list;
-}
-
-LIST *role_appaserver_user_role_name_list( char *login_name )
-{
-	if ( !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: login_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	list_pipe_fetch(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		role_appaserver_user_system_string(
-			ROLE_NAME_COLUMN,
-			ROLE_APPASERVER_USER_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			role_appaserver_user_where(
-				ROLE_LOGIN_NAME_COLUMN,
-				login_name ) ) );
-}
-
-char *role_appaserver_user_where(
-			char *role_login_name_column,
-			char *login_name )
-{
-	static char where[ 128 ];
-
-	if ( !role_login_name_column
-	||   !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-		"%s = '%s'",
-		role_login_name_column,
-		login_name );
-
-	return where;
-}
-
-char *role_appaserver_user_system_string(
-			char *role_login_name_column,
-			char *role_appaserver_user_table,
-			char *role_appaserver_user_where )
-{
-	char system_string[ 1024 ];
-
-	if ( !role_login_name_column
-	||   !role_appaserver_user_table
-	||   !role_appaserver_user_where )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-		"select.sh %s %s \"%s\" select",
-		role_login_name_column,
-		role_appaserver_user_table,
-		role_appaserver_user_where );
-
-	return strdup( system_string );
 }
 
 LIST *role_attribute_exclude_list( char *role_name )

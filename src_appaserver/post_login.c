@@ -69,34 +69,19 @@ int main( int argc, char **argv )
 	if ( post_login->post_login_success )
 	{
 		environment_database_set(
-			post_login->post_login_input->application_name );
-
-		session_insert(
-			SESSION_TABLE,
-			SESSION_INSERT,
-			post_login->post_login_success->session_key,
-			post_login->post_login_input->login_name,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			session_login_date(),
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			session_login_time(),
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			session_http_user_agent(
-				SESSION_USER_AGENT_WIDTH,
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				environment_http_user_agent(
-					ENVIRONMENT_USER_AGENT_KEY ) ),
 			post_login->
 				post_login_input->
-				remote_ip_address );
+				application_name );
+
+		session_insert(
+			post_login->
+				post_login_success->
+				session->
+				insert_string,
+			post_login->
+				post_login_success->
+				session->
+				insert_system_string );
 
 		if ( post_login->
 			post_login_success->

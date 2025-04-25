@@ -155,14 +155,7 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 				post_receive->
 				email_address
 				/* login_name */,
-			post_signup_receive->
-				post->
-				http_user_agent,
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			environment_remote_ip_address(
-				ENVIRONMENT_REMOTE_KEY ) );
+			0 /* not appaserver_user_boolean */ );
 
 	post_signup_receive->
 		execute_system_string_create_application =

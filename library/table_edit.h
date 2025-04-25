@@ -298,7 +298,7 @@ void table_edit_spool_file_cell_list_output(
 /* Usage */
 /* ----- */
 void table_edit_output(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		char *document_html,
@@ -320,7 +320,7 @@ void table_edit_output(
 /* Usage */
 /* ----- */
 void table_edit_output_row_list(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		char *form_table_edit_heading_container_string,
@@ -371,7 +371,7 @@ boolean table_edit_delete_mask_boolean(
 /* Usage */
 /* ----- */
 void table_edit_output_row_list_hidden(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_fetch_row_list,
@@ -385,7 +385,7 @@ void table_edit_output_row_list_hidden(
 /* Usage */
 /* ----- */
 boolean table_edit_row_viewonly_boolean(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_row_cell_list,

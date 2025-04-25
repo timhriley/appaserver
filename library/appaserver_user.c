@@ -15,13 +15,12 @@
 #include "sql.h"
 #include "appaserver_error.h"
 #include "piece.h"
-#include "timlib.h"
-#include "session.h"
 #include "role.h"
-#include "folder_attribute.h"
 #include "appaserver.h"
 #include "application.h"
 #include "date_convert.h"
+#include "role_appaserver_user.h"
+#include "entity.h"
 #include "appaserver_user.h"
 
 APPASERVER_USER *appaserver_user_calloc( void )
@@ -41,30 +40,29 @@ APPASERVER_USER *appaserver_user_calloc( void )
 	return appaserver_user;
 }
 
-APPASERVER_USER *appaserver_user_fetch(
+APPASERVER_USER *appaserver_user_login_fetch(
 		char *login_name,
 		boolean fetch_role_name_list )
 {
-	boolean full_name_exists;
-	boolean person_full_name_exists;
+	char *input;
 
-	full_name_exists =
-		folder_attribute_exists(
-			APPASERVER_USER_TABLE,
-			"full_name" );
+	if ( !login_name )
+	{
+		char message[ 128 ];
 
-	person_full_name_exists =
-		folder_attribute_exists(
-			APPASERVER_USER_TABLE,
-			"person_full_name" );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"login_name is empty." );
 
-	return
-	/* ------------------------------------ */
-	/* Returns null if login_name not found */
-	/* ------------------------------------ */
-	appaserver_user_parse(
-		fetch_role_name_list,
-		full_name_exists || person_full_name_exists,
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	input =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -73,174 +71,102 @@ APPASERVER_USER *appaserver_user_fetch(
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				appaserver_user_select(
-					full_name_exists,
-					person_full_name_exists ),
+				APPASERVER_USER_SELECT,
 				APPASERVER_USER_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				appaserver_user_primary_where(
-					login_name ) ) ) );
-}
+				appaserver_user_login_where(
+					APPASERVER_USER_LOGIN_NAME,
+					login_name ) ) );
 
-char *appaserver_user_primary_where( char *login_name )
-{
-	static char where[ 128 ];
-	char *tmp;
-
-	if ( !login_name )
+	if ( !input )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: login_name is empty.\n",
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"string_pipe_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
 	}
 
-	snprintf(
-		where,
-		sizeof ( where ),
-		"login_name = '%s'",
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		( tmp = security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-				login_name ) ) );
-
-	free( tmp );
-	return where;
-}
-
-char *appaserver_user_select(
-		boolean full_name_exists,
-		boolean person_full_name_exists )
-{
-	static char select[ 256 ];
-	char *ptr = select;
-
-	if ( full_name_exists && person_full_name_exists )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: both full_name_exists and person_full_name_exists are set.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	ptr += sprintf( ptr, "login_name" );
-
-	if ( full_name_exists )
-	{
-		ptr += sprintf( ptr, ",full_name" );
-	}
-	else
-	if ( person_full_name_exists )
-	{
-		ptr += sprintf( ptr, ",person_full_name" );
-	}
-
-	ptr += sprintf( ptr, ",password,user_date_format,deactivated_yn" );
-
-	return select;
+	return
+	appaserver_user_parse(
+		fetch_role_name_list,
+		input );
 }
 
 APPASERVER_USER *appaserver_user_parse(
 		boolean fetch_role_name_list,
-		boolean full_name_exists,
 		char *input )
 {
 	APPASERVER_USER *appaserver_user;
-	char piece_buffer[ 512 ];
-	int piece_offset = 0;
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char buffer[ 128 ];
 
-	if ( !input || !*input ) return NULL;
+	if ( !input )
+	{
+		char message[ 128 ];
 
-	/* See appaserver_user_select() */
-	/* ---------------------------- */
-	piece_offset = 0;
-	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"input is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	/* See APPASERVER_USER_SELECT */
+	/* -------------------------- */
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
 
 	appaserver_user =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_new(
-			strdup( piece_buffer )
-				/* login_name */ );
+			strdup( full_name ),
+			strdup( street_address ) );
 
-	if ( full_name_exists )
-	{
-		piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) appaserver_user->login_name = strdup( buffer );
 
-		if ( *piece_buffer )
-			appaserver_user->full_name =
-				strdup( piece_buffer );
-	}
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) appaserver_user->password = strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) appaserver_user->user_date_format = strdup( buffer );
 
-	if ( *piece_buffer )
-	{
-		appaserver_user->database_password = strdup( piece_buffer );
-	}
-
-	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
-
-	if ( *piece_buffer )
-	{
-		appaserver_user->user_date_format = strdup( piece_buffer );
-	}
-
-	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
-
-	if ( *piece_buffer )
-	{
-		appaserver_user->deactivated_boolean = (*piece_buffer == 'y');
-	}
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) appaserver_user->deactivated_boolean = (*buffer == 'y');
 
 	if ( fetch_role_name_list )
 	{
-		appaserver_user->role_name_list =
-			role_appaserver_user_role_name_list(
-				appaserver_user->login_name );
+		appaserver_user->role_appaserver_user_name_list =
+			role_appaserver_user_name_list(
+				ROLE_APPASERVER_USER_TABLE,
+				appaserver_user->full_name,
+				appaserver_user->street_address );
 	}
 
 	return appaserver_user;
 }
 
-char *appaserver_user_person_full_name( char *login_name )
-{
-	APPASERVER_USER *appaserver_user;
-
-	if ( !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: login_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_user_fetch(
-			login_name,
-			0 /* not fetch_role_name_ist */ );
-
-	return appaserver_user->full_name;
-}
-
 void appaserver_user_update(
+		const char *appaserver_user_table,
 		char *password,
 		char *login_name )
 {
@@ -248,8 +174,8 @@ void appaserver_user_update(
 
 	update_open =
 		appaserver_user_update_open(
-			APPASERVER_USER_TABLE,
-			APPASERVER_USER_PRIMARY_KEY );
+			appaserver_user_table,
+			APPASERVER_USER_LOGIN_NAME );
 
 	appaserver_user_update_pipe(
 		update_open,
@@ -263,8 +189,8 @@ void appaserver_user_update(
 }
 
 FILE *appaserver_user_update_open(
-		char *appaserver_user_table,
-		char *appaserver_user_primary_key )
+		const char *appaserver_user_table,
+		const char *appaserver_user_login_name )
 {
 	char system_string[ 1024 ];
 
@@ -275,7 +201,7 @@ FILE *appaserver_user_update_open(
 		"tee_appaserver.sh 				|"
 		"sql.e						 ",
 		appaserver_user_table,
-		appaserver_user_primary_key );
+		appaserver_user_login_name );
 
 	return popen( system_string, "w" );
 }
@@ -289,66 +215,6 @@ void appaserver_user_update_pipe(
 		"%s^password^%s\n",
 		login_name,
 		password );
-}
-
-char *appaserver_user_default_role_name( char *login_name )
-{
-	char system_string[ 1024 ];
-	char where[ 128 ];
-
-	if ( !login_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "login_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"login_name = '%s'",
-		login_name );
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"select.sh role login_default_role \"%s\"",
-		where );
-
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	return string_pipe_input( system_string );
-}
-
-LIST *appaserver_user_role_name_list( char *login_name )
-{
-	APPASERVER_USER *appaserver_user;
-
-	if ( !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: login_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_user_fetch(
-			login_name,
-			1 /* fetch_role_name_ist */ );
-
-	return appaserver_user->role_name_list;
 }
 
 char *appaserver_user_date_format_string(
@@ -376,7 +242,7 @@ char *appaserver_user_date_format_string(
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		appaserver_user_fetch(
+		appaserver_user_login_fetch(
 			login_name,
 			0 /* not fetch_role_name_list */ );
 
@@ -463,7 +329,37 @@ char *appaserver_user_date_convert_string(
 }
 
 APPASERVER_USER *appaserver_user_new(
-		char *login_name )
+		char *full_name,
+		char *street_address )
+{
+	APPASERVER_USER *appaserver_user;
+
+	if ( !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	appaserver_user = appaserver_user_calloc();
+
+	appaserver_user->full_name = full_name;
+	appaserver_user->street_address = street_address;
+
+	return appaserver_user;
+}
+
+LIST *appaserver_user_role_name_list( char *login_name )
 {
 	APPASERVER_USER *appaserver_user;
 
@@ -483,8 +379,104 @@ APPASERVER_USER *appaserver_user_new(
 			message );
 	}
 
-	appaserver_user = appaserver_user_calloc();
-	appaserver_user->login_name = login_name;
+	appaserver_user =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_user_login_fetch(
+			login_name,
+			1 /* fetch_role_name_list */ );
 
-	return appaserver_user;
+	return appaserver_user->role_appaserver_user_name_list;
 }
+
+APPASERVER_USER *appaserver_user_fetch(
+		char *full_name,
+		char *street_address,
+		boolean fetch_role_name_list )
+{
+	char *input;
+
+	if ( !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	input =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_pipe_input(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_system_string(
+				APPASERVER_USER_SELECT,
+				APPASERVER_USER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				entity_primary_where(
+					full_name,
+					street_address ) ) );
+
+	if ( !input ) return NULL;
+
+	return
+	appaserver_user_parse(
+		fetch_role_name_list,
+		input );
+}
+
+char *appaserver_user_login_where(
+		const char *appaserver_user_login_name,
+		char *login_name )
+{
+	static char where[ 128 ];
+	char *tmp;
+
+	if ( !login_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"login_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s = '%s'",
+		appaserver_user_login_name,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = security_sql_injection_escape(
+			SECURITY_ESCAPE_CHARACTER_STRING,
+			login_name ) ) );
+
+	free( tmp );
+
+	return where;
+}
+

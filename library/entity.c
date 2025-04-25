@@ -247,34 +247,28 @@ char *entity_escape_full_name( char *full_name )
 {
 	static char escape_full_name[ 256 ];
 
-	if ( !full_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty full_name.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	*escape_full_name = '\0';
 
-	return string_escape_quote( escape_full_name, full_name );
+	if ( !full_name ) return escape_full_name;
+
+	return
+	string_escape_quote(
+		escape_full_name,
+		full_name );
 }
 
 char *entity_escape_street_address( char *street_address )
 {
 	static char escape_street_address[ 256 ];
 
-	if ( !street_address )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty street_address.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	*escape_street_address = '\0';
 
-	return string_escape_quote( escape_street_address, street_address );
+	if ( !street_address ) return escape_street_address;
+
+	return
+	string_escape_quote(
+		escape_street_address,
+		street_address );
 }
 
 char *entity_primary_where(
@@ -283,14 +277,19 @@ char *entity_primary_where(
 {
 	static char where[ 256 ];
 
-	sprintf( where,
-		 "full_name = '%s' and	"
-		 "street_address = '%s'	",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 entity_escape_full_name( full_name ),
-		 street_address );
+	snprintf(
+		where,
+		sizeof ( where ),
+		"full_name = '%s' and	"
+		"street_address = '%s'	",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( full_name ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_street_address( street_address ) );
 
 	return where;
 }
@@ -515,19 +514,19 @@ ENTITY *entity_full_name_entity(
 
 boolean entity_login_name_boolean(
 		const char *entity_table,
-		const char *appaserver_user_primary_key )
+		const char *appaserver_user_login_name )
 {
 	return
 	folder_attribute_exists(
 		(char *)entity_table
 			/* folder_name */,
-		(char *)appaserver_user_primary_key
+		(char *)appaserver_user_login_name
 			/* attribute_name */ );
 }
 
 ENTITY *entity_login_name_fetch(
 		const char *entity_table,
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name )
 {
 	char *where;
@@ -554,7 +553,7 @@ ENTITY *entity_login_name_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_login_name_where(
-			appaserver_user_primary_key,
+			appaserver_user_login_name,
 			login_name );
 
 	system_string =
@@ -589,7 +588,7 @@ ENTITY *entity_login_name_fetch(
 }
 
 char *entity_login_name_where(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name )
 {
 	static char where[ 128 ];
@@ -609,7 +608,7 @@ char *entity_login_name_where(
 
 	sprintf(where,
 		"%s = '%s'",
-		appaserver_user_primary_key,
+		appaserver_user_login_name,
 		login_name );
 
 	return where;

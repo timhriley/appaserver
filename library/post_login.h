@@ -10,6 +10,7 @@
 #include "dictionary.h"
 #include "document.h"
 #include "security.h"
+#include "session.h"
 #include "appaserver_user.h"
 
 #define POST_LOGIN_RETURN_USERNAME	"timriley"
@@ -132,7 +133,7 @@ char *post_login_input_application_name(
 /* Returns component of dictionary, or null. */
 /* ----------------------------------------- */
 char *post_login_input_login_name(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		DICTIONARY *post_login_input_dictionary );
 
 /* Usage */
@@ -213,7 +214,7 @@ char *post_login_document_html(
 
 typedef struct
 {
-	char *session_key;
+	SESSION *session;
 	char *output_pipe_string;
 	char *appaserver_error_filename;
 	char *execute_system_string_frameset;

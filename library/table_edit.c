@@ -1001,7 +1001,7 @@ char *table_edit_row_html(
 }
 
 void table_edit_output(	
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		char *document_html,
@@ -1053,7 +1053,7 @@ void table_edit_output(
 		form_table_edit_open_html );
 
 	table_edit_output_row_list(
-		appaserver_user_primary_key,
+		appaserver_user_login_name,
 		login_name,
 		non_owner_viewonly,
 		form_table_edit_heading_container_string,
@@ -1072,7 +1072,7 @@ void table_edit_output(
 		widget_table_close_tag() );
 
 	table_edit_output_row_list_hidden(
-		appaserver_user_primary_key,
+		appaserver_user_login_name,
 		login_name,
 		non_owner_viewonly,
 		query_fetch_row_list,
@@ -1091,7 +1091,7 @@ void table_edit_output(
 }
 
 void table_edit_output_row_list(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		char *form_table_edit_heading_container_string,
@@ -1147,7 +1147,7 @@ void table_edit_output_row_list(
 
 		viewonly_boolean =
 			table_edit_row_viewonly_boolean(
-				appaserver_user_primary_key,
+				appaserver_user_login_name,
 				login_name,
 				non_owner_viewonly,
 				query_row->cell_list,
@@ -1216,7 +1216,7 @@ void table_edit_output_row_list(
 }
 
 void table_edit_output_row_list_hidden(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_fetch_row_list,
@@ -1239,7 +1239,7 @@ void table_edit_output_row_list_hidden(
 
 		viewonly_boolean =
 			table_edit_row_viewonly_boolean(
-				appaserver_user_primary_key,
+				appaserver_user_login_name,
 				login_name,
 				non_owner_viewonly,
 				query_row->cell_list,
@@ -1313,7 +1313,7 @@ char *table_edit_document_title_string(
 }
 
 boolean table_edit_row_viewonly_boolean(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_row_cell_list,
@@ -1326,7 +1326,7 @@ boolean table_edit_row_viewonly_boolean(
 	{
 		query_cell =
 			query_cell_seek(
-				(char *)appaserver_user_primary_key
+				(char *)appaserver_user_login_name
 					/* attribute_name */,
 				query_row_cell_list );
 

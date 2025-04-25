@@ -52,7 +52,8 @@ DELETE_PRIMARY *delete_primary_new(
 		session_fetch(
 			application_name,
 			session_key,
-			login_name );
+			login_name,
+			1 /* appaserver_user_boolean */ );
 
 	delete_primary->folder_name =
 		/* ---------------------------- */

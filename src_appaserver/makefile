@@ -104,6 +104,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
+		${LIBRARY}/role_appaserver_user.o			\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\
@@ -384,6 +385,7 @@ output_table_insert: output_table_insert.c				\
 		${LIBRARY}/form_table_insert.o				\
 		${LIBRARY}/table_insert.o				\
 		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o				\
 		${LIBRARY}/vertical_new_table.o				\
 		${LIBRARY}/vertical_new_filename.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -393,6 +395,7 @@ output_table_insert: output_table_insert.c				\
 		${LIBRARY}/form_table_insert.o				\
 		${LIBRARY}/table_insert.o				\
 		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o				\
 		${LIBRARY}/vertical_new_table.o				\
 		${LIBRARY}/vertical_new_filename.o			\
 		-o output_table_insert
@@ -1008,22 +1011,26 @@ post_choose_process: post_choose_process.c ${APPASERVER_LIBRARY}
 
 output_frameset: output_frameset.c					\
 		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/frameset.o
+		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		output_frameset.c					\
 		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o				\
 		-o output_frameset
 
 output_menu: output_menu.c						\
 		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/frameset.o
+		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		output_menu.c						\
 		${LIBRARY}/frameset.o					\
+		${LIBRARY}/login_default_role.o				\
 		-o output_menu
 	touch ${CGI_HOME}/output_menu
 	/bin/rm -f ${CGI_HOME}/output_menu

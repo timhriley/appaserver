@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 		table_edit->query_table_edit->query_fetch->row_list );
 
 	table_edit_output(
-		APPASERVER_USER_PRIMARY_KEY,
+		APPASERVER_USER_LOGIN_NAME,
 		login_name,
 		table_edit->
 			table_edit_input->

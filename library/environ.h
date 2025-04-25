@@ -12,8 +12,8 @@
 #include "boolean.h"
 #include "list.h"
 
-#define ENVIRONMENT_REMOTE_KEY		"REMOTE_ADDR"
-#define ENVIRONMENT_USER_AGENT_KEY	"HTTP_USER_AGENT"
+#define ENVIRONMENT_REMOTE_ADDR_KEY	"REMOTE_ADDR"
+#define ENVIRONMENT_HTTP_USER_AGENT_KEY	"HTTP_USER_AGENT"
 
 /* Public */
 /* ------ */
@@ -166,12 +166,12 @@ char *environment_application_name(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *environment_http_user_agent(
-		const char *environment_user_agent_key );
+		const char *environment_http_user_agent_key );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *environment_remote_ip_address(
-		const char *environment_remote_key );
+		const char *environment_remote_addr_key );
 
 void environ_umask(
 		mode_t application_umask );

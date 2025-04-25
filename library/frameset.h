@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "document.h"
 #include "appaserver_parameter.h"
+#include "appaserver_user.h"
 #include "appaserver_link.h"
 
 #define FRAMESET_EXECUTABLE		"output_frameset"
@@ -58,6 +59,8 @@ typedef struct
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
 	DOCUMENT *frameset_document;
+	APPASERVER_USER *appaserver_user;
+	char *login_default_role_name;
 	DOCUMENT *frame_menu_document;
 	char *role_name;
 	FOLDER_MENU *folder_menu;

@@ -100,14 +100,14 @@ POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input_new( void )
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		environment_remote_ip_address(
-			ENVIRONMENT_REMOTE_KEY );
+			ENVIRONMENT_REMOTE_ADDR_KEY );
 
 	post_signup_submit_input->environment_http_user_agent =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		environment_http_user_agent(
-			ENVIRONMENT_USER_AGENT_KEY );
+			ENVIRONMENT_HTTP_USER_AGENT_KEY );
 
 	post_signup_submit_input->appaserver_mailname =
 		/* --------------------- */

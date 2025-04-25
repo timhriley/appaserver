@@ -9,14 +9,14 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "appaserver_user.h"
 
 typedef struct
 {
 	char *login_name;
 	boolean non_owner_forbid;
 	boolean override_row_restrictions;
-	char *full_name;
-	char *street_address;
+	APPASERVER_USER *appaserver_user;
 	char *where;
 } SECURITY_ENTITY;
 
@@ -41,7 +41,7 @@ SECURITY_ENTITY *security_entity_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *security_entity_where(
-		const char *appaserver_user_primary_key,
-		SECURITY_ENTITY *security_entity );
+		char *full_name,
+		char *street_address );
 
 #endif

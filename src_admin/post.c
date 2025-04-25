@@ -39,14 +39,14 @@ POST *post_new(	char *email_address )
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		environment_remote_ip_address(
-			ENVIRONMENT_REMOTE_KEY );
+			ENVIRONMENT_REMOTE_ADDR_KEY );
 
 	post->http_user_agent =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		environment_http_user_agent(
-			ENVIRONMENT_USER_AGENT_KEY );
+			ENVIRONMENT_HTTP_USER_AGENT_KEY );
 
 	/* Returns heap memory */
 	/* ------------------- */

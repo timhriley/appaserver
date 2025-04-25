@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 	if ( drilldown->drilldown_primary )
 	{
 		drilldown_table_edit_output(
-			APPASERVER_USER_PRIMARY_KEY,
+			APPASERVER_USER_LOGIN_NAME,
 			login_name,
 			drilldown->
 				drilldown_primary->
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
 					relation_many_folder_name ) );
 
 		drilldown_table_edit_output(
-			APPASERVER_USER_PRIMARY_KEY,
+			APPASERVER_USER_LOGIN_NAME,
 			login_name,
 			drilldown_one_to_many->table_edit );
 
@@ -146,7 +146,7 @@ int main( int argc, char **argv )
 					one_folder_name ) );
 
 		drilldown_table_edit_output(
-			APPASERVER_USER_PRIMARY_KEY,
+			APPASERVER_USER_LOGIN_NAME,
 			login_name,
 			drilldown_many_to_one->table_edit );
 

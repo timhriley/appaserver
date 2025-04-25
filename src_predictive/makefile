@@ -62,6 +62,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/role.o					\
+		${LIBRARY}/role_appaserver_user.o			\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/operation.o					\

@@ -43,19 +43,12 @@ int main( int argc, char **argv )
 				post_confirmation_update_statement );
 
 		session_insert(
-			SESSION_TABLE,
-			SESSION_INSERT,
-			post_signup_receive->session->session_key,
-			post_signup_receive->
-				post_receive->
-				email_address
-					/* login_name */,
-			post_signup_receive->session->login_date,
-			post_signup_receive->session->login_time,
-			post_signup_receive->session->http_user_agent,
 			post_signup_receive->
 				session->
-				remote_ip_address );
+				insert_string,
+			post_signup_receive->
+				session->
+				insert_system_string );
 	
 		fetch =
 		   spool_fetch(
@@ -77,6 +70,8 @@ int main( int argc, char **argv )
 		}
 
 		session_delete(
+			SESSION_TABLE,
+			APPLICATION_ADMIN_NAME,
 			post_signup_receive->
 				session->
 				session_key );

@@ -65,7 +65,7 @@ CHANGE_PASSWORD *change_password_new(
 
 	change_password->query_dictionary =
 		change_password_query_dictionary(
-			APPASERVER_USER_PRIMARY_KEY,
+			APPASERVER_USER_LOGIN_NAME,
 			QUERY_RELATION_OPERATOR_PREFIX,
 			QUERY_EQUAL,
 			login_name );
@@ -132,7 +132,7 @@ CHANGE_PASSWORD *change_password_calloc( void )
 }
 
 DICTIONARY *change_password_query_dictionary(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		const char *query_relation_operator_prefix,
 		const char *query_equal,
 		char *login_name )
@@ -157,7 +157,7 @@ DICTIONARY *change_password_query_dictionary(
 
 	dictionary_set(
 		query_dictionary,
-		(char *)appaserver_user_primary_key,
+		(char *)appaserver_user_login_name,
 		login_name );
 
 	relation_key =
@@ -166,7 +166,7 @@ DICTIONARY *change_password_query_dictionary(
 		/* --------------------- */
 		query_relation_key(
 			(char *)query_relation_operator_prefix,
-			(char *)appaserver_user_primary_key );
+			(char *)appaserver_user_login_name );
 
 	dictionary_set(
 		query_dictionary,

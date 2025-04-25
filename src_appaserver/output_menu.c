@@ -56,10 +56,13 @@ int main( int argc, char **argv )
 		document_content_type_output();
 	}
 
-	session_access_or_exit(
+	/* If error then exit( 1 ) */
+	/* ----------------------- */
+	(void)session_fetch(
 		application_name,
 		session_key,
-		login_name );
+		login_name,
+		1 /* appaserver_user_boolean */ );
 
 	folder_menu =
 		/* -------------- */

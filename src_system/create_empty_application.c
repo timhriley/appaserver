@@ -72,10 +72,13 @@ int main( int argc, char **argv )
 			message );
 	}
 
-	session_access_or_exit(
+	/* If error then exit( 1 ) */
+	/* ----------------------- */
+	(void)session_fetch(
 		current_application_name,
 		session_key,
-		login_name );
+		login_name,
+		1 /* appaserver_user_boolean */ );
 
 	if ( *process_name && strcmp( process_name, "process" ) != 0 )
 	{
@@ -221,7 +224,7 @@ int main( int argc, char **argv )
 			printf( "%s\n",
 				application_clone->
 					appaserver_user->
-					database_password );
+					password );
 		}
 	}
 

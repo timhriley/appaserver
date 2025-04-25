@@ -44,7 +44,7 @@ CHANGE_PASSWORD *change_password_calloc(
 /* Usage */
 /* ----- */
 DICTIONARY *change_password_query_dictionary(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		const char *query_relation_operator_prefix,
 		const char *query_equal,
 		char *login_name );

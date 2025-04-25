@@ -315,7 +315,7 @@ DICTIONARY *drilldown_query_dictionary(
 /* Usage */
 /* ----- */
 void drilldown_table_edit_output(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name,
 		TABLE_EDIT *table_edit );
 

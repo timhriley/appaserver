@@ -58,6 +58,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/role.o					\
+		${LIBRARY}/role_appaserver_user.o			\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/post_dictionary.o				\
@@ -66,7 +67,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/timlib.o					\
 		${LIBRARY}/post_login.o					\
 		${LIBRARY}/execute_system_string.o			\
-		${LIBRARY}/bot_generated.o				\
 		${LIBRARY}/operation.o
 
 ADMIN_LIBRARY=								\

@@ -96,13 +96,13 @@ ENTITY *entity_calloc(
 /* ----- */
 boolean entity_login_name_boolean(
 		const char *entity_table,
-		const char *appaserver_user_primary_key );
+		const char *appaserver_user_login_name );
 
 /* Usage */
 /* ----- */
 ENTITY *entity_login_name_fetch(
 		const char *entity_table,
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name );
 
 /* Process */
@@ -111,7 +111,7 @@ ENTITY *entity_login_name_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *entity_login_name_where(
-		const char *appaserver_user_primary_key,
+		const char *appaserver_user_login_name,
 		char *login_name );
 
 /* Public */

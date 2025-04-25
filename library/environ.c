@@ -635,33 +635,23 @@ char *environment_database( void )
 }
 
 char *environment_http_user_agent(
-		const char *environment_user_agent_key )
+		const char *http_user_agent_key )
 {
-	char *result;
-
-	if ( ( result = environment_get( (char *)environment_user_agent_key ) ) )
-	{
-		return result;
-	}
-	else
-	{
-		return (char *)0;
-	}
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	environment_get( (char *)http_user_agent_key );
 }
 
 char *environment_remote_ip_address(
-		const char *environment_remote_key )
+		const char *remote_addr_key )
 {
-	char *result;
-
-	if ( ( result = environment_get( (char *)environment_remote_key ) ) )
-	{
-		return result;
-	}
-	else
-	{
-		return (char *)0;
-	}
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	environment_get( (char *)remote_addr_key );
 }
 
 void environment_session_set( char *application_name )
