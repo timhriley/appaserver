@@ -29,7 +29,8 @@
 						"remote_ip_address"
 
 #define SESSION_INSERT				"session,"		\
-						"login_name,"		\
+						"full_name,"		\
+						"street_address,"	\
 						"login_date,"		\
 						"login_time,"		\
 						"last_access_date,"	\

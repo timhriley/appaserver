@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/File.h					*/
+/* $APPASERVER_HOME/library/file.h					*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software: see Appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -22,5 +22,18 @@ boolean file_exists_boolean(
 /* ----- */
 void file_skip_line(
 		FILE *infile );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *file_temp_filespecification(
+		char *key );
+
+/* Usage */
+/* ----- */
+void file_remove(
+		char *filespecification );
 
 #endif

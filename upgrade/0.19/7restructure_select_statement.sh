@@ -22,6 +22,7 @@ alter table select_statement drop index select_statement_unique;
 create unique index select_statement_unique on select_statement (select_statement_title);
 
 delete from table_column where table_name = 'select_statement' and column_name = 'login_name';
+delete from relation where table_name = 'select_statement' and related_table = 'appaserver_user';
 
 show create table select_statement;
 shell_all_done

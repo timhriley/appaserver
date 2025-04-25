@@ -170,9 +170,9 @@ char *session_update_sql(
 		"last_access_time = '%s' "
 		"where session = '%s';",
 		session_table,
-		session_key,
 		session_last_access_date,
-		session_last_access_time );
+		session_last_access_time,
+		session_key );
 
 	return update_sql;
 }
@@ -382,7 +382,7 @@ SESSION *session_fetch(
 
 	(void)sql_execute(
 		SQL_EXECUTABLE,
-		appaserver_error_filespecification( application_name ),
+		(char *)0 /* appaserver_error_filespecification */,
 		(LIST *)0 /* sql_list */,
 		session->update_sql );
 
@@ -939,8 +939,8 @@ char *session_insert_string(
 		login_time,
 		login_date,
 		login_time,
-		http_user_agent,
-		remote_ip_address );
+		remote_ip_address,
+		http_user_agent );
 
 	return strdup( insert_string );
 }

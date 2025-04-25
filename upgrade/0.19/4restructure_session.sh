@@ -21,7 +21,7 @@ alter table session add street_address char( 60 );
 alter table session drop login_name;
 
 insert into table_column (table_name,column_name,display_order) values ('session','full_name',1);
-insert into table_column (table_name,column_name,display_order) values ('appaserver_user','street_address',2);
+insert into table_column (table_name,column_name,display_order) values ('session','street_address',2);
 delete from table_column where table_name = 'session' and column_name = 'login_name';
 
 update table_column set display_order = 3 where table_name = 'session' and column_name = 'login_date';

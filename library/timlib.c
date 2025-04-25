@@ -12,7 +12,6 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <string.h>
-#include <strings.h>
 #include <time.h>
 #include "String.h"
 #include "timlib.h"
