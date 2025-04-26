@@ -478,10 +478,19 @@ SESSION_PROCESS *session_process_integrity_exit(
 			session_process->role_name,
 			0 /* not fetch_process_set */ ) ) )
 	{
-		session_access_failed_message_exit(
-			application_name,
-			login_name,
-			session_process->session->current_ip_address );
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"session_process_valid(%s) returned false.",
+			process_or_set_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	session_process->process_name =
@@ -504,30 +513,28 @@ boolean session_process_valid(
 	ROLE_PROCESS *role_process;
 	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
 
-	if ( !list_rewind( role_process_list )
-	&&   !list_rewind( role_process_set_member_list ) )
-	{
-		return 0;
-	}
-
+	if ( list_rewind( role_process_list ) )
 	do {
 		role_process =
 			list_get(
 				role_process_list );
 
-		if ( strcmp(	role_process->process_name,
+		if ( string_strcmp(
+				role_process->process_name,
 				process_or_set_name ) == 0 )
 		{
 			return 1;
 		}
 	} while ( list_next( role_process_list ) );
 
+	if ( list_rewind( role_process_set_member_list ) )
 	do {
 		role_process_set_member =
 			list_get(
 				role_process_set_member_list );
 
-		if ( strcmp(	role_process_set_member->process_set_name,
+		if ( string_strcmp(
+				role_process_set_member->process_set_name,
 				process_or_set_name ) == 0 )
 		{
 			return 1;

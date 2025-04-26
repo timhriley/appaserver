@@ -27,7 +27,7 @@ void mysql_tab_to_delimiter(
 
 int main( int argc, char **argv )
 {
-	char buffer[ STRING_64K ];
+	char buffer[ STRING_128K ];
 	char delimiter;
 
 	if ( argc != 2 )
@@ -48,8 +48,10 @@ int main( int argc, char **argv )
 			continue;
 		}
 
+#ifdef NOT_DEFINED
 		mysql_remove_spaces(
 			buffer /* in/out */ );
+#endif
 
 		mysql_escape_delimiter(
 			delimiter,

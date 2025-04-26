@@ -20,19 +20,21 @@
 #define IMPORT_PREDICT_SQLGZ			"home_edition.sql.gz"
 #define IMPORT_PREDICT_PROCESS_NAME		"import_predictbooks"
 
-#define IMPORT_PREDICT_EXISTS_MESSAGE					  \
-	"<p style=\"margin: 3\%;\">"					  \
-	"Warning: PredictBooks is already installed and will be replaced."
+#define IMPORT_PREDICT_EXISTS_MESSAGE					\
+	"<p style=\"margin: 3\%;\">"					\
+	"Warning: PredictBooks is already installed and will be "	\
+	"replaced."
 
-#define IMPORT_PREDICT_ENTITY_SELF_MESSAGE				  \
-	"<p style=\"margin: 3\%;\">"					  \
-	"ERROR: your name must be inserted into the table Self. "	  \
+#define IMPORT_PREDICT_ENTITY_SELF_MESSAGE				\
+	"<p style=\"margin: 3\%;\">"					\
+	"ERROR: your name must be inserted into the table Self. "	\
 	"The Supervisor role path is Insert --> Entity --> Self"
 
-#define IMPORT_PREDICT_ONCE_MESSAGE					  \
-	"<p style=\"margin: 3\%;\">"					  \
-	"This process should only be executed again "			  \
-	"if you want to delete PredictBooks and start over."
+#define IMPORT_PREDICT_ONCE_MESSAGE					\
+	"<p style=\"margin: 3\%;\">"					\
+	"This process should only be executed again "			\
+	"if you want to delete PredictBooks and start over. "		\
+	"Also, this process will only be available to the System role."
 
 #define IMPORT_PREDICT_TEMPLATE_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\

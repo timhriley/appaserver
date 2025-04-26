@@ -1505,6 +1505,7 @@ RECTIFICATION_INDEX *rectification_index_parse(
 	if ( !input || !*input ) return NULL;
 
 	piece( index_name, SQL_DELIMITER, input, 2 );
+
 	if ( !*index_name )
 	{
 		fprintf(stderr,
@@ -1523,10 +1524,9 @@ RECTIFICATION_INDEX *rectification_index_parse(
 		/* --------------------- */
 		create_table_unique_index_name(
 			(char *)create_table_unique_suffix,
-			table_name ) ) != 0 )
+			table_name ) ) == 0 )
 	{
-		if ( strcmp( index_name, table_name ) == 0 )
-			goto rectification_index_continue;
+		goto rectification_index_continue;
 	}
 
 	if ( strcmp(
@@ -1538,7 +1538,7 @@ RECTIFICATION_INDEX *rectification_index_parse(
 			(char *)0 /* create_table_unique_suffix */,
 			table_name ) ) != 0 )
 	{
-		if ( strcmp( index_name, table_name ) != 0 ) return NULL;
+		return NULL;
 	}
 
 rectification_index_continue:
