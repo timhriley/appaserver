@@ -210,6 +210,22 @@ int main( int argc, char **argv )
 		execute_boolean,
 		application_clone->insert_role_system_string );
 
+	application_clone_system(
+		execute_boolean,
+		application_clone->insert_default_system_string );
+
+	application_clone_system(
+		execute_boolean,
+		application_clone->insert_entity_system_string );
+
+	application_clone_system(
+		execute_boolean,
+		application_clone->insert_self_system_string );
+
+	application_clone_system(
+		execute_boolean,
+		application_clone->upgrade_system_string );
+
 	if ( execute_boolean )
 	{
 		if ( *process_name && strcmp( process_name, "process" ) != 0 )

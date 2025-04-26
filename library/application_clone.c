@@ -11,6 +11,8 @@
 #include "file.h"
 #include "application.h"
 #include "role.h"
+#include "entity_self.h"
+#include "login_default_role.h"
 #include "application_clone.h"
 
 APPLICATION_CLONE *application_clone_new(
@@ -145,7 +147,21 @@ APPLICATION_CLONE *application_clone_new(
 		application_clone_insert_user_system_string(
 			APPASERVER_USER_TABLE,
 			destination_application_name,
-			application_clone->appaserver_user );
+			application_clone->
+				appaserver_user->
+				full_name,
+			application_clone->
+				appaserver_user->
+				street_address,
+			application_clone->
+				appaserver_user->
+				login_name,
+			application_clone->
+				appaserver_user->
+				password,
+			application_clone->
+				appaserver_user->
+				user_date_format );
 
 	application_clone->insert_role_system_string =
 		/* ------------------- */
@@ -155,12 +171,60 @@ APPLICATION_CLONE *application_clone_new(
 			ROLE_SYSTEM,
 			ROLE_SUPERVISOR,
 			destination_application_name,
-			login_name );
+			application_clone->
+				appaserver_user->
+				full_name,
+			application_clone->
+				appaserver_user->
+				street_address );
 
-	application_clone->upgrade_system_string =
+	application_clone->insert_default_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
+		application_clone_insert_default_system_string(
+			LOGIN_DEFAULT_ROLE_TABLE,
+			ROLE_SUPERVISOR,
+			destination_application_name,
+			application_clone->
+				appaserver_user->
+				full_name,
+			application_clone->
+				appaserver_user->
+				street_address );
+
+	application_clone->insert_entity_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		application_clone_insert_entity_system_string(
+			ENTITY_TABLE,
+			destination_application_name,
+			application_clone->
+				appaserver_user->
+				full_name,
+			application_clone->
+				appaserver_user->
+				street_address );
+
+	application_clone->insert_self_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		application_clone_insert_entity_system_string(
+			ENTITY_SELF_TABLE,
+			destination_application_name,
+			application_clone->
+				appaserver_user->
+				full_name,
+			application_clone->
+				appaserver_user->
+				street_address );
+
+	application_clone->upgrade_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		application_clone_upgrade_system_string(
 			destination_application_name );
 
@@ -338,35 +402,158 @@ char *application_clone_application_system_string(
 	return strdup( system_string );
 }
 
+char *application_clone_insert_default_system_string(
+		const char *login_default_role_table,
+		const char *role_supervisor,
+		char *destination_application_name,
+		char *full_name,
+		char *street_address )
+{
+	char system_string[ 1024 ];
+	char *field;
+
+	if ( !destination_application_name
+	||   !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	field = "full_name,street_address,role";
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"%s^%s^%s\" | "
+		"insert_statement.e "
+		"table=%s "
+		"field=%s "
+		"delimiter='^' | "
+		"sql.e %s",
+		full_name,
+		street_address,
+		role_supervisor,
+		login_default_role_table,
+		field,
+		destination_application_name );
+
+	return strdup( system_string );
+}
+
+char *application_clone_insert_entity_system_string(
+		const char *table_name,
+		char *destination_application_name,
+		char *full_name,
+		char *street_address )
+{
+	char system_string[ 1024 ];
+	char *field;
+
+	if ( !destination_application_name
+	||   !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	field = "full_name,street_address";
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"%s^%s\" | "
+		"insert_statement.e "
+		"table=%s "
+		"field=%s "
+		"delimiter='^' | "
+		"sql.e %s",
+		full_name,
+		street_address,
+		table_name,
+		field,
+		destination_application_name );
+
+	return strdup( system_string );
+}
+
 char *application_clone_insert_role_system_string(
 		const char *role_system,
 		const char *role_supervisor,
 		char *destination_application_name,
-		char *login_name )
+		char *full_name,
+		char *street_address )
 {
 	char system_string[ 1024 ];
 	char *ptr = system_string;
+	char *field;
+
+	if ( !destination_application_name
+	||   !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	field = "full_name,street_address,role";
 
 	ptr += sprintf( ptr,
-		"echo \"%s^%s\" | "
+		"echo \"%s^%s^%s\" | "
 		"insert_statement.e "
 		"table=role_appaserver_user "
-		"field=login_name,role "
+		"field=%s "
 		"delimiter='^' | "
 		"sql.e %s && ",
-		login_name,
+		full_name,
+		street_address,
 		role_system,
+		field,
 		destination_application_name );
 
 	ptr += sprintf( ptr,
-		"echo \"%s^%s\" | "
+		"echo \"%s^%s^%s\" | "
 		"insert_statement.e "
 		"table=role_appaserver_user "
-		"field=login_name,role "
+		"field=%s "
 		"delimiter='^' | "
 		"sql.e %s",
-		login_name,
+		full_name,
+		street_address,
 		role_supervisor,
+		field,
 		destination_application_name );
 
 	return strdup( system_string );
@@ -375,32 +562,56 @@ char *application_clone_insert_role_system_string(
 char *application_clone_insert_user_system_string(
 		const char *appaserver_user_table,
 		char *destination_application_name,
-		APPASERVER_USER *appaserver_user )
+		char *full_name,
+		char *street_address,
+		char *login_name,
+		char *password,
+		char *user_date_format )
 {
 	char system_string[ 1024 ];
-	char *field =
+	char *field;
+
+	if ( !destination_application_name
+	||   !full_name
+	||   !street_address
+	||   !login_name
+	||   !password
+	||   !user_date_format )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	field =	"full_name,"
+		"street_address,"
 		"login_name,"
-		"person_full_name,"
 		"password,"
 		"user_date_format";
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"echo \"%s^%s^%s^%s\" | "
+		"echo \"%s^%s^%s^%s^%s\" | "
 		"insert_statement.e "
 		"table=%s "
 		"field=%s "
 		"delimiter='^' | "
 		"sql.e %s",
-		appaserver_user->login_name,
-		(appaserver_user->full_name)
-			? appaserver_user->full_name
-			: "",
-		appaserver_user->password,
-		(appaserver_user->user_date_format)
-			? appaserver_user->user_date_format
-			: "",
+		full_name,
+		street_address,
+		login_name,
+		password,
+		user_date_format,
 		appaserver_user_table,
 		field,
 		destination_application_name );
@@ -414,6 +625,8 @@ LIST *application_clone_zaptable_list( void )
 
 	list_set( list, "login_default_role" );
 	list_set( list, "role_appaserver_user" );
+	list_set( list, "self" );
+	list_set( list, "entity" );
 	list_set( list, "appaserver_user" );
 	list_set( list, "session" );
 
@@ -448,18 +661,18 @@ void application_clone_system(
 }
 
 char *application_clone_upgrade_system_string(
-		char *current_application_name )
+		char *destination_application_name )
 {
-	char system_string[ 128 ];
+	static char system_string[ 128 ];
 
-	if ( !current_application_name )
+	if ( !destination_application_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"current_application_name is empty." );
+			"destination_application_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -471,11 +684,11 @@ char *application_clone_upgrade_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"upgrade-appaserver %s 2>&1 | "
+		"appaserver-upgrade %s 2>&1 | "
 		"html_paragraph_wrapper.e",
-		current_application_name );
+		destination_application_name );
 
-	return strdup( system_string );
+	return system_string;
 }
 
 APPASERVER_USER *application_clone_appaserver_user( char *login_name )
@@ -519,6 +732,8 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 		/* Returns heap memory */
 		/* ------------------- */
 		security_generate_password();
+
+	appaserver_user->user_date_format = "american";
 
 	return appaserver_user;
 }

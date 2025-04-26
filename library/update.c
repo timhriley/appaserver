@@ -296,6 +296,9 @@ UPDATE_ROOT *update_root_new(
 				update_root->
 					update_where_list_primary_data_string,
 				update_attribute_list );
+
+		update_root->update_changed_list->update_command_line =
+			update_root->update_command_line;
 	}
 
 	return update_root;
@@ -438,60 +441,6 @@ msg( (char *)0, message );
 	}
 
 	return update_row;
-}
-
-int update_row_list_cell_count( LIST *update_row_list )
-{
-	int cell_count = 0;
-	UPDATE_ROW *update_row;
-
-	if ( list_rewind( update_row_list ) )
-	do {
-		update_row = list_get( update_row_list );
-
-		cell_count +=
-			update_row_cell_count(
-				update_row->update_root,
-				update_row->update_one2m_list,
-				update_row->update_mto1_isa_list );
-
-	} while( list_next( update_row_list ) );
-
-	return cell_count;
-}
-
-int update_row_cell_count(
-		UPDATE_ROOT *update_root,
-		UPDATE_ONE2M_LIST *update_one2m_list,
-		LIST *update_mto1_isa_list )
-{
-	int cell_count = 0;
-
-	if ( update_root )
-	{
-		cell_count =
-			list_length(
-				update_root->
-					update_changed_list->
-					list );
-	}
-
-	if ( update_one2m_list )
-	{
-		cell_count +=
-			update_one2m_list_cell_count(
-				update_one2m_list->list
-				/* update_one2m_list */ );
-	}
-
-	if ( list_length( update_mto1_isa_list ) )
-	{
-		cell_count +=
-			update_mto1_isa_list_cell_count(
-				update_mto1_isa_list );
-	}
-
-	return cell_count;
 }
 
 UPDATE_ATTRIBUTE *update_attribute_calloc( void )
@@ -670,6 +619,21 @@ msg( (char *)0, message );
 		return NULL;
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_changed_list=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update_changed_list_display( update_mto1_isa->update_changed_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( relation_mto1_isa->one_folder->post_change_process_name
 	&&   !relation_mto1_isa->one_folder->post_change_process )
 	{
@@ -722,7 +686,25 @@ msg( (char *)0, message );
 				update_mto1_isa->
 					update_where_list_primary_data_string,
 				update_mto1_isa->update_attribute_list );
+
+		update_mto1_isa->update_changed_list->update_command_line =
+			update_mto1_isa->update_command_line;
 	}
+
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_changed_primary_key_boolean=%d\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update_changed_primary_key_boolean );
+msg( (char *)0, message );
+}
+#endif
 
 	if ( update_changed_primary_key_boolean )
 	{
@@ -733,7 +715,7 @@ msg( (char *)0, message );
 				relation_mto1_isa->
 					one_folder->
 					folder_attribute_primary_key_list,
-				0 /* not include_isa_boolean */ );
+				1 /* include_isa_boolean */ );
 
 		if ( list_length( update_mto1_isa->relation_one2m_list ) )
 		{
@@ -870,6 +852,10 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	if ( list_length( update_row_list->list ) )
 	{
+		update_row_list_update_changed_list_list_set(
+			update_row_list->list
+				/* update_row_list in/out */ );
+
 		update_row_list->cell_count =
 			update_row_list_cell_count(
 				update_row_list->list
@@ -1245,12 +1231,10 @@ char *update_row_list_execute(
 		update_row = list_get( update_row_list->list );
 
 		update_error_string =
-			update_row_execute(
+			update_changed_list_list_execute(
 				sql_executable,
 				application_name,
-				update_row->update_root,
-				update_row->update_one2m_list,
-				update_row->update_mto1_isa_list,
+				update_row->update_changed_list_list,
 				appaserver_error_filename );
 
 		if ( update_error_string )
@@ -2923,6 +2907,9 @@ msg( (char *)0, message );
 				appaserver_error_filename,
 				update_one2m_row->query_cell_primary_data_list,
 				update_one2m_row->update_attribute_list );
+
+		update_one2m_row->update_changed_list->update_command_line =
+			update_one2m_row->command_line;
 	}
 
 	changed_primary_key_boolean =
@@ -4393,6 +4380,7 @@ void update_row_list_command_line_execute(
 		UPDATE_ROW_LIST *update_row_list )
 {
 	UPDATE_ROW *update_row;
+	UPDATE_CHANGED_LIST *update_changed_list;
 
 	if ( !update_row_list
 	||   !list_rewind( update_row_list->list ) )
@@ -4403,12 +4391,25 @@ void update_row_list_command_line_execute(
 	do {
 		update_row = list_get( update_row_list->list );
 
-		update_row_command_line_execute(
-			update_row->update_root,
-			update_row->update_one2m_list,
-			update_row->update_mto1_isa_list );
+		if ( list_rewind( update_row->update_changed_list_list ) )
+		do {
+			update_changed_list =
+				list_get(
+					update_row->
+						update_changed_list_list );
 
-	} while ( list_next( update_row_list->list ) );
+			if ( update_changed_list->update_command_line )
+			{
+				security_system(
+					SECURITY_FORK_CHARACTER,
+					SECURITY_FORK_STRING,
+					update_changed_list->
+						update_command_line );
+			}
+
+		} while ( list_next( update_row->update_changed_list_list ) );
+
+	}  while ( list_next( update_row_list->list ) );
 }
 
 char *update_results_string(
@@ -5100,6 +5101,81 @@ void update_mto1_isa_display( UPDATE_MTO1_ISA *update_mto1_isa )
 	} while ( list_next( update_mto1_isa->update_one2m_list->list ) );
 }
 
+void update_mto1_isa_list_update_changed_list_list(
+		LIST *update_mto1_isa_list,
+		LIST *update_changed_list_list /* in/out */ )
+{
+	UPDATE_MTO1_ISA *update_mto1_isa;
+
+	if ( list_rewind( update_mto1_isa_list ) )
+	do {
+		update_mto1_isa = list_get( update_mto1_isa_list );
+
+		update_mto1_isa_update_changed_list_list(
+			update_mto1_isa,
+			update_changed_list_list /* in/out */ );
+
+	} while ( list_next( update_mto1_isa_list ) );
+}
+
+void update_mto1_isa_update_changed_list_list(
+		UPDATE_MTO1_ISA *update_mto1_isa,
+		LIST *update_changed_list_list /* in/out */ )
+{
+	UPDATE_ONE2M *update_one2m;
+
+	if ( !update_mto1_isa
+	||   !update_mto1_isa->update_changed_list
+	||   !update_mto1_isa->update_changed_list->sql_statement_string )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "update_mto1_isa is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	update_changed_list_list_getset(
+		update_changed_list_list /* in/out */,
+		update_mto1_isa->
+			update_changed_list );
+
+	if ( update_mto1_isa->update_one2m_list
+	&&   list_rewind( update_mto1_isa->update_one2m_list->list ) )
+	do {
+		update_one2m =
+			list_get(
+				update_mto1_isa->
+					update_one2m_list->
+					list );
+
+		if ( !update_one2m->update_one2m_fetch )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"update_one2m->update_one2m_fetch is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		update_one2m_row_list_update_changed_list_list(
+			update_one2m->
+				update_one2m_fetch->
+				update_one2m_row_list,
+			update_changed_list_list /* in/out */ );
+
+	} while ( list_next( update_mto1_isa->update_one2m_list->list ) );
+}
+
 void update_one2m_row_list_display( LIST *update_one2m_row_list )
 {
 	UPDATE_ONE2M_ROW *update_one2m_row;
@@ -5143,6 +5219,49 @@ void update_one2m_row_list_display( LIST *update_one2m_row_list )
 	} while ( list_next( update_one2m_row_list ) );
 }
 
+void update_one2m_row_list_update_changed_list_list(
+		LIST *update_one2m_row_list,
+		LIST *update_changed_list_list /* in/out */ )
+{
+	UPDATE_ONE2M_ROW *update_one2m_row;
+
+	if ( list_rewind( update_one2m_row_list ) )
+	do {
+		update_one2m_row = list_get( update_one2m_row_list );
+
+		if ( !update_one2m_row->update_changed_list )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"update_one2m_row->update_changed_list is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		update_changed_list_list_getset(
+			update_changed_list_list /* in/out */,
+			update_one2m_row->
+				update_changed_list );
+
+		if ( update_one2m_row->update_one2m_list )
+		{
+			update_one2m_list_update_changed_list_list(
+				update_one2m_row->
+					update_one2m_list->
+					list /* update_one2m_row_list */,
+				update_changed_list_list /* in/out */ );
+		}
+
+	} while ( list_next( update_one2m_row_list ) );
+}
+
 void update_one2m_list_display( LIST *update_one2m_list )
 {
 	UPDATE_ONE2M *update_one2m;
@@ -5170,6 +5289,40 @@ void update_one2m_list_display( LIST *update_one2m_list )
 			update_one2m->
 				update_one2m_fetch->
 				update_one2m_row_list );
+
+	} while ( list_next( update_one2m_list ) );
+}
+
+void update_one2m_list_update_changed_list_list(
+		LIST *update_one2m_list,
+		LIST *update_changed_list_list /* in/out */ )
+{
+	UPDATE_ONE2M *update_one2m;
+
+	if ( list_rewind( update_one2m_list ) )
+	do {
+		update_one2m = list_get( update_one2m_list );
+
+		if ( !update_one2m->update_one2m_fetch
+		||   !update_one2m->update_one2m_fetch->update_one2m_row_list )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+		"update_one2m->update_one2m_fetch is empty or incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		update_one2m_row_list_update_changed_list_list(
+			update_one2m->
+				update_one2m_fetch->
+				update_one2m_row_list,
+			update_changed_list_list /* in/out */ );
 
 	} while ( list_next( update_one2m_list ) );
 }
@@ -5232,6 +5385,91 @@ void update_row_display(
 		update_mto1_isa_list_display(
 			update_mto1_isa_list );
 	}
+}
+
+void update_row_list_update_changed_list_list_set(
+		LIST *update_row_list /* in/out */ )
+{
+	UPDATE_ROW *update_row;
+	LIST *update_changed_list_list;
+
+	if ( list_rewind( update_row_list ) )
+	do {
+		update_row = list_get( update_row_list );
+
+		update_changed_list_list =
+			update_row_update_changed_list_list(
+				update_row->update_root,
+				update_row->update_one2m_list,
+				update_row->update_mto1_isa_list );
+
+		update_row->update_changed_list_list =
+			update_changed_list_list;
+
+	} while ( list_next( update_row_list ) );
+}
+
+LIST *update_row_update_changed_list_list(
+		UPDATE_ROOT *update_root,
+		UPDATE_ONE2M_LIST *update_one2m_list,
+		LIST *update_mto1_isa_list )
+{
+	LIST *update_changed_list_list = list_new();
+
+	if ( update_root )
+	{
+		if ( !update_root->update_changed_list
+		||   !update_root->
+			update_changed_list->
+			sql_statement_string )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+		"update_roow->update_changed_list is empty or incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		list_set(
+			update_changed_list_list,
+			update_root->update_changed_list );
+	}
+
+	if ( update_one2m_list )
+	{
+		if ( !update_one2m_list->list )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"update_one2m_list->list is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		update_one2m_list_update_changed_list_list(
+			update_one2m_list->list
+				/* update_one2m_list */,
+			update_changed_list_list /* in/out */ );
+	}
+
+	if ( list_length( update_mto1_isa_list ) )
+	{
+		update_mto1_isa_list_update_changed_list_list(
+			update_mto1_isa_list,
+			update_changed_list_list /* in/out */ );
+	}
+
+	return update_changed_list_list;
 }
 
 void update_row_list_zap_root( UPDATE_ROW_LIST *update_row_list )
@@ -5465,5 +5703,207 @@ char *update_one2m_row_post_datum( UPDATE_CHANGED *update_changed_seek )
 	{
 		return NULL;
 	}
+}
+
+void update_changed_list_list_getset(
+		LIST *update_changed_list_list /* in/out */,
+		UPDATE_CHANGED_LIST *parameter_update_changed_list )
+{
+	UPDATE_CHANGED_LIST *update_changed_list;
+	boolean list_boolean;
+
+	if ( !update_changed_list_list
+	||   !parameter_update_changed_list )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( update_changed_list_list ) )
+	do {
+		update_changed_list =
+			list_get( update_changed_list_list );
+
+		list_boolean =
+			update_changed_list_boolean(
+				update_changed_list,
+				parameter_update_changed_list );
+
+		if ( list_boolean ) return;
+
+	} while ( list_next( update_changed_list_list ) );
+
+	list_set(
+		update_changed_list_list,
+		parameter_update_changed_list );
+}
+
+boolean update_changed_list_boolean(
+		UPDATE_CHANGED_LIST *update_changed_list,
+		UPDATE_CHANGED_LIST *parameter_update_changed_list )
+{
+	int cmp;
+	boolean list_boolean = 0;
+
+	cmp = strcmp(
+		update_changed_list->
+			sql_statement_string,
+		parameter_update_changed_list->
+			sql_statement_string );
+
+	if ( cmp == 0 ) list_boolean = 1;
+
+	return list_boolean;
+}
+
+char *update_changed_list_list_execute(
+		const char *sql_executable,
+		char *application_name,
+		LIST *update_changed_list_list,
+		char *appaserver_error_filename )
+{
+	char *update_error_string;
+	char *system_string;
+	FILE *output_pipe;
+	UPDATE_CHANGED_LIST *update_changed_list;
+
+	if ( !application_name
+	||   !update_changed_list_list
+	||   !appaserver_error_filename )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		update_system_string(
+			sql_executable,
+			appaserver_error_filename );
+
+	output_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			system_string );
+
+	if ( list_rewind( update_changed_list_list ) )
+	do {
+		update_changed_list =
+			list_get(
+				update_changed_list_list );
+
+		if ( list_first_boolean( update_changed_list_list ) )
+		{
+			update_error_string =
+				update_root_execute(
+					SQL_EXECUTABLE,
+					update_changed_list->
+						sql_statement_string,
+					appaserver_error_filename );
+
+			if ( update_error_string )
+			{
+				appaserver_error_message_file(
+					application_name,
+					(char *)0 /* login_name */,
+					update_error_string /* message */ );
+
+				pclose( output_pipe );
+				return update_error_string;
+			}
+		}
+		else
+		{
+			fprintf(
+				output_pipe,
+				"%s\n",
+				update_changed_list->sql_statement_string );
+		}
+
+	} while ( list_next( update_changed_list_list ) );
+
+	pclose( output_pipe );
+
+	return NULL;
+}
+
+int update_row_list_cell_count( LIST *update_row_list )
+{
+	int cell_count = 0;
+	UPDATE_ROW *update_row;
+
+	if ( list_rewind( update_row_list ) )
+	do {
+		update_row = list_get( update_row_list );
+
+		cell_count +=
+			update_row_cell_count(
+				update_row );
+
+	} while ( list_next( update_row_list ) );
+
+	return cell_count;
+}
+
+int update_row_cell_count( UPDATE_ROW *update_row )
+{
+	int cell_count = 0;
+	UPDATE_CHANGED_LIST *update_changed_list;
+
+	if ( !update_row )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"update_row is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( update_row->update_changed_list_list ) )
+	do {
+		update_changed_list =
+			list_get(
+				update_row->
+					update_changed_list_list );
+
+		cell_count +=
+			list_length(
+				update_changed_list->
+					list );
+
+	} while ( list_next( update_row->update_changed_list_list ) );
+
+	return cell_count;
 }
 

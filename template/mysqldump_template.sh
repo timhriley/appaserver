@@ -9,6 +9,8 @@ output_filename="$APPASERVER_HOME/template/mysqldump_template.sql.gz"
 (
 zcat $input_filename					|
 grep -vi 'insert into `appaserver_user`'		|
+grep -vi 'insert into `self`'				|
+grep -vi 'insert into `entity`'				|
 grep -vi 'insert into `login_default_role`'		|
 grep -vi 'insert into `session`'			|
 grep -vi 'insert into `select_statement`'		|

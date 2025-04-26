@@ -682,7 +682,7 @@ void list_unique_set(
 
 void list_set_unique(
 		LIST *list,
-		char *this_item );
+		char *string );
 
 void list_append_unique_string(
 		LIST *list,

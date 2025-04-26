@@ -1617,10 +1617,11 @@ int list_add_in_order(
 /* Add a new link containing this item to the list in order  */
 /* The current pointer is uneffected.                        */
 /* --------------------------------------------------------- */
-int add_in_order( 	LIST *list, 
-			void *this_item, 
-			int num_bytes,
-			int (*compare_fn)() )
+int add_in_order(
+		LIST *list, 
+		void *this_item, 
+		int num_bytes,
+		int (*compare_fn)() )
 {
         /* Create the new link */
         /* ------------------- */
@@ -1681,53 +1682,54 @@ int add_in_order( 	LIST *list,
         return 1;
 }
 
-LIST *list_unique_list(	LIST *destination_list,
-			LIST *source_list )
+LIST *list_unique_list(
+		LIST *destination_list,
+		LIST *source_list )
 {
 	if ( !destination_list ) destination_list = list_new();
 
-	return list_append_unique_string_list(
-			destination_list,
-			source_list );
+	return
+	list_append_unique_string_list(
+		destination_list,
+		source_list );
 }
 
 LIST *list_append_unique_string_list(
-			LIST *destination_list,
-			LIST *source_list )
+		LIST *destination_list,
+		LIST *source_list )
 {
 	char *item;
 
 	if ( list_rewind( source_list ) )
-	{
-		do {
-			item = list_get( source_list );
-			list_append_unique_string( destination_list, item );
-		} while( list_next( source_list ) );
-	}
+	do {
+		item = list_get( source_list );
+		list_append_unique_string( destination_list, item );
+	} while( list_next( source_list ) );
+
 	return destination_list;
 }
 
 void list_append_unique_string(
-			LIST *list,
-			char *item )
+		LIST *list,
+		char *item )
 {
 	list_set_unique( list, item );
 }
 
 void list_unique_set(
-			LIST *list,
-			char *this_item )
+		LIST *list,
+		char *this_item )
 {
 	list_set_unique( list, this_item );
 }
 
 void list_set_unique(
-			LIST *list,
-			char *this_item )
+		LIST *list,
+		char *string )
 {
-	if ( !item_exists( list, this_item, strcmp ) )
+	if ( !list_string_search( string, list ) )
 	{
-		list_set( list, this_item );
+		list_set( list, string );
 	}
 }
 

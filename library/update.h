@@ -194,6 +194,10 @@ typedef struct
 	LIST *where_list;
 	char *update_where_list_string;
 	char *sql_statement_string;
+
+	/* Set externally */
+	/* -------------- */
+	char *update_command_line;
 } UPDATE_CHANGED_LIST;
 
 /* Usage */
@@ -229,6 +233,29 @@ char *update_changed_list_sql_statement_string(
 /* ------------------- */
 char *update_changed_list_display(
 		UPDATE_CHANGED_LIST *update_changed_list );
+
+/* Usage */
+/* ----- */
+void update_changed_list_list_getset(
+		LIST *update_changed_list_list /* in/out */,
+		UPDATE_CHANGED_LIST *parameter_update_changed_list );
+
+/* Usage */
+/* ----- */
+boolean update_changed_list_boolean(
+		UPDATE_CHANGED_LIST *update_changed_list,
+		UPDATE_CHANGED_LIST *parameter_update_changed_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns update_error_string or null */
+/* ----------------------------------- */
+char *update_changed_list_list_execute(
+		const char *sql_executable,
+		char *application_name,
+		LIST *update_changed_list_list,
+		char *appaserver_error_filename );
 
 typedef struct
 {
@@ -369,6 +396,12 @@ void update_one2m_row_list_command_execute(
 void update_one2m_row_list_display(
 		LIST *update_one2m_row_list );
 
+/* Usage */
+/* ------ */
+void update_one2m_row_list_update_changed_list_list(
+		LIST *update_one2m_row_list,
+		LIST *update_changed_list_list /* in/out */ );
+
 typedef struct
 {
 	int row_number;
@@ -482,6 +515,12 @@ void update_one2m_list_command_line_execute(
 /* ----- */
 void update_one2m_list_display(
 		LIST *update_one2m_list );
+
+/* Usage */
+/* ----- */
+void update_one2m_list_update_changed_list_list(
+		LIST *update_one2m_list,
+		LIST *update_changed_list_list /* in/out */ );
 
 /* Usage */
 /* ----- */
@@ -624,6 +663,18 @@ void update_mto1_isa_list_display(
 void update_mto1_isa_display(
 		UPDATE_MTO1_ISA *update_mto1_isa );
 
+/* Usage */
+/* ----- */
+void update_mto1_isa_list_update_changed_list_list(
+		LIST *update_mto1_isa_list,
+		LIST *update_changed_list_list /* in/out */ );
+
+/* Usage */
+/* ----- */
+void update_mto1_isa_update_changed_list_list(
+		UPDATE_MTO1_ISA *update_mto1_isa,
+		LIST *update_changed_list_list /* in/out */ );
+
 typedef struct
 {
 	char *folder_name;
@@ -671,6 +722,7 @@ typedef struct
 	UPDATE_ROOT *update_root;
 	UPDATE_ONE2M_LIST *update_one2m_list;
 	LIST *update_mto1_isa_list;
+	LIST *update_changed_list_list;
 } UPDATE_ROW;
 
 /* Usage */
@@ -699,10 +751,13 @@ UPDATE_ROW *update_row_calloc(
 
 /* Usage */
 /* ----- */
+int update_row_list_cell_count(
+		LIST *update_row_list );
+
+/* Usage */
+/* ----- */
 int update_row_cell_count(
-		UPDATE_ROOT *update_root,
-		UPDATE_ONE2M_LIST *update_one2m_list,
-		LIST *update_mto1_isa_list );
+		UPDATE_ROW *update_row );
 
 /* Usage */
 /* ----- */
@@ -734,6 +789,18 @@ void update_row_command_line_execute(
 /* Usage */
 /* ----- */
 void update_row_display(
+		UPDATE_ROOT *update_root,
+		UPDATE_ONE2M_LIST *update_one2m_list,
+		LIST *update_mto1_isa_list );
+
+/* Usage */
+/* ----- */
+void update_row_list_update_changed_list_list_set(
+		LIST *update_row_list /* in/out */ );
+
+/* Usage */
+/* ----- */
+LIST *update_row_update_changed_list_list(
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
 		LIST *update_mto1_isa_list );
@@ -773,8 +840,10 @@ UPDATE_ROW_LIST *update_row_list_new(
 UPDATE_ROW_LIST *update_row_list_calloc(
 		void );
 
+/*
 int update_row_list_cell_count(
 		LIST *update_row_list );
+**/
 
 LIST *update_row_list_folder_name_list(
 		LIST *update_row_list );
@@ -806,12 +875,17 @@ void update_row_list_command_line_execute(
 
 /* Usage */
 /* ----- */
-void update_row_list_zap_root(
+void update_row_list_display(
 		UPDATE_ROW_LIST *update_row_list );
 
 /* Usage */
 /* ----- */
-void update_row_list_display(
+LIST *update_row_list_update_changed_list_list(
+		UPDATE_ROW_LIST *update_row_list );
+
+/* Usage */
+/* ----- */
+void update_row_list_zap_root(
 		UPDATE_ROW_LIST *update_row_list );
 
 typedef struct
@@ -821,6 +895,9 @@ typedef struct
 	char *appaserver_parameter_mount_point;
 	UPDATE_ROW_LIST *update_row_list;
 	char *results_string;
+
+	/* Set externally */
+	/* -------------- */
 	char *error_string;
 } UPDATE;
 
