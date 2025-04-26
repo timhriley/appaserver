@@ -10,6 +10,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "date.h"
+#include "appaserver_user.h"
 #include "transaction.h"
 #include "journal.h"
 #include "account.h"
@@ -63,14 +64,16 @@
 
 #define FEEDER_LOAD_EVENT_SELECT	"feeder_account,"	\
 					"feeder_load_date_time,"\
-					"login_name,"		\
+					"full_name,"		\
+					"street_address,"	\
 					"feeder_load_filename,"	\
 					"account_end_date,"	\
 					"account_end_balance"
 
 #define FEEDER_LOAD_EVENT_INSERT	"feeder_account,"	\
 					"feeder_load_date_time,"\
-					"login_name,"		\
+					"full_name,"		\
+					"street_address,"	\
 					"feeder_load_filename,"	\
 					"account_end_date,"	\
 					"account_end_balance"
@@ -801,10 +804,10 @@ typedef struct
 {
 	char *feeder_account_name;
 	char *feeder_load_date_time;
-	char *login_name;
 	char *feeder_load_filename;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;
+	APPASERVER_USER *appaserver_user;
 } FEEDER_LOAD_EVENT;
 
 /* Usage */
@@ -847,6 +850,8 @@ char *feeder_load_event_system_string(
 FILE *feeder_load_event_input_open(
 		char *feeder_load_event_system_string );
 
+/* Usage */
+/* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_parse(
 		char *input );
 
@@ -884,7 +889,8 @@ void feeder_load_event_insert(
 		const char *feeder_load_event_insert,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *login_name,
+		char *full_name,
+		char *street_address,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance );
@@ -907,7 +913,8 @@ void feeder_load_event_insert_pipe(
 		const char sql_delimiter,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *login_name,
+		char *full_name,
+		char *street_address,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance );

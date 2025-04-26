@@ -459,7 +459,6 @@ FEEDER_LOAD_EVENT *feeder_load_event_new(
 
 	feeder_load_event->feeder_account_name = feeder_account_name;
 	feeder_load_event->feeder_load_date_time = feeder_load_date_time;
-	feeder_load_event->login_name = login_name;
 	feeder_load_event->feeder_load_filename = feeder_load_filename;
 
 	feeder_load_event->feeder_row_account_end_date =
@@ -467,6 +466,28 @@ FEEDER_LOAD_EVENT *feeder_load_event_new(
 
 	feeder_load_event->feeder_row_account_end_balance =
 		feeder_row_account_end_balance;
+
+	feeder_load_event->appaserver_user =
+		appaserver_user_login_fetch(
+			login_name,
+			0 /* not fetch_role_name_list */ );
+
+	if ( !feeder_load_event->appaserver_user )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	return feeder_load_event;
 }
@@ -497,7 +518,8 @@ void feeder_load_event_insert(
 		const char *feeder_load_event_insert,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *login_name,
+		char *full_name,
+		char *street_address,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance )
@@ -506,7 +528,8 @@ void feeder_load_event_insert(
 
 	if ( !feeder_account_name
 	||   !feeder_load_date_time
-	||   !login_name
+	||   !full_name
+	||   !street_address
 	||   !feeder_load_filename
 	||   !feeder_row_account_end_date )
 	{
@@ -536,7 +559,8 @@ void feeder_load_event_insert(
 		SQL_DELIMITER,
 		feeder_account_name,
 		feeder_load_date_time,
-		login_name,
+		full_name,
+		street_address,
 		feeder_load_filename,
 		feeder_row_account_end_date,
 		feeder_row_account_end_balance );
@@ -587,7 +611,8 @@ void feeder_load_event_insert_pipe(
 		char sql_delimiter,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *login_name,
+		char *full_name,
+		char *street_address,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_calculate_balance )
@@ -596,7 +621,8 @@ void feeder_load_event_insert_pipe(
 	||   !sql_delimiter
 	||   !feeder_account_name
 	||   !feeder_load_date_time
-	||   !login_name
+	||   !full_name
+	||   !street_address
 	||   !feeder_load_filename
 	||   !feeder_row_account_end_date )
 	{
@@ -616,12 +642,14 @@ void feeder_load_event_insert_pipe(
 	/* See FEEDER_LOAD_EVENT_INSERT */
 	/* ---------------------------- */
 	fprintf(insert_open,
-		"%s%c%s%c%s%c%s%c%s%c%.2lf\n",
+		"%s%c%s%c%s%c%s%c%s%c%s%c%.2lf\n",
 		feeder_account_name,
 		sql_delimiter,
 	 	feeder_load_date_time,
 		sql_delimiter,
-		login_name,
+		full_name,
+		sql_delimiter,
+		street_address,
 		sql_delimiter,
 		feeder_load_filename,
 		sql_delimiter,
@@ -2634,6 +2662,11 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 
 	pclose( input_open );
 
+	if ( feeder_load_event && !feeder_load_event->appaserver_user )
+	{
+		feeder_load_event = NULL;
+	}
+
 	return feeder_load_event;
 }
 
@@ -2726,6 +2759,8 @@ FILE *feeder_load_event_input_open( char *feeder_load_event_system_string )
 FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
 {
 	char buffer[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
 	FEEDER_LOAD_EVENT *feeder_load_event;
 
 	if ( !input || !*input ) return NULL;
@@ -2740,22 +2775,30 @@ FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	feeder_load_event->feeder_load_date_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer ) feeder_load_event->login_name = strdup( buffer );
+	piece( full_name, SQL_DELIMITER, input, 2 );
+	piece( street_address, SQL_DELIMITER, input, 3 );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *full_name && *street_address )
+	{
+		feeder_load_event->appaserver_user =
+			appaserver_user_new(
+				strdup( full_name ),
+				strdup( street_address ) );
+	}
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
 		feeder_load_event->feeder_load_filename =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer )
 	{
 		feeder_load_event->feeder_row_account_end_date =
 			strdup( buffer );
 	}
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer )
 	{
 		feeder_load_event->feeder_row_account_end_balance =
@@ -4337,7 +4380,12 @@ void feeder_execute(
 			feeder_load_date_time,
 		feeder->
 			feeder_load_event->
-			login_name,
+			appaserver_user->
+			full_name,
+		feeder->
+			feeder_load_event->
+			appaserver_user->
+			street_address,
 		feeder->
 			feeder_load_event->
 			feeder_load_filename,

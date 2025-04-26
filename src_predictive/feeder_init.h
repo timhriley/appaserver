@@ -35,13 +35,13 @@
 
 #define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
-	"ERROR: This feeder account already exists. "			\
-	"See Lookup --> Feeder --> Feeder Account"
+	"ERROR: This feeder account already exists.\n"			\
+	"<br />See: Lookup --> Feeder --> Feeder Account"
 
 #define FEEDER_INIT_ENTITY_SELF_MESSAGE				  	\
 	"<p style=\"margin: 3\%;\">"					\
-	"ERROR: your name must be inserted into the table Self. "	\
-	"See Insert --> Entity --> Self"
+	"ERROR: your name must be inserted into the table Self.\n"	\
+	"<br />See: Insert --> Entity --> Self"
 
 #define FEEDER_INIT_RECENT_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
@@ -88,7 +88,7 @@
 	"entry is not a normal activity.\n"				\
 	"<br />"							\
 	"<br /><i>Become familiar with the seven elements</i>. "	\
-	"See Lookup --> Transaction --> Element\n"			\
+	"See: Lookup --> Transaction --> Element\n"			\
 	"<br />"							\
 	"<br />The only normal activity that will post to an Equity "	\
 	"element is when you transfer money from your checking asset "	\
@@ -124,7 +124,7 @@
 	"these elements are known as nominal accounts. "		\
 	"Nominal accounts have the property that they are closed "	\
 	"(reset to zero) at year-end.\n"				\
-	"<br />See Alter --> Close Nominal Accounts"
+	"<br />See: Alter --> Close Nominal Accounts"
 
 #define FEEDER_INIT_POSITION_MESSAGE					\
 	"<h3>Financial Position</h3>\n"					\
@@ -135,7 +135,7 @@
 	"Asset Element = Liability Element + Equity Element\n"
 
 #define FEEDER_INIT_DEBIT_CREDIT_MESSAGE				\
-	"<h3>Debit/Credit Jargon</h3>\n"				\
+	"<h3>Bookkeeping Jargon</h3>\n"					\
 	"<p style=\"margin: 3\%;\">"					\
 	"It is tempting to try to figure out the correct journal "	\
 	"entry by applying the common definitions of 'debit' and "	\
@@ -149,15 +149,14 @@
 	"the left column and generated a <i>debt</i> to the bank. "	\
 	"When a bank gave out a loan, it was logged to the right "	\
 	"column and generated a <i>credit</i> to the customer. "	\
-	"Banks no longer log their bookkeeping records this way, but "	\
-	"the debit/credit terms remain."				\
+	"Banks no longer log their bookkeeping records this simply, "	\
+	"but the debit/credit terms remain."				\
 	"<br />"							\
-	"<br />Get used to the idea that 'debit' "			\
+	"<br />In bookkeeping jargon, 'debit' "				\
 	"means the left column and 'credit' means the right column. "	\
-	"The checking account asset accumulates on the left; "		\
-	"the credit card liability accumulates on the right. If you "	\
-	"need a reminder of this, see Lookup --> Transaction --> "	\
-	"Element"
+	"The checking asset account accumulates on the left; "		\
+	"the credit card liability account accumulates on the right.\n"	\
+	"<br />See: Lookup --> Transaction --> Element"
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
 	"<h3>Pay Liabilities</h3>\n"					\
@@ -175,16 +174,16 @@
 	"the menu path: Insert --> Transaction --> Transaction. "	\
 	"The debit column will likely be an expense account. Set the "	\
 	"credit column to Account Payable. "				\
-	"To print the check, execute: Alter --> Pay Liabilities"	\
-	"<h3>Next Step</h3>\n"						\
+	"<br />To print the check, execute: Alter --> Pay Liabilities"	\
+	"<h3>Feeder Upload</h3>\n"					\
 	"<p style=\"margin: 3\%;\">"					\
 	"The next step is to upload this feeder file to generate "	\
-	"journal entries for all of these activity transactions. "	\
-	"The process to execute is called Feeder Upload. "		\
-	"However, it is likely that only a few transactions get "	\
-	"generated the first time.\n"					\
+	"journal entries for all of these activity transactions.\n"	\
+	"<br />The process to execute is: Feeder --> Feeder Upload\n"	\
 	"<br />"							\
-	"<br />In this feeder file, each transaction is described with "\
+	"<br />However, it is likely that only a few transactions get "	\
+	"generated the first time. "					\
+	"In this feeder file, each transaction is described with "\
 	"some text that contains the vendor's name. "			\
 	"PredictBooks calls the vendor's name and any descriptive "	\
 	"words a <i>feeder phrase</i>.\n"				\
@@ -196,7 +195,6 @@
 	"Each row contains the vendor's name. "				\
 	"Copy and paste the vendor's name and any adjoining "		\
 	"descriptive words into the following path:\n"			\
-	"<br />"							\
 	"<br />Feeder --> Insert Feeder Phrase\n"			\
 	"<br />"							\
 	"<br />Hint: [Right Click] your browser's tab and select "	\
