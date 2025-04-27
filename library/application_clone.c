@@ -724,8 +724,10 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_new(
-			login_name /* full_name */,
-			"unknown" /* street_address */ );
+			"Fullname Placeholder" /* full_name */,
+			"1234 Set Me" /* street_address */ );
+
+	appaserver_user->login_name = login_name;
 
 	appaserver_user->password =
 		/* ------------------- */

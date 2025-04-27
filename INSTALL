@@ -144,11 +144,11 @@ http://localhost/appaserver/template
 	Login name=nobody
 	Password=changeit
 
----------------------------------
-M) Insert your username/password:
----------------------------------
-1) <Role> <System>
-2) <Insert> <Security> <Appaserver User>
+-----------------------------------
+M) Insert your login_name/password:
+-----------------------------------
+1) <Role> <Supervisor>
+2) <Insert> <Entity> <Appaserver User>
 3) Set Login Name = yourLoginName
 4) Set Password = yourPassword
 5) <Role Appaserver User>
@@ -158,8 +158,8 @@ M) Insert your username/password:
 ---------------------------------
 N) Delete APPASERVER_USER=nobody:
 ---------------------------------
-1) <Role> <System>
-2) <Lookup> <Security> <Appaserver User>
+1) <Role> <Supervisor>
+2) <Lookup> <Entity> <Appaserver User>
 3) Query where login_name = 'nobody'
 4) <Delete>
 

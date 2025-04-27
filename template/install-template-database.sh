@@ -35,6 +35,12 @@ execute=$1
 profile_file="/etc/profile"
 appaserver_config_file="/etc/appaserver.config"
 
+full_name="No Body"
+street_address="1234 Nowhere"
+login_name="nobody"
+password="changeit"
+date_format="american"
+
 integrity_check ()
 {
 	results=`	cat $appaserver_config_file		|\
@@ -89,20 +95,41 @@ load_mysqldump_template ()
 
 insert_user_nobody ()
 {
-	table="appaserver_user"
-	field="login_name,password,user_date_format"
+	table="entity"
+	field="full_name,street_address"
 
-	echo "nobody|changeit|american"			|
+	echo "$full_name|$street_address"		|
 	insert_statement.e table=$table field=$field	|
 	sql.e
 
+	table="self"
+	field="full_name,street_address"
+
+	echo "$full_name|$street_address"		|
+	insert_statement.e table=$table field=$field	|
+	sql.e
+
+	table="appaserver_user"
+	field="full_name,street_address,login_name,password,user_date_format"
+
+	echo "$full_name|$street_address|$login_name|$password|$date_format" |
+	insert_statement.e table=$table field=$field			     |
+	sql.e
+
 	table="role_appaserver_user"
-	field="login_name,role"
+	field="full_name,street_address,role"
 
 	(
-	echo "nobody|system"
-	echo "nobody|supervisor"
+	echo "$full_name|$street_address|system"
+	echo "$full_name|$street_address|supervisor"
 	)						|
+	insert_statement.e table=$table field=$field	|
+	sql.e
+
+	table="login_default_role"
+	field="full_name,street_address,role"
+
+	echo "$full_name|$street_address|supervisor"	|
 	insert_statement.e table=$table field=$field	|
 	sql.e
 }
