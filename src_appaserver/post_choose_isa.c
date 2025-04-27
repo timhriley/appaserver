@@ -117,11 +117,11 @@ int main( int argc, char **argv )
 					appaserver_error_filename );
 	}
 
-	if ( post_choose_isa->execute_system_string_table_insert )
+	if ( post_choose_isa->skip_system_string )
 	{
 		if ( system(
 			post_choose_isa->
-				execute_system_string_table_insert ) ){}
+				skip_system_string ) ){}
 	}
 	else
 	if ( post_choose_isa->execute_system_string_table_edit )

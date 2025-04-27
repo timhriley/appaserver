@@ -15,6 +15,7 @@
 #include "frameset.h"
 #include "dictionary.h"
 #include "table_insert.h"
+#include "prompt_insert.h"
 #include "table_edit.h"
 #include "execute_system_string.h"
 #include "post_choose_isa.h"
@@ -77,20 +78,18 @@ POST_CHOOSE_ISA *post_choose_isa_new(
 
 	if ( !post_choose_isa->primary_data_list_length )
 	{
-		post_choose_isa->execute_system_string_table_insert =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			execute_system_string_table_insert(
+		post_choose_isa->skip_system_string =
+			post_choose_isa_skip_system_string(
 				TABLE_INSERT_EXECUTABLE,
+				PROMPT_INSERT_EXECUTABLE,
 				session_key,
 				login_name,
 				role_name,
 				folder_name,
-				FRAMESET_PROMPT_FRAME /* target_frame */,
-				(char *)0 /* results_string */,
-				(char *)0 /* error_string */,
-				(char *)0 /* dictionary_separate_send_string */,
+				post_choose_isa->
+					post_choose_isa_input->
+					folder->
+					appaserver_form,
 				post_choose_isa->
 					post_choose_isa_input->
 					appaserver_error_filename );
@@ -694,3 +693,76 @@ DICTIONARY *post_choose_isa_prompt_dictionary(
 
 	return prompt_dictionary;
 }
+
+char *post_choose_isa_skip_system_string(
+		const char *table_insert_executable,
+		const char *prompt_insert_executable,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *folder_appaserver_form,
+		char *appaserver_error_filename )
+{
+	char *skip_system_string;
+
+	if ( !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !folder_appaserver_form
+	||   !appaserver_error_filename )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp(
+		FORM_APPASERVER_TABLE,
+		folder_appaserver_form ) == 0 )
+	{
+		skip_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			execute_system_string_table_insert(
+				table_insert_executable,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				FRAMESET_PROMPT_FRAME /* target_frame */,
+				(char *)0 /* results_string */,
+				(char *)0 /* error_string */,
+				(char *)0 /* dictionary_separate_send_string */,
+				appaserver_error_filename );
+	}
+	else
+	{
+		skip_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			execute_system_string_prompt_insert(
+				prompt_insert_executable,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				(char *)0 /* dictionary_separate_send_string */,
+				appaserver_error_filename );
+	}
+
+	return skip_system_string;
+}
+

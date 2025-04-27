@@ -77,13 +77,14 @@ typedef struct
 {
 	POST_CHOOSE_ISA_INPUT *post_choose_isa_input;
 	LIST *primary_data_list;
+	int primary_data_list_length;
+	char *skip_system_string;
 	boolean lookup_checkbox_checked;
 	POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *prompt_dictionary;
 	DICTIONARY *dictionary_separate_send_dictionary;
 	char *dictionary_separate_send_string;
-	int primary_data_list_length;
 	char *execute_system_string_table_insert;
 	PROCESS *post_change_process;
 	INSERT *insert;
@@ -145,5 +146,20 @@ DICTIONARY *post_choose_isa_query_dictionary(
 DICTIONARY *post_choose_isa_prompt_dictionary(
 		LIST *folder_attribute_primary_key_list,
 		LIST *post_choose_isa_primary_data_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_choose_isa_skip_system_string(
+		const char *table_insert_executable,
+		const char *prompt_insert_executable,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *folder_appaserver_form,
+		char *appaserver_error_filename );
 
 #endif

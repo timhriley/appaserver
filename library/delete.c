@@ -627,7 +627,7 @@ DELETE_ONE2M *delete_one2m_new(
 				/* one_folder_name */,
 			many_folder_primary_key_list
 				/* one_folder_primary_key_list */,
-			1 /* isa_boolean */ );
+			1 /* include_isa_boolean */ );
 
 	delete_one2m->delete_one2m_fetch =
 		/* -------------- */

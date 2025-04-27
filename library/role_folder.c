@@ -203,6 +203,18 @@ LIST *role_folder_system_list( char *system_string )
 		exit( 1 );
 	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	system_string );
+msg( (char *)0, message );
+}
 	input_pipe = role_folder_input_pipe( system_string );
 
 	list = list_new();
