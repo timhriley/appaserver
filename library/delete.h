@@ -17,7 +17,11 @@
 #include "security.h"
 #include "query.h"
 
-#define DELETE_COMPLETE_MESSAGE		"Delete complete with total row count:"
+#define DELETE_MESSAGE			\
+	"Delete: delete row count=%u, update cell count=%u"
+
+#define DELETE_COMPLETE_MESSAGE		\
+	"Delete complete: delete row count=%u, update cell count=%u"
 
 typedef struct
 {
@@ -69,16 +73,6 @@ char *delete_one2m_update_cell_command_line(
 		LIST *query_row_cell_list,
 		char *post_change_process_command_line );
 
-/* Usage */
-/* ----- */
-LIST *delete_one2m_update_cell_sql_statement_list(
-		LIST *delete_one2m_update_cell_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_update_cell_command_list(
-		LIST *delete_one2m_update_cell_list );
-
 typedef struct
 {
 	LIST *delete_one2m_update_cell_list;
@@ -100,16 +94,6 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 /* ------- */
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_calloc(
 		void );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_update_row_sql_statement_list(
-		LIST *delete_one2m_update_row_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_update_row_command_list(
-		LIST *delete_one2m_update_row_list );
 
 typedef struct
 {
@@ -212,21 +196,6 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 DELETE_ONE2M_ROW *delete_one2m_row_calloc(
 		void );
 
-/* Usage */
-/* ----- */
-LIST *delete_one2m_row_sql_statement_list(
-		LIST *delete_one2m_row_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_row_pre_command_list(
-		LIST *delete_one2m_row_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_row_command_list(
-		LIST *delete_one2m_row_list );
-
 typedef struct
 {
 	PROCESS *post_change_process;
@@ -277,33 +246,6 @@ char *delete_one2m_select_string(
 
 /* Usage */
 /* ----- */
-LIST *delete_one2m_list_sql_statement_list(
-		LIST *delete_one2m_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_sql_statement_list(
-		DELETE_ONE2M_UPDATE *delete_one2m_update,
-		DELETE_ONE2M_FETCH *delete_one2m_fetch );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_list_pre_command_list(
-		LIST *delete_one2m_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_list_command_list(
-		LIST *delete_one2m_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_one2m_command_list(
-		DELETE_ONE2M_UPDATE *delete_one2m_update,
-		DELETE_ONE2M_FETCH *delete_one2m_fetch );
-
-/* Usage */
-/* ----- */
 LIST *delete_one2m_query_fetch_list(
 		LIST *delete_one2m_list );
 
@@ -316,6 +258,7 @@ typedef struct
 	PROCESS *post_change_process;
 	char *pre_command_line;
 	char *command_line;
+	LIST *relation_one2m_list;
 	DELETE_ONE2M_LIST *delete_one2m_list;
 } DELETE_MTO1_ISA;
 
@@ -332,28 +275,12 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 		LIST *primary_query_cell_list,
 		char *one_folder_name,
 		LIST *one_folder_attribute_primary_key_list,
-		char *post_change_process_name,
-		LIST *relation_one2m_list );
+		char *post_change_process_name );
 
 /* Process */
 /* ------- */
 DELETE_MTO1_ISA *delete_mto1_isa_calloc(
 		void );
-
-/* Usage */
-/* ----- */
-LIST *delete_mto1_isa_sql_statement_list(
-		LIST *delete_mto1_isa_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_mto1_isa_pre_command_list(
-		LIST *delete_mto1_isa_list );
-
-/* Usage */
-/* ----- */
-LIST *delete_mto1_isa_command_list(
-		LIST *delete_mto1_isa_list );
 
 typedef struct
 {
@@ -436,13 +363,98 @@ DELETE_INPUT *delete_input_calloc(
 
 typedef struct
 {
+	char *statement;
+	char *pre_command_line;
+	char *command_line;
+} DELETE_SQL;
+
+/* Usage */
+/* ----- */
+LIST *delete_sql_list(
+		DELETE_ROOT *delete_root,
+		DELETE_ONE2M_LIST *delete_one2m_list,
+		DELETE_MTO1_ISA_LIST *delete_mto1_isa_list );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+DELETE_SQL *delete_sql_new(
+		char *statement,
+		char *pre_command_line,
+		char *command_line );
+
+/* Process */
+/* ------- */
+DELETE_SQL *delete_sql_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+boolean delete_sql_getset(
+		LIST *delete_sql_list /* in/out */,
+		DELETE_SQL *candidate_delete_sql );
+
+/* Usage */
+/* ----- */
+boolean delete_sql_duplicate_boolean(
+		DELETE_SQL *delete_sql,
+		DELETE_SQL *candidate_delete_sql );
+
+/* Usage */
+/* ----- */
+void delete_sql_free(
+		DELETE_SQL *delete_sql );
+
+/* Usage */
+/* ----- */
+void delete_sql_one2m(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_list );
+
+/* Usage */
+/* ----- */
+void delete_sql_one2m_delete_update(
+		LIST *delete_sql_list /* in/out */,
+		DELETE_ONE2M_FETCH *delete_one2m_fetch,
+		DELETE_ONE2M_UPDATE *delete_one2m_update );
+
+/* Usage */
+/* ----- */
+void delete_sql_one2m_delete(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_row_list );
+
+/* Usage */
+/* ----- */
+void delete_sql_one2m_update(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_update_row_list );
+
+/* Usage */
+/* ----- */
+void delete_sql_update_cell(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_update_cell_list );
+
+/* Usage */
+/* ----- */
+void delete_sql_mto1_isa(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_mto1_isa_list );
+
+typedef struct
+{
 	DELETE_INPUT *delete_input;
 	DELETE_ROOT *delete_root;
 	DELETE_ONE2M_LIST *delete_one2m_list;
 	DELETE_MTO1_ISA_LIST *delete_mto1_isa_list;
-	LIST *sql_statement_list;
-	LIST *pre_command_list;
-	LIST *command_list;
+	LIST *delete_sql_list;
+	unsigned int row_count;
+	unsigned int update_cell_count;
+	char *message_string;
+	char *complete_message_string;
 } DELETE;
 
 /* Usage */
@@ -463,6 +475,12 @@ DELETE *delete_new(
 /* ------- */
 DELETE *delete_calloc(
 		void );
+
+unsigned int delete_row_count(
+		LIST *delete_sql_list );
+
+unsigned int delete_update_cell_count(
+		LIST *delete_sql_list );
 
 /* Usage */
 /* ----- */
@@ -514,11 +532,12 @@ LIST *delete_query_cell_list(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
-char *delete_complete_message_string(
-		char *delete_complete_message,
-		unsigned int total_row_count );
+/* Returns heap memory */
+/* ------------------- */
+char *delete_message_string(
+		const char *message,
+		unsigned int delete_row_count,
+		unsigned int delete_update_cell_count );
 
 /* Usage */
 /* ----- */
@@ -544,18 +563,12 @@ LIST *delete_command_list(
 /* Driver */
 /* ------ */
 void delete_display(
-		LIST *sql_statement_list );
+		LIST *delete_sql_list );
 
 /* Driver */
 /* ------ */
-
-/* Returns row_count */
-/* ----------------- */
-int delete_execute(
-		char *appaserver_error_filename,
-		LIST *sql_statement_list,
-		LIST *pre_command_list,
-		LIST *command_list );
+void delete_execute(
+		LIST *delete_sql_list );
 
 /* Usage */
 /* ----- */
@@ -563,6 +576,17 @@ int delete_execute(
 /* Returns static memory */
 /* --------------------- */
 char *delete_execute_system_string(
-		char *appaserver_error_filename );
+		const char *sql_executable );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_key_list_data_string_sql(
+		const char sql_delimiter,
+		char *table_name,
+		LIST *key_list,
+		char *data_string );
 
 #endif

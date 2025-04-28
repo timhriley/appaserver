@@ -497,12 +497,14 @@ change_password: change_password.c					\
 
 fix_orphans: fix_orphans.c						\
 		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/orphan.o
+		${LIBRARY}/orphan.o					\
+		${LIBRARY}/delete.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		fix_orphans.c						\
 		${LIBRARY}/orphan.o					\
+		${LIBRARY}/delete.o					\
 		-o fix_orphans
 
 merge_purge: merge_purge.c ${APPASERVER_LIBRARY}			\

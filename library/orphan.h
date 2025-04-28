@@ -162,7 +162,7 @@ typedef struct
 {
 	char *many_table_name;
 	char *orphan_data;
-	char *statement;
+	char *delete_key_list_data_string_sql;
 } ORPHAN_DELETE_STATEMENT;
 
 /* Usage */
@@ -175,6 +175,7 @@ LIST *orphan_delete_statement_list(
 /* Usage */
 /* ----- */
 ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
+		const char sql_delimiter,
 		char *many_table_name,
 		LIST *relation_foreign_key_list,
 		char *orphan_data );

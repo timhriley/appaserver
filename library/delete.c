@@ -139,37 +139,37 @@ DELETE *delete_new(
 					relation_mto1_isa_list );
 	}
 
-	delete->sql_statement_list =
-		delete_sql_statement_list(
+	delete->delete_sql_list =
+		delete_sql_list(
 			delete->delete_root,
 			delete->delete_one2m_list,
 			delete->delete_mto1_isa_list );
 
-	if ( !list_length( delete->sql_statement_list ) )
-	{
-		char message[ 128 ];
+	delete->row_count =
+		delete_row_count(
+			delete->delete_sql_list );
 
-		sprintf(message,
-			"delete_sql_statement_list() returned empty." );
+	delete->update_cell_count =
+		delete_update_cell_count(
+			delete->delete_sql_list );
 
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	delete->message_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		delete_message_string(
+			DELETE_MESSAGE,
+			delete->row_count,
+			delete->update_cell_count );
 
-	delete->pre_command_list =
-		delete_pre_command_list(
-			delete->delete_root,
-			delete->delete_one2m_list,
-			delete->delete_mto1_isa_list );
-
-	delete->command_list =
-		delete_command_list(
-			delete->delete_root,
-			delete->delete_one2m_list,
-			delete->delete_mto1_isa_list );
+	delete->complete_message_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		delete_message_string(
+			DELETE_COMPLETE_MESSAGE,
+			delete->row_count,
+			delete->update_cell_count );
 
 	return delete;
 }
@@ -262,53 +262,6 @@ char *delete_sql_statement(
 		delete_where );
 
 	return strdup( sql_statement );
-}
-
-LIST *delete_one2m_command_line_list(
-		char *delete_state,
-		LIST *query_fetch_row_list,
-		char *post_change_process_command_line,
-		char *appaserver_error_filename )
-{
-	LIST *list;
-	QUERY_ROW *query_row;
-
-	if ( !delete_state
-	||   !list_rewind( query_fetch_row_list )
-	||   !post_change_process_command_line
-	||   !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list = list_new();
-
-	do {
-		query_row = list_get( query_fetch_row_list );
-	
-		list_set(
-			list,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			delete_command_line(
-				delete_state,
-				query_row->cell_list
-					/* primary_query_cell_list */,
-				post_change_process_command_line,
-				appaserver_error_filename ) );
-
-	} while ( list_next( query_fetch_row_list ) );
-
-	return list;
 }
 
 char *delete_command_line(
@@ -652,9 +605,7 @@ DELETE_ONE2M *delete_one2m_calloc( void )
 {
 	DELETE_ONE2M *delete_one2m;
 
-	if ( ! ( delete_one2m =
-			calloc( 1,
-			sizeof ( DELETE_ONE2M ) ) ) )
+	if ( ! ( delete_one2m = calloc( 1, sizeof ( DELETE_ONE2M ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -675,8 +626,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 		LIST *primary_query_cell_list,
 		char *one_folder_name,
 		LIST *one_folder_attribute_primary_key_list,
-		char *post_change_process_name,
-		LIST *relation_one2m_list )
+		char *post_change_process_name )
 {
 	DELETE_MTO1_ISA *delete_mto1_isa;
 	char *table_name;
@@ -785,7 +735,14 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 				appaserver_error_filename );
 	}
 
-	if ( list_length( relation_one2m_list ) )
+	delete_mto1_isa->relation_one2m_list =
+		relation_one2m_list(
+			role_name,
+			one_folder_name,
+			one_folder_attribute_primary_key_list,
+			1 /* include_isa_boolean */ );
+
+	if ( list_length( delete_mto1_isa->relation_one2m_list ) )
 	{
 		delete_mto1_isa->delete_one2m_list =
 			delete_one2m_list_new(
@@ -795,7 +752,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
 				delete_mto1_isa->query_cell_list,
-				relation_one2m_list );
+				delete_mto1_isa->relation_one2m_list );
 	}
 
 	return delete_mto1_isa;
@@ -818,9 +775,10 @@ DELETE_MTO1_ISA *delete_mto1_isa_calloc( void )
 	return delete_mto1_isa;
 }
 
-void delete_display( LIST *sql_statement_list )
+void delete_display( LIST *delete_sql_list )
 {
 	FILE *output_pipe;
+	DELETE_SQL *delete_sql;
 
 	output_pipe =
 		/* -------------- */
@@ -829,66 +787,38 @@ void delete_display( LIST *sql_statement_list )
 		appaserver_output_pipe(
 			"html_table.e '' sql_statement" );
 
-	if ( list_rewind( sql_statement_list ) )
-	{
-		do {
-			fprintf(
-				output_pipe,
-				"%s\n",
-				(char *)list_get( sql_statement_list ) );
+	if ( list_rewind( delete_sql_list ) )
+	do {
+		delete_sql = list_get( delete_sql_list );
 
-		} while ( list_next( sql_statement_list ) );
-	}
+		fprintf(
+			output_pipe,
+			"%s\n",
+			delete_sql->statement );
+
+	} while ( list_next( delete_sql_list ) );
 
 	pclose( output_pipe );
 }
 
-int delete_execute(
-		char *appaserver_error_filename,
-		LIST *sql_statement_list,
-		LIST *pre_command_list,
-		LIST *command_list )
+void delete_execute( LIST *delete_sql_list )
 {
+	DELETE_SQL *delete_sql;
 	FILE *output_pipe;
 
-	if ( !appaserver_error_filename
-	||   !list_rewind( sql_statement_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if (	list_length( pre_command_list ) !=
-		list_length( command_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message,
-			"length(%d) != length(%d)",
-			list_length( pre_command_list ),
-			list_length( command_list ) );
-
-		appaserver_error_warning(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_rewind( pre_command_list ) )
+	if ( list_rewind( delete_sql_list ) )
 	do {
-		if ( system(
-			(char *)list_get(
-				pre_command_list ) ) ){}
+		delete_sql = list_get( delete_sql_list );
 
-	} while ( list_next( pre_command_list ) );
+		if ( delete_sql->pre_command_line )
+		{
+			security_system(
+				SECURITY_FORK_CHARACTER,
+				SECURITY_FORK_STRING,
+				delete_sql->pre_command_line );
+		}
+
+	} while ( list_next( delete_sql_list ) );
 
 	output_pipe =
 		/* -------------- */
@@ -899,26 +829,33 @@ int delete_execute(
 			/* Returns static memory */
 			/* --------------------- */
 			delete_execute_system_string(
-				appaserver_error_filename ) );
+				SQL_EXECUTABLE ) );
 
+	if ( list_rewind( delete_sql_list ) )
 	do {
+		delete_sql = list_get( delete_sql_list );
+
 		fprintf(output_pipe,
 			"%s\n",
-			(char *)list_get( sql_statement_list ) );
+			delete_sql->statement );
 
-	} while ( list_next( sql_statement_list ) );
+	} while ( list_next( delete_sql_list ) );
 
 	pclose( output_pipe );
 
-	if ( list_rewind( command_list ) )
+	if ( list_rewind( delete_sql_list ) )
 	do {
-		if ( system(
-			(char *)list_get(
-				command_list ) ) ){}
+		delete_sql = list_get( delete_sql_list );
 
-	} while ( list_next( command_list ) );
+		if ( delete_sql->command_line )
+		{
+			security_system(
+				SECURITY_FORK_CHARACTER,
+				SECURITY_FORK_STRING,
+				delete_sql->command_line );
+		}
 
-	return list_length( sql_statement_list );
+	} while ( list_next( delete_sql_list ) );
 }
 
 char *delete_one2m_select_string(
@@ -946,27 +883,16 @@ char *delete_one2m_select_string(
 	list_delimited( many_folder_primary_key_list, delimiter );
 }
 
-char *delete_execute_system_string( char *appaserver_error_filename )
+char *delete_execute_system_string(
+		const char *sql_executable )
 {
 	static char system_string[ 128 ];
 
-	if ( !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "appaserver_error_filename is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-
-	sprintf(system_string,
-		"tee -a %s | sql.e 2>&1 | html_paragraph_wrapper.e",
-		appaserver_error_filename );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"tee_appaserver.sh | %s 2>&1 | html_paragraph_wrapper.e",
+		sql_executable );
 
 	return system_string;
 }
@@ -1184,7 +1110,7 @@ DELETE_INPUT *delete_input_new(
 				/* many_folder_name */,
 			delete_input->folder->folder_attribute_primary_key_list
 				/* many_folder_primary_key_list */,
-			1 /* fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_list */,
 			0 /* not fetch_relation_mto1_list */ );
 
 	if ( delete_input->folder->post_change_process_name )
@@ -1414,71 +1340,6 @@ char *delete_one2m_update_cell_command_line(
 	string_escape_dollar( command_line );
 }
 
-LIST *delete_one2m_update_cell_sql_statement_list(
-		LIST *delete_one2m_update_cell_list )
-{
-	DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell;
-	LIST *sql_statement_list;
-
-	if ( !list_rewind( delete_one2m_update_cell_list ) ) return NULL;
-
-	sql_statement_list = list_new();
-
-	do {
-		delete_one2m_update_cell =
-			list_get(
-				delete_one2m_update_cell_list );
-
-		if ( !delete_one2m_update_cell->sql_statement )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"delete_one2m_update_cell->sql_statement is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		list_set(
-			sql_statement_list,
-			delete_one2m_update_cell->sql_statement );
-
-	} while ( list_next( delete_one2m_update_cell_list ) );
-
-	return sql_statement_list;
-}
-
-LIST *delete_one2m_update_cell_command_list(
-		LIST *delete_one2m_update_cell_list )
-{
-	DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell;
-	LIST *command_list = {0};
-
-	if ( !list_rewind( delete_one2m_update_cell_list ) ) return NULL;
-
-	do {
-		delete_one2m_update_cell =
-			list_get(
-				delete_one2m_update_cell_list );
-
-		if ( delete_one2m_update_cell->command_line )
-		{
-			if ( !command_list ) command_list = list_new();
-
-			list_set(
-				command_list,
-				delete_one2m_update_cell->command_line );
-		}
-
-	} while ( list_next( delete_one2m_update_cell_list ) );
-
-	return command_list;
-}
-
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		char *appaserver_error_filename,
 		char *folder_table_name,
@@ -1569,64 +1430,6 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_calloc( void )
 	}
 
 	return delete_one2m_update_row;
-}
-
-LIST *delete_one2m_update_row_sql_statement_list(
-		LIST *delete_one2m_update_row_list )
-{
-	LIST *sql_statement_list;
-	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
-
-	if ( !list_rewind( delete_one2m_update_row_list ) ) return NULL;
-
-	sql_statement_list = list_new();
-
-	do {
-		delete_one2m_update_row =
-			list_get(
-				delete_one2m_update_row_list );
-
-		list_set_list(
-			sql_statement_list,
-			delete_one2m_update_cell_sql_statement_list(
-				delete_one2m_update_row->
-					delete_one2m_update_cell_list ) );
-
-	} while ( list_next( delete_one2m_update_row_list ) );
-
-	return sql_statement_list;
-}
-
-LIST *delete_one2m_update_row_command_list(
-		LIST *delete_one2m_update_row_list )
-{
-	LIST *command_list;
-	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
-
-	if ( !list_rewind( delete_one2m_update_row_list ) ) return NULL;
-
-	command_list = list_new();
-
-	do {
-		delete_one2m_update_row =
-			list_get(
-				delete_one2m_update_row_list );
-
-		list_set_list(
-			command_list,
-			delete_one2m_update_cell_command_list(
-				delete_one2m_update_row->
-					delete_one2m_update_cell_list ) );
-
-	} while ( list_next( delete_one2m_update_row_list ) );
-
-	if ( !list_length( command_list ) )
-	{
-		list_free( command_list );
-		command_list = NULL;
-	}
-
-	return command_list;
 }
 
 DELETE_ONE2M_UPDATE *delete_one2m_update_new(
@@ -1815,134 +1618,6 @@ DELETE_ONE2M_ROW *delete_one2m_row_calloc( void )
 	}
 
 	return delete_one2m_row;
-}
-
-LIST *delete_one2m_row_sql_statement_list(
-		LIST *delete_one2m_row_list )
-{
-	LIST *sql_statement_list;
-	DELETE_ONE2M_ROW *delete_one2m_row;
-
-	if ( !list_rewind( delete_one2m_row_list ) ) return NULL;
-
-	sql_statement_list = list_new();
-
-	do {
-		delete_one2m_row = list_get( delete_one2m_row_list );
-
-		if ( !delete_one2m_row->delete_sql_statement )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"delete_one2m_row->delete_sql_statement is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		list_set(
-			sql_statement_list,
-			delete_one2m_row->delete_sql_statement );
-
-		if ( delete_one2m_row->delete_one2m_list )
-		{
-			list_set_list(
-				sql_statement_list,
-				delete_one2m_list_sql_statement_list(
-					delete_one2m_row->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while ( list_next( delete_one2m_row_list ) );
-
-	return sql_statement_list;
-}
-
-LIST *delete_one2m_row_pre_command_list(
-		LIST *delete_one2m_row_list )
-{
-	LIST *pre_command_list;
-	DELETE_ONE2M_ROW *delete_one2m_row;
-
-	if ( !list_rewind( delete_one2m_row_list ) ) return NULL;
-
-	pre_command_list = list_new();
-
-	do {
-		delete_one2m_row = list_get( delete_one2m_row_list );
-
-		if ( delete_one2m_row->pre_command_line )
-		{
-			list_set(
-				pre_command_list,
-				delete_one2m_row->pre_command_line );
-		}
-
-		if ( delete_one2m_row->delete_one2m_list )
-		{
-			list_set_list(
-				pre_command_list,
-				delete_one2m_list_pre_command_list(
-					delete_one2m_row->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while ( list_next( delete_one2m_row_list ) );
-
-	if ( !list_length( pre_command_list ) )
-	{
-		list_free( pre_command_list );
-		pre_command_list = NULL;
-	}
-
-	return pre_command_list;
-}
-
-LIST *delete_one2m_row_command_list(
-		LIST *delete_one2m_row_list )
-{
-	LIST *command_list;
-	DELETE_ONE2M_ROW *delete_one2m_row;
-
-	if ( !list_rewind( delete_one2m_row_list ) ) return NULL;
-
-	command_list = list_new();
-
-	do {
-		delete_one2m_row = list_get( delete_one2m_row_list );
-
-		if ( delete_one2m_row->command_line )
-		{
-			list_set(
-				command_list,
-				delete_one2m_row->command_line );
-		}
-
-		if ( delete_one2m_row->delete_one2m_list )
-		{
-			list_set_list(
-				command_list,
-				delete_one2m_list_command_list(
-					delete_one2m_row->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while ( list_next( delete_one2m_row_list ) );
-
-	if ( !list_length( command_list ) )
-	{
-		list_free( command_list );
-		command_list = NULL;
-	}
-
-	return command_list;
 }
 
 DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
@@ -2181,156 +1856,6 @@ DELETE_ONE2M_LIST *delete_one2m_list_calloc( void )
 	return delete_one2m_list;
 }
 
-LIST *delete_one2m_command_list(
-		DELETE_ONE2M_UPDATE *delete_one2m_update,
-		DELETE_ONE2M_FETCH *delete_one2m_fetch )
-{
-	if ( !delete_one2m_update
-	&&   !delete_one2m_fetch )
-	{
-		return NULL;
-	}
-
-	if ( delete_one2m_update )
-	{
-		return
-		delete_one2m_update_row_command_list(
-			delete_one2m_update->
-				delete_one2m_update_row_list );
-	}
-	else
-	{
-		return
-		delete_one2m_row_command_list(
-			delete_one2m_fetch->
-				delete_one2m_row_list );
-	}
-}
-
-LIST *delete_one2m_list_command_list(
-		LIST *delete_one2m_list )
-{
-	DELETE_ONE2M *delete_one2m;
-	LIST *command_list;
-
-	if ( !list_rewind( delete_one2m_list ) ) return NULL;
-
-	command_list = list_new();
-
-	do {
-		delete_one2m =
-			list_get(
-				delete_one2m_list );
-
-		list_set_list(
-			command_list,
-			delete_one2m_command_list(
-				delete_one2m->
-					delete_one2m_update,
-				delete_one2m->
-					delete_one2m_fetch ) );
-
-	} while ( list_next( delete_one2m_list ) );
-
-	if ( !list_length( command_list ) )
-	{
-		list_free( command_list );
-		command_list = NULL;
-	}
-
-	return command_list;
-}
-
-LIST *delete_one2m_list_pre_command_list(
-		LIST *delete_one2m_list )
-{
-	LIST *pre_command_list;
-	DELETE_ONE2M *delete_one2m;
-
-	if ( !list_rewind( delete_one2m_list ) ) return NULL;
-
-	pre_command_list = list_new();
-
-	do {
-		delete_one2m =
-			list_get(
-				delete_one2m_list );
-
-		if ( delete_one2m->delete_one2m_fetch )
-		{
-			list_set_list(
-				pre_command_list,
-				delete_one2m_row_pre_command_list(
-					delete_one2m->
-						delete_one2m_fetch->
-						delete_one2m_row_list ) );
-		}
-
-	} while ( list_next( delete_one2m_list ) );
-
-	if ( !list_length( pre_command_list ) )
-	{
-		list_free( pre_command_list );
-		pre_command_list = NULL;
-	}
-
-	return pre_command_list;
-}
-
-LIST *delete_one2m_sql_statement_list(
-		DELETE_ONE2M_UPDATE *delete_one2m_update,
-		DELETE_ONE2M_FETCH *delete_one2m_fetch )
-{
-	if ( !delete_one2m_update
-	&&   !delete_one2m_fetch )
-	{
-		return NULL;
-	}
-
-	if ( delete_one2m_update )
-	{
-		return
-		delete_one2m_update_row_sql_statement_list(
-			delete_one2m_update->
-				delete_one2m_update_row_list );
-	}
-	else
-	{
-		return
-		delete_one2m_row_sql_statement_list(
-			delete_one2m_fetch->
-				delete_one2m_row_list );
-	}
-}
-
-LIST *delete_one2m_list_sql_statement_list(
-		LIST *delete_one2m_list )
-{
-	LIST *sql_statement_list;
-	DELETE_ONE2M *delete_one2m;
-
-	if ( !list_rewind( delete_one2m_list ) ) return NULL;
-
-	sql_statement_list = list_new();
-
-	do {
-		delete_one2m =
-			list_get(
-				delete_one2m_list );
-
-		list_set_list(
-			sql_statement_list,
-			delete_one2m_sql_statement_list(
-				delete_one2m->
-					delete_one2m_update,
-				delete_one2m->
-					delete_one2m_fetch ) );
-
-	} while ( list_next( delete_one2m_list ) );
-
-	return sql_statement_list;
-}
-
 DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 		char *application_name,
 		char *role_name,
@@ -2401,9 +1926,7 @@ DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 					folder_attribute_primary_key_list,
 				relation_mto1_isa->
 					one_folder->
-					post_change_process_name,
-				relation_mto1_isa->
-					relation_one2m_list );
+					post_change_process_name );
 
 		list_set(
 			delete_mto1_isa_list->list,
@@ -2436,292 +1959,6 @@ DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_calloc( void )
 	return delete_mto1_isa_list;
 }
 
-LIST *delete_sql_statement_list(
-		DELETE_ROOT *delete_root,
-		DELETE_ONE2M_LIST *delete_one2m_list,
-		DELETE_MTO1_ISA_LIST *delete_mto1_isa_list )
-{
-	LIST *sql_statement_list;
-
-	if ( !delete_root
-	||   !delete_root->delete_sql_statement )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "delete_root is empty or incomplete." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sql_statement_list = list_new();
-
-	list_set(
-		sql_statement_list,
-		delete_root->delete_sql_statement );
-
-	if ( delete_one2m_list )
-	{
-		list_set_list(
-			sql_statement_list,
-			delete_one2m_list_sql_statement_list(
-				delete_one2m_list->list ) );
-	}
-
-	if ( delete_mto1_isa_list )
-	{
-		list_set_list(
-			sql_statement_list,
-			delete_mto1_isa_sql_statement_list(
-				delete_mto1_isa_list->list ) );
-	}
-
-	return sql_statement_list;
-}
-
-LIST *delete_pre_command_list(
-		DELETE_ROOT *delete_root,
-		DELETE_ONE2M_LIST *delete_one2m_list,
-		DELETE_MTO1_ISA_LIST *delete_mto1_isa_list )
-{
-	LIST *pre_command_list;
-
-	if ( !delete_root )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "delete_root is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	pre_command_list = list_new();
-
-	if ( delete_root->delete_pre_command_line )
-	{
-		list_set(
-			pre_command_list,
-			delete_root->delete_pre_command_line );
-	}
-
-	if ( delete_one2m_list )
-	{
-		list_set_list(
-			pre_command_list,
-			delete_one2m_list_pre_command_list(
-				delete_one2m_list->list ) );
-	}
-
-	if ( delete_mto1_isa_list )
-	{
-		list_set_list(
-			pre_command_list,
-			delete_mto1_isa_pre_command_list(
-				delete_mto1_isa_list->list ) );
-	}
-
-	if ( !list_length( pre_command_list ) )
-	{
-		list_free( pre_command_list );
-		pre_command_list = NULL;
-	}
-
-	return pre_command_list;
-}
-
-LIST *delete_command_list(
-		DELETE_ROOT *delete_root,
-		DELETE_ONE2M_LIST *delete_one2m_list,
-		DELETE_MTO1_ISA_LIST *delete_mto1_isa_list )
-{
-	LIST *command_list;
-
-	if ( !delete_root )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "delete_root is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	command_list = list_new();
-
-	if ( delete_root->delete_command_line )
-	{
-		list_set(
-			command_list,
-			delete_root->delete_command_line );
-	}
-
-	if ( delete_one2m_list )
-	{
-		list_set_list(
-			command_list,
-			delete_one2m_list_command_list(
-				delete_one2m_list->list ) );
-	}
-
-	if ( delete_mto1_isa_list )
-	{
-		list_set_list(
-			command_list,
-			delete_mto1_isa_command_list(
-				delete_mto1_isa_list->list ) );
-	}
-
-	if ( !list_length( command_list ) )
-	{
-		list_free( command_list );
-		command_list = NULL;
-	}
-
-	return command_list;
-}
-
-LIST *delete_mto1_isa_sql_statement_list(
-		LIST *delete_mto1_isa_list )
-{
-	LIST *sql_statement_list;
-	DELETE_MTO1_ISA *delete_mto1_isa;
-
-	if ( !list_rewind( delete_mto1_isa_list ) ) return NULL;
-
-	sql_statement_list = list_new();
-
-	do {
-		delete_mto1_isa =
-			list_get(
-				delete_mto1_isa_list );
-
-		if ( !delete_mto1_isa->delete_sql_statement )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"delete_mto1_isa->delete_sql_statement is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		list_set(
-			sql_statement_list,
-			delete_mto1_isa->delete_sql_statement );
-
-		if ( delete_mto1_isa->delete_one2m_list )
-		{
-			list_set_list(
-				sql_statement_list,
-				delete_one2m_list_sql_statement_list(
-					delete_mto1_isa->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while ( list_next( delete_mto1_isa_list ) );
-
-	return sql_statement_list;
-}
-
-LIST *delete_mto1_isa_pre_command_list( LIST *delete_mto1_isa_list )
-{
-	LIST *pre_command_list;
-	DELETE_MTO1_ISA *delete_mto1_isa;
-
-	if ( !list_rewind( delete_mto1_isa_list ) ) return NULL;
-
-	pre_command_list = list_new();
-
-	do {
-		delete_mto1_isa =
-			list_get(
-				delete_mto1_isa_list );
-
-		if ( delete_mto1_isa->pre_command_line )
-		{
-			list_set(
-				pre_command_list,
-				delete_mto1_isa->pre_command_line );
-		}
-
-		if ( delete_mto1_isa->delete_one2m_list )
-		{
-			list_set_list(
-				pre_command_list,
-				delete_one2m_list_pre_command_list(
-					delete_mto1_isa->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while ( list_next( delete_mto1_isa_list ) );
-
-	if ( !list_length( pre_command_list ) )
-	{
-		list_free( pre_command_list );
-		pre_command_list = NULL;
-	}
-
-	return pre_command_list;
-}
-
-LIST *delete_mto1_isa_command_list( LIST *delete_mto1_isa_list )
-{
-	LIST *command_list;
-	DELETE_MTO1_ISA *delete_mto1_isa;
-
-	if ( !list_rewind( delete_mto1_isa_list ) ) return NULL;
-
-	command_list = list_new();
-
-	do {
-		delete_mto1_isa =
-			list_get(
-				delete_mto1_isa_list );
-
-		if ( delete_mto1_isa->command_line )
-		{
-			list_set(
-				command_list,
-				delete_mto1_isa->command_line );
-		}
-
-		if ( delete_mto1_isa->delete_one2m_list )
-		{
-			list_set_list(
-				command_list,
-				delete_one2m_list_command_list(
-					delete_mto1_isa->
-						delete_one2m_list->
-						list ) );
-		}
-
-	} while( list_next( delete_mto1_isa_list ) );
-
-	if ( !list_length( command_list ) )
-	{
-		list_free( command_list );
-		command_list = NULL;
-	}
-
-	return command_list;
-}
-
 char *delete_one2m_table_name(
 		char *application_name,
 		char *many_folder_name )
@@ -2750,32 +1987,21 @@ char *delete_one2m_table_name(
 			many_folder_name ) );
 }
 
-char *delete_complete_message_string(
-		char *delete_complete_message,
-		unsigned int total_row_count )
+char *delete_message_string(
+		const char *message,
+		unsigned int delete_row_count,
+		unsigned int delete_update_cell_count )
 {
-	static char message_string[ 128 ];
+	char message_string[ 256 ];
 
-	if ( !delete_complete_message
-	||   !total_row_count )
-	{
-		char message[ 128 ];
+	snprintf(
+		message_string,
+		sizeof ( message_string ),
+		message,
+		delete_row_count,
+		delete_update_cell_count );
 
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(message_string,
-		"%s %d",
-		delete_complete_message,
-		total_row_count );
-
-	return message_string;
+	return strdup( message_string );
 }
 
 LIST *delete_one2m_query_fetch_list( LIST *delete_one2m_list )
@@ -2814,5 +2040,542 @@ LIST *delete_one2m_query_fetch_list( LIST *delete_one2m_list )
 	}
 
 	return list;
+}
+
+char *delete_key_list_data_string_sql(
+		const char sql_delimiter,
+		char *table_name,
+		LIST *key_list,
+		char *data_string )
+{
+	char sql[ 2048 ];
+	char *ptr = sql;
+	int p = 0;
+	char *key;
+	char datum[ 1024 ];
+	char *escape;
+
+	if ( !table_name
+	||   !list_rewind( key_list )
+	||   !data_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"delete from %s where ",
+		table_name );
+
+	do {
+		key = list_get( key_list );
+
+		if ( p ) ptr += sprintf( ptr, " and " );
+
+		/* Returns null if not enough delimiters */
+		/* ------------------------------------- */
+		if ( !piece(	datum,
+				sql_delimiter,
+				data_string,
+				p ) )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"piece(%s,%d) returned empty.",
+				data_string,
+				p );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		escape =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_sql_injection_escape(
+				SECURITY_ESCAPE_CHARACTER_STRING,
+				datum );
+
+		ptr += sprintf(
+			ptr,
+			"%s = '%s'",
+			key,
+			escape );
+
+		free( escape );
+		p++;
+
+	} while ( list_next( key_list ) );
+
+	ptr += sprintf( ptr, ";" );
+
+	return strdup( sql );
+}
+
+LIST *delete_sql_list(
+		DELETE_ROOT *delete_root,
+		DELETE_ONE2M_LIST *delete_one2m_list,
+		DELETE_MTO1_ISA_LIST *delete_mto1_isa_list )
+{
+	LIST *sql_list = list_new();
+	DELETE_SQL *delete_sql;
+
+	if ( !delete_root )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"delete_root is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	delete_sql =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		delete_sql_new(
+			delete_root->delete_sql_statement,
+			delete_root->delete_pre_command_line,
+			delete_root->delete_command_line );
+
+	(void)delete_sql_getset(
+		sql_list /* in/out */,
+		delete_sql /* candidate_delete_sql */ );
+
+	if ( delete_one2m_list )
+	{
+		delete_sql_one2m(
+			sql_list /* in/out */,
+			delete_one2m_list->list
+				/* delete_one2m_list */ );
+	}
+
+	if ( delete_mto1_isa_list )
+	{
+		delete_sql_mto1_isa(
+			sql_list /* in/out */,
+			delete_mto1_isa_list->list
+				/* delete_mto1_isa_list */ );
+	}
+
+	return sql_list;
+}
+
+DELETE_SQL *delete_sql_new(
+		char *statement,
+		char *pre_command_line,
+		char *command_line )
+{
+	DELETE_SQL *delete_sql;
+
+	if ( !statement )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"statement is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	delete_sql = delete_sql_calloc();
+
+	delete_sql->statement = statement;
+	delete_sql->pre_command_line = pre_command_line;
+	delete_sql->command_line = command_line;
+
+	return delete_sql;
+}
+
+DELETE_SQL *delete_sql_calloc( void )
+{
+	DELETE_SQL *delete_sql;
+
+	if ( ! ( delete_sql = calloc( 1, sizeof ( DELETE_SQL ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return delete_sql;
+}
+
+boolean delete_sql_getset(
+		LIST *delete_sql_list /* in/out */,
+		DELETE_SQL *candidate_delete_sql )
+{
+	DELETE_SQL *delete_sql;
+
+	if ( !delete_sql_list
+	||   !candidate_delete_sql )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( delete_sql_list ) )
+	do {
+		delete_sql = list_get( delete_sql_list );
+
+		if ( delete_sql_duplicate_boolean(
+			delete_sql,
+			candidate_delete_sql ) )
+		{
+			return 0;
+		}
+	} while ( list_next( delete_sql_list ) );
+
+	list_set( delete_sql_list, candidate_delete_sql );
+
+	return 1;
+}
+
+boolean delete_sql_duplicate_boolean(
+		DELETE_SQL *delete_sql,
+		DELETE_SQL *candidate_delete_sql )
+{
+	boolean duplicate_boolean = 0;
+
+	if ( !delete_sql
+	||   !candidate_delete_sql )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp(
+		delete_sql->statement,
+		candidate_delete_sql->statement ) )
+	{
+		duplicate_boolean = 1;
+	}
+
+	return duplicate_boolean;
+}
+
+void delete_sql_free( DELETE_SQL *delete_sql )
+{
+	if ( !delete_sql )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"delete_sql is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	free( delete_sql );
+}
+
+void delete_sql_one2m(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_list )
+{
+	DELETE_ONE2M *delete_one2m;
+
+	if ( !delete_sql_list )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"delete_sql_list is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( delete_one2m_list ) )
+	do {
+		delete_one2m = list_get( delete_one2m_list );
+
+		if ( !delete_one2m->delete_one2m_fetch
+		&&   !delete_one2m->delete_one2m_update )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"delete_one2m is incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		delete_sql_one2m_delete_update(
+			delete_sql_list /* in/out */,
+			delete_one2m->delete_one2m_fetch,
+			delete_one2m->delete_one2m_update );
+
+	} while ( list_next( delete_one2m_list ) );
+}
+
+void delete_sql_one2m_delete_update(
+		LIST *delete_sql_list /* in/out */,
+		DELETE_ONE2M_FETCH *delete_one2m_fetch,
+		DELETE_ONE2M_UPDATE *delete_one2m_update )
+{
+	if ( delete_one2m_fetch )
+	{
+		delete_sql_one2m_delete(
+			delete_sql_list /* in/out */,
+			delete_one2m_fetch->
+				delete_one2m_row_list );
+	}
+	else
+	{
+		delete_sql_one2m_update(
+			delete_sql_list /* in/out */,
+			delete_one2m_update->
+				delete_one2m_update_row_list );
+	}
+}
+
+void delete_sql_one2m_delete(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_row_list )
+{
+	DELETE_ONE2M_ROW *delete_one2m_row;
+	DELETE_SQL *delete_sql;
+
+	if ( list_rewind( delete_one2m_row_list ) )
+	do {
+		delete_one2m_row = list_get( delete_one2m_row_list );
+
+		delete_sql =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			delete_sql_new(
+				delete_one2m_row->delete_sql_statement,
+				delete_one2m_row->pre_command_line,
+				delete_one2m_row->command_line );
+
+		if ( !delete_sql_getset(
+			delete_sql_list /* in/out */,
+			delete_sql /* candidate_delete_sql */ ) )
+		{
+			delete_sql_free( delete_sql );
+		}
+
+		if ( delete_one2m_row->delete_one2m_list )
+		{
+			delete_sql_one2m(
+				delete_sql_list /* in/out */,
+				delete_one2m_row->
+					delete_one2m_list->list
+						/* delete_one2m_list */ );
+		}
+
+	} while ( list_next( delete_one2m_row_list ) );
+}
+
+void delete_sql_one2m_update(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_update_row_list )
+{
+	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
+
+	if ( list_rewind( delete_one2m_update_row_list ) )
+	do {
+		delete_one2m_update_row =
+			list_get(
+				delete_one2m_update_row_list );
+
+		delete_sql_update_cell(
+			delete_sql_list /* in/out */,
+			delete_one2m_update_row->
+				delete_one2m_update_cell_list );
+
+	} while ( list_next( delete_one2m_update_row_list ) );
+}
+
+void delete_sql_update_cell(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_one2m_update_cell_list )
+{
+	DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell;
+	DELETE_SQL *delete_sql;
+
+	if ( list_rewind( delete_one2m_update_cell_list ) )
+	do {
+		delete_one2m_update_cell =
+			list_get(
+				delete_one2m_update_cell_list );
+
+		delete_sql =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			delete_sql_new(
+				delete_one2m_update_cell->sql_statement,
+				(char *)0 /* pre_command_line */,
+				delete_one2m_update_cell->command_line );
+
+		if ( !delete_sql_getset(
+			delete_sql_list /* in/out */,
+			delete_sql /* candidate_delete_sql */ ) )
+		{
+			delete_sql_free( delete_sql );
+		}
+
+	} while ( list_next( delete_one2m_update_cell_list ) );
+}
+
+void delete_sql_mto1_isa(
+		LIST *delete_sql_list /* in/out */,
+		LIST *delete_mto1_isa_list )
+{
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	DELETE_SQL *delete_sql;
+
+	if ( list_rewind( delete_mto1_isa_list ) )
+	do {
+		delete_mto1_isa = list_get( delete_mto1_isa_list );
+
+		delete_sql =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			delete_sql_new(
+				delete_mto1_isa->delete_sql_statement,
+				delete_mto1_isa->pre_command_line,
+				delete_mto1_isa->command_line );
+
+		if ( !delete_sql_getset(
+			delete_sql_list /* in/out */,
+			delete_sql /* candidate_delete_sql */ ) )
+		{
+			delete_sql_free( delete_sql );
+		}
+
+		if ( delete_mto1_isa->delete_one2m_list )
+		{
+			delete_sql_one2m(
+				delete_sql_list /* in/out */,
+				delete_mto1_isa->
+					delete_one2m_list->list
+						/* delete_one2m_list */ );
+		}
+
+	} while ( list_next( delete_mto1_isa_list ) );
+}
+
+unsigned int delete_row_count( LIST *delete_sql_list )
+{
+	unsigned int row_count = 0;
+	DELETE_SQL *delete_sql;
+
+	if ( list_rewind( delete_sql_list ) )
+	do {
+		delete_sql = list_get( delete_sql_list );
+
+		if ( string_strncmp(
+			delete_sql->statement,
+			"delete " ) == 0 )
+		{
+			row_count++;
+		}
+
+	} while ( list_next( delete_sql_list ) );
+
+	return row_count;
+}
+
+unsigned int delete_update_cell_count( LIST *delete_sql_list )
+{
+	unsigned int update_cell_count = 0;
+	DELETE_SQL *delete_sql;
+
+	if ( list_rewind( delete_sql_list ) )
+	do {
+		delete_sql = list_get( delete_sql_list );
+
+		if ( string_strncmp(
+			delete_sql->statement,
+			"update " ) == 0 )
+		{
+			update_cell_count++;
+		}
+
+	} while ( list_next( delete_sql_list ) );
+
+	return update_cell_count;
 }
 

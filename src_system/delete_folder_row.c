@@ -59,16 +59,12 @@ int main( int argc, char **argv )
 			delete_omit_isa_boolean );
 
 	if ( delete_primary->delete
-	&&   list_length( delete_primary->delete->sql_statement_list ) )
+	&&   list_length( delete_primary->delete->delete_sql_list ) )
 	{
 		delete_execute(
 			delete_primary->
 				delete->
-				delete_input->
-				appaserver_error_filename,
-			delete_primary->delete->sql_statement_list,
-			delete_primary->delete->pre_command_list,
-			delete_primary->delete->command_list );
+				delete_sql_list );
 	}
 
 	return 0;

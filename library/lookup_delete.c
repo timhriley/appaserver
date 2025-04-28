@@ -177,7 +177,6 @@ void lookup_delete_state_two_execute(
 {
 	QUERY_ROW *query_row;
 	DELETE *delete;
-	unsigned int total_row_count = 0;
 
 	if ( !application_name
 	||   !login_name
@@ -202,6 +201,8 @@ void lookup_delete_state_two_execute(
 
 	if ( list_rewind( query_fetch_row_list ) )
 	{
+		/* Keep indent; see below. */
+		/* ----------------------- */
 		do {
 			query_row = list_get( query_fetch_row_list );
 
@@ -239,18 +240,11 @@ void lookup_delete_state_two_execute(
 
 			if ( execute_boolean )
 			{
-				total_row_count +=
-					delete_execute(
-						delete->
-						    delete_input->
-						    appaserver_error_filename,
-						delete->sql_statement_list,
-						delete->pre_command_list,
-						delete->command_list );
+				delete_execute( delete->delete_sql_list );
 			}
 			else
 			{
-				delete_display( delete->sql_statement_list );
+				delete_display( delete->delete_sql_list );
 			}
 
 		} while ( list_next( query_fetch_row_list ) );
@@ -258,9 +252,12 @@ void lookup_delete_state_two_execute(
 		if ( execute_boolean )
 		{
 			printf( "<h3>%s</h3>\n",
-				delete_complete_message_string(
-					DELETE_COMPLETE_MESSAGE,
-					total_row_count ) );
+				delete->complete_message_string );
+		}
+		else
+		{
+			printf( "<h3>%s</h3>\n",
+				delete->message_string );
 		}
 	}
 	else

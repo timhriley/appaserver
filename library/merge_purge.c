@@ -1219,20 +1219,7 @@ void merge_purge_process_execute(
 			update->
 			update_row_list );
 
-	(void)delete_execute(
-		merge_purge_delete->
-			delete->
-			delete_input->
-			appaserver_error_filename,
-		merge_purge_delete->
-			delete->
-			sql_statement_list,
-		merge_purge_delete->
-			delete->
-			pre_command_list,
-		merge_purge_delete->
-			delete->
-			command_list );
+	delete_execute( merge_purge_delete->delete->delete_sql_list );
 }
 
 MERGE_PURGE_FOLDER *merge_purge_folder_new(

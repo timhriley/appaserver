@@ -7,10 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "sql.h"
+#include "delete.h"
 #include "piece.h"
-#include "String.h"
 #include "role.h"
 #include "role_folder.h"
 #include "orphan.h"
@@ -659,6 +661,7 @@ LIST *orphan_delete_statement_list(
 		list_set(
 			list,
 			orphan_delete_statement_new(
+				SQL_DELIMITER,
 				many_table_name,
 				relation_foreign_key_list,
 				orphan_data ) );
@@ -669,19 +672,15 @@ LIST *orphan_delete_statement_list(
 }
 
 ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
+		const char sql_delimiter,
 		char *many_table_name,
 		LIST *relation_foreign_key_list,
 		char *orphan_data )
 {
-	char statement[ 2048 ];
-	char *ptr = statement;
 	ORPHAN_DELETE_STATEMENT *orphan_delete_statement;
-	int p = 0;
-	char *foreign_key;
-	char datum[ 1024 ];
 
 	if ( !many_table_name
-	||   !list_rewind( relation_foreign_key_list )
+	||   !list_length( relation_foreign_key_list )
 	||   !orphan_data )
 	{
 		char message[ 128 ];
@@ -700,51 +699,16 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 	orphan_delete_statement->many_table_name = many_table_name;
 	orphan_delete_statement->orphan_data = orphan_data;
 
-	ptr += sprintf(
-		ptr,
-		"delete from %s where ",
-		many_table_name );
-
-	do {
-		foreign_key = list_get( relation_foreign_key_list );
-
-		if ( p ) ptr += sprintf( ptr, " and " );
-
-		/* Returns null if not enough delimiters */
-		/* ------------------------------------- */
-		if ( !piece(	datum,
-				SQL_DELIMITER,
-				orphan_data,
-				p ) )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"piece(%s,%d) returned empty.",
-				orphan_data,
-				p );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		ptr +=
-			sprintf(
-				ptr,
-				"%s = '%s'",
-				foreign_key,
-				datum );
-
-		p++;
-
-	} while ( list_next( relation_foreign_key_list ) );
-
-	ptr += sprintf( ptr, ";" );
-
-	orphan_delete_statement->statement = strdup( statement );
+	orphan_delete_statement->
+		delete_key_list_data_string_sql =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			delete_key_list_data_string_sql(
+				sql_delimiter,
+				many_table_name,
+				relation_foreign_key_list,
+				orphan_data );
 
 	return orphan_delete_statement;
 }
@@ -1234,19 +1198,24 @@ void orphan_delete_execute( LIST *orphan_delete_list )
 	ORPHAN_DELETE *orphan_delete;
 	ORPHAN_DELETE_STATEMENT *orphan_delete_statement;
 
-	output_pipe = popen( "tee_appaserver.sh | sql.e", "w" );
+	output_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			delete_execute_system_string(
+				SQL_EXECUTABLE ) );
 
 	if ( list_rewind( orphan_delete_list ) )
 	do {
 		orphan_delete = list_get( orphan_delete_list );
 
-		if ( !list_rewind(
+		if ( list_rewind(
 			orphan_delete->
 				orphan_delete_statement_list ) )
-		{
-			continue;
-		}
-
 		do {
 			orphan_delete_statement =
 				list_get(
@@ -1255,7 +1224,8 @@ void orphan_delete_execute( LIST *orphan_delete_list )
 
 			fprintf(output_pipe,
 				"%s\n",
-				orphan_delete_statement->statement );
+				orphan_delete_statement->
+					delete_key_list_data_string_sql );
 
 		} while (
 			list_next(
@@ -1405,7 +1375,8 @@ void orphan_delete_list_display(
 				"%s|%s|%s\n",
 				orphan_delete_statement->many_table_name,
 				orphan_delete_statement->orphan_data,
-				orphan_delete_statement->statement );
+				orphan_delete_statement->
+					delete_key_list_data_string_sql );
 
 		} while ( list_next(
 				orphan_delete->
