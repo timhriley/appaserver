@@ -241,24 +241,20 @@ void lookup_delete_state_two_execute(
 			if ( execute_boolean )
 			{
 				delete_execute( delete->delete_sql_list );
+
+				printf( "<h3>%s</h3>\n",
+					delete->complete_message_string );
 			}
 			else
 			{
 				delete_display( delete->delete_sql_list );
+
+				printf( "<h3>%s</h3>\n",
+					delete->message_string );
 			}
 
 		} while ( list_next( query_fetch_row_list ) );
 
-		if ( execute_boolean )
-		{
-			printf( "<h3>%s</h3>\n",
-				delete->complete_message_string );
-		}
-		else
-		{
-			printf( "<h3>%s</h3>\n",
-				delete->message_string );
-		}
 	}
 	else
 	{

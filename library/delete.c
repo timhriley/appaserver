@@ -780,6 +780,8 @@ void delete_display( LIST *delete_sql_list )
 	FILE *output_pipe;
 	DELETE_SQL *delete_sql;
 
+	fflush( stdout );
+
 	output_pipe =
 		/* -------------- */
 		/* Safely returns */
@@ -799,6 +801,7 @@ void delete_display( LIST *delete_sql_list )
 	} while ( list_next( delete_sql_list ) );
 
 	pclose( output_pipe );
+	fflush( stdout );
 }
 
 void delete_execute( LIST *delete_sql_list )
@@ -2306,7 +2309,7 @@ boolean delete_sql_duplicate_boolean(
 
 	if ( strcmp(
 		delete_sql->statement,
-		candidate_delete_sql->statement ) )
+		candidate_delete_sql->statement ) == 0 )
 	{
 		duplicate_boolean = 1;
 	}
