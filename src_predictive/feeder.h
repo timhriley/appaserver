@@ -1053,6 +1053,11 @@ double feeder_audit_balance_difference(
 boolean feeder_audit_difference_zero(
 		double feeder_audit_balance_difference );
 
+/* Returns static memory */
+/* --------------------- */
+char *feeder_audit_account_display(
+		char *feeder_account_name );
+
 /* Usage */
 /* ----- */
 HTML_ROW *feeder_audit_html_row(
