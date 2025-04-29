@@ -612,6 +612,43 @@ char *statement_date_american( char *date_time_string )
 		return date_american;
 }
 
+char *statement_date_convert(
+		char *application_name,
+		char *login_name,
+		char *date_time_string )
+{
+	char date_string[ 16 ];
+	enum date_convert_format_enum format_enum;
+	char *date_convert;
+
+	format_enum =
+		/* -------------------------------------------- */
+		/* Returns static enum date_convert_format_enum */
+		/* -------------------------------------------- */
+		date_convert_login_name_enum(
+			application_name,
+			login_name );
+
+	date_convert =
+		/* ----------------------------------------------- */
+		/* Returns heap memory, source_date_string or null */
+		/* ----------------------------------------------- */
+		date_convert_source_international(
+			format_enum /* destination_enum */,
+			column(
+				date_string,
+				0,
+				date_time_string )
+				/* source_date_string */ );
+
+	if ( !date_convert ) return (char *)0;
+
+	if ( date_convert == date_string )
+		return strdup( date_convert );
+	else
+		return date_convert;
+}
+
 char *statement_caption_combined(
 		char *title,
 		char *subtitle )

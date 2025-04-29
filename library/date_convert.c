@@ -46,7 +46,7 @@ enum date_convert_format_enum date_convert_format_string_evaluate(
 	}
 	else
 	{
-		return date_convert_unknown;
+		return date_convert_blank;
 	}
 }
 
@@ -467,10 +467,21 @@ enum date_convert_format_enum date_convert_login_name_enum(
 		char *application_name,
 		char *login_name )
 {
+	static enum date_convert_format_enum format_enum = date_convert_unknown;
 	APPLICATION *application;
 	APPASERVER_USER *appaserver_user;
 
+	if ( format_enum != date_convert_unknown ) return format_enum;
+
+	if ( !application_name
+	||   !login_name )
+	{
+		format_enum = date_convert_american;
+		return format_enum;
+	}
+
 	appaserver_user =
+		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_login_fetch(
@@ -480,9 +491,11 @@ enum date_convert_format_enum date_convert_login_name_enum(
 	if ( appaserver_user->user_date_format
 	&&   *appaserver_user->user_date_format )
 	{
-		return
-		date_convert_format_string_evaluate(
-			appaserver_user->user_date_format );
+		format_enum =
+			date_convert_format_string_evaluate(
+				appaserver_user->user_date_format );
+
+		return format_enum;
 	}
 
 	if ( ! ( application =
@@ -500,14 +513,16 @@ enum date_convert_format_enum date_convert_login_name_enum(
 	if ( application->user_date_format
 	&&   *application->user_date_format )
 	{
-		return
-		date_convert_format_string_evaluate(
-			application->user_date_format );
+		format_enum =
+			date_convert_format_string_evaluate(
+				application->user_date_format );
 	}
 	else
 	{
-		return date_convert_unknown;
+		format_enum = date_convert_blank;
 	}
+
+	return format_enum;
 }
 
 char *date_convert_international_to_military( char *source_date_string )

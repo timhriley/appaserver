@@ -26,6 +26,8 @@ typedef struct
 /* ----- */
 TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 	trial_balance_subclass_display_html_new(
+		char *application_name,
+		char *login_name,
 		STATEMENT *statement,
 		LIST *statement_prior_year_list,
 		double debit_sum,
@@ -45,6 +47,8 @@ LIST *trial_balance_subclass_display_html_column_list(
 /* Usage */
 /* ----- */
 LIST *trial_balance_subclass_display_html_row_list(
+		char *application_name,
+		char *login_name,
 		char *end_date_time_string,
 		char *element_name,
 		boolean element_accumulate_debit,
@@ -55,6 +59,8 @@ LIST *trial_balance_subclass_display_html_row_list(
 /* Usage */
 /* ----- */
 HTML_ROW *trial_balance_subclass_display_html_row(
+		char *application_name,
+		char *login_name,
 		char *element_name,
 		char *subclassification_name,
 		STATEMENT_ACCOUNT *statement_account,
@@ -116,6 +122,8 @@ typedef struct
 /* Usage */
 /* ----- */
 TRIAL_BALANCE_HTML *trial_balance_html_new(
+		char *application_name,
+		char *login_name,
 		enum statement_subclassification_option
 			statement_subclassification_option,
 		STATEMENT *statement,
@@ -157,6 +165,8 @@ typedef struct
 /* Usage */
 /* ----- */
 TRIAL_BALANCE_TABLE *trial_balance_table_new(
+		char *application_name,
+		char *login_name,
 		enum statement_subclassification_option
 			statement_subclassification_option,
 		STATEMENT *preclose_statement,

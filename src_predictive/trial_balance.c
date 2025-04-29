@@ -333,6 +333,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 	{
 		trial_balance->trial_balance_table =
 			trial_balance_table_new(
+				application_name,
+				login_name,
 				trial_balance->
 					statement_subclassification_option,
 				trial_balance->preclose_statement,
@@ -975,6 +977,8 @@ LIST *trial_balance_subclass_display_latex_row_list(
 }
 
 LIST *trial_balance_subclass_display_html_row_list(
+		char *application_name,
+		char *login_name,
 		char *end_date_time_string,
 		char *element_name,
 		boolean element_accumulate_debit,
@@ -1036,6 +1040,8 @@ LIST *trial_balance_subclass_display_html_row_list(
 		list_set(
 			row_list,
 			trial_balance_subclass_display_html_row(
+				application_name,
+				login_name,
 				element_name,
 				subclassification_name,
 				statement_account,
@@ -1050,6 +1056,8 @@ LIST *trial_balance_subclass_display_html_row_list(
 }
 
 HTML_ROW *trial_balance_subclass_display_html_row(
+		char *application_name,
+		char *login_name,
 		char *element_name,
 		char *subclassification_name,
 		STATEMENT_ACCOUNT *statement_account,
@@ -1057,7 +1065,7 @@ HTML_ROW *trial_balance_subclass_display_html_row(
 {
 	LIST *cell_list;
 	char *cell_label_datum;
-	char *transaction_date_american;
+	char *transaction_date_convert;
 	char *account_datum;
 	char *transaction_count_string;
 
@@ -1107,11 +1115,13 @@ HTML_ROW *trial_balance_subclass_display_html_row(
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
-	if ( ! ( transaction_date_american =
+	if ( ! ( transaction_date_convert =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			statement_date_american(
+			statement_date_convert(
+				application_name,
+				login_name,
 				statement_account->
 					account->
 					account_journal_latest->
@@ -1120,7 +1130,7 @@ HTML_ROW *trial_balance_subclass_display_html_row(
 		char message[ 128 ];
 
 		sprintf(message,
-			"statement_date_american(%s) returned empty.",
+			"statement_date_convert(%s) returned empty.",
 			statement_account->
 				account->
 				account_journal_latest->
@@ -1153,7 +1163,7 @@ HTML_ROW *trial_balance_subclass_display_html_row(
 				account->
 				account_journal_latest->
 				credit_amount,
-			transaction_date_american,
+			transaction_date_convert,
 			statement_account->
 				account->
 				account_journal_latest->
@@ -1298,6 +1308,8 @@ LIST *trial_balance_subclass_display_html_column_list(
 }
 
 TRIAL_BALANCE_TABLE *trial_balance_table_new(
+		char *application_name,
+		char *login_name,
 		enum statement_subclassification_option
 			statement_subclassification_option,
 		STATEMENT *preclose_statement,
@@ -1328,6 +1340,8 @@ TRIAL_BALANCE_TABLE *trial_balance_table_new(
 		trial_balance_table->
 			preclose_trial_balance_html =
 				trial_balance_html_new(
+					application_name,
+					login_name,
 					statement_subclassification_option,
 					preclose_statement,
 					preclose_statement_prior_year_list,
@@ -1338,6 +1352,8 @@ TRIAL_BALANCE_TABLE *trial_balance_table_new(
 	trial_balance_table->
 		trial_balance_html =
 			trial_balance_html_new(
+				application_name,
+				login_name,
 				statement_subclassification_option,
 				statement,
 				statement_prior_year_list,
@@ -1367,6 +1383,8 @@ TRIAL_BALANCE_TABLE *trial_balance_table_calloc( void )
 
 TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 	trial_balance_subclass_display_html_new(
+		char *application_name,
+		char *login_name,
 		STATEMENT *statement,
 		LIST *statement_prior_year_list,
 		double debit_sum,
@@ -1431,6 +1449,8 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 
 			row_list =
 				trial_balance_subclass_display_html_row_list(
+					application_name,
+					login_name,
 					statement->
 						end_date_time_string,
 					element_name,
@@ -1490,6 +1510,8 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 }
 
 TRIAL_BALANCE_HTML *trial_balance_html_new(
+		char *application_name,
+		char *login_name,
 		enum statement_subclassification_option
 			statement_subclassification_option,
 		STATEMENT *statement,
@@ -1522,6 +1544,8 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 		trial_balance_html->
 			trial_balance_subclass_display_html =
 				trial_balance_subclass_display_html_new(
+					application_name,
+					login_name,
 					statement,
 					statement_prior_year_list,
 					debit_sum,

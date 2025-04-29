@@ -59,7 +59,7 @@
 	"<br />"							      \
 	"<br />"							      \
 	"However, you will only have to insert a small number of "	      \
-	"transactions because most of them will be generated "		      \
+	"transactions, because most of them will be generated "		      \
 	"automatically. After you install PredictBooks, become "	      \
 	"familiar with the Feeder Phrase table. Each of your bank's "	      \
 	"transactions is described with a phrase. Insert these "	      \

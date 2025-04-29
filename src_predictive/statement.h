@@ -676,6 +676,16 @@ char *statement_date_american(
 /* Usage */
 /* ----- */
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *statement_date_convert(
+		char *application_name,
+		char *login_name,
+		char *date_time_string );
+
+/* Usage */
+/* ----- */
+
 /* Returns heap memory or "" */
 /* ------------------------- */
 char *statement_cell_label_datum(

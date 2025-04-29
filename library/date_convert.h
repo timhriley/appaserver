@@ -132,6 +132,9 @@ boolean date_convert_is_valid_american(
 
 /* Usage */
 /* ----- */
+
+/* Returns static enum date_convert_format_enum */
+/* -------------------------------------------- */
 enum date_convert_format_enum date_convert_login_name_enum(
 		char *application_name,
 		char *login_name );
