@@ -163,7 +163,8 @@ N) Delete APPASERVER_USER=nobody:
 3) Query where login_name = 'nobody'
 4) <Delete>
 
-Note: APPASERVER_USER=nobody was deleted, so login again.
+Note 1: APPASERVER_USER=nobody was deleted, so login again.
+Note 2: From this point forward, every CGI submit will generate an error.
 
 Point your browser to:
 http://localhost/appaserver/template
