@@ -1002,6 +1002,11 @@ void feeder_execute(
 void feeder_display(
 		FEEDER *feeder );
 
+/* Usage */
+/* ----- */
+boolean feeder_execute_boolean(
+		FEEDER_ROW *feeder_row_first_out_balance );
+
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"
 
 typedef struct
@@ -1052,11 +1057,6 @@ double feeder_audit_balance_difference(
 
 boolean feeder_audit_difference_zero(
 		double feeder_audit_balance_difference );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_audit_account_display(
-		char *feeder_account_name );
 
 /* Usage */
 /* ----- */

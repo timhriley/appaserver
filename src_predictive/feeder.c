@@ -3484,12 +3484,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	feeder_audit->html_table =
 		html_table_new(
 			FEEDER_AUDIT_HTML_TITLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			feeder_audit_account_display(
-				feeder_account_name )
-					/* sub_title */,
+			(char *)0 /* sub_title */,
 			(char *)0 /* sub_sub_title */ );
 
 	feeder_audit->html_table->column_list =
@@ -4732,16 +4727,11 @@ char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 	return strdup( display );
 }
 
-char *feeder_audit_account_display( char *feeder_account_name )
+boolean feeder_execute_boolean( FEEDER_ROW *feeder_row_first_out_balance )
 {
-	static char account_display[ 128 ];
-
-	return
-	/* ------------------- */
-	/* Returns destination */
-	/* ------------------- */
-	string_initial_capital(
-		account_display /* destination */,
-		feeder_account_name /* source */ );
+	if ( feeder_row_first_out_balance )
+		return 0;
+	else
+		return 1;
 }
 

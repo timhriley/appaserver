@@ -123,6 +123,11 @@ int main( int argc, char **argv )
 
 	if ( feeder )
 	{
+		execute_boolean =
+			feeder_execute_boolean(
+				feeder->
+					feeder_row_first_out_balance );
+
 		if ( !feeder->feeder_row_count )
 		{
 			printf( "<h3>No new feeder rows to process.</h3>\n" );
