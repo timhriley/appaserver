@@ -35,7 +35,6 @@ insert into prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) 
 insert into prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('full_name',null,null,null,'60');
 insert into process_group (process_group) values ('feeder');
 insert into process (process,command_line) values ('populate_expense_revenue_account','populate_expense_revenue_account.sh');
-update relation set ajax_fill_drop_down_yn = 'n' where table_name = 'feeder_phrase' and related_table = 'account';
 shell_all_done
 ) | sql.e 2>&1 | grep -vi duplicate
 
