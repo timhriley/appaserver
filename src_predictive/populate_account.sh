@@ -36,6 +36,12 @@ else
 	element=""
 fi
 
+if [ "$many_table" = "feeder_phrase" ]
+then
+	populate_expense_revenue_account.sh
+	exit 0
+fi
+
 # Select
 # ======
 
