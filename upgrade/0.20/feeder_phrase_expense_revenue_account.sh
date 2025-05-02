@@ -37,6 +37,6 @@ insert into process_group (process_group) values ('feeder');
 insert into process (process,command_line) values ('populate_expense_revenue_account','populate_expense_revenue_account.sh');
 update relation set ajax_fill_drop_down_yn = 'n' where table_name = 'feeder_phrase' and related_table = 'account';
 shell_all_done
-) | sql.e
+) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0
