@@ -7,6 +7,8 @@ function post_change_folder_attribute( row )
 	var primary_key_element_value;
 	var display_order_element_value;
 
+	// Negative row for body onload.
+	// -----------------------------
 	if ( row == -1 )
 	{
 		post_change_folder_attribute_each_row();

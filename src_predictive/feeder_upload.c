@@ -125,6 +125,7 @@ int main( int argc, char **argv )
 	{
 		execute_boolean =
 			feeder_execute_boolean(
+				execute_boolean,
 				feeder->
 					feeder_row_first_out_balance );
 

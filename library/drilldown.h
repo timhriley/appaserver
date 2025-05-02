@@ -94,6 +94,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		pid_t process_id,
 		DICTIONARY *sort_dictionary,
 		char *one_folder_name,
+		LIST *relation_foreign_key_list,
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *query_fetch_dictionary );

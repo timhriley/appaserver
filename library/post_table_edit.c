@@ -29,7 +29,8 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		pid_t process_id )
+		pid_t process_id,
+		LIST *drilldown_relation_foreign_key_list )
 {
 	POST_TABLE_EDIT_INPUT *post_table_edit_input;
 
@@ -218,15 +219,16 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 			folder_row_level_restriction_fetch(
 				folder_name );
 
-		post_table_edit_input->appaserver_spool_filename =
+		post_table_edit_input->appaserver_update_filespecification =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			appaserver_spool_filespecification(
+			appaserver_update_filespecification(
 				application_name,
 				folder_name,
 				session_key,
 				process_id,
+				drilldown_relation_foreign_key_list,
 				post_table_edit_input->
 					appaserver_parameter->
 					data_directory );
@@ -234,7 +236,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 		post_table_edit_input->file_dictionary =
 			dictionary_file_fetch(
 				post_table_edit_input->
-					appaserver_spool_filename,
+					appaserver_update_filespecification,
 				SQL_DELIMITER );
 
 		if ( !post_table_edit_input->file_dictionary ) return NULL;
@@ -346,7 +348,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		pid_t process_id )
+		pid_t process_id,
+		LIST *drilldown_relation_foreign_key_list )
 {
 	POST_TABLE_EDIT *post_table_edit;
 
@@ -397,7 +400,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 			role_name,
 			folder_name,
 			target_frame,
-			process_id );
+			process_id,
+			drilldown_relation_foreign_key_list );
 
 	if ( !post_table_edit->post_table_edit_input )
 		return post_table_edit;

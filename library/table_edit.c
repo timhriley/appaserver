@@ -398,6 +398,7 @@ TABLE_EDIT *table_edit_new(
 		char *data_directory,
 		char *drilldown_base_folder_name,
 		char *drilldown_primary_data_list_string,
+		LIST *drilldown_relation_foreign_key_list,
 		boolean viewonly_boolean,
 		boolean omit_delete_boolean )
 {
@@ -575,7 +576,8 @@ TABLE_EDIT *table_edit_new(
 			target_frame,
 			process_id,
 			drilldown_base_folder_name,
-			drilldown_primary_data_list_string );
+			drilldown_primary_data_list_string,
+			drilldown_relation_foreign_key_list );
 
 	table_edit->heading_label_list =
 		table_edit_heading_label_list(
@@ -618,15 +620,16 @@ TABLE_EDIT *table_edit_new(
 			table_edit->heading_label_list,
 			table_edit->heading_name_list );
 
-	table_edit->appaserver_spool_filename =
+	table_edit->appaserver_update_filespecification =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_spool_filespecification(
+		appaserver_update_filespecification(
 			application_name,
 			folder_name,
 			session_key,
 			process_id,
+			drilldown_relation_foreign_key_list,
 			data_directory );
 
 	if ( !drilldown_base_folder_name )
@@ -1532,7 +1535,8 @@ char *table_edit_post_action_string(
 		char *target_frame,
 		pid_t process_id,
 		char *drilldown_base_folder_name,
-		char *drilldown_primary_data_list_string )
+		char *drilldown_primary_data_list_string,
+		LIST *drilldown_relation_foreign_key_list )
 {
 	char action_string[ 1024 ];
 
@@ -1556,7 +1560,7 @@ char *table_edit_post_action_string(
 	snprintf(
 		action_string,
 		sizeof ( action_string ),
-		"%s/%s?%s+%s+%s+%s+%s+%s+%d+%s+%s",
+		"%s/%s?%s+%s+%s+%s+%s+%s+%d+%s+%s+%s",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -1581,6 +1585,11 @@ char *table_edit_post_action_string(
 			: "",
 		(drilldown_primary_data_list_string)
 			? drilldown_primary_data_list_string
+			: "",
+		(drilldown_relation_foreign_key_list)
+			? list_display_delimited(
+				drilldown_relation_foreign_key_list,
+				ATTRIBUTE_MULTI_KEY_DELIMITER )
 			: "" );
 
 	return strdup( action_string );

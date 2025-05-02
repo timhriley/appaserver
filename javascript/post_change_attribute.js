@@ -1,3 +1,4 @@
+// ----------------------------------------------------
 // $APPASERVER_HOME/javascript/post_change_attribute.js
 // ----------------------------------------------------
 function post_change_attribute( row )
@@ -5,8 +6,8 @@ function post_change_attribute( row )
 	var element;
 	var attribute_datatype_value;
 
-	// Negative row for document onload.
-	// ---------------------------------
+	// Negative row for body onload.
+	// -----------------------------
 	if ( row == -1 )
 	{
 		post_change_attribute_each_row();

@@ -110,11 +110,12 @@ FILE *appaserver_output_pipe(
 
 /* Returns heap memory */
 /* ------------------- */
-char *appaserver_spool_filespecification(
+char *appaserver_update_filespecification(
 		char *application_name,
 		char *folder_name,
 		char *session_key,
 		pid_t process_id,
+		LIST *relation_foreign_key_list,
 		char *appaserver_parameter_data_directory );
 
 /* Usage */
@@ -145,6 +146,14 @@ char *appaserver_mailname(
 /* ----- */
 boolean appaserver_executable_exists_boolean(
 		char *executable );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_foreign_key_file_component(
+		LIST *relation_foreign_key_list );
 
 #endif
 

@@ -29,16 +29,17 @@ int main( int argc, char **argv )
 	pid_t process_id;
 	char *drilldown_base_folder_name;
 	char *drilldown_primary_data_list_string;
+	char *drilldown_relation_foreign_key_list_string;
 	POST_TABLE_EDIT *post_table_edit;
 	char *update_results_string = {0};
 	char *update_error_string = {0};
 	char *operation_row_list_output_string = {0};
 	char *system_string = {0};
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name role folder target_frame process_id drilldown_base drilldown_primary\n",
+"Usage: %s application session login_name role folder target_frame process_id drilldown_base drilldown_primary drilldown_relation\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -52,6 +53,7 @@ int main( int argc, char **argv )
 	process_id = (pid_t)atoi( argv[ 7 ] );
 	drilldown_base_folder_name = argv[ 8 ];
 	drilldown_primary_data_list_string = argv[ 9 ];
+	drilldown_relation_foreign_key_list_string = argv[ 10 ];
 
 	document_content_type_output();
 
@@ -68,7 +70,9 @@ int main( int argc, char **argv )
 			role_name,
 			folder_name,
 			target_frame,
-			process_id );
+			process_id,
+			string_list(
+				drilldown_relation_foreign_key_list_string ) );
 
 	if ( !post_table_edit->post_table_edit_input )
 	{

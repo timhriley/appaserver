@@ -40,7 +40,7 @@ typedef struct
 	LIST *relation_mto1_list;
 	LIST *relation_one2m_recursive_list;
 	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
-	char *appaserver_spool_filename;
+	char *appaserver_update_filespecification;
 	DICTIONARY *file_dictionary;
 	LIST *folder_operation_list;
 	LIST *folder_operation_name_list;
@@ -64,7 +64,8 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		pid_t process_id );
+		pid_t process_id,
+		LIST *drilldown_relation_foreign_key_list );
 
 /* Process */
 /* ------- */
@@ -95,7 +96,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		pid_t process_id );
+		pid_t process_id,
+		LIST *drilldown_relation_foreign_key_list );
 
 /* Process */
 /* ------- */

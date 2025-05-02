@@ -36,6 +36,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		pid_t process_id,
 		DICTIONARY *sort_dictionary,
 		char *one_folder_name,
+		LIST *relation_foreign_key_list,
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *query_fetch_dictionary )
@@ -52,6 +53,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 	||   !data_directory
 	||   !process_id
 	||   !one_folder_name
+	||   !list_length( relation_foreign_key_list )
 	||   !list_length( one_folder_primary_key_list )
 	||   !dictionary_length( query_fetch_dictionary ) )
 	{
@@ -113,6 +115,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
+			relation_foreign_key_list,
 			0 /* not viewonly_boolean */,
 			1 /* omit_delete_boolean */ );
 
@@ -235,6 +238,7 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
+			relation_foreign_key_list,
 			0 /* not viewonly_boolean */,
 			0 /* not omit_delete_boolean */ );
 
@@ -323,6 +327,7 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
+			(LIST *)0 /* drilldown_relation_foreign_key_list */,
 			0 /* not viewonly_boolean */,
 			0 /* not omit_delete_boolean */ );
 
@@ -597,6 +602,7 @@ DRILLDOWN *drilldown_new(
 					dictionary_separate->
 					sort_dictionary,
 				relation_mto1->one_folder_name,
+				relation_mto1->relation_foreign_key_list,
 				relation_mto1->relation_translate_list,
 				relation_mto1->
 					one_folder->
@@ -703,6 +709,8 @@ DRILLDOWN *drilldown_new(
 						dictionary_separate->
 						sort_dictionary,
 					relation_mto1->one_folder_name,
+					relation_mto1->
+						relation_foreign_key_list,
 					relation_mto1->relation_translate_list,
 					relation_mto1->
 					    one_folder->
@@ -812,7 +820,7 @@ void drilldown_table_edit_output(
 	}
 
 	table_edit_spool_file_output(
-		table_edit->appaserver_spool_filename,
+		table_edit->appaserver_update_filespecification,
 		table_edit->
 			query_table_edit->
 			query_fetch->
@@ -989,7 +997,13 @@ char *drilldown_document_onload_string(
 	{
 		ptr += sprintf( ptr,
 			"%s",
-			post_change_javascript );
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			javascript_replace(
+				post_change_javascript,
+				APPASERVER_UPDATE_STATE,
+				-1 /* row_number */ ) );
 	}
 
 	if ( list_rewind( relation_one2m_list ) )
@@ -1022,9 +1036,15 @@ char *drilldown_document_onload_string(
 
 				ptr += sprintf( ptr,
 					"%s",
-					relation_one2m->
-						many_folder->
-						post_change_javascript );
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					javascript_replace(
+						relation_one2m->
+							many_folder->
+							post_change_javascript,
+						APPASERVER_UPDATE_STATE,
+						-1 /* row_number */ ) );
 			}
 
 		} while ( list_next( relation_one2m_list ) );
@@ -1060,9 +1080,15 @@ char *drilldown_document_onload_string(
 
 				ptr += sprintf( ptr,
 					"%s",
-					relation_mto1->
-						one_folder->
-						post_change_javascript );
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					javascript_replace(
+						relation_mto1->
+							one_folder->
+							post_change_javascript,
+						APPASERVER_UPDATE_STATE,
+						-1 /* row_number */ ) );
 			}
 
 		} while ( list_next( relation_mto1_list ) );

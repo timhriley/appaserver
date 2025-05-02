@@ -1005,6 +1005,7 @@ void feeder_display(
 /* Usage */
 /* ----- */
 boolean feeder_execute_boolean(
+		boolean execute_boolean,
 		FEEDER_ROW *feeder_row_first_out_balance );
 
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"

@@ -93,6 +93,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_data_directory(),
 			(char *)0 /* drilldown_base_folder_name */,
 			(char *)0 /* drilldown_primary_data_list_string */,
+			(LIST *)0 /* drilldown_relation_foreign_key_list */,
 			0 /* not viewonly_boolean */,
 			0 /* not omit_delete_boolean */ );
 
@@ -164,14 +165,14 @@ int main( int argc, char **argv )
 			message );
 	}
 
-	if ( !table_edit->appaserver_spool_filename )
+	if ( !table_edit->appaserver_update_filespecification )
 	{
 		char message[ 256 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-"table_edit_new(%s) returned an empty table_edit->appaserver_spool_filename.",
+"table_edit_new(%s) returned an empty appaserver_update_filespecification.",
 			folder_name );
 
 		appaserver_error_stderr_exit(
@@ -182,7 +183,7 @@ int main( int argc, char **argv )
 	}
 
 	table_edit_spool_file_output(
-		table_edit->appaserver_spool_filename,
+		table_edit->appaserver_update_filespecification,
 		table_edit->query_table_edit->query_fetch->row_list );
 
 	table_edit_output(

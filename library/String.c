@@ -2254,25 +2254,34 @@ LIST *string_list( char *string )
 	char delimiter;
 	LIST *list = list_new();
 
-	delimiter = string_delimiter( string );
-
-	if ( !delimiter )
+	if ( string && *string )
 	{
-		list_set( list, string );
-	}
-	else
-	{
-		char buffer[ 1024 ];
-		int p;
+		delimiter = string_delimiter( string );
 
-		for (	p = 0;
-			piece( buffer, delimiter, string, p );
-			p++ )
+		if ( !delimiter )
 		{
-			list_set(
-				list,
-				strdup( buffer ) );
+			list_set( list, string );
 		}
+		else
+		{
+			char buffer[ 1024 ];
+			int p;
+
+			for (	p = 0;
+				piece( buffer, delimiter, string, p );
+				p++ )
+			{
+				list_set(
+					list,
+					strdup( buffer ) );
+			}
+		}
+	}
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
 	}
 
 	return list;

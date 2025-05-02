@@ -4727,11 +4727,13 @@ char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 	return strdup( display );
 }
 
-boolean feeder_execute_boolean( FEEDER_ROW *feeder_row_first_out_balance )
+boolean feeder_execute_boolean(
+		boolean execute_boolean,
+		FEEDER_ROW *feeder_row_first_out_balance )
 {
 	if ( feeder_row_first_out_balance )
 		return 0;
 	else
-		return 1;
+		return execute_boolean;
 }
 

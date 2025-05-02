@@ -260,14 +260,15 @@ char *appaserver_spreadsheet_output_system_string(
 	return system_string;
 }
 
-char *appaserver_spool_filespecification(
+char *appaserver_update_filespecification(
 		char *application_name,
 		char *folder_name,
 		char *session_key,
 		pid_t process_id,
+		LIST *relation_foreign_key_list,
 		char *data_directory )
 {
-	char filespecification[ 128 ];
+	char filespecification[ 1024 ];
 
 	if ( !application_name
 	||   !folder_name
@@ -286,10 +287,15 @@ char *appaserver_spool_filespecification(
 	snprintf(
 		filespecification,
 		sizeof ( filespecification ),
-		"%s/%s/%s_%s_%d.dat",
+		"%s/%s/%s%s_%s_%d.dat",
 		data_directory,
 		application_name,
 		folder_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_foreign_key_file_component(
+			relation_foreign_key_list ),
 		session_key,
 		process_id );
 
@@ -381,5 +387,33 @@ boolean appaserver_executable_exists_boolean( char *executable )
 	free( fetch );
 
 	return 1;
+}
+
+char *appaserver_foreign_key_file_component( LIST *relation_foreign_key_list )
+{
+	static char foreign_key_file_component[ 128 ];
+
+	if ( list_length( relation_foreign_key_list ) )
+	{
+		char *tmp;
+
+		snprintf(
+			foreign_key_file_component,
+			sizeof ( foreign_key_file_component ),
+			"_%s",
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			( tmp = appaserver_mnemonic(
+				relation_foreign_key_list ) ) );
+
+		free( tmp );
+	}
+	else
+	{
+		strcpy( foreign_key_file_component, "" );
+	}
+
+	return foreign_key_file_component;
 }
 

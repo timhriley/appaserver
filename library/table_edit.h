@@ -214,7 +214,7 @@ typedef struct
 	LIST *heading_label_list;
 	LIST *heading_name_list;
 	FORM_TABLE_EDIT *form_table_edit;
-	char *appaserver_spool_filename;
+	char *appaserver_update_filespecification;
 	LIST *regular_widget_container_list;
 	LIST *viewonly_widget_container_list;
 	char *document_notepad;
@@ -239,6 +239,7 @@ TABLE_EDIT *table_edit_new(
 		char *data_directory,
 		char *drilldown_base_folder_name,
 		char *drilldown_primary_data_list_string,
+		LIST *drilldown_relation_foreign_key_list,
 		boolean viewonly_boolean,
 		boolean omit_delete_boolean );
 
@@ -262,7 +263,8 @@ char *table_edit_post_action_string(
 		char *target_frame,
 		pid_t process_id,
 		char *drilldown_base_folder_name,
-		char *drilldown_primary_data_list_string );
+		char *drilldown_primary_data_list_string,
+		LIST *drilldown_relation_foreign_key_list );
 
 LIST *table_edit_heading_name_list(
 		ROW_SECURITY_REGULAR_WIDGET_LIST *
@@ -280,13 +282,13 @@ char *table_edit_document_notepad(
 /* Usage */
 /* ----- */
 void table_edit_spool_file_output(
-		char *appaserver_spool_filename,
+		char *appaserver_update_filespecification,
 		LIST *query_fetch_row_list );
 
 /* Process */
 /* ------- */
 FILE *table_edit_spool_file_open(
-		char *appaserver_spool_filename );
+		char *appaserver_update_filespecification );
 
 /* Usage */
 /* ----- */
