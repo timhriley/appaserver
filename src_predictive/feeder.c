@@ -75,25 +75,6 @@ LIST *feeder_phrase_list(
 				message );
 		}
 
-		if ( !feeder_phrase->full_name )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"feeder_phrase=[%s] has an empty full name.",
-				feeder_phrase->phrase );
-
-			pclose( pipe_open );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		list_set( list, feeder_phrase );
 	}
 

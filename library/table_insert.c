@@ -583,7 +583,7 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 				folder_attribute_primary_key_list
 				/* many_primary_key_list */,
 			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_mto1_list */ );
+			1 /* fetch_relation_mto1_list */ );
 
 	table_insert_input->folder_attribute_append_isa_list =
 		folder_attribute_append_isa_list(

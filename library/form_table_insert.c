@@ -334,21 +334,6 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 				ajax_client->
 				widget_container_list );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: ajax_client->widget_container_list=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	widget_container_list_display(
-		form_table_insert_relation->
-			ajax_client->
-			widget_container_list ) );
-msg( (char *)0, message );
-}
 		return form_table_insert_relation;
 	}
 

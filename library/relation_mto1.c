@@ -785,7 +785,7 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 			"related_attribute_name=%s, "
 			"ajax_fill_drop_down=%d, "
 			"folder_attribute_name_list=%s\n, "
-			"relation_foreign_key_list=%s\n\n",
+			"relation_foreign_key_list=%s\n",
 			relation_mto1->one_folder_name,
 			relation_mto1->relation->related_attribute_name,
 			relation_mto1->relation->ajax_fill_drop_down,
@@ -801,19 +801,29 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 		{
 			ptr += sprintf(
 				ptr,
-				"RELATION_ONE2M: %s",
+				"RELATION_ONE2M: %s\n",
 				relation_one2m_list_display(
 					relation_mto1->relation_one2m_list ) );
+		}
+		else
+		{
+			ptr += sprintf( ptr, "no RELATION_ONE2M list.\n" );
 		}
 
 		if ( list_length( relation_mto1->relation_mto1_list ) )
 		{
 			ptr += sprintf(
 				ptr,
-				"RELATION_MTO1: %s",
+				"RELATION_MTO1: %s\n",
 				relation_mto1_list_display(
 					relation_mto1->relation_mto1_list ) );
 		}
+		else
+		{
+			ptr += sprintf( ptr, "no RELATION_MTO1 list.\n" );
+		}
+
+		ptr += sprintf( ptr, "\n" );
 
 	} while ( list_next( relation_mto1_list )  );
 
