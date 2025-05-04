@@ -39,7 +39,7 @@ int main( int argc, char **argv )
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name role folder target_frame process_id drilldown_base drilldown_primary drilldown_relation\n",
+"Usage: %s application session login_name role folder target_frame process_id drilldown_base drilldown_primary_data_list drilldown_relation_foreign_key_list\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -72,7 +72,10 @@ int main( int argc, char **argv )
 			target_frame,
 			process_id,
 			string_list(
-				drilldown_relation_foreign_key_list_string ) );
+			    string_unescape_character(
+				drilldown_relation_foreign_key_list_string,
+				drilldown_relation_foreign_key_list_string,
+				ATTRIBUTE_MULTI_KEY_DELIMITER ) ) );
 
 	if ( !post_table_edit->post_table_edit_input )
 	{
