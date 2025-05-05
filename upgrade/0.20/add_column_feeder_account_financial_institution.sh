@@ -34,6 +34,8 @@ echo "insert into relation (table_name,related_table,related_column) values ('fe
 
 echo "update process set command_line = 'feeder_init_execute \$session \$login \$role \$process full_name street_address account_type exchange_format_filename execute_yn' where process = 'initialize_feeder_account';" | sql.e
 
+echo "update feeder_phrase set full_name = null, street_address = null where feeder_phrase = 'interest';" | sql.e
+
 ) 2>&1 | grep -vi duplicate
 
 exit 0
