@@ -36,7 +36,7 @@ echo "update process set command_line = 'feeder_init_execute \$session \$login \
 
 echo "update feeder_phrase set full_name = null, street_address = null where feeder_phrase = 'interest';" | sql.e
 
-echo "update process set notepad = '<ul><li>This is a shortcut process instead of executing:<br>Insert --> Transaction --> Transaction<li>If your account isn't in the list below, then insert it using the path:<br>Insert --> Transaction --> Account.</ul>' where process = 'insert_expense_transaction';" | sql.e
+echo "update process set notepad = '<ul><li>This is a shortcut process instead of executing:<br>Insert --> Transaction --> Transaction<li>If your account isn''t in the list below, then insert it using the path:<br>Insert --> Transaction --> Account.</ul>' where process = 'insert_expense_transaction';" | sql.e
 
 echo "update process set notepad = '<ul><li>This is a shortcut process instead of executing:<br>Insert --> Feeder --> Feeder Phrase<li>If your account isn''t in the list below, then insert it using the path:<br>Insert --> Transaction --> Account.<li>Both the feeder phrase and the full name may be vendor''s name copied from the feeder file''s description cell.<br>However, the feeder phrase may need to include an adjoining keyword to remove ambiguity.<li>If the vendor already exists as an entity and already has an existing, but sightly different, feeder phrase, then:<ol><li>Lookup --> Feeder --> Feeder Phrase<li>query the entity<li>set the additional feeder phrase to the right of the existing feeder phrase, separated with ''|''</ol></ul>';" | sql.e
 
