@@ -672,6 +672,14 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_account_name = feeder_account_name;
 
+	feeder->feeder_account =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		feeder_account_fetch(
+			FEEDER_ACCOUNT_TABLE,
+			feeder_account_name );
+
 	feeder->feeder_load_row_list =
 		feeder_load_row_list(
 			exchange_journal_list );
@@ -724,6 +732,12 @@ FEEDER *feeder_fetch(
 	feeder->feeder_row_list =
 		feeder_row_list(
 			feeder_account_name,
+			feeder->
+				feeder_account->
+				financial_institution_full_name,
+			feeder->
+				feeder_account->
+				financial_institution_street_address,
 			feeder->account_uncleared_checks,
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
@@ -2174,6 +2188,8 @@ FEEDER_MATCHED_JOURNAL *
 
 FEEDER_TRANSACTION *feeder_transaction_new(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		double amount,
 		char *transaction_date_time,
@@ -2251,8 +2267,18 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 
 	feeder_transaction->transaction =
 		transaction_binary(
-			feeder_phrase_seek->full_name,
-			feeder_phrase_seek->street_address,
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			feeder_transaction_full_name(
+				financial_institution_full_name,
+				feeder_phrase_seek->full_name ),
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			feeder_transaction_street_address(
+				financial_institution_street_address,
+				feeder_phrase_seek->street_address ),
 			transaction_date_time,
 			amount /* transaction_amount */,
 			memo,
@@ -2947,6 +2973,8 @@ double feeder_prior_account_end_balance(
 
 LIST *feeder_row_list(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		char *account_uncleared_checks,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
@@ -2959,11 +2987,13 @@ LIST *feeder_row_list(
 	char *minimum_transaction_date_time = {0};
 	int feeder_row_number = 0;
 
-	if ( !feeder_account_name )
+	if ( !feeder_account_name
+	||   !financial_institution_full_name
+	||   !financial_institution_street_address )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "feeder_account_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2982,6 +3012,8 @@ LIST *feeder_row_list(
 			/* -------------- */
 			feeder_row_new(
 				feeder_account_name,
+				financial_institution_full_name,
+				financial_institution_street_address,
 				account_uncleared_checks,
 				feeder_phrase_list,
 				feeder_exist_row_list,
@@ -3012,6 +3044,8 @@ LIST *feeder_row_list(
 
 FEEDER_ROW *feeder_row_new(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		char *account_uncleared_checks,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
@@ -3023,6 +3057,8 @@ FEEDER_ROW *feeder_row_new(
 	FEEDER_ROW *feeder_row;
 
 	if ( !feeder_account_name
+	||   !financial_institution_full_name
+	||   !financial_institution_street_address
 	||   !feeder_load_row
 	||   !feeder_row_number )
 	{
@@ -3119,6 +3155,8 @@ FEEDER_ROW *feeder_row_new(
 		feeder_row->feeder_transaction =
 			feeder_transaction_new(
 				feeder_account_name,
+				financial_institution_full_name,
+				financial_institution_street_address,
 				feeder_row->feeder_phrase_seek,
 				feeder_load_row->exchange_journal_amount,
 				feeder_row->transaction_date_time,
@@ -4716,5 +4754,25 @@ boolean feeder_execute_boolean(
 		return 0;
 	else
 		return execute_boolean;
+}
+
+char *feeder_transaction_full_name(
+		char *financial_institution_full_name,
+		char *feeder_phrase_seek_full_name )
+{
+	if ( feeder_phrase_seek_full_name )
+		return feeder_phrase_seek_full_name;
+	else
+		return financial_institution_full_name;
+}
+
+char *feeder_transaction_street_address(
+		char *financial_institution_street_address,
+		char *feeder_phrase_seek_street_address )
+{
+	if ( feeder_phrase_seek_street_address )
+		return feeder_phrase_seek_street_address;
+	else
+		return financial_institution_street_address;
 }
 

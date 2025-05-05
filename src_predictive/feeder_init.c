@@ -1001,6 +1001,7 @@ FEEDER_INIT *feeder_init_new(
 		char *login_name,
 		char *role_name,
 		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string )
@@ -1011,6 +1012,7 @@ FEEDER_INIT *feeder_init_new(
 	||   !login_name
 	||   !role_name
 	||   !financial_institution_full_name
+	||   !financial_institution_street_address
 	||   !exchange_minimum_date_string )
 	{
 		char message[ 128 ];
@@ -1110,23 +1112,27 @@ FEEDER_INIT *feeder_init_new(
 				street_address );
 
 	feeder_init->account_insert_sql =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		feeder_init_account_insert_sql(
 			ACCOUNT_TABLE,
+			ACCOUNT_PRIMARY_KEY,
 			SUBCLASSIFICATION_CASH,
 			SUBCLASSIFICATION_CURRENT_LIABILITY,
 			checking_boolean,
 			feeder_init->feeder_init_input->account_name );
 
 	feeder_init->feeder_account_insert_sql =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		feeder_init_feeder_account_insert_sql(
 			FEEDER_ACCOUNT_TABLE,
-			feeder_init->feeder_init_input->account_name );
+			FEEDER_ACCOUNT_PRIMARY_KEY,
+			feeder_init->feeder_init_input->account_name,
+			financial_institution_full_name,
+			financial_institution_street_address );
 
 	feeder_init->insert_sql_list =
 		feeder_init_insert_sql_list(
@@ -1192,18 +1198,25 @@ FEEDER_INIT *feeder_init_calloc( void )
 
 char *feeder_init_feeder_account_insert_sql(
 		const char *feeder_account_table,
-		char *account_name )
+		const char *feeder_account_primary_key,
+		char *account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address )
 {
-	static char insert_sql[ 128 ];
+	char *attribute_name_list_string;
+	char *value_list_string;
+	LIST *insert_datum_list;
 
-	if ( !account_name )
+	if ( !account_name
+	||   !financial_institution_full_name
+	||   !financial_institution_street_address )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"account_name is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1212,14 +1225,54 @@ char *feeder_init_feeder_account_insert_sql(
 			message );
 	}
 
-	snprintf(
-		insert_sql,
-		sizeof ( insert_sql ),
-		"insert into %s (feeder_account) values ('%s');",
-		feeder_account_table,
-		account_name );
+	insert_datum_list = list_new();
 
-	return insert_sql;
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			(char *)feeder_account_primary_key /* attribute_name */,
+			account_name /* datum */,
+			1 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"full_name" /* attribute_name */,
+			financial_institution_full_name /* datum */,
+			0 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"street_address" /* attribute_name */,
+			financial_institution_street_address /* datum */,
+			0 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	attribute_name_list_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		insert_datum_attribute_name_list_string(
+			insert_datum_list );
+
+	value_list_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		insert_datum_value_list_string(
+			insert_datum_list );
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	insert_folder_sql_statement_string(
+		(char *)feeder_account_table,
+		attribute_name_list_string,
+		value_list_string );
 }
 
 LIST *feeder_init_insert_sql_list(
@@ -1373,6 +1426,7 @@ void feeder_init_transaction_html_display(
 
 char *feeder_init_account_insert_sql(
 		const char *account_table,
+		const char *account_primary_key,
 		const char *subclassification_cash,
 		const char *subclassification_current_liability,
 		boolean checking_boolean,
@@ -1404,7 +1458,7 @@ char *feeder_init_account_insert_sql(
 	list_set(
 		insert_datum_list,
 		insert_datum_new(
-			"account" /* attribute_name */,
+			(char *)account_primary_key /* attribute_name */,
 			account_name /* datum */,
 			1 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );

@@ -18,8 +18,8 @@
 					"annual_budget"
 
 #define ACCOUNT_CHART_ACCOUNT_NUMBER	"chart_account_number"
-
 #define ACCOUNT_TABLE			"account"
+#define ACCOUNT_PRIMARY_KEY		"account"
 
 #define ACCOUNT_UNCLEARED_CHECKS	"uncleared_checks"
 #define ACCOUNT_NET_INCOME		"net_income"

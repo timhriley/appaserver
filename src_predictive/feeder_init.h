@@ -454,6 +454,7 @@ FEEDER_INIT *feeder_init_new(
 		char *login_name,
 		char *role_name,
 		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string );
@@ -462,12 +463,6 @@ FEEDER_INIT *feeder_init_new(
 /* ------- */
 FEEDER_INIT *feeder_init_calloc(
 		void );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_init_feeder_account_insert_sql(
-		const char *feeder_account_table,
-		char *account_name );
 
 LIST *feeder_init_insert_sql_list(
 		char *passthru_insert_sql,
@@ -511,6 +506,7 @@ void feeder_init_transaction_html_display(
 /* ------------------- */
 char *feeder_init_account_insert_sql(
 		const char *account_table,
+		const char *account_primary_key,
 		const char *subclassification_cash,
 		const char *subclassification_current_liability,
 		boolean checking_boolean,
@@ -525,5 +521,17 @@ const char *feeder_init_subclassification(
 		const char *subclassification_cash,
 		const char *subclassification_current_liability,
 		boolean checking_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_init_feeder_account_insert_sql(
+		const char *feeder_account_table,
+		const char *feeder_account_primary_key,
+		char *account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address );
 
 #endif

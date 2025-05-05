@@ -24,6 +24,7 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *process_name;
 	char *full_name;
+	char *street_address;
 	char *account_type;
 	char *exchange_format_filename;
 	boolean execute_boolean;
@@ -40,10 +41,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process full_name account_type exchange_format_filename execute_yn\n",
+"Usage: %s session login_name role process full_name street_address account_type exchange_format_filename execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -54,9 +55,10 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
 	full_name = argv[ 5 ];
-	account_type = argv[ 6 ];
-	exchange_format_filename = argv[ 7 ];
-	execute_boolean = (*argv[ 8 ] == 'y');
+	street_address = argv[ 6 ];
+	account_type = argv[ 7 ];
+	exchange_format_filename = argv[ 8 ];
+	execute_boolean = (*argv[ 9 ] == 'y');
 
 	document_process_output(
 		application_name,
@@ -136,7 +138,10 @@ int main( int argc, char **argv )
 				session_key,
 				login_name,
 				role_name,
-				full_name /* financial_institution_full_name */,
+				full_name
+				/* financial_institution_full_name */,
+				street_address
+				/* financial_institution_street_address */,
 				checking_boolean,
 				exchange->exchange_journal_begin_amount,
 				exchange->minimum_date_string );

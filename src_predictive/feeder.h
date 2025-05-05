@@ -14,6 +14,7 @@
 #include "transaction.h"
 #include "journal.h"
 #include "account.h"
+#include "feeder_account.h"
 #include "html.h"
 
 #define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
@@ -287,6 +288,8 @@ typedef struct
 /* ----- */
 FEEDER_TRANSACTION *feeder_transaction_new(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		double exchange_journal_amount,
 		char *transaction_date_time,
@@ -296,6 +299,18 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 /* ------- */
 FEEDER_TRANSACTION *feeder_transaction_calloc(
 		void );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *feeder_transaction_full_name(
+		char *financial_institution_full_name,
+		char *feeder_phrase_seek_full_name );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *feeder_transaction_street_address(
+		char *financial_institution_street_address,
+		char *feeder_phrase_seek_street_address );
 
 typedef struct
 {
@@ -453,6 +468,8 @@ typedef struct
 /* ----- */
 LIST *feeder_row_list(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		char *account_uncleared_checks,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
@@ -466,6 +483,8 @@ LIST *feeder_row_list(
 /* -------------- */
 FEEDER_ROW *feeder_row_new(
 		char *feeder_account_name,
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		char *account_uncleared_checks,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
@@ -922,6 +941,7 @@ void feeder_load_event_insert_pipe(
 typedef struct
 {
 	char *feeder_account_name;
+	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
 	char *account_uncleared_checks;
 	LIST *feeder_phrase_list;
