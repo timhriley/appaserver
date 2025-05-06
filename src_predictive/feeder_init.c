@@ -1120,6 +1120,7 @@ FEEDER_INIT *feeder_init_new(
 			ACCOUNT_PRIMARY_KEY,
 			SUBCLASSIFICATION_CASH,
 			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			ACCOUNT_CREDIT_CARD_KEY,
 			checking_boolean,
 			feeder_init->feeder_init_input->account_name );
 
@@ -1429,6 +1430,7 @@ char *feeder_init_account_insert_sql(
 		const char *account_primary_key,
 		const char *subclassification_cash,
 		const char *subclassification_current_liability,
+		const char *account_credit_card_key,
 		boolean checking_boolean,
 		char *account_name )
 {
@@ -1479,6 +1481,17 @@ char *feeder_init_account_insert_sql(
 			subclassification /* datum */,
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
+
+	if ( !checking_boolean )
+	{
+		list_set(
+			insert_datum_list,
+			insert_datum_new(
+				"hard_coded_account_key",
+				(char *)account_credit_card_key,
+				0 /* primary_key_index */,
+				0 /* not attribute_is_number */ ) );
+	}
 
 	attribute_name_list_string =
 		/* --------------------------- */

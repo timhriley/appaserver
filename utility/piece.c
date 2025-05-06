@@ -1,12 +1,13 @@
-/* $APPASERVER_HOME/utility/piece.c			*/
-/* ---------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------	*/
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/piece.c		 			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "String.h"
 #include "piece.h"
-#include "timlib.h"
 
 int main( int argc, char **argv )
 {
@@ -27,7 +28,7 @@ int main( int argc, char **argv )
 
 	delimiter = *argv[ 1 ];
 
-	while( timlib_get_line( buffer, stdin, 65536 ) )
+	while( string_input( buffer, stdin, 65536 ) )
 	{
 		line_number++;
 

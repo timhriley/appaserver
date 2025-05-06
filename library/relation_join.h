@@ -20,9 +20,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 		LIST *one_folder_primary_key_list,
 		LIST *relation_foreign_key_list,
@@ -54,9 +51,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 RELATION_JOIN_FOLDER *relation_join_folder_new(
 		LIST *one_folder_primary_key_list,
 		RELATION_ONE2M *relation_one2m_join,

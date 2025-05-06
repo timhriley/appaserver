@@ -147,17 +147,17 @@ RELATION_JOIN_ROW *relation_join_row_new(
 				relation_one2m_join_list );
 
 		relation_join_folder =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			relation_join_folder_new(
 				one_folder_primary_key_list,
 				relation_one2m_join,
 				query_row_cell_list );
 
-		list_set(
-			relation_join_row->relation_join_folder_list,
-			relation_join_folder );
+		if ( relation_join_folder )
+		{
+			list_set(
+				relation_join_row->relation_join_folder_list,
+				relation_join_folder );
+		}
 
 	} while ( list_next( relation_one2m_join_list ) );
 
@@ -251,14 +251,17 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 
 
 	relation_join_folder->relation_join_folder_where =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		relation_join_folder_where_new(
 			one_folder_primary_key_list,
 			relation_one2m_join->
 				relation_foreign_key_list,
 			query_row_cell_list );
+
+	if ( !relation_join_folder->relation_join_folder_where )
+	{
+		free( relation_join_folder );
+		return NULL;
+	}
 
 	relation_join_folder->system_string =
 		/* ------------------- */
@@ -385,17 +388,7 @@ RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 		relation_join_folder_where->
 			query_cell_attribute_data_list ) )
 	{
-		char message[ 256 ];
-
-		sprintf(message,
-			"query_cell_data_list(%s) returned empty.",
-			list_display( one_folder_primary_key_list ) );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return NULL;
 	}
 
 	relation_join_folder_where->string =

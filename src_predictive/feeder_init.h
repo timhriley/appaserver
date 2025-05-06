@@ -509,6 +509,7 @@ char *feeder_init_account_insert_sql(
 		const char *account_primary_key,
 		const char *subclassification_cash,
 		const char *subclassification_current_liability,
+		const char *account_credit_card_key,
 		boolean checking_boolean,
 		char *account_name );
 
