@@ -173,6 +173,8 @@ FEEDER_PHRASE *feeder_phrase_calloc(
 /* Usage */
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_seek(
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
 		char *feeder_load_row_description_space_trim,
 		LIST *feeder_phrase_list );
 
@@ -188,6 +190,31 @@ char feeder_phrase_delimiter(
 /* --------------------- */
 char *feeder_phrase_primary_where(
 		char *feeder_phrase );
+
+/* Usage */
+/* ----- */
+
+/* Returns feeder_phrase */
+/* --------------------- */
+FEEDER_PHRASE *feeder_phrase_entity_set(
+		char *financial_institution_full_name,
+		char *feeder_phrase_seek_full_name,
+		FEEDER_PHRASE *feeder_phrase );
+
+/* Process */
+/* ------- */
+
+/* Returns either parameter */
+/* ------------------------ */
+char *feeder_phrase_full_name(
+		char *financial_institution_full_name,
+		char *feeder_phrase_full_name );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *feeder_phrase_street_address(
+		char *financial_institution_street_address,
+		char *feeder_phrase_street_address );
 
 typedef struct
 {
@@ -288,8 +315,6 @@ typedef struct
 /* ----- */
 FEEDER_TRANSACTION *feeder_transaction_new(
 		char *feeder_account_name,
-		char *financial_institution_full_name,
-		char *financial_institution_street_address,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		double exchange_journal_amount,
 		char *transaction_date_time,
@@ -299,18 +324,6 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 /* ------- */
 FEEDER_TRANSACTION *feeder_transaction_calloc(
 		void );
-
-/* Returns either parameter */
-/* ------------------------ */
-char *feeder_transaction_full_name(
-		char *financial_institution_full_name,
-		char *feeder_phrase_seek_full_name );
-
-/* Returns either parameter */
-/* ------------------------ */
-char *feeder_transaction_street_address(
-		char *financial_institution_street_address,
-		char *feeder_phrase_seek_street_address );
 
 typedef struct
 {
@@ -448,7 +461,6 @@ typedef struct
 	/* Set by feeder_row_parse() */
 	/* ------------------------- */
 	char *feeder_load_date_time;
-	/* int feeder_row_number; */
 	char *feeder_date;
 	char *full_name;
 	char *street_address;
