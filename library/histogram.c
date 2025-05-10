@@ -90,7 +90,7 @@ LIST *histogram_number_list(
 		LIST *query_fetch_row_list,
 		char *number_attribute_name )
 {
-	LIST *number_list;
+	LIST *number_list = list_new();
 	QUERY_ROW *query_row;
 	QUERY_CELL *query_cell;
 
@@ -107,10 +107,7 @@ LIST *histogram_number_list(
 			message );
 	}
 
-	if ( !list_rewind( query_fetch_row_list ) ) return (LIST *)0;
-
-	number_list = list_new();
-
+	if ( list_rewind( query_fetch_row_list ) )
 	do {
 		query_row = list_get( query_fetch_row_list );
 
@@ -137,6 +134,12 @@ LIST *histogram_number_list(
 			query_cell->select_datum );
 
 	} while ( list_next( query_fetch_row_list ) );
+
+	if ( !list_length( number_list ) )
+	{
+		list_free( number_list );
+		number_list = NULL;
+	}
 
 	return number_list;
 }
