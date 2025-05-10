@@ -26,19 +26,13 @@ LIST *rgraph_point_list(
 		char *number_attribute_name,
 		LIST *query_fetch_row_list );
 
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *rgraph_point_date_javascript(
-		char *yyyy_mm_dd,
-		char *hhmm );
-
 /* Process */
 /* ------- */
 boolean rgraph_point_null_boolean(
 		char *number_query_cell_select_datum );
+
+double rgraph_point_value(
+		QUERY_CELL *number_query_cell );
 
 /* Usage */
 /* ----- */
@@ -52,8 +46,8 @@ char *rgraph_point_date_time_string(
 /* Process */
 /* ------- */
 
-/* Returns static memory or null */
-/* ----------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *rgraph_point_hhmmss(
 		QUERY_CELL *time_query_cell );
 
@@ -84,8 +78,8 @@ char *rgraph_point_combine_string(
 /* Process */
 /* ------- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns rgraph_point_date_time_string or static memory */
+/* ------------------------------------------------------ */
 char *rgraph_point_string(
 		char *rgraph_point_date_time_string,
 		double rgraph_point_value,

@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/library/date.c					*/
 /* -------------------------------------------------------------------- */
-/* No warranty and freely available software: Visit appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
