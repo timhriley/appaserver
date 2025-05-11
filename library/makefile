@@ -176,6 +176,7 @@ APPASERVER_LIBRARY=						\
 		grace.o 					\
 		rchart.o 					\
 		lookup_grace.o					\
+		lookup_rchart.o					\
 		lookup_google.o					\
 		units.o						\
 		output_medium.o					\
@@ -860,6 +861,9 @@ lookup_sort.o: lookup_sort.c lookup_sort.h
 
 lookup_grace.o: lookup_grace.c lookup_grace.h
 	${CC} ${CFLAGS} -c lookup_grace.c
+
+lookup_rchart.o: lookup_rchart.c lookup_rchart.h
+	${CC} ${CFLAGS} -c lookup_rchart.c
 
 chart.o: chart.c chart.h
 	${CC} ${CFLAGS} -c chart.c

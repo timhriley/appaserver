@@ -34,6 +34,7 @@ EXECUTABLES=								\
 		output_table_insert					\
 		output_spreadsheet					\
 		output_grace_chart					\
+		output_rchart						\
 		output_histogram					\
 		output_google_chart					\
 		output_group						\
@@ -456,6 +457,20 @@ output_grace_chart: output_grace_chart.c				\
 		${LIBRARY}/chart.o					\
 		${LIBRARY}/lookup_grace.o				\
 		-o output_grace_chart
+
+output_rchart: output_rchart.c						\
+		${APPASERVER_LIBRARY}					\
+		${LIBRARY}/rchart.o					\
+		${LIBRARY}/chart.o					\
+		${LIBRARY}/lookup_rchart.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${APPASERVER_LIBRARY}					\
+		output_rchart.c						\
+		${LIBRARY}/rchart.o					\
+		${LIBRARY}/chart.o					\
+		${LIBRARY}/lookup_rchart.o				\
+		-o output_rchart
 
 output_google_chart: output_google_chart.c				\
 		${APPASERVER_LIBRARY}					\
