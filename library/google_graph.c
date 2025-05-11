@@ -81,7 +81,7 @@ GOOGLE_GRAPH *google_graph_new(
 			application_name,
 			session_key,
 			data_directory,
-			number_attribute_name,
+			(char *)0 /* number_attribute_name */,
 			chart_filename_key );
 
 	visualization_function_name =

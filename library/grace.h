@@ -19,6 +19,12 @@
 #define GRACE_VIEW_PORTRAIT_X_OFFSET		0.87
 #define GRACE_VIEW_LANDSCAPE_X_OFFSET		1.1
 
+#define GRACE_PAGE_PORTRAIT_THRESHOLD 		4
+#define GRACE_PAGE_PORTRAIT_WIDTH_PIXELS	612
+#define GRACE_PAGE_PORTRAIT_LENGTH_PIXELS	792
+#define GRACE_PAGE_LANDSCAPE_WIDTH_PIXELS	796
+#define GRACE_PAGE_LANDSCAPE_LENGTH_PIXELS	612
+
 typedef struct
 {
 	double min_x;
@@ -838,31 +844,10 @@ char *grace_window_onload_string(
 char *grace_window_screen_title(
 		char *date_time_now );
 
-/* Returns heap memory */
-/* ------------------- */
-char *grace_window_sub_title_display(
-		char *sub_title );
-
 /* Returns static memory */
 /* --------------------- */
 char *grace_window_grace_home_url_html(
 		char *grace_window_grace_url );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *grace_window_html(
-		char *document_body_onload_open_tag,
-		char *screen_title,
-		char *sub_title_display );
-
-#define GRACE_PAGE_PORTRAIT_THRESHOLD 		4
-#define GRACE_PAGE_PORTRAIT_WIDTH_PIXELS	612
-#define GRACE_PAGE_PORTRAIT_LENGTH_PIXELS	792
-#define GRACE_PAGE_LANDSCAPE_WIDTH_PIXELS	796
-#define GRACE_PAGE_LANDSCAPE_LENGTH_PIXELS	612
 
 typedef struct
 {

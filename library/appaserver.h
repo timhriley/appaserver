@@ -86,6 +86,14 @@ FILE *appaserver_output_file(
 
 /* Safely returns */
 /* -------------- */
+FILE *appaserver_write_file(
+		char *filespecification );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
 FILE *appaserver_append_file(
 		char *filespecification );
 

@@ -13,6 +13,7 @@
 #include "application.h"
 #include "appaserver.h"
 #include "date.h"
+#include "chart.h"
 #include "document.h"
 #include "appaserver_link.h"
 #include "appaserver_error.h"
@@ -79,14 +80,17 @@ GOOGLE_FILENAME *google_filename_new(
 		google_filename_http_prompt_filename(
 			google_filename->appaserver_link );
 
-	google_filename->appaserver_link_anchor_html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_link_anchor_html(
-			google_filename->http_prompt_filename,
-			number_attribute_name /* target_frame */,
-			"Link to google file" /* prompt_message */ );
+	if ( number_attribute_name )
+	{
+		google_filename->appaserver_link_anchor_html =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_link_anchor_html(
+				google_filename->http_prompt_filename,
+				number_attribute_name /* target_frame */,
+				"Link to google file" /* prompt_message */ );
+	}
 
 	return google_filename;
 }
@@ -317,7 +321,7 @@ GOOGLE_WINDOW *google_window_new(
 		pid_t process_id )
 {
 	GOOGLE_WINDOW *google_window;
-	char *where_display;
+	char *sub_title_display;
 	char *onload_open_tag;
 
 	if ( !process_id )
@@ -349,7 +353,7 @@ GOOGLE_WINDOW *google_window_new(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			google_window_onload_string(
+			chart_window_onload_string(
 				google_filename->http_prompt_filename,
 				google_window->google_prompt_target );
 	}
@@ -374,24 +378,24 @@ GOOGLE_WINDOW *google_window_new(
 			date_time_now(
 				date_utc_offset() ) );
 
-	where_display =
+	sub_title_display =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		google_window_where_display(
+		chart_window_sub_title_display(
 			sub_title );
 
 	google_window->html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		google_window_html(
+		chart_window_html(
 			onload_open_tag,
 			google_window->screen_title,
-			where_display );
+			sub_title_display );
 
 	free( onload_open_tag );
-	free( where_display );
+	free( sub_title_display );
 
 	return google_window;
 }
@@ -414,36 +418,6 @@ GOOGLE_WINDOW *google_window_calloc( void )
 	}
 
 	return google_window;
-}
-
-char *google_window_onload_string(
-		char *http_prompt_filename,
-		char *google_prompt_target )
-{
-	static char onload_string[ 256 ];
-
-	if ( !http_prompt_filename
-	||   !google_prompt_target )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		onload_string,
-		sizeof ( onload_string ),
-		APPASERVER_WINDOW_OPEN_TEMPLATE,
-		(http_prompt_filename) ? http_prompt_filename : "",
-		(google_prompt_target) ? google_prompt_target : "" );
-
-	return onload_string;
 }
 
 char *google_window_screen_title( char *date_time_now )
@@ -493,54 +467,5 @@ char *google_window_where_display(
 	}
 
 	return strdup( where_display );
-}
-
-char *google_window_html(
-	char *document_body_onload_open_tag,
-	char *google_window_screen_title,
-	char *google_window_where_display )
-{
-	char html[ STRING_WHERE_BUFFER ];
-
-	if ( !document_body_onload_open_tag
-	||   !google_window_screen_title
-	||   !google_window_where_display )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if (	strlen( document_body_onload_open_tag ) +
-		strlen( google_window_screen_title ) +
-		strlen( google_window_where_display ) +
-		3 >= STRING_WHERE_BUFFER )
-	{
-		char message[ 128 ];
-
-		sprintf(message,
-			STRING_OVERFLOW_TEMPLATE,
-			STRING_WHERE_BUFFER );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_body_onload_open_tag,
-		google_window_screen_title,
-		google_window_where_display );
-
-	return strdup( html );
 }
 

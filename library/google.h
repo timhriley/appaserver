@@ -118,25 +118,7 @@ GOOGLE_WINDOW *google_window_calloc(
 
 /* Returns static memory */
 /* --------------------- */
-char *google_window_onload_string(
-		char *http_prompt_filename,
-		char *google_prompt_target );
-
-/* Returns static memory */
-/* --------------------- */
 char *google_window_screen_title(
 		char *date_time_now );
-
-/* Returns heap memory */
-/* ------------------- */
-char *google_window_where_display(
-		char *query_table_edit_where_string );
-
-/* Returns heap memory */
-/* ------------------- */
-char *google_window_html(
-		char *document_body_onload_open_tag,
-		char *google_window_screen_title,
-		char *google_window_where_display );
 
 #endif

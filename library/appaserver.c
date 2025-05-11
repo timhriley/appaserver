@@ -113,6 +113,16 @@ FILE *appaserver_append_file( char *filespecification )
 	return file;
 }
 
+FILE *appaserver_write_file( char *filespecification )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	appaserver_output_file(
+		filespecification );
+}
+
 FILE *appaserver_output_file( char *filespecification )
 {
 	FILE *file;

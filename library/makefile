@@ -174,7 +174,7 @@ APPASERVER_LIBRARY=						\
 		lookup_sort.o					\
 		chart.o						\
 		grace.o 					\
-		rgraph.o 					\
+		rchart.o 					\
 		lookup_grace.o					\
 		lookup_google.o					\
 		units.o						\
@@ -226,8 +226,8 @@ latex.o: latex.c latex.h
 grace.o: grace.c grace.h
 	${CC} ${CFLAGS} -c grace.c
 
-rgraph.o: rgraph.c rgraph.h
-	${CC} ${CFLAGS} -c rgraph.c
+rchart.o: rchart.c rchart.h
+	${CC} ${CFLAGS} -c rchart.c
 
 pair_one2m.o: pair_one2m.c pair_one2m.h
 	${CC} ${CFLAGS} -c pair_one2m.c

@@ -245,4 +245,31 @@ char *chart_filename_key(
 		enum aggregate_statistic,
 		enum aggregate_level );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *chart_window_sub_title_display(
+		char *sub_title );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *chart_window_html(
+		char *document_body_onload_open_tag,
+		char *screen_title,
+		char *sub_title_display );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *chart_window_onload_string(
+		char *prompt_filename,
+		char *target );
+
 #endif

@@ -1127,3 +1127,111 @@ char *chart_filename_key(
 
 	return filename_key;
 }
+
+char *chart_window_sub_title_display( char *sub_title )
+{
+	char display[ STRING_WHERE_BUFFER ];
+
+	if ( !sub_title
+	||   strcmp( sub_title, "1 = 1" ) == 0 )
+	{
+		sub_title = "Entire Table";
+	}
+
+	if ( strlen( sub_title ) >= STRING_WHERE_BUFFER - 32 )
+	{
+		*display = '\0';
+	}
+	else
+	{
+		snprintf(
+			display,
+			sizeof ( display ),
+			"<h2>Where: %s</h2>",
+			sub_title );
+	}
+
+	return strdup( display );
+}
+
+char *chart_window_html(
+	char *document_body_onload_open_tag,
+	char *screen_title,
+	char *sub_title_display )
+{
+	char html[ STRING_WHERE_BUFFER ];
+
+	if ( !document_body_onload_open_tag
+	||   !screen_title
+	||   !sub_title_display )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if (	strlen( document_body_onload_open_tag ) +
+		strlen( screen_title ) +
+		strlen( sub_title_display ) +
+		3 >= STRING_WHERE_BUFFER )
+	{
+		char message[ 128 ];
+
+		sprintf(message,
+			STRING_OVERFLOW_TEMPLATE,
+			STRING_WHERE_BUFFER );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		html,
+		sizeof ( html ),
+		"%s\n%s\n%s",
+		document_body_onload_open_tag,
+		screen_title,
+		sub_title_display );
+
+	return strdup( html );
+}
+
+char *chart_window_onload_string(
+		char *prompt_filename,
+		char *target )
+{
+	static char onload_string[ 256 ];
+
+	if ( !prompt_filename
+	||   !target )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		onload_string,
+		sizeof ( onload_string ),
+		APPASERVER_WINDOW_OPEN_TEMPLATE,
+		prompt_filename,
+		target );
+
+	return onload_string;
+}
+

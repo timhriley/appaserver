@@ -19,6 +19,7 @@
 #include "date.h"
 #include "float.h"
 #include "column.h"
+#include "chart.h"
 #include "grace.h"
 
 GRACE_POINT *grace_point_new(
@@ -2971,7 +2972,7 @@ GRACE_WINDOW *grace_window_new(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			grace_window_onload_string(
+			chart_window_onload_string(
 				grace_filename->pdf_prompt_filename,
 				pdf_target );
 	}
@@ -3002,7 +3003,7 @@ GRACE_WINDOW *grace_window_new(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		grace_window_sub_title_display(
+		chart_window_sub_title_display(
 			sub_title );
 
 	grace_window->grace_home_url_html =
@@ -3016,7 +3017,7 @@ GRACE_WINDOW *grace_window_new(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		grace_window_html(
+		chart_window_html(
 			onload_open_tag,
 			grace_window->screen_title,
 			sub_title_display );
@@ -3055,49 +3056,23 @@ char *grace_prompt_pdf_target(
 
 	if ( filename_key )
 	{
-		sprintf(target,
+		snprintf(
+			target,
+			sizeof ( target ),
 			"grace_pdf_%s_%d",
 			filename_key,
 			process_id );
 	}
 	else
 	{
-		sprintf(target,
+		snprintf(
+			target,
+			sizeof ( target ),
 			"grace_pdf_%d",
 			process_id );
 	}
 
 	return target;
-}
-
-char *grace_window_onload_string(
-		char *pdf_prompt_filename,
-		char *grace_window_pdf_target )
-{
-	static char onload_string[ 256 ];
-
-	if ( !pdf_prompt_filename
-	||   !grace_window_pdf_target )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		onload_string,
-		sizeof ( onload_string ),
-		APPASERVER_WINDOW_OPEN_TEMPLATE,
-		pdf_prompt_filename,
-		grace_window_pdf_target );
-
-	return onload_string;
 }
 
 char *grace_window_screen_title( char *date_time_now )
@@ -3122,30 +3097,6 @@ char *grace_window_screen_title( char *date_time_now )
 		date_time_now );
 
 	return screen_title;
-}
-
-char *grace_window_sub_title_display( char *sub_title )
-{
-	char display[ STRING_WHERE_BUFFER ];
-
-	if ( !sub_title
-	||   strcmp( sub_title, "1 = 1" ) == 0 )
-	{
-		sub_title = "Entire Table";
-	}
-
-	if ( strlen( sub_title ) >= STRING_WHERE_BUFFER - 32 )
-	{
-		*display = '\0';
-	}
-	else
-	{
-		sprintf(display,
-			"<h2>Where: %s</h2>",
-			sub_title );
-	}
-
-	return strdup( display );
 }
 
 char *grace_prompt_pdf_anchor_html(
@@ -3198,14 +3149,18 @@ char *grace_prompt_agr_target(
 
 	if ( filename_key )
 	{
-		sprintf(target,
+		snprintf(
+			target,
+			sizeof ( target ),
 			"grace_agr_%s_%d",
 			filename_key,
 			process_id );
 	}
 	else
 	{
-		sprintf(target,
+		snprintf(
+			target,
+			sizeof ( target ),
 			"grace_agr_%d",
 			process_id );
 	}
@@ -3252,6 +3207,7 @@ char *grace_prompt_agr_anchor_html(
 	}
 
 	sprintf(ptr, "AGR file</a>" );
+
 	return html;
 }
 
@@ -3275,7 +3231,9 @@ char *grace_prompt_html(
 			message );
 	}
 
-	sprintf(html,
+	snprintf(
+		html,
+		sizeof ( html ),
 		"<tr><td>%s<td>%s",
 		grace_prompt_pdf_anchor_html,
 		grace_prompt_agr_anchor_html );
@@ -3300,42 +3258,13 @@ char *grace_window_grace_home_url_html( char *grace_window_grace_url )
 			message );
 	}
 
-	sprintf(url_html,
-"<br><br><p>For more information, visit the <a href=\"%s\" target=_new>Grace Home Page.</a>",
+	snprintf(
+		url_html,
+		sizeof ( url_html ),
+"<br><p>For more information, visit the <a href=\"%s\" target=_new>Grace Home Page.</a>",
 		grace_window_grace_url );
 
 	return url_html;
-}
-
-char *grace_window_html(
-			char *document_body_onload_open_tag,
-			char *screen_title,
-			char *sub_title_display )
-{
-	char html[ STRING_256K ];
-
-	if ( !document_body_onload_open_tag
-	||   !screen_title
-	||   !sub_title_display )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_body_onload_open_tag,
-		screen_title,
-		sub_title_display );
-
-	return strdup( html );
 }
 
 double grace_view_max_y(

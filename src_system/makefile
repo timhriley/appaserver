@@ -623,6 +623,7 @@ execute_select_statement: execute_select_statement.c			\
 
 google_map_operation: google_map_operation.c				\
 		${APPASERVER_LIBRARY}					\
+		${LIBRARY}/chart.o					\
 		${LIBRARY}/google.o					\
 		${LIBRARY}/google_map.o					\
 		${LIBRARY}/google_map_operation.o
@@ -630,6 +631,7 @@ google_map_operation: google_map_operation.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		google_map_operation.c					\
+		${LIBRARY}/chart.o					\
 		${LIBRARY}/google.o					\
 		${LIBRARY}/google_map.o					\
 		${LIBRARY}/google_map_operation.o			\
