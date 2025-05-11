@@ -32,6 +32,9 @@
 #define RADIO_GRACE_VALUE		"radio_grace"
 #define RADIO_GRACE_DISPLAY		"gracechart"
 
+#define RADIO_RCHART_VALUE		"radio_rchart"
+#define RADIO_RCHART_DISPLAY		"Rchart"
+
 #define RADIO_GOOGLE_VALUE		"radio_google"
 #define RADIO_GOOGLE_DISPLAY		"googlechart"
 

@@ -127,6 +127,17 @@ char *execute_system_string_lookup_grace(
 
 /* Returns heap memory */
 /* ------------------- */
+char *execute_system_string_lookup_rchart(
+		const char *lookup_rchart_executable,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *dictionary_separate_send_string,
+		char *appaserver_error_filename );
+
+/* Returns heap memory */
+/* ------------------- */
 char *execute_system_string_lookup_google(
 		const char *lookup_google_executable,
 		char *session_key,

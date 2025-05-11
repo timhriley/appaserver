@@ -20,6 +20,7 @@
 #include "lookup_spreadsheet.h"
 #include "lookup_delete.h"
 #include "lookup_grace.h"
+#include "lookup_rchart.h"
 #include "lookup_google.h"
 #include "lookup_histogram.h"
 #include "table_edit.h"
@@ -580,6 +581,24 @@ char *post_prompt_lookup_execute_system_string(
 				FRAMESET_TABLE_FRAME /* target_frame */,
 				(char *)0 /* results_string */,
 				(char *)0 /* error_string */,
+				dictionary_separate_send_string,
+				appaserver_error_filename );
+	}
+	else
+	if ( strcmp(
+		selection,
+		RADIO_RCHART_VALUE ) == 0 )
+	{
+		execute_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			execute_system_string_lookup_rchart(
+				LOOKUP_RCHART_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
 				dictionary_separate_send_string,
 				appaserver_error_filename );
 	}

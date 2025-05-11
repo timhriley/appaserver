@@ -236,8 +236,8 @@ char *rchart_point_combine_string(
 /* Process */
 /* ------- */
 
-/* Returns rchart_point_date_time_string or static memory */
-/* ------------------------------------------------------ */
+/* Returns static memory */
+/* --------------------- */
 char *rchart_point_string(
 		char *rchart_point_date_time_string,
 		double rchart_point_value,

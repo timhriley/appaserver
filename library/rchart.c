@@ -164,6 +164,11 @@ char *rchart_point_date_time_string(
 				time_query_cell ) );
 	}
 
+	if ( strlen( date_time_string ) == 10 )
+	{
+		strcat( date_time_string, " 00:00:00" );
+	}
+
 	return strdup( date_time_string );
 }
 
@@ -314,14 +319,14 @@ char *rchart_point_combine_string(
 		if ( first_time )
 			first_time = 0;
 		else
-		if ( !list_last_boolean( rchart_point_list ) )
+		if ( list_still_more( rchart_point_list ) )
 			ptr += sprintf( ptr, ",\n" );
 
 		ptr += sprintf(
 			ptr,
 			"%s",
-		/* Returns rchart_point_date_time_string or static memory */
-		/* ------------------------------------------------------ */
+			/* Returns static memory */
+			/* --------------------- */
 			rchart_point_string(
 				rchart_point->date_time_string,
 				rchart_point->value,
@@ -362,14 +367,20 @@ char *rchart_point_string(
 				message );
 		}
 
-		return date_time_string;
+		snprintf(
+			point_string,
+			sizeof ( point_string ),
+			"\"%s\"",
+			date_time_string );
 	}
-
-	snprintf(
-		point_string,
-		sizeof ( point_string ),
-		"%.2lf",
-		value );
+	else
+	{
+		snprintf(
+			point_string,
+			sizeof ( point_string ),
+			"%.2lf",
+			value );
+	}
 
 	return point_string;
 }
@@ -1275,6 +1286,7 @@ char *rchart_file_trailer_string(
 	snprintf(
 		trailer_string,
 		sizeof ( trailer_string ),
+		"%s <- ymd_hms( %s )\n"
 		"dataFrame = data.frame( %s, %s )\n"
 		"gg <- ggplot( dataFrame, aes( %s, %s ) ) +\n"
 		"geom_point() +\n"
@@ -1282,6 +1294,8 @@ char *rchart_file_trailer_string(
 		"labs( title = \"%s\" ) +\n"
 		"labs( subtitle = \"%s\", size = 10 )\n"
 		"ggsave( \"%s\", plot = gg, width = 10, height = 7.5 )",
+		date_attribute_name,
+		date_attribute_name,
 		date_attribute_name,
 		number_attribute_name,
 		date_attribute_name,
@@ -1365,6 +1379,14 @@ char *rchart_script_system_string( char *R_output_filename )
 		sizeof ( system_string ),
 		"Rscript.sh %s /dev/null",
 		R_output_filename );
+
+/*
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"Rscript.sh %s",
+		R_output_filename );
+*/
 
 	return strdup( system_string );
 }

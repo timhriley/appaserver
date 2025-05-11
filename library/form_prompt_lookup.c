@@ -315,6 +315,12 @@ LIST *form_prompt_lookup_radio_pair_list(
 		list_set(
 			radio_pair_list,
 			radio_pair_new(
+				RADIO_RCHART_VALUE,
+				RADIO_RCHART_DISPLAY ) );
+
+		list_set(
+			radio_pair_list,
+			radio_pair_new(
 				RADIO_GRACE_VALUE,
 				RADIO_GRACE_DISPLAY ) );
 

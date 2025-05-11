@@ -756,6 +756,47 @@ char *execute_system_string_lookup_grace(
 	return strdup( system_string );
 }
 
+char *execute_system_string_lookup_rchart(
+		const char *lookup_rchart_executable,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *dictionary_separate_send_string,
+		char *appaserver_error_filename )
+{
+	char system_string[ STRING_SIZE_HASH_TABLE ];
+
+	if ( !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !dictionary_separate_send_string
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"%s %s %s %s %s \"%s\" 2>>%s",
+		lookup_rchart_executable,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		dictionary_separate_send_string,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+
 char *execute_system_string_lookup_google(
 		const char *google_executable,
 		char *session_key,
