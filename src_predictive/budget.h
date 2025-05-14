@@ -443,10 +443,6 @@ double budget_annualized_account_amount(
 		double account_latest_balance,
 		int account_annual_amount );
 
-double budget_annualized_amount(
-		double budget_annualized_account_amount,
-		int forecast_integer );
-
 double budget_annualized_budget(
 		double prior_account_balance );
 

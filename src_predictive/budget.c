@@ -270,16 +270,6 @@ double budget_annualized_account_amount(
 		return account_latest_balance;
 }
 
-double budget_annualized_amount(
-		double account_amount,
-		int forecast_integer )
-{
-	if ( forecast_integer )
-		return (double)( forecast_integer );
-	else
-		return account_amount;
-}
-
 BUDGET *budget_fetch(
 		char *application_name,
 		char *session_key,
@@ -2147,7 +2137,7 @@ void budget_plot_write_Rscript(
 		"linearModel <- lm( y ~ x )\n"
 		"message <-\n"
 		"\tpaste(\n"
-		"\t\t'Forecast %s = ',\n"
+		"\t\t'Forecast %s = $',\n"
 		"\t\tmax( y ),\n"
 		"\t\t', Confidence = ',\n"
 		"\t\t'%d%c')\n"
@@ -2353,29 +2343,32 @@ BUDGET_REGRESSION *budget_regression_fetch(
 		budget_regression_forecast_integer(
 			fetch );
 
-	budget_regression->confidence_integer =
-		budget_regression_confidence_integer(
-			fetch );
+	if ( budget_regression->forecast_integer )
+	{
+		budget_regression->confidence_integer =
+			budget_regression_confidence_integer(
+				fetch );
 
-	budget_regression->budget_plot =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		budget_plot_new(
-			BUDGET_REGRESSION_DATE_LABEL,
-			BUDGET_REGRESSION_BALANCE_LABEL,
-			session_key,
-			account_name,
-			budget_forecast_date_string,
-			budget_forecast_julian_string,
-			appaserver_link_working_directory,
-			budget_regression->budget_link->pdf_filename,
-			budget_regression->
-				budget_file->
-				julian_specification
-				/* will append */,
-			budget_regression->forecast_integer,
-			budget_regression->confidence_integer );
+		budget_regression->budget_plot =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			budget_plot_new(
+				BUDGET_REGRESSION_DATE_LABEL,
+				BUDGET_REGRESSION_BALANCE_LABEL,
+				session_key,
+				account_name,
+				budget_forecast_date_string,
+				budget_forecast_julian_string,
+				appaserver_link_working_directory,
+				budget_regression->budget_link->pdf_filename,
+				budget_regression->
+					budget_file->
+					julian_specification
+					/* will append */,
+				budget_regression->forecast_integer,
+				budget_regression->confidence_integer );
+	}
 
 	if ( system(
 		budget_regression->
