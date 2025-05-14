@@ -242,8 +242,8 @@ char *execute_system_string_prompt_lookup(
 	return strdup( system_string );
 }
 
-char *execute_system_string_lookup_statistic(
-		const char *lookup_statistic_executable,
+char *execute_system_string_lookup(
+		const char *executable,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
@@ -273,93 +273,10 @@ char *execute_system_string_lookup_statistic(
 		sizeof ( system_string ),
 		"echo \"%s\" | %s %s %s %s 2>>%s",
 		(dictionary_string) ? dictionary_string : "",
-		lookup_statistic_executable,
+		executable,
 		login_name,
 		role_name,
 		folder_name,
-		appaserver_error_filename );
-
-	return strdup( system_string );
-}
-
-char *execute_system_string_group_count(
-		const char *group_count_executable,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_string,
-		char *appaserver_error_filename )
-{
-	char system_string[ STRING_SYSTEM_BUFFER ];
-
-	if ( !login_name
-	||   !role_name
-	||   !folder_name
-	||   !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"%s %s %s %s \"%s\" 2>>%s",
-		group_count_executable,
-		login_name,
-		role_name,
-		folder_name,
-		(dictionary_string) ? dictionary_string : "",
-		appaserver_error_filename );
-
-	return strdup( system_string );
-}
-
-char *execute_system_string_lookup_spreadsheet(
-		const char *lookup_spreadsheet_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_string,
-		char *appaserver_error_filename )
-{
-	char system_string[ STRING_SYSTEM_BUFFER ];
-
-	if ( !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"%s %s %s %s %s \"%s\" 2>>%s",
-		lookup_spreadsheet_executable,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		(dictionary_string) ? dictionary_string : "",
 		appaserver_error_filename );
 
 	return strdup( system_string );
@@ -715,8 +632,8 @@ char *execute_system_string_post_prompt_insert(
 	return strdup( system_string );
 }
 
-char *execute_system_string_lookup_grace(
-		const char *grace_executable,
+char *execute_system_string_session(
+		const char *executable,
 		char *session_key,
 		char *login_name,
 		char *role_name,
@@ -745,130 +662,7 @@ char *execute_system_string_lookup_grace(
 		system_string,
 		sizeof ( system_string ),
 		"%s %s %s %s %s \"%s\" 2>>%s",
-		grace_executable,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		dictionary_separate_send_string,
-		appaserver_error_filename );
-
-	return strdup( system_string );
-}
-
-char *execute_system_string_lookup_rchart(
-		const char *lookup_rchart_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename )
-{
-	char system_string[ STRING_SIZE_HASH_TABLE ];
-
-	if ( !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !dictionary_separate_send_string
-	||   !appaserver_error_filename )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"%s %s %s %s %s \"%s\" 2>>%s",
-		lookup_rchart_executable,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		dictionary_separate_send_string,
-		appaserver_error_filename );
-
-	return strdup( system_string );
-}
-
-char *execute_system_string_lookup_google(
-		const char *google_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename )
-{
-	char system_string[ STRING_SIZE_HASH_TABLE ];
-
-	if ( !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !dictionary_separate_send_string
-	||   !appaserver_error_filename )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"%s %s %s %s %s \"%s\" 2>>%s",
-		google_executable,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		dictionary_separate_send_string,
-		appaserver_error_filename );
-
-	return strdup( system_string );
-}
-
-char *execute_system_string_lookup_histogram(
-		const char *histogram_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename )
-{
-	char system_string[ STRING_SIZE_HASH_TABLE ];
-
-	if ( !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !dictionary_separate_send_string
-	||   !appaserver_error_filename )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"%s %s %s %s %s \"%s\" 2>>%s",
-		histogram_executable,
+		executable,
 		session_key,
 		login_name,
 		role_name,

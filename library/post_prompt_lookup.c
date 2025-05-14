@@ -408,7 +408,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_statistic(
+			execute_system_string_lookup(
 				LOOKUP_STATISTIC_EXECUTABLE,
 				login_name,
 				role_name,
@@ -425,7 +425,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_group_count(
+			execute_system_string_lookup(
 				GROUP_COUNT_EXECUTABLE,
 				login_name,
 				role_name,
@@ -442,7 +442,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_spreadsheet(
+			execute_system_string_session(
 				LOOKUP_SPREADSHEET_EXECUTABLE,
 				session_key,
 				login_name,
@@ -499,7 +499,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_grace(
+			execute_system_string_session(
 				LOOKUP_GRACE_EXECUTABLE,
 				session_key,
 				login_name,
@@ -517,7 +517,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_google(
+			execute_system_string_session(
 				LOOKUP_GOOGLE_EXECUTABLE,
 				session_key,
 				login_name,
@@ -535,7 +535,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_histogram(
+			execute_system_string_session(
 				LOOKUP_HISTOGRAM_EXECUTABLE,
 				session_key,
 				login_name,
@@ -593,7 +593,7 @@ char *post_prompt_lookup_execute_system_string(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			execute_system_string_lookup_rchart(
+			execute_system_string_session(
 				LOOKUP_RCHART_EXECUTABLE,
 				session_key,
 				login_name,

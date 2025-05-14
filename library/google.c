@@ -80,17 +80,16 @@ GOOGLE_FILENAME *google_filename_new(
 		google_filename_http_prompt_filename(
 			google_filename->appaserver_link );
 
-	if ( number_attribute_name )
-	{
-		google_filename->appaserver_link_anchor_html =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			appaserver_link_anchor_html(
-				google_filename->http_prompt_filename,
-				number_attribute_name /* target_frame */,
-				"Link to google file" /* prompt_message */ );
-	}
+	/* If operation */
+	/* ------------ */
+	google_filename->appaserver_link_anchor_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_link_anchor_html(
+			google_filename->http_prompt_filename,
+			number_attribute_name /* target_frame */,
+			"Link to google file" /* prompt_message */ );
 
 	return google_filename;
 }

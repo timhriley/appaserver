@@ -1245,16 +1245,15 @@ char *operation_row_list_execute( OPERATION_ROW_LIST *operation_row_list )
 
 	if ( !operation_row_list ) return (char *)0;
 
-	if ( !list_rewind( operation_row_list->list ) ) return (char *)0;
+	*operation_error_message_list_string = '\0';
 
+	if ( list_rewind( operation_row_list->list ) )
 	do {
 		operation_row =
 			list_get(
 				operation_row_list->list );
 
-		if ( !list_rewind( operation_row->operation_row_checked_list ) )
-			continue;
-
+		if ( list_rewind( operation_row->operation_row_checked_list ) )
 		do {
 			operation_row_checked =
 				list_get(
@@ -1281,6 +1280,25 @@ char *operation_row_list_execute( OPERATION_ROW_LIST *operation_row_list )
 
 			if ( operation_error_message )
 			{
+				if ( string_strlen(
+					operation_error_message_list_string ) +
+				     string_strlen(
+					operation_error_message ) +
+					5 >= STRING_16K )
+				{
+					char message[ 128 ];
+
+					sprintf(message,
+						STRING_OVERFLOW_TEMPLATE,
+						STRING_16K );
+
+					appaserver_error_stderr_exit(
+						__FILE__,
+						__FUNCTION__,
+						__LINE__,
+						message );
+				}
+
 				if ( ptr !=
 				     operation_error_message_list_string )
 				{

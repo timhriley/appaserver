@@ -114,6 +114,14 @@ int main( int argc, char **argv )
 
 #ifndef UPDATE_DEBUG_MODE
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+msg( (char *)0, message );
+}
 		update_error_string =
 		post_table_edit->update->error_string =
 			/* ------------------------------------------- */
@@ -127,6 +135,14 @@ int main( int argc, char **argv )
 					post_table_edit_input->
 					appaserver_error_filename );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+msg( (char *)0, message );
+}
 		if ( !post_table_edit->update->error_string )
 		{
 			/* Execute any post_change_process */

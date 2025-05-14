@@ -95,6 +95,25 @@ int main( int argc, char **argv )
 			operation_semaphore->
 			group_last_time )
 		{
+			if ( !google_map_operation->google_filename
+			||   !google_map_operation->
+				google_filename->
+				appaserver_link_anchor_html )
+			{
+				char message[ 128 ];
+
+				snprintf(
+					message,
+					sizeof ( message ),
+				"google_filename is empty or incomplete." );
+
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
+			}
+
 			printf(	"%s\n",
 				google_map_operation->
 					document_form_html );

@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_rchart
+	cd ../src_system
+	make google_map_operation
 fi
 

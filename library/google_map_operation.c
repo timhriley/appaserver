@@ -92,6 +92,24 @@ GOOGLE_MAP_OPERATION *google_map_operation_new(
 		       	(char *)0 /* number_attribute_name */,
 			(char *)0 /* chart_filename_key */ );
 
+	if ( !google_map_operation->
+			google_filename->
+			appaserver_link_anchor_html )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_link_anchor_html is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	google_map_operation->output_file =
 		/* -------------- */
 		/* Safely returns */

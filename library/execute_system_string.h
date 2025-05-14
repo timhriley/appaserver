@@ -72,29 +72,8 @@ char *execute_system_string_prompt_lookup(
 
 /* Returns heap memory */
 /* ------------------- */
-char *execute_system_string_lookup_statistic(
-		const char *lookup_statistic_executable,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_string,
-		char *appaserver_error_filename );
-
-/* Returns heap memory */
-/* ------------------- */
-char *execute_system_string_group_count(
-		const char *group_count_executable,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_string,
-		char *appaserver_error_filename );
-
-/* Returns heap memory */
-/* ------------------- */
-char *execute_system_string_lookup_spreadsheet(
-		const char *lookup_spreadsheet_executable,
-		char *session_key,
+char *execute_system_string_lookup(
+		const char *executable,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
@@ -116,41 +95,8 @@ char *execute_system_string_lookup_delete(
 
 /* Returns heap memory */
 /* ------------------- */
-char *execute_system_string_lookup_grace(
-		const char *lookup_grace_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename );
-
-/* Returns heap memory */
-/* ------------------- */
-char *execute_system_string_lookup_rchart(
-		const char *lookup_rchart_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename );
-
-/* Returns heap memory */
-/* ------------------- */
-char *execute_system_string_lookup_google(
-		const char *lookup_google_executable,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *dictionary_separate_send_string,
-		char *appaserver_error_filename );
-
-/* Returns heap memory */
-/* ------------------- */
-char *execute_system_string_lookup_histogram(
-		const char *lookup_histogram_executable,
+char *execute_system_string_session(
+		const char *executable,
 		char *session_key,
 		char *login_name,
 		char *role_name,
