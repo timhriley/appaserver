@@ -5,6 +5,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_system
-	make google_map_operation
+	make post_merge_purge_folder
 fi
 

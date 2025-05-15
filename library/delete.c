@@ -2155,7 +2155,6 @@ LIST *delete_sql_list(
 			message );
 	}
 
-
 	delete_sql =
 		/* -------------- */
 		/* Safely returns */
@@ -2210,7 +2209,6 @@ DELETE_SQL *delete_sql_new(
 			__LINE__,
 			message );
 	}
-
 
 	delete_sql = delete_sql_calloc();
 
@@ -2367,18 +2365,7 @@ void delete_sql_one2m(
 		if ( !delete_one2m->delete_one2m_fetch
 		&&   !delete_one2m->delete_one2m_update )
 		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"delete_one2m is incomplete." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			continue;
 		}
 
 		delete_sql_one2m_delete_update(
