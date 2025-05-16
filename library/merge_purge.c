@@ -637,11 +637,6 @@ MERGE_PURGE_UPDATE *merge_purge_update_new(
 			message );
 	}
 
-	update_row_list_zap_root(
-		merge_purge_update->
-			update->
-			update_row_list );
-
 	return merge_purge_update;
 }
 
@@ -666,86 +661,6 @@ MERGE_PURGE_UPDATE *merge_purge_update_calloc( void )
 
 	return merge_purge_update;
 }
-
-#ifdef NOT_DEFINED
-char *merge_purge_update_statement(
-		LIST *keep_string_list,
-		LIST *delete_string_list,
-		LIST *primary_key_list,
-		LIST *many_folder_attribute_list,
-		char *folder_table_name )
-{
-	if ( !list_length( keep_string_list )
-	||   !list_length( delete_string_list )
-	||   !list_length( primary_key_list )
-	||   !list_length( many_folder_attribute_list )
-	||   !folder_table_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_length( keep_string_list ) !=
-	     list_length( primary_key_list ) )
-	{
-		char message[ 1024 ];
-
-		sprintf(message,
-			"cannot align: (%s) <> (%s)",
-			list_display_delimited(
-				primary_key_list,
-				',' ),
-			list_display_delimited(
-				keep_string_list,
-				',' ) );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_length( delete_string_list ) !=
-	     list_length( primary_key_list ) )
-	{
-		char message[ 1024 ];
-
-		sprintf(message,
-			"cannot align: (%s) <> (%s)",
-			list_display_delimited(
-				primary_key_list,
-				',' ),
-			list_display_delimited(
-				delete_string_list,
-				',' ) );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	update_sql_statement_string(
-		keep_string_list /* new_string_list */,
-		primary_key_list,
-		delete_string_list /* primary_data_list */,
-		many_folder_attribute_list,
-		folder_table_name );
-}
-#endif
 
 MERGE_PURGE_PROCESS *merge_purge_process_new(
 		int argc,
@@ -941,7 +856,7 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 			merge_purge_process->
 				folder_attribute_primary_key_list
 				/* one_folder_primary_key_list */,
-			0 /* not include_isa_boolean */ );
+			1 /* include_isa_boolean */ );
 
 	if ( !list_length(
 		merge_purge_process->
@@ -1212,14 +1127,17 @@ void merge_purge_process_execute(
 			update_row_list,
 		merge_purge_update->
 			update->
-			appaserver_error_filename );
+			appaserver_error_filename,
+		0 /* not update_root_boolean */ );
 
 	update_row_list_command_line_execute(
 		merge_purge_update->
 			update->
 			update_row_list );
 
-	delete_execute( merge_purge_delete->delete->delete_sql_list );
+	delete_execute(
+		sql_executable,
+		merge_purge_delete->delete->delete_sql_list );
 }
 
 MERGE_PURGE_FOLDER *merge_purge_folder_new(
@@ -1649,12 +1567,26 @@ char *merge_purge_update_key( char *attribute_name )
 	return strdup( key );
 }
 
-void merge_purge_html_display(
+void merge_purge_process_html_display(
 		char *delete_delimited_string,
+		UPDATE *update,
 		DELETE *delete )
 {
-	LIST *query_fetch_list;
-	QUERY_FETCH *query_fetch;
+	DELETE_SQL *delete_sql;
+	FILE *output_pipe;
+
+	if ( !update )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "update is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( !delete )
 	{
@@ -1673,33 +1605,39 @@ void merge_purge_html_display(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		merge_purge_heading_html(
+		merge_purge_process_heading_html(
 			WIDGET_DROP_DOWN_DASH_DELIMITER,
 			SQL_DELIMITER,
 			delete_delimited_string ) );
 
+	printf( "<h3>Merge</h3>\n" );
 	fflush( stdout );
 
-	query_fetch_list =
-		delete_one2m_query_fetch_list(
-			delete->delete_one2m_list->list
-				/* delete_one2m_list */ );
+	output_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			"html_paragraph_wrapper.e" );
 
-	if ( list_rewind( query_fetch_list ) )
+	update_row_list_display(
+		update->update_row_list,
+		output_pipe );
+
+	pclose( output_pipe );
+
+	printf( "<h3>Purge</h3>\n" );
+
+	if ( list_rewind( delete->delete_sql_list ) )
 	do {
-		query_fetch =
-			list_get(
-				query_fetch_list );
+		delete_sql = list_get( delete->delete_sql_list );
 
-		query_fetch_html_display(
-			query_fetch->folder_name,
-			query_fetch->query_select_name_list,
-			query_fetch->row_list );
+		printf( "<p>%s\n", delete_sql->statement );
 
-	} while ( list_next( query_fetch_list ) );
+	} while ( list_next( delete->delete_sql_list ) );
 }
 
-char *merge_purge_heading_html(
+char *merge_purge_process_heading_html(
 		const char *widget_drop_down_dash_delimiter,
 		const char sql_delimiter,
 		char *delete_delimited_string )
@@ -1728,7 +1666,7 @@ char *merge_purge_heading_html(
 	snprintf(
 		html,
 		sizeof ( html ),
-		"<h3>Purge: %s</h3>",
+		"<h3>Merge/Purge: %s</h3>",
 		string_with_space_search_replace(
 			source_destination /* in/out */,
 			sql_delimiter_string /* search_string */,

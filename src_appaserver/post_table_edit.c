@@ -114,14 +114,6 @@ int main( int argc, char **argv )
 
 #ifndef UPDATE_DEBUG_MODE
 
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-msg( (char *)0, message );
-}
 		update_error_string =
 		post_table_edit->update->error_string =
 			/* ------------------------------------------- */
@@ -133,16 +125,9 @@ msg( (char *)0, message );
 				post_table_edit->update->update_row_list,
 				post_table_edit->
 					post_table_edit_input->
-					appaserver_error_filename );
+					appaserver_error_filename,
+				1 /* update_root_boolean */ );
 
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-msg( (char *)0, message );
-}
 		if ( !post_table_edit->update->error_string )
 		{
 			/* Execute any post_change_process */
@@ -163,7 +148,8 @@ msg( (char *)0, message );
 		update_row_list_display(
 			post_table_edit->
 				update->
-				update_row_list );
+				update_row_list,
+			stderr /* output_stream */ );
 
 		update_error_string = "test only";
 #endif

@@ -9,6 +9,7 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "environ.h"
+#include "sql.h"
 #include "folder_menu.h"
 #include "delete_primary.h"
 
@@ -62,6 +63,7 @@ int main( int argc, char **argv )
 	&&   list_length( delete_primary->delete->delete_sql_list ) )
 	{
 		delete_execute(
+			SQL_EXECUTABLE,
 			delete_primary->
 				delete->
 				delete_sql_list );

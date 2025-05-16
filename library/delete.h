@@ -568,6 +568,7 @@ void delete_display(
 /* Driver */
 /* ------ */
 void delete_execute(
+		const char *sql_executable,
 		LIST *delete_sql_list );
 
 /* Usage */

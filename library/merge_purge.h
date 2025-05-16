@@ -59,22 +59,6 @@ char *merge_purge_hypertext_reference(
 		char *process_name,
 		char *folder_name );
 
-/* Driver */
-/* ------ */
-void merge_purge_html_display(
-		char *delete_delimited_string,
-		DELETE *delete );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *merge_purge_heading_html(
-		const char *widget_drop_down_dash_delimiter,
-		const char sql_delimiter,
-		char *delete_delimited_string );
-
 typedef struct
 {
 	SESSION_PROCESS *session_process;
@@ -339,14 +323,6 @@ boolean merge_purge_process_execute_boolean(
 
 /* Usage */
 /* ----- */
-void merge_purge_process_execute(
-		const char *sql_executable,
-		char *appliction_name,
-		MERGE_PURGE_UPDATE *merge_purge_update,
-		MERGE_PURGE_DELETE *merge_purge_delete );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -358,6 +334,31 @@ char *merge_purge_process_exists_system_string(
 /* ----- */
 boolean merge_purge_process_row_exists_boolean(
 		char *merge_purge_process_exists_system_string );
+
+/* Usage */
+/* ----- */
+void merge_purge_process_execute(
+		const char *sql_executable,
+		char *appliction_name,
+		MERGE_PURGE_UPDATE *merge_purge_update,
+		MERGE_PURGE_DELETE *merge_purge_delete );
+
+/* Usage */
+/* ----- */
+void merge_purge_process_html_display(
+		char *delete_delimited_string,
+		UPDATE *update,
+		DELETE *delete );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *merge_purge_process_heading_html(
+		const char *widget_drop_down_dash_delimiter,
+		const char sql_delimiter,
+		char *delete_delimited_string );
 
 #endif
 

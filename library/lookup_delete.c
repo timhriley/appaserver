@@ -8,6 +8,7 @@
 #include <string.h>
 #include "String.h"
 #include "folder_operation.h"
+#include "sql.h"
 #include "delete.h"
 #include "application.h"
 #include "folder_menu.h"
@@ -240,7 +241,9 @@ void lookup_delete_state_two_execute(
 
 			if ( execute_boolean )
 			{
-				delete_execute( delete->delete_sql_list );
+				delete_execute(
+					SQL_EXECUTABLE,
+					delete->delete_sql_list );
 
 				printf( "<h3>%s</h3>\n",
 					delete->complete_message_string );

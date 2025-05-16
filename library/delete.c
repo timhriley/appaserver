@@ -804,7 +804,9 @@ void delete_display( LIST *delete_sql_list )
 	fflush( stdout );
 }
 
-void delete_execute( LIST *delete_sql_list )
+void delete_execute(
+		const char *sql_executable,
+		LIST *delete_sql_list )
 {
 	DELETE_SQL *delete_sql;
 	FILE *output_pipe;
@@ -832,7 +834,7 @@ void delete_execute( LIST *delete_sql_list )
 			/* Returns static memory */
 			/* --------------------- */
 			delete_execute_system_string(
-				SQL_EXECUTABLE ) );
+				sql_executable ) );
 
 	if ( list_rewind( delete_sql_list ) )
 	do {

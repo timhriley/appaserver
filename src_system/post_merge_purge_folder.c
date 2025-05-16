@@ -103,9 +103,12 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		merge_purge_html_display(
+		merge_purge_process_html_display(
 			merge_purge_process->
 				delete_delimited_string,
+			merge_purge_process->
+				merge_purge_update->
+				update,
 			merge_purge_process->
 				merge_purge_delete->
 				delete );

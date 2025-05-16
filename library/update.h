@@ -255,7 +255,8 @@ char *update_changed_list_list_execute(
 		const char *sql_executable,
 		char *application_name,
 		LIST *update_changed_list_list,
-		char *appaserver_error_filename );
+		char *appaserver_error_filename,
+		boolean update_root_boolean );
 
 typedef struct
 {
@@ -394,7 +395,8 @@ void update_one2m_row_list_command_execute(
 /* Usage */
 /* ------ */
 void update_one2m_row_list_display(
-		LIST *update_one2m_row_list );
+		LIST *update_one2m_row_list,
+		FILE *output_stream );
 
 /* Usage */
 /* ------ */
@@ -514,7 +516,8 @@ void update_one2m_list_command_line_execute(
 /* Usage */
 /* ----- */
 void update_one2m_list_display(
-		LIST *update_one2m_list );
+		LIST *update_one2m_list,
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
@@ -656,12 +659,14 @@ void update_mto1_isa_command_line_execute(
 /* Usage */
 /* ----- */
 void update_mto1_isa_list_display(
-		LIST *update_mto1_isa_list );
+		LIST *update_mto1_isa_list,
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
 void update_mto1_isa_display(
-		UPDATE_MTO1_ISA *update_mto1_isa );
+		UPDATE_MTO1_ISA *update_mto1_isa,
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
@@ -791,7 +796,8 @@ void update_row_command_line_execute(
 void update_row_display(
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
-		LIST *update_mto1_isa_list );
+		LIST *update_mto1_isa_list,
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
@@ -863,7 +869,8 @@ char *update_row_list_execute(
 		const char *sql_executable,
 		char *application_name,
 		UPDATE_ROW_LIST *update_row_list,
-		char *appaserver_error_filename );
+		char *appaserver_error_filename,
+		boolean update_root_boolean );
 
 /* Usage */
 /* ----- */
@@ -876,20 +883,18 @@ void update_row_list_command_line_execute(
 /* Usage */
 /* ----- */
 void update_row_list_display(
-		UPDATE_ROW_LIST *update_row_list );
+		UPDATE_ROW_LIST *update_row_list,
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
 LIST *update_row_list_update_changed_list_list(
 		UPDATE_ROW_LIST *update_row_list );
 
-/* Usage */
-/* ----- */
-void update_row_list_zap_root(
-		UPDATE_ROW_LIST *update_row_list );
-
 typedef struct
 {
+	LIST *relation_one2m_list;
+	LIST *relation_mto1_isa_list;
 	SECURITY_ENTITY *security_entity;
 	char *appaserver_error_filename;
 	char *appaserver_parameter_mount_point;
