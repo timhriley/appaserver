@@ -149,7 +149,8 @@ int main( int argc, char **argv )
 			post_table_edit->
 				update->
 				update_row_list,
-			stderr /* output_stream */ );
+			stderr /* output_stream */,
+			1 /* update_root_boolean */ );
 
 		update_error_string = "test only";
 #endif

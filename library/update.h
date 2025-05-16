@@ -884,7 +884,8 @@ void update_row_list_command_line_execute(
 /* ----- */
 void update_row_list_display(
 		UPDATE_ROW_LIST *update_row_list,
-		FILE *output_stream );
+		FILE *output_stream,
+		boolean update_root_boolean );
 
 /* Usage */
 /* ----- */

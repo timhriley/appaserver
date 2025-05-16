@@ -1622,7 +1622,8 @@ void merge_purge_process_html_display(
 
 	update_row_list_display(
 		update->update_row_list,
-		output_pipe );
+		output_pipe,
+		0 /* not update_root_boolean */ );
 
 	pclose( output_pipe );
 

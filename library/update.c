@@ -5540,7 +5540,8 @@ LIST *update_row_update_changed_list_list(
 
 void update_row_list_display(
 		UPDATE_ROW_LIST *update_row_list,
-		FILE *output_stream )
+		FILE *output_stream,
+		boolean update_root_boolean )
 {
 	UPDATE_ROW *update_row;
 
@@ -5577,6 +5578,8 @@ void update_row_list_display(
 	if ( list_rewind( update_row_list->list ) )
 	do {
 		update_row = list_get( update_row_list->list );
+
+		if ( !update_root_boolean ) update_row->update_root = NULL;
 
 		update_row_display(
 			update_row->update_root,
