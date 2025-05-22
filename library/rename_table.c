@@ -596,9 +596,11 @@ char *rename_table_show_index_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"echo \"show index from %s;\" | "
-		"head -1 |"
+		"sql.e '%c' | "
+		"head -1 | "
 		"piece.e %c 2",
 		old_folder_table_name,
+		sql_delimiter,
 		sql_delimiter );
 
 	return system_string;
