@@ -626,7 +626,8 @@ char *create_table_primary_index_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"echo \"%s\" |"
+		"echo \"%s\" | "
+		"tee_appaserver.sh | "
 		"sql.e 2>&1",
 		/* --------------------- */
 		/* Returns static memory */
