@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_error.h"
+#include "sql.h"
 #include "shell_script.h"
 #include "folder.h"
 #include "role_folder.h"
@@ -71,14 +72,38 @@ RENAME_TABLE *rename_table_new(
 			rename_table->old_folder_table_name,
 			rename_table->new_folder_table_name );
 
+	rename_table->drop_index_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		rename_table_drop_index_name(
+			SQL_DELIMITER,
+			rename_table->old_folder_table_name );
+
+	if ( !rename_table->drop_index_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"rename_table_drop_index_name(%s) returned empty.",
+			rename_table->old_folder_table_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	rename_table->drop_index_system_string =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		rename_table_drop_index_system_string(
-			CREATE_TABLE_UNIQUE_SUFFIX,
-			rename_table->old_folder_table_name,
-			rename_table->new_folder_table_name );
+			rename_table->new_folder_table_name,
+			rename_table->drop_index_name );
 
 	primary_key_list =
 		folder_attribute_fetch_primary_key_list(
@@ -510,14 +535,13 @@ char *rename_table_update_statement(
 }
 
 char *rename_table_drop_index_system_string(
-		const char *create_table_unique_suffix,
-		char *old_folder_table_name,
-		char *new_folder_table_name )
+		char *new_folder_table_name,
+		char *drop_index_name )
 {
 	static char system_string[ 256 ];
 
-	if ( !old_folder_table_name
-	||   !new_folder_table_name )
+	if ( !new_folder_table_name
+	||   !drop_index_name )
 	{
 		char message[ 128 ];
 
@@ -534,18 +558,82 @@ char *rename_table_drop_index_system_string(
 		exit( 1 );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"echo \"alter table %s drop index %s;\" | "
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
 		new_folder_table_name,
+		drop_index_name );
+
+	return system_string;
+}
+
+char *rename_table_show_index_system_string(
+		const char sql_delimiter,
+		char *old_folder_table_name )
+{
+	static char system_string[ 128 ];
+
+	if ( !old_folder_table_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"old_folder_table_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"show index from %s;\" | "
+		"head -1 |"
+		"piece.e %c 2",
+		old_folder_table_name,
+		sql_delimiter );
+
+	return system_string;
+}
+
+char *rename_table_drop_index_name(
+		const char sql_delimiter,
+		char *old_folder_table_name )
+{
+	if ( !old_folder_table_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"old_folder_table_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	string_pipe_fetch(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		create_table_unique_index_name(
-			(char *)create_table_unique_suffix,
+		rename_table_show_index_system_string(
+			sql_delimiter,
 			old_folder_table_name ) );
-
-	return system_string;
 }
 

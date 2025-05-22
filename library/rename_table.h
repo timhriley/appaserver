@@ -12,6 +12,7 @@ typedef struct
 	char *old_folder_table_name;
 	char *new_folder_table_name;
 	char *execute_system_string;
+	char *drop_index_name;
 	char *drop_index_system_string;
 	char *create_table_primary_index_system_string;
 	LIST *update_statement_list;
@@ -38,9 +39,8 @@ RENAME_TABLE *rename_table_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *rename_table_drop_index_system_string(
-		const char *create_table_unique_suffix,
-		char *old_folder_table_name,
-		char *new_folder_table_name );
+		char *new_folder_table_name,
+		char *rename_table_drop_index_name );
 
 /* Usage */
 /* ----- */
@@ -108,5 +108,23 @@ char *rename_table_update_statement(
 /* --------------------- */
 char *rename_table_system_string(
 		char *statement );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *rename_table_drop_index_name(
+		const char sql_delimiter,
+		char *old_folder_table_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *rename_table_show_index_system_string(
+		const char sql_delimiter,
+		char *old_folder_table_name );
 
 #endif
