@@ -2376,21 +2376,21 @@ DATE *date_increment_seconds(
 int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
 {
 	time_t difference;
-	int results;
+	int result;
 
 	difference = later_date->current - earlier_date->current;
-	results = (int)((double)difference / (double)SECONDS_IN_MINUTE);
-	return results;
+	result = (int)((double)difference / (double)SECONDS_IN_MINUTE);
+	return result;
 }
 
 int date_subtract_days( DATE *later_date, DATE *earlier_date )
 {
 	time_t difference;
-	int results;
+	int result;
 
 	difference = later_date->current - earlier_date->current;
-	results = (int)((double)difference / (double)SECONDS_IN_DAY);
-	return results;
+	result = (int)((double)difference / (double)SECONDS_IN_DAY);
+	return result;
 }
 
 int date_month_day_number( DATE *date )

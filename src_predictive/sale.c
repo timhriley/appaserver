@@ -1,8 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/sale.c				*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <string.h>

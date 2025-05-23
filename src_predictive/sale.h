@@ -1,8 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/sale.h				*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #ifndef SALE_H
@@ -12,24 +11,15 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
-#include "predictive.h"
 
-/* Constants */
-/* --------- */
-#define SALE_TABLE_NAME		"sale"
+#define SALE_TABLE		"sale"
 #define SALE_MEMO		"Customer Sale"
 
-#define Sale_amount_due(				\
-			invoice_amount,			\
-			payment_total )			\
-	( invoice_amount - payment_total )
+#define SALE_AMOUNT_DUE(					\
+			sale_invoice_amount,			\
+			customer_payment_total )		\
+	( sale_invoice_amount - customer_payment_total )
 
-
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	ENTITY *customer_entity;
