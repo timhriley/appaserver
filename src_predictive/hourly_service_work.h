@@ -10,15 +10,15 @@
 #include "list.h"
 #include "boolean.h"
 
-#define HOURLY_SERVICE_WORK_TABLE		"hourly_service_work"
+#define HOURLY_SERVICE_WORK_TABLE	"hourly_service_work"
 
-#define HOURLY_SERVICE_WORK_SELECT		"begin_work_date_time,"	     \
-						"end_work_date_time,"	     \
-						"work_description,"	     \
-						"activity,"		     \
-						"appaserver_full_name,"	     \
-						"appaserver_street_address," \
-						"work_hours"
+#define HOURLY_SERVICE_WORK_SELECT	"begin_work_date_time,"		\
+					"end_work_date_time,"		\
+					"work_description,"		\
+					"activity,"			\
+					"appaserver_full_name,"		\
+					"appaserver_street_address,"	\
+					"work_hours"
 
 typedef struct
 {
@@ -26,6 +26,7 @@ typedef struct
 	char *street_address;
 	char *sale_date_time;
 	char *service_name;
+	char *service_description;
 	char *begin_work_date_time;
 	char *end_work_date_time;
 	char *work_description;
@@ -42,7 +43,8 @@ LIST *hourly_service_work_list(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *service_name );
+		char *service_name,
+		char *service_description);
 
 /* Process */
 /* ------- */
@@ -53,7 +55,8 @@ char *hourly_service_work_where(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *service_name );
+		char *service_name,
+		char *service_description );
 
 /* Usage */
 /* ----- */
@@ -62,6 +65,7 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 		char *street_address,
 		char *sale_date_time,
 		char *service_name,
+		char *service_description,
 		char *string_input );
 
 /* Usage */
@@ -73,7 +77,8 @@ HOURLY_SERVICE_WORK *hourly_service_work_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *servicxe_name,
+		char *service_name,
+		char *service_description,
 		char *begin_work_date_time );
 
 /* Process */
@@ -91,5 +96,31 @@ double hourly_service_work_hours(
 /* ----- */
 double hourly_service_work_list_hours(
 		LIST *hourly_service_work_list );
+
+/* Usage */
+/* ----- */
+HOURLY_SERVICE_WORK *hourly_service_work_seek(
+		LIST *hourly_service_work_list,
+		char *begin_work_date_time );
+
+/* Usage */
+/* ----- */
+void hourly_service_work_update(
+		const char *hourly_service_work_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time,
+		double hourly_service_work_hours );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *hourly_service_sale_update_system_string(
+		const char *hourly_service_work_table );
 
 #endif

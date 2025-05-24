@@ -350,7 +350,7 @@ JOURNAL *journal_parse(
 	char piece_buffer[ 1024 ];
 	JOURNAL *journal;
 
-	if ( !input || !*input ) return (JOURNAL *)0;
+	if ( !input || !*input ) return NULL;
 
 	/* See JOURNAL_SELECT */
 	/* ------------------ */

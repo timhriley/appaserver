@@ -43,6 +43,14 @@ char *security_sql_injection_escape(
 
 /* Returns heap memory */
 /* ------------------- */
+char *security_escape(
+		char *datum );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
 char *security_sql_injection_unescape(
 		const char *security_escape_character_string,
 		char *datum );

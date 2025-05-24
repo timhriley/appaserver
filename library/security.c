@@ -273,6 +273,17 @@ char *security_replace_special_characters( char *data )
 	return data;
 }
 
+char *security_escape( char *datum )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	security_sql_injection_escape(
+		SECURITY_ESCAPE_CHARACTER_STRING,
+		datum );
+}
+
 char *security_sql_injection_escape(
 		const char *security_escape_character_string,
 		char *datum )

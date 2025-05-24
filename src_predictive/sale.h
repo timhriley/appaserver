@@ -15,10 +15,47 @@
 #define SALE_TABLE		"sale"
 #define SALE_MEMO		"Customer Sale"
 
+#define SALE_GROSS_REVENUE(					\
+			inventory_sale_total,			\
+			fixed_service_sale_total,		\
+			hourly_service_sale_total )		\
+	( inventory_sale_total +				\
+	  fixed_service_sale_total +				\
+	  hourly_service_sale_total )
+
+#define SALE_SALES_TAX(						\
+			inventory_sale_total,			\
+			self_tax_sales_tax_rate )		\
+	( inventory_sale_total * self_tax_sales_tax_rate )
+
+#define SALE_INVOICE_AMOUNT(					\
+			sale_gross_revenue,			\
+			sale_sales_tax,				\
+			shipping_charge )			\
+	( sale_gross_revenue + sale_sales_tax + shipping_charge )
+
 #define SALE_AMOUNT_DUE(					\
 			sale_invoice_amount,			\
 			customer_payment_total )		\
 	( sale_invoice_amount - customer_payment_total )
+
+typedef struct
+{
+	TRANSACTION *transaction;
+} SALE_TRANSACTION;
+
+TRANSACTION *sale_transaction(
+		char *full_name,
+		char *street_address,
+		char *completed_date_time,
+		double invoice_amount,
+		double gross_revenue,
+		double sales_tax,
+		double shipping_charge,
+		char *account_receivable,
+		char *account_revenue,
+		char *account_shipping_revenue,
+		char *account_sales_tax_payable );
 
 typedef struct
 {
@@ -49,94 +86,60 @@ typedef struct
 	TRANSACTION *sale_transaction;
 } SALE;
 
-/* Operations */
-/* ---------- */
-SALE *sale_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-/* Returns sale_steady_state() */
-/* --------------------------- */
 SALE *sale_fetch(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
+		const char *sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time );
 
-/* Returns program memory */
-/* ---------------------- */
-char *sale_select(
-			void );
+/* Process */
+/* ------- */
 
+/* Returns static memory */
+/* --------------------- */
 char *sale_primary_where(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
+		char *full_name,
+		char *street_address,
+		char *sale_date_time );
 
-char *sale_sys_string(	char *where );
+/* Usage */
+/* ----- */
+SALE *sale_parse(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *string_pipe_fetch );
 
-SALE *sale_parse(	char *input );
+/* Usage */
+/* ----- */
 
-double sale_sales_tax(
-			double inventory_sale_total,
-			double entity_self_sales_tax_rate );
+/* Safely returns */
+/* -------------- */
+SALE *sale_new(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time );
 
-TRANSACTION *sale_transaction(
-			char *full_name,
-			char *street_address,
-			char *completed_date_time,
-			double invoice_amount,
-			double gross_revenue,
-			double sales_tax,
-			double shipping_charge,
-			char *account_receivable,
-			char *account_revenue,
-			char *account_shipping_revenue,
-			char *account_sales_tax_payable );
-
+/* Usage */
+/* ----- */
 void sale_update(
-			double inventory_sale_total,
-			double fixed_service_sale_total,
-			double hourly_service_sale_total,
-			double gross_revenue,
-			double sales_tax,
-			double invoice_amount,
-			double payment_total,
-			double amount_due,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
+		const char *sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		double hourly_service_sale_total,
+		double sale_gross_revenue,
+		double sale_sales_tax,
+		double sale_invoice_amount,
+		double customer_payment_total,
+		double sale_amount_due );
 
-FILE *sale_update_open(
-			void );
+/* Process */
+/* ------- */
 
-double sale_gross_revenue(
-			double inventory_sale_total,
-			double fixed_service_sale_total,
-			double hourly_service_sale_total );
-
-double sale_invoice_amount(
-			double gross_revenue,
-			double sales_tax,
-			double shipping_charge );
-
-SALE *sale_steady_state(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			LIST *inventory_sale_list,
-			LIST *fixed_service_sale_list,
-			LIST *hourly_service_sale_list,
-			LIST *customer_payment_list,
-			double shipping_charge,
-			double entity_self_sales_tax_rate,
-			double sales_tax_database,
-			char *completed_date_time,
-			char *transaction_date_time_database,
-			char *account_receivable,
-			char *account_revenue,
-			char *account_shipping_revenue,
-			char *account_sales_tax_payable );
+/* Returns heap memory */
+/* ------------------- */
+char *sale_update_system_string(
+		const char *sale_table );
 
 #endif

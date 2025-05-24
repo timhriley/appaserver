@@ -82,9 +82,9 @@ SALE *sale_fetch(
 	return sale_parse(
 		pipe2string(
 			sale_sys_string(
-		 		/* -------------------------- */
-		 		/* Safely returns heap memory */
-		 		/* -------------------------- */
+		 		/* --------------------- */
+		 		/* Returns static memory */
+		 		/* --------------------- */
 		 		sale_primary_where(
 					full_name,
 					street_address,
@@ -171,24 +171,47 @@ SALE *sale_parse( char *input )
 }
 
 char *sale_primary_where(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
+		char *full_name,
+		char *street_address,
+		char *sale_date_time )
 {
-	char where[ 1024 ];
+	static char where[ 128 ];
+	char *tmp1;
+	char *tmp2;
+	char *tmp3;
 
-	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "sale_date_time = '%s'		",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 entity_escape_full_name( full_name ),
-		 street_address,
-		 sale_date_time );
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time )
+	{
+		char message[ 128 ];
 
-	return strdup( where );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"full_name = '%s' and		"
+		"street_address = '%s' and	"
+		"sale_date_time = '%s'		",
+		/* --------------------- */
+		/* Returns heap memory */
+		/* --------------------- */
+		( tmp1 = security_escape( full_name ) ),
+		( tmp2 = security_escape( street_address ) ),
+		( tmp3 = security_escape( sale_date_time ) ) );
+
+	return where;
 }
 
 double sale_sales_tax(

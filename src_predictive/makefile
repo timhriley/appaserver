@@ -855,10 +855,19 @@ hourly_service_sale.o: hourly_service_sale.c				\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c hourly_service_sale.c
 
+hourly_service_work.o: hourly_service_work.c				\
+		hourly_service_work.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c hourly_service_work.c
+
 vendor_payment.o: vendor_payment.c					\
 		vendor_payment.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c vendor_payment.c
+
+self_tax.o: self_tax.c self_tax.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c self_tax.c
 
 feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

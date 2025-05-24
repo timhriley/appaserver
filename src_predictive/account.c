@@ -588,7 +588,7 @@ ACCOUNT *account_parse(
 	char piece_buffer[ 1024 ];
 	ACCOUNT *account;
 
-	if ( !input || !*input ) return (ACCOUNT *)0;
+	if ( !input || !*input ) return NULL;
 
 	/* See account_select_string() */
 	/* --------------------------- */

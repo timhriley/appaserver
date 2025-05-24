@@ -245,7 +245,7 @@ char *entity_escape_name( char *full_name )
 
 char *entity_escape_full_name( char *full_name )
 {
-	static char escape_full_name[ 256 ];
+	static char escape_full_name[ 64 ];
 
 	*escape_full_name = '\0';
 
@@ -259,7 +259,7 @@ char *entity_escape_full_name( char *full_name )
 
 char *entity_escape_street_address( char *street_address )
 {
-	static char escape_street_address[ 256 ];
+	static char escape_street_address[ 64 ];
 
 	*escape_street_address = '\0';
 
@@ -275,7 +275,7 @@ char *entity_primary_where(
 		char *full_name,
 		char *street_address )
 {
-	static char where[ 256 ];
+	static char where[ 128 ];
 
 	snprintf(
 		where,
