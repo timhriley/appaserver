@@ -10,7 +10,7 @@
 #include "list.h"
 #include "boolean.h"
 
-#define INVENTORY_SALE_TABLE	"inventory_sale"
+#define INVENTORY_SALE_TABLE		"inventory_sale"
 
 #define INVENTORY_SALE_SELECT		"inventory_name,"		\
 					"quantity,"			\
@@ -30,6 +30,7 @@ typedef struct
 	double discount_amount;
 	double extended_price;
 	double cost_of_goods_sold;
+	double sale_extended_price;
 } INVENTORY_SALE;
 
 /* Usage */

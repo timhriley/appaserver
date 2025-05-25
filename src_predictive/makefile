@@ -922,6 +922,11 @@ inventory_sale.o: inventory_sale.c inventory_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_sale.c
 
+specific_inventory_sale.o:						\
+	specific_inventory_sale.c specific_inventory_sale.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c specific_inventory_sale.c
+
 subclassification.o: subclassification.c subclassification.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c subclassification.c

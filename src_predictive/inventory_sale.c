@@ -133,6 +133,12 @@ INVENTORY_SALE *inventory_sale_parse(
 		inventory_sale->cost_of_goods_sold =
 			atof( piece_buffer );
 
+	inventory_sale->sale_extended_price =
+		SALE_EXTENDED_PRICE(
+			inventory_sale->retail_price,
+			inventory_sale->quantity,
+			inventory_sale->discount_amount );
+
 	return inventory_sale;
 }
 
@@ -324,7 +330,6 @@ double inventory_sale_total( LIST *inventory_sale_list )
 	if ( list_rewind( inventory_sale_list ) )
 	do {
 		inventory_sale = list_get( inventory_sale_list );
-
 		total += inventory_sale->extended_price;
 
 	} while( list_next( inventory_sale_list ) );
