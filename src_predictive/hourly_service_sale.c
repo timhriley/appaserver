@@ -6,12 +6,14 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "piece.h"
+#include "appaserver.h"
+#include "appaserver_error.h"
 #include "date.h"
 #include "sql.h"
 #include "sale.h"
+#include "hourly_service_work.h"
 #include "hourly_service_sale.h"
 
 HOURLY_SERVICE_SALE *hourly_service_sale_new(
@@ -152,8 +154,8 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 				full_name,
 				street_address,
 				sale_date_time,
-				hourly_service_work->service_name,
-				hourly_service_work->service_description );
+				hourly_service_sale->service_name,
+				hourly_service_sale->service_description );
 	}
 
 	return hourly_service_sale;
@@ -173,6 +175,7 @@ char *hourly_service_sale_update_system_string(
 
 	snprintf(
 		system_string,
+		sizeof ( system_string ),
 		"update_statement.e table=%s key=%s carrot=y | "
 		"tee_appaserver.sh | "
 		"sql.e",
@@ -189,8 +192,8 @@ void hourly_service_sale_update(
 		char *sale_date_time,
 		char *service_name,
 		char *service_description,
-		double hourly_service_sale_net_revenue,
-		double hourly_service_sale_work_list_hours,
+		double hourly_service_sale_estimated_revenue,
+		double hourly_service_work_list_hours,
 		double hourly_service_sale_net_revenue )
 {
 	char *system_string;
@@ -232,7 +235,7 @@ void hourly_service_sale_update(
 
 	free( system_string );
 
-	fprintf(update_pipe,
+	fprintf(pipe,
 	 	"%s^%s^%s^%s^%s^estimated_revenue^%.2lf\n",
 		full_name,
 		street_address,
@@ -241,7 +244,7 @@ void hourly_service_sale_update(
 		service_description,
 		hourly_service_sale_estimated_revenue );
 
-	fprintf(update_pipe,
+	fprintf(pipe,
 	 	"%s^%s^%s^%s^%s^work_hours^%.2lf\n",
 		full_name,
 		street_address,
@@ -250,7 +253,7 @@ void hourly_service_sale_update(
 		service_description,
 		hourly_service_work_list_hours );
 
-	fprintf(update_pipe,
+	fprintf(pipe,
 	 	"%s^%s^%s^%s^%s^net_revenue^%.2lf\n",
 		full_name,
 		street_address,
@@ -271,6 +274,7 @@ LIST *hourly_service_sale_list(
 {
 	char *where;
 	LIST *list = list_new();
+	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
 	HOURLY_SERVICE_SALE *hourly_service_sale;
@@ -308,7 +312,7 @@ LIST *hourly_service_sale_list(
 		/* ------------------- */
 		appaserver_system_string(
 			HOURLY_SERVICE_SALE_SELECT,
-			hourly_service_sale_table,
+			(char *)hourly_service_sale_table,
 			where );
 
 	input_pipe =

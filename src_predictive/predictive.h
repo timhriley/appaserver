@@ -14,7 +14,7 @@
 #define TITLE_PASSAGE_RULE_ARRIVED_DATE 	"FOB_destination"
 #define TITLE_PASSAGE_RULE_NULL			""
 
-enum title_passage_rule{
+enum predictive_title_passage_rule{
 	title_passage_rule_null,
 	FOB_shipping,
 	FOB_destination };
@@ -30,11 +30,12 @@ boolean predictive_fund_attribute_exists(
 boolean predictive_fund_exists(
 		void );
 
-enum title_passage_rule
+enum predictive_title_passage_rule
 	predictive_resolve_title_passage_rule(
 		char *title_passage_rule_string );
 
 char *predictive_title_passage_rule_string(
-		enum title_passage_rule title_passage_rule );
+		enum predictive_title_passage_rule
+			predictive_title_passage_rule );
 
 #endif

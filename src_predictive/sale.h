@@ -9,6 +9,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
 
@@ -82,7 +83,7 @@ typedef struct
 	char *account_shipping_revenue;
 	char *account_sales_tax_payable;
 	double sales_tax_database;
-	enum title_passage_rule title_passage_rule;
+	enum predictive_title_passage_rule predictive_title_passage_rule;
 	TRANSACTION *sale_transaction;
 } SALE;
 
