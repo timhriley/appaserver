@@ -34,6 +34,7 @@ typedef struct
 	char *appaserver_full_name;
 	char *appaserver_street_address;
 	double work_hours;
+	double sale_work_hours;
 } HOURLY_SERVICE_WORK;
 
 /* Usage */
@@ -44,7 +45,7 @@ LIST *hourly_service_work_list(
 		char *street_address,
 		char *sale_date_time,
 		char *service_name,
-		char *service_description);
+		char *service_description );
 
 /* Process */
 /* ------- */
@@ -89,12 +90,6 @@ HOURLY_SERVICE_WORK *hourly_service_work_calloc(
 /* Usage */
 /* ----- */
 double hourly_service_work_hours(
-		char *begin_work_date_time,
-		char *end_work_date_time );
-
-/* Usage */
-/* ----- */
-double hourly_service_work_list_hours(
 		LIST *hourly_service_work_list );
 
 /* Usage */
@@ -113,7 +108,7 @@ void hourly_service_work_update(
 		char *service_name,
 		char *service_description,
 		char *begin_work_date_time,
-		double hourly_service_work_hours );
+		double sale_work_hours );
 
 /* Process */
 /* ------- */

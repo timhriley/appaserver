@@ -250,6 +250,11 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 		hourly_service_work->work_hours =
 			atof( piece_buffer );
 
+	hourly_service_work->sale_work_hours =
+		sale_work_hours(
+			hourly_service_work->begin_work_date_time,
+			hourly_service_work->end_work_date_time );
+
 	return hourly_service_work;
 }
 
@@ -283,7 +288,6 @@ HOURLY_SERVICE_WORK *hourly_service_work_new(
 			__LINE__,
 			message );
 	}
-
 
 	hourly_service_work = hourly_service_work_calloc();
 
@@ -322,54 +326,7 @@ HOURLY_SERVICE_WORK *hourly_service_work_calloc( void )
 	return hourly_service_work;
 }
 
-double hourly_service_work_hours(
-		char *begin_work_date_time,
-		char *end_work_date_time )
-{
-	double hours;
-	DATE *earlier_date;
-	DATE *later_date;
-	int subtract_minutes;
-
-	if ( !begin_work_date_time
-	||   !end_work_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	earlier_date =
-		date_19new(
-			begin_work_date_time );
-
-	later_date =
-		date_19new(
-			end_work_date_time );
-
-	subtract_minutes =
-		date_subtract_minutes(
-			later_date,
-			earlier_date );
-
-	hours = (double)subtract_minutes / 60.0;
-
-	date_free( earlier_date );
-	date_free( later_date );
-
-	return hours;
-}
-
-double hourly_service_work_list_hours( LIST *hourly_service_work_list )
+double hourly_service_work_hours( LIST *hourly_service_work_list )
 {
 	HOURLY_SERVICE_WORK *hourly_service_work;
 	double hours = 0.0;
@@ -419,7 +376,7 @@ void hourly_service_work_update(
 		char *service_name,
 		char *service_description,
 		char *begin_work_date_time,
-		double hourly_service_work_hours )
+		double sale_work_hours )
 {
 	char *system_string;
 	FILE *pipe;
@@ -446,7 +403,7 @@ void hourly_service_work_update(
 		service_name,
 		service_description,
 		begin_work_date_time,
-		hourly_service_work_hours );
+		sale_work_hours );
 
 	pclose( pipe );
 }

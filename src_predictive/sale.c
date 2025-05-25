@@ -557,3 +557,82 @@ SALE *sale_steady_state(
 	return sale;
 }
 
+double sale_work_hours(
+		char *begin_work_date_time,
+		char *end_work_date_time )
+{
+	double hours;
+	DATE *earlier_date;
+	DATE *later_date;
+	int subtract_minutes;
+
+	if ( !begin_work_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"begin_work_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !end_work_date_time ) return 0.0;
+
+	if ( ! ( earlier_date =
+			date_19new(
+				begin_work_date_time ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"date_19new(%s) returned empty.",
+			begin_work_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( ! ( later_date =
+			date_19new(
+				end_work_date_time ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"date_19new(%s) returned empty.",
+			end_work_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	subtract_minutes =
+		date_subtract_minutes(
+			later_date,
+			earlier_date );
+
+	hours = (double)subtract_minutes / 60.0;
+
+	date_free( earlier_date );
+	date_free( later_date );
+
+	return hours;
+}
+

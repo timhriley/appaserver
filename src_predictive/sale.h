@@ -129,6 +129,12 @@ SALE *sale_new(
 
 /* Usage */
 /* ----- */
+double sale_work_hours(
+		char *begin_work_date_time,
+		char *end_work_date_time );
+
+/* Usage */
+/* ----- */
 void sale_update(
 		const char *sale_table,
 		char *full_name,

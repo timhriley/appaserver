@@ -855,6 +855,11 @@ hourly_service_sale.o: hourly_service_sale.c				\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c hourly_service_sale.c
 
+fixed_service_work.o: fixed_service_work.c				\
+		fixed_service_work.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c fixed_service_work.c
+
 hourly_service_work.o: hourly_service_work.c				\
 		hourly_service_work.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
