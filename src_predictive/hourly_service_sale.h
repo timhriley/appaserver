@@ -87,8 +87,8 @@ double hourly_service_sale_net_revenue(
 
 /* Usage */
 /* ----- */
-double hourly_service_sale_list_total(
-			LIST *hourly_service_sale_list );
+double hourly_service_sale_total(
+		LIST *hourly_service_sale_list );
 
 /* Usage */
 /* ----- */

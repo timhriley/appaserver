@@ -336,12 +336,13 @@ LIST *hourly_service_sale_list(
 
 		if ( !hourly_service_sale )
 		{
-			char message[ 128 ];
+			char message[ 2048 ];
 
 			snprintf(
 				message,
 				sizeof ( message ),
-				"parameter is empty." );
+			"hourly_service_sale_parse(%s) returned empty.",
+				input );
 
 			pclose( input_pipe );
 

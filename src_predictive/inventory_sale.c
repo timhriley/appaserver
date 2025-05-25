@@ -1,233 +1,374 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/inventory_sale.c			*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "piece.h"
+#include "appaserver.h"
+#include "appaserver_error.h"
 #include "date.h"
 #include "sql.h"
-#include "list.h"
-#include "boolean.h"
-#include "entity.h"
 #include "sale.h"
 #include "inventory_sale.h"
 
 INVENTORY_SALE *inventory_sale_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *inventory_name )
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *inventory_name )
 {
 	INVENTORY_SALE *inventory_sale;
 
-	if ( ! ( inventory_sale = calloc( 1, sizeof( INVENTORY_SALE ) ) ) )
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !inventory_name )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	inventory_sale->customer_entity =
-		entity_new(
-			full_name,
-			street_address );
+	inventory_sale = inventory_sale_calloc();
 
+	inventory_sale->full_name = full_name;
+	inventory_sale->street_address = street_address;
 	inventory_sale->sale_date_time = sale_date_time;
 	inventory_sale->inventory_name = inventory_name;
 
 	return inventory_sale;
 }
 
-INVENTORY_SALE *inventory_sale_parse( char *input )
-{
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char sale_date_time[ 128 ];
-	char inventory_name[ 128 ];
-	char quantity[ 128 ];
-	char retail_price[ 128 ];
-	char discount_amount[ 128 ];
-	char extended_price[ 128 ];
-	char cost_of_goods_sold[ 128 ];
-
-	if ( !input || !*input ) return (INVENTORY_SALE *)0;
-
-	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( sale_date_time, SQL_DELIMITER, input, 2 );
-	piece( inventory_name, SQL_DELIMITER, input, 3 );
-	piece( quantity, SQL_DELIMITER, input, 4 );
-	piece( retail_price, SQL_DELIMITER, input, 5 );
-	piece( discount_amount, SQL_DELIMITER, input, 6 );
-	piece( extended_price, SQL_DELIMITER, input, 7 );
-	piece( cost_of_goods_sold, SQL_DELIMITER, input, 8 );
-
-	return inventory_sale_steady_state(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( sale_date_time ),
-			strdup( inventory_name ),
-			atoi( quantity ),
-			atof( retail_price ),
-			atof( discount_amount ),
-			atof( extended_price ),
-			atof( cost_of_goods_sold ),
-			(LIST *)0,
-			(LIST *)0 );
-}
-
-double inventory_sale_total(
-			LIST *inventory_sale_list )
+INVENTORY_SALE *inventory_sale_calloc( void )
 {
 	INVENTORY_SALE *inventory_sale;
-	double total;
 
-	if ( !list_rewind( inventory_sale_list ) ) return 0.0;
-
-	total = 0.0;
-	do {
-		inventory_sale = list_get( inventory_sale_list );
-
-		total += inventory_sale_extended_price(
-				inventory_sale->quantity,
-				inventory_sale->retail_price,
-				inventory_sale->discount_amount );
-
-	} while ( list_next( inventory_sale_list ) );
-
-	return total;
-}
-
-double inventory_sale_sales_tax(
-			double extended_price_total,
-			double entity_state_sales_tax_rate )
-{
-	return extended_price_total * entity_state_sales_tax_rate;
-}
-
-LIST *inventory_sale_system_list( char *system_string )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *inventory_sale_list;
-
-	inventory_sale_list = list_new();
-	input_pipe = popen( system_string, "r" );
-
-	while ( string_input( input, input_pipe, 1024 ) )
+	if ( ! ( inventory_sale =
+			calloc( 1,
+				sizeof ( INVENTORY_SALE ) ) ) )
 	{
-		list_set(	inventory_sale_list, 
-				inventory_sale_parse( input ) );
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	pclose( input_pipe );
-	return inventory_sale_list;
+	return inventory_sale;
 }
 
-char *inventory_sale_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !where ) return (char *)0;
-
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" inventory_name",
-		 INVENTORY_SALE_TABLE,
-		 where );
-
-	return strdup( system_string );
-}
-
-LIST *inventory_sale_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
-{
-	return inventory_sale_system_list(
-			inventory_sale_system_string(
-				sale_primary_where(
-					full_name,
-					street_address,
-					sale_date_time ) ) );
-}
-
-double inventory_sale_extended_price(
-			double retail_price,
-			double discount_amount,
-			int quantity )
-{
-	return ( ( retail_price *
-		   (double)quantity ) -
-		   discount_amount );
-}
-
-double inventory_sale_cost_of_goods_sold(
-			int quantity,
-			LIST *inventory_purchase_list,
-			LIST *inventory_sale_list )
-{
-if ( quantity ){}
-if ( inventory_purchase_list ){}
-if ( inventory_sale_list ){}
-
-	return 0.0;
-
-}
-
-/* Everything is strdup() in. */
-/* -------------------------- */
-INVENTORY_SALE *inventory_sale_steady_state(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *inventory_name,
-			int quantity,
-			double retail_price,
-			double discount_amount,
-			double extended_price_database,
-			double cost_of_goods_sold_database,
-			LIST *inventory_purchase_list,
-			LIST *inventory_sale_list )
+INVENTORY_SALE *inventory_sale_parse(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *input )
 {
 	INVENTORY_SALE *inventory_sale;
+	char inventory_name[ 128 ];
+	char piece_buffer[ 128 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !input
+	||   !*input )
+	{
+		return NULL;
+	}
+
+	piece( inventory_name, SQL_DELIMITER, input, 0 );
 
 	inventory_sale =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		inventory_sale_new(
 			full_name,
 			street_address,
 			sale_date_time,
-			inventory_name );
+			strdup( inventory_name ) );
 
-	inventory_sale->quantity = quantity;
-	inventory_sale->discount_amount = discount_amount;
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	if ( *piece_buffer )
+		inventory_sale->quantity =
+			atoi( piece_buffer );
 
-	inventory_sale->inventory_sale_extended_price =
-		inventory_sale_extended_price(
-			retail_price,
-			discount_amount,
-			quantity );
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	if ( *piece_buffer )
+		inventory_sale->retail_price =
+			atof( piece_buffer );
 
-	inventory_sale->inventory_sale_cost_of_goods_sold =
-		inventory_sale_cost_of_goods_sold(
-			quantity,
-			inventory_purchase_list,
-			inventory_sale_list );
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	if ( *piece_buffer )
+		inventory_sale->discount_amount =
+			atof( piece_buffer );
 
-	inventory_sale->extended_price_database =
-		extended_price_database;
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
+	if ( *piece_buffer )
+		inventory_sale->extended_price =
+			atof( piece_buffer );
 
-	inventory_sale->cost_of_goods_sold_database =
-		cost_of_goods_sold_database;
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	if ( *piece_buffer )
+		inventory_sale->cost_of_goods_sold =
+			atof( piece_buffer );
 
 	return inventory_sale;
+}
+
+char *inventory_sale_update_system_string(
+		const char *inventory_sale_table )
+{
+	char system_string[ 1024 ];
+	char *key;
+
+	key =	"full_name,"
+		"street_address,"
+		"sale_date_time,"
+		"inventory_name";
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"update_statement.e table=%s key=%s carrot=y | "
+		"tee_appaserver.sh | "
+		"sql.e",
+		inventory_sale_table,
+		key );
+
+	return strdup( system_string );
+}
+
+void inventory_sale_update(
+		const char *inventory_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *inventory_name,
+		double sale_extended_price )
+{
+	char *system_string;
+	FILE *pipe;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !inventory_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		inventory_sale_update_system_string(
+			inventory_sale_table );
+
+	pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			system_string );
+
+	free( system_string );
+
+	fprintf(pipe,
+	 	"%s^%s^%s^%s^extended_price^%.2lf\n",
+		full_name,
+		street_address,
+		sale_date_time,
+		inventory_name,
+		sale_extended_price );
+
+	pclose( pipe );
+}
+
+LIST *inventory_sale_list(
+		const char *inventory_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time )
+{
+	char *where;
+	LIST *list = list_new();
+	char *system_string;
+	FILE *input_pipe;
+	char input[ 1024 ];
+	INVENTORY_SALE *inventory_sale;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			INVENTORY_SALE_SELECT,
+			(char *)inventory_sale_table,
+			where );
+
+	input_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_input_pipe(
+			system_string );
+
+	free( system_string );
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	{
+		inventory_sale =
+			inventory_sale_parse(
+				full_name,
+				street_address,
+				sale_date_time,
+				input );
+
+		if ( !inventory_sale )
+		{
+			char message[ 2048 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"inventory_sale_parse(%s) returned empty.",
+				input );
+
+			pclose( input_pipe );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		list_set( list, inventory_sale );
+	}
+
+	pclose( input_pipe );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+
+double inventory_sale_total( LIST *inventory_sale_list )
+{
+	INVENTORY_SALE *inventory_sale;
+	double total = 0.0;
+
+	if ( list_rewind( inventory_sale_list ) )
+	do {
+		inventory_sale = list_get( inventory_sale_list );
+
+		total += inventory_sale->extended_price;
+
+	} while( list_next( inventory_sale_list ) );
+
+	return total;
+}
+
+INVENTORY_SALE *inventory_sale_seek(
+		LIST *inventory_sale_list,
+		char *inventory_name )
+{
+	INVENTORY_SALE *inventory_sale;
+
+	if ( !inventory_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_sale_list ) )
+	do {
+		inventory_sale =
+			list_get(
+				inventory_sale_list );
+
+		if ( strcmp(
+			inventory_name,
+			inventory_sale->inventory_name ) == 0 )
+		{
+			return inventory_sale;
+		}
+
+	} while ( list_next( inventory_sale_list ) );
+
+	return NULL;
 }
 

@@ -16,28 +16,34 @@
 #define SALE_TABLE		"sale"
 #define SALE_MEMO		"Customer Sale"
 
+#define SALE_EXTENDED_PRICE(					\
+		retail_price,					\
+		quantity,					\
+		discount_amount )				\
+	( ( retail_price * (double)quantity ) - discount_amount )
+
 #define SALE_GROSS_REVENUE(					\
-			inventory_sale_total,			\
-			fixed_service_sale_total,		\
-			hourly_service_sale_total )		\
+		inventory_sale_total,				\
+		fixed_service_sale_total,			\
+		hourly_service_sale_total )			\
 	( inventory_sale_total +				\
 	  fixed_service_sale_total +				\
 	  hourly_service_sale_total )
 
 #define SALE_SALES_TAX(						\
-			inventory_sale_total,			\
-			self_tax_sales_tax_rate )		\
+		inventory_sale_total,				\
+		self_tax_sales_tax_rate )			\
 	( inventory_sale_total * self_tax_sales_tax_rate )
 
 #define SALE_INVOICE_AMOUNT(					\
-			sale_gross_revenue,			\
-			sale_sales_tax,				\
-			shipping_charge )			\
+		sale_gross_revenue,				\
+		sale_sales_tax,					\
+		shipping_charge )				\
 	( sale_gross_revenue + sale_sales_tax + shipping_charge )
 
 #define SALE_AMOUNT_DUE(					\
-			sale_invoice_amount,			\
-			customer_payment_total )		\
+		sale_invoice_amount,				\
+		customer_payment_total )			\
 	( sale_invoice_amount - customer_payment_total )
 
 typedef struct
