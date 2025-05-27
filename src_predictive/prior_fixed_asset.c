@@ -12,7 +12,8 @@
 #include "appaserver_error.h"
 #include "piece.h"
 #include "sql.h"
-#include "account.h"
+#include "security.h"
+#include "journal.h"
 #include "prior_fixed_asset.h"
 
 PRIOR_FIXED_ASSET *
@@ -21,22 +22,17 @@ PRIOR_FIXED_ASSET *
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
-		char *preupdate_purchase_date_time,
-		char *preupdate_fixed_asset_cost,
-		char *preupdate_asset_account )
+		char *preupdate_purchase_date_time )
 {
 	PRIOR_FIXED_ASSET *prior_fixed_asset;
 	char *system_string;
 	char *pipe_fetch;
-	char *credit_account_name;
 
 	if ( !asset_name
 	||   !state
 	||   !preupdate_full_name
 	||   !preupdate_street_address
-	||   !preupdate_purchase_date_time
-	||   !preupdate_fixed_asset_cost
-	||   !preupdate_asset_account )
+	||   !preupdate_purchase_date_time )
 	{
 		char message[ 128 ];
 
@@ -95,6 +91,63 @@ PRIOR_FIXED_ASSET *
 			asset_name,
 			pipe_fetch /* input */ );
 
+	if ( ! ( prior_fixed_asset->debit_account =
+			account_fetch(
+				prior_fixed_asset->asset_account,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_fetch(%s) returned empty.",
+			prior_fixed_asset->asset_account );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	prior_fixed_asset->account_equity =
+		account_equity(
+			ACCOUNT_EQUITY_KEY );
+
+	if ( ! ( prior_fixed_asset->credit_account =
+			account_fetch(
+				prior_fixed_asset->account_equity,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_fetch(%s) returned empty.",
+			prior_fixed_asset->account_equity );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	prior_fixed_asset->journal_binary_list =
+		journal_binary_list(
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
+			(char *)0 /* transaction_date_time */,
+			prior_fixed_asset->fixed_asset_cost
+				/* transaction_amount */,
+			prior_fixed_asset->debit_account,
+			prior_fixed_asset->credit_account );
+
 	prior_fixed_asset->subsidiary_transaction_state =
 		/* -------------- */
 		/* Safely returns */
@@ -106,41 +159,18 @@ PRIOR_FIXED_ASSET *
 			/* preupdate_street_address_placeholder */,
 			"preupdate_purchase_date_time"
 			/* preupdate_foreign_date_time_placeholder */,
-			"preupdate_fixed_asset_cost"
-			/* preupdate_foreign_amount_placeholder */,
-			"preupdate_asset_account"
-			/* preupdate_account_name_placeholder */,
 			state,
 			preupdate_full_name,
 			preupdate_street_address,
 			preupdate_purchase_date_time
 			/* preupdate_foreign_date_time */,
-			preupdate_fixed_asset_cost
-			/* preupdate_foreign_amount */,
-			preupdate_asset_account
-			/* preupdate_account_name */,
 			prior_fixed_asset->
 				full_name,
 			prior_fixed_asset->
 				street_address,
 			prior_fixed_asset->
 				purchase_date_time
-				/* foreign_date_time */,
-			prior_fixed_asset->
-				fixed_asset_cost_string
-				/* foreign_amount_string */,
-			prior_fixed_asset->
-				asset_account
-				/* account_name */ );
-
-	credit_account_name =
-		/* ------------------------------------ */
-		/* Returns heap memory from static list */
-		/* ------------------------------------ */
-		account_hard_coded_account_name(
-			ACCOUNT_EQUITY_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ /* calling_function_name */ );
+				/* foreign_date_time */ );
 
 	prior_fixed_asset->subsidiary_transaction =
 		/* -------------- */
@@ -159,10 +189,6 @@ PRIOR_FIXED_ASSET *
 			preupdate_street_address,
 			preupdate_purchase_date_time
 				/* preupdate_foreign_date_time */,
-			preupdate_fixed_asset_cost
-				/* preupdate_foreign_amount */,
-			preupdate_asset_account
-				/* preupdate_account_name */,
 			prior_fixed_asset->
 				full_name,
 			prior_fixed_asset->
@@ -174,9 +200,6 @@ PRIOR_FIXED_ASSET *
 				fixed_asset_cost
 				/* foreign_amount */,
 			prior_fixed_asset->
-				asset_account
-				/* account_name */,
-			prior_fixed_asset->
 				subsidiary_transaction_state->
 				preupdate_change_full_name,
 			prior_fixed_asset->
@@ -185,17 +208,10 @@ PRIOR_FIXED_ASSET *
 			prior_fixed_asset->
 				subsidiary_transaction_state->
 				preupdate_change_foreign_date_time,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				preupdate_change_foreign_amount,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				preupdate_change_account_name,
-			(char *)0 /* debit_account_name */
-				/* Mutually exclusive */,
-			credit_account_name
-				/* Mutually exclusive */,
-			asset_name /* transaction_memo */ );
+			prior_fixed_asset->journal_binary_list
+				/* insert_journal_list */,
+			asset_name
+				/* transaction_memo */ );
 
 	free( system_string );
 	free( pipe_fetch );
@@ -253,9 +269,6 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_parse(
 	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
 	{
-		prior_fixed_asset->fixed_asset_cost_string =
-			strdup( buffer );
-
 		prior_fixed_asset->fixed_asset_cost =
 			atof( buffer );
 	}
@@ -326,6 +339,7 @@ char *prior_fixed_asset_primary_where(
 		char *asset_name )
 {
 	static char where[ 128 ];
+	char *tmp;
 
 	if ( !asset_name )
 	{
@@ -348,7 +362,14 @@ char *prior_fixed_asset_primary_where(
 		sizeof ( where ),
 		"%s = '%s'",
 		prior_fixed_asset_primary_key,
-		asset_name );
+		( tmp =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_escape(
+				asset_name /* datum */ ) ) );
+
+	free( tmp );
 
 	return where;
 }

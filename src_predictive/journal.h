@@ -69,6 +69,9 @@ JOURNAL	*journal_parse(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 JOURNAL *journal_new(
 		char *full_name,
 		char *street_address,
@@ -371,6 +374,15 @@ char *journal_entity_where(
 
 /* Usage */
 /* ----- */
+LIST *journal_transaction_list(
+		const char *journal_select,
+		const char *journal_table,
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -380,9 +392,26 @@ char *journal_primary_where(
 		char *transaction_date_time,
 		char *account_name );
 
+/* Usage */
+/* ----- */
+boolean journal_list_match_boolean(
+		LIST *journal1_list,
+		LIST *journal2_list );
+
+/* Usage */
+/* ----- */
+boolean journal_exists_boolean(
+		LIST *journal_list,
+		JOURNAL *match_journal );
+
+/* Usage */
+/* ----- */
+boolean journal_match_boolean(
+		JOURNAL *journal1,
+		JOURNAL *journal2 );
+
 /* Public */
 /* ------ */
-
 LIST *journal_account_distinct_entity_list(
 		char *journal_table,
 		LIST *account_name_list );

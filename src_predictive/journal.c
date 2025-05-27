@@ -360,6 +360,9 @@ JOURNAL *journal_parse(
 	piece( account_name, SQL_DELIMITER, input, 3 );
 
 	journal =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		journal_new(
 			strdup( full_name ),
 			strdup( street_address ),
@@ -879,6 +882,9 @@ LIST *journal_binary_list(
 	journal_list = list_new();
 
 	journal =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		journal_new(
 			full_name,
 			street_address,
@@ -1561,8 +1567,7 @@ JOURNAL *journal_seek(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( journal_system_list ) ) return (JOURNAL *)0;
-
+	if ( list_rewind( journal_system_list ) )
 	do {
 		journal = list_get( journal_system_list );
 
@@ -1576,7 +1581,7 @@ JOURNAL *journal_seek(
 
 	} while ( list_next( journal_system_list ) );
 
-	return (JOURNAL *)0;
+	return NULL;
 }
 
 char *journal_minimum_transaction_date_time( char *account_name )
@@ -2409,6 +2414,52 @@ LIST *journal_entity_list(
 		0 /* not fetch_transaction */ );
 }
 
+LIST *journal_transaction_list(
+		const char *journal_select,
+		const char *journal_table,
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time )
+{
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			journal_select,
+			journal_table,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_primary_where(
+				full_name,
+				street_address,
+				transaction_date_time ) ),
+		1 /* fetch_account */,
+		1 /* fetch_subclassification */,
+		1 /* fetch_element */,
+		0 /* not fetch_transaction */ );
+}
+
 char *journal_entity_where(
 		char *full_name,
 		char *street_address,
@@ -2447,5 +2498,141 @@ char *journal_entity_where(
 		account_name );
 
 	return where;
+}
+
+boolean journal_list_match_boolean(
+		LIST *journal1_list,
+		LIST *journal2_list )
+{
+	JOURNAL *journal1;
+
+	if (	list_length( journal1_list ) !=
+		list_length( journal2_list ) )
+	{
+		return 0;
+	}
+
+	if ( list_rewind( journal1_list ) )
+	do {
+		journal1 = list_get( journal1_list );
+
+		if ( !journal1->account )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"journal1->account is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+	if ( !journal_exists_boolean(
+		journal2_list /* journal_list */,
+		journal1 /* match_journal */ ) )
+	{
+		return 0;
+	}
+
+	} while ( list_next( journal1_list ) );
+
+	return 1;
+}
+
+boolean journal_exists_boolean(
+		LIST *journal_list,
+		JOURNAL *match_journal )
+{
+	JOURNAL *journal;
+
+	if ( !match_journal
+	||   !match_journal->account )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"match_journal is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( journal_list ) )
+	do {
+		journal = list_get( journal_list );
+
+		if ( journal_match_boolean(
+			match_journal /* journal1 */,
+			journal /* journal2 */ ) )
+		{
+			return 1;
+		}
+
+	} while ( list_next( journal_list ) );
+
+	return 0;
+}
+
+boolean journal_match_boolean(
+		JOURNAL *journal1,
+		JOURNAL *journal2 )
+{
+	if ( !journal1
+	||   !journal1->account
+	||   !journal2
+	||   !journal2->account )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp(
+		journal1->account->account_name,
+		journal2->account->account_name ) != 0 )
+	{
+		return 0;
+	}
+
+	if ( journal1->debit_amount )
+	{
+		if ( !float_virtually_same(
+			journal1->debit_amount,
+			journal2->debit_amount ) )
+		{
+			return 0;
+		}
+	}
+	else
+	if ( journal1->credit_amount )
+	{
+		if ( !float_virtually_same(
+			journal1->credit_amount,
+			journal2->credit_amount ) )
+		{
+			return 0;
+		}
+	}
+
+	return 1;
 }
 

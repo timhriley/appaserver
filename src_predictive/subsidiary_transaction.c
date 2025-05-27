@@ -12,6 +12,7 @@
 #include "float.h"
 #include "sql.h"
 #include "update.h"
+#include "journal.h"
 #include "subsidiary_transaction.h"
 
 SUBSIDIARY_TRANSACTION *
@@ -23,36 +24,25 @@ SUBSIDIARY_TRANSACTION *
 		char *preupdate_full_name,
 		char *preupdate_street_address,
 		char *preupdate_foreign_date_time,
-		char *preupdate_foreign_amount,
-		char *preupdate_account_name,
 		char *full_name,
 		char *street_address,
 		char *foreign_date_time,
 		double foreign_amount,
-		char *account_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name,
-		char *debit_account_name,
-		char *credit_account_name,
+		LIST *insert_journal_list,
 		char *transaction_memo )
 {
 	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
-	boolean delete_boolean;
-	boolean insert_boolean;
 
 	if ( !preupdate_full_name
 	||   !preupdate_street_address
 	||   !preupdate_foreign_date_time
-	||   !preupdate_foreign_amount
-	||   !preupdate_account_name
+	||   !foreign_amount
 	||   !preupdate_change_full_name
 	||   !preupdate_change_street_address
-	||   !preupdate_change_foreign_date_time
-	||   !preupdate_change_foreign_amount
-	||   !preupdate_change_account_name )
+	||   !preupdate_change_foreign_date_time )
 	{
 		char message[ 128 ];
 
@@ -70,92 +60,111 @@ SUBSIDIARY_TRANSACTION *
 
 	subsidiary_transaction = subsidiary_transaction_calloc();
 
-	delete_boolean =
-		subsidiary_transaction_delete_boolean(
+	subsidiary_transaction->preupdate_change =
+		subsidiary_transaction_preupdate_change(
 			preupdate_change_full_name,
 			preupdate_change_street_address,
-			preupdate_change_foreign_date_time,
-			preupdate_change_foreign_amount,
-			preupdate_change_account_name );
+			preupdate_change_foreign_date_time );
 
-	if ( delete_boolean )
+	if ( !subsidiary_transaction->preupdate_change )
 	{
-		char *delete_full_name;
-		char *delete_street_address;
-		char *delete_transaction_date_time;
-
-		delete_full_name =
-			subsidiary_transaction_delete_datum(
+		subsidiary_transaction->journal_transaction_list =
+			journal_transaction_list(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
 				full_name,
-				preupdate_full_name,
-				preupdate_change_full_name );
+				street_address,
+				foreign_date_time
+					/* transaction_date_time */ );
 
-		delete_street_address =
+		subsidiary_transaction->exist_boolean =
+			subsidiary_transaction_exist_boolean(
+				subsidiary_transaction->
+					journal_transaction_list );
+
+		if ( subsidiary_transaction->exist_boolean )
+		{
+			subsidiary_transaction->journal_list_match_boolean =
+				journal_list_match_boolean(
+					insert_journal_list
+						/* journal1_list */,
+					subsidiary_transaction->
+						journal_transaction_list
+						/* journal2_list */ );
+		}
+	}
+
+	subsidiary_transaction->delete_boolean =
+		subsidiary_transaction_delete_boolean(
+			subsidiary_transaction->preupdate_change,
+			subsidiary_transaction->exist_boolean,
+			subsidiary_transaction->journal_list_match_boolean );
+
+	if ( subsidiary_transaction->delete_boolean )
+	{
+		subsidiary_transaction->delete_full_name =
+			subsidiary_transaction_delete_datum(
+				full_name
+					/* attribute_datum */,
+				preupdate_full_name
+					/* preupdate_attribute_datum */,
+				preupdate_change_full_name
+					/* preupdate_change_datum */ );
+
+		subsidiary_transaction->delete_street_address =
 			subsidiary_transaction_delete_datum(
 				street_address,	
 				preupdate_street_address,
-		 		preupdate_change_street_address );
+				preupdate_change_street_address );
 
-		delete_transaction_date_time =
+		subsidiary_transaction->delete_transaction_date_time =
 			subsidiary_transaction_delete_datum(
 				foreign_date_time,
 				preupdate_foreign_date_time,
 				preupdate_change_foreign_date_time );
 
 		subsidiary_transaction->delete_transaction =
-			/* Safely returns */
-			/* -------------- */
 			subsidiary_transaction_delete_transaction(
-				delete_full_name,
-				delete_street_address,
-				delete_transaction_date_time );
+				subsidiary_transaction->
+					delete_full_name,
+				subsidiary_transaction->
+					delete_street_address,
+				subsidiary_transaction->
+					delete_transaction_date_time );
 	}
 
-	if ( full_name
-	&&   street_address
-	&&   foreign_date_time
-	&&   !float_virtually_same( foreign_amount, 0.0 )
-	&&   account_name )
+	subsidiary_transaction->insert_boolean =
+		subsidiary_transaction_insert_boolean(
+			insert_journal_list,
+			subsidiary_transaction->exist_boolean,
+			subsidiary_transaction->journal_list_match_boolean );
+
+	if ( subsidiary_transaction->insert_boolean )
 	{
-		insert_boolean =
-			subsidiary_transaction_insert_boolean(
-				preupdate_change_full_name,
-				preupdate_change_street_address,
-				preupdate_change_foreign_date_time,
-				preupdate_change_foreign_amount,
-				preupdate_change_account_name );
+		subsidiary_transaction->insert_transaction =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			transaction_new(
+				full_name,
+				street_address,
+				foreign_date_time
+					/* transaction_date_time */ );
 
-	    	if ( insert_boolean )
-	    	{
-			char *debit_account;
-			char *credit_account;
+		subsidiary_transaction->
+			insert_transaction->
+			journal_list =
+				insert_journal_list;
 
-			debit_account =
-				/* ---------------------------- */
-				/* Returns attribute_datum,	*/
-				/* preupdate_attribute_datum,	*/
-				/* or null			*/
-				/* ---------------------------- */
-				subsidiary_transaction_debit_account_name(
-					debit_account_name,
-					account_name );
+		subsidiary_transaction->
+			insert_transaction->
+			transaction_amount =
+				foreign_amount;
 
-			credit_account =
-				subsidiary_transaction_credit_account_name(
-					credit_account_name,
-					account_name );
-
-			subsidiary_transaction->insert_transaction =
-				transaction_binary(
-					full_name,
-					street_address,
-					foreign_date_time
-					/* transaction_date_time */,
-					foreign_amount
-					/* transaction_amount */,
-					transaction_memo,
-					debit_account,
-					credit_account );
+		subsidiary_transaction->
+			insert_transaction->
+			memo =
+				transaction_memo;
 
 		subsidiary_transaction->update_template =
 			/* ------------------- */
@@ -169,7 +178,6 @@ SUBSIDIARY_TRANSACTION *
 				full_name,
 				street_address,
 				foreign_date_time );
-		}
 	}
 
 	return subsidiary_transaction;
@@ -310,118 +318,6 @@ char *subsidiary_transaction_delete_datum(
 	}
 
 	return delete_datum;
-}
-
-boolean subsidiary_transaction_insert_boolean(
-		PREUPDATE_CHANGE *preupdate_change_full_name,
-		PREUPDATE_CHANGE *preupdate_change_street_address,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name )
-{
-	boolean insert_boolean = 0;
-
-	if ( !preupdate_change_full_name
-	||   !preupdate_change_street_address
-	||   !preupdate_change_foreign_date_time
-	||   !preupdate_change_foreign_amount
-	||   !preupdate_change_account_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if (	preupdate_change_full_name->state_evaluate ==
-		from_null_to_something
-	||	preupdate_change_full_name->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_street_address->state_evaluate ==
-		from_null_to_something
-	||	preupdate_change_street_address->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_foreign_date_time->state_evaluate ==
-		from_null_to_something
-	||	preupdate_change_foreign_date_time->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_foreign_amount->state_evaluate ==
-		from_null_to_something
-	||	preupdate_change_foreign_amount->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_account_name->state_evaluate ==
-		from_null_to_something
-	||	preupdate_change_account_name->state_evaluate ==
-		from_something_to_something_else )
-	{
-		insert_boolean = 1;
-	}
-
-	return insert_boolean;
-}
-
-boolean subsidiary_transaction_delete_boolean(
-		PREUPDATE_CHANGE *preupdate_change_full_name,
-		PREUPDATE_CHANGE *preupdate_change_street_address,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name )
-{
-	boolean delete_boolean = 0;
-
-	if ( !preupdate_change_full_name
-	||   !preupdate_change_street_address
-	||   !preupdate_change_foreign_date_time
-	||   !preupdate_change_foreign_amount
-	||   !preupdate_change_account_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if (	preupdate_change_full_name->state_evaluate ==
-		from_something_to_null
-	||	preupdate_change_full_name->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_street_address->state_evaluate ==
-		from_something_to_null
-	||	preupdate_change_street_address->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_foreign_date_time->state_evaluate ==
-		from_something_to_null
-	||	preupdate_change_foreign_date_time->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_foreign_amount->state_evaluate ==
-		from_something_to_null
-	||	preupdate_change_foreign_amount->state_evaluate ==
-		from_something_to_something_else
-	||	preupdate_change_account_name->state_evaluate ==
-		from_something_to_null
-	||	preupdate_change_account_name->state_evaluate ==
-		from_something_to_something_else )
-	{
-		delete_boolean = 1;
-	}
-
-	return delete_boolean;
 }
 
 char *subsidiary_transaction_update_template(
@@ -579,5 +475,99 @@ void subsidiary_transaction_execute(
 				update_statement );
 		}
 	}
+}
+
+boolean subsidiary_transaction_preupdate_change(
+		PREUPDATE_CHANGE *preupdate_change_full_name,
+		PREUPDATE_CHANGE *preupdate_change_street_address,
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time )
+{
+	boolean preupdate_change;
+
+	if ( !preupdate_change_full_name
+	||   !preupdate_change_street_address
+	||   !preupdate_change_foreign_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if (	preupdate_change_full_name->
+			no_change_boolean
+	&&	preupdate_change_street_address->
+			no_change_boolean
+	&&	preupdate_change_foreign_date_time->
+			no_change_boolean )
+	{
+		preupdate_change = 0;
+	}
+	else
+	{
+		preupdate_change = 1;
+	}
+
+	return preupdate_change;
+}
+
+boolean subsidiary_transaction_exist_boolean( LIST *journal_transaction_list )
+{
+	return ( list_length( journal_transaction_list ) != 0 );
+}
+
+boolean subsidiary_transaction_delete_boolean(
+		boolean subsidiary_transaction_preupdate_change,
+		boolean subsidiary_transaction_exist_boolean,
+		boolean journal_list_match_boolean )
+{
+	if ( subsidiary_transaction_preupdate_change
+	|| ( subsidiary_transaction_exist_boolean
+	&&   !journal_list_match_boolean ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean subsidiary_transaction_insert_boolean(
+		LIST *insert_journal_list,
+		boolean subsidiary_transaction_exist_boolean,
+		boolean journal_list_match_boolean )
+{
+	boolean insert_boolean;
+
+	if ( !list_length( insert_journal_list ) )
+	{
+		insert_boolean = 0;
+	}
+	else
+	if ( subsidiary_transaction_exist_boolean
+	&&   !journal_list_match_boolean )
+	{
+		insert_boolean = 1;
+	}
+	else
+	if ( !subsidiary_transaction_exist_boolean )
+	{
+		insert_boolean = 1;
+	}
+	else
+	{
+		insert_boolean = 0;
+	}
+
+	return insert_boolean;
 }
 

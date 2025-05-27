@@ -20,6 +20,12 @@ where="table_name = '$table' and column_name = '$column'"
 
 result=$(select.sh 'count(1)' table_column "$where")
 
+if [ "$result" = "" ]
+then
+	echo "Error in $0: cannot select from database" 1>&2
+	exit 1
+fi
+
 if [ "$result" -eq 0 ]
 then
 	exit 1

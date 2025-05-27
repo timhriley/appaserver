@@ -435,6 +435,9 @@ char *account_gain(
 char *account_loss(
 		char *account_loss_key );
 
+char *account_equity(
+		char *account_equity_key );
+
 char *account_fees_expense(
 		char *account_fees_expense_key );
 

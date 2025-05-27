@@ -34,7 +34,10 @@ typedef struct
 	double discount_amount;
 	double work_hours;
 	double net_revenue;
+	double hourly_service_sale_estimated_revenue;
 	LIST *hourly_service_work_list;
+	double hourly_service_work_hours;
+	double hourly_service_sale_net_revenue;
 } HOURLY_SERVICE_SALE;
 
 /* Usage */
@@ -43,8 +46,7 @@ LIST *hourly_service_sale_list(
 		const char *hourly_service_sale_table,
 		char *full_name,
 		char *street_address,
-		char *sale_date_time,
-		boolean hourly_service_work_boolean );
+		char *sale_date_time );
 
 /* Usage */
 /* ----- */
@@ -52,7 +54,6 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		boolean hourly_service_work_boolean,
 		char *input );
 
 /* Usage */
@@ -107,7 +108,7 @@ void hourly_service_sale_update(
 		char *service_name,
 		char *service_description,
 		double hourly_service_sale_estimated_revenue,
-		double hourly_service_work_list_hours,
+		double hourly_service_work_hours,
 		double hourly_service_sale_net_revenue );
 
 /* Process */

@@ -17,28 +17,20 @@ SUBSIDIARY_TRANSACTION_STATE *
 		const char *preupdate_full_name_placeholder,
 		const char *preupdate_street_address_placeholder,
 		const char *preupdate_foreign_date_time_placeholder,
-		const char *preupdate_foreign_amount_placeholder,
-		const char *preupdate_account_name_placeholder,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
 		char *preupdate_foreign_date_time,
-		char *preupdate_foreign_amount,
-		char *preupdate_account_name,
 		char *full_name,
 		char *street_address,
-		char *foreign_date_time,
-		char *foreign_amount_string,
-		char *account_name )
+		char *foreign_date_time )
 {
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;
 
 	if ( !state
 	||   !preupdate_full_name
 	||   !preupdate_street_address
-	||   !preupdate_foreign_date_time
-	||   !preupdate_foreign_amount
-	||   !preupdate_account_name )
+	||   !preupdate_foreign_date_time )
 	{
 		char message[ 128 ];
 
@@ -89,24 +81,6 @@ SUBSIDIARY_TRANSACTION_STATE *
 			preupdate_foreign_date_time,
 			foreign_date_time,
 			preupdate_foreign_date_time_placeholder );
-
-	subsidiary_transaction_state->preupdate_change_foreign_amount =
-		preupdate_change_new(
-			APPASERVER_INSERT_STATE,
-			APPASERVER_PREDELETE_STATE,
-			state,
-			preupdate_foreign_amount,
-			foreign_amount_string,
-			preupdate_foreign_amount_placeholder );
-
-	subsidiary_transaction_state->preupdate_change_account_name =
-		preupdate_change_new(
-			APPASERVER_INSERT_STATE,
-			APPASERVER_PREDELETE_STATE,
-			state,
-			preupdate_account_name,
-			account_name,
-			preupdate_account_name_placeholder );
 
 	return subsidiary_transaction_state;
 }

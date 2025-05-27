@@ -284,6 +284,18 @@ char *account_gain( char *account_gain_key )
 		__FUNCTION__ );
 }
 
+char *account_equity( char *account_equity_key )
+{
+	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
+	account_hard_coded_account_name(
+		account_equity_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
 char *account_loss( char *account_loss_key )
 {
 	return

@@ -9,6 +9,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "account.h"
 #include "subsidiary_transaction_state.h"
 #include "subsidiary_transaction.h"
 
@@ -29,9 +30,12 @@ typedef struct
 	char *full_name;
 	char *street_address;
 	char *purchase_date_time;
-	char *fixed_asset_cost_string;
 	double fixed_asset_cost;
 	char *asset_account;
+	ACCOUNT *debit_account;
+	char *account_equity;
+	ACCOUNT *credit_account;
+	LIST *journal_binary_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;
 	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 } PRIOR_FIXED_ASSET;
@@ -47,9 +51,7 @@ PRIOR_FIXED_ASSET *
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
-		char *preupdate_purchase_date_time,
-		char *preupdate_fixed_asset_cost,
-		char *preupdate_asset_account );
+		char *preupdate_purchase_date_time );
 
 /* Process */
 /* ------- */

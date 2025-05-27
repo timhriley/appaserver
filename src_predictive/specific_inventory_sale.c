@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/fixed_service_sale.c		*/
+/* $APPASERVER_HOME/src_predictive/specific_inventory_sale.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -13,21 +13,22 @@
 #include "date.h"
 #include "sql.h"
 #include "sale.h"
-#include "fixed_service_work.h"
-#include "fixed_service_sale.h"
+#include "specific_inventory_sale.h"
 
-FIXED_SERVICE_SALE *fixed_service_sale_new(
+SPECIFIC_INVENTORY_SALE *specific_inventory_sale_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *service_name )
+		char *inventory_name,
+		char *serial_label )
 {
-	FIXED_SERVICE_SALE *fixed_service_sale;
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
 
 	if ( !full_name
 	||   !street_address
 	||   !sale_date_time
-	||   !service_name )
+	||   !inventory_name
+	||   !serial_label )
 	{
 		char message[ 128 ];
 
@@ -43,23 +44,24 @@ FIXED_SERVICE_SALE *fixed_service_sale_new(
 			message );
 	}
 
-	fixed_service_sale = fixed_service_sale_calloc();
+	specific_inventory_sale = specific_inventory_sale_calloc();
 
-	fixed_service_sale->full_name = full_name;
-	fixed_service_sale->street_address = street_address;
-	fixed_service_sale->sale_date_time = sale_date_time;
-	fixed_service_sale->service_name = service_name;
+	specific_inventory_sale->full_name = full_name;
+	specific_inventory_sale->street_address = street_address;
+	specific_inventory_sale->sale_date_time = sale_date_time;
+	specific_inventory_sale->inventory_name = inventory_name;
+	specific_inventory_sale->serial_label = serial_label;
 
-	return fixed_service_sale;
+	return specific_inventory_sale;
 }
 
-FIXED_SERVICE_SALE *fixed_service_sale_calloc( void )
+SPECIFIC_INVENTORY_SALE *specific_inventory_sale_calloc( void )
 {
-	FIXED_SERVICE_SALE *fixed_service_sale;
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
 
-	if ( ! ( fixed_service_sale =
+	if ( ! ( specific_inventory_sale =
 			calloc( 1,
-				sizeof ( FIXED_SERVICE_SALE ) ) ) )
+				sizeof ( SPECIFIC_INVENTORY_SALE ) ) ) )
 	{
 		char message[ 128 ];
 
@@ -75,17 +77,18 @@ FIXED_SERVICE_SALE *fixed_service_sale_calloc( void )
 			message );
 	}
 
-	return fixed_service_sale;
+	return specific_inventory_sale;
 }
 
-FIXED_SERVICE_SALE *fixed_service_sale_parse(
+SPECIFIC_INVENTORY_SALE *specific_inventory_sale_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
 		char *input )
 {
-	FIXED_SERVICE_SALE *fixed_service_sale;
-	char service_name[ 128 ];
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
+	char inventory_name[ 128 ];
+	char serial_label[ 128 ];
 	char piece_buffer[ 128 ];
 
 	if ( !full_name
@@ -97,65 +100,51 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 		return NULL;
 	}
 
-	piece( service_name, SQL_DELIMITER, input, 0 );
+	piece( inventory_name, SQL_DELIMITER, input, 0 );
+	piece( serial_label, SQL_DELIMITER, input, 1 );
 
-	fixed_service_sale =
+	specific_inventory_sale =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		fixed_service_sale_new(
+		specific_inventory_sale_new(
 			full_name,
 			street_address,
 			sale_date_time,
-			strdup( service_name ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	if ( *piece_buffer )
-		fixed_service_sale->fixed_price =
-			atof( piece_buffer );
+			strdup( inventory_name ),
+			strdup( serial_label ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
 	if ( *piece_buffer )
-		fixed_service_sale->estimated_hours =
+		specific_inventory_sale->retail_price =
 			atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	if ( *piece_buffer )
-		fixed_service_sale->discount_amount =
+		specific_inventory_sale->discount_amount =
 			atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	if ( *piece_buffer )
-		fixed_service_sale->work_hours =
+		specific_inventory_sale->extended_price =
 			atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	if ( *piece_buffer )
-		fixed_service_sale->net_revenue =
+		specific_inventory_sale->cost_of_goods_sold =
 			atof( piece_buffer );
 
-	fixed_service_sale->fixed_service_work_list =
-		fixed_service_work_list(
-			FIXED_SERVICE_WORK_TABLE,
-			full_name,
-			street_address,
-			sale_date_time,
-			fixed_service_sale->service_name );
+	specific_inventory_sale->sale_extended_price =
+		SALE_EXTENDED_PRICE(
+			specific_inventory_sale->retail_price,
+			1 /* quantity */,
+			specific_inventory_sale->discount_amount );
 
-	fixed_service_sale->fixed_service_work_hours =
-		fixed_service_work_hours(
-			fixed_service_sale->fixed_service_work_list );
-
-	fixed_service_sale->fixed_service_sale_net_revenue =
-		fixed_service_sale_net_revenue(
-			fixed_service_sale->fixed_price,
-			fixed_service_sale->discount_amount );
-
-	return fixed_service_sale;
+	return specific_inventory_sale;
 }
 
-char *fixed_service_sale_update_system_string(
-		const char *fixed_service_sale_table )
+char *specific_inventory_sale_update_system_string(
+		const char *specific_inventory_sale_table )
 {
 	char system_string[ 1024 ];
 	char *key;
@@ -163,7 +152,8 @@ char *fixed_service_sale_update_system_string(
 	key =	"full_name,"
 		"street_address,"
 		"sale_date_time,"
-		"service_name";
+		"inventory_name"
+		"serial_label";
 
 	snprintf(
 		system_string,
@@ -171,20 +161,20 @@ char *fixed_service_sale_update_system_string(
 		"update_statement.e table=%s key=%s carrot=y | "
 		"tee_appaserver.sh | "
 		"sql.e",
-		fixed_service_sale_table,
+		specific_inventory_sale_table,
 		key );
 
 	return strdup( system_string );
 }
 
-void fixed_service_sale_update(
-		const char *fixed_service_sale_table,
+void specific_inventory_sale_update(
+		const char *specific_inventory_sale_table,
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *service_name,
-		double fixed_service_work_hours,
-		double fixed_service_sale_net_revenue )
+		char *inventory_name,
+		char *serial_label,
+		double sale_extended_price )
 {
 	char *system_string;
 	FILE *pipe;
@@ -192,7 +182,8 @@ void fixed_service_sale_update(
 	if ( !full_name
 	||   !street_address
 	||   !sale_date_time
-	||   !service_name )
+	||   !inventory_name
+	||   !serial_label )
 	{
 		char message[ 128 ];
 
@@ -212,8 +203,8 @@ void fixed_service_sale_update(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		fixed_service_sale_update_system_string(
-			fixed_service_sale_table );
+		specific_inventory_sale_update_system_string(
+			specific_inventory_sale_table );
 
 	pipe =
 		/* -------------- */
@@ -225,26 +216,19 @@ void fixed_service_sale_update(
 	free( system_string );
 
 	fprintf(pipe,
-	 	"%s^%s^%s^%s^work_hours^%.2lf\n",
+	 	"%s^%s^%s^%s^%s^extended_price^%.2lf\n",
 		full_name,
 		street_address,
 		sale_date_time,
-		service_name,
-		fixed_service_work_hours );
-
-	fprintf(pipe,
-	 	"%s^%s^%s^%s^net_revenue^%.2lf\n",
-		full_name,
-		street_address,
-		sale_date_time,
-		service_name,
-		fixed_service_sale_net_revenue );
+		inventory_name,
+		serial_label,
+		sale_extended_price );
 
 	pclose( pipe );
 }
 
-LIST *fixed_service_sale_list(
-		const char *fixed_service_sale_table,
+LIST *specific_inventory_sale_list(
+		const char *specific_inventory_sale_table,
 		char *full_name,
 		char *street_address,
 		char *sale_date_time )
@@ -254,7 +238,7 @@ LIST *fixed_service_sale_list(
 	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
-	FIXED_SERVICE_SALE *fixed_service_sale;
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
 
 	if ( !full_name
 	||   !street_address
@@ -288,8 +272,8 @@ LIST *fixed_service_sale_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			FIXED_SERVICE_SALE_SELECT,
-			(char *)fixed_service_sale_table,
+			SPECIFIC_INVENTORY_SALE_SELECT,
+			(char *)specific_inventory_sale_table,
 			where );
 
 	input_pipe =
@@ -303,21 +287,21 @@ LIST *fixed_service_sale_list(
 
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		fixed_service_sale =
-			fixed_service_sale_parse(
+		specific_inventory_sale =
+			specific_inventory_sale_parse(
 				full_name,
 				street_address,
 				sale_date_time,
 				input );
 
-		if ( !fixed_service_sale )
+		if ( !specific_inventory_sale )
 		{
 			char message[ 2048 ];
 
 			snprintf(
 				message,
 				sizeof ( message ),
-			"fixed_service_sale_parse(%s) returned empty.",
+			"specific_inventory_sale_parse(%s) returned empty.",
 				input );
 
 			pclose( input_pipe );
@@ -329,7 +313,7 @@ LIST *fixed_service_sale_list(
 				message );
 		}
 
-		list_set( list, fixed_service_sale );
+		list_set( list, specific_inventory_sale );
 	}
 
 	pclose( input_pipe );
@@ -343,46 +327,40 @@ LIST *fixed_service_sale_list(
 	return list;
 }
 
-double fixed_service_sale_total( LIST *fixed_service_sale_list )
+double specific_inventory_sale_total( LIST *specific_inventory_sale_list )
 {
-	FIXED_SERVICE_SALE *fixed_service_sale;
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
 	double total = 0.0;
 
-	if ( list_rewind( fixed_service_sale_list ) )
+	if ( list_rewind( specific_inventory_sale_list ) )
 	do {
-		fixed_service_sale = list_get( fixed_service_sale_list );
+		specific_inventory_sale =
+			list_get(
+				specific_inventory_sale_list );
 
-		total +=
-			fixed_service_sale->
-				fixed_service_sale_net_revenue;
+		total += specific_inventory_sale->extended_price;
 
-	} while( list_next( fixed_service_sale_list ) );
+	} while( list_next( specific_inventory_sale_list ) );
 
 	return total;
 }
 
-double fixed_service_sale_net_revenue(
-		double fixed_rate,
-		double discount_amount )
+SPECIFIC_INVENTORY_SALE *specific_inventory_sale_seek(
+		LIST *specific_inventory_sale_list,
+		char *inventory_name,
+		char *serial_label )
 {
-	return
-	fixed_rate - discount_amount;
-}
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
 
-FIXED_SERVICE_SALE *fixed_service_sale_seek(
-		LIST *fixed_service_sale_list,
-		char *service_name )
-{
-	FIXED_SERVICE_SALE *fixed_service_sale;
-
-	if ( !service_name )
+	if ( !inventory_name
+	||   !serial_label )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"service_name is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -391,20 +369,23 @@ FIXED_SERVICE_SALE *fixed_service_sale_seek(
 			message );
 	}
 
-	if ( list_rewind( fixed_service_sale_list ) )
+	if ( list_rewind( specific_inventory_sale_list ) )
 	do {
-		fixed_service_sale =
+		specific_inventory_sale =
 			list_get(
-				fixed_service_sale_list );
+				specific_inventory_sale_list );
 
 		if ( strcmp(
-			service_name,
-			fixed_service_sale->service_name ) == 0 )
+			inventory_name,
+			specific_inventory_sale->inventory_name ) == 0
+		&&   strcmp(
+			serial_label,
+			specific_inventory_sale->serial_label ) == 0 )
 		{
-			return fixed_service_sale;
+			return specific_inventory_sale;
 		}
 
-	} while ( list_next( fixed_service_sale_list ) );
+	} while ( list_next( specific_inventory_sale_list ) );
 
 	return NULL;
 }

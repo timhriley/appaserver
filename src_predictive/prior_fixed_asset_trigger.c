@@ -24,8 +24,6 @@ int main( int argc, char **argv )
 	char *preupdate_full_name;
 	char *preupdate_street_address;
 	char *preupdate_purchase_date_time;
-	char *preupdate_fixed_asset_cost;
-	char *preupdate_asset_account;
 	PRIOR_FIXED_ASSET *prior_fixed_asset;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -35,10 +33,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s asset_name state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_fixed_asset_cost preupdate_asset_account\n",
+"Usage: %s asset_name state preupdate_full_name preupdate_street_address preupdate_purchase_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -48,8 +46,6 @@ int main( int argc, char **argv )
 	preupdate_full_name = argv[ 3 ];
 	preupdate_street_address = argv[ 4 ];
 	preupdate_purchase_date_time = argv[ 5 ];
-	preupdate_fixed_asset_cost = argv[ 6 ];
-	preupdate_asset_account = argv[ 7 ];
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) exit( 0 );
 
@@ -62,9 +58,7 @@ int main( int argc, char **argv )
 			state,
 			preupdate_full_name,
 			preupdate_street_address,
-			preupdate_purchase_date_time,
-			preupdate_fixed_asset_cost,
-			preupdate_asset_account );
+			preupdate_purchase_date_time );
 
 	subsidiary_transaction_execute(
 		application_name,

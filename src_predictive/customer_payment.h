@@ -1,8 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/customer_payment.h			*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #ifndef CUSTOMER_PAYMENT_H
@@ -11,7 +10,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "transaction.h"
-#include "entity.h"
 
 /* Constants */
 /* --------- */

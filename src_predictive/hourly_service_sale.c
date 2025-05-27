@@ -85,7 +85,6 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		boolean hourly_service_work_boolean,
 		char *input )
 {
 	HOURLY_SERVICE_SALE *hourly_service_sale;
@@ -146,17 +145,30 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		hourly_service_sale->net_revenue =
 			atof( piece_buffer );
 
-	if ( hourly_service_work_boolean )
-	{
-		hourly_service_sale->hourly_service_work_list =
-			hourly_service_work_list(
-				HOURLY_SERVICE_WORK_TABLE,
-				full_name,
-				street_address,
-				sale_date_time,
-				hourly_service_sale->service_name,
-				hourly_service_sale->service_description );
-	}
+	hourly_service_sale->hourly_service_sale_estimated_revenue =
+		hourly_service_sale_estimated_revenue(
+			hourly_service_sale->estimated_hours,
+			hourly_service_sale->hourly_rate );
+
+	hourly_service_sale->hourly_service_work_list =
+		hourly_service_work_list(
+			HOURLY_SERVICE_WORK_TABLE,
+			full_name,
+			street_address,
+			sale_date_time,
+			hourly_service_sale->service_name,
+			hourly_service_sale->service_description );
+
+	hourly_service_sale->hourly_service_work_hours =
+		hourly_service_work_hours(
+			hourly_service_sale->
+				hourly_service_work_list );
+
+	hourly_service_sale->hourly_service_sale_net_revenue =
+		hourly_service_sale_net_revenue(
+			hourly_service_sale->hourly_rate,
+			hourly_service_sale->hourly_service_work_hours,
+			hourly_service_sale->discount_amount );
 
 	return hourly_service_sale;
 }
@@ -193,7 +205,7 @@ void hourly_service_sale_update(
 		char *service_name,
 		char *service_description,
 		double hourly_service_sale_estimated_revenue,
-		double hourly_service_work_list_hours,
+		double hourly_service_work_hours,
 		double hourly_service_sale_net_revenue )
 {
 	char *system_string;
@@ -251,7 +263,7 @@ void hourly_service_sale_update(
 		sale_date_time,
 		service_name,
 		service_description,
-		hourly_service_work_list_hours );
+		hourly_service_work_hours );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^%s^%s^net_revenue^%.2lf\n",
@@ -269,8 +281,7 @@ LIST *hourly_service_sale_list(
 		const char *hourly_service_sale_table,
 		char *full_name,
 		char *street_address,
-		char *sale_date_time,
-		boolean hourly_service_work_boolean )
+		char *sale_date_time )
 {
 	char *where;
 	LIST *list = list_new();
@@ -331,7 +342,6 @@ LIST *hourly_service_sale_list(
 				full_name,
 				street_address,
 				sale_date_time,
-				hourly_service_work_boolean,
 				input );
 
 		if ( !hourly_service_sale )
@@ -376,7 +386,9 @@ double hourly_service_sale_total( LIST *hourly_service_sale_list )
 	do {
 		hourly_service_sale = list_get( hourly_service_sale_list );
 
-		total += hourly_service_sale->net_revenue;
+		total +=
+			hourly_service_sale->
+				hourly_service_sale_net_revenue;
 
 	} while( list_next( hourly_service_sale_list ) );
 

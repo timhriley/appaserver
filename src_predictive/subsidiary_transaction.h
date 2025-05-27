@@ -14,7 +14,16 @@
 
 typedef struct
 {
+	boolean preupdate_change;
+	LIST *journal_transaction_list;
+	boolean exist_boolean;
+	boolean journal_list_match_boolean;
+	boolean delete_boolean;
+	char *delete_full_name;
+	char *delete_street_address;
+	char *delete_transaction_date_time;
 	TRANSACTION *delete_transaction;
+	boolean insert_boolean;
 	TRANSACTION *insert_transaction;
 	char *update_template;
 } SUBSIDIARY_TRANSACTION;
@@ -33,22 +42,14 @@ SUBSIDIARY_TRANSACTION *
 		char *preupdate_full_name,
 		char *preupdate_street_address,
 		char *preupdate_foreign_date_time,
-		char *preupdate_foreign_amount,
-		char *preupdate_account_name,
 		char *full_name,
 		char *street_address,
 		char *foreign_date_time,
 		double foreign_amount,
-		char *account_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name,
-		char *debit_account_name
-			/* Mutually exclusive */,
-		char *credit_account_name
-			/* Mutually exclusive */,
+		LIST *insert_journal_list,
 		char *transaction_memo );
 
 /* Process */
@@ -56,35 +57,25 @@ SUBSIDIARY_TRANSACTION *
 SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc(
 		void );
 
-/* Returns either parameter */
-/* ------------------------ */
-char *subsidiary_transaction_debit_account_name(
-		char *debit_account_name,
-		char *account_name );
+boolean subsidiary_transaction_exist_boolean(
+		LIST *journal_transaction_list );
 
-/* Returns either parameter */
-/* ------------------------ */
-char *subsidiary_transaction_credit_account_name(
-		char *credit_account_name,
-		char *account_name );
-
-/* Usage */
-/* ----- */
 boolean subsidiary_transaction_delete_boolean(
-		PREUPDATE_CHANGE *preupdate_change_full_name,
-		PREUPDATE_CHANGE *preupdate_change_street_address,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name );
+		boolean subsidiary_transaction_preupdate_change,
+		boolean subsidiary_transaction_exist_boolean,
+		boolean journal_list_match_boolean );
+
+boolean subsidiary_transaction_insert_boolean(
+		LIST *insert_journal_list,
+		boolean subsidiary_transaction_exist_boolean,
+		boolean journal_list_match_boolean );
 
 /* Usage */
 /* ----- */
-boolean subsidiary_transaction_insert_boolean(
+boolean subsidiary_transaction_preupdate_change(
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		PREUPDATE_CHANGE *preupdate_change_foreign_amount,
-		PREUPDATE_CHANGE *preupdate_change_account_name );
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time );
 
 /* Usage */
 /* ----- */
