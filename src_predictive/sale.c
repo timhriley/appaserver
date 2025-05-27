@@ -17,38 +17,58 @@
 #include "entity.h"
 #include "customer_payment.h"
 #include "journal.h"
+#include "specific_inventory_sale.h"
 #include "inventory_sale.h"
 #include "fixed_service_sale.h"
 #include "hourly_service_sale.h"
+#include "customer_payment.h"
 #include "entity.h"
 #include "entity_self.h"
 #include "account.h"
-#include "work.h"
-#include "customer_payment.h"
 #include "sale.h"
 
-SALE *sale_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
+SALE *sale_trigger_new(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *state,
+		char *preupdate_full_name,
+		char *preupdate_street_address,
+		char *preupdate_uncollectible_date_time,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean )
 {
 	SALE *sale;
 
-	if ( ! ( sale = calloc( 1, sizeof( SALE ) ) ) )
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !state
+	||   !preupdate_full_name
+	||   !preupdate_street_address
+	||   !preupdate_uncollectible_date_time )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	sale->customer_entity =
-		entity_new(
-			full_name,
-			street_address );
 
+	sale = sale_calloc();
+
+	sale->full_name = full_name;
+	sale->street_address = street_address;
 	sale->sale_date_time = sale_date_time;
 	
 	return sale;
@@ -636,3 +656,17 @@ double sale_work_hours(
 	return hours;
 }
 
+SALE *sale_calloc( void )
+{
+	if ( ! ( sale = calloc( 1, sizeof ( SALE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return sale;
+}
