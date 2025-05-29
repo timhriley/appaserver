@@ -6,13 +6,10 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "piece.h"
 #include "date.h"
 #include "sql.h"
-#include "list.h"
-#include "boolean.h"
 #include "transaction.h"
 #include "journal.h"
 #include "specific_inventory_sale.h"

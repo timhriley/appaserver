@@ -12,6 +12,7 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
+#include "sale_loss_transaction.h"
 #include "sale_fetch.h"
 
 #define SALE_TABLE		"sale"
@@ -51,31 +52,6 @@ SALE_TRANSACTION *sale_transaction_new(
 /* Process */
 /* ------- */
 SALE_TRANSACTION *sale_transaction_calloc(
-		void );
-
-typedef struct
-{
-	TRANSACTION *transaction;
-} SALE_LOSS_TRANSACTION;
-
-/* Usage */
-/* ----- */
-SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
-		char *full_name,
-		char *street_address,
-		char *completed_date_time,
-		double invoice_amount,
-		double gross_revenue,
-		double sales_tax,
-		double shipping_charge,
-		char *account_receivable,
-		char *account_revenue,
-		char *account_shipping_revenue,
-		char *account_sales_tax_payable );
-
-/* Process */
-/* ------- */
-SALE_LOSS_TRANSACTION *sale_loss_transaction_calloc(
 		void );
 
 typedef struct

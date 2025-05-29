@@ -137,7 +137,6 @@ PRIOR_FIXED_ASSET *
 			message );
 	}
 
-
 	prior_fixed_asset->journal_binary_list =
 		journal_binary_list(
 			(char *)0 /* full_name */,

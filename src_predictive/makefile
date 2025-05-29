@@ -806,6 +806,12 @@ sale_fetch.o: sale_fetch.c sale_fetch.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c sale_fetch.c
 
+sale_loss_transaction.o:						\
+	sale_loss_transaction.c						\
+	sale_loss_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c sale_loss_transaction.c
+
 depreciation.o: depreciation.c depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c depreciation.c
