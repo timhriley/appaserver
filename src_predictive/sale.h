@@ -12,46 +12,30 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
+#include "sale_fetch.h"
 
 #define SALE_TABLE		"sale"
+
+#define SALE_SELECT		"full_name,"			\
+				"street_address,"		\
+				"sale_date_time,"		\
+				"invoice_amount,"		\
+				"payment_total,"		\
+				"amount_due,"			\
+				"completed_date_time,"		\
+				"uncollectible_date_time,"	\
+				"transaction_date_time"
+
 #define SALE_MEMO		"Customer Sale"
-
-#define SALE_EXTENDED_PRICE(					\
-		retail_price,					\
-		quantity,					\
-		discount_amount )				\
-	( ( retail_price * (double)quantity ) - discount_amount )
-
-#define SALE_GROSS_REVENUE(					\
-		inventory_sale_total,				\
-		fixed_service_sale_total,			\
-		hourly_service_sale_total )			\
-	( inventory_sale_total +				\
-	  fixed_service_sale_total +				\
-	  hourly_service_sale_total )
-
-#define SALE_SALES_TAX(						\
-		inventory_sale_total,				\
-		self_tax_sales_tax_rate )			\
-	( inventory_sale_total * self_tax_sales_tax_rate )
-
-#define SALE_INVOICE_AMOUNT(					\
-		sale_gross_revenue,				\
-		sale_sales_tax,					\
-		shipping_charge )				\
-	( sale_gross_revenue + sale_sales_tax + shipping_charge )
-
-#define SALE_AMOUNT_DUE(					\
-		sale_invoice_amount,				\
-		customer_payment_total )			\
-	( sale_invoice_amount - customer_payment_total )
 
 typedef struct
 {
 	TRANSACTION *transaction;
 } SALE_TRANSACTION;
 
-TRANSACTION *sale_transaction(
+/* Usage */
+/* ----- */
+SALE_TRANSACTION *sale_transaction_new(
 		char *full_name,
 		char *street_address,
 		char *completed_date_time,
@@ -64,61 +48,54 @@ TRANSACTION *sale_transaction(
 		char *account_shipping_revenue,
 		char *account_sales_tax_payable );
 
+/* Process */
+/* ------- */
+SALE_TRANSACTION *sale_transaction_calloc(
+		void );
+
 typedef struct
 {
-	ENTITY *customer_entity;
-	char *sale_date_time;
-	LIST *inventory_sale_list;
-	LIST *fixed_service_sale_list;
-	LIST *hourly_service_sale_list;
-	LIST *customer_payment_list;
-	double inventory_sale_total;
-	double fixed_service_sale_total;
-	double hourly_service_sale_total;
-	double sale_gross_revenue;
-	double entity_self_sales_tax_rate;
-	double sales_tax;
-	double sale_invoice_amount;
-	double customer_payment_total;
-	double sale_amount_due;
-	double shipping_charge;
-	char *completed_date_time;
-	char *transaction_date_time_database;
-	char *account_receivable;
-	char *account_revenue;
-	char *account_shipping_revenue;
-	char *account_sales_tax_payable;
-	double sales_tax_database;
-	enum predictive_title_passage_rule predictive_title_passage_rule;
-	TRANSACTION *sale_transaction;
-} SALE;
+	TRANSACTION *transaction;
+} SALE_LOSS_TRANSACTION;
 
-SALE *sale_fetch(
-		const char *sale_table,
+/* Usage */
+/* ----- */
+SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		char *full_name,
 		char *street_address,
-		char *sale_date_time );
+		char *completed_date_time,
+		double invoice_amount,
+		double gross_revenue,
+		double sales_tax,
+		double shipping_charge,
+		char *account_receivable,
+		char *account_revenue,
+		char *account_shipping_revenue,
+		char *account_sales_tax_payable );
 
 /* Process */
 /* ------- */
+SALE_LOSS_TRANSACTION *sale_loss_transaction_calloc(
+		void );
 
-/* Returns static memory */
-/* --------------------- */
-char *sale_primary_where(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time );
-
-/* Usage */
-/* ----- */
-SALE *sale_parse(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *string_pipe_fetch );
-
-/* Usage */
-/* ----- */
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *sale_date_time;
+	SALE_FETCH *sale_fetch;
+	double inventory_sale_total;
+	double specific_inventory_sale_total;
+	double fixed_service_sale_total;
+	double hourly_service_sale_total;
+	double gross_revenue;
+	double sales_tax;
+	double invoice_amount;
+	double customer_payment_total;
+	double amount_due;
+	SALE_TRANSACTION *sale_transaction;
+	SALE_LOSS_TRANSACTION *sale_loss_transaction;
+} SALE;
 
 /* Safely returns */
 /* -------------- */
@@ -132,6 +109,9 @@ SALE *sale_trigger_new(
 		char *preupdate_uncollectible_date_time,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
+		boolean title_passage_rule_boolean,
+		boolean shipping_charge_boolean,
+		boolean instructions_boolean,
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean );
 
@@ -139,6 +119,56 @@ SALE *sale_trigger_new(
 /* ------- */
 SALE *sale_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *sale_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time );
+
+/* Usage */
+/* ----- */
+#define SALE_EXTENDED_PRICE(					\
+		retail_price,					\
+		quantity,					\
+		discount_amount )				\
+	( ( retail_price * (double)quantity ) - discount_amount )
+
+/* Usage */
+/* ----- */
+#define SALE_GROSS_REVENUE(					\
+		inventory_sale_total,				\
+		fixed_service_sale_total,			\
+		hourly_service_sale_total )			\
+	( inventory_sale_total +				\
+	  fixed_service_sale_total +				\
+	  hourly_service_sale_total )
+
+/* Usage */
+/* ----- */
+#define SALE_SALES_TAX(						\
+		inventory_sale_total,				\
+		self_tax_sales_tax_rate )			\
+	( inventory_sale_total * self_tax_sales_tax_rate )
+
+/* Usage */
+/* ----- */
+#define SALE_INVOICE_AMOUNT(					\
+		sale_gross_revenue,				\
+		sale_sales_tax,					\
+		shipping_charge )				\
+	( sale_gross_revenue + sale_sales_tax + shipping_charge )
+
+/* Usage */
+/* ----- */
+#define SALE_AMOUNT_DUE(					\
+		sale_invoice_amount,				\
+		customer_payment_total )			\
+	( sale_invoice_amount - customer_payment_total )
 
 /* Usage */
 /* ----- */
