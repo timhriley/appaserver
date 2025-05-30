@@ -179,7 +179,8 @@ boolean application_log_exists_boolean(
 	||   strcmp( application_name, "panther" ) == 0
 	||   strcmp( application_name, "modeland" ) == 0
 	||   strcmp( application_name, "vegetation" ) == 0
-	||   strcmp( application_name, "freshwaterfish" ) == 0 )
+	||   strcmp( application_name, "freshwaterfish" ) == 0
+	||   strcmp( application_name, "enterprise" ) == 0 )
 	{
 		return 1;
 	}
