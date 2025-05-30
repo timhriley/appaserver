@@ -316,6 +316,13 @@ double journal_debit_credit_difference_sum(
 
 /* Usage */
 /* ----- */
+JOURNAL *journal_account_new(
+		double journal_amount,
+		ACCOUNT *debit_account,
+		ACCOUNT *credit_account );
+
+/* Usage */
+/* ----- */
 JOURNAL *journal_debit_new(
 		char *debit_account_name,
 		double debit_amount );

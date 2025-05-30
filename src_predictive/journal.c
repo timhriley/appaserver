@@ -2636,3 +2636,44 @@ boolean journal_match_boolean(
 	return 1;
 }
 
+JOURNAL *journal_account_new(
+		double journal_amount,
+		ACCOUNT *debit_account,
+		ACCOUNT *credit_account )
+{
+	JOURNAL *journal;
+
+	if ( !journal_amount
+	|| ( !debit_account
+	&&   !credit_account ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	journal = journal_calloc();
+
+	if ( debit_account )
+	{
+		journal->debit_amount = journal_amount;
+		journal->account = debit_account;
+	}
+	else
+	{
+		journal->credit_amount = journal_amount;
+		journal->account = credit_account;
+	}
+
+	return journal;
+}
+
