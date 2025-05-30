@@ -440,19 +440,42 @@ ENTITY *liability_account_entity(
 }
 
 char *liability_payment_credit_account_name(
-			int starting_check_number,
-			char *account_cash,
-			char *account_uncleared_checks )
+		int starting_check_number,
+		char *cash_account_name,
+		char *account_uncleared_checks_string )
 {
+	char *account_name;
+
 	if ( starting_check_number )
-		return account_uncleared_checks;
+		account_name = account_uncleared_checks_string;
 	else
-		return account_cash;
+		account_name = cash_account_name;
+
+	if ( !account_name
+	||   !*account_name
+	||   strcmp( account_name, "account" ) == 0
+	||   strcmp( account_name, "select" ) == 0 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Please choose an account." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return account_name;
 }
 
 LIABILITY_ENTITY *liability_entity_account_name_new(
-			char *account_name,
-			ENTITY *entity )
+		char *account_name,
+		ENTITY *entity )
 {
 	LIABILITY_ENTITY *liability_entity;
 
@@ -487,9 +510,9 @@ LIABILITY_ENTITY *liability_entity_account_name_new(
 }
 
 LIABILITY_ENTITY *liability_entity_account_list_new(
-			LIST *account_current_liability_name_list,
-			LIST *account_receivable_name_list,
-			ENTITY *entity )
+		LIST *account_current_liability_name_list,
+		LIST *account_receivable_name_list,
+		ENTITY *entity )
 {
 	LIABILITY_ENTITY *liability_entity;
 
@@ -537,8 +560,8 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 }
 
 double liability_entity_amount_due(
-			LIABILITY *liability,
-			RECEIVABLE *receivable )
+		LIABILITY *liability,
+		RECEIVABLE *receivable )
 {
 	double amount_due;
 
@@ -576,6 +599,7 @@ LIABILITY_ENTITY *liability_entity_calloc( void )
 
 LIABILITY_PAYMENT *liability_payment_new(
 		char *application_name,
+		char *cash_account_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
 		char *dialog_box_memo,
@@ -587,6 +611,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 	LIABILITY_PAYMENT *liability_payment;
 
 	if ( !application_name
+	||   !cash_account_name
 	||   !data_directory
 	||   !process_name
 	||   !session_key )
@@ -676,10 +701,10 @@ LIABILITY_PAYMENT *liability_payment_new(
 	liability_payment->credit_account_name =
 		liability_payment_credit_account_name(
 			starting_check_number,
-			account_cash(
-				ACCOUNT_CASH_KEY ),
-			account_uncleared_checks(
-				ACCOUNT_UNCLEARED_CHECKS_KEY ) );
+			cash_account_name,
+			account_uncleared_checks_string(
+				ACCOUNT_UNCLEARED_CHECKS_KEY,
+				__FUNCTION__ ) );
 
 	liability_payment->liability_transaction_list =
 		liability_transaction_list_new(

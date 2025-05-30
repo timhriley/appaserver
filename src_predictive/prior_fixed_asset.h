@@ -33,7 +33,7 @@ typedef struct
 	double fixed_asset_cost;
 	char *asset_account;
 	ACCOUNT *debit_account;
-	char *account_equity;
+	char *account_equity_string;
 	ACCOUNT *credit_account;
 	LIST *journal_binary_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;

@@ -22,6 +22,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *session_key;
+	char *cash_account_name;
 	char *full_name_list_string;
 	char *street_address_list_string;
 	int starting_check_number;
@@ -40,22 +41,23 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s process session full_name[^full_name] street_address[^street_address] starting_check_number memo payment_amount execute_yn\n",
+"Usage: %s process session cash_account full_name[^full_name] street_address[^street_address] starting_check_number memo payment_amount execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	session_key = argv[ 2 ];
-	full_name_list_string = argv[ 3 ];
-	street_address_list_string = argv[ 4 ];
-	starting_check_number = atoi( argv[ 5 ] );
-	memo = argv[ 6 ];
-	dialog_box_payment_amount = atof( argv[ 7 ] );
-	execute = ( *argv[ 8 ] == 'y' );
+	cash_account_name = argv[ 3 ];
+	full_name_list_string = argv[ 4 ];
+	street_address_list_string = argv[ 5 ];
+	starting_check_number = atoi( argv[ 6 ] );
+	memo = argv[ 7 ];
+	dialog_box_payment_amount = atof( argv[ 8 ] );
+	execute = ( *argv[ 9 ] == 'y' );
 
 	document_process_output(
 		application_name,
@@ -102,6 +104,7 @@ int main( int argc, char **argv )
 	liability_payment =
 		liability_payment_new(
 			application_name,
+			cash_account_name,
 			dialog_box_payment_amount,
 			starting_check_number,
 			memo /* dialog_box_memo */,

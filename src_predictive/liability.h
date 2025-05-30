@@ -16,6 +16,14 @@
 #include "check.h"
 #include "appaserver_link.h"
 
+#define LIABILITY_ACCOUNT_ENTITY_TABLE		"liability_account_entity"
+
+#define LIABILITY_ACCOUNT_ENTITY_SELECT		"account,"	\
+						"full_name,"	\
+						"street_address"
+
+#define LIABILITY_TRANSACTION_MEMO	"Liability Payment"
+
 typedef struct
 {
 	char *account_name;
@@ -100,12 +108,6 @@ char *liability_entity_where(
 		char *street_address,
 		char *timlib_in_clause );
 
-#define LIABILITY_ACCOUNT_ENTITY_TABLE		"liability_account_entity"
-
-#define LIABILITY_ACCOUNT_ENTITY_SELECT		"account,"	\
-						"full_name,"	\
-						"street_address"
-
 typedef struct
 {
 	char *account_name;
@@ -146,11 +148,14 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 		void );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
 		char *account_name,
 		LIST *liability_account_entity_list );
+
+/* Usage */
+/* ----- */
 
 /* Safely returns */
 /* -------------- */
@@ -191,15 +196,19 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 		LIST *account_receivable_name_list,
 		ENTITY *entity );
 
-/* Public */
-/* ------ */
+/* Process */
+/* ------- */
 LIABILITY_ENTITY *liability_entity_calloc(
 		void );
 
+/* Usage */
+/* ----- */
 double liability_entity_amount_due(
 		LIABILITY *liability,
 		RECEIVABLE *receivable );
 
+/* Usage */
+/* ----- */
 LIABILITY_ENTITY *liability_entity_seek(
 		char *full_name,
 		char *street_address,
@@ -273,12 +282,10 @@ void liability_transaction_list_html_display(
 		LIABILITY_TRANSACTION_LIST *
 			liability_transaction_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 LIST *liability_transaction_list_extract(
 		LIST *list );
-
-#define LIABILITY_TRANSACTION_MEMO	"Liability Payment"
 
 typedef struct
 {
@@ -344,6 +351,7 @@ typedef struct
 /* ----- */
 LIABILITY_PAYMENT *liability_payment_new(
 		char *application_name,
+		char *cash_account_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
 		char *dialog_box_memo,
@@ -359,7 +367,7 @@ LIABILITY_PAYMENT *liability_payment_calloc(
 
 char *liability_payment_credit_account_name(
 		int starting_check_number,
-		char *account_cash,
+		char *cash_account_name,
 		char *account_uncleared_checks );
 
 /* Usage */
@@ -368,8 +376,8 @@ LIST *liability_payment_entity_list(
 		LIST *entity_full_street_list,
 		LIST *liability_entity_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns message */
 /* --------------- */

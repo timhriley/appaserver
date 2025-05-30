@@ -151,8 +151,9 @@ CUSTOMER *customer_parse(
 				/* ------------------------------------ */
 				/* Returns heap memory from static list */
 				/* ------------------------------------ */
-				account_payable(
-					ACCOUNT_PAYABLE_KEY ) );
+				account_payable_string(
+					ACCOUNT_PAYABLE_KEY,
+					__FUNCTION__ ) );
 
 		customer->journal_payable_balance =
 			journal_debit_credit_sum_difference(

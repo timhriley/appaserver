@@ -26,11 +26,11 @@ CLOSE_NOMINAL_TRANSACTION *
 	close_nominal_transaction_new(
 		LIST *element_statement_list /* in/out */,
 		char *transaction_date_close_date_time,
-		char *account_drawing,
+		char *account_drawing_string,
 		double close_nominal_do_drawing_sum,
 		double close_nominal_do_transaction_amount,
 		double close_nominal_do_retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address );
 
@@ -45,10 +45,10 @@ CLOSE_NOMINAL_TRANSACTION *
 LIST *close_nominal_transaction_journal_list(
 		LIST *element_statement_list /* in/out */,
 		char *transaction_date_close_date_time,
-		char *account_drawing,
+		char *account_drawing_string,
 		double close_nominal_do_drawing_sum,
 		double close_nominal_do_retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address );
 
@@ -72,7 +72,7 @@ double close_nominal_transaction_credit_amount(
 /* -------------- */
 JOURNAL *close_nominal_transaction_drawing_journal(
 		char *transaction_date_time_closing,
-		char *account_drawing,
+		char *account_drawing_string,
 		double close_nominal_drawing_sum,
 		char *full_name,
 		char *street_address );
@@ -85,7 +85,7 @@ JOURNAL *close_nominal_transaction_drawing_journal(
 JOURNAL *close_nominal_transaction_close_journal(
 		char *transaction_date_time_closing,
 		double close_nominal_do_retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address );
 
@@ -99,7 +99,7 @@ typedef struct
 	double revenue_sum;
 	ELEMENT *gain_element;
 	double gain_sum;
-	char *account_drawing;
+	char *account_drawing_string;
 	double drawing_sum;
 	double debit_sum;
 	ELEMENT *expense_element;
@@ -110,7 +110,7 @@ typedef struct
 	double transaction_amount;
 	boolean no_transactions_boolean;
 	double retained_earnings;
-	char *account_closing_entry;
+	char *account_closing_entry_string;
 	ENTITY_SELF *entity_self;
 	CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction;
 	double journal_debit_sum;
@@ -135,7 +135,7 @@ LIST *close_nominal_do_element_name_list(
 
 double close_nominal_do_drawing_sum(
 		char *transaction_date_time_closing,
-		char *account_drawing );
+		char *account_drawing_string );
 
 double close_nominal_do_debit_sum(
 		double revenue_sum,

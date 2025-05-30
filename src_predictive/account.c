@@ -212,7 +212,9 @@ char *account_name_format( char *account_name )
 	return string_initial_capital( name_format, account_name );
 }
 
-char *account_key_account_name( char *account_key )
+char *account_key_account_name(
+		const char *account_key,
+		const char *calling_function_name )
 {
 	return
 	/* ------------------------------------ */
@@ -221,70 +223,90 @@ char *account_key_account_name( char *account_key )
 	account_hard_coded_account_name(
 		account_key,
 		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_revenue( char *account_revenue_key )
+ACCOUNT *account_revenue(
+		const char *account_revenue_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_revenue_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_receivable( char *account_receivable_key )
+ACCOUNT *account_receivable(
+		const char *account_receivable_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_receivable_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_payable( char *account_payable_key )
+ACCOUNT *account_payable(
+		const char *account_payable_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_payable_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_uncleared_checks( char *account_uncleared_checks_key )
+ACCOUNT *account_uncleared_checks(
+		const char *account_uncleared_checks_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_uncleared_checks_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_gain( char *account_gain_key )
+ACCOUNT *account_gain(
+		const char *account_gain_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_gain_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_equity( char *account_equity_key )
+ACCOUNT *account_equity(
+		const char *account_equity_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_equity_key,
+		calling_function_name );
+}
+
+char *account_equity_string(
+		const char *account_equity_key,
+		const char *calling_function_name )
 {
 	return
 	/* ------------------------------------ */
@@ -293,34 +315,26 @@ char *account_equity( char *account_equity_key )
 	account_hard_coded_account_name(
 		account_equity_key,
 		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_loss( char *account_loss_key )
+char *account_uncleared_checks_string(
+		const char *account_uncleared_checks_key,
+		const char *calling_function_name )
 {
 	return
 	/* ------------------------------------ */
 	/* Returns heap memory from static list */
 	/* ------------------------------------ */
 	account_hard_coded_account_name(
-		account_loss_key,
+		account_uncleared_checks_key,
 		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_sales_tax_payable( char *account_sales_tax_payable_key )
-{
-	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
-		account_sales_tax_payable_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
-}
-
-char *account_depreciation_expense( char *account_depreciation_key )
+char *account_depreciation_string(
+		const char *account_depreciation_key,
+		const char *calling_function_name )
 {
 	return
 	/* ------------------------------------ */
@@ -329,123 +343,182 @@ char *account_depreciation_expense( char *account_depreciation_key )
 	account_hard_coded_account_name(
 		account_depreciation_key,
 		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_accumulated_depreciation( char *account_accumulated_key )
+char *account_payable_string(
+		const char *account_payable_key,
+		const char *calling_function_name )
 {
 	return
 	/* ------------------------------------ */
 	/* Returns heap memory from static list */
 	/* ------------------------------------ */
 	account_hard_coded_account_name(
+		account_payable_key,
+		0 /* not warning_only */,
+		calling_function_name );
+}
+
+char *account_accumulated_depreciation_string(
+		const char *account_accumulated_depreciation_key,
+		const char *calling_function_name )
+{
+	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
+	account_hard_coded_account_name(
+		account_accumulated_depreciation_key,
+		0 /* not warning_only */,
+		calling_function_name );
+}
+
+ACCOUNT *account_loss(
+		const char *account_loss_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_loss_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_sales_tax_payable(
+		const char *account_sales_tax_payable_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_sales_tax_payable_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_depreciation(
+		const char *account_depreciation_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_depreciation_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_accumulated_depreciation(
+		const char *account_accumulated_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_accumulated_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-
-char *account_shipping_revenue( char *account_shipping_revenue_key )
+ACCOUNT *account_shipping_revenue(
+		const char *account_shipping_revenue_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_shipping_revenue_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_cash( const char *account_cash_key )
+ACCOUNT *account_credit_card_passthru(
+		const char *account_passthru_key,
+		const char *calling_function_name )
 {
 	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
-		(char *)account_cash_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_passthru_key,
+		calling_function_name );
 }
 
-char *account_credit_card( const char *account_credit_card_key )
-{
-	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
-		(char *)account_credit_card_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
-}
-
-char *account_credit_card_passthru(
-		const char *account_passthru_key )
-{
-	return
-	/* ------------------------------------ */
-	/* Returns heap memory from static list */
-	/* ------------------------------------ */
-	account_hard_coded_account_name(
-		(char *)account_passthru_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
-}
-
-char *account_closing_entry(
-		const char *calling_function_name,
+char *account_closing_entry_string(
 		const char *account_closing_key,
-		const char *account_equity_key )
+		const char *account_equity_key,
+		const char *calling_function_name )
 {
-	char *closing_entry;
+	char *closing_entry_string;
 
-	closing_entry =
+	closing_entry_string =
 		/* -------------------------------------------- */
 		/* Returns heap memory from static list or null */
 		/* -------------------------------------------- */
 		account_hard_coded_account_name(
-			(char *)account_closing_key,
+			account_closing_key,
 			1 /* warning_only */,
 			calling_function_name );
 
-	if ( closing_entry ) return closing_entry;
+	if ( closing_entry_string ) return closing_entry_string;
 
-	closing_entry =
+	closing_entry_string =
+		/* ------------------------------------ */
+		/* Returns heap memory from static list */
+		/* ------------------------------------ */
 		account_hard_coded_account_name(
-			(char *)account_equity_key,
+			account_equity_key,
 			0 /* not warning_only */,
 			calling_function_name );
 
-	return closing_entry;
+	return closing_entry_string;
 }
 
-char *account_drawing( const char *account_drawing_key )
+ACCOUNT *account_drawing(
+		const char *account_drawing_key,
+		const char *calling_function_name )
 {
 	return
-	account_hard_coded_account_name(
-		(char *)account_drawing_key,
-		1 /* warning_only */,
-		__FUNCTION__ );
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_drawing_key,
+		calling_function_name );
 }
 
-char *account_fees_expense( char *account_fees_expense_key )
+ACCOUNT *account_fees_expense(
+		const char *account_fees_expense_key,
+		const char *calling_function_name )
 {
 	return
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_fees_expense_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
-char *account_sales_tax_expense( char *account_sales_tax_expense_key )
+ACCOUNT *account_sales_tax_expense(
+		const char *account_sales_tax_expense_key,
+		const char *calling_function_name )
 {
 	return
-	account_hard_coded_account_name(
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
 		account_sales_tax_expense_key,
-		0 /* not warning_only */,
-		__FUNCTION__ );
+		calling_function_name );
 }
 
 char *account_name_display( char *account_name )
@@ -725,7 +798,7 @@ char *account_primary_where( char *account_name )
 }
 
 char *account_hard_coded_account_name(
-		char *account_key,
+		const char *account_key,
 		boolean warning_only,
 		const char *calling_function_name )
 {
@@ -764,7 +837,7 @@ char *account_hard_coded_account_name(
 }
 
 ACCOUNT *account_key_seek(
-		char *account_key,
+		const char *account_key,
 		LIST *account_list )
 {
 	ACCOUNT *account;
@@ -774,7 +847,7 @@ ACCOUNT *account_key_seek(
 		account = list_get( account_list );
 
 		if ( piece_boolean(
-			account_key /* search_string */,
+			(char *)account_key /* search_string */,
 			account->hard_coded_account_key /* delimited_string */,
 			'|' /* delimiter */ ) )
 		{
@@ -1134,23 +1207,10 @@ ACCOUNT *account_getset(
 
 LIST *account_cash_name_list(
 		const char *account_table,
-		char *subclassification_cash )
+		const char *subclassification_cash )
 {
 	char system_string[ 256 ];
 	char where[ 128 ];
-
-	if ( !subclassification_cash )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "subclassification_cash is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
 
 	sprintf(where,
 		"subclassification = '%s'",
@@ -1166,77 +1226,73 @@ LIST *account_cash_name_list(
 
 LIST *account_current_liability_name_list(
 		const char *account_table,
-		char *subclassification_current_liability,
-		char *account_credit_card_key,
+		const char *subclassification_current_liability,
+		const char *account_credit_card_key,
 		LIST *exclude_account_name_list )
 {
-	char system_string[ 1024 ];
-	char where[ 512 ];
+	char system_string[ 2048 ];
+	char where[ 1024 ];
+	char in_clause[ 512 ];
 
-	if ( !subclassification_current_liability
-	||   !account_credit_card_key
-	||   !list_length( exclude_account_name_list ) )
+	if ( list_length( exclude_account_name_list ) )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		snprintf(
+			in_clause,
+			sizeof ( in_clause ),
+			"account not in (%s)",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			string_in_clause( exclude_account_name_list ) );
+	}
+	else
+	{
+		strcpy( in_clause, "1 = 1" );
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"subclassification = '%s' and			"
 		"ifnull(hard_coded_account_key,'') <> '%s' and	"
-		"account not in (%s)				",
+		"%s						",
 		subclassification_current_liability,
 		account_credit_card_key,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		string_in_clause( exclude_account_name_list ) );
+		in_clause );
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh account %s \"%s\"",
 		account_table,
 		where );
 
-	return list_pipe_fetch( system_string );
+	return
+	list_pipe_fetch( system_string );
 }
 
 LIST *account_receivable_name_list(
 		const char *account_table,
-		char *subclassification_receivable )
+		const char *subclassification_receivable )
 {
 	char system_string[ 256 ];
 	char where[ 128 ];
 
-	if ( !subclassification_receivable )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "subclassification_receivable is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"subclassification = '%s'",
 		subclassification_receivable );
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh account %s \"%s\"",
 		account_table,
 		where );
 
-	return list_pipe( system_string );
+	return
+	list_pipe( system_string );
 }
 
 LIST *account_list(
@@ -1597,20 +1653,42 @@ boolean account_accumulate_debit_boolean( char *account_name )
 
 ACCOUNT *account_key_fetch(
 		const char *hard_coded_account_key,
-		boolean fetch_subclassification,
-		boolean fetch_element )
+		const char *calling_function_name )
 {
-	return
-	account_fetch(
-		/* -------------------------------------------- */
-		/* Returns heap memory from static list or null */
-		/* -------------------------------------------- */
-		account_hard_coded_account_name(
-			(char *)hard_coded_account_key,
-			0 /* not warning_only */,
-			__FUNCTION__ /* calling_function_name */ ),
-		fetch_subclassification,
-		fetch_element );
+	ACCOUNT *account;
+
+	account =
+		account_fetch(
+			/* -------------------------------------------- */
+			/* Returns heap memory from static list or null */
+			/* -------------------------------------------- */
+			account_hard_coded_account_name(
+				(char *)hard_coded_account_key,
+				0 /* not warning_only */,
+				calling_function_name ),
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+
+	if ( !account )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_fetch(key=%s,function=%s) returned empty.",
+			hard_coded_account_key,
+			calling_function_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	return account;
 }
 
 boolean account_chart_account_boolean(
@@ -1642,3 +1720,13 @@ char *account_select_string(
 
 	return strdup( select_string );
 }
+
+char *account_drawing_string( const char *account_drawing_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_drawing_key,
+		1 /* warning_only */,
+		__FUNCTION__ );
+}
+

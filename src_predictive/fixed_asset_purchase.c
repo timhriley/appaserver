@@ -452,15 +452,17 @@ LIST *fixed_asset_purchase_depreciation_list(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		account_depreciation_expense(
-			ACCOUNT_DEPRECIATION_KEY );
+		account_depreciation_string(
+			ACCOUNT_DEPRECIATION_KEY,
+			__FUNCTION__ );
 
 	accumulated_depreciation =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		account_accumulated_depreciation(
-			ACCOUNT_ACCUMULATED_KEY );
+		account_accumulated_depreciation_string(
+			ACCOUNT_ACCUMULATED_KEY,
+			__FUNCTION__ );
 
 	do {
 		fixed_asset_purchase =

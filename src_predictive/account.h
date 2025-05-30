@@ -26,20 +26,19 @@
 #define ACCOUNT_CHANGE_IN_NET_ASSETS	"change_in_net_assets"
 #define ACCOUNT_NOT_SET			"not_set"
 
-#define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
-#define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
-#define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
-#define ACCOUNT_REVENUE_KEY		"revenue_key"
-#define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
-#define ACCOUNT_PAYABLE_KEY		"payable_key"
+#define ACCOUNT_DEPRECIATION_KEY 	"depreciation"
+#define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation"
+#define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable"
+#define ACCOUNT_REVENUE_KEY		"revenue"
+#define ACCOUNT_RECEIVABLE_KEY		"receivable"
+#define ACCOUNT_PAYABLE_KEY		"payable"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks"
-#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue_key"
-#define ACCOUNT_CASH_KEY		"cash_key"
+#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue"
 #define ACCOUNT_GAIN_KEY		"gain"
 #define ACCOUNT_LOSS_KEY		"loss"
-#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
-#define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
-#define ACCOUNT_DRAWING_KEY		"drawing_key"
+#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense"
+#define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax"
+#define ACCOUNT_DRAWING_KEY		"drawing"
 #define ACCOUNT_CREDIT_CARD_KEY		"credit_card"
 #define ACCOUNT_PASSTHRU_KEY		"credit_card_passthru"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
@@ -142,10 +141,12 @@ char *account_primary_where(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 ACCOUNT *account_key_fetch(
 		const char *hard_coded_account_key,
-		boolean fetch_subclassification,
-		boolean fetch_element );
+		const char *calling_function_name );
 
 /* Usage */
 /* ----- */
@@ -221,14 +222,14 @@ double account_balance_sum(
 /* Returns heap memory from static list or null (maybe) */
 /* ---------------------------------------------------- */
 char *account_hard_coded_account_name(
-		char *hard_coded_account_key,
+		const char *hard_coded_account_key,
 		boolean warning_only,
 		const char *calling_function_name );
 
 /* Process */
 /* ------- */
 ACCOUNT *account_key_seek(
-		char *account_key,
+		const char *account_key,
 		LIST *account_list );
 
 /* Usage */
@@ -313,21 +314,13 @@ int account_transaction_count(
 /* Usage */
 /* ----- */
 
-/* ------------------- */
-/* Returns heap memory */
-/* ------------------- */
-char *account_closing_entry(
-		const char *calling_function_name,
+/* ------------------------------------ */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_closing_entry_string(
 		const char *account_closing_key,
-		const char *account_equity_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory from static list or null */
-/* -------------------------------------------- */
-char *account_drawing(
-		const char *account_drawing_key );
+		const char *account_equity_key,
+		const char *calling_function_name );
 
 /* Usage */
 /* ----- */
@@ -335,7 +328,8 @@ char *account_drawing(
 /* Returns heap memory from static list */
 /* ------------------------------------ */
 char *account_key_account_name(
-		char *account_key );
+		const char *account_key,
+		const char *calling_function_name );
 
 /* Usage */
 /* ----- */
@@ -363,102 +357,244 @@ char *account_system_string(
 		const char *account_table,
 		char *where );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_drawing(
+		const char *account_drawing_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_depreciation(
+		const char *account_depreciation_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_accumulated_depreciation(
+		const char *account_accumulated_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_sales_tax_payable(
+		const char *account_sales_tax_payable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_revenue(
+		const char *account_revenue_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_receivable(
+		const char *account_receivable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_payable(
+		const char *account_payable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_uncleared_checks(
+		const char *account_uncleared_checks_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_shipping_revenue(
+		const char *account_shipping_revenue_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_gain(
+		const char *account_gain_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_loss(
+		const char *account_loss_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_fees_expense(
+		const char *account_fees_expense_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_sales_tax_expense(
+		const char *account_sales_tax_expense_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_equity(
+		const char *account_equity_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_credit_card_passthru(
+		const char *account_passthru_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list or null */
+/* -------------------------------------------- */
+char *account_drawing_string(
+		const char *account_drawing_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_equity_string(
+		const char *account_equity_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_uncleared_checks_string(
+		const char *account_uncleared_checks_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_depreciation_string(
+		const char *account_depreciation_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_accumulated_depreciation_string(
+		const char *account_accumulated_depreciation_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_payable_string(
+		const char *account_payable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
 char *account_name_format(
 		char *account_name );
 
+/* Usage */
+/* ----- */
+
 /* Returns account_name or program memory */
 /* -------------------------------------- */
 char *account_name_display(
 		char *account_name );
 
+/* Usage */
+/* ----- */
 ACCOUNT *account_seek(
 		char *account_name,
 		LIST *account_list );
 
-/* Returns heap memory */
-/* ------------------- */
-char *account_depreciation_expense(
-		char *account_depreciation_key );
-
-/* Returns heap memory */
-/* ------------------- */
-char *account_accumulated_depreciation(
-		char *account_accumulated_key );
-
-char *account_sales_tax_payable(
-		char *account_sales_tax_payable_key );
-
-char *account_revenue(
-		char *account_revenue_key );
-
-char *account_receivable(
-		char *account_receivable_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_payable(
-		char *account_payable_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_uncleared_checks(
-		char *account_uncleared_checks_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_shipping_revenue(
-		char *account_shipping_revenue_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_cash(
-		const char *account_cash_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_credit_card(
-		const char *account_credit_card_key );
-
-/* Returns heap memory from static list */
-/* ------------------------------------ */
-char *account_credit_card_passthru(
-		const char *account_passthru_key );
-
-char *account_gain(
-		char *account_gain_key );
-
-char *account_loss(
-		char *account_loss_key );
-
-char *account_equity(
-		char *account_equity_key );
-
-char *account_fees_expense(
-		char *account_fees_expense_key );
-
+/* Usage */
+/* ----- */
 LIST *account_cash_name_list(
 		const char *account_table,
-		char *subclassification_cash );
+		const char *subclassification_cash );
 
+/* Usage */
+/* ----- */
 LIST *account_current_liability_name_list(
 		const char *account_table,
-		char *subclassification_current_liability,
-		char *account_credit_card_key,
+		const char *subclassification_current_liability,
+		const char *account_credit_card_key,
 		LIST *exclude_account_name_list );
 
+/* Usage */
+/* ----- */
 LIST *account_receivable_name_list(
 		const char *account_table,
-		char *subclassification_receivable );
+		const char *subclassification_receivable );
 
+/* Usage */
+/* ----- */
 ACCOUNT *account_getset(
 		LIST *account_list,
 		ACCOUNT *account );
 
+/* Usage */
+/* ----- */
 boolean account_name_changed(
 		char *preupdate_account_name );
 

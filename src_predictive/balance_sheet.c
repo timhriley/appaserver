@@ -3302,7 +3302,7 @@ double balance_sheet_drawing_amount(
 		const char *account_drawing_key,
 		char *transaction_end_date_time_string )
 {
-	char *drawing;
+	char *drawing_string;
 	ACCOUNT_JOURNAL *account_journal;
 	double drawing_amount = {0};
 
@@ -3322,16 +3322,16 @@ double balance_sheet_drawing_amount(
 			message );
 	}
 
-	drawing =
-		account_drawing(
+	drawing_string =
+		account_drawing_string(
 			account_drawing_key );
 
-	if ( !drawing ) return 0.0;
+	if ( !drawing_string ) return 0.0;
 
 	account_journal =
 		account_journal_latest(
 			journal_table,
-			drawing /* account_name */,
+			drawing_string /* account_name */,
 			transaction_end_date_time_string,
 			0 /* not fetch_transaction */ );
 

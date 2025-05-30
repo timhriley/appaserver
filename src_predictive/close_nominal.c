@@ -118,8 +118,11 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 		element_sum(
 			close_nominal_do->gain_element );
 
-	close_nominal_do->account_drawing =
-		account_drawing(
+	close_nominal_do->account_drawing_string =
+		/* -------------------------------------------- */
+		/* Returns heap memory from static list or null */
+		/* -------------------------------------------- */
+		account_drawing_string(
 			ACCOUNT_DRAWING_KEY );
 
 	close_nominal_do->drawing_sum =
@@ -127,7 +130,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->
 				transaction_date_close_nominal_do->
 				transaction_date_close_date_time,
-			close_nominal_do->account_drawing );
+			close_nominal_do->account_drawing_string );
 
 	close_nominal_do->debit_sum =
 		close_nominal_do_debit_sum(
@@ -180,11 +183,11 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->loss_sum,
 			close_nominal_do->drawing_sum );
 
-	close_nominal_do->account_closing_entry =
+	close_nominal_do->account_closing_entry_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		account_closing_entry(
+		account_closing_entry_string(
 			__FUNCTION__,
 			ACCOUNT_CLOSING_KEY,
 			ACCOUNT_EQUITY_KEY );
@@ -213,11 +216,11 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->
 				transaction_date_close_nominal_do->
 				transaction_date_close_date_time,
-			close_nominal_do->account_drawing,
+			close_nominal_do->account_drawing_string,
 			close_nominal_do->drawing_sum,
 			close_nominal_do->transaction_amount,
 			close_nominal_do->retained_earnings,
-			close_nominal_do->account_closing_entry,
+			close_nominal_do->account_closing_entry_string,
 			close_nominal_do->entity_self->full_name,
 			close_nominal_do->entity_self->street_address );
 
@@ -274,7 +277,7 @@ LIST *close_nominal_do_element_name_list(
 
 double close_nominal_do_drawing_sum(
 		char *transaction_date_time_closing,
-		char *account_drawing )
+		char *account_drawing_string )
 {
 	JOURNAL *latest;
 
@@ -288,12 +291,12 @@ double close_nominal_do_drawing_sum(
 		exit( 1 );
 	}
 
-	if ( !account_drawing ) return 0.0;
+	if ( !account_drawing_string ) return 0.0;
 
 	latest =
 		journal_latest(
 			JOURNAL_TABLE,
-			account_drawing /* account_name */,
+			account_drawing_string /* account_name */,
 			transaction_date_time_closing,
 			0 /* not fetch_transaction */,
 			0 /* not zero_balance_boolean */ );
@@ -336,11 +339,11 @@ CLOSE_NOMINAL_TRANSACTION *
 	close_nominal_transaction_new(
 		LIST *element_statement_list /* in/out */,
 		char *transaction_date_close_date_time,
-		char *account_drawing,
+		char *account_drawing_string,
 		double close_nominal_do_drawing_sum,
 		double close_nominal_do_transaction_amount,
 		double close_nominal_do_retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address )
 {
@@ -351,7 +354,7 @@ CLOSE_NOMINAL_TRANSACTION *
 	||   float_virtually_same(
 		close_nominal_do_transaction_amount,
 		0.0 )
-	||   !account_closing_entry
+	||   !account_closing_entry_string
 	||   !full_name
 	||   !street_address )
 	{
@@ -384,10 +387,10 @@ CLOSE_NOMINAL_TRANSACTION *
 		close_nominal_transaction_journal_list(
 			element_statement_list /* in/out */,
 			transaction_date_close_date_time,
-			account_drawing,
+			account_drawing_string,
 			close_nominal_do_drawing_sum,
 			close_nominal_do_retained_earnings,
-			account_closing_entry,
+			account_closing_entry_string,
 			full_name,
 			street_address );
 
@@ -416,10 +419,10 @@ CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction_calloc(
 LIST *close_nominal_transaction_journal_list(
 		LIST *element_statement_list /* in/out */,
 		char *transaction_date_close_date_time,
-		char *account_drawing,
+		char *account_drawing_string,
 		double drawing_sum,
 		double retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address )
 {
@@ -430,7 +433,7 @@ LIST *close_nominal_transaction_journal_list(
 
 	if ( !list_length( element_statement_list ) /* can't be list_rewind() */
 	||   !transaction_date_close_date_time
-	||   !account_closing_entry
+	||   !account_closing_entry_string
 	||   !full_name
        	||   !street_address )
 	{
@@ -532,7 +535,7 @@ LIST *close_nominal_transaction_journal_list(
 			/* -------------- */
 			close_nominal_transaction_drawing_journal(
 				transaction_date_close_date_time,
-				account_drawing,
+				account_drawing_string,
 				drawing_sum,
 				full_name,
 				street_address ) );
@@ -548,7 +551,7 @@ LIST *close_nominal_transaction_journal_list(
 			close_nominal_transaction_close_journal(
 				transaction_date_close_date_time,
 				retained_earnings,
-				account_closing_entry,
+				account_closing_entry_string,
 				full_name,
 				street_address ) );
 	}
@@ -558,7 +561,7 @@ LIST *close_nominal_transaction_journal_list(
 
 JOURNAL *close_nominal_transaction_drawing_journal(
 		char *transaction_date_time_closing,
-		char *account_drawing,
+		char *account_drawing_string,
 		double drawing_sum,
 		char *full_name,
 		char *street_address )
@@ -566,7 +569,7 @@ JOURNAL *close_nominal_transaction_drawing_journal(
 	JOURNAL *journal;
 
 	if ( !transaction_date_time_closing
-	||   !account_drawing
+	||   !account_drawing_string
 	||   !drawing_sum
 	||   !full_name
 	||   !street_address )
@@ -587,7 +590,7 @@ JOURNAL *close_nominal_transaction_drawing_journal(
 			full_name,
 			street_address,
 			transaction_date_time_closing,
-			account_drawing );
+			account_drawing_string );
 
 	journal->account =
 		account_fetch(
@@ -603,7 +606,7 @@ JOURNAL *close_nominal_transaction_drawing_journal(
 JOURNAL *close_nominal_transaction_close_journal(
 		char *transaction_date_time_closing,
 		double retained_earnings,
-		char *account_closing_entry,
+		char *account_closing_entry_string,
 		char *full_name,
 		char *street_address )
 {
@@ -611,7 +614,7 @@ JOURNAL *close_nominal_transaction_close_journal(
 
 	if ( !transaction_date_time_closing
 	||   !retained_earnings
-	||   !account_closing_entry
+	||   !account_closing_entry_string
 	||   !full_name
 	||   !street_address )
 	{
@@ -631,7 +634,7 @@ JOURNAL *close_nominal_transaction_close_journal(
 			full_name,
 			street_address,
 			transaction_date_time_closing,
-			account_closing_entry );
+			account_closing_entry_string );
 
 	journal->account =
 		account_fetch(

@@ -688,12 +688,13 @@ FEEDER *feeder_fetch(
 		exchange_balance_amount,
 		feeder->feeder_load_row_list /* in/out */ );
 
-	feeder->account_uncleared_checks =
+	feeder->account_uncleared_checks_string =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		account_uncleared_checks(
-			ACCOUNT_UNCLEARED_CHECKS_KEY );
+		account_uncleared_checks_string(
+			ACCOUNT_UNCLEARED_CHECKS_KEY,
+			__FUNCTION__ );
 
 	feeder->feeder_phrase_list =
 		feeder_phrase_list(
@@ -727,7 +728,7 @@ FEEDER *feeder_fetch(
 			feeder_account_name,
 			FEEDER_ROW_TABLE,
 			feeder->match_minimum_date,
-			feeder->account_uncleared_checks );
+			feeder->account_uncleared_checks_string );
 
 	feeder->feeder_row_list =
 		feeder_row_list(
@@ -738,7 +739,7 @@ FEEDER *feeder_fetch(
 			feeder->
 				feeder_account->
 				financial_institution_street_address,
-			feeder->account_uncleared_checks,
+			feeder->account_uncleared_checks_string,
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
 			feeder->feeder_matched_journal_list,
@@ -2113,7 +2114,7 @@ char *feeder_row_display_results(
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
 		char *feeder_account_name,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
 		LIST *feeder_matched_journal_list )
@@ -2121,7 +2122,7 @@ FEEDER_MATCHED_JOURNAL *
 	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
 
 	if ( !feeder_account_name
-	||   !account_uncleared_checks
+	||   !account_uncleared_checks_string
 	||   !check_number
 	||   !exchange_journal_amount )
 	{
@@ -2156,7 +2157,7 @@ FEEDER_MATCHED_JOURNAL *
 				feeder_matched_journal_check_update_statement(
 					JOURNAL_TABLE,
 					feeder_account_name,
-					account_uncleared_checks,
+					account_uncleared_checks_string,
 					feeder_matched_journal->
 						full_name,
 					feeder_matched_journal->
@@ -2990,7 +2991,7 @@ LIST *feeder_row_list(
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
 		LIST *feeder_matched_journal_list,
@@ -3029,7 +3030,7 @@ LIST *feeder_row_list(
 				feeder_account_name,
 				financial_institution_full_name,
 				financial_institution_street_address,
-				account_uncleared_checks,
+				account_uncleared_checks_string,
 				feeder_phrase_list,
 				feeder_exist_row_list,
 				feeder_matched_journal_list,
@@ -3061,7 +3062,7 @@ FEEDER_ROW *feeder_row_new(
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
 		LIST *feeder_matched_journal_list,
@@ -3120,7 +3121,7 @@ FEEDER_ROW *feeder_row_new(
 			feeder_row->feeder_matched_journal =
 				feeder_matched_journal_check_seek(
 					feeder_account_name,
-					account_uncleared_checks,
+					account_uncleared_checks_string,
 					feeder_load_row->check_number,
 					feeder_load_row->
 						exchange_journal_amount,
@@ -3904,7 +3905,7 @@ LIST *feeder_audit_html_cell_list(
 char *feeder_matched_journal_check_update_statement(
 		char *journal_table,
 		char *feeder_account,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -3913,7 +3914,7 @@ char *feeder_matched_journal_check_update_statement(
 
 	if ( !journal_table
 	||   !feeder_account
-	||   !account_uncleared_checks
+	||   !account_uncleared_checks_string
 	||   !full_name
 	||   !street_address
 	||   !transaction_date_time )
@@ -3940,7 +3941,7 @@ char *feeder_matched_journal_check_update_statement(
 			full_name,
 			street_address,
 			transaction_date_time,
-			account_uncleared_checks ) );
+			account_uncleared_checks_string ) );
 
 	return strdup( update_statement );
 }
@@ -4401,7 +4402,7 @@ void feeder_execute(
 		feeder->
 			feeder_load_event->
 			feeder_load_date_time,
-		feeder->account_uncleared_checks );
+		feeder->account_uncleared_checks_string );
 
 	feeder_load_event_insert(
 		FEEDER_LOAD_EVENT_TABLE,

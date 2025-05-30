@@ -27,7 +27,8 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 		/* Returns heap memory from static list */
 		/* ------------------------------------ */
 		account_key_account_name(
-			INVESTMENT_ACCOUNT_KEY );
+			INVESTMENT_ACCOUNT_KEY,
+			__FUNCTION__ );
 
 	investment_transaction->date_now19 =
 		/* ------------------- */
@@ -190,7 +191,8 @@ TRANSACTION *investment_negative_transaction(
 		/* Returns heap memory from static list */
 		/* ------------------------------------ */
 		account_key_account_name(
-			INVESTMENT_LOSS_ACCOUNT_KEY )
+			INVESTMENT_LOSS_ACCOUNT_KEY,
+			__FUNCTION__ )
 			/* debit_account_name */,
 		investment_account_name
 			/* credit_account_name */ );
@@ -234,6 +236,7 @@ TRANSACTION *investment_positive_transaction(
 		/* Returns heap memory from static list */
 		/* ------------------------------------ */
 		account_key_account_name(
-			INVESTMENT_GAIN_ACCOUNT_KEY )
+			INVESTMENT_GAIN_ACCOUNT_KEY,
+			__FUNCTION__ )
 			/* credit_account_name */ );
 }

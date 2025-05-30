@@ -279,7 +279,7 @@ double feeder_matched_journal_amount(
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
 		char *feeder_account_name,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
 		LIST *feeder_matched_journal_list );
@@ -292,7 +292,7 @@ FEEDER_MATCHED_JOURNAL *
 char *feeder_matched_journal_check_update_statement(
 		char *journal_table,
 		char *feeder_account_name,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time );
@@ -482,7 +482,7 @@ LIST *feeder_row_list(
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
 		LIST *feeder_matched_journal_list,
@@ -497,7 +497,7 @@ FEEDER_ROW *feeder_row_new(
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
-		char *account_uncleared_checks,
+		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
 		LIST *feeder_matched_journal_list,
@@ -955,7 +955,7 @@ typedef struct
 	char *feeder_account_name;
 	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
-	char *account_uncleared_checks;
+	char *account_uncleared_checks_string;
 	LIST *feeder_phrase_list;
 	LIST *feeder_exist_row_list;
 	int match_days_ago;

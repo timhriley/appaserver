@@ -1,7 +1,7 @@
 // $DOCUMENT_ROOT/javascript/sort_order.js
-// ---------------------------------------
-// Freely available software. See appaserver.org
-// ---------------------------------------------
+// ---------------------------------------------------------------
+// No warranty and freely available software. Visit appaserver.org
+// ---------------------------------------------------------------
 
 function sort_order_get_index( value )
 {
@@ -207,11 +207,13 @@ function sort_order_renumber( sort_attribute_name )
 
 	i = 1;
 	element_name = sort_attribute_name + '_' + i;
-	element = timlib_get_form_element( element_name, 0 );
+	element = timlib_form_element( element_name, 0 );
 
 	without_commas =
 		timlib_remove_character(
 			element.value, ',' );
+
+	if ( without_commas == "" ) without_commas = "1";
 
 	value_number = parseInt( without_commas );
 

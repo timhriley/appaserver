@@ -112,13 +112,17 @@ PRIOR_FIXED_ASSET *
 			message );
 	}
 
-	prior_fixed_asset->account_equity =
-		account_equity(
-			ACCOUNT_EQUITY_KEY );
+	prior_fixed_asset->account_equity_string =
+		/* ------------------------------------ */
+		/* Returns heap memory from static list */
+		/* ------------------------------------ */
+		account_equity_string(
+			ACCOUNT_EQUITY_KEY,
+			__FUNCTION__ );
 
 	if ( ! ( prior_fixed_asset->credit_account =
 			account_fetch(
-				prior_fixed_asset->account_equity,
+				prior_fixed_asset->account_equity_string,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */ ) ) )
 	{
@@ -128,7 +132,7 @@ PRIOR_FIXED_ASSET *
 			message,
 			sizeof ( message ),
 			"account_fetch(%s) returned empty.",
-			prior_fixed_asset->account_equity );
+			prior_fixed_asset->account_equity_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
