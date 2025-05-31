@@ -812,6 +812,12 @@ sale_loss_transaction.o:						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c sale_loss_transaction.c
 
+sale_transaction.o:							\
+	sale_transaction.c						\
+	sale_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c sale_transaction.c
+
 depreciation.o: depreciation.c depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c depreciation.c

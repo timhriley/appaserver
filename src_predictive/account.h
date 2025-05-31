@@ -43,6 +43,8 @@
 #define ACCOUNT_PASSTHRU_KEY		"credit_card_passthru"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_EQUITY_KEY		"equity_key"
+#define ACCOUNT_CGS_KEY			"cost_of_goods_sold"
+#define ACCOUNT_INVENTORY_KEY		"inventory"
 
 typedef struct
 {
@@ -490,6 +492,24 @@ ACCOUNT *account_equity(
 /* -------------- */
 ACCOUNT *account_credit_card_passthru(
 		const char *account_passthru_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_cost_of_goods_sold(
+		const char *account_CGS_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT *account_inventory(
+		const char *account_inventory_key,
 		const char *calling_function_name );
 
 /* Usage */

@@ -304,6 +304,32 @@ ACCOUNT *account_equity(
 		calling_function_name );
 }
 
+ACCOUNT *account_cost_of_goods_sold(
+		const char *account_CGS_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_CGS_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_inventory(
+		const char *account_inventory_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_inventory_key,
+		calling_function_name );
+}
+
 char *account_equity_string(
 		const char *account_equity_key,
 		const char *calling_function_name )

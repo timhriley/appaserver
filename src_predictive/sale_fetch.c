@@ -140,6 +140,8 @@ SALE_FETCH *sale_fetch_parse(
 
 	sale_fetch = sale_fetch_calloc();
 
+	/* See sale_fetch_select() */
+	/* ----------------------- */
 	piece( piece_buffer, SQL_DELIMITER, fetch, 0 );
 	if ( *piece_buffer )
 		sale_fetch->

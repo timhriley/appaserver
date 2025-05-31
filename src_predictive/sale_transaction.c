@@ -14,6 +14,8 @@
 #include "sql.h"
 #include "float.h"
 #include "date.h"
+#include "journal.h"
+#include "account.h"
 #include "sale.h"
 #include "sale_transaction.h"
 
@@ -28,11 +30,12 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
+		char *transaction_date_time,
 		double shipping_charge,
-		inventory_sale_total,
-		inventory_sale_CGS_total,
-		specific_inventory_sale_total,
-		specific_inventory_sale_CGS_total,
+		double inventory_sale_total,
+		double inventory_sale_CGS_total,
+		double specific_inventory_sale_total,
+		double specific_inventory_sale_CGS_total,
 		double sale_invoice_amount,
 		double sale_gross_revenue,
 		double sale_sales_tax )
@@ -98,40 +101,46 @@ SALE_TRANSACTION *sale_transaction_new(
 			state,
 			preupdate_full_name,
 			preupdate_street_address,
-			preupdate_uncollectible_date_time
+			"preupdate_transaction_date_time"
 				/* preupdate_foreign_date_time */,
 			full_name,
 			street_address,
-			uncollectible_date_time
+			sale_transaction->transaction_date_time
 				/* foreign_date_time */ );
 
 	sale_transaction->subsidiary_transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
-			“full_name”
+			"full_name"
 				/* foreign_full_name_column */,
-			“street_address”
+			"street_address"
 				/* foreign_street_address_column */,
-			“transaction_date_time”
+			"transaction_date_time"
 				/* foreign_date_time_column */,
 			preupdate_full_name,
 			preupdate_street_address,
-			preupdate_uncollectible_date_time
+			transaction_date_time
 				/* preupdate_foreign_date_time */,
 			full_name,
 			street_address,
-			sale_transaction_date_time()
+			sale_transaction->transaction_date_time
 				/* foreign_date_time */,
 			sale_invoice_amount
 				/* foreign_amount */,
-			subsidiary_transaction_state_new()->
+			sale_transaction->
+				subsidiary_transaction_state->
 				preupdate_change_full_name,
-			subsidiary_transaction_state_new()->
+			sale_transaction->
+				subsidiary_transaction_state->
 				preupdate_change_street_address,
-			subsidiary_transaction_state_new()->
+			sale_transaction->
+				subsidiary_transaction_state->
 				preupdate_change_foreign_date_time,
-			sale_transaction_journal_list(),
+			sale_transaction->journal_list,
 			"Sale" /* transaction_memo */ );
 
 	return sale_transaction;
@@ -293,7 +302,7 @@ LIST *sale_transaction_journal_list(
 			/* Safely returns */
 			/* -------------- */
 			account_cost_of_goods_sold(
-				ACCOUNT_COST_OF_GOODS_SOLD_KEY,
+				ACCOUNT_CGS_KEY,
 				__FUNCTION__ );
 
 		journal =
@@ -315,7 +324,7 @@ LIST *sale_transaction_journal_list(
 				inventory_sale_total,
 				specific_inventory_sale_total );
 
-		account =
+		inventory =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
@@ -388,7 +397,7 @@ LIST *sale_transaction_journal_list(
 		sales_tax_payable =
 			account_sales_tax_payable(
 				ACCOUNT_SALES_TAX_PAYABLE_KEY,
-				__FUNCITON__ );
+				__FUNCTION__ );
 
 		journal =
 			journal_account_new(
@@ -396,7 +405,7 @@ LIST *sale_transaction_journal_list(
 				(ACCOUNT *)0 /* debit_account */,
 				sales_tax_payable /* credit_account */ );
 
-		list_set( list, journal_account_new() );
+		list_set( list, journal );
 	}
 
 	return list;

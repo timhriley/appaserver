@@ -9,6 +9,7 @@
 #include "String.h"
 #include "piece.h"
 #include "date.h"
+#include "appaserver_error.h"
 #include "sql.h"
 #include "transaction.h"
 #include "journal.h"
@@ -32,6 +33,9 @@ SALE *sale_trigger_new(
 		char *preupdate_uncollectible_date_time,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
+		boolean title_passage_rule_boolean,
+		boolean shipping_charge_boolean,
+		boolean instructions_boolean,
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean )
 {
@@ -64,45 +68,107 @@ SALE *sale_trigger_new(
 	sale->full_name = full_name;
 	sale->street_address = street_address;
 	sale->sale_date_time = sale_date_time;
-	
+
+SALE_FETCH *sale_fetch_new(
+	SALE_SELECT,
+	SALE_TABLE,
+	full_name,
+	street_address,
+	sale_date_time,
+	inventory_sale_boolean,
+	specific_inventory_sale_boolean,
+	title_passage_rule_boolean,
+	shipping_charge_boolean,
+	instructions_boolean,
+	fixed_service_sale_boolean,
+	hourly_service_sale_boolean );
+
+if ( 	list_length( sale_fetch_new()->inventory_sale_list ) )
+{
+	double inventory_sale_total(
+		sale_fetch_new()->inventory_sale_list );
+
+	double inventory_sale_CGS_total(
+		sale_fetch_new()->inventory_sale_list );
+}
+
+if ( list_length( sale_fetch_new()->
+			specific_inventory_sale_list ) )
+{
+	double specific_inventory_sale_total(
+		sale_fetch_new()->specific_inventory_sale_list );
+
+	double specific_inventory_sale_CGS_total(
+		sale_fetch_new()->specific_inventory_sale_list );
+}
+
+if ( list_length( sale->fixed_service_sale_list ) )
+{
+	double fixed_service_sale_total(
+		sale_fetch_new()->fixed_service_sale_list );
+}
+
+if ( list_length( sale->hourly_service_sale_list ) )
+{
+	double hourly_service_sale_total(
+		sale_fetch_new()->hourly_service_sale_list );
+}
+
+double SALE_GROSS_REVENUE(
+	inventory_sale_total(),
+	specific_inventory_sale_total(),
+	fixed_service_sale_total(),
+	hourly_service_sale_total() );
+
+double SALE_SALES_TAX(
+	inventory_sale_total(),
+	specific_inventory_sale_total(),
+	sale_fetch_new()->self_tax_sales_tax_rate );
+
+double SALE_INVOICE_AMOUNT(
+	SALE_GROSS_REVENUE(),
+	SALE_SALES_TAX(),
+	sale_fetch_new()->shipping_charge );
+
+double customer_payment_total(
+	sale_fetch_new()->
+		customer_payment_list );
+
+double SALE_AMOUNT_DUE(
+	SALE_INVOICE_AMOUNT(),
+	customer_payment_total() );
+
+SALE_TRANSACTION *sale_transaction_new(
+	full_name,
+	street_address,
+	state,
+	preupdate_full_name,
+	preupdate_street_address,
+	sale_fetch_new()->predictive_title_passage_rule,
+	sale_fetch_new()->completed_date_time,
+	sale_fetch_new()->transaction_date_time,
+	sale_fetch_new()->shipped_date_time,
+	sale_fetch_new()->arrived_date,
+	sale_fetch_new()->shipping_charge,
+	inventory_sale_total(),
+	inventory_sale_CGS_total(),
+	specific_inventory_sale_total(),
+	specific_inventory_sale_CGS_total(),
+	SALE_GROSS_REVENUE(),
+	SALE_SALES_TAX() );
+	SALE_INVOICE_AMOUNT(),
+
+SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
+	full_name,
+	street_address,
+	state,
+	preupdate_full_name,
+	preupdate_street_address,
+	preupdate_uncollectible_date_time,
+	sale_fetch_new()->uncollectible_date_time,
+	sale_amount_due_string() );
+
 	return sale;
-}
-
-char *sale_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	if ( !where ) return (char *)0;
-
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 sale_select(),
-		 SALE_TABLE_NAME,
-		 where );
-
-	return strdup( sys_string );
-}
-
-/* Returns sale_steady_state() */
-/* --------------------------- */
-SALE *sale_fetch(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
-{
-	return sale_parse(
-		pipe2string(
-			sale_sys_string(
-		 		/* --------------------- */
-		 		/* Returns static memory */
-		 		/* --------------------- */
-		 		sale_primary_where(
-					full_name,
-					street_address,
-					sale_date_time ) ) ) );
 }
 
 char *sale_primary_where(
@@ -149,105 +215,21 @@ char *sale_primary_where(
 	return where;
 }
 
-TRANSACTION *sale_transaction(
-			char *full_name,
-			char *street_address,
-			char *completed_date_time,
-			double invoice_amount,
-			double gross_revenue,
-			double sales_tax,
-			double shipping_charge,
-			char *account_receivable,
-			char *account_revenue,
-			char *account_shipping_revenue,
-			char *account_sales_tax_payable )
+char *sale_update_system_string( const char *sale_table )
 {
-	TRANSACTION *transaction;
-	JOURNAL *journal;
-
-	if ( !invoice_amount ) return (TRANSACTION *)0;
-
-	transaction =
-		transaction_new(
-			full_name,
-			street_address,
-			completed_date_time
-				/* transaction_date_time */ );
-
-	transaction->transaction_amount = invoice_amount;
-
-	transaction->journal_list = list_new();
-
-	/* Debit receivable */
-	/* ---------------- */
-	journal =
-		journal_new(
-			full_name,
-			street_address,
-			transaction->transaction_date_time,
-			account_receivable );
-
-	journal->debit_amount = invoice_amount;
-	list_set( transaction->journal_list, journal );
-
-	/* Credit revenue */
-	/* ------------- */
-	journal =
-		journal_new(
-			full_name,
-			street_address,
-			transaction->transaction_date_time,
-			account_revenue );
-
-	journal->credit_amount = gross_revenue;
-	list_set( transaction->journal_list, journal );
-
-	if ( shipping_charge )
-	{
-		/* Credit shipping revenue */
-		/* ----------------------- */
-		journal =
-			journal_new(
-				full_name,
-				street_address,
-				transaction->transaction_date_time,
-				account_shipping_revenue );
-	
-		journal->credit_amount = shipping_charge;
-		list_set( transaction->journal_list, journal );
-	}
-
-	if ( sales_tax )
-	{
-		/* Credit sales tax payable */
-		/* ------------------------ */
-		journal =
-			journal_new(
-				full_name,
-				street_address,
-				transaction->transaction_date_time,
-				account_sales_tax_payable );
-	
-		journal->credit_amount = sales_tax;
-		list_set( transaction->journal_list, journal );
-	}
-
-	return transaction;
-}
-
-FILE *sale_update_open( void )
-{
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *key;
 
 	key = "full_name,street_address,sale_date_time";
 
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 SALE_TABLE_NAME,
-		 key );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"update_statement.e table=%s key=%s carrot=y | sql",
+		sale_table,
+		key );
 
-	return fopen( sys_string, "w" );
+	return strdup( system_string );
 }
 
 void sale_update(
@@ -255,6 +237,13 @@ void sale_update(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean,
+		double inventory_sale_total,
+		double specific_inventory_sale_total,
+		double fixed_service_sale_total,
 		double hourly_service_sale_total,
 		double sale_gross_revenue,
 		double sale_sales_tax,
@@ -288,7 +277,7 @@ void sale_update(
 		/* Returns heap memory */
 		/* ------------------- */
 		sale_update_system_string(
-				sale_table );
+			sale_table );
 
 	pipe =
 		/* -------------- */
@@ -297,67 +286,89 @@ void sale_update(
 		appaserver_output_pipe(
 			system_string );
 
+	if ( inventory_sale_boolean )
+	{
+		fprintf(pipe,
+	 		"%s^%s^%s^inventory_sale_total^%.2lf\n",
+			entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
+			sale_date_time,
+			inventory_sale_total );
+	}
 
-	fprintf(pipe,
-	 	"%s^%s^%s^inventory_sale_total^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		sale_date_time,
-		inventory_sale_total );
+	if ( specific_inventory_sale_boolean )
+	{
+		fprintf(pipe,
+	 		"%s^%s^%s^specific_inventory_sale_total^%.2lf\n",
+			entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
+			sale_date_time,
+			specific_inventory_sale_total );
+	}
 
-	fprintf(pipe,
-	 	"%s^%s^%s^fixed_service_sale_total^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		sale_date_time,
-		fixed_service_sale_total );
+	if ( fixed_service_sale_boolean )
+	{
+		fprintf(pipe,
+	 		"%s^%s^%s^fixed_service_sale_total^%.2lf\n",
+			entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
+			sale_date_time,
+			fixed_service_sale_total );
+	}
 
-	fprintf(pipe,
-	 	"%s^%s^%s^hourly_service_sale_total^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		sale_date_time,
-		hourly_service_sale_total );
+	if ( hourly_service_sale_boolean )
+	{
+		fprintf(pipe,
+	 		"%s^%s^%s^hourly_service_sale_total^%.2lf\n",
+			entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
+			sale_date_time,
+			hourly_service_sale_total );
+	}
 
 	fprintf(pipe,
 	 	"%s^%s^%s^gross_revenue^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		street_address,
+		entity_escape_street_address( street_address ),
 		sale_date_time,
 		gross_revenue );
 
-	fprintf(pipe,
-	 	"%s^%s^%s^sales_tax^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		sale_date_time,
-		sales_tax );
+	if ( inventory_sale_boolean
+	||   specific_inventory_sale_boolean )
+	{
+		fprintf(pipe,
+	 		"%s^%s^%s^sales_tax^%.2lf\n",
+			entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
+			sale_date_time,
+			sales_tax );
+	}
 
 	fprintf(pipe,
 	 	"%s^%s^%s^invoice_amount^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		street_address,
+		entity_escape_street_address( street_address ),
 		sale_date_time,
 		invoice_amount );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^payment_total^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		street_address,
+		entity_escape_street_address( street_address ),
 		sale_date_time,
 		payment_total );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^amount_due^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		street_address,
+		entity_escape_street_address( street_address ),
 		sale_date_time,
 		amount_due );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^transaction_date_time^%s\n",
 		entity_escape_full_name( full_name ),
-		street_address,
+		entity_escape_street_address( street_address ),
 		sale_date_time,
 		(transaction_date_time)
 			? transaction_date_time

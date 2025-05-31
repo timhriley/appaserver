@@ -10,8 +10,8 @@
 #include "list.h"
 #include "boolean.h"
 #include "predictive.h"
-#include "subsidiary_transaction.h"
 #include "subsidiary_transaction_state.h"
+#include "subsidiary_transaction.h"
 
 typedef struct
 {
@@ -34,11 +34,12 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
+		char *transaction_date_time,
 		double shipping_charge,
-		inventory_sale_total,
-		inventory_sale_CGS_total,
-		specific_inventory_sale_total,
-		specific_inventory_sale_CGS_total,
+		double inventory_sale_total,
+		double inventory_sale_CGS_total,
+		double specific_inventory_sale_total,
+		double specific_inventory_sale_CGS_total,
 		double sale_invoice_amount,
 		double sale_gross_revenue,
 		double sale_sales_tax );

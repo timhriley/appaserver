@@ -12,15 +12,13 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
+#include "sale_transaction.h"
 #include "sale_loss_transaction.h"
 #include "sale_fetch.h"
 
 #define SALE_TABLE		"sale"
 
-#define SALE_SELECT		"full_name,"			\
-				"street_address,"		\
-				"sale_date_time,"		\
-				"invoice_amount,"		\
+#define SALE_SELECT		"invoice_amount,"		\
 				"payment_total,"		\
 				"amount_due,"			\
 				"completed_date_time,"		\
@@ -28,31 +26,6 @@
 				"transaction_date_time"
 
 #define SALE_MEMO		"Customer Sale"
-
-typedef struct
-{
-	TRANSACTION *transaction;
-} SALE_TRANSACTION;
-
-/* Usage */
-/* ----- */
-SALE_TRANSACTION *sale_transaction_new(
-		char *full_name,
-		char *street_address,
-		char *completed_date_time,
-		double invoice_amount,
-		double gross_revenue,
-		double sales_tax,
-		double shipping_charge,
-		char *account_receivable,
-		char *account_revenue,
-		char *account_shipping_revenue,
-		char *account_sales_tax_payable );
-
-/* Process */
-/* ------- */
-SALE_TRANSACTION *sale_transaction_calloc(
-		void );
 
 typedef struct
 {
@@ -159,6 +132,13 @@ void sale_update(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean,
+		double inventory_sale_total,
+		double specific_inventory_sale_total,
+		double fixed_service_sale_total,
 		double hourly_service_sale_total,
 		double sale_gross_revenue,
 		double sale_sales_tax,
