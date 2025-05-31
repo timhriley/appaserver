@@ -548,6 +548,24 @@ char *account_payable_string(
 /* Usage */
 /* ----- */
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_receivable_string(
+		const char *account_receivable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+char *account_loss_string(
+		const char *account_loss_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* --------------------- */
 char *account_name_format(

@@ -1955,6 +1955,26 @@ char *date_now_hhmmss( int utc_offset )
 	return strdup( buffer );
 }
 
+char *date_now_colon__hhmmss( int utc_offset )
+{
+	char buffer[ 128 ];
+	DATE *date;
+
+	date = date_now( utc_offset );
+
+	snprintf(
+		buffer,
+		sizeof ( buffer ),
+		"%02d:%02d:%02d",
+		date->tm->tm_hour,
+		date->tm->tm_min,
+		date->tm->tm_sec );
+
+	date_free( date );
+
+	return strdup( buffer );
+}
+
 void date_set_tm_structures(
 		DATE *date,
 		time_t current,

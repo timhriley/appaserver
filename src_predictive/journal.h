@@ -316,6 +316,9 @@ double journal_debit_credit_difference_sum(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 JOURNAL *journal_account_new(
 		double journal_amount,
 		ACCOUNT *debit_account,

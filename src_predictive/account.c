@@ -360,6 +360,34 @@ char *account_payable_string(
 		calling_function_name );
 }
 
+char *account_receivable_string(
+		const char *account_receivable_key,
+		const char *calling_function_name )
+{
+	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
+	account_hard_coded_account_name(
+		account_receivable_key,
+		0 /* not warning_only */,
+		calling_function_name );
+}
+
+char *account_loss_string(
+		const char *account_loss_key,
+		const char *calling_function_name )
+{
+	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
+	account_hard_coded_account_name(
+		account_loss_key,
+		0 /* not warning_only */,
+		calling_function_name );
+}
+
 char *account_accumulated_depreciation_string(
 		const char *account_accumulated_depreciation_key,
 		const char *calling_function_name )

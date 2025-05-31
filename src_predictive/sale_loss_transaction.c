@@ -49,13 +49,14 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 
 	sale_loss_transaction = sale_loss_transaction_calloc();
 
-	sale_loss_transaction->account_loss =
-		account_loss(
-			ACCOUNT_LOSS_KEY );
+	sale_loss_transaction->account_loss_string =
+		account_loss_string(
+			ACCOUNT_LOSS_KEY,
+			__FUNCTION__ );
 
 	if ( ! ( sale_loss_transaction->debit_account =
 			account_fetch(
-				sale_loss_transaction->account_loss,
+				sale_loss_transaction->account_loss_string,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */ ) ) )
 	{
@@ -65,7 +66,7 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 			message,
 			sizeof ( message ),
 			"account_fetch(%s) returned empty.",
-			sale_loss_transaction->account_loss );
+			sale_loss_transaction->account_loss_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -74,13 +75,15 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 			message );
 	}
 
-	sale_loss_transaction->account_receivable =
-		account_receivable(
-			ACCOUNT_RECEIVABLE_KEY );
+	sale_loss_transaction->account_receivable_string =
+		account_receivable_string(
+			ACCOUNT_RECEIVABLE_KEY,
+			__FUNCTION__ );
 
 	if ( ! ( sale_loss_transaction->credit_account =
 			account_fetch(
-				sale_loss_transaction->account_receivable,
+				sale_loss_transaction->
+					account_receivable_string,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */ ) ) )
 	{
@@ -90,7 +93,7 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 			message,
 			sizeof ( message ),
 			"account_fetch(%s) returned empty.",
-			sale_loss_transaction->account_receivable );
+			sale_loss_transaction->account_receivable_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

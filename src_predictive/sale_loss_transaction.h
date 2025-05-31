@@ -15,9 +15,9 @@
 
 typedef struct
 {
-	char *account_loss;
+	char *account_loss_string;
 	ACCOUNT *debit_account;
-	char *account_receivable;
+	char *account_receivable_string;
 	ACCOUNT *credit_account;
 	LIST *journal_binary_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;

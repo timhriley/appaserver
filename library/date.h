@@ -636,6 +636,11 @@ DATE *date_forward_to_first_month(
 char *date_colon_now_time(
 		void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *date_now_colon__hhmmss(
+		int utc_offset );
+
 void date_place_colon_in_time(
 		char *time_string );
 
