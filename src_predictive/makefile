@@ -806,6 +806,12 @@ sale_fetch.o: sale_fetch.c sale_fetch.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c sale_fetch.c
 
+customer_payment_transaction.o:						\
+	customer_payment_transaction.c					\
+	customer_payment_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c customer_payment_transaction.c
+
 sale_loss_transaction.o:						\
 	sale_loss_transaction.c						\
 	sale_loss_transaction.h

@@ -72,6 +72,11 @@ double inventory_sale_total(
 
 /* Usage */
 /* ----- */
+double inventory_sale_CGS_total(
+		LIST *inventory_sale_list );
+
+/* Usage */
+/* ----- */
 INVENTORY_SALE *inventory_sale_seek(
 		LIST *inventory_sale_list,
 		char *inventory_name );

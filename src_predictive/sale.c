@@ -8,8 +8,10 @@
 #include <stdlib.h>
 #include "String.h"
 #include "piece.h"
+#include "security.h"
 #include "date.h"
 #include "appaserver_error.h"
+#include "appaserver.h"
 #include "sql.h"
 #include "transaction.h"
 #include "journal.h"
@@ -27,6 +29,7 @@ SALE *sale_trigger_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
@@ -113,14 +116,14 @@ SALE *sale_trigger_new(
 					specific_inventory_sale_list );
 	}
 
-	if ( list_length( sale->fixed_service_sale_list ) )
+	if ( list_length( sale->sale_fetch->fixed_service_sale_list ) )
 	{
 		sale->fixed_service_sale_total =
 			fixed_service_sale_total(
 				sale->sale_fetch->fixed_service_sale_list );
 	}
 
-	if ( list_length( sale->hourly_service_sale_list ) )
+	if ( list_length( sale->sale_fetch->hourly_service_sale_list ) )
 	{
 		sale->hourly_service_sale_total =
 			hourly_service_sale_total(
@@ -138,13 +141,13 @@ SALE *sale_trigger_new(
 		SALE_SALES_TAX(
 			sale->inventory_sale_total,
 			sale->specific_inventory_sale_total,
-			sale->sale_fetch->self_tax_sales_tax_rate );
+			sale->sale_fetch->self_tax_state_sales_tax_rate );
 
 	sale->invoice_amount =
 		SALE_INVOICE_AMOUNT(
-			sale->sale_gross_revenue,
-			sale->sale_sales_tax,
-			sale->sale_fetch_new->shipping_charge );
+			sale->gross_revenue,
+			sale->sales_tax,
+			sale->sale_fetch->shipping_charge );
 
 	sale->customer_payment_total =
 		customer_payment_total(
@@ -154,7 +157,7 @@ SALE *sale_trigger_new(
 
 	sale->amount_due =
 		SALE_AMOUNT_DUE(
-			sale->sale_invoice_amount,
+			sale->invoice_amount,
 			sale->customer_payment_total );
 
 	sale->sale_transaction =
@@ -270,7 +273,8 @@ void sale_update(
 		double sale_sales_tax,
 		double sale_invoice_amount,
 		double customer_payment_total,
-		double sale_amount_due )
+		double sale_amount_due,
+		SALE_TRANSACTION *sale_transaction )
 {
 	char *system_string;
 	FILE *pipe;
@@ -352,7 +356,7 @@ void sale_update(
 		entity_escape_full_name( full_name ),
 		entity_escape_street_address( street_address ),
 		sale_date_time,
-		gross_revenue );
+		sale_gross_revenue );
 
 	if ( inventory_sale_boolean
 	||   specific_inventory_sale_boolean )
@@ -362,7 +366,7 @@ void sale_update(
 			entity_escape_full_name( full_name ),
 			entity_escape_street_address( street_address ),
 			sale_date_time,
-			sales_tax );
+			sale_sales_tax );
 	}
 
 	fprintf(pipe,
@@ -370,30 +374,32 @@ void sale_update(
 		entity_escape_full_name( full_name ),
 		entity_escape_street_address( street_address ),
 		sale_date_time,
-		invoice_amount );
+		sale_invoice_amount );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^payment_total^%.2lf\n",
 		entity_escape_full_name( full_name ),
 		entity_escape_street_address( street_address ),
 		sale_date_time,
-		payment_total );
+		customer_payment_total );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^amount_due^%.2lf\n",
 		entity_escape_full_name( full_name ),
 		entity_escape_street_address( street_address ),
 		sale_date_time,
-		amount_due );
+		sale_amount_due );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^transaction_date_time^%s\n",
 		entity_escape_full_name( full_name ),
 		entity_escape_street_address( street_address ),
 		sale_date_time,
-		(transaction_date_time)
-			? transaction_date_time
-			: "" );
+		/* ------------------------------------------- */
+		/* Returns component of sale_transaction or "" */
+		/* ------------------------------------------- */
+		sale_update_transaction_date_time(
+			sale_transaction ) );
 
 	pclose( pipe );
 }
@@ -479,6 +485,8 @@ double sale_work_hours(
 
 SALE *sale_calloc( void )
 {
+	SALE *sale;
+
 	if ( ! ( sale = calloc( 1, sizeof ( SALE ) ) ) )
 	{
 		fprintf( stderr,
@@ -490,5 +498,40 @@ SALE *sale_calloc( void )
 	}
 
 	return sale;
+}
+
+char *sale_update_transaction_date_time(
+		SALE_TRANSACTION *sale_transaction )
+{
+	char *transaction_date_time = "";
+
+	if ( sale_transaction
+	&&   sale_transaction->subsidiary_transaction
+	&&   sale_transaction->subsidiary_transaction->insert_transaction )
+	{
+		transaction_date_time =
+			sale_transaction->
+				subsidiary_transaction->
+				insert_transaction->
+				transaction_date_time;
+	}
+
+	if ( !transaction_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"transaction_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return transaction_date_time;
 }
 

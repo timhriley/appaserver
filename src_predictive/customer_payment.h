@@ -18,7 +18,7 @@
 					"payment_amount,"	\
 					"check_number"
 
-#define CUSTOMER_PAYMENT_MEMO		"Customer Payment"
+#define CUSTOMER_PAYMENT_MEMO		"Customer payment"
 
 typedef struct
 {
@@ -68,13 +68,48 @@ CUSTOMER_PAYMENT *customer_payment_calloc(
 
 /* Usage */
 /* ----- */
-double customer_payment_total(
-		LIST *customer_payment_list );
+
+/* Safely returns */
+/* -------------- */
+CUSTOMER_PAYMENT *customer_payment_trigger_new(
+		const char *customer_payment_select,
+		const char *customer_payment_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time,
+		char *state,
+		char *preupdate_full_name,
+		char *preupdate_street_address,
+		char *preupdate_payment_date_time );
 
 /* Usage */
 /* ----- */
-CUSTOMER_PAYMENT *customer_payment_seek(
-		char *payment_date_time,
+
+/* Safely returns */
+/* -------------- */
+CUSTOMER_PAYMENT *customer_payment_fetch(
+		const char *customer_payment_select,
+		const char *customer_payment_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *customer_payment_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time );
+
+/* Usage */
+/* ----- */
+double customer_payment_total(
 		LIST *customer_payment_list );
 
 #endif

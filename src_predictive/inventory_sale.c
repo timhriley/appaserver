@@ -337,6 +337,21 @@ double inventory_sale_total( LIST *inventory_sale_list )
 	return total;
 }
 
+double inventory_sale_CGS_total( LIST *inventory_sale_list )
+{
+	INVENTORY_SALE *inventory_sale;
+	double total = 0.0;
+
+	if ( list_rewind( inventory_sale_list ) )
+	do {
+		inventory_sale = list_get( inventory_sale_list );
+		total += inventory_sale->cost_of_goods_sold;
+
+	} while( list_next( inventory_sale_list ) );
+
+	return total;
+}
+
 INVENTORY_SALE *inventory_sale_seek(
 		LIST *inventory_sale_list,
 		char *inventory_name )

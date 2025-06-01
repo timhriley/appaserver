@@ -1,35 +1,24 @@
-/* ----------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_hourly_service_sale.c 	   */
-/* ----------------------------------------------------------------------- */
-/* 									   */
-/* Freely available software: see Appaserver.org			   */
-/* ----------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/src_predictive/hourly_service_sale_trigger.c	*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "environ.h"
-#include "piece.h"
-#include "list.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "entity.h"
-#include "inventory_sale.h"
 #include "sale.h"
 #include "hourly_service_sale.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-void post_change_hourly_service_sale_insert_update_delete(
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *service_name,
-				char *description );
+void hourly_service_sale_trigger(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *state );
 
 int main( int argc, char **argv )
 {
@@ -38,12 +27,12 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *sale_date_time;
 	char *service_name;
-	char *description;
+	char *service_description;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	appaserver_output_starting_argv_append_file(
+	appaserver_error_argv_append_file(
 		argc,
 		argv,
 		application_name );

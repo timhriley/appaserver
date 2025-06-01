@@ -34,7 +34,9 @@ typedef struct
 	char *sale_date_time;
 	SALE_FETCH *sale_fetch;
 	double inventory_sale_total;
+	double inventory_sale_CGS_total;
 	double specific_inventory_sale_total;
+	double specific_inventory_sale_CGS_total;
 	double fixed_service_sale_total;
 	double hourly_service_sale_total;
 	double gross_revenue;
@@ -52,6 +54,7 @@ SALE *sale_trigger_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
@@ -91,9 +94,11 @@ char *sale_primary_where(
 /* ----- */
 #define SALE_GROSS_REVENUE(					\
 		inventory_sale_total,				\
+		specific_inventory_sale_total,			\
 		fixed_service_sale_total,			\
 		hourly_service_sale_total )			\
 	( inventory_sale_total +				\
+	  specific_inventory_sale_total +			\
 	  fixed_service_sale_total +				\
 	  hourly_service_sale_total )
 
@@ -101,8 +106,11 @@ char *sale_primary_where(
 /* ----- */
 #define SALE_SALES_TAX(						\
 		inventory_sale_total,				\
-		self_tax_sales_tax_rate )			\
-	( inventory_sale_total * self_tax_sales_tax_rate )
+		specific_inventory_sale_total,			\
+		self_tax_state_sales_tax_rate )			\
+	( ( inventory_sale_total +				\
+	    specific_inventory_sale_total ) *			\
+	    self_tax_state_sales_tax_rate )
 
 /* Usage */
 /* ----- */
@@ -144,10 +152,16 @@ void sale_update(
 		double sale_sales_tax,
 		double sale_invoice_amount,
 		double customer_payment_total,
-		double sale_amount_due );
+		double sale_amount_due,
+		SALE_TRANSACTION *sale_transaction );
 
 /* Process */
 /* ------- */
+
+/* Returns component of sale_transaction or "" */
+/* ------------------------------------------- */
+char *sale_update_transaction_date_time(
+		SALE_TRANSACTION *sale_transaction );
 
 /* Returns heap memory */
 /* ------------------- */

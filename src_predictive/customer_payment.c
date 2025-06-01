@@ -11,42 +11,10 @@
 #include "String.h"
 #include "sql.h"
 #include "piece.h"
-#include "list.h"
-#include "boolean.h"
-#include "transaction.h"
-#include "entity.h"
+#include "appaserver.h"
+#include "appaserver_error.h"
 #include "sale.h"
-#include "journal.h"
 #include "customer_payment.h"
-
-CUSTOMER_PAYMENT *customer_payment_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *payment_date_time )
-{
-	CUSTOMER_PAYMENT *customer_payment;
-
-	if ( ! ( customer_payment = calloc( 1, sizeof( CUSTOMER_PAYMENT ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	customer_payment->customer_entity =
-		entity_new(
-			full_name,
-			street_address );
-
-	customer_payment->sale_date_time = sale_date_time;
-	customer_payment->payment_date_time = payment_date_time;
-	
-	return customer_payment;
-}
 
 LIST *customer_payment_list(
 		const char *customer_payment_select,
@@ -95,8 +63,8 @@ LIST *customer_payment_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			customer_payment_select,
-			customer_payment_table,
+			(char *)customer_payment_select,
+			(char *)customer_payment_table,
 			where );
 
 	pipe =
@@ -127,7 +95,7 @@ CUSTOMER_PAYMENT *customer_payment_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *string_input )
+		char *input )
 {
 	char payment_date_time[ 128 ];
 	char piece_buffer[ 1024 ];
@@ -177,5 +145,220 @@ double customer_payment_total( LIST *customer_payment_list )
 	} while ( list_next( customer_payment_list ) );
 
 	return total;
+}
+
+char *customer_payment_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time )
+{
+	static char where[ 256 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !payment_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and payment_date_time = '%s'",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time ),
+		payment_date_time );
+
+	return where;
+}
+
+CUSTOMER_PAYMENT *customer_payment_fetch(
+		const char *customer_payment_select,
+		const char *customer_payment_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time )
+{
+	char *primary_where;
+	char *system_string;
+	char *fetch;
+	CUSTOMER_PAYMENT *customer_payment;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !payment_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		customer_payment_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
+			payment_date_time );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)customer_payment_select,
+			(char *)customer_payment_table,
+			primary_where );
+
+	if ( ! ( fetch = string_pipe_fetch( system_string ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"string_pipe_fetch(%s) returned empty.",
+			system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	free( system_string );
+
+	customer_payment =
+		customer_payment_parse(
+			full_name,
+			street_address,
+			sale_date_time,
+			fetch /* string_input */ );
+
+	if ( !customer_payment )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"customer_payment_parse(%s) returned empty.",
+			fetch );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return customer_payment;
+}
+
+CUSTOMER_PAYMENT *customer_payment_trigger_new(
+		const char *customer_payment_select,
+		const char *customer_payment_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time,
+		char *state,
+		char *preupdate_full_name,
+		char *preupdate_street_address,
+		char *preupdate_payment_date_time )
+{
+	CUSTOMER_PAYMENT *customer_payment;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !payment_date_time
+	||   !state
+	||   !preupdate_full_name
+	||   !preupdate_street_address
+	||   !preupdate_payment_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	customer_payment =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		customer_payment_fetch(
+			customer_payment_select,
+			customer_payment_table,
+			full_name,
+			street_address,
+			sale_date_time,
+			payment_date_time );
+
+	if ( !customer_payment->payment_amount
+	||   !customer_payment->account )
+	{
+		return customer_payment;
+	}
+
+	customer_payment->customer_payment_transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		customer_payment_transaction_new(
+			full_name,
+			street_address,
+			payment_date_time,
+			state,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_payment_date_time,
+			customer_payment->
+				account /* account_cash_string */,
+			customer_payment->
+				payment_amount );
+
+	return customer_payment;
 }
 

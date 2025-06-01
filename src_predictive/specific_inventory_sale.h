@@ -73,6 +73,11 @@ double specific_inventory_sale_total(
 
 /* Usage */
 /* ----- */
+double specific_inventory_sale_CGS_total(
+		LIST *specific_inventory_sale_list );
+
+/* Usage */
+/* ----- */
 SPECIFIC_INVENTORY_SALE *specific_inventory_sale_seek(
 		LIST *specific_inventory_sale_list,
 		char *inventory_name,
