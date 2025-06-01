@@ -69,104 +69,125 @@ SALE *sale_trigger_new(
 	sale->street_address = street_address;
 	sale->sale_date_time = sale_date_time;
 
-SALE_FETCH *sale_fetch_new(
-	SALE_SELECT,
-	SALE_TABLE,
-	full_name,
-	street_address,
-	sale_date_time,
-	inventory_sale_boolean,
-	specific_inventory_sale_boolean,
-	title_passage_rule_boolean,
-	shipping_charge_boolean,
-	instructions_boolean,
-	fixed_service_sale_boolean,
-	hourly_service_sale_boolean );
+	sale->sale_fetch =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		sale_fetch_new(
+			SALE_SELECT,
+			SALE_TABLE,
+			full_name,
+			street_address,
+			sale_date_time,
+			inventory_sale_boolean,
+			specific_inventory_sale_boolean,
+			title_passage_rule_boolean,
+			shipping_charge_boolean,
+			instructions_boolean,
+			fixed_service_sale_boolean,
+			hourly_service_sale_boolean );
 
-if ( 	list_length( sale_fetch_new()->inventory_sale_list ) )
-{
-	double inventory_sale_total(
-		sale_fetch_new()->inventory_sale_list );
+	if (list_length( sale->sale_fetch->inventory_sale_list ) )
+	{
+		sale->inventory_sale_total =
+			inventory_sale_total(
+				sale->sale_fetch->inventory_sale_list );
 
-	double inventory_sale_CGS_total(
-		sale_fetch_new()->inventory_sale_list );
-}
+		sale->inventory_sale_CGS_total =
+			inventory_sale_CGS_total(
+				sale->sale_fetch->inventory_sale_list );
+	}
 
-if ( list_length( sale_fetch_new()->
-			specific_inventory_sale_list ) )
-{
-	double specific_inventory_sale_total(
-		sale_fetch_new()->specific_inventory_sale_list );
+	if ( list_length( sale->sale_fetch->specific_inventory_sale_list ) )
+	{
+		sale->specific_inventory_sale_total =
+			specific_inventory_sale_total(
+				sale->
+					sale_fetch->
+					specific_inventory_sale_list );
 
-	double specific_inventory_sale_CGS_total(
-		sale_fetch_new()->specific_inventory_sale_list );
-}
+		sale->specific_inventory_sale_CGS_total =
+			specific_inventory_sale_CGS_total(
+				sale->
+					sale_fetch->
+					specific_inventory_sale_list );
+	}
 
-if ( list_length( sale->fixed_service_sale_list ) )
-{
-	double fixed_service_sale_total(
-		sale_fetch_new()->fixed_service_sale_list );
-}
+	if ( list_length( sale->fixed_service_sale_list ) )
+	{
+		sale->fixed_service_sale_total =
+			fixed_service_sale_total(
+				sale->sale_fetch->fixed_service_sale_list );
+	}
 
-if ( list_length( sale->hourly_service_sale_list ) )
-{
-	double hourly_service_sale_total(
-		sale_fetch_new()->hourly_service_sale_list );
-}
+	if ( list_length( sale->hourly_service_sale_list ) )
+	{
+		sale->hourly_service_sale_total =
+			hourly_service_sale_total(
+				sale->sale_fetch->hourly_service_sale_list );
+	}
 
-double SALE_GROSS_REVENUE(
-	inventory_sale_total(),
-	specific_inventory_sale_total(),
-	fixed_service_sale_total(),
-	hourly_service_sale_total() );
+	sale->gross_revenue =
+		SALE_GROSS_REVENUE(
+			sale->inventory_sale_total,
+			sale->specific_inventory_sale_total,
+			sale->fixed_service_sale_total,
+			sale->hourly_service_sale_total );
 
-double SALE_SALES_TAX(
-	inventory_sale_total(),
-	specific_inventory_sale_total(),
-	sale_fetch_new()->self_tax_sales_tax_rate );
+	sale->sales_tax =
+		SALE_SALES_TAX(
+			sale->inventory_sale_total,
+			sale->specific_inventory_sale_total,
+			sale->sale_fetch->self_tax_sales_tax_rate );
 
-double SALE_INVOICE_AMOUNT(
-	SALE_GROSS_REVENUE(),
-	SALE_SALES_TAX(),
-	sale_fetch_new()->shipping_charge );
+	sale->invoice_amount =
+		SALE_INVOICE_AMOUNT(
+			sale->sale_gross_revenue,
+			sale->sale_sales_tax,
+			sale->sale_fetch_new->shipping_charge );
 
-double customer_payment_total(
-	sale_fetch_new()->
-		customer_payment_list );
+	sale->customer_payment_total =
+		customer_payment_total(
+			sale->
+				sale_fetch->
+				customer_payment_list );
 
-double SALE_AMOUNT_DUE(
-	SALE_INVOICE_AMOUNT(),
-	customer_payment_total() );
+	sale->amount_due =
+		SALE_AMOUNT_DUE(
+			sale->sale_invoice_amount,
+			sale->customer_payment_total );
 
-SALE_TRANSACTION *sale_transaction_new(
-	full_name,
-	street_address,
-	state,
-	preupdate_full_name,
-	preupdate_street_address,
-	sale_fetch_new()->predictive_title_passage_rule,
-	sale_fetch_new()->completed_date_time,
-	sale_fetch_new()->transaction_date_time,
-	sale_fetch_new()->shipped_date_time,
-	sale_fetch_new()->arrived_date,
-	sale_fetch_new()->shipping_charge,
-	inventory_sale_total(),
-	inventory_sale_CGS_total(),
-	specific_inventory_sale_total(),
-	specific_inventory_sale_CGS_total(),
-	SALE_GROSS_REVENUE(),
-	SALE_SALES_TAX() );
-	SALE_INVOICE_AMOUNT(),
+	sale->sale_transaction =
+		sale_transaction_new(
+			full_name,
+			street_address,
+			state,
+			preupdate_full_name,
+			preupdate_street_address,
+			sale->sale_fetch->predictive_title_passage_rule,
+			sale->sale_fetch->completed_date_time,
+			sale->sale_fetch->transaction_date_time,
+			sale->sale_fetch->shipped_date_time,
+			sale->sale_fetch->arrived_date,
+			sale->sale_fetch->shipping_charge,
+			sale->inventory_sale_total,
+			sale->inventory_sale_CGS_total,
+			sale->specific_inventory_sale_total,
+			sale->specific_inventory_sale_CGS_total,
+			sale->gross_revenue,
+			sale->sales_tax,
+			sale->invoice_amount );
 
-SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
-	full_name,
-	street_address,
-	state,
-	preupdate_full_name,
-	preupdate_street_address,
-	preupdate_uncollectible_date_time,
-	sale_fetch_new()->uncollectible_date_time,
-	sale_amount_due_string() );
+	sale->sale_loss_transaction =
+		sale_loss_transaction_new(
+			full_name,
+			street_address,
+			uncollectible_date_time,
+			state,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_uncollectible_date_time,
+			sale->amount_due );
 
 	return sale;
 }

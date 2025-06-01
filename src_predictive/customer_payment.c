@@ -1,8 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/customer_payment.c			*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
@@ -50,112 +49,127 @@ CUSTOMER_PAYMENT *customer_payment_new(
 }
 
 LIST *customer_payment_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
+		const char *customer_payment_select,
+		const char *customer_payment_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time )
 {
-	return customer_payment_system_list(
-		customer_payment_sys_string(
-			sale_primary_where(
+	LIST *list = list_new();
+	char *where;
+	char *system_string;
+	FILE *pipe;
+	char input[ 1024 ];
+	CUSTOMER_PAYMENT *customer_payment;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			customer_payment_select,
+			customer_payment_table,
+			where );
+
+	pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_input_pipe(
+			system_string );
+
+	free( system_string );
+
+	while ( string_input( input, pipe, sizeof ( input ) ) )
+	{
+		customer_payment =
+			customer_payment_parse(
 				full_name,
 				street_address,
-				sale_date_time ) ) );
+				sale_date_time,
+				input );
+
+		list_set( list, customer_payment );
+	}
+
+	return list;
 }
 
-char *customer_payment_select( void )
+CUSTOMER_PAYMENT *customer_payment_parse(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *string_input )
 {
-	return
-		"first_name,"
-		"street_address,"
-		"sale_date_time,"
-		"payment_date_time,"
-		"payment_amount,"
-		"check_number,"
-		"transaction_date_time";
-}
-
-CUSTOMER_PAYMENT *customer_payment_parse( char *input )
-{
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char sale_date_time[ 128 ];
 	char payment_date_time[ 128 ];
 	char piece_buffer[ 1024 ];
 	CUSTOMER_PAYMENT *customer_payment;
 
-	if ( !input || !*input ) return (CUSTOMER_PAYMENT *)0;
+	if ( !input || !*input ) return NULL;
 
-	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( sale_date_time, SQL_DELIMITER, input, 2 );
-	piece( payment_date_time, SQL_DELIMITER, input, 3 );
+	/* See CUSTOMER_PAYMENT_SELECT */
+	/* --------------------------- */
+	piece( payment_date_time, SQL_DELIMITER, input, 0 );
 
 	customer_payment =
 		customer_payment_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( sale_date_time ),
+			full_name,
+			street_address,
+			sale_date_time,
 			strdup( payment_date_time ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	customer_payment->check_number = atoi( piece_buffer );
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	if ( *piece_buffer )
+		customer_payment->account =
+			strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	customer_payment->customer_payment_transaction =
-		transaction_fetch(
-			customer_payment->customer_entity->full_name,
-			customer_payment->customer_entity->street_address,
-			piece_buffer /* transaction_date_time */ );
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	if ( *piece_buffer )
+		customer_payment->payment_amount =
+			atof( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	if ( *piece_buffer )
+		customer_payment->check_number =
+			atoi( piece_buffer );
 
 	return customer_payment;
 }
 
-char *customer_payment_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	if ( !where ) return (char *)0;
-
-	sprintf( sys_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 customer_payment_select(),
-		 "customer_payment",
-		 where );
-
-	return strdup( sys_string );
-}
-
-LIST *customer_payment_system_list( char *sys_string )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *payment_list;
-
-	payment_list = list_new();
-
-	input_pipe = popen( sys_string, "r" );
-
-	while ( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set( payment_list, customer_payment_parse( input ) );
-	}
-
-	pclose( input_pipe );
-	return payment_list;
-}
-
-double customer_payment_total(
-			LIST *customer_payment_list )
+double customer_payment_total( LIST *customer_payment_list )
 {
 	CUSTOMER_PAYMENT *customer_payment;
-	double total;
+	double total = 0.0;
 
-	if ( !list_rewind( customer_payment_list ) ) return 0.0;
-
-	total = 0.0;
+	if ( list_rewind( customer_payment_list ) )
 	do {
 		customer_payment = list_get( customer_payment_list );
 		total += customer_payment->payment_amount;
@@ -163,40 +177,5 @@ double customer_payment_total(
 	} while ( list_next( customer_payment_list ) );
 
 	return total;
-}
-
-TRANSACTION *customer_payment_transaction(
-			char *full_name,
-			char *street_address,
-			char *payment_date_time,
-			double payment_amount,
-			char *account_cash,
-			char *account_receivable )
-{
-	TRANSACTION *transaction;
-
-	if ( !payment_amount ) return (TRANSACTION *)0;
-
-	transaction =
-		transaction_new(
-			full_name,
-			street_address,
-			payment_date_time
-				/* transaction_date_time */ );
-
-	transaction->transaction_amount = payment_amount;
-
-	transaction->journal_list =
-		journal_binary_journal_list(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			account_cash
-				/* debit_account */,
-			account_receivable
-				/* credit_account */ );
-
-	return transaction;
 }
 

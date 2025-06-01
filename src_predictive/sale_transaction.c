@@ -36,9 +36,9 @@ SALE_TRANSACTION *sale_transaction_new(
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_total,
 		double specific_inventory_sale_CGS_total,
-		double sale_invoice_amount,
 		double sale_gross_revenue,
-		double sale_sales_tax )
+		double sale_sales_tax,
+		double sale_invoice_amount );
 {
 	SALE_TRANSACTION *sale_transaction;
 
@@ -101,7 +101,7 @@ SALE_TRANSACTION *sale_transaction_new(
 			state,
 			preupdate_full_name,
 			preupdate_street_address,
-			"preupdate_transaction_date_time"
+			transaction_date_time,
 				/* preupdate_foreign_date_time */,
 			full_name,
 			street_address,
