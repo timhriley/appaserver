@@ -33,24 +33,13 @@ SALE *sale_trigger_new(
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
-		char *preupdate_uncollectible_date_time,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
-		boolean shipping_charge_boolean,
-		boolean instructions_boolean,
-		boolean fixed_service_sale_boolean,
-		boolean hourly_service_sale_boolean )
+		char *preupdate_uncollectible_date_time )
 {
 	SALE *sale;
 
 	if ( !full_name
 	||   !street_address
-	||   !sale_date_time
-	||   !state
-	||   !preupdate_full_name
-	||   !preupdate_street_address
-	||   !preupdate_uncollectible_date_time )
+	||   !sale_date_time )
 	{
 		char message[ 128 ];
 
@@ -81,14 +70,7 @@ SALE *sale_trigger_new(
 			SALE_TABLE,
 			full_name,
 			street_address,
-			sale_date_time,
-			inventory_sale_boolean,
-			specific_inventory_sale_boolean,
-			title_passage_rule_boolean,
-			shipping_charge_boolean,
-			instructions_boolean,
-			fixed_service_sale_boolean,
-			hourly_service_sale_boolean );
+			sale_date_time );
 
 	if (list_length( sale->sale_fetch->inventory_sale_list ) )
 	{
@@ -160,37 +142,40 @@ SALE *sale_trigger_new(
 			sale->invoice_amount,
 			sale->customer_payment_total );
 
-	sale->sale_transaction =
-		sale_transaction_new(
-			full_name,
-			street_address,
-			state,
-			preupdate_full_name,
-			preupdate_street_address,
-			sale->sale_fetch->predictive_title_passage_rule,
-			sale->sale_fetch->completed_date_time,
-			sale->sale_fetch->transaction_date_time,
-			sale->sale_fetch->shipped_date_time,
-			sale->sale_fetch->arrived_date,
-			sale->sale_fetch->shipping_charge,
-			sale->inventory_sale_total,
-			sale->inventory_sale_CGS_total,
-			sale->specific_inventory_sale_total,
-			sale->specific_inventory_sale_CGS_total,
-			sale->gross_revenue,
-			sale->sales_tax,
-			sale->invoice_amount );
+	if ( state )
+	{
+		sale->sale_transaction =
+			sale_transaction_new(
+				full_name,
+				street_address,
+				state,
+				preupdate_full_name,
+				preupdate_street_address,
+				sale->sale_fetch->predictive_title_passage_rule,
+				sale->sale_fetch->completed_date_time,
+				sale->sale_fetch->transaction_date_time,
+				sale->sale_fetch->shipped_date_time,
+				sale->sale_fetch->arrived_date,
+				sale->sale_fetch->shipping_charge,
+				sale->inventory_sale_total,
+				sale->inventory_sale_CGS_total,
+				sale->specific_inventory_sale_total,
+				sale->specific_inventory_sale_CGS_total,
+				sale->gross_revenue,
+				sale->sales_tax,
+				sale->invoice_amount );
 
-	sale->sale_loss_transaction =
-		sale_loss_transaction_new(
-			full_name,
-			street_address,
-			uncollectible_date_time,
-			state,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_uncollectible_date_time,
-			sale->amount_due );
+		sale->sale_loss_transaction =
+			sale_loss_transaction_new(
+				full_name,
+				street_address,
+				uncollectible_date_time,
+				state,
+				preupdate_full_name,
+				preupdate_street_address,
+				preupdate_uncollectible_date_time,
+				sale->amount_due );
+	}
 
 	return sale;
 }

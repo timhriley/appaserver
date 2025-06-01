@@ -58,14 +58,7 @@ SALE *sale_trigger_new(
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
-		char *preupdate_uncollectible_date_time,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
-		boolean shipping_charge_boolean,
-		boolean instructions_boolean,
-		boolean fixed_service_sale_boolean,
-		boolean hourly_service_sale_boolean );
+		char *preupdate_uncollectible_date_time );
 
 /* Process */
 /* ------- */

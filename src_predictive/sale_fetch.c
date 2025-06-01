@@ -13,6 +13,7 @@
 #include "sql.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "folder_attribute.h"
 #include "specific_inventory_sale.h"
 #include "inventory_sale.h"
 #include "fixed_service_sale.h"
@@ -106,6 +107,7 @@ SALE_FETCH *sale_fetch_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		SALE_FETCH *sale_fetch /* in/out */,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
 		boolean title_passage_rule_boolean,
@@ -115,13 +117,13 @@ SALE_FETCH *sale_fetch_parse(
 		boolean fixed_service_sale_boolean,
 		char *fetch )
 {
-	SALE_FETCH *sale_fetch;
 	char piece_buffer[ STRING_64K ];
 	int optional_piece_offset;
 
 	if ( !full_name
 	||   !street_address
 	||   !sale_date_time
+	||   !sale_fetch
 	||   !fetch )
 	{
 		char message[ 128 ];
@@ -137,8 +139,6 @@ SALE_FETCH *sale_fetch_parse(
 			__LINE__,
 			message );
 	}
-
-	sale_fetch = sale_fetch_calloc();
 
 	/* See sale_fetch_select() */
 	/* ----------------------- */
@@ -328,14 +328,7 @@ SALE_FETCH *sale_fetch_new(
 		const char *sale_table,
 		char *full_name,
 		char *street_address,
-		char *sale_date_time,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
-		boolean shipping_charge_boolean,
-		boolean instructions_boolean,
-		boolean hourly_service_sale_boolean,
-		boolean fixed_service_sale_boolean )
+		char *sale_date_time )
 {
 	char *select;
 	char *where;
@@ -361,19 +354,60 @@ SALE_FETCH *sale_fetch_new(
 			message );
 	}
 
+	sale_fetch = sale_fetch_calloc();
+
+	sale_fetch->folder_fetch =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		folder_fetch(
+			SALE_TABLE /* folder_name */,
+			(char *)0 /* role_name */,
+			(LIST *)0 /* role_attribute_exclude_name_list */,
+			1 /* fetch_folder_attribute_list */,
+			0 /* not fetch_attribute */ );
+
+	sale_fetch->inventory_sale_boolean =
+		sale_fetch_inventory_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->specific_inventory_sale_boolean =
+		sale_fetch_specific_inventory_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->title_passage_rule_boolean =
+		sale_fetch_title_passage_rule_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->shipping_charge_boolean =
+		sale_fetch_shipping_charge_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->instructions_boolean =
+		sale_fetch_instructions_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->hourly_service_sale_boolean =
+		sale_fetch_hourly_service_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->fixed_service_sale_boolean =
+		sale_fetch_fixed_service_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
 	select =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		sale_fetch_select(
 			sale_select,
-			inventory_sale_boolean,
-			specific_inventory_sale_boolean,
-			title_passage_rule_boolean,
-			shipping_charge_boolean,
-			instructions_boolean,
-			hourly_service_sale_boolean,
-			fixed_service_sale_boolean );
+			sale_fetch->inventory_sale_boolean,
+			sale_fetch->specific_inventory_sale_boolean,
+			sale_fetch->title_passage_rule_boolean,
+			sale_fetch->shipping_charge_boolean,
+			sale_fetch->instructions_boolean,
+			sale_fetch->hourly_service_sale_boolean,
+			sale_fetch->fixed_service_sale_boolean );
 
 	where =
 		/* --------------------- */
@@ -427,16 +461,17 @@ SALE_FETCH *sale_fetch_new(
 			full_name,
 			street_address,
 			sale_date_time,
-			inventory_sale_boolean,
-			specific_inventory_sale_boolean,
-			title_passage_rule_boolean,
-			shipping_charge_boolean,
-			instructions_boolean,
-			hourly_service_sale_boolean,
-			fixed_service_sale_boolean,
+			sale_fetch,
+			sale_fetch->inventory_sale_boolean,
+			sale_fetch->specific_inventory_sale_boolean,
+			sale_fetch->title_passage_rule_boolean,
+			sale_fetch->shipping_charge_boolean,
+			sale_fetch->instructions_boolean,
+			sale_fetch->hourly_service_sale_boolean,
+			sale_fetch->fixed_service_sale_boolean,
 			fetch );
 
-	if ( inventory_sale_boolean )
+	if ( sale_fetch->inventory_sale_boolean )
 	{
 		sale_fetch->inventory_sale_list =
 			inventory_sale_list(
@@ -446,7 +481,7 @@ SALE_FETCH *sale_fetch_new(
 				sale_date_time );
 	}
 
-	if ( specific_inventory_sale_boolean )
+	if ( sale_fetch->specific_inventory_sale_boolean )
 	{
 		sale_fetch->specific_inventory_sale_list =
 			specific_inventory_sale_list(
@@ -456,8 +491,8 @@ SALE_FETCH *sale_fetch_new(
 				sale_date_time );
 	}
 
-	if (	inventory_sale_boolean
-	||	specific_inventory_sale_boolean )
+	if (	sale_fetch->inventory_sale_boolean
+	||	sale_fetch->specific_inventory_sale_boolean )
 	{
 		if ( ! ( sale_fetch->customer =
 			   customer_fetch(
@@ -529,7 +564,7 @@ SALE_FETCH *sale_fetch_new(
 		}
 	}
 
-	if ( fixed_service_sale_boolean )
+	if ( sale_fetch->fixed_service_sale_boolean )
 	{
 		sale_fetch->fixed_service_sale_list =
 			fixed_service_sale_list(
@@ -539,7 +574,7 @@ SALE_FETCH *sale_fetch_new(
 				sale_date_time );
 	}
 
-	if ( hourly_service_sale_boolean )
+	if ( sale_fetch->hourly_service_sale_boolean )
 	{
 		sale_fetch->hourly_service_sale_list =
 			hourly_service_sale_list(
@@ -550,5 +585,110 @@ SALE_FETCH *sale_fetch_new(
 	}
 
 	return sale_fetch;
+}
+
+boolean sale_fetch_inventory_sale_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"inventory_sale_total",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_specific_inventory_sale_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"specific_inventory_sale_total",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_title_passage_rule_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"title_passage_rule",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_shipping_charge_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"shipping_charge",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_instructions_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"instructions",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_hourly_service_sale_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"hourly_service_sale_total",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_fixed_service_sale_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"fixed_service_sale_total",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

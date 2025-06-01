@@ -12,12 +12,21 @@
 #include "predictive.h"
 #include "customer.h"
 #include "entity_self.h"
+#include "folder.h"
 
 typedef struct
 {
 	char *full_name;
 	char *street_address;
 	char *sale_date_time;
+	FOLDER *folder_fetch;
+	boolean inventory_sale_boolean;
+	boolean specific_inventory_sale_boolean;
+	boolean title_passage_rule_boolean;
+	boolean shipping_charge_boolean;
+	boolean instructions_boolean;
+	boolean hourly_service_sale_boolean;
+	boolean fixed_service_sale_boolean;
 	double gross_revenue;
 	double invoice_amount;
 	double payment_total;
@@ -56,17 +65,33 @@ SALE_FETCH *sale_fetch_new(
 		const char *sale_table,
 		char *full_name,
 		char *street_address,
-		char *sale_date_time,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
-		boolean shipping_charge_boolean,
-		boolean instructions_boolean,
-		boolean hourly_service_sale_boolean,
-		boolean fixed_service_sale_boolean );
+		char *sale_date_time );
 
 /* Process */
 /* ------- */
+SALE_FETCH *sale_fetch_calloc(
+		void );
+
+boolean sale_fetch_inventory_sale_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_specific_inventory_sale_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_title_passage_rule_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_shipping_charge_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_instructions_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_hourly_service_sale_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_fixed_service_sale_boolean(
+		LIST *folder_attribute_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -89,6 +114,7 @@ SALE_FETCH *sale_fetch_parse(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
+		SALE_FETCH *sale_fetch_calloc /* in/out */,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
 		boolean title_passage_rule_boolean,
@@ -97,11 +123,6 @@ SALE_FETCH *sale_fetch_parse(
 		boolean hourly_service_sale_boolean,
 		boolean fixed_service_sale_boolean,
 		char *string_pipe_fetch );
-
-/* Process */
-/* ------- */
-SALE_FETCH *sale_fetch_calloc(
-		void );
 
 #endif
 
