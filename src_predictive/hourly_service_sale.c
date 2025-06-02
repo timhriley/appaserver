@@ -153,6 +153,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 
 	hourly_service_sale->hourly_service_work_list =
 		hourly_service_work_list(
+			HOURLY_SERVICE_WORK_SELECT,
 			HOURLY_SERVICE_WORK_TABLE,
 			full_name,
 			street_address,
