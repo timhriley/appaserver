@@ -12,6 +12,7 @@
 #include "appaserver_error.h"
 #include "date.h"
 #include "sql.h"
+#include "security.h"
 #include "sale.h"
 #include "hourly_service_work.h"
 #include "hourly_service_sale.h"
@@ -404,14 +405,22 @@ double hourly_service_sale_net_revenue(
 	( hourly_rate * work_list_hours ) - discount_amount;
 }
 
-HOURLY_SERVICE_SALE *hourly_service_sale_seek(
-		LIST *hourly_service_sale_list,
+char *hourly_service_sale_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
 		char *service_name,
 		char *service_description )
 {
-	HOURLY_SERVICE_SALE *hourly_service_sale;
+	static char where[ 512 ];
+	char *primary_where;
+	char *tmp1;
+	char *tmp2;
 
-	if ( !service_name
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name
 	||   !service_description )
 	{
 		char message[ 128 ];
@@ -428,24 +437,106 @@ HOURLY_SERVICE_SALE *hourly_service_sale_seek(
 			message );
 	}
 
-	if ( list_rewind( hourly_service_sale_list ) )
-	do {
-		hourly_service_sale =
-			list_get(
-				hourly_service_sale_list );
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time );
 
-		if ( strcmp(
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and service_name = '%s' and service_description = '%s'",
+		primary_where,
+		(tmp1 =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_escape(
+				service_name ) ),
+		(tmp2 =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_escape(
+				service_description ) ) );
+
+	free( tmp1 );
+	free( tmp2 );
+
+	return where;
+}
+
+HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
+		const char *hourly_service_sale_select,
+		const char *hourly_service_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description )
+{
+	char *where;
+	char *system_string;
+	char *fetch;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name
+	||   !service_description )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		hourly_service_sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
 			service_name,
-			hourly_service_sale->service_name ) == 0
-		&&   strcmp(
-			service_description,
-			hourly_service_sale->service_description ) == 0 )
-		{
-			return hourly_service_sale;
-		}
+			service_description );
 
-	} while ( list_next( hourly_service_sale_list ) );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)hourly_service_sale_select,
+			(char *)hourly_service_sale_table,
+			where );
 
-	return NULL;
+	fetch =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_fetch(
+			system_string );
+
+	if ( !fetch ) return NULL;
+
+	return
+	hourly_service_sale_parse(
+		full_name,
+		street_address,
+		sale_date_time,
+		fetch );
 }
 

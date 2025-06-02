@@ -436,19 +436,7 @@ SALE_FETCH *sale_fetch_new(
 			string_pipe_fetch(
 				system_string ) ) )
 	{
-		char message[ 2048 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"string_pipe_fetch(%s) returned empty.",
-			system_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return NULL;
 	}
 
 	free( system_string );

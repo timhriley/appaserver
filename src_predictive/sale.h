@@ -48,8 +48,8 @@ typedef struct
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
 } SALE;
 
-/* Safely returns */
-/* -------------- */
+/* Usage */
+/* ----- */
 SALE *sale_trigger_new(
 		char *full_name,
 		char *street_address,

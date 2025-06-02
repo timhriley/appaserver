@@ -66,7 +66,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) == 0
 	||   strcmp( state, "delete" ) == 0 )
 	{
-		post_change_hourly_service_sale_insert_update_delete(
+		hourly_service_sale_trigger(
 			full_name,
 			street_address,
 			sale_date_time,
@@ -77,24 +77,26 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_hourly_service_sale_insert_update_delete(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *service_name,
-			char *description )
+void hourly_service_sale_trigger(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *description )
 {
 	SALE *sale;
 	HOURLY_SERVICE_SALE *hourly_service_sale;
-	char *transaction_date_time = {0};
 
 	if ( ! ( sale =
-			/* Returns steady_state() */
-			/* ---------------------- */
-			sale_fetch(
-				full_name,
-				street_address,
-				sale_date_time ) ) )
+		   sale_trigger_new(
+			full_name,
+			street_address,
+			sale_date_time,
+			(char *)0 /* uncollectible_date_time */,
+			(char *)0 /* state */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_street_address */,
+			(char *)0 /* preupdate_uncollectible_date_time */ ) ) )
 	{
 		return;
 	}
@@ -106,22 +108,18 @@ void post_change_hourly_service_sale_insert_update_delete(
 				description ) ) )
 	{
 		hourly_service_sale_update(
+			HOURLY_SERVICE_SALE_TABLE,
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			service_description,
+			hourly_service_sale->
+				hourly_service_sale_estimated_revenue,
 			hourly_service_sale->
 				hourly_service_sale_work_hours,
 			hourly_service_sale->
-				hourly_service_sale_net_revenue,
-			hourly_service_sale->
-				customer_entity->
-				full_name,
-			hourly_service_sale->
-				customer_entity->
-				street_address,
-			hourly_service_sale->
-				sale_date_time,
-			hourly_service_sale->
-				service_name,
-			hourly_service_sale->
-				service_description );
+				hourly_service_sale_net_revenue );
 	}
 
 	if ( sale->sale_transaction )

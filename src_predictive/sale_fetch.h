@@ -57,9 +57,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 SALE_FETCH *sale_fetch_new(
 		const char *sale_select,
 		const char *sale_table,

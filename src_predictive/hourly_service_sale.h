@@ -75,6 +75,29 @@ HOURLY_SERVICE_SALE *hourly_service_sale_calloc(
 
 /* Usage */
 /* ----- */
+HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
+		const char *hourly_service_sale_select,
+		const char *hourly_service_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *hourly_service_sale_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description );
+
+/* Usage */
+/* ----- */
 double hourly_service_sale_estimated_revenue(
 		double estimated_hours,
 		double hourly_rate );
