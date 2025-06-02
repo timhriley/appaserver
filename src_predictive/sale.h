@@ -54,7 +54,6 @@ SALE *sale_trigger_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,

@@ -29,7 +29,6 @@ SALE *sale_trigger_new(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
-		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
@@ -169,7 +168,7 @@ SALE *sale_trigger_new(
 			sale_loss_transaction_new(
 				full_name,
 				street_address,
-				uncollectible_date_time,
+				sale->sale_fetch->uncollectible_date_time,
 				state,
 				preupdate_full_name,
 				preupdate_street_address,

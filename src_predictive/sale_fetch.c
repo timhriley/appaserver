@@ -680,3 +680,26 @@ boolean sale_fetch_fixed_service_sale_boolean(
 	}
 }
 
+SALE_FETCH *sale_fetch_calloc( void )
+{
+	SALE_FETCH *sale_fetch;
+
+	if ( ! ( sale_fetch = calloc( 1, sizeof ( SALE_FETCH ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return sale_fetch;
+}
+

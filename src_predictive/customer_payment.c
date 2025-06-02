@@ -362,3 +362,46 @@ CUSTOMER_PAYMENT *customer_payment_trigger_new(
 	return customer_payment;
 }
 
+CUSTOMER_PAYMENT *customer_payment_new(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *payment_date_time )
+{
+	CUSTOMER_PAYMENT *customer_payment;
+
+	customer_payment = customer_payment_calloc();
+
+	customer_payment->full_name = full_name;
+	customer_payment->street_address = street_address;
+	customer_payment->sale_date_time = sale_date_time;
+	customer_payment->payment_date_time = payment_date_time;
+
+	return customer_payment;
+}
+
+CUSTOMER_PAYMENT *customer_payment_calloc( void )
+{
+	CUSTOMER_PAYMENT *customer_payment;
+
+	if ( ! ( customer_payment =
+			calloc( 1,
+				sizeof ( CUSTOMER_PAYMENT ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return customer_payment;
+}
+

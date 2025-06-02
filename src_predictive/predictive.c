@@ -72,7 +72,7 @@ char *predictive_title_passage_rule_string(
 		return TITLE_PASSAGE_RULE_NULL;
 }
 
-enum predictive_title_passage_rule predictive_title_passage_rule_resolve(
+enum predictive_title_passage_rule predictive_resolve_title_passage_rule(
 		char *title_passage_rule_string )
 {
 	if ( !title_passage_rule_string )

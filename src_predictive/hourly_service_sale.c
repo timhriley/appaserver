@@ -540,3 +540,11 @@ HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
 		fetch );
 }
 
+double hourly_service_sale_estimated_revenue(
+		double estimated_hours,
+		double hourly_rate )
+{
+	return
+	estimated_hours *
+	hourly_rate;
+}

@@ -8,11 +8,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include "environ.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "sale.h"
 #include "hourly_service_sale.h"
 
 void hourly_service_sale_trigger(
+		char *application_name,
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
@@ -49,7 +51,7 @@ int main( int argc, char **argv )
 	street_address = argv[ 2 ];
 	sale_date_time = argv[ 3 ];
 	service_name = argv[ 4 ];
-	description = argv[ 5 ];
+	service_description = argv[ 5 ];
 	state = argv[ 6 ];
 
 	/* If change full_name or street address only. */
@@ -62,51 +64,47 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) == 0
-	||   strcmp( state, "delete" ) == 0 )
-	{
-		hourly_service_sale_trigger(
-			full_name,
-			street_address,
-			sale_date_time,
-			service_name,
-			description );
-	}
+	hourly_service_sale_trigger(
+		application_name,
+		full_name,
+		street_address,
+		sale_date_time,
+		service_name,
+		service_description,
+		state );
 
 	return 0;
 }
 
 void hourly_service_sale_trigger(
+		char *application_name,
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
 		char *service_name,
-		char *description )
+		char *service_description,
+		char *state )
 {
-	SALE *sale;
 	HOURLY_SERVICE_SALE *hourly_service_sale;
+	SALE *sale;
 
-	if ( ! ( sale =
-		   sale_trigger_new(
-			full_name,
-			street_address,
-			sale_date_time,
-			(char *)0 /* uncollectible_date_time */,
-			(char *)0 /* state */,
-			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_street_address */,
-			(char *)0 /* preupdate_uncollectible_date_time */ ) ) )
+	if ( strcmp(
+		state,
+		APPASERVER_INSERT_STATE ) == 0
+	||   strcmp(
+		state,
+		APPASERVER_UPDATE_STATE ) == 0 )
 	{
-		return;
-	}
-
-	if ( ( hourly_service_sale =
-			hourly_service_sale_seek(
-				sale->hourly_service_sale_list,
+		hourly_service_sale =
+			hourly_service_sale_fetch(
+				HOURLY_SERVICE_SALE_SELECT,
+				HOURLY_SERVICE_SALE_TABLE,
+				full_name,
+				street_address,
+				sale_date_time,
 				service_name,
-				description ) ) )
-	{
+				service_description );
+	
 		hourly_service_sale_update(
 			HOURLY_SERVICE_SALE_TABLE,
 			full_name,
@@ -114,45 +112,58 @@ void hourly_service_sale_trigger(
 			sale_date_time,
 			service_name,
 			service_description,
+			hourly_service_sale->estimated_revenue,
 			hourly_service_sale->
-				hourly_service_sale_estimated_revenue,
-			hourly_service_sale->
-				hourly_service_sale_work_hours,
-			hourly_service_sale->
-				hourly_service_sale_net_revenue );
+				hourly_service_work_hours,
+			hourly_service_sale->net_revenue );
 	}
-
+	
+	sale =
+		sale_trigger_new(
+			full_name,
+			street_address,
+			sale_date_time,
+			state,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_street_address */,
+			(char *)0 /* preupdate_uncollectible_date_time */ );
+	
+	sale_update(
+		SALE_TABLE,
+		full_name,
+		street_address,
+		sale_date_time,
+		sale->sale_fetch->inventory_sale_boolean,
+		sale->sale_fetch->specific_inventory_sale_boolean,
+		sale->sale_fetch->fixed_service_sale_boolean,
+		sale->sale_fetch->hourly_service_sale_boolean,
+		sale->inventory_sale_total,
+		sale->specific_inventory_sale_total,
+		sale->fixed_service_sale_total,
+		sale->hourly_service_sale_total,
+		sale->gross_revenue,
+		sale->sales_tax,
+		sale->invoice_amount,
+		sale->customer_payment_total,
+		sale->amount_due,
+		sale->sale_transaction );
+	
 	if ( sale->sale_transaction )
 	{
-		transaction_date_time =
-		sale->sale_transaction->transaction_date_time =
-			transaction_refresh(
-				sale->sale_transaction->full_name,
-				sale->sale_transaction->street_address,
-				sale->sale_transaction->transaction_date_time,
-				sale->sale_transaction->transaction_amount,
-				sale->sale_transaction->memo,
-				0 /* check_number */,
-				sale->sale_transaction->lock_transaction,
-				sale->sale_transaction->journal_list );
+		subsidiary_transaction_execute(
+			application_name,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				delete_transaction,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				insert_transaction,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				update_template );
 	}
-	else
-	{
-		transaction_date_time = (char *)0;
-	}
-
-	sale_update(
-			sale->inventory_sale_total,
-			sale->fixed_service_sale_total,
-			sale->hourly_service_sale_total,
-			sale->sale_gross_revenue,
-			sale->sales_tax,
-			sale->sale_invoice_amount,
-			sale->customer_payment_total,
-			sale->sale_amount_due,
-			transaction_date_time,
-			sale->customer_entity->full_name,
-			sale->customer_entity->street_address,
-			sale->sale_date_time );
 }
 

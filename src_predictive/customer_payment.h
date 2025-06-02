@@ -60,7 +60,6 @@ CUSTOMER_PAYMENT *customer_payment_new(
 		char *sale_date_time,
 		char *payment_date_time );
 
-
 /* Process */
 /* ------- */
 CUSTOMER_PAYMENT *customer_payment_calloc(

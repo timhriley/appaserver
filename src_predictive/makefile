@@ -85,6 +85,24 @@ PAYPAL_LIBRARY= 							\
 		paypal_spreadsheet_column.o				\
 		paypal_spreadsheet_load_event.o
 
+SALE_LIBRARY=								\
+		sale.o							\
+		sale_fetch.o						\
+		customer.o						\
+		self_tax.o						\
+		inventory_sale.o					\
+		specific_inventory_sale.o				\
+		fixed_service_sale.o					\
+		fixed_service_work.o					\
+		hourly_service_sale.o					\
+		hourly_service_work.o					\
+		customer_payment.o					\
+		subsidiary_transaction.o				\
+		subsidiary_transaction_state.o				\
+		customer_payment_transaction.o				\
+		sale_transaction.o					\
+		sale_loss_transaction.o
+										
 EXECUTABLES=	trial_balance_output					\
 		income_statement_output					\
 		balance_sheet_output					\
@@ -106,8 +124,10 @@ EXECUTABLES=	trial_balance_output					\
 		prior_fixed_asset_trigger				\
 		investment_transaction_driver				\
 		generate_invoice					\
-		import_predictbooks
-#		hourly_service_sale_trigger
+		import_predictbooks					\
+		post_change_customer_sale				\
+		hourly_service_sale_trigger				\
+		post_change_customer_payment
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -118,8 +138,6 @@ EXECUTABLES=	trial_balance_output					\
 #		inventory_cost_method_propagate				\
 #		load_receipt_scan					\
 #		post_change_activity_work				\
-#		post_change_customer_payment				\
-#		post_change_customer_sale				\
 #		post_change_employee_work_day				\
 #		post_change_fixed_asset					\
 #		post_change_fixed_service_sale				\
@@ -494,16 +512,6 @@ post_change_fixed_service_sale:						\
 		post_change_fixed_service_sale.c			\
 		-o post_change_fixed_service_sale
 
-post_change_hourly_service_sale:					\
-	post_change_hourly_service_sale.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
-		post_change_hourly_service_sale.c			\
-		-o post_change_hourly_service_sale
-
 post_change_fixed_service_work:						\
 	post_change_fixed_service_work.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
@@ -644,17 +652,6 @@ post_change_vendor_payment: post_change_vendor_payment.c		\
 		post_change_vendor_payment.c				\
 		-o post_change_vendor_payment
 
-post_change_customer_payment: post_change_customer_payment.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
-	subsidiary_transaction.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
-		subsidiary_transaction.o				\
-		post_change_customer_payment.c				\
-		-o post_change_customer_payment
-
 post_change_prior_fixed_asset: post_change_prior_fixed_asset.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
 	subsidiary_transaction.o
@@ -691,13 +688,43 @@ investment_transaction_driver: investment_transaction_driver.c		\
 		-o investment_transaction_driver
 
 post_change_customer_sale: post_change_customer_sale.c			\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o				\
 		post_change_customer_sale.c				\
 		-o post_change_customer_sale
+
+hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o				\
+		hourly_service_sale_trigger.c				\
+		-o hourly_service_sale_trigger
+
+post_change_customer_payment: post_change_customer_payment.c		\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o				\
+		post_change_customer_payment.c				\
+		-o post_change_customer_payment
 
 synchronize_customer_sale_transaction:					\
 	synchronize_customer_sale_transaction.c				\
