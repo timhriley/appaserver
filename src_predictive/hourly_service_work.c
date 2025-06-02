@@ -16,9 +16,11 @@
 #include "entity.h"
 #include "security.h"
 #include "sale.h"
+#include "hourly_service_sale.h"
 #include "hourly_service_work.h"
 
 LIST *hourly_service_work_list(
+		const char *hourly_service_work_select,
 		const char *hourly_service_work_table,
 		char *full_name,
 		char *street_address,
@@ -57,7 +59,7 @@ LIST *hourly_service_work_list(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		hourly_service_work_where(
+		hourly_service_sale_primary_where(
 			full_name,
 			street_address,
 			sale_date_time,
@@ -68,7 +70,7 @@ LIST *hourly_service_work_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			HOURLY_SERVICE_WORK_SELECT,
+			(char *)hourly_service_work_select,
 			(char *)hourly_service_work_table,
 			where );
 
@@ -125,22 +127,23 @@ LIST *hourly_service_work_list(
 	return list;
 }
 
-char *hourly_service_work_where(
+char *hourly_service_work_primary_where(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
 		char *service_name,
-		char *service_description )
+		char *service_description,
+		char *begin_work_date_time )
 {
 	static char where[ 256 ];
-	char *tmp1;
-	char *tmp2;
+	char *tmp;
 
 	if ( !full_name
 	||   !street_address
 	||   !sale_date_time
 	||   !service_name
-	||   !service_description )
+	||   !service_description
+	||   !begin_work_date_time )
 	{
 		char message[ 128 ];
 
@@ -159,24 +162,22 @@ char *hourly_service_work_where(
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s and "
-		"service_name = '%s' and "
-		"service_description = '%s'",
+		"%s and begin_work_date_time = '%s'",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		sale_primary_where(
+		hourly_service_sale_primary_where(
 			full_name,
 			street_address,
-			sale_date_time ),
+			sale_date_time,
+			service_name,
+			service_description ),
 		/* --------------------- */
 		/* Returns heap memory */
 		/* --------------------- */
-		( tmp1 = security_escape( service_name ) ),
-		( tmp2 = security_escape( service_description ) ) );
+		( tmp = security_escape( begin_work_date_time ) ) );
 
-	free( tmp1 );
-	free( tmp2 );
+	free( tmp );
 
 	return where;
 }
@@ -447,3 +448,79 @@ HOURLY_SERVICE_WORK *hourly_service_work_seek(
 
 	return NULL;
 }
+
+HOURLY_SERVICE_WORK *hourly_service_work_fetch(
+		const char *hourly_service_work_select,
+		const char *hourly_service_work_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time )
+{
+	char *where;
+	char *system_string;
+	char *fetch;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name
+	||   !service_description
+	||   !begin_work_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		hourly_service_work_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			service_description,
+			begin_work_date_time );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)hourly_service_work_select,
+			(char *)hourly_service_work_table,
+			where );
+
+	fetch =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_fetch(
+			system_string );
+
+	if ( !fetch ) return NULL;
+
+	return
+	hourly_service_work_parse(
+		full_name,
+		street_address,
+		sale_date_time,
+		service_name,
+		service_description,
+		fetch );
+}
+

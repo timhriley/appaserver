@@ -54,15 +54,13 @@ int main( int argc, char **argv )
 	service_description = argv[ 5 ];
 	state = argv[ 6 ];
 
-	/* If change full_name or street address only. */
-	/* --------------------------------------------- */
+	/* If change 1:m full_name or street address. */
+	/* ------------------------------------------ */
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
-	/* If change sale_date_time. */
-	/* ------------------------- */
+	/* If change 1:m sale_date_time. */
+	/* ----------------------------- */
 	if ( strcmp( service_name, "service_name" ) == 0 ) exit( 0 );
-
-	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
 	hourly_service_sale_trigger(
 		application_name,
@@ -87,6 +85,8 @@ void hourly_service_sale_trigger(
 {
 	HOURLY_SERVICE_SALE *hourly_service_sale;
 	SALE *sale;
+
+	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
 
 	if ( strcmp(
 		state,

@@ -33,26 +33,15 @@ typedef struct
 	char *activity;
 	char *appaserver_full_name;
 	char *appaserver_street_address;
-	double work_hours;
-	double sale_work_hours;
+	double work_hours; /* for parse */
+	double sale_work_hours; /* for update */
 } HOURLY_SERVICE_WORK;
 
 /* Usage */
 /* ----- */
 LIST *hourly_service_work_list(
+		const char *hourly_service_work_select,
 		const char *hourly_service_work_table,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *hourly_service_work_where(
 		char *full_name,
 		char *street_address,
 		char *sale_date_time,
@@ -86,6 +75,31 @@ HOURLY_SERVICE_WORK *hourly_service_work_new(
 /* ------- */
 HOURLY_SERVICE_WORK *hourly_service_work_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+HOURLY_SERVICE_WORK *hourly_service_work_fetch(
+		const char *hourly_service_work_select,
+		const char *hourly_service_work_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *hourly_service_work_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time );
 
 /* Usage */
 /* ----- */
