@@ -280,6 +280,7 @@ void hourly_service_sale_update(
 }
 
 LIST *hourly_service_sale_list(
+		const char *hourly_service_sale_select,
 		const char *hourly_service_sale_table,
 		char *full_name,
 		char *street_address,
@@ -324,7 +325,7 @@ LIST *hourly_service_sale_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			HOURLY_SERVICE_SALE_SELECT,
+			(char *)hourly_service_sale_select,
 			(char *)hourly_service_sale_table,
 			where );
 

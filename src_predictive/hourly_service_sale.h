@@ -32,17 +32,18 @@ typedef struct
 	double hourly_rate;
 	double estimated_revenue;
 	double discount_amount;
-	double work_hours;
-	double net_revenue;
+	double work_hours; /* from parse */
+	double net_revenue; /* from parse */
 	double hourly_service_sale_estimated_revenue;
 	LIST *hourly_service_work_list;
-	double hourly_service_work_hours;
-	double hourly_service_sale_net_revenue;
+	double hourly_service_work_hours; /* for update */
+	double hourly_service_sale_net_revenue; /* for update */
 } HOURLY_SERVICE_SALE;
 
 /* Usage */
 /* ----- */
 LIST *hourly_service_sale_list(
+		const char *hourly_service_sale_select,
 		const char *hourly_service_sale_table,
 		char *full_name,
 		char *street_address,

@@ -32,13 +32,14 @@ typedef struct
 	char *activity;
 	char *appaserver_full_name;
 	char *appaserver_street_address;
-	double work_hours;
-	double sale_work_hours;
+	double work_hours; /* from parse */
+	double sale_work_hours; /* for update */
 } FIXED_SERVICE_WORK;
 
 /* Usage */
 /* ----- */
 LIST *fixed_service_work_list(
+		const char *fixed_service_work_select,
 		const char *fixed_service_work_table,
 		char *full_name,
 		char *street_address,
@@ -84,14 +85,31 @@ FIXED_SERVICE_WORK *fixed_service_work_calloc(
 
 /* Usage */
 /* ----- */
-double fixed_service_work_hours(
-		LIST *fixed_service_work_list );
+FIXED_SERVICE_WORK *fixed_service_work_fetch(
+		const char *fixed_service_work_select,
+		const char *fixed_service_work_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *begin_work_date_time );
 
 /* Usage */
 /* ----- */
-FIXED_SERVICE_WORK *fixed_service_work_seek(
-		LIST *fixed_service_work_list,
+
+/* Returns static memory */
+/* --------------------- */
+char *fixed_service_work_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
 		char *begin_work_date_time );
+
+/* Usage */
+/* ----- */
+double fixed_service_work_hours(
+		LIST *fixed_service_work_list );
 
 /* Usage */
 /* ----- */

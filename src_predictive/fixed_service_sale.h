@@ -28,16 +28,17 @@ typedef struct
 	double fixed_price;
 	double estimated_hours;
 	double discount_amount;
-	double work_hours;
-	double net_revenue;
+	double work_hours; /* from parse */
+	double net_revenue; /* from parse */
 	LIST *fixed_service_work_list;
-	double fixed_service_work_hours;
-	double fixed_service_sale_net_revenue;
+	double fixed_service_work_hours; /* for update */
+	double fixed_service_sale_net_revenue; /* for update */
 } FIXED_SERVICE_SALE;
 
 /* Usage */
 /* ----- */
 LIST *fixed_service_sale_list(
+		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
 		char *full_name,
 		char *street_address,
@@ -66,6 +67,27 @@ FIXED_SERVICE_SALE *fixed_service_sale_new(
 /* ------- */
 FIXED_SERVICE_SALE *fixed_service_sale_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+FIXED_SERVICE_SALE *fixed_service_sale_fetch(
+		const char *fixed_service_sale_select,
+		const char *fixed_service_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *fixed_service_sale_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name );
 
 /* Usage */
 /* ----- */

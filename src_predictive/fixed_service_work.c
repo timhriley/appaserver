@@ -16,9 +16,11 @@
 #include "entity.h"
 #include "security.h"
 #include "sale.h"
+#include "fixed_service_sale.h"
 #include "fixed_service_work.h"
 
 LIST *fixed_service_work_list(
+		const char *fixed_service_work_select,
 		const char *fixed_service_work_table,
 		char *full_name,
 		char *street_address,
@@ -65,7 +67,7 @@ LIST *fixed_service_work_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			FIXED_SERVICE_WORK_SELECT,
+			(char *)fixed_service_work_select,
 			(char *)fixed_service_work_table,
 			where );
 
@@ -391,20 +393,31 @@ void fixed_service_work_update(
 	pclose( pipe );
 }
 
-FIXED_SERVICE_WORK *fixed_service_work_seek(
-		LIST *fixed_service_work_list,
+FIXED_SERVICE_WORK *fixed_service_work_fetch(
+		const char *fixed_service_work_select,
+		const char *fixed_service_work_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
 		char *begin_work_date_time )
 {
-	FIXED_SERVICE_WORK *fixed_service_work;
+	char *where;
+	char *system_string;
+	char *fetch;
 
-	if ( !begin_work_date_time )
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name
+	||   !begin_work_date_time )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"begin_work_date_time is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -413,20 +426,93 @@ FIXED_SERVICE_WORK *fixed_service_work_seek(
 			message );
 	}
 
-	if ( list_rewind( fixed_service_work_list ) )
-	do {
-		fixed_service_work =
-			list_get(
-				fixed_service_work_list );
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_service_work_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			begin_work_date_time );
 
-		if ( strcmp(
-			begin_work_date_time,
-			fixed_service_work->begin_work_date_time ) == 0 )
-		{
-			return fixed_service_work;
-		}
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)fixed_service_work_select,
+			(char *)fixed_service_work_table,
+			where );
 
-	} while ( list_next( fixed_service_work_list ) );
+	fetch =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_fetch(
+			system_string );
 
-	return NULL;
+	if ( !fetch ) return NULL;
+
+	return
+	fixed_service_work_parse(
+		full_name,
+		street_address,
+		sale_date_time,
+		service_name,
+		fetch );
 }
+
+char *fixed_service_work_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *begin_work_date_time )
+{
+	static char where[ 256 ];
+	char *tmp;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name
+	||   !begin_work_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and begin_work_date_time = '%s'",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_service_sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name ),
+		/* --------------------- */
+		/* Returns heap memory */
+		/* --------------------- */
+		( tmp = security_escape( begin_work_date_time ) ) );
+
+	free( tmp );
+
+	return where;
+}
+

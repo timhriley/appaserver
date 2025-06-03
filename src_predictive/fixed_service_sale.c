@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/fixed_service_sale.c		*/
+/* $APPASERVER_HOME/src_predictive/fixed_service_sale.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "date.h"
+#include "security.h"
 #include "sql.h"
 #include "sale.h"
 #include "fixed_service_work.h"
@@ -136,6 +137,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 
 	fixed_service_sale->fixed_service_work_list =
 		fixed_service_work_list(
+			FIXED_SERVICE_WORK_SELECT,
 			FIXED_SERVICE_WORK_TABLE,
 			full_name,
 			street_address,
@@ -244,6 +246,7 @@ void fixed_service_sale_update(
 }
 
 LIST *fixed_service_sale_list(
+		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
 		char *full_name,
 		char *street_address,
@@ -288,7 +291,7 @@ LIST *fixed_service_sale_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			FIXED_SERVICE_SALE_SELECT,
+			(char *)fixed_service_sale_select,
 			(char *)fixed_service_sale_table,
 			where );
 
@@ -407,5 +410,127 @@ FIXED_SERVICE_SALE *fixed_service_sale_seek(
 	} while ( list_next( fixed_service_sale_list ) );
 
 	return NULL;
+}
+
+FIXED_SERVICE_SALE *fixed_service_sale_fetch(
+		const char *fixed_service_sale_select,
+		const char *fixed_service_sale_table,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name )
+{
+	char *where;
+	char *system_string;
+	char *fetch;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_service_sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)fixed_service_sale_select,
+			(char *)fixed_service_sale_table,
+			where );
+
+	fetch =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_fetch(
+			system_string );
+
+	if ( !fetch ) return NULL;
+
+	return
+	fixed_service_sale_parse(
+		full_name,
+		street_address,
+		sale_date_time,
+		fetch );
+}
+
+char *fixed_service_sale_primary_where(
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name )
+{
+	static char where[ 512 ];
+	char *primary_where;
+	char *tmp;
+
+	if ( !full_name
+	||   !street_address
+	||   !sale_date_time
+	||   !service_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sale_primary_where(
+			full_name,
+			street_address,
+			sale_date_time );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and service_name = '%s'",
+		primary_where,
+		(tmp =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_escape(
+				service_name ) ) );
+
+	free( tmp );
+
+	return where;
 }
 

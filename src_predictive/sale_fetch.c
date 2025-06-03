@@ -556,6 +556,7 @@ SALE_FETCH *sale_fetch_new(
 	{
 		sale_fetch->fixed_service_sale_list =
 			fixed_service_sale_list(
+				FIXED_SERVICE_SALE_SELECT,
 				FIXED_SERVICE_SALE_TABLE,
 				full_name,
 				street_address,
@@ -566,6 +567,7 @@ SALE_FETCH *sale_fetch_new(
 	{
 		sale_fetch->hourly_service_sale_list =
 			hourly_service_sale_list(
+				HOURLY_SERVICE_SALE_SELECT,
 				HOURLY_SERVICE_SALE_TABLE,
 				full_name,
 				street_address,

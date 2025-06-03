@@ -128,7 +128,9 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_customer_sale				\
 		hourly_service_sale_trigger				\
 		post_change_customer_payment				\
-		post_change_hourly_service_work
+		post_change_hourly_service_work				\
+		post_change_fixed_service_sale				\
+		post_change_fixed_service_work
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -141,8 +143,6 @@ EXECUTABLES=	trial_balance_output					\
 #		post_change_activity_work				\
 #		post_change_employee_work_day				\
 #		post_change_fixed_asset					\
-#		post_change_fixed_service_sale				\
-#		post_change_fixed_service_work				\
 #		post_change_inventory_purchase				\
 #		post_change_inventory_sale				\
 #		post_change_inventory_purchase_return			\
@@ -502,25 +502,6 @@ post_change_supply_purchase: post_change_supply_purchase.c		\
 		post_change_supply_purchase.c				\
 		-o post_change_supply_purchase
 
-post_change_fixed_service_sale:						\
-	post_change_fixed_service_sale.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
-		post_change_fixed_service_sale.c			\
-		-o post_change_fixed_service_sale
-
-post_change_fixed_service_work:						\
-	post_change_fixed_service_work.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
-		post_change_fixed_service_work.c			\
-		-o post_change_fixed_service_work
-
 post_change_activity_work:						\
 	post_change_activity_work.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
@@ -704,6 +685,20 @@ hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
 		hourly_service_sale_trigger.c				\
 		-o hourly_service_sale_trigger
 
+post_change_fixed_service_sale:						\
+	post_change_fixed_service_sale.c				\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o				\
+		post_change_fixed_service_sale.c			\
+		-o post_change_fixed_service_sale
+
 post_change_hourly_service_work:					\
 	post_change_hourly_service_work.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
@@ -717,6 +712,20 @@ post_change_hourly_service_work:					\
 		${LIBRARY}/preupdate_change.o				\
 		post_change_hourly_service_work.c			\
 		-o post_change_hourly_service_work
+
+post_change_fixed_service_work:						\
+	post_change_fixed_service_work.c				\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		${LIBRARY}/preupdate_change.o				\
+		post_change_fixed_service_work.c			\
+		-o post_change_fixed_service_work
 
 post_change_customer_payment: post_change_customer_payment.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
