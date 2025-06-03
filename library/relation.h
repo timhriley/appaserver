@@ -45,7 +45,7 @@ typedef struct
 	boolean omit_drillthru;
 	boolean omit_drilldown;
 	boolean relation_type_isa;
-	boolean copy_common_attributes;
+	boolean copy_common_columns;
 	boolean automatic_preselection;
 	boolean drop_down_multi_select;
 	boolean join_one2m_each_row;

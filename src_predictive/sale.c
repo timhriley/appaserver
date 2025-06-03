@@ -61,9 +61,6 @@ SALE *sale_trigger_new(
 	sale->sale_date_time = sale_date_time;
 
 	sale->sale_fetch =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		sale_fetch_new(
 			SALE_SELECT,
 			SALE_TABLE,
@@ -71,7 +68,13 @@ SALE *sale_trigger_new(
 			street_address,
 			sale_date_time );
 
-	if (list_length( sale->sale_fetch->inventory_sale_list ) )
+	if ( !sale->sale_fetch )
+	{
+		free( sale );
+		return NULL;
+	}
+
+	if ( list_length( sale->sale_fetch->inventory_sale_list ) )
 	{
 		sale->inventory_sale_total =
 			inventory_sale_total(
@@ -164,16 +167,21 @@ SALE *sale_trigger_new(
 				sale->sales_tax,
 				sale->invoice_amount );
 
-		sale->sale_loss_transaction =
-			sale_loss_transaction_new(
-				full_name,
-				street_address,
-				sale->sale_fetch->uncollectible_date_time,
-				state,
-				preupdate_full_name,
-				preupdate_street_address,
-				preupdate_uncollectible_date_time,
-				sale->amount_due );
+		if ( sale->sale_fetch->uncollectible_date_time )
+		{
+			sale->sale_loss_transaction =
+				sale_loss_transaction_new(
+					full_name,
+					street_address,
+					sale->
+						sale_fetch->
+						uncollectible_date_time,
+					state,
+					preupdate_full_name,
+					preupdate_street_address,
+					preupdate_uncollectible_date_time,
+					sale->amount_due );
+		}
 	}
 
 	return sale;

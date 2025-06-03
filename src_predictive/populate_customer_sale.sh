@@ -18,16 +18,16 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 ignored one2m_folder where" 1>&2
+	echo "Usage: $0 one2m_folder where" 1>&2
 	exit 1
 fi
 
 echo $0 $* 1>&2
 
-one2m_folder=$2
-parameter_where=$3
+one2m_folder=$1
+parameter_where=$2
 
 if [ "$one2m_folder" = "activity_work" ]
 then
@@ -36,7 +36,7 @@ else
 	where="$parameter_where"
 fi
 
-table=customer_sale
+table=sale
 select="full_name,street_address,sale_date_time"
 
 echo "select $select from $table where $where order by $select;"	|

@@ -91,7 +91,7 @@ RELATION *relation_parse( char *input )
 	relation->relation_type_isa = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 7 );
-	relation->copy_common_attributes = ( *field == 'y' );
+	relation->copy_common_columns = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 8 );
 	relation->automatic_preselection = ( *field == 'y' );
@@ -701,7 +701,7 @@ char *relation_list_display( LIST *relation_list )
 			"omit_drillthru=%d, "
 			"omit_drilldown=%d, "
 			"relation_type_isa=%d, "
-			"copy_common_attributes=%d, "
+			"copy_common_columns=%d, "
 			"automatic_preselection=%d, "
 			"drop_down_multi_select=%d, "
 			"join_one2m_each_row=%d, "
@@ -713,7 +713,7 @@ char *relation_list_display( LIST *relation_list )
 			relation->omit_drillthru,
 			relation->omit_drilldown,
 			relation->relation_type_isa,
-			relation->copy_common_attributes,
+			relation->copy_common_columns,
 			relation->automatic_preselection,
 			relation->drop_down_multi_select,
 			relation->join_one2m_each_row,

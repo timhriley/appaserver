@@ -27,17 +27,14 @@ SUBSIDIARY_TRANSACTION_STATE *
 {
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;
 
-	if ( !state
-	||   !preupdate_full_name
-	||   !preupdate_street_address
-	||   !preupdate_foreign_date_time )
+	if ( !state )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"state is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

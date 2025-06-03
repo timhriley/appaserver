@@ -104,7 +104,7 @@ void hourly_service_sale_trigger(
 				sale_date_time,
 				service_name,
 				service_description );
-	
+
 		hourly_service_sale_update(
 			HOURLY_SERVICE_SALE_TABLE,
 			full_name,
@@ -127,7 +127,9 @@ void hourly_service_sale_trigger(
 			(char *)0 /* preupdate_full_name */,
 			(char *)0 /* preupdate_street_address */,
 			(char *)0 /* preupdate_uncollectible_date_time */ );
-	
+
+	if ( !sale ) return;
+
 	sale_update(
 		SALE_TABLE,
 		full_name,

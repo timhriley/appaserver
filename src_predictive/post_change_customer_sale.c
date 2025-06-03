@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "environ.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "sale.h"
 
@@ -46,7 +47,7 @@ int main( int argc, char **argv )
 	preupdate_street_address = argv[ 6 ];
 	preupdate_uncollectible_date_time = argv[ 7 ];
 
-	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
+	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) exit( 0 );
 
 	sale =
 		sale_trigger_new(

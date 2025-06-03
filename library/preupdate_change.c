@@ -21,15 +21,14 @@ PREUPDATE_CHANGE *preupdate_change_new(
 {
 	PREUPDATE_CHANGE *preupdate_change;
 
-	if ( !preupdate_datum
-	||   !state )
+	if ( !state )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"state is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -110,7 +109,8 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 {
 	enum preupdate_change_state state_evaluate;
 
-	if ( strcmp( preupdate_datum, "select" ) == 0 )
+	if ( !preupdate_datum
+	||   strcmp( preupdate_datum, "select" ) == 0 )
 		preupdate_datum = "";
 
 	if ( !postupdate_datum

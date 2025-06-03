@@ -143,6 +143,8 @@ void customer_payment_trigger(
 			(char *)0 /* preupdate_street_address */,
 			(char *)0 /* preupdate_uncollectible_date_time */ );
 
+	if ( !sale ) return;
+
 	sale_update(
 		SALE_TABLE,
 		full_name,

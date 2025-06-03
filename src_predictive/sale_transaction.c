@@ -44,9 +44,7 @@ SALE_TRANSACTION *sale_transaction_new(
 
 	if ( !full_name
 	||   !street_address
-	||   !state
-	||   !preupdate_full_name
-	||   !preupdate_street_address )
+	||   !state )
 	{
 		char message[ 128 ];
 

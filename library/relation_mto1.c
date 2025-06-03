@@ -406,6 +406,8 @@ RELATION_MTO1 *relation_mto1_attribute_consumes(
 				message );
 		}
 
+		if ( relation_mto1->relation->omit_drillthru ) continue;
+
 		string_exists =
 			list_string_exists(
 				many_attribute_name,
