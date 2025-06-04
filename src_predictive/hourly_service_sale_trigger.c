@@ -112,7 +112,8 @@ void hourly_service_sale_trigger(
 			sale_date_time,
 			service_name,
 			service_description,
-			hourly_service_sale->estimated_revenue,
+			hourly_service_sale->
+				hourly_service_sale_estimated_revenue,
 			hourly_service_sale->
 				hourly_service_work_hours,
 			hourly_service_sale->net_revenue );

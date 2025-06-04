@@ -49,6 +49,7 @@ typedef struct
 {
 	RELATION_MTO1 *relation_mto1;
 	AJAX_CLIENT *ajax_client;
+	LIST *relation_mto1_common_name_list;
 	QUERY_DROP_DOWN *query_drop_down;
 	WIDGET_CONTAINER *drop_down_widget_container;
 	LIST *widget_container_list;
@@ -62,6 +63,7 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		char *role_name,
 		char *insert_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *many_folder_relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *process_command_line_dictionary,
@@ -112,6 +114,7 @@ FORM_TABLE_INSERT_WIDGET_LIST *
 		char *role_name,
 		char *insert_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
@@ -289,6 +292,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		char *target_frame,
 		int table_insert_rows_number,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,

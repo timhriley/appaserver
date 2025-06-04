@@ -74,6 +74,7 @@ typedef struct
 	VERTICAL_NEW_CHECKBOX *vertical_new_checkbox;
 	LIST *relation_mto1_to_one_fetch_list;
 	AJAX_CLIENT *ajax_client;
+	LIST *relation_mto1_common_name_list;
 	QUERY_DROP_DOWN *query_drop_down;
 	LIST *widget_drop_down_option_list;
 	WIDGET_CONTAINER *prompt_widget_container;
@@ -90,6 +91,7 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		char *role_name,
 		char *many_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *many_folder_relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *drillthru_dictionary,
@@ -142,6 +144,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 		char *role_name,
 		char *folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *drillthru_dictionary,
@@ -190,6 +193,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		char *role_name,
 		char *folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,

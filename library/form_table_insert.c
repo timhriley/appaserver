@@ -223,6 +223,7 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		char *role_name,
 		char *insert_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *many_folder_relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *process_command_line_dictionary,
@@ -373,6 +374,18 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 				folder_attribute_primary_key_list
 					/* many_folder_primary_key_list */ );
 
+	form_table_insert_relation->relation_mto1_common_name_list =
+		relation_mto1_common_name_list(
+			folder_attribute_non_primary_name_list,
+			form_table_insert_relation->
+				relation_mto1->
+				relation->
+				copy_common_columns,
+			form_table_insert_relation->
+				relation_mto1->
+				one_folder->
+				folder_attribute_name_list );
+
 	form_table_insert_relation->query_drop_down =
 		/* -------------- */
 		/* Safely returns */
@@ -396,7 +409,9 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 				populate_drop_down_process_name,
 			one_folder_relation_mto1_list,
 			process_command_line_dictionary,
-			security_entity );
+			security_entity,
+			form_table_insert_relation->
+				relation_mto1_common_name_list  );
 
 	form_table_insert_relation->
 		drop_down_widget_container->
@@ -555,6 +570,7 @@ FORM_TABLE_INSERT_AUTOMATIC_WIDGET_LIST *
 				role_name,
 				insert_folder_name,
 				post_change_javascript,
+				(LIST *)0 /* non_primary_name_list */,
 				many_folder_relation_mto1_list,
 				relation_mto1_isa_list,
 				process_command_line_dictionary,
@@ -647,6 +663,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		char *target_frame,
 		int table_insert_rows_number,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
@@ -711,6 +728,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			role_name,
 			folder_name /* insert_folder_name */,
 			post_change_javascript,
+			folder_attribute_non_primary_name_list,
 			relation_mto1_list,
 			relation_mto1_isa_list,
 			folder_attribute_append_isa_list,
@@ -1152,6 +1170,7 @@ FORM_TABLE_INSERT_WIDGET_LIST *
 		char *role_name,
 		char *insert_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
@@ -1245,6 +1264,7 @@ FORM_TABLE_INSERT_WIDGET_LIST *
 				role_name,
 				insert_folder_name,
 				post_change_javascript,
+				folder_attribute_non_primary_name_list,
 				relation_mto1_list
 					/* many_folder_relation_mto1_list */,
 				relation_mto1_isa_list,
@@ -1457,7 +1477,8 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 			one_folder_relation_mto1_list,
 			form_table_insert_automatic->
 				process_command_line_dictionary,
-			security_entity );
+			security_entity,
+			(LIST *)0 /* common_name_list */ );
 
 	form_table_insert_automatic->form_table_insert_automatic_widget_list =
 		/* -------------- */

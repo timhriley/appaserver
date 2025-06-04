@@ -396,7 +396,7 @@ INSERT *insert_automatic_new(
 /* Usage */
 /* ----- */
 DICTIONARY *insert_automatic_multi_row_dictionary(
-		LIST *folder_attribute_non_primary_key_list,
+		LIST *folder_attribute_non_primary_name_list,
 		DICTIONARY *multi_row_dictionary );
 
 /* Usage */

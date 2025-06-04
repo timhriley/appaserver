@@ -921,3 +921,39 @@ LIST *relation_mto1_to_one_list(
 
 	return mto1_list;
 }
+
+LIST *relation_mto1_common_name_list(
+		LIST *folder_attribute_non_primary_name_list,
+		boolean copy_common_columns,
+		LIST *one_folder_attribute_name_list )
+{
+	LIST *common_name_list = {0};
+
+	if ( copy_common_columns )
+	{
+		char *attribute_name;
+
+		if ( list_rewind( folder_attribute_non_primary_name_list ) )
+		do {
+			attribute_name =
+				list_get(
+				    folder_attribute_non_primary_name_list );
+
+			if ( !list_string_boolean(
+				attribute_name /* string */,
+				one_folder_attribute_name_list ) )
+			{
+				continue;
+			}
+
+			if ( !common_name_list )
+				common_name_list =
+					list_new();
+
+			list_set( common_name_list, attribute_name );
+
+		} while ( list_next( folder_attribute_non_primary_name_list ) );
+	}
+
+	return common_name_list;
+}

@@ -917,7 +917,8 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 				mto1_to_one_list,
 				drillthru_dictionary
 					/* process_command_line_dictionary */,
-				security_entity );
+				security_entity,
+				(LIST *)0 /* common_name_list */ );
 
 		form_prompt_lookup_relation->
 			widget_drop_down_option_list =

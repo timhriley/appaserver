@@ -1020,7 +1020,8 @@ PROCESS_PARAMETER_DROP_DOWN *
 				drillthru_dictionary
 					/* process_command_line_dictionary */,
 				process_parameter_drop_down->
-					security_entity );
+					security_entity,
+				(LIST *)0 /* common_name_list */ );
 
 	process_parameter_drop_down->widget_drop_down_option_list =
 		widget_drop_down_option_list(

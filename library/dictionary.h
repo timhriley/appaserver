@@ -94,7 +94,7 @@ void dictionary_index_set(
 /* Usage */
 /* ----- */
 LIST *dictionary_index_populated_name_list(
-		LIST *folder_attribute_non_primary_key_list,
+		LIST *folder_attribute_non_primary_name_list,
 		DICTIONARY *multi_row_dictionary,
 		int index );
 

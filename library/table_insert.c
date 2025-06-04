@@ -270,6 +270,9 @@ TABLE_INSERT *table_insert_new(
 					post_change_javascript,
 				table_insert->
 					table_insert_input->
+					folder_attribute_non_primary_name_list,
+				table_insert->
+					table_insert_input->
 					relation_mto1_list,
 				table_insert->
 					table_insert_input->
@@ -551,6 +554,10 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 			/* -------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_attribute */ );
+
+	table_insert_input->folder_attribute_non_primary_name_list =
+		folder_attribute_non_primary_name_list(
+			table_insert_input->folder->folder_attribute_list );
 
 	table_insert_input->relation_mto1_list =
 		relation_mto1_list(

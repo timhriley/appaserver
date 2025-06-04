@@ -281,7 +281,7 @@ LIST *folder_attribute_primary_key_list(
 		char *folder_name,
 		LIST *folder_attribute_list );
 
-LIST *folder_attribute_non_primary_key_list(
+LIST *folder_attribute_non_primary_name_list(
 		LIST *folder_attribute_list );
 
 LIST *folder_attribute_number_list(

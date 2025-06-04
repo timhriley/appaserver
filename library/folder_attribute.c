@@ -445,11 +445,11 @@ LIST *folder_attribute_primary_key_list(
 	return primary_key_list;
 }
 
-LIST *folder_attribute_non_primary_key_list(
+LIST *folder_attribute_non_primary_name_list(
 		LIST *folder_attribute_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	LIST *non_primary_key_list = list_new();
+	LIST *non_primary_name_list = list_new();
 
 	if ( list_rewind( folder_attribute_list ) )
 	do {
@@ -460,19 +460,19 @@ LIST *folder_attribute_non_primary_key_list(
 		if ( !folder_attribute->primary_key_index )
 		{
 			list_set(
-				non_primary_key_list, 
+				non_primary_name_list, 
 				folder_attribute->attribute_name );
 		}
 
 	} while ( list_next( folder_attribute_list ) );
 
-	if ( !list_length( non_primary_key_list ) )
+	if ( !list_length( non_primary_name_list ) )
 	{
-		list_free( non_primary_key_list );
-		non_primary_key_list = NULL;
+		list_free( non_primary_name_list );
+		non_primary_name_list = NULL;
 	}
 
-	return non_primary_key_list;
+	return non_primary_name_list;
 }
 
 LIST *folder_attribute_date_name_list(

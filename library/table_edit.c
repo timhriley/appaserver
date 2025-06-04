@@ -108,6 +108,14 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			role_name,
 			folder_name );
 
+	table_edit_input->role =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		role_fetch(
+			role_name,
+			1 /* fetch_attribute_exclude_list */ );
+
 	table_edit_input->folder =
 		/* -------------- */
 		/* Safely returns */
@@ -150,25 +158,9 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			message );
 	}
 
-	if ( ! ( table_edit_input->table_edit_state =
-			/* ------------------------------ */
-			/* Returns program memory or null */
-			/* ------------------------------ */
-			table_edit_state(
-				folder_name,
-				viewonly_boolean,
-				table_edit_input->role_folder_list ) ) )
-	{
-		return table_edit_input;
-	}
-
-	table_edit_input->role =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		role_fetch(
-			role_name,
-			1 /* fetch_attribute_exclude_list */ );
+	table_edit_input->folder_attribute_non_primary_name_list =
+		folder_attribute_non_primary_name_list(
+			table_edit_input->folder->folder_attribute_list );
 
 	table_edit_input->exclude_lookup_attribute_name_list =
 		role_attribute_exclude_name_list(
@@ -234,6 +226,18 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 		table_edit_input_isa_delete_prompt_set(
 			folder_name,
 			table_edit_input->folder_operation_list /* in/out */ );
+	}
+
+	if ( ! ( table_edit_input->table_edit_state =
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			table_edit_state(
+				folder_name,
+				viewonly_boolean,
+				table_edit_input->role_folder_list ) ) )
+	{
+		return table_edit_input;
 	}
 
 	table_edit_input->folder_row_level_restriction =
@@ -525,6 +529,9 @@ TABLE_EDIT *table_edit_new(
 			login_name,
 			role_name,
 			folder_name,
+			table_edit->
+				table_edit_input->
+				folder_attribute_non_primary_name_list,
 			table_edit->table_edit_input->relation_mto1_list,
 			table_edit->table_edit_input->relation_mto1_isa_list,
 			table_edit->table_edit_input->relation_one2m_join_list,

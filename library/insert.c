@@ -2072,7 +2072,7 @@ INSERT_STATEMENT *insert_statement_new(
 }
 
 DICTIONARY *insert_automatic_multi_row_dictionary(
-			LIST *folder_attribute_non_primary_key_list,
+			LIST *folder_attribute_non_primary_name_list,
 			DICTIONARY *multi_row_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -2081,7 +2081,7 @@ DICTIONARY *insert_automatic_multi_row_dictionary(
 	int index;
 	LIST *name_list;
 
-	if ( !list_length( folder_attribute_non_primary_key_list )
+	if ( !list_length( folder_attribute_non_primary_name_list )
 	||   !dictionary_length( multi_row_dictionary ) )
 	{
 		return NULL;
@@ -2103,7 +2103,7 @@ DICTIONARY *insert_automatic_multi_row_dictionary(
 	{
 		name_list =
 			dictionary_index_populated_name_list(
-				folder_attribute_non_primary_key_list,
+				folder_attribute_non_primary_name_list,
 				multi_row_dictionary,
 				index );
 
@@ -2132,7 +2132,7 @@ INSERT *insert_automatic_new(
 		DICTIONARY *multi_row_dictionary,
 		PROCESS *post_change_process )
 {
-	LIST *non_primary_key_list;
+	LIST *non_primary_name_list;
 	DICTIONARY *dictionary;
 
 	if ( !application_name
@@ -2160,16 +2160,16 @@ INSERT *insert_automatic_new(
 		return NULL;
 	}
 
-	non_primary_key_list =
-		folder_attribute_non_primary_key_list(
+	non_primary_name_list =
+		folder_attribute_non_primary_name_list(
 			folder_attribute_append_isa_list );
 
-	if ( !list_length( non_primary_key_list ) )
+	if ( !list_length( non_primary_name_list ) )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
-		"folder_attribute_non_primary_key_list() returned empty." );
+		"folder_attribute_non_primary_name_list() returned empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2180,7 +2180,7 @@ INSERT *insert_automatic_new(
 
 	dictionary =
 		insert_automatic_multi_row_dictionary(
-			non_primary_key_list,
+			non_primary_name_list,
 			multi_row_dictionary );
 
 	if ( dictionary_length( dictionary ) )

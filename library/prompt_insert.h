@@ -34,6 +34,7 @@ typedef struct
 	ROLE *role;
 	LIST *role_attribute_exclude_name_list;
 	FOLDER *folder;
+	LIST *folder_attribute_non_primary_name_list;
 	LIST *relation_mto1_list;
 	LIST *relation_mto1_isa_list;
 	LIST *relation_one2m_pair_list;

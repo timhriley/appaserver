@@ -182,6 +182,7 @@ typedef struct
 /* Usage */
 /* ----- */
 QUERY_ROW *query_row_parse(
+		const char sql_delimiter,
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
@@ -1108,7 +1109,8 @@ void query_select_need_but_not_get_boolean(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_select_list_string(
-		LIST *query_select_list );
+		LIST *query_select_list,
+		LIST *common_name_list );
 
 /* Usage */
 /* ----- */
@@ -1257,7 +1259,8 @@ QUERY_DROP_DOWN_FETCH *query_drop_down_fetch_new(
 		LIST *one_folder_attribute_list,
 		LIST *relation_mto1_list,
 		DICTIONARY *drop_down_dictionary,
-		SECURITY_ENTITY *security_entity );
+		SECURITY_ENTITY *security_entity,
+		LIST *common_name_list );
 
 /* Process */
 /* ------- */
@@ -1334,7 +1337,8 @@ QUERY_DROP_DOWN *query_drop_down_new(
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
 		DICTIONARY *drop_down_dictionary,
-		SECURITY_ENTITY *security_entity );
+		SECURITY_ENTITY *security_entity,
+		LIST *common_name_list );
 
 /* Process */
 /* ------- */

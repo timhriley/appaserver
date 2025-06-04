@@ -142,6 +142,12 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_attribute */ );
 
+	prompt_insert_input->folder_attribute_non_primary_name_list =
+		folder_attribute_non_primary_name_list(
+			prompt_insert_input->
+				folder->
+				folder_attribute_list );
+
 	prompt_insert_input->relation_mto1_list =
 		relation_mto1_list(
 			/* ----------------------------------- */
@@ -367,6 +373,9 @@ PROMPT_INSERT *prompt_insert_new(
 				prompt_insert_input->
 				folder->
 				post_change_javascript,
+			prompt_insert->
+				prompt_insert_input->
+				folder_attribute_non_primary_name_list,
 			prompt_insert->
 				prompt_insert_input->
 				relation_mto1_list,

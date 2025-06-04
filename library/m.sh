@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_system
-	make post_merge_purge_folder
+	cd ../src_appaserver
+	make output_table_edit
 fi
 

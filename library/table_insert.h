@@ -38,6 +38,7 @@ typedef struct
 	ROLE *role;
 	LIST *role_attribute_exclude_insert_name_list;
 	FOLDER *folder;
+	LIST *folder_attribute_non_primary_name_list;
 	LIST *relation_mto1_list;
 	RELATION_MTO1 *relation_mto1_automatic_preselection;
 	LIST *relation_mto1_isa_list;

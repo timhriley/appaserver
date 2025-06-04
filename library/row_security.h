@@ -121,6 +121,7 @@ typedef struct
 {
 	RELATION_MTO1 *relation_mto1;
 	LIST *relation_mto1_to_one_fetch_list;
+	LIST *relation_mto1_common_name_list;
 	QUERY_DROP_DOWN *query_drop_down;
 	boolean viewonly_boolean;
 	AJAX_CLIENT *ajax_client;
@@ -134,6 +135,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *many_folder_relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		char *attribute_name,
@@ -203,6 +205,7 @@ ROW_SECURITY_REGULAR_WIDGET_LIST *
 		char *login_name,
 		char *role_name,
 		char *folder_name,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *relation_one2m_join_list,
@@ -286,6 +289,7 @@ ROW_SECURITY *row_security_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *relation_one2m_join_list,

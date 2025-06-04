@@ -422,7 +422,8 @@ QUERY_STATISTIC *query_statistic_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_statistic->select_list );
+			query_statistic->select_list,
+			(LIST *)0 /* common_name_list */ );
 
 	query_statistic->query_select_name_list =
 		query_select_name_list(

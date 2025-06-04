@@ -3045,15 +3045,15 @@ void dictionary_index_set(
 }
 
 LIST *dictionary_index_populated_name_list(
-		LIST *folder_attribute_non_primary_key_list,
+		LIST *folder_attribute_non_primary_name_list,
 		DICTIONARY *multi_row_dictionary,
 		int index )
 {
 	LIST *name_list;
-	char *non_primary_key;
+	char *non_primary_name;
 	char key_index[ 128 ];
 
-	if ( !list_rewind( folder_attribute_non_primary_key_list )
+	if ( !list_rewind( folder_attribute_non_primary_name_list )
 	||   !dictionary_length( multi_row_dictionary )
 	||   !index )
 	{
@@ -3071,15 +3071,15 @@ LIST *dictionary_index_populated_name_list(
 	name_list = list_new();
 
 	do {
-		non_primary_key =
+		non_primary_name =
 			list_get(
-				folder_attribute_non_primary_key_list );
+				folder_attribute_non_primary_name_list );
 
 		snprintf(
 			key_index,
 			sizeof ( key_index ),
 			"%s_%d",
-			non_primary_key,
+			non_primary_name,
 			index );
 
 		/* --------------------------------------- */
@@ -3089,10 +3089,10 @@ LIST *dictionary_index_populated_name_list(
 			key_index,
 			multi_row_dictionary ) )
 		{
-			list_set( name_list, non_primary_key );
+			list_set( name_list, non_primary_name );
 		}
 
-	} while ( list_next( folder_attribute_non_primary_key_list ) );
+	} while ( list_next( folder_attribute_non_primary_name_list ) );
 
 	if ( !list_length( name_list ) )
 	{

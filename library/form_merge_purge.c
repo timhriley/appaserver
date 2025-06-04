@@ -68,7 +68,8 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 			(char *)0 /* populate_drop_down_process_name */,
 			(LIST *)0 /* relation_mto1_list */,
 			(DICTIONARY *)0 /* command_line_dictionary */,
-			(SECURITY_ENTITY *)0 /* security_entity */ );
+			(SECURITY_ENTITY *)0 /* security_entity */,
+			(LIST *)0 /* common_name_list */ );
 
 	form_merge_purge->widget_drop_down_option_list =
 		widget_drop_down_option_list(

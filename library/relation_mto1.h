@@ -169,5 +169,11 @@ LIST *relation_mto1_to_one_list(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list );
 
+/* Usage */
+/* ----- */
+LIST *relation_mto1_common_name_list(
+		LIST *folder_attribute_non_primary_name_list,
+		boolean copy_common_columns,
+		LIST *one_folder_attribute_name_list );
 #endif
 

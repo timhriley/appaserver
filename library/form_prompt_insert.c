@@ -427,6 +427,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 		char *role_name,
 		char *folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *drillthru_dictionary,
@@ -510,6 +511,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 				folder_name
 					/* many_folder_name */,
 				post_change_javascript,
+				folder_attribute_non_primary_name_list,
 				relation_mto1_list
 					/* many_folder_relation_mto1_list */,
 				relation_mto1_isa_list,
@@ -638,6 +640,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		char *role_name,
 		char *folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
@@ -722,6 +725,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			role_name,
 			folder_name,
 			post_change_javascript,
+			folder_attribute_non_primary_name_list,
 			relation_mto1_list,
 			relation_mto1_isa_list,
 			drillthru_dictionary,
@@ -1348,6 +1352,7 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		char *role_name,
 		char *many_folder_name,
 		char *post_change_javascript,
+		LIST *folder_attribute_non_primary_name_list,
 		LIST *many_folder_relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *drillthru_dictionary,
@@ -1612,6 +1617,18 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 					relation_name
 					/* widget_name */ ) ) );
 
+	form_prompt_insert_relation->relation_mto1_common_name_list =
+		relation_mto1_common_name_list(
+			folder_attribute_non_primary_name_list,
+			form_prompt_insert_relation->
+				relation_mto1->
+				relation->
+				copy_common_columns,
+			form_prompt_insert_relation->
+				relation_mto1->
+				one_folder->
+				folder_attribute_name_list );
+
 	form_prompt_insert_relation->query_drop_down =
 		/* -------------- */
 		/* Safely returns */
@@ -1636,7 +1653,9 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 				relation_mto1_to_one_fetch_list,
 			drillthru_dictionary
 				/* drop_down_dictionary */,
-			security_entity );
+			security_entity,
+			form_prompt_insert_relation->
+				relation_mto1_common_name_list );
 
 	form_prompt_insert_relation->
 		drop_down_widget_container->

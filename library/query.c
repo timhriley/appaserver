@@ -352,26 +352,13 @@ LIST *query_select_table_edit_list(
 	return query_select_list;
 }
 
-LIST *query_select_list( LIST *folder_attribute_primary_list )
+LIST *query_select_list(
+		LIST *folder_attribute_primary_list )
 {
-	LIST *list;
+	LIST *list = list_new();
 	FOLDER_ATTRIBUTE *folder_attribute;
 
-	if ( !list_rewind( folder_attribute_primary_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "folder_attribute_primary_list is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list = list_new();
-
+	if ( list_rewind( folder_attribute_primary_list ) )
 	do {
 		folder_attribute = list_get( folder_attribute_primary_list );
 
@@ -392,14 +379,16 @@ LIST *query_select_list( LIST *folder_attribute_primary_list )
 	return list;
 }
 
-char *query_select_list_string( LIST *query_select_list )
+char *query_select_list_string(
+		LIST *query_select_list,
+		LIST *common_name_list )
 {
 	char list_string[ 2048 ];
 	char *ptr = list_string;
 	QUERY_SELECT *query_select;
+	char *common_name;
 
-	if ( !list_rewind( query_select_list ) ) return (char *)0;
-
+	if ( list_rewind( query_select_list ) )
 	do {
 		query_select = list_get( query_select_list );
 
@@ -415,11 +404,40 @@ char *query_select_list_string( LIST *query_select_list )
 			exit( 1 );
 		}
 
-		ptr += sprintf( ptr, "%s", query_select->full_attribute_name );
+		if ( list_length( common_name_list )
+		&&   list_last_boolean( query_select_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"concat(%s,' ['",
+				query_select->full_attribute_name );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				query_select->full_attribute_name );
+		}
 
 	} while ( list_next( query_select_list ) );
 
-	return strdup( list_string );
+	if ( list_rewind( common_name_list ) )
+	do {
+		common_name = list_get( common_name_list );
+		ptr += sprintf( ptr, ",%s", common_name );
+
+		if ( list_last_boolean( common_name_list ) )
+		{
+			ptr += sprintf( ptr, ",']')" );
+		}
+
+	} while ( list_next( common_name_list ) );
+
+	if ( ptr == list_string )
+		return NULL;
+	else
+		return strdup( list_string );
 }
 
 LIST *query_select_name_list( LIST *query_select_list )
@@ -690,7 +708,8 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_table_edit->query_select_table_edit_list );
+			query_table_edit->query_select_table_edit_list,
+			(LIST *)0 /* common_name_list */ );
 
 	query_table_edit->query_select_name_list =
 		query_select_name_list(
@@ -3499,12 +3518,11 @@ QUERY_CELL *query_cell_parse(
 	char *display_datum = {0};
 	QUERY_CELL *query_cell;
 
-	if ( !attribute_name
-	||   !select_datum )
+	if ( !select_datum )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "select_datum is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3633,21 +3651,7 @@ QUERY_CELL *query_cell_seek(
 	do {
 		query_cell = list_get( cell_list );
 
-		if ( !query_cell->attribute_name )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"query_cell->attribute_name is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		if ( strcmp(
+		if ( string_strcmp(
 			attribute_name,
 			query_cell->attribute_name ) == 0 )
 		{
@@ -3736,6 +3740,7 @@ char *query_cell_display_datum(
 }
 
 QUERY_ROW *query_row_parse(
+		const char sql_delimiter,
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
@@ -3773,7 +3778,7 @@ QUERY_ROW *query_row_parse(
 		/* ------------------------------------- */
 		if ( !piece(
 			piece_buffer,
-			SQL_DELIMITER,
+			sql_delimiter,
 			input,
 			p++ ) )
 		{
@@ -3793,6 +3798,23 @@ QUERY_ROW *query_row_parse(
 					/* select_datum */ ) );
 
 	} while ( list_next( query_select_name_list ) );
+
+	for (	;
+		piece( piece_buffer, sql_delimiter, input, p );
+		p++ )
+	{
+		list_set(
+			cell_list,
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			query_cell_parse(
+				(LIST *)0 /* folder_attribute_list */,
+				date_convert_blank,
+				(char *)0 /* attribute_name */,
+				strdup( piece_buffer )
+					/* select_datum */ ) );
+	}
 
 	return
 	query_row_new(
@@ -3891,6 +3913,7 @@ QUERY_FETCH *query_fetch_new(
 		list_set(
 			query_fetch->row_list,
 			query_row_parse(
+				SQL_DELIMITER,
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
@@ -4426,7 +4449,8 @@ QUERY_DROP_DOWN_FETCH *query_drop_down_fetch_new(
 		LIST *one_folder_attribute_list,
 		LIST *relation_mto1_to_one_list,
 		DICTIONARY *drop_down_dictionary,
-		SECURITY_ENTITY *security_entity )
+		SECURITY_ENTITY *security_entity,
+		LIST *common_name_list )
 {
 	QUERY_DROP_DOWN_FETCH *query_drop_down_fetch;
 
@@ -4462,7 +4486,8 @@ QUERY_DROP_DOWN_FETCH *query_drop_down_fetch_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_drop_down_fetch->query_select_list );
+			query_drop_down_fetch->query_select_list,
+			common_name_list );
 
 	query_drop_down_fetch->query_select_name_list =
 		query_select_name_list(
@@ -4785,7 +4810,8 @@ QUERY_CHOOSE_ISA *query_choose_isa_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_choose_isa->query_select_list );
+			query_choose_isa->query_select_list,
+			(LIST *)0 /* common_name_list */ );
 
 	query_choose_isa->query_select_name_list =
 		query_select_name_list(
@@ -5482,6 +5508,7 @@ unsigned long query_spreadsheet_output(
 	{
 		query_row =
 			query_row_parse(
+				SQL_DELIMITER,
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
@@ -5572,7 +5599,8 @@ QUERY_SPREADSHEET *query_spreadsheet_new(
 		/* ------------------- */
 		query_select_list_string(
 			query_spreadsheet->
-				query_select_table_edit_list );
+				query_select_table_edit_list,
+			(LIST *)0 /* common_name_list */ );
 
 	query_spreadsheet->query_select_name_list =
 		query_select_name_list(
@@ -5957,7 +5985,8 @@ QUERY_CHART *query_chart_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_chart->select_list );
+			query_chart->select_list,
+		(LIST *)0 /* common_name_list */ );
 
 	query_chart->query_select_name_list =
 		query_select_name_list(
@@ -6185,7 +6214,8 @@ QUERY_GROUP *query_group_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		query_select_list_string(
-			query_group->select_list );
+			query_group->select_list,
+		(LIST *)0 /* common_name_list */ );
 
 	query_group->query_select_name_list =
 		query_select_name_list(
@@ -6531,7 +6561,8 @@ QUERY_PRIMARY_KEY *query_primary_key_fetch(
 		/* ------------------- */
 		query_select_list_string(
 			query_primary_key->
-				query_select_primary_list );
+				query_select_primary_list,
+			(LIST *)0 /* common_name_list */ );
 
 	query_primary_key->query_from_string =
 		/* ------------------- */
@@ -6749,18 +6780,16 @@ char *query_cell_where_string( LIST *query_row_cell_list )
 	QUERY_CELL *query_cell;
 	char destination[ 256 ];
 
-	if ( !list_rewind( query_row_cell_list ) ) return (char *)0;
-
+	if ( list_rewind( query_row_cell_list ) )
 	do {
 		query_cell = list_get( query_row_cell_list );
 
-		if ( !query_cell->attribute_name
-		||   !query_cell->select_datum )
+		if ( !query_cell->select_datum )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-				"query_cell is incomplete." );
+				"query_cell->select_datum is empty." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -6768,6 +6797,8 @@ char *query_cell_where_string( LIST *query_row_cell_list )
 				__LINE__,
 				message );
 		}
+
+		if ( !query_cell->attribute_name ) continue;
 
 		if ( ptr != where_string ) ptr += sprintf( ptr, " and " );
 
@@ -6782,7 +6813,10 @@ char *query_cell_where_string( LIST *query_row_cell_list )
 
 	} while ( list_next( query_row_cell_list ) );
 
-	return strdup( where_string );
+	if ( ptr == where_string )
+		return NULL;
+	else
+		return strdup( where_string );
 }
 
 void query_cell_command_line_replace(
@@ -6808,19 +6842,7 @@ void query_cell_command_line_replace(
 	do {
 		query_cell = list_get( query_cell_list );
 
-		if ( !query_cell->attribute_name )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"query_cell->attribute_name is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		if ( !query_cell->attribute_name ) continue;
 
 		string_with_space_search_replace(
 			command_line
@@ -6986,7 +7008,9 @@ char *query_cell_display( QUERY_CELL *query_cell )
 		display,
 		sizeof ( display ),
 		"[%s=%s; Display=%s; Primary=%d]",
-		query_cell->attribute_name,
+		(query_cell->attribute_name)
+			? query_cell->attribute_name
+			: "anonymous",
 		query_cell->select_datum,
 		(query_cell->display_datum)
 			? query_cell->display_datum
@@ -7027,7 +7051,8 @@ QUERY_DROP_DOWN *query_drop_down_new(
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
 		DICTIONARY *drop_down_dictionary,
-		SECURITY_ENTITY *security_entity )
+		SECURITY_ENTITY *security_entity,
+		LIST *common_name_list )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 
@@ -7097,7 +7122,8 @@ QUERY_DROP_DOWN *query_drop_down_new(
 				one_folder_attribute_list,
 				relation_mto1_to_one_list,
 				drop_down_dictionary,
-				security_entity );
+				security_entity,
+				common_name_list );
 
 		query_drop_down->delimited_list =
 			query_drop_down->
@@ -8305,12 +8331,11 @@ QUERY_CELL *query_cell_new(
 {
 	QUERY_CELL *query_cell;
 
-	if ( !attribute_name
-	||   !select_datum )
+	if ( !select_datum )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "select_datum is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

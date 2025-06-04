@@ -229,7 +229,8 @@ FORM_GENERIC_LOAD_RELATION *form_generic_load_relation_new(
 				populate_drop_down_process_name,
 			one_folder_relation_mto1_list,
 			(DICTIONARY *)0 /* command_line_dictionary */,
-			security_entity );
+			security_entity,
+			(LIST *)0 /* common_name_list */ );
 
 	form_generic_load_relation->widget_container =
 		widget_container_new(
