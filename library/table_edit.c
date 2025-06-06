@@ -273,18 +273,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			table_edit_input->folder_attribute_date_name_list,
 			table_edit_input->folder_attribute_append_isa_list );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: drillthru_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( table_edit_input->dictionary_separate->drillthru_dictionary ) );
-msg( "appahost", message );
-}
 	table_edit_input->onload_javascript_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */

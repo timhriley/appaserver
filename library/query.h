@@ -20,9 +20,6 @@
 #include "row_security_role_update.h"
 #include "folder_attribute.h"
 
-#define QUERY_QUICK_YES_NO		"yes"
-#define QUERY_RELATION_OPERATOR_PREFIX	"relation_operator_"
-
 #define QUERY_EQUAL			"equals"
 #define QUERY_NOT_EQUAL			"not_equal"
 #define QUERY_LESS_THAN			"less_than"
@@ -37,6 +34,8 @@
 #define QUERY_IS_NULL			"is_empty"
 #define QUERY_NOT_NULL			"not_empty"
 
+#define QUERY_QUICK_YES_NO		"yes"
+#define QUERY_RELATION_OPERATOR_PREFIX	"relation_operator_"
 #define QUERY_DROP_DOWN_FETCH_MAX_ROWS	10000
 
 typedef struct

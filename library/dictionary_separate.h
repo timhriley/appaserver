@@ -110,7 +110,27 @@ DICTIONARY *dictionary_separate_parse_non_prefixed(
 /* ------------------------------------------------------------ */
 void dictionary_separate_parse_multi(
 		const char attribute_multi_key_delimiter,
+		char *query_relation_operator_prefix,
 		DICTIONARY *dictionary /* in/out */ );
+
+/* Usage */
+/* ----- */
+void dictionary_separate_parse_multi_non_relation(
+		const char attribute_multi_key_delimiter,
+		DICTIONARY *dictionary /* in/out */,
+		char *multi_key );
+
+/* Usage */
+/* ----- */
+/*
+multi_key=single_datum looks like:
+relation_operator_full_name^street_address=equals
+*/
+void dictionary_separate_parse_multi_relation(
+		const char attribute_multi_key_delimiter,
+		const char *query_relation_operator_prefix,
+		DICTIONARY *dictionary /* in/out */,
+		char *multi_key );
 
 /* Usage */
 /* ----- */
@@ -129,6 +149,12 @@ void dictionary_separate_parse_multi_key(
 char *dictionary_separate_parse_multi_index_key(
 		int string_index,
 		char *single_key );
+
+/* Usage */
+/* ----- */
+boolean dictionary_separate_parse_relation_boolean(
+		char *query_relation_operator_prefix,
+		char *multi_key );
 
 typedef struct
 {

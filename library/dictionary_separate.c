@@ -817,18 +817,6 @@ DICTIONARY *dictionary_separate_send_dictionary(
 {
 	DICTIONARY *send_dictionary = dictionary_large();
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: drillthru_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( drillthru_dictionary ) );
-msg( "appahost", message );
-}
 	if ( dictionary_length( sort_dictionary ) )
 	{
 		dictionary_append_dictionary(
@@ -1506,6 +1494,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		(char *)0 /* query_relation_operator_prefix */,
 		parse->sort_dictionary /* in/out */ );
 
 	parse->query_dictionary =
@@ -1519,6 +1508,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		QUERY_RELATION_OPERATOR_PREFIX,
 		parse->query_dictionary /* in/out */ );
 
 	parse->drillthru_dictionary =
@@ -1532,6 +1522,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		QUERY_RELATION_OPERATOR_PREFIX,
 		parse->drillthru_dictionary /* in/out */ );
 
 	parse->ignore_dictionary =
@@ -1545,6 +1536,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		(char *)0 /* query_relation_operator_prefix */,
 		parse->ignore_dictionary /* in/out */ );
 
 	parse->no_display_dictionary =
@@ -1558,6 +1550,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		(char *)0 /* query_relation_operator_prefix */,
 		parse->no_display_dictionary /* in/out */ );
 
 	parse->pair_dictionary =
@@ -1571,6 +1564,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		(char *)0 /* query_relation_operator_prefix */,
 		parse->pair_dictionary /* in/out */ );
 
 	parse->non_prefixed_dictionary =
@@ -1589,6 +1583,7 @@ DICTIONARY_SEPARATE_PARSE *
 
 	dictionary_separate_parse_multi(
 		attribute_multi_key_delimiter,
+		QUERY_RELATION_OPERATOR_PREFIX,
 		parse->non_prefixed_dictionary /* in/out */ );
 
 	list_free_container( key_list );
@@ -2762,12 +2757,7 @@ void dictionary_separate_parse_multi_key(
 			index_key,
 			single_datum );
 
-		/* Allow for multi-key but single datum */
-		/* ------------------------------------ */
-		if ( !list_at_end( attribute_data_list ) )
-		{
-			list_next( attribute_data_list );
-		}
+		list_next( attribute_data_list );
 
 	} while ( list_next( attribute_key_list ) );
 
@@ -2777,13 +2767,12 @@ void dictionary_separate_parse_multi_key(
 
 void dictionary_separate_parse_multi(
 		const char attribute_multi_key_delimiter,
+		char *query_relation_operator_prefix,
 		DICTIONARY *dictionary )
 {
 	LIST *key_list;
 	char *multi_key;
-	int index;
-	char multi_key_without_index[ 256 ];
-	char *multi_data;
+	boolean parse_relation_boolean;
 
 	key_list = dictionary_key_list( dictionary );
 
@@ -2798,42 +2787,26 @@ void dictionary_separate_parse_multi(
 			continue;
 		}
 
-		index = string_index( multi_key );
-
-		/* ------------------- */
-		/* Returns destination */
-		/* ------------------- */
-		(void)string_trim_index(
-			multi_key_without_index
-				/* destination */,
-			multi_key );
-
-		if ( ! ( multi_data =
-				dictionary_get(
-					multi_key,
-					dictionary ) ) )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"dictionary_get(%s) returned empty.",
+		parse_relation_boolean =
+			dictionary_separate_parse_relation_boolean(
+				query_relation_operator_prefix,
 				multi_key );
 
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+		if ( parse_relation_boolean )
+		{
+			dictionary_separate_parse_multi_relation(
+				attribute_multi_key_delimiter,
+				query_relation_operator_prefix,
+				dictionary /* in/out */,
+				multi_key );
 		}
-
-		dictionary_separate_parse_multi_key(
-			attribute_multi_key_delimiter,
-			dictionary /* in/out */,
-			index,
-			multi_key_without_index,
-			multi_data );
+		else
+		{
+			dictionary_separate_parse_multi_non_relation(
+				attribute_multi_key_delimiter,
+				dictionary /* in/out */,
+				multi_key );
+		}
 
 	} while ( list_next( key_list ) );
 }
@@ -2882,5 +2855,147 @@ DICTIONARY *dictionary_separate_parse_prefix(
 	} while ( list_next( dictionary_key_list ) );
 
 	return destination_dictionary;
+}
+
+boolean dictionary_separate_parse_relation_boolean(
+		char *query_relation_operator_prefix,
+		char *multi_key )
+{
+	if ( !query_relation_operator_prefix ) return 0;
+
+	return
+	( string_strncmp(
+		multi_key,
+		query_relation_operator_prefix ) == 0 );
+}
+
+void dictionary_separate_parse_multi_relation(
+		const char attribute_multi_key_delimiter,
+		const char *query_relation_operator_prefix,
+		DICTIONARY *dictionary /* in/out */,
+		char *multi_key )
+{
+	char *single_datum;
+	char key_without_prefix[ 256 ];
+	LIST *attribute_key_list;
+	char *single_key;
+	char relation_key[ 128 ];
+
+	if ( !dictionary
+	||   !multi_key )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	/* Should be "equals" */
+	/* ------------------ */
+	single_datum =
+		dictionary_get(
+			multi_key,
+			dictionary );
+
+	strcpy(	key_without_prefix,
+		multi_key +
+		strlen( query_relation_operator_prefix ) );
+
+	attribute_key_list =
+		list_string_to_list(
+			key_without_prefix,
+			attribute_multi_key_delimiter );
+
+	if ( list_rewind( attribute_key_list ) )
+	do {
+		single_key = list_get( attribute_key_list );
+
+		snprintf(
+			relation_key,
+			sizeof ( relation_key ),
+			"%s%s",
+			query_relation_operator_prefix,
+			single_key );
+
+		dictionary_set(
+			dictionary,
+			strdup( relation_key ),
+			single_datum );
+
+	} while ( list_next( attribute_key_list ) );
+
+	list_free( attribute_key_list );
+}
+
+void dictionary_separate_parse_multi_non_relation(
+		const char attribute_multi_key_delimiter,
+		DICTIONARY *dictionary /* in/out */,
+		char *multi_key )
+{
+	int index;
+	char multi_key_without_index[ 256 ];
+	char *multi_data;
+
+	if ( !dictionary
+	||   !multi_key )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	index = string_index( multi_key );
+
+	/* ------------------- */
+	/* Returns destination */
+	/* ------------------- */
+	(void)string_trim_index(
+		multi_key_without_index
+			/* destination */,
+		multi_key );
+
+	if ( ! ( multi_data =
+			dictionary_get(
+				multi_key,
+				dictionary ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"dictionary_get(%s) returned empty.",
+			multi_key );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	dictionary_separate_parse_multi_key(
+		attribute_multi_key_delimiter,
+		dictionary /* in/out */,
+		index,
+		multi_key_without_index,
+		multi_data );
 }
 
