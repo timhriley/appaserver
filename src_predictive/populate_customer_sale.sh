@@ -29,17 +29,17 @@ echo $0 $* 1>&2
 one2m_folder=$1
 parameter_where=$2
 
-if [ "$one2m_folder" = "activity_work" ]
-then
-	where="$parameter_where and completed_date_time is not null"
-else
-	where="$parameter_where"
-fi
+#if [ "$one2m_folder" = "activity_work" ]
+#then
+	#where="$parameter_where and completed_date_time is not null"
+#else
+	#where="$parameter_where"
+#fi
 
+where="$parameter_where"
 table=sale
 select="full_name,street_address,sale_date_time"
 
-echo "select $select from $table where $where order by $select;"	|
-sql.e
+select.sh $select $table "$where" select
 
 exit 0

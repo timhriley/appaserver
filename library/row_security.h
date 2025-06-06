@@ -132,6 +132,7 @@ typedef struct
 /* ----- */
 ROW_SECURITY_RELATION *row_security_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,

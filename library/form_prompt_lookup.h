@@ -64,6 +64,7 @@ typedef struct
 /* ----- */
 FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
@@ -144,6 +145,7 @@ typedef struct
 FORM_PROMPT_LOOKUP_WIDGET_LIST *
 	form_prompt_lookup_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,

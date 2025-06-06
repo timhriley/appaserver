@@ -57,11 +57,11 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			(char *)0 /* session_key */,
 			login_name,
-			(char *)0
-				/* many_folder_name */,
-			folder_name
-				/* one_folder_name */,
+			(char *)0 /* role_name */,
+			(char *)0 /* many_folder_name */,
+			folder_name /* one_folder_name */,
 			(char *)0 /* state */,
 			folder_attribute_primary_list
 				/* one_folder_attribute_list */,

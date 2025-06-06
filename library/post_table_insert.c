@@ -196,6 +196,9 @@ POST_TABLE_INSERT *post_table_insert_new(
 					folder_attribute_append_isa_list,
 				post_table_insert->
 					post_table_insert_input->
+					relation_mto1_list,
+				post_table_insert->
+					post_table_insert_input->
 					relation_mto1_isa_list,
 				post_table_insert->
 					post_table_insert_input->
@@ -219,12 +222,28 @@ POST_TABLE_INSERT *post_table_insert_new(
 			post_table_insert->
 				post_table_insert_input->
 				dictionary_separate->
-				pair_one2m_dictionary /* in/out */,
+				pair_dictionary /* in/out */,
 			PAIR_ONE2M_UNFULFILLED_LIST_KEY,
 			PAIR_ONE2M_FULFILLED_LIST_KEY,
 			PAIR_ONE2M_FOLDER_DELIMITER,
 			folder_name /* many_folder_name */ );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: drillthru_dictionary=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	dictionary_display(
+			post_table_insert->
+				post_table_insert_input->
+				dictionary_separate->
+				drillthru_dictionary ) );
+msg( (char *)0, message );
+}
 	post_table_insert->dictionary_separate_send_dictionary =
 		/* -------------- */
 		/* Safely returns */
@@ -249,7 +268,7 @@ POST_TABLE_INSERT *post_table_insert_new(
 			post_table_insert->
 				post_table_insert_input->
 				dictionary_separate->
-				pair_one2m_dictionary,
+				pair_dictionary,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			post_table_insert->prompt_dictionary
 				/* non_prefixed_dictionary */ );

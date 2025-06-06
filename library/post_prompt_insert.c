@@ -127,6 +127,9 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 					folder_attribute_append_isa_list,
 				post_prompt_insert->
 					post_prompt_insert_input->
+					relation_mto1_list,
+				post_prompt_insert->
+					post_prompt_insert_input->
 					relation_mto1_isa_list,
 				post_prompt_insert->
 					post_prompt_insert_input->
@@ -150,7 +153,7 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 				post_prompt_insert->
 					post_prompt_insert_input->
 					dictionary_separate->
-					pair_one2m_dictionary );
+					pair_dictionary );
 	}
 
 	if ( post_prompt_insert->
@@ -232,7 +235,7 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 			post_prompt_insert->
 				post_prompt_insert_input->
 				dictionary_separate->
-				pair_one2m_dictionary,
+				pair_dictionary,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			post_prompt_insert->
 				post_prompt_insert_input->

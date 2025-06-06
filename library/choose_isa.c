@@ -96,8 +96,7 @@ CHOOSE_ISA *choose_isa_new(
 				session_key,
 				login_name,
 				role_name,
-				one_folder_name
-					/* one_isa_folder_name */,
+				insert_folder_name,
 				choose_isa->
 					choose_isa_input->
 					security_entity->
@@ -383,79 +382,26 @@ char *choose_isa_command_line(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *one_isa_folder_name,
+		char *insert_folder_name,
 		char *security_entity_where,
 		char *appaserver_error_filename )
 {
-	char command_line[ STRING_8K ];
-
-	if ( !process_command_line
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !one_isa_folder_name
-	||   !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	string_strcpy( command_line, process_command_line, STRING_8K );
-
-	string_replace_command_line(
-		command_line,
-		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		one_isa_folder_name,
-		PROCESS_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		one_isa_folder_name,
-		PROCESS_TABLE_PLACEHOLDER );
-
-	if ( security_entity_where )
-	{
-		string_replace_command_line(
-			command_line,
-			security_entity_where,
-			PROCESS_WHERE_PLACEHOLDER );
-	}
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filename );
-
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	query_drop_down_process_command_line(
+		(char *)0 /* application_name */,
+		session_key,
+		login_name,
+		role_name,
+		(char *)0 /* state */,
+		insert_folder_name /* many_folder_name */,
+		(char *)0 /* populate_drop_down_process_name */,
+		(DICTIONARY *)0 /* dictionary */,
+		security_entity_where /* where_string */,
+		process_command_line,
+		appaserver_error_filename );
 }
 
 CHOOSE_ISA_INPUT *choose_isa_input_new(

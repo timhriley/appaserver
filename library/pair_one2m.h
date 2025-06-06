@@ -77,7 +77,7 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 		const char *pair_one2m_many_folder_key,
 		const char *pair_one2m_unfulfilled_list_key,
 		const char pair_one2m_folder_delimiter,
-		DICTIONARY *pair_one2m_dictionary );
+		DICTIONARY *pair_dictionary );
 
 /* Process */
 /* ------- */
@@ -92,7 +92,7 @@ char *pair_one2m_post_prompt_insert_next_folder(
 
 typedef struct
 {
-	DICTIONARY *pair_one2m_dictionary;
+	DICTIONARY *pair_dictionary;
 	char *unfulfilled_list_string;
 	LIST *pair_one2m_button_list;
 	WIDGET_CONTAINER *hidden_widget;
@@ -140,7 +140,7 @@ typedef struct
 /* Usage */
 /* ----- */
 PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
-		DICTIONARY *pair_one2m_dictionary /* in/out */,
+		DICTIONARY *pair_dictionary /* in/out */,
 		const char *pair_one2m_unfulfilled_list_key,
 		const char *pair_one2m_fulfilled_list_key,
 		const char pair_one2m_folder_delimiter,
@@ -158,14 +158,14 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_calloc(
 /* Safely returns */
 /* -------------- */
 LIST *pair_one2m_post_table_insert_fulfilled_list(
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *pair_one2m_fulfilled_list_key,
 		char pair_one2m_folder_delimiter );
 
 /* Usage */
 /* ----- */
 LIST *pair_one2m_post_table_insert_unfulfilled_list(
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *pair_one2m_unfulfilled_list_key,
 		char pair_one2m_folder_delimiter );
 
@@ -184,7 +184,7 @@ typedef struct
 /* ----- */
 PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert_new(
 		const char *pair_one2m_one_folder_key,
-		DICTIONARY *pair_one2m_dictionary );
+		DICTIONARY *pair_dictionary );
 
 /* Process */
 /* ------- */

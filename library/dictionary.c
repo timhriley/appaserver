@@ -819,9 +819,9 @@ char *dictionary_index_get(
 	char *append_row_number;
 
 	append_row_number =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* --------------------------------------- */
+		/* Returns attribute_name or static memory */
+		/* --------------------------------------- */
 		dictionary_attribute_name_append_row_number(
 			key /* attribute_name */,
 			index /* row_number */ );
@@ -2504,12 +2504,19 @@ char *dictionary_attribute_name_append_row_number(
 		exit( 1 );
 	}
 
-	sprintf(append_row_number,
-		"%s_%d",
-		attribute_name,
-		row_number );
+	if ( !row_number )
+		return attribute_name;
+	else
+	{
+		snprintf(
+			append_row_number,
+			sizeof ( append_row_number ),
+			"%s_%d",
+			attribute_name,
+			row_number );
 
-	return append_row_number;
+		return append_row_number;
+	}
 }
 
 char *dictionary_attribute_name_list_string(
@@ -2548,9 +2555,9 @@ char *dictionary_attribute_name_list_string(
 		}
 
 		append_row_number =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
+			/* --------------------------------------- */
+			/* Returns attribute_name or static memory */
+			/* --------------------------------------- */
 			dictionary_attribute_name_append_row_number(
 				attribute_name,
 				row_number );

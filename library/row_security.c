@@ -313,6 +313,7 @@ ROW_SECURITY_REGULAR_WIDGET_LIST *
 		&&   ( row_security_relation =
 			row_security_relation_new(
 				application_name,
+				session_key,
 				login_name,
 				role_name,
 				folder_name
@@ -445,6 +446,7 @@ ROW_SECURITY_RELATION *row_security_relation_calloc( void )
 
 ROW_SECURITY_RELATION *row_security_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
@@ -619,12 +621,14 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			session_key,
 			login_name,
+			role_name,
+			APPASERVER_UPDATE_STATE,
 			many_folder_name,
 			row_security_relation->
 				relation_mto1->
 				one_folder_name,
-			APPASERVER_UPDATE_STATE,
 			row_security_relation->
 				relation_mto1->
 				one_folder->
@@ -1161,6 +1165,7 @@ ROW_SECURITY_VIEWONLY_WIDGET_LIST *
 		&&   ( row_security_relation =
 			row_security_relation_new(
 				(char *)0 /* application_name */,
+				(char *)0 /* session_key */,
 				(char *)0 /* login_name */,
 				(char *)0 /* role_name */,
 				(char *)0 /* many_folder_name */,

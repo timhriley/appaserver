@@ -762,8 +762,9 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 	char *ptr = display;
 	RELATION_MTO1 *relation_mto1;
 
-	if ( !list_rewind( relation_mto1_list ) ) return "NULL";
+	strcpy( display, "NULL" );
 
+	if ( list_rewind( relation_mto1_list ) )
 	do {
 		relation_mto1 = list_get( relation_mto1_list );
 
@@ -786,11 +787,13 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 			"one_folder_name=%s, "
 			"related_attribute_name=%s, "
 			"ajax_fill_drop_down=%d, "
+			"copy_common_columns=%d, "
 			"folder_attribute_name_list=%s\n, "
 			"relation_foreign_key_list=%s\n",
 			relation_mto1->one_folder_name,
 			relation_mto1->relation->related_attribute_name,
 			relation_mto1->relation->ajax_fill_drop_down,
+			relation_mto1->relation->copy_common_columns,
 			list_display(
 				relation_mto1->
 					one_folder->

@@ -114,6 +114,7 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 		/* -------------- */
 		form_prompt_lookup_widget_list_new(
 			application_name,
+			session_key,
 			login_name,
 			role_name,
 			folder_name,
@@ -484,6 +485,7 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_calloc( void )
 FORM_PROMPT_LOOKUP_WIDGET_LIST *
 	form_prompt_lookup_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
@@ -538,6 +540,7 @@ FORM_PROMPT_LOOKUP_WIDGET_LIST *
 		if ( ( form_prompt_lookup_relation =
 			    form_prompt_lookup_relation_new(
 				application_name,
+				session_key,
 				login_name,
 				role_name,
 				folder_name
@@ -726,6 +729,7 @@ FORM_PROMPT_LOOKUP_WIDGET_LIST *
 
 FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
@@ -899,13 +903,15 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 			/* -------------- */
 			query_drop_down_new(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
+				APPASERVER_LOOKUP_STATE,
 				many_folder_name,
 				form_prompt_lookup_relation->
 					relation_mto1->
 					one_folder->
 					folder_name,
-				APPASERVER_LOOKUP_STATE,
 				form_prompt_lookup_relation->
 					relation_mto1->
 					one_folder->

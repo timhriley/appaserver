@@ -214,7 +214,7 @@ TABLE_INSERT *table_insert_new(
 				table_insert->
 					table_insert_input->
 					dictionary_separate->
-					pair_one2m_dictionary,
+					pair_dictionary,
 				table_insert->
 					table_insert_input->
 					dictionary_separate->
@@ -289,7 +289,7 @@ TABLE_INSERT *table_insert_new(
 					table_insert->
 						table_insert_input->
 						dictionary_separate->
-						pair_one2m_dictionary,
+						pair_dictionary,
 					DICTIONARY_SEPARATE_PAIR_PREFIX ),
 				table_insert->
 					table_insert_input->
@@ -628,7 +628,7 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 			PAIR_ONE2M_ONE_FOLDER_KEY,
 			table_insert_input->
 				dictionary_separate->
-				pair_one2m_dictionary );
+				pair_dictionary );
 
 	table_insert_input->
 		appaserver_parameter_data_directory =

@@ -213,7 +213,9 @@ FORM_GENERIC_LOAD_RELATION *form_generic_load_relation_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			(char *)0 /* session_key */,
 			login_name,
+			(char *)0 /* role_name */,
 			folder_name /* many_folder_name */,
 			form_generic_load_relation->
 				relation_mto1->

@@ -16,11 +16,8 @@
 #include "javascript.h"
 
 #define PROCESS_APPLICATION_PLACEHOLDER		"$application"
-#define PROCESS_MANY_FOLDER_PLACEHOLDER		"$many_folder"
-#define PROCESS_MANY_TABLE_PLACEHOLDER		"$many_table"
-#define PROCESS_ONE_FOLDER_PLACEHOLDER1		"$one_folder"
-#define PROCESS_ONE_FOLDER_PLACEHOLDER2		"$one2m_folder"
-#define PROCESS_ONE_TABLE_PLACEHOLDER		"$one2m_table"
+#define PROCESS_MANY_PLACEHOLDER		"$many"
+#define PROCESS_ONE_PLACEHOLDER1		"$one"
 #define PROCESS_APPLICATION_PLACEHOLDER		"$application"
 #define PROCESS_SESSION_PLACEHOLDER		"$session"
 #define PROCESS_PID_PLACEHOLDER			"$process_id"

@@ -547,7 +547,7 @@ POST_TABLE_EDIT *post_table_edit_new(
 			post_table_edit->
 				post_table_edit_input->
 				dictionary_separate->
-				pair_one2m_dictionary,
+				pair_dictionary,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			post_table_edit->
 				post_table_edit_input->

@@ -82,7 +82,7 @@ CHANGE_PASSWORD *change_password_new(
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			(DICTIONARY *)0 /* no_display_dictionary */,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
+			(DICTIONARY *)0 /* pair_dictionary */,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
 

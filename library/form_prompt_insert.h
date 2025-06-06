@@ -87,6 +87,7 @@ typedef struct
 /* ----- */
 FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
@@ -140,6 +141,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 	form_prompt_insert_widget_list_new(
 		const char *prompt_insert_lookup_checkbox,
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
@@ -247,7 +249,7 @@ char *form_prompt_insert_html(
 		char *form_tag,
 		LIST *widget_container_list,
 		char *button_container_list_html,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *form_close_tag );
 
 /* Process */

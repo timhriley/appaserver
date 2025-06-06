@@ -423,6 +423,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 	form_prompt_insert_widget_list_new(
 		const char *prompt_insert_lookup_checkbox,
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
@@ -506,6 +507,7 @@ FORM_PROMPT_INSERT_WIDGET_LIST *
 		if ( ( form_prompt_insert_relation =
 			form_prompt_insert_relation_new(
 				application_name,
+				session_key,
 				login_name,
 				role_name,
 				folder_name
@@ -721,6 +723,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		form_prompt_insert_widget_list_new(
 			prompt_insert_lookup_checkbox,
 			application_name,
+			session_key,
 			login_name,
 			role_name,
 			folder_name,
@@ -863,7 +866,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			(form_prompt_insert->pair_one2m_prompt_insert)
 				? form_prompt_insert->
 					pair_one2m_prompt_insert->
-					pair_one2m_dictionary
+					pair_dictionary
 				: (DICTIONARY *)0,
 			/* ---------------------- */
 			/* Returns program memory */
@@ -1091,7 +1094,7 @@ char *form_prompt_insert_html(
 		char *form_tag,
 		LIST *widget_container_list,
 		char *button_container_list_html,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *form_close_tag )
 {
 	char html[ STRING_704K ];
@@ -1223,7 +1226,7 @@ char *form_prompt_insert_html(
 		free( widget_html );
 	}
 
-	if ( dictionary_length( pair_one2m_dictionary ) )
+	if ( dictionary_length( pair_dictionary ) )
 	{
 		widget_html =
 			/* --------------------------- */
@@ -1231,7 +1234,7 @@ char *form_prompt_insert_html(
 			/* --------------------------- */
 			dictionary_separate_hidden_html(
 				DICTIONARY_SEPARATE_PAIR_PREFIX,
-				pair_one2m_dictionary );
+				pair_dictionary );
 
 		if ( !widget_html )
 		{
@@ -1348,6 +1351,7 @@ char *form_prompt_insert_capacity_message(
 
 FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
@@ -1635,12 +1639,14 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			session_key,
 			login_name,
+			role_name,
+			APPASERVER_INSERT_STATE,
 			many_folder_name,
 			form_prompt_insert_relation->
 				relation_mto1->
 				one_folder_name,
-			APPASERVER_INSERT_STATE,
 			form_prompt_insert_relation->
 				relation_mto1->
 				one_folder->

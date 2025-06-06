@@ -85,6 +85,7 @@ FORM_DRILLTHRU *form_drillthru_new(
 	form_drillthru->form_prompt_lookup_widget_list =
 		form_prompt_lookup_widget_list_new(
 			application_name,
+			session_key,
 			login_name,
 			role_name,
 			folder_name /* many_folder_name */,

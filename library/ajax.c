@@ -634,11 +634,12 @@ char *ajax_server_process_system_string(
 	/* ------------------- */
 	query_drop_down_process_command_line(
 		(char *)0 /* application_name */,
+		(char *)0 /* session_key */,
 		(char *)0 /* login_name */,
-		(char *)0 /* many_folder_name */,
-		(char *)0 /* one_folder_name */,
+		(char *)0 /* role_name */,
 		(char *)0 /* state */,
-		(char *)0 /* populate_drop_down_process_name */,
+		(char *)0 /* many_folder_name */,
+		populate_drop_down_process->process_name,
 		dictionary,
 		(char *)0 /* query_drop_down_where_string */,
 		populate_drop_down_process->command_line,

@@ -95,7 +95,7 @@ char *choose_isa_command_line(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *one_isa_folder_name,
+		char *insert_folder_name,
 		char *security_entity_where,
 		char *appaserver_error_filename );
 

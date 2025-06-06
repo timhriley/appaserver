@@ -366,7 +366,7 @@ char *string_escape_quote_dollar(
 char *string_escape_dollar(
 		char *source )
 {
-	char destination[ STRING_64K ];
+	char destination[ STRING_65K ];
 
 	return
 	strdup(

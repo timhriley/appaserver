@@ -3799,23 +3799,6 @@ QUERY_ROW *query_row_parse(
 
 	} while ( list_next( query_select_name_list ) );
 
-	for (	;
-		piece( piece_buffer, sql_delimiter, input, p );
-		p++ )
-	{
-		list_set(
-			cell_list,
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			query_cell_parse(
-				(LIST *)0 /* folder_attribute_list */,
-				date_convert_blank,
-				(char *)0 /* attribute_name */,
-				strdup( piece_buffer )
-					/* select_datum */ ) );
-	}
-
 	return
 	query_row_new(
 		input_save_boolean,
@@ -7043,10 +7026,12 @@ char *query_attribute_list_table_name(
 
 QUERY_DROP_DOWN *query_drop_down_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
+		char *role_name,
+		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
-		char *state,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
@@ -7094,10 +7079,12 @@ QUERY_DROP_DOWN *query_drop_down_new(
 			/* -------------- */
 			query_drop_down_process_new(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
+				state,
 				many_folder_name,
 				one_folder_name,
-				state,
 				one_folder_attribute_list,
 				populate_drop_down_process_name,
 				relation_mto1_to_one_list,
@@ -7156,10 +7143,12 @@ QUERY_DROP_DOWN *query_drop_down_calloc( void )
 
 QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
+		char *role_name,
+		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
-		char *state,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
@@ -7223,10 +7212,11 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 		/* ------------------- */
 		query_drop_down_process_command_line(
 			application_name,
+			session_key,
 			login_name,
-			many_folder_name,
-			one_folder_name,
+			role_name,
 			state,
+			many_folder_name,
 			populate_drop_down_process_name,
 			dictionary,
 			query_drop_down_process->
@@ -7266,17 +7256,18 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_calloc( void )
 
 char *query_drop_down_process_command_line(
 		char *application_name,
+		char *session_key,
 		char *login_name,
-		char *many_folder_name,
-		char *one_folder_name,
+		char *role_name,
 		char *state,
+		char *many_folder_name,
 		char *populate_drop_down_process_name,
 		DICTIONARY *dictionary,
-		char *query_drop_down_where_string,
+		char *where_string,
 		char *process_command_line,
 		char *appaserver_error_filename )
 {
-	char command_line[ STRING_WHERE_BUFFER ];
+	char command_line[ STRING_64K ];
 	char *delimited;
 	char *escape_dollar;
 
@@ -7296,12 +7287,17 @@ char *query_drop_down_process_command_line(
 	string_strcpy(
 		command_line,
 		process_command_line,
-		STRING_WHERE_BUFFER );
+		sizeof ( command_line ) );
 
 	string_replace_command_line(
 		command_line,
 		application_name,
 		PROCESS_APPLICATION_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		session_key,
+		PROCESS_SESSION_PLACEHOLDER );
 
 	string_replace_command_line(
 		command_line,
@@ -7315,23 +7311,8 @@ char *query_drop_down_process_command_line(
 
 	string_replace_command_line(
 		command_line,
-		many_folder_name,
-		PROCESS_MANY_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		many_folder_name,
-		PROCESS_MANY_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		many_folder_name,
-		PROCESS_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		many_folder_name,
-		PROCESS_TABLE_PLACEHOLDER );
+		role_name,
+		PROCESS_ROLE_PLACEHOLDER );
 
 	string_replace_command_line(
 		command_line,
@@ -7340,18 +7321,8 @@ char *query_drop_down_process_command_line(
 
 	string_replace_command_line(
 		command_line,
-		one_folder_name,
-		PROCESS_ONE_FOLDER_PLACEHOLDER1 );
-
-	string_replace_command_line(
-		command_line,
-		one_folder_name,
-		PROCESS_ONE_FOLDER_PLACEHOLDER2 );
-
-	string_replace_command_line(
-		command_line,
-		one_folder_name,
-		PROCESS_ONE_TABLE_PLACEHOLDER );
+		many_folder_name,
+		PROCESS_MANY_PLACEHOLDER );
 
 	string_replace_command_line(
 		command_line,
@@ -7380,7 +7351,7 @@ char *query_drop_down_process_command_line(
 
 	string_replace_command_line(
 		command_line,
-		query_drop_down_where_string,
+		where_string,
 		PROCESS_WHERE_PLACEHOLDER );
 
 	escape_dollar =
@@ -7392,7 +7363,7 @@ char *query_drop_down_process_command_line(
 
 	if ( appaserver_error_filename )
 	{
-		char destination[ STRING_WHERE_BUFFER ];
+		char destination[ STRING_65K ];
 
 		snprintf(
 			destination,
@@ -7409,7 +7380,6 @@ char *query_drop_down_process_command_line(
 	{
 		return escape_dollar;
 	}
-
 }
 
 QUERY_DICTIONARY *query_dictionary_fetch(
@@ -8317,6 +8287,25 @@ QUERY_ROW *query_row_seek(
 	} while ( list_next( row_list ) );
 
 	return NULL;
+}
+
+QUERY_CELL *query_cell_simple_new(
+		char *attribute_name,
+		char *select_datum )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	query_cell_new(
+		attribute_name,
+		select_datum,
+		0 /* not primary_key_index */,
+		0 /* attribute_is_date */,
+		0 /* attribute_is_date_time */,
+		0 /* attribute_is_current_date_time */,
+		0 /* attribute_is_number */,
+		(char *)0 /* display_datum */ );
 }
 
 QUERY_CELL *query_cell_new(

@@ -662,8 +662,8 @@ char *dictionary_attribute_name_list_string(
 		char sql_delimiter,
 		int row_number );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns attribute_name or static memory */
+/* --------------------------------------- */
 char *dictionary_attribute_name_append_row_number(
 		char *attribute_name,
 		int row_number );

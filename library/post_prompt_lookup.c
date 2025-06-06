@@ -197,7 +197,7 @@ POST_PROMPT_LOOKUP *post_prompt_lookup_new(
 				dictionary_separate->
 				no_display_dictionary,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
+			(DICTIONARY *)0 /* pair_dictionary */,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			post_prompt_lookup->
 				post_prompt_lookup_input->

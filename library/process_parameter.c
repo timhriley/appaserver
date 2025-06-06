@@ -1005,10 +1005,12 @@ PROCESS_PARAMETER_DROP_DOWN *
 			/* -------------- */
 			query_drop_down_new(
 				application_name,
+				(char *)0 /* session_key */,
 				login_name,
+				(char *)0 /* role_name */,
+				(char *)0 /* state */,
 				(char *)0 /* many_folder_name */,
 				folder_name /* one_folder_name */,
-				(char *)0 /* state */,
 				process_parameter_drop_down->
 					folder->
 					folder_attribute_list,

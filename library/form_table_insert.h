@@ -59,6 +59,7 @@ typedef struct
 /* ----- */
 FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -110,6 +111,7 @@ typedef struct
 FORM_TABLE_INSERT_WIDGET_LIST *
 	form_table_insert_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -146,6 +148,7 @@ typedef struct
 FORM_TABLE_INSERT_AUTOMATIC_WIDGET_LIST *
 	form_table_insert_automatic_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -196,7 +199,7 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		LIST *prompt_name_list,
 		SECURITY_ENTITY *security_entity,
 		RELATION_MTO1 *relation_mto1_automatic_preselection,
@@ -271,6 +274,7 @@ typedef struct
 	FORM_TABLE_INSERT_WIDGET_LIST *form_table_insert_widget_list;
 	LIST *widget_container_heading_label_list;
 	LIST *widget_container_heading_list;
+	char *drillthru_hidden_html;
 	char *prompt_hidden_html;
 	char *pair_one2m_hidden_html;
 	LIST *button_list;
@@ -298,7 +302,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		LIST *ignore_name_list,
 		LIST *prompt_name_list,
 		SECURITY_ENTITY *security_entity );
@@ -339,6 +343,7 @@ char *form_table_insert_html(
 		LIST *widget_container_heading_list,
 		LIST *widget_container_list,
 		char *widget_table_close_tag,
+		char *drillthru_hidden_html,
 		char *prompt_hidden_html,
 		char *pair_one2m_hidden_html,
 		char *button_list_html,

@@ -230,10 +230,10 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
 
 	pair_one2m_prompt_insert = pair_one2m_prompt_insert_calloc();
 
-	pair_one2m_prompt_insert->pair_one2m_dictionary = dictionary_small();
+	pair_one2m_prompt_insert->pair_dictionary = dictionary_small();
 
 	dictionary_set(
-		pair_one2m_prompt_insert->pair_one2m_dictionary,
+		pair_one2m_prompt_insert->pair_dictionary,
 		(char *)pair_one2m_one_folder_key,
 		one_folder_name );
 
@@ -248,7 +248,7 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
 	if ( pair_one2m_prompt_insert->unfulfilled_list_string )
 	{
 		dictionary_set(
-			pair_one2m_prompt_insert->pair_one2m_dictionary,
+			pair_one2m_prompt_insert->pair_dictionary,
 			(char *)pair_one2m_unfulfilled_list_key,
 			pair_one2m_prompt_insert->unfulfilled_list_string );
 	}
@@ -336,7 +336,7 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_calloc( void )
 }
 
 PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
-		DICTIONARY *pair_one2m_dictionary /* in/out */,
+		DICTIONARY *pair_dictionary /* in/out */,
 		const char *pair_one2m_unfulfilled_list_key,
 		const char *pair_one2m_fulfilled_list_key,
 		const char pair_one2m_folder_delimiter,
@@ -358,7 +358,7 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
 			message );
 	}
 
-	if ( !dictionary_length( pair_one2m_dictionary ) ) return NULL;
+	if ( !dictionary_length( pair_dictionary ) ) return NULL;
 
 	pair_one2m_post_table_insert = pair_one2m_post_table_insert_calloc();
 
@@ -367,7 +367,7 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
 		/* Safely returns */
 		/* -------------- */
 		pair_one2m_post_table_insert_fulfilled_list(
-			pair_one2m_dictionary,
+			pair_dictionary,
 			(char *)pair_one2m_fulfilled_list_key,
 			pair_one2m_folder_delimiter );
 
@@ -390,14 +390,14 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
 				pair_one2m_folder_delimiter );
 
 		dictionary_set(
-			pair_one2m_dictionary,
+			pair_dictionary,
 			(char *)pair_one2m_fulfilled_list_key,
 			fulfilled_list_string );
 	}
 
 	pair_one2m_post_table_insert->unfulfilled_list =
 		pair_one2m_post_table_insert_unfulfilled_list(
-			pair_one2m_dictionary,
+			pair_dictionary,
 			(char *)pair_one2m_unfulfilled_list_key,
 			pair_one2m_folder_delimiter );
 
@@ -414,7 +414,7 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_new(
 			pair_one2m_folder_delimiter );
 
 	dictionary_set(
-		pair_one2m_dictionary,
+		pair_dictionary,
 		(char *)pair_one2m_unfulfilled_list_key,
 		unfulfilled_list_string );
 
@@ -449,7 +449,7 @@ PAIR_ONE2M_POST_TABLE_INSERT *pair_one2m_post_table_insert_calloc( void )
 
 
 LIST *pair_one2m_post_table_insert_fulfilled_list(
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *pair_one2m_fulfilled_list_key,
 		char pair_one2m_folder_delimiter )
 {
@@ -462,7 +462,7 @@ LIST *pair_one2m_post_table_insert_fulfilled_list(
 		/* --------------------------------------- */
 		dictionary_get(
 			pair_one2m_fulfilled_list_key,
-			pair_one2m_dictionary );
+			pair_dictionary );
 
 	if ( !fulfilled_list_string )
 	{
@@ -480,7 +480,7 @@ LIST *pair_one2m_post_table_insert_fulfilled_list(
 }
 
 LIST *pair_one2m_post_table_insert_unfulfilled_list(
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		char *pair_one2m_unfulfilled_list_key,
 		char pair_one2m_folder_delimiter )
 {
@@ -493,7 +493,7 @@ LIST *pair_one2m_post_table_insert_unfulfilled_list(
 		/* --------------------------------------- */
 		dictionary_get(
 			pair_one2m_unfulfilled_list_key,
-			pair_one2m_dictionary ) )
+			pair_dictionary ) )
 	&&     *unfulfilled_list_string )
 	{
 		unfulfilled_list =
@@ -516,7 +516,7 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 		const char *pair_one2m_many_folder_key,
 		const char *pair_one2m_unfulfilled_list_key,
 		const char pair_one2m_folder_delimiter,
-		DICTIONARY *pair_one2m_dictionary )
+		DICTIONARY *pair_dictionary )
 {
 	PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert;
 
@@ -529,7 +529,7 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 			/* --------------------------------------- */
 			dictionary_get(
 				(char *)pair_one2m_one_folder_key,
-				pair_one2m_dictionary ) ) )
+				pair_dictionary ) ) )
 	{
 		return pair_one2m_post_prompt_insert;
 	}
@@ -537,7 +537,7 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 	if ( ! ( pair_one2m_post_prompt_insert->many_folder_name =
 			dictionary_get(
 				(char *)pair_one2m_many_folder_key,
-				pair_one2m_dictionary ) ) )
+				pair_dictionary ) ) )
 	{
 		return pair_one2m_post_prompt_insert;
 	}
@@ -548,7 +548,7 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 		/* --------------------------------------- */
 		dictionary_get(
 			(char *)pair_one2m_unfulfilled_list_key,
-			pair_one2m_dictionary );
+			pair_dictionary );
 
 	pair_one2m_post_prompt_insert->unfulfilled_list =
 		list_delimiter_extract(
@@ -625,11 +625,11 @@ WIDGET_CONTAINER *pair_one2m_prompt_insert_hidden_widget(
 
 PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert_new(
 		const char *pair_one2m_one_folder_key,
-		DICTIONARY *pair_one2m_dictionary )
+		DICTIONARY *pair_dictionary )
 {
 	PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert;
 
-	if ( !dictionary_length( pair_one2m_dictionary ) ) return NULL;
+	if ( !dictionary_length( pair_dictionary ) ) return NULL;
 
 	pair_one2m_table_insert = pair_one2m_table_insert_calloc();
 
@@ -639,7 +639,7 @@ PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert_new(
 		/* --------------------------------------- */
 		dictionary_get(
 			(char *)pair_one2m_one_folder_key,
-			pair_one2m_dictionary );
+			pair_dictionary );
 
 	if ( !pair_one2m_table_insert->one_folder_name )
 	{

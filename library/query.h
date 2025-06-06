@@ -64,6 +64,9 @@ QUERY_CELL *query_cell_parse(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 QUERY_CELL *query_cell_new(
 		char *attribute_name,
 		char *select_datum,
@@ -78,6 +81,15 @@ QUERY_CELL *query_cell_new(
 /* ------- */
 QUERY_CELL *query_cell_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+QUERY_CELL *query_cell_simple_new(
+		char *attribute_name,
+		char *select_datum );
 
 /* Usage */
 /* ----- */
@@ -1283,10 +1295,12 @@ typedef struct
 /* -------------- */
 QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
+		char *role_name,
+		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
-		char *state,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
@@ -1305,13 +1319,14 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_calloc(
 /* ------------------- */
 char *query_drop_down_process_command_line(
 		char *application_name,
+		char *session_key,
 		char *login_name,
-		char *many_folder_name,
-		char *one_folder_name,
+		char *role_name,
 		char *state,
+		char *many_folder_name,
 		char *populate_drop_down_process_name,
 		DICTIONARY *dictionary,
-		char *query_drop_down_where_string,
+		char *where_string,
 		char *process_command_line,
 		char *appaserver_error_filename );
 
@@ -1329,10 +1344,12 @@ typedef struct
 /* -------------- */
 QUERY_DROP_DOWN *query_drop_down_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
+		char *role_name,
+		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
-		char *state,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,

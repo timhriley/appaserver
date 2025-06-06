@@ -219,6 +219,7 @@ FORM_TABLE_INSERT_ATTRIBUTE *form_table_insert_attribute_calloc( void )
 
 FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -392,13 +393,15 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			session_key,
 			login_name,
+			role_name,
+			APPASERVER_INSERT_STATE,
 			insert_folder_name
 				/* many_folder_name */,
 			form_table_insert_relation->
 				relation_mto1->
 				one_folder_name,
-			APPASERVER_INSERT_STATE,
 			form_table_insert_relation->
 				relation_mto1->
 				one_folder->
@@ -463,6 +466,7 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_calloc( void )
 FORM_TABLE_INSERT_AUTOMATIC_WIDGET_LIST *
 	form_table_insert_automatic_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -566,6 +570,7 @@ FORM_TABLE_INSERT_AUTOMATIC_WIDGET_LIST *
 		if ( ( form_table_insert_relation =
 			form_table_insert_relation_new(
 				application_name,
+				session_key,
 				login_name,
 				role_name,
 				insert_folder_name,
@@ -669,7 +674,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		LIST *ignore_name_list,
 		LIST *prompt_name_list,
 		SECURITY_ENTITY *security_entity )
@@ -724,6 +729,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		/* -------------- */
 		form_table_insert_widget_list_new(
 			application_name,
+			session_key,
 			login_name,
 			role_name,
 			folder_name /* insert_folder_name */,
@@ -749,6 +755,11 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			form_table_insert->
 				widget_container_heading_label_list );
 
+	form_table_insert->drillthru_hidden_html =
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			drillthru_dictionary );
+
 	form_table_insert->prompt_hidden_html =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -761,7 +772,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		widget_dictionary_hidden_html(
-			pair_one2m_dictionary );
+			pair_dictionary );
 
 	form_table_insert->button_list =
 		form_table_insert_button_list();
@@ -798,6 +809,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			form_table_insert->
 				form_table_insert_widget_list->
 				widget_container_list,
+			form_table_insert->drillthru_hidden_html,
 			form_table_insert->prompt_hidden_html,
 			form_table_insert->pair_one2m_hidden_html,
 			/* ---------------------- */
@@ -987,6 +999,7 @@ char *form_table_insert_html(
 		LIST *widget_container_heading_list,
 		LIST *widget_container_list,
 		char *widget_table_close_tag,
+		char *drillthru_hidden_html,
 		char *prompt_hidden_html,
 		char *pair_one2m_hidden_html,
 		char *button_list_html,
@@ -1007,6 +1020,7 @@ char *form_table_insert_html(
 	||   !list_length( widget_container_heading_list )
 	||   !list_length( widget_container_list )
 	||   !widget_table_close_tag
+	||   !drillthru_hidden_html
 	||   !prompt_hidden_html
 	||   !pair_one2m_hidden_html
 	||   !button_list_html
@@ -1044,7 +1058,7 @@ char *form_table_insert_html(
 			"%s\n",
 			javascript );
 
-		/* free( javascript ); */
+		free( javascript );
 	}
 
 	ptr += sprintf(
@@ -1068,7 +1082,7 @@ char *form_table_insert_html(
 		"%s\n",
 		container_list_html );
 
-	/* free( container_list_html ); */
+	free( container_list_html );
 
 	if ( table_insert_rows_number <= 0 )
 		table_insert_rows_number =
@@ -1109,7 +1123,7 @@ char *form_table_insert_html(
 			"%s\n",
 			container_list_html );
 
-		/* free( container_list_html ); */
+		free( container_list_html );
 	}
 
 	if (	strlen( html ) +
@@ -1134,6 +1148,7 @@ char *form_table_insert_html(
 		widget_table_close_tag );
 
 	if (	strlen( html ) +
+		strlen( drillthru_hidden_html ) +
 		strlen( prompt_hidden_html ) +
 		strlen( pair_one2m_hidden_html ) +
 		strlen( button_list_html ) +
@@ -1154,7 +1169,8 @@ char *form_table_insert_html(
 
 	ptr += sprintf(
 		ptr,
-		"%s\n%s\n%s\n%s",
+		"%s\n%s\n%s\n%s\n%s",
+		drillthru_hidden_html,
 		prompt_hidden_html,
 		pair_one2m_hidden_html,
 		button_list_html,
@@ -1166,6 +1182,7 @@ char *form_table_insert_html(
 FORM_TABLE_INSERT_WIDGET_LIST *
 	form_table_insert_widget_list_new(
 		char *application_name,
+		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *insert_folder_name,
@@ -1260,6 +1277,7 @@ FORM_TABLE_INSERT_WIDGET_LIST *
 		if ( ( form_table_insert_relation =
 			form_table_insert_relation_new(
 				application_name,
+				session_key,
 				login_name,
 				role_name,
 				insert_folder_name,
@@ -1376,7 +1394,7 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
-		DICTIONARY *pair_one2m_dictionary,
+		DICTIONARY *pair_dictionary,
 		LIST *prompt_name_list,
 		SECURITY_ENTITY *security_entity,
 		RELATION_MTO1 *relation_mto1_automatic_preselection,
@@ -1463,7 +1481,9 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 		/* -------------- */
 		query_drop_down_new(
 			application_name,
+			session_key,
 			login_name,
+			role_name,
 			folder_name /* many_folder_name */,
 			relation_mto1_automatic_preselection->
 				one_folder_name,
@@ -1486,6 +1506,7 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 		/* -------------- */
 		form_table_insert_automatic_widget_list_new(
 			application_name,
+			session_key,
 			login_name,
 			role_name,
 			folder_name /* insert_folder_name */,
@@ -1528,7 +1549,7 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 		/* ------------------- */
 		widget_dictionary_hidden_html(
 			dictionary_prefix(
-				pair_one2m_dictionary,
+				pair_dictionary,
 				DICTIONARY_SEPARATE_PAIR_PREFIX ) );
 
 	form_table_insert_automatic->

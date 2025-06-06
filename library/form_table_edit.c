@@ -76,6 +76,18 @@ FORM_TABLE_EDIT *form_table_edit_new(
 			message );
 	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: drillthru_dictionary=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	dictionary_display( drillthru_dictionary ) );
+msg( (char *)0, message );
+}
 	form_table_edit = form_table_edit_calloc();
 
 	form_table_edit->form_increment_number =

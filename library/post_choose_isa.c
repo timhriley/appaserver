@@ -195,7 +195,7 @@ POST_CHOOSE_ISA *post_choose_isa_new(
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			(DICTIONARY *)0 /* no_display_dictionary */,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
+			(DICTIONARY *)0 /* pair_dictionary */,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			post_choose_isa->prompt_dictionary
 				/* non_prefixed_dictionary */ );
@@ -240,6 +240,7 @@ POST_CHOOSE_ISA *post_choose_isa_new(
 				post_choose_isa_input->
 				folder->
 				folder_attribute_list,
+			(LIST *)0 /* relation_mto1_list */,
 			(LIST *)0 /* relation_mto1_isa_list */,
 			post_choose_isa->prompt_dictionary,
 			(DICTIONARY *)0 /* multi_row_dictionary */,
@@ -583,7 +584,7 @@ POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup_new(
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			(DICTIONARY *)0 /* no_display_dictionary */,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
+			(DICTIONARY *)0 /* pair_dictionary */,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
 			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
 
