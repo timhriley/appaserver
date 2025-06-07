@@ -54,6 +54,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/relation_mto1.o				\
 		${LIBRARY}/relation_one2m.o				\
 		${LIBRARY}/relation_join.o				\
+		${LIBRARY}/relation_copy.o				\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/attribute.o					\

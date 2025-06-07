@@ -86,6 +86,7 @@ APPASERVER_LIBRARY=						\
 		operation.o					\
 		document.o					\
 		insert.o					\
+		relation_copy.o					\
 		expected_count.o				\
 		update.o					\
 		delete.o					\
@@ -415,6 +416,9 @@ form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h
 
 form_prompt_insert.o: form_prompt_insert.c form_prompt_insert.h
 	${CC} ${CFLAGS} -c form_prompt_insert.c
+
+relation_copy.o: relation_copy.c relation_copy.h
+	${CC} ${CFLAGS} -c relation_copy.c
 
 form_prompt_process.o:						\
 	form_prompt_process.c					\

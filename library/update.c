@@ -29,6 +29,7 @@
 #include "security.h"
 #include "appaserver_parameter.h"
 #include "dictionary_separate.h"
+#include "relation_copy.h"
 #include "update.h"
 
 UPDATE *update_calloc( void )
@@ -833,6 +834,15 @@ UPDATE_ROW_LIST *update_row_list_new(
 		row_number <= update_row_list->dictionary_highest_index;
 		row_number++ )
 	{
+#ifdef NOT_DEFINED
+More work is needed to control this.
+		(void)relation_copy_new(
+			multi_row_dictionary /* in/out */,
+			folder_attribute_append_isa_list,
+			relation_mto1_list,
+			row_number );
+#endif
+
 		list_set(
 			update_row_list->list,
 			update_row_new(
@@ -2274,19 +2284,6 @@ boolean update_changed_boolean(
 	char *unescape;
 	int return_value = 0;
 
-	if ( !file_datum )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "file_datum is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
 	if ( !post_datum )
 	{
 		char message[ 128 ];
@@ -2300,7 +2297,7 @@ boolean update_changed_boolean(
 			message );
 	}
 
-	if ( !*file_datum && !*post_datum ) return 0;
+	if ( ( !file_datum || !*file_datum ) && !*post_datum ) return 0;
 
 	unescape =
 		/* ---------------------------- */
@@ -2310,7 +2307,7 @@ boolean update_changed_boolean(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			post_datum );
 
-	if ( strcasecmp( file_datum, unescape ) != 0 )
+	if ( string_strcmp( file_datum, unescape ) != 0 )
 	{
 		return_value = 1;
 	}
@@ -2608,13 +2605,7 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 			key,
 			file_dictionary );
 
-	if ( !update_attribute->file_datum )
-	{
-		free( update_attribute );
-		return NULL;
-	}
-
-	if ( !*update_attribute->file_datum
+	if ( ( !update_attribute->file_datum || !*update_attribute->file_datum )
 	&&   attribute_is_date_time(
 		folder_attribute->
 			attribute->

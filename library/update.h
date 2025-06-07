@@ -833,7 +833,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		char *folder_name,
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
-		LIST *relation_one2m_list,
+		LIST *relation_one2m_list /* include_is_boolean */,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
@@ -845,11 +845,6 @@ UPDATE_ROW_LIST *update_row_list_new(
 /* ------- */
 UPDATE_ROW_LIST *update_row_list_calloc(
 		void );
-
-/*
-int update_row_list_cell_count(
-		LIST *update_row_list );
-**/
 
 LIST *update_row_list_folder_name_list(
 		LIST *update_row_list );

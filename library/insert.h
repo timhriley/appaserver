@@ -16,68 +16,6 @@
 
 typedef struct
 {
-	LIST *folder_attribute_non_primary_name_list;
-} INSERT_COPY;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-INSERT_COPY *insert_copy_new(
-		DICTIONARY *dictionary /* in/out */,
-		LIST *folder_attribute_list,
-		LIST *relation_mto1_list,
-		int row_number );
-
-/* Process */
-/* ------- */
-INSERT_COPY *insert_copy_calloc(
-		void );
-
-/* Usage */
-/* ----- */
-void insert_copy_relation_set(
-		DICTIONARY *dictionary /* in/out */,
-		LIST *folder_attribute_non_primary_name_list,
-		RELATION_MTO1 *relation_mto1,
-		int row_number );
-
-/* Usage */
-/* ----- */
-LIST *insert_copy_where_query_cell_list(
-		DICTIONARY *dictionary,
-		LIST *relation_foreign_key_list,
-		LIST *folder_attribute_primary_key_list,
-		int row_number );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *insert_copy_system_string(
-		const char sql_delimiter,
-		LIST *select_name_list,
-		char *folder_name,
-		char *where_string );
-
-/* Usage */
-/* ----- */
-LIST *insert_copy_result_query_cell_list(
-		LIST *query_fetch_row_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns query_cell_attribute_name or heap memory */
-/* ------------------------------------------------ */
-char *insert_copy_attribute_name(
-		char *query_cell_attribute_name,
-		int row_number );
-
-typedef struct
-{
 	char *attribute_name;
 	char *datum;
 	int primary_key_index;

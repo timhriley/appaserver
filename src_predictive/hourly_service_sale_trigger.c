@@ -118,7 +118,7 @@ void hourly_service_sale_trigger(
 				hourly_service_work_hours,
 			hourly_service_sale->net_revenue );
 	}
-	
+
 	sale =
 		sale_trigger_new(
 			full_name,

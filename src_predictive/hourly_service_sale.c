@@ -102,6 +102,8 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		return NULL;
 	}
 
+	/* See HOURLY_SERVICE_SALE_SELECT */
+	/* ------------------------------ */
 	piece( service_name, SQL_DELIMITER, input, 0 );
 	piece( service_description, SQL_DELIMITER, input, 1 );
 
