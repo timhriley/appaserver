@@ -834,6 +834,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		LIST *relation_one2m_list /* include_is_boolean */,
+		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
@@ -890,6 +891,7 @@ LIST *update_row_list_update_changed_list_list(
 typedef struct
 {
 	LIST *relation_one2m_list;
+	LIST *relation_mto1_list;
 	LIST *relation_mto1_isa_list;
 	SECURITY_ENTITY *security_entity;
 	char *appaserver_error_filename;
@@ -916,6 +918,7 @@ UPDATE *update_new(
 		FOLDER_ROW_LEVEL_RESTRICTION *
 			folder_row_level_restriction,
 		LIST *relation_one2m_list,
+		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process );

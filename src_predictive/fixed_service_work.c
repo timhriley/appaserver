@@ -322,9 +322,7 @@ double fixed_service_work_hours( LIST *fixed_service_work_list )
 		fixed_service_work =
 			list_get( fixed_service_work_list );
 
-		hours +=
-			fixed_service_work->
-				sale_work_hours;
+		hours += fixed_service_work->work_hours;
 
 	} while ( list_next( fixed_service_work_list ) );
 

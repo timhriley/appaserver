@@ -357,7 +357,7 @@ double fixed_service_sale_total( LIST *fixed_service_sale_list )
 
 		total +=
 			fixed_service_sale->
-				fixed_service_sale_net_revenue;
+				net_revenue;
 
 	} while( list_next( fixed_service_sale_list ) );
 
@@ -370,46 +370,6 @@ double fixed_service_sale_net_revenue(
 {
 	return
 	fixed_rate - discount_amount;
-}
-
-FIXED_SERVICE_SALE *fixed_service_sale_seek(
-		LIST *fixed_service_sale_list,
-		char *service_name )
-{
-	FIXED_SERVICE_SALE *fixed_service_sale;
-
-	if ( !service_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"service_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_rewind( fixed_service_sale_list ) )
-	do {
-		fixed_service_sale =
-			list_get(
-				fixed_service_sale_list );
-
-		if ( strcmp(
-			service_name,
-			fixed_service_sale->service_name ) == 0 )
-		{
-			return fixed_service_sale;
-		}
-
-	} while ( list_next( fixed_service_sale_list ) );
-
-	return NULL;
 }
 
 FIXED_SERVICE_SALE *fixed_service_sale_fetch(

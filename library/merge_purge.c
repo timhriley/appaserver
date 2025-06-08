@@ -616,6 +616,7 @@ MERGE_PURGE_UPDATE *merge_purge_update_new(
 			merge_purge_update->file_dictionary,
 			(FOLDER_ROW_LEVEL_RESTRICTION *)0,
 			relation_one2m_list,
+			(LIST *)0 /* relation_mto1_list */,
 			relation_mto1_isa_list,
 			folder_attribute_primary_list
 				/* folder_attribute_append_isa_list */,

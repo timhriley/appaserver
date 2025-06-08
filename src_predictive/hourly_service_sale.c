@@ -394,7 +394,7 @@ double hourly_service_sale_total( LIST *hourly_service_sale_list )
 
 		total +=
 			hourly_service_sale->
-				hourly_service_sale_net_revenue;
+				net_revenue;
 
 	} while( list_next( hourly_service_sale_list ) );
 

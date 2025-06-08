@@ -337,7 +337,7 @@ double hourly_service_work_hours( LIST *hourly_service_work_list )
 		hourly_service_work =
 			list_get( hourly_service_work_list );
 
-		hours += hourly_service_work->sale_work_hours;
+		hours += hourly_service_work->work_hours;
 
 	} while ( list_next( hourly_service_work_list ) );
 

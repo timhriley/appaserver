@@ -102,12 +102,6 @@ double fixed_service_sale_total(
 
 /* Usage */
 /* ----- */
-FIXED_SERVICE_SALE *fixed_service_sale_seek(
-		LIST *fixed_service_sale_list,
-		char *service_name );
-
-/* Usage */
-/* ----- */
 void fixed_service_sale_update(
 		const char *fixed_service_sale_table,
 		char *full_name,

@@ -455,6 +455,9 @@ POST_TABLE_EDIT *post_table_edit_new(
 						/* relation_one2m_list */,
 				post_table_edit->
 					post_table_edit_input->
+					relation_mto1_list,
+				post_table_edit->
+					post_table_edit_input->
 					relation_mto1_isa_list,
 				post_table_edit->
 					post_table_edit_input->
