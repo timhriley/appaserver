@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "sale.h"
+#include "hourly_service_sale.h"
 #include "hourly_service_work.h"
 
 void hourly_service_work_trigger(
@@ -89,14 +90,10 @@ void hourly_service_work_trigger(
 		char *state )
 {
 	HOURLY_SERVICE_WORK *hourly_service_work;
-	SALE *sale;
 
 	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
 
 	if ( strcmp(
-		state,
-		APPASERVER_INSERT_STATE ) == 0
-	||   strcmp(
 		state,
 		APPASERVER_UPDATE_STATE ) == 0 )
 	{
@@ -121,9 +118,46 @@ void hourly_service_work_trigger(
 			begin_work_date_time,
 			hourly_service_work->sale_work_hours );
 	}
-	
-	sale =
-		sale_trigger_new(
+
+	if ( strcmp(
+		state,
+		APPASERVER_UPDATE_STATE ) == 0
+	||   strcmp(
+		state,
+		APPASERVER_DELETE_STATE ) == 0 )
+	{
+		SALE *sale;
+		HOURLY_SERVICE_SALE *hourly_service_sale;
+
+		hourly_service_sale =
+			hourly_service_sale_fetch(
+				HOURLY_SERVICE_SALE_SELECT,
+				HOURLY_SERVICE_SALE_TABLE,
+				full_name,
+				street_address,
+				sale_date_time,
+				service_name,
+				service_description );
+
+		if ( hourly_service_sale )
+		{
+			hourly_service_sale_update(
+				HOURLY_SERVICE_SALE_TABLE,
+				full_name,
+				street_address,
+				sale_date_time,
+				service_name,
+				service_description,
+				hourly_service_sale->
+					hourly_service_sale_estimated_revenue,
+				hourly_service_sale->
+					hourly_service_work_hours,
+				hourly_service_sale->
+					hourly_service_sale_net_revenue );
+		}
+
+		sale =
+		     sale_trigger_new(
 			full_name,
 			street_address,
 			sale_date_time,
@@ -132,44 +166,44 @@ void hourly_service_work_trigger(
 			(char *)0 /* preupdate_street_address */,
 			(char *)0 /* preupdate_uncollectible_date_time */ );
 
-	if ( !sale ) return;
+		if ( !sale ) return;
 
-	sale_update(
-		SALE_TABLE,
-		full_name,
-		street_address,
-		sale_date_time,
-		sale->sale_fetch->inventory_sale_boolean,
-		sale->sale_fetch->specific_inventory_sale_boolean,
-		sale->sale_fetch->fixed_service_sale_boolean,
-		sale->sale_fetch->hourly_service_sale_boolean,
-		sale->inventory_sale_total,
-		sale->specific_inventory_sale_total,
-		sale->fixed_service_sale_total,
-		sale->hourly_service_sale_total,
-		sale->gross_revenue,
-		sale->sales_tax,
-		sale->invoice_amount,
-		sale->customer_payment_total,
-		sale->amount_due,
-		sale->sale_transaction );
+		sale_update(
+			SALE_TABLE,
+			full_name,
+			street_address,
+			sale_date_time,
+			sale->sale_fetch->inventory_sale_boolean,
+			sale->sale_fetch->specific_inventory_sale_boolean,
+			sale->sale_fetch->fixed_service_sale_boolean,
+			sale->sale_fetch->hourly_service_sale_boolean,
+			sale->inventory_sale_total,
+			sale->specific_inventory_sale_total,
+			sale->fixed_service_sale_total,
+			sale->hourly_service_sale_total,
+			sale->gross_revenue,
+			sale->sales_tax,
+			sale->invoice_amount,
+			sale->customer_payment_total,
+			sale->amount_due,
+			sale->sale_transaction );
 	
-	if ( sale->sale_transaction )
-	{
-		subsidiary_transaction_execute(
-			application_name,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				delete_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				insert_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				update_template );
+		if ( sale->sale_transaction )
+		{
+			subsidiary_transaction_execute(
+				application_name,
+				sale->
+					sale_transaction->
+					subsidiary_transaction->
+					delete_transaction,
+				sale->
+					sale_transaction->
+					subsidiary_transaction->
+					insert_transaction,
+				sale->
+					sale_transaction->
+					subsidiary_transaction->
+					update_template );
+		}
 	}
 }
-

@@ -2099,9 +2099,6 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 			date_convert );
 
 	dictionary_separate_prompt_process->drillthru_dictionary =
-		sql_injection_escape->drillthru_dictionary;
-
-	dictionary_separate_prompt_process->non_prefixed_dictionary =
 		sql_injection_escape->non_prefixed_dictionary;
 
 	return dictionary_separate_prompt_process;

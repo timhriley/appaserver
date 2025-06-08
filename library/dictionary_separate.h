@@ -642,7 +642,6 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 typedef struct
 {
 	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *non_prefixed_dictionary;
 } DICTIONARY_SEPARATE_PROMPT_PROCESS;
 
 /* Usage */

@@ -806,7 +806,7 @@ char *prompt_process_is_drillthru_title_string( char *process_or_set_name )
 	}
 
 	sprintf(title_string,
-		"%s: First, filter a subsequent drop-down",
+		"%s: Drillthru",
 		string_initial_capital( buffer, process_or_set_name ) );
 
 	return title_string;
