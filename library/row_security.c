@@ -691,8 +691,7 @@ boolean row_security_relation_attribute_name_exists(
 {
 	ROW_SECURITY_RELATION *row_security_relation;
 
-	if ( !list_rewind( row_security_relation_list ) ) return 0;
-
+	if ( list_rewind( row_security_relation_list ) )
 	do {
 		row_security_relation =
 			list_get(

@@ -151,7 +151,8 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 	hourly_service_sale->hourly_service_sale_estimated_revenue =
 		hourly_service_sale_estimated_revenue(
 			hourly_service_sale->estimated_hours,
-			hourly_service_sale->hourly_rate );
+			hourly_service_sale->hourly_rate,
+			hourly_service_sale->discount_amount );
 
 	hourly_service_sale->hourly_service_work_list =
 		hourly_service_work_list(
@@ -170,8 +171,8 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 
 	hourly_service_sale->hourly_service_sale_net_revenue =
 		hourly_service_sale_net_revenue(
-			hourly_service_sale->hourly_rate,
 			hourly_service_sale->hourly_service_work_hours,
+			hourly_service_sale->hourly_rate,
 			hourly_service_sale->discount_amount );
 
 	return hourly_service_sale;
@@ -401,12 +402,12 @@ double hourly_service_sale_total( LIST *hourly_service_sale_list )
 }
 
 double hourly_service_sale_net_revenue(
-		double hourly_rate,
 		double work_list_hours,
+		double hourly_rate,
 		double discount_amount )
 {
 	return
-	( hourly_rate * work_list_hours ) - discount_amount;
+	( work_list_hours * hourly_rate ) - discount_amount;
 }
 
 char *hourly_service_sale_primary_where(
@@ -546,9 +547,11 @@ HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
 
 double hourly_service_sale_estimated_revenue(
 		double estimated_hours,
-		double hourly_rate )
+		double hourly_rate,
+		double discount_amount )
 {
 	return
-	estimated_hours *
-	hourly_rate;
+	( estimated_hours *
+	  hourly_rate ) -
+	discount_amount;
 }

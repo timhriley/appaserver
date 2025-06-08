@@ -132,14 +132,20 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 				data_list_string,
 				p++ ) )
 		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: piece(%s,%d) returned empty.\n",
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"piece(%s,%d) returned empty.\n",
+				data_list_string,
+				p - 1 );
+
+			appaserver_error_stderr_exit(
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
-				data_list_string,
-				p - 1 );
-			exit( 1 );
+				message );
 		}
 
 		list_set(

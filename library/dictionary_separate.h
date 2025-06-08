@@ -458,9 +458,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 typedef struct
 {
 	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *prompt_dictionary;
 	DICTIONARY *no_display_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
+	DICTIONARY *prompt_dictionary;
 	LIST *no_display_name_list;
 } DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP;
 

@@ -19,19 +19,12 @@ function form_cookie(
 {
 	this.cookie =
 		new cookie(
-			// document
 			document,
-			// cookie_key
 			cookie_key,
-			// hours
-			240,
-			// path
-			'/',
-			// domain
-			'',
-			// samesite
+			240 /* hours */,
+			'/' /* path */,
+			'' /* domain */,
 			samesite,
-			// secure
 			secure );
 
 	this.is_multi = is_multi;
@@ -43,10 +36,10 @@ function form_cookie(
 		if ( is_multi )
 		{
 			this.cookie2form_multi(
-					form,
-					element_name_list,
-					move_left_right_delimiter,
-					multi_select_remember_delimiter );
+				form,
+				element_name_list,
+				move_left_right_delimiter,
+				multi_select_remember_delimiter );
 		}
 		else
 		{
@@ -152,9 +145,10 @@ form_cookie.prototype.cookie2form_multi = function(
 	return true;
 }
 
-form_cookie.prototype.store = function(	form,
-					element_name_list,
-					multi_select_remember_delimiter )
+form_cookie.prototype.store = function(
+		form,
+		element_name_list,
+		multi_select_remember_delimiter )
 {
 	if ( this.is_multi )
 	{
@@ -171,9 +165,9 @@ form_cookie.prototype.store = function(	form,
 }
 
 form_cookie.prototype.store_multi = function(
-					form,
-					element_name_list,
-					multi_select_remember_delimiter )
+		form,
+		element_name_list,
+		multi_select_remember_delimiter )
 {
 	var value;
 	var element_name;

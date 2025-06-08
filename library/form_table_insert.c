@@ -809,13 +809,13 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			form_table_insert->
 				form_table_insert_widget_list->
 				widget_container_list,
-			form_table_insert->drillthru_hidden_html,
-			form_table_insert->prompt_hidden_html,
-			form_table_insert->pair_one2m_hidden_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
 			widget_table_close_tag(),
+			form_table_insert->drillthru_hidden_html,
+			form_table_insert->prompt_hidden_html,
+			form_table_insert->pair_one2m_hidden_html,
 			form_table_insert->button_list_html,
 			/* ---------------------- */
 			/* Returns program memory */
@@ -1020,10 +1020,6 @@ char *form_table_insert_html(
 	||   !list_length( widget_container_heading_list )
 	||   !list_length( widget_container_list )
 	||   !widget_table_close_tag
-	||   !drillthru_hidden_html
-	||   !prompt_hidden_html
-	||   !pair_one2m_hidden_html
-	||   !button_list_html
 	||   !form_close_tag )
 	{
 		char message[ 128 ];
@@ -1127,7 +1123,7 @@ char *form_table_insert_html(
 	}
 
 	if (	strlen( html ) +
-		strlen( widget_table_close_tag ) + 1 >= STRING_704K )
+		string_strlen( widget_table_close_tag ) + 1 >= STRING_704K )
 	{
 		char message[ 128 ];
 
@@ -1148,10 +1144,10 @@ char *form_table_insert_html(
 		widget_table_close_tag );
 
 	if (	strlen( html ) +
-		strlen( drillthru_hidden_html ) +
-		strlen( prompt_hidden_html ) +
-		strlen( pair_one2m_hidden_html ) +
-		strlen( button_list_html ) +
+		string_strlen( drillthru_hidden_html ) +
+		string_strlen( prompt_hidden_html ) +
+		string_strlen( pair_one2m_hidden_html ) +
+		string_strlen( button_list_html ) +
 		strlen( form_close_tag ) + 3 >= STRING_704K )
 	{
 		char message[ 128 ];
@@ -1170,10 +1166,18 @@ char *form_table_insert_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n%s\n%s\n%s\n%s",
-		drillthru_hidden_html,
-		prompt_hidden_html,
-		pair_one2m_hidden_html,
-		button_list_html,
+		(drillthru_hidden_html)
+			? drillthru_hidden_html
+			: "",
+		(prompt_hidden_html)
+			? prompt_hidden_html
+			: "",
+		(pair_one2m_hidden_html)
+			? pair_one2m_hidden_html
+			: "",
+		(button_list_html)
+			? button_list_html
+			: "",
 		form_close_tag );
 
 	return strdup( html );

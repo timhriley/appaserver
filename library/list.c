@@ -1389,12 +1389,21 @@ boolean list_at_last( LIST *list )
 
 boolean list_last_boolean( LIST *list )
 {
-	return list_at_end( list );
+        if ( !list
+	||   !list->num_in_list
+        ||   list->current->next == list->tail )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 boolean list_at_end( LIST *list )
 {
-        return ( list->current->next == list->tail );
+	return list_last_boolean( list );
 }
 
 boolean list_prior( LIST *list )

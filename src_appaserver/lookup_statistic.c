@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 	role_name = argv[ 2 ];
 	folder_name = argv[ 3 ];
 
-	string_input( dictionary_string, stdin, STRING_SIZE_HASH_TABLE );
+	string_input( dictionary_string, stdin, sizeof ( dictionary_string )  );
 
 	lookup_statistic =
 		/* -------------- */

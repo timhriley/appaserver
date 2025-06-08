@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "environ.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
@@ -22,7 +23,7 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *folder_name;
-	char *dictionary_string;
+	char dictionary_string[ STRING_64K ];
 	GROUP_COUNT *group_count;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -32,10 +33,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr, 
-			"Usage: %s login role folder dictionary\n",
+			"Usage: %s login role folder\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -43,7 +44,8 @@ int main( int argc, char **argv )
 	login_name = argv[ 1 ];
 	role_name = argv[ 2 ];
 	folder_name = argv[ 3 ];
-	dictionary_string = argv[ 4 ];
+
+	string_input( dictionary_string, stdin, sizeof ( dictionary_string )  );
 
 	group_count =
 		/* -------------- */

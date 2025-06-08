@@ -104,8 +104,8 @@ function keystrokes_onload(
 		new form_cookie(
 			form,
 			cookie_key,
-			'',
-			'',
+			'' /* samesite */,
+			'' /* secure */,
 			non_multi_element_name_list,
 			1 /* with_load */,
 			0 /* not is_multi */,
@@ -132,8 +132,8 @@ function keystrokes_multi_onload(
 		new form_cookie(
 			form,
 			cookie_key,
-			'',
-			'',
+			'' /* samesite */,
+			'' /* secure */,
 			multi_element_name_list,
 			1 /* with_load */,
 			1 /* is_multi */,

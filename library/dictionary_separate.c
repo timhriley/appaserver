@@ -131,6 +131,9 @@ DICTIONARY_SEPARATE_POST_TABLE_EDIT *
 			sql_injection_escape->non_prefixed_dictionary );
 
 	dictionary_separate_post_table_edit->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
 		dictionary_separate_prompt(
 			PROMPT_LOOKUP_FROM_PREFIX,
 			PROMPT_LOOKUP_TO_PREFIX,
@@ -1363,6 +1366,10 @@ DICTIONARY_SEPARATE_TABLE_EDIT *
 	dictionary_separate_table_edit->query_dictionary =
 		sql_injection_escape->query_dictionary;
 
+	dictionary_append_dictionary(
+		dictionary_separate_table_edit->query_dictionary,
+		dictionary_separate_table_edit->non_prefixed_dictionary );
+
 	return dictionary_separate_table_edit;
 }
 
@@ -1688,6 +1695,9 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 		sql_injection_escape->non_prefixed_dictionary;
 
 	dictionary_separate_table_insert->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
 		dictionary_separate_prompt(
 			PROMPT_LOOKUP_FROM_PREFIX,
 			PROMPT_LOOKUP_TO_PREFIX,
@@ -1855,7 +1865,8 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 				SECURITY_ESCAPE_CHARACTER_STRING,
 				datum );
 
-		free( datum );
+		/* Might be a constant */
+		/* free( datum ); */
 
 		dictionary_set(
 			sql_injection_escape->non_prefixed_dictionary,
@@ -1975,6 +1986,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		sql_injection_escape->drillthru_dictionary;
 
 	dictionary_separate_post_prompt_insert->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
 		dictionary_separate_prompt(
 			PROMPT_LOOKUP_FROM_PREFIX,
 			PROMPT_LOOKUP_TO_PREFIX,
@@ -2211,6 +2225,9 @@ DICTIONARY_SEPARATE_POST_TABLE_INSERT *
 		sql_injection_escape->non_prefixed_dictionary;
 
 	dictionary_separate_post_table_insert->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
 		dictionary_separate_prompt(
 			PROMPT_LOOKUP_FROM_PREFIX,
 			PROMPT_LOOKUP_TO_PREFIX,
@@ -2316,6 +2333,9 @@ DICTIONARY_SEPARATE_PROMPT_LOOKUP *
 			date_convert );
 
 	prompt_lookup->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
 		dictionary_separate_prompt(
 			PROMPT_LOOKUP_FROM_PREFIX,
 			PROMPT_LOOKUP_TO_PREFIX,
@@ -2439,19 +2459,23 @@ DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP *
 	dictionary_separate_post_prompt_lookup->drillthru_dictionary =
 		sql_injection_escape->drillthru_dictionary;
 
-	dictionary_separate_post_prompt_lookup->prompt_dictionary =
-		dictionary_separate_prompt(
-			PROMPT_LOOKUP_FROM_PREFIX,
-			PROMPT_LOOKUP_TO_PREFIX,
-			relation_mto1_list,
-			folder_attribute_name_list,
-			sql_injection_escape->non_prefixed_dictionary );
-
 	dictionary_separate_post_prompt_lookup->no_display_dictionary =
 		sql_injection_escape->no_display_dictionary;
 
 	dictionary_separate_post_prompt_lookup->non_prefixed_dictionary =
 		sql_injection_escape->non_prefixed_dictionary;
+
+	dictionary_separate_post_prompt_lookup->prompt_dictionary =
+		/* -------------------------- */
+		/* Returns dictionary_small() */
+		/* -------------------------- */
+		dictionary_separate_prompt(
+			PROMPT_LOOKUP_FROM_PREFIX,
+			PROMPT_LOOKUP_TO_PREFIX,
+			relation_mto1_list,
+			folder_attribute_name_list,
+			dictionary_separate_post_prompt_lookup->
+				non_prefixed_dictionary );
 
 	dictionary_separate_post_prompt_lookup->no_display_name_list =
 		dictionary_separate_no_display_name_list(
@@ -2757,7 +2781,10 @@ void dictionary_separate_parse_multi_key(
 			index_key,
 			single_datum );
 
-		list_next( attribute_data_list );
+		/* May be QUERY_IS_NULL or QUERY_NOT_NULL */
+		/* -------------------------------------- */
+		if ( !list_last_boolean( attribute_data_list ) )
+			list_next( attribute_data_list );
 
 	} while ( list_next( attribute_key_list ) );
 

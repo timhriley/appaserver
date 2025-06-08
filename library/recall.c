@@ -993,3 +993,53 @@ boolean recall_ignore_boolean(
 	return 0;
 }
 
+char *recall_save_display( RECALL_SAVE *recall_save )
+{
+	char display[ STRING_64K ];
+
+	if ( !recall_save ) return "NULL";
+
+	*display = '\0';
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"cookie_key=%s\n"
+		"keystrokes_javascript=%s\n"
+		"cookie_multi_key=%s\n"
+		"keystrokes_multi_javascript=%s\n"
+		"javascript=%s\n",
+		recall_save->cookie_key,
+		recall_save->keystrokes_javascript,
+		recall_save->cookie_multi_key,
+		recall_save->keystrokes_multi_javascript,
+		recall_save->javascript );
+
+	return strdup( display );
+}
+
+char *recall_load_display( RECALL_LOAD *recall_load )
+{
+	char display[ STRING_64K ];
+
+	if ( !recall_load ) return "NULL";
+
+	*display = '\0';
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"cookie_key=%s\n"
+		"keystrokes_javascript=%s\n"
+		"cookie_multi_key=%s\n"
+		"keystrokes_multi_javascript=%s\n"
+		"javascript=%s\n",
+		recall_load->recall_save_cookie_key,
+		recall_load->keystrokes_javascript,
+		recall_load->recall_save_cookie_multi_key,
+		recall_load->keystrokes_multi_javascript,
+		recall_load->javascript );
+
+	return strdup( display );
+}
+

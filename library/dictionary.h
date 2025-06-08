@@ -233,7 +233,7 @@ Two notes:
 2) If a they share a key, then it doesn't clobber the source_destinatation.
 --------------------------------------------------------------------------- */
 DICTIONARY *dictionary_append_dictionary(
-		DICTIONARY *source_destination,
+		DICTIONARY *source_destination /* in/out */,
 		DICTIONARY *append_dictionary );
 
 /* Usage */

@@ -205,6 +205,20 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 			application_ssl_support_boolean(
 				application_name ) );
 
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: recall_save=\n%s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	recall_save_display( form_prompt_lookup->recall_save ) );
+msg( (char *)0, message );
+}
+*/
 	form_prompt_lookup->recall_load =
 		/* -------------- */
 		/* Safely returns */
@@ -217,6 +231,20 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 				form_prompt_lookup_widget_list->
 				widget_container_list );
 
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: recall_load=\n%s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	recall_load_display( form_prompt_lookup->recall_load ) );
+msg( (char *)0, message );
+}
+*/
 	form_prompt_lookup->button_list =
 		form_prompt_lookup_button_list(
 			FORM_PROMPT_LOOKUP_NAME,

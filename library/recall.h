@@ -133,6 +133,14 @@ char *recall_save_samesite_string(
 char *recall_save_secure_string(
 		boolean application_ssl_support_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *recall_save_display(
+		RECALL_SAVE *recall_save );
+
 typedef struct
 {
 	char *recall_save_cookie_key;
@@ -223,6 +231,14 @@ char *recall_load_keystrokes_multi_open(
 char *recall_load_keystrokes_multi_close(
 		char recall_delimiter,
 		char widget_multi_left_right_delimiter );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *recall_load_display(
+		RECALL_LOAD *recall_load );
 
 typedef struct
 {

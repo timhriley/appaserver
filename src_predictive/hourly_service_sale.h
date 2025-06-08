@@ -101,13 +101,14 @@ char *hourly_service_sale_primary_where(
 /* ----- */
 double hourly_service_sale_estimated_revenue(
 		double estimated_hours,
-		double hourly_rate );
+		double hourly_rate,
+		double discount_amount );
 
 /* Usage */
 /* ----- */
 double hourly_service_sale_net_revenue(
-		double hourly_rate,
 		double hourly_service_work_list_hours,
+		double hourly_rate,
 		double discount_amount );
 
 /* Usage */
