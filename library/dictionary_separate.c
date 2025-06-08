@@ -2098,8 +2098,14 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 			folder_attribute_name_list_attribute_list,
 			date_convert );
 
-	dictionary_separate_prompt_process->drillthru_dictionary =
+	dictionary_separate_prompt_process->non_prefixed_dictionary =
 		sql_injection_escape->non_prefixed_dictionary;
+
+	dictionary_separate_prompt_process->drillthru_dictionary =
+		dictionary_append_dictionary(
+			dictionary_separate_prompt_process->
+				non_prefixed_dictionary,
+			sql_injection_escape->drillthru_dictionary );
 
 	return dictionary_separate_prompt_process;
 }
