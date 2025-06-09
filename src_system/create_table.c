@@ -84,7 +84,8 @@ int main( int argc, char **argv )
 	{
 		if ( system( create_table->shell_script_filespecification ) ){}
 		process_increment_count( process_name );
-		printf( "<h3>Process complete</h3>\n" );
+		printf( "<h3>Create table %s complete</h3>\n",
+			folder_name );
 	}
 	else
 	{

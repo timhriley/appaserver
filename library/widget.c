@@ -4573,13 +4573,20 @@ boolean widget_date_calendar_boolean(
 		char *state,
 		char *widget_container_value )
 {
-	if ( attribute_is_current_date_time( datatype_name )
+	boolean is_current_date_time;
+
+	is_current_date_time =
+		attribute_is_current_date_time(
+			datatype_name );
+
+	if ( is_current_date_time
 	&&   string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 	{
 		return 0;
 	}
 
-	if ( attribute_is_date_time( datatype_name )
+	if ( ( attribute_is_date_time( datatype_name )
+	||     is_current_date_time )
 	&&   widget_container_value
 	&&   *widget_container_value )
 	{
