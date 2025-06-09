@@ -81,17 +81,31 @@ POST_TABLE_INSERT *post_table_insert_new(
 			role_name,
 			folder_name );
 
-	if ( post_table_insert->post_table_insert_input->insert_login_name )
+	if ( post_table_insert->
+		post_table_insert_input->
+		insert_appaserver_user )
 	{
 		dictionary_set(
 			post_table_insert->
 				post_table_insert_input->
 				dictionary_separate->
 				prompt_dictionary,
-			ROLE_LOGIN_NAME_COLUMN,
+			APPASERVER_USER_FULL_NAME,
 			post_table_insert->
 				post_table_insert_input->
-				insert_login_name );
+				insert_appaserver_user->
+				full_name );
+
+		dictionary_set(
+			post_table_insert->
+				post_table_insert_input->
+				dictionary_separate->
+				prompt_dictionary,
+			APPASERVER_USER_STREET_ADDRESS,
+			post_table_insert->
+				post_table_insert_input->
+				insert_appaserver_user->
+				street_address );
 	}
 
 	post_table_insert->vertical_new_post =
@@ -228,22 +242,6 @@ POST_TABLE_INSERT *post_table_insert_new(
 			PAIR_ONE2M_FOLDER_DELIMITER,
 			folder_name /* many_folder_name */ );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: drillthru_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display(
-			post_table_insert->
-				post_table_insert_input->
-				dictionary_separate->
-				drillthru_dictionary ) );
-msg( (char *)0, message );
-}
 	post_table_insert->dictionary_separate_send_dictionary =
 		/* -------------- */
 		/* Safely returns */
@@ -338,8 +336,8 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 			role_name,
 			1 /* fetch_attribute_exclude_list */ );
 
-	post_table_insert_input->role_attribute_exclude_name_list =
-		role_attribute_exclude_name_list(
+	post_table_insert_input->role_attribute_exclude_insert_name_list =
+		role_attribute_exclude_insert_name_list(
 			ROLE_PERMISSION_INSERT,
 			post_table_insert_input->
 				role->
@@ -356,7 +354,7 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 			/* ----------------------------------- */
 			role_name,
 			post_table_insert_input->
-				role_attribute_exclude_name_list,
+				role_attribute_exclude_insert_name_list,
 			/* -------------------------------------- */
 			/* Sets folder_attribute_primary_list	  */
 			/* Sets folder_attribute_primary_key_list */
@@ -475,14 +473,12 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 					mount_point );
 	}
 
-	post_table_insert_input->insert_login_name =
-		/* -------------------------- */
-		/* Returns login_name or null */
-		/* -------------------------- */
-		insert_login_name(
+	post_table_insert_input->insert_appaserver_user =
+		insert_appaserver_user(
+			APPASERVER_USER_FULL_NAME,
 			login_name,
 			post_table_insert_input->
-				role_attribute_exclude_name_list,
+				role_attribute_exclude_insert_name_list,
 			post_table_insert_input->
 				folder_attribute_append_isa_list );
 

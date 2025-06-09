@@ -487,25 +487,34 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 					appaserver_parameter_mount_point() );
 		}
 
-		post_prompt_insert_input->insert_login_name =
-			/* -------------------------- */
-			/* Returns login_name or null */
-			/* -------------------------- */
-			insert_login_name(
+		post_prompt_insert_input->insert_appaserver_user =
+			insert_appaserver_user(
+				APPASERVER_USER_FULL_NAME,
 				login_name,
 				post_prompt_insert_input->
 				     role_attribute_exclude_insert_name_list,
 				post_prompt_insert_input->
 				     folder_attribute_append_isa_list );
 
-		if ( post_prompt_insert_input->insert_login_name )
+		if ( post_prompt_insert_input->insert_appaserver_user )
 		{
 			dictionary_set(
 				post_prompt_insert_input->
 					dictionary_separate->
 					prompt_dictionary,
-				ROLE_LOGIN_NAME_COLUMN,
-				post_prompt_insert_input->insert_login_name );
+				APPASERVER_USER_FULL_NAME,
+				post_prompt_insert_input->
+					insert_appaserver_user->
+					full_name );
+
+			dictionary_set(
+				post_prompt_insert_input->
+					dictionary_separate->
+					prompt_dictionary,
+				APPASERVER_USER_STREET_ADDRESS,
+				post_prompt_insert_input->
+					insert_appaserver_user->
+					street_address );
 		}
 	}
 

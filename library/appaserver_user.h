@@ -20,6 +20,8 @@
 					"user_date_format,"	\
 					"deactivated_yn"
 
+#define APPASERVER_USER_FULL_NAME	"appaserver_full_name"
+#define APPASERVER_USER_STREET_ADDRESS	"appaserver_street_address"
 #define APPASERVER_USER_LOGIN_NAME	"login_name"
 
 typedef struct

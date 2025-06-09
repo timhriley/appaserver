@@ -392,37 +392,6 @@ POST_CHOOSE_ISA_INPUT *post_choose_isa_input_new(
 				one_folder->
 				folder_attribute_list );
 
-	post_choose_isa_input->role_attribute_exclude_list =
-		role_attribute_exclude_list(
-			role_name );
-
-	post_choose_isa_input->role_attribute_exclude_name_list =
-		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_INSERT,
-			post_choose_isa_input->role_attribute_exclude_list );
-
-	post_choose_isa_input->insert_login_name =
-		/* -------------------------- */
-		/* Returns login_name or null */
-		/* -------------------------- */
-		insert_login_name(
-			login_name,
-			post_choose_isa_input->
-				role_attribute_exclude_name_list,
-			post_choose_isa_input->
-				folder->
-				folder_attribute_list );
-
-	if ( post_choose_isa_input->insert_login_name )
-	{
-		dictionary_set(
-			post_choose_isa_input->
-				dictionary_separate->
-				prompt_dictionary,
-			ROLE_LOGIN_NAME_COLUMN,
-			post_choose_isa_input->insert_login_name );
-	}
-
 	post_choose_isa_input->appaserver_error_filename =
 		/* --------------------- */
 		/* Returns static memory */

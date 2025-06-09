@@ -13,6 +13,7 @@
 #include "dictionary.h"
 #include "relation_mto1.h"
 #include "process.h"
+#include "appaserver_user.h"
 
 typedef struct
 {
@@ -424,12 +425,10 @@ char *insert_results_folder_display(
 
 /* Usage */
 /* ----- */
-
-/* Returns login_name or null */
-/* -------------------------- */
-char *insert_login_name(
+APPASERVER_USER *insert_appaserver_user(
+		const char *appaserver_user_full_name,
 		char *login_name,
-		LIST *role_attribute_exclude_name_list,
+		LIST *role_attribute_exclude_insert_name_list,
 		LIST *folder_attribute_append_isa_list );
 
 /* Usage */

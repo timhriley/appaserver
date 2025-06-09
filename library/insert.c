@@ -1473,33 +1473,58 @@ char *insert_results_string(
 	return results_string;
 }
 
-char *insert_login_name(
+APPASERVER_USER *insert_appaserver_user(
+		const char *appaserver_user_full_name,
 		char *login_name,
-		LIST *role_attribute_exclude_name_list,
+		LIST *role_attribute_exclude_insert_name_list,
 		LIST *folder_attribute_append_isa_list )
 {
+	APPASERVER_USER *appaserver_user = {0};
 	FOLDER_ATTRIBUTE *folder_attribute;
 
+	if ( !login_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"login_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if ( list_string_exists(
-		ROLE_LOGIN_NAME_COLUMN,
-		role_attribute_exclude_name_list ) )
+		(char *)appaserver_user_full_name,
+		role_attribute_exclude_insert_name_list ) )
 	{
-		return login_name;
+		appaserver_user =
+			appaserver_user_login_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */ );
+	}
+	else
+	{
+		folder_attribute =
+			folder_attribute_seek(
+				(char *)appaserver_user_full_name,
+				folder_attribute_append_isa_list );
+
+		if (	folder_attribute
+		&&  	folder_attribute->omit_insert )
+		{
+			appaserver_user =
+				appaserver_user_login_fetch(
+					login_name,
+					0 /* not fetch_role_name_list */ );
+		}
 	}
 
-	folder_attribute =
-		folder_attribute_seek(
-			ROLE_LOGIN_NAME_COLUMN,
-			folder_attribute_append_isa_list );
-
-	if (	folder_attribute
-	&& (	folder_attribute->omit_insert
-	||	folder_attribute->omit_insert_prompt ) )
-	{
-		return login_name;
-	}
-
-	return (char *)0;
+	return appaserver_user;
 }
 
 char *insert_results_folder_display(

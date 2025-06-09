@@ -50,9 +50,6 @@ typedef struct
 	POST_DICTIONARY *post_dictionary;
 	LIST *folder_attribute_date_name_list;
 	DICTIONARY_SEPARATE_PROMPT_LOOKUP *dictionary_separate;
-	LIST *role_attribute_exclude_list;
-	LIST *role_attribute_exclude_name_list;
-	char *insert_login_name;
 	char *appaserver_error_filename;
 } POST_CHOOSE_ISA_INPUT;
 

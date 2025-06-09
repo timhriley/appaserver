@@ -16,6 +16,7 @@
 #include "insert.h"
 #include "post_dictionary.h"
 #include "pair_one2m.h"
+#include "appaserver_user.h"
 #include "vertical_new_prompt.h"
 #include "dictionary_separate.h"
 
@@ -38,7 +39,7 @@ typedef struct
 	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *dictionary_separate;
 	boolean lookup_boolean;
 	PROCESS *post_change_process;
-	char *insert_login_name;
+	APPASERVER_USER *insert_appaserver_user;
 	char *appaserver_error_filename;
 } POST_PROMPT_INSERT_INPUT;
 

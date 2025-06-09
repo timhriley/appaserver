@@ -16,6 +16,7 @@
 #include "process.h"
 #include "post_dictionary.h"
 #include "appaserver_parameter.h"
+#include "appaserver_user.h"
 #include "pair_one2m.h"
 #include "dictionary_separate.h"
 #include "vertical_new_post.h"
@@ -27,7 +28,7 @@
 typedef struct
 {
 	ROLE *role;
-	LIST *role_attribute_exclude_name_list;
+	LIST *role_attribute_exclude_insert_name_list;
 	FOLDER *folder;
 	LIST *relation_mto1_list;
 	RELATION_MTO1 *relation_mto1_automatic_preselection;
@@ -40,7 +41,7 @@ typedef struct
 	POST_DICTIONARY *post_dictionary;
 	DICTIONARY_SEPARATE_POST_TABLE_INSERT *dictionary_separate;
 	PROCESS *post_change_process;
-	char *insert_login_name;
+	APPASERVER_USER *insert_appaserver_user;
 } POST_TABLE_INSERT_INPUT;
 
 /* Usage */
