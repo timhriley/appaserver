@@ -18,7 +18,8 @@
 
 #define SALE_TABLE		"sale"
 
-#define SALE_SELECT		"invoice_amount,"		\
+#define SALE_SELECT		"gross_revenue,"		\
+				"invoice_amount,"		\
 				"payment_total,"		\
 				"amount_due,"			\
 				"completed_date_time,"		\

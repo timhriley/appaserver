@@ -36,11 +36,7 @@ SUBSIDIARY_TRANSACTION *
 {
 	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 
-	if ( !preupdate_full_name
-	||   !preupdate_street_address
-	||   !preupdate_foreign_date_time
-	||   !foreign_amount
-	||   !preupdate_change_full_name
+	if ( !preupdate_change_full_name
 	||   !preupdate_change_street_address
 	||   !preupdate_change_foreign_date_time )
 	{
@@ -49,7 +45,24 @@ SUBSIDIARY_TRANSACTION *
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"a preupdate change is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !foreign_amount || foreign_amount < 0.0 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"invalid foreign_amount=%.2lf",
+			foreign_amount );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -103,6 +116,9 @@ SUBSIDIARY_TRANSACTION *
 	if ( subsidiary_transaction->delete_boolean )
 	{
 		subsidiary_transaction->delete_full_name =
+	/* ----------------------------------------------------------- */
+	/* Returns attribute_datum, preupdate_attribute_datum, or null */
+	/* ----------------------------------------------------------- */
 			subsidiary_transaction_delete_datum(
 				full_name
 					/* attribute_datum */,
@@ -112,12 +128,18 @@ SUBSIDIARY_TRANSACTION *
 					/* preupdate_change_datum */ );
 
 		subsidiary_transaction->delete_street_address =
+	/* ----------------------------------------------------------- */
+	/* Returns attribute_datum, preupdate_attribute_datum, or null */
+	/* ----------------------------------------------------------- */
 			subsidiary_transaction_delete_datum(
 				street_address,	
 				preupdate_street_address,
 				preupdate_change_street_address );
 
 		subsidiary_transaction->delete_transaction_date_time =
+	/* ----------------------------------------------------------- */
+	/* Returns attribute_datum, preupdate_attribute_datum, or null */
+	/* ----------------------------------------------------------- */
 			subsidiary_transaction_delete_datum(
 				foreign_date_time,
 				preupdate_foreign_date_time,
@@ -242,15 +264,14 @@ char *subsidiary_transaction_delete_datum(
 {
 	char *delete_datum = {0};
 
-	if ( !preupdate_attribute_datum
-	||   !preupdate_change_datum )
+	if ( !preupdate_change_datum )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"preupdate_change_datum is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

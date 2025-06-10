@@ -692,7 +692,7 @@ FILE *journal_insert_pipe(
 		system_string,
 		sizeof ( system_string ),
 		"insert_statement t=%s f=%s delimiter='^'	|"
-/*		"tee_appaserver.sh				|" */
+		"tee_appaserver.sh				|"
 		"sql.e 2>&1					|"
 		"html_paragraph_wrapper.e			 ",
 		journal_table,

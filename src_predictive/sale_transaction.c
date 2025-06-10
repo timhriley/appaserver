@@ -183,6 +183,7 @@ char *sale_transaction_date_time(
 	{
 		return NULL;
 	}
+
 	if ( predictive_title_passage_rule == title_passage_rule_null )
 		return completed_date_time;
 
