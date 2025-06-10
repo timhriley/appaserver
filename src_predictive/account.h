@@ -61,6 +61,7 @@
 #define ACCOUNT_STATE_WITHHOLDING_PAYABLE_KEY	"state_withholding_payable"
 #define ACCOUNT_STATE_UNEMPLOYMENT_PAYABLE_KEY	"state_unemployment_payable"
 #define ACCOUNT_CONTRIBUTED_CAPITAL_KEY		"contributed_capital"
+#define ACCOUNT_CGS_KEY				"cost_of_goods_sold"
 
 typedef struct
 {
