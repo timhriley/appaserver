@@ -25,12 +25,8 @@ SUBSIDIARY_TRANSACTION_DELETE *
 {
 	SUBSIDIARY_TRANSACTION_DELETE *subsidiary_transaction_delete;
 
-	if ( !preupdate_full_name
-	||   !preupdate_street_address
-	||   !preupdate_foreign_date_time
-	||   !full_name
+	if ( !full_name
 	||   !street_address
-	||   !foreign_date_time
 	||   !preupdate_change_full_name
 	||   !preupdate_change_street_address
 	||   !preupdate_change_foreign_date_time )
@@ -87,6 +83,22 @@ SUBSIDIARY_TRANSACTION_DELETE *
 			preupdate_change_foreign_date_time->
 				no_change_boolean );
 
+	if ( !subsidiary_transaction_delete->transaction_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+	"subsidiary_transaction_delete->transaction_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	return subsidiary_transaction_delete;
 }
 
@@ -124,23 +136,12 @@ char *subsidiary_transaction_delete_datum(
 {
 	char *delete_datum;
 
-	if ( !preupdate_attribute_datum
-	||   !attribute_datum )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	if ( !attribute_datum )
+		delete_datum = NULL;
+	else
+	if ( !preupdate_attribute_datum )
+		delete_datum = attribute_datum;
+	else
 	if ( no_change_boolean )
 		delete_datum = attribute_datum;
 	else

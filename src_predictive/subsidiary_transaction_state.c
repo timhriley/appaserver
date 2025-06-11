@@ -252,6 +252,24 @@ boolean subsidiary_transaction_state_delete_boolean(
 		boolean subsidiary_transaction_state_exist_boolean,
 		boolean journal_list_match_boolean )
 {
+	if ( !preupdate_change_full_name
+	||   !preupdate_change_street_address
+	||   !preupdate_change_foreign_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if (	preupdate_change_full_name->state_evaluate ==
 		from_null_to_something
 	||	preupdate_change_full_name->state_evaluate ==

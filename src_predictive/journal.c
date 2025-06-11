@@ -2448,9 +2448,10 @@ LIST *journal_transaction_list(
 		char *street_address,
 		char *transaction_date_time )
 {
+	LIST *list = {0};
+
 	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time )
+	||   !street_address )
 	{
 		char message[ 128 ];
 
@@ -2466,25 +2467,30 @@ LIST *journal_transaction_list(
 			message );
 	}
 
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			journal_select,
-			journal_table,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_primary_where(
-				full_name,
-				street_address,
-				transaction_date_time ) ),
-		1 /* fetch_account */,
-		1 /* fetch_subclassification */,
-		1 /* fetch_element */,
-		0 /* not fetch_transaction */ );
+	if ( transaction_date_time )
+	{
+		list =
+			journal_system_list(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				journal_system_string(
+					journal_select,
+					journal_table,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					transaction_primary_where(
+						full_name,
+						street_address,
+						transaction_date_time ) ),
+				1 /* fetch_account */,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */,
+				0 /* not fetch_transaction */ );
+	}
+
+	return list;
 }
 
 char *journal_entity_where(

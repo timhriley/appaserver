@@ -804,6 +804,20 @@ void transaction_delete(
 		exit( 1 );
 	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling transaction_fetch(%s,%s,%s)\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	full_name,
+	street_address,
+	transaction_date_time );
+msg( (char *)0, message );
+}
 	if ( ! ( transaction =
 			transaction_fetch(
 				full_name,
@@ -811,6 +825,17 @@ void transaction_delete(
 				transaction_date_time,
 				1 /* fetch_journal_list */ ) ) )
 	{
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: NOT FOUND!\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( (char *)0, message );
+}
 		return;
 	}
 

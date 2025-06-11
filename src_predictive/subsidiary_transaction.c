@@ -179,8 +179,7 @@ char *subsidiary_transaction_update_template(
 	char update_template[ 1024 ];
 
 	if ( !full_name
-	||   !street_address
-	||   !foreign_date_time )
+	||   !street_address )
 	{
 		char message[ 128 ];
 
@@ -196,7 +195,9 @@ char *subsidiary_transaction_update_template(
 			message );
 	}
 
-	if ( string_strcmp(
+	if ( !foreign_date_time
+	||   !transaction_date_time
+	||   strcmp(
 		foreign_date_time,
 		transaction_date_time ) == 0 )
 	{

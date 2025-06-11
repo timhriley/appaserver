@@ -166,21 +166,19 @@ SALE *sale_trigger_new(
 			sale->sales_tax,
 			sale->invoice_amount );
 
-	if ( sale->sale_fetch->uncollectible_date_time )
-	{
-		sale->sale_loss_transaction =
-			sale_loss_transaction_new(
-				full_name,
-				street_address,
-				sale->
-					sale_fetch->
-					uncollectible_date_time,
-				state,
-				preupdate_full_name,
-				preupdate_street_address,
-				preupdate_uncollectible_date_time,
-				sale->amount_due );
-	}
+	sale->sale_loss_transaction =
+		sale_loss_transaction_new(
+			full_name,
+			street_address,
+			sale->
+				sale_fetch->
+				uncollectible_date_time,
+			state,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_uncollectible_date_time,
+			sale->amount_due );
+
 
 	return sale;
 }

@@ -72,18 +72,19 @@ SALE_TRANSACTION *sale_transaction_new(
 			shipped_date_time,
 			arrived_date );
 
-	if ( !sale_transaction->transaction_date_time ) return NULL;
-
-	sale_transaction->journal_list =
-		sale_transaction_journal_list(
-			shipping_charge,
-			inventory_sale_total,
-			inventory_sale_CGS_total,
-			specific_inventory_sale_total,
-			specific_inventory_sale_CGS_total,
-			sale_invoice_amount,
-			sale_gross_revenue,
-			sale_sales_tax );
+	if ( sale_transaction->transaction_date_time )
+	{
+		sale_transaction->journal_list =
+			sale_transaction_journal_list(
+				shipping_charge,
+				inventory_sale_total,
+				inventory_sale_CGS_total,
+				specific_inventory_sale_total,
+				specific_inventory_sale_CGS_total,
+				sale_invoice_amount,
+				sale_gross_revenue,
+				sale_sales_tax );
+	}
 
 	sale_transaction->subsidiary_transaction_state =
 		/* -------------- */
@@ -108,6 +109,18 @@ SALE_TRANSACTION *sale_transaction_new(
 			sale_transaction->journal_list
 				/* insert_journal_list */ );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: delete_boolean=%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	sale_transaction->subsidiary_transaction_state->delete_boolean );
+msg( (char *)0, message );
+}
 	sale_transaction->subsidiary_transaction =
 		/* -------------- */
 		/* Safely returns */
