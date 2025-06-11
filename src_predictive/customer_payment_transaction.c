@@ -129,9 +129,14 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 			full_name,
 			street_address,
 			payment_date_time
-				/* foreign_date_time */ );
+				/* foreign_date_time */,
+			customer_payment_transaction->journal_binary_list
+				/* insert_journal_list */ );
 
 	customer_payment_transaction->subsidiary_transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		subsidiary_transaction_new(
 			CUSTOMER_PAYMENT_TABLE
 				/* foreign_table_name */,
@@ -141,27 +146,26 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 				/* foreign_street_address_column */,
 			"payment_date_time"
 				/* foreign_date_time_column */,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_payment_date_time
-				/* preupdate_foreign_date_time */,
+			payment_date_time
+				/* transaction_date_time */,
+			customer_payment_transaction->journal_binary_list
+				/* insert_journal_list */,
 			full_name,
 			street_address,
 			payment_date_time
 				/* foreign_date_time */,
 			payment_amount
 				/* foreign_amount */,
+			CUSTOMER_PAYMENT_MEMO /* transaction_memo */,
 			customer_payment_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_full_name,
+				insert_boolean,
 			customer_payment_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_street_address,
+				delete_boolean,
 			customer_payment_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			customer_payment_transaction->journal_binary_list,
-			CUSTOMER_PAYMENT_MEMO /* transaction_memo */ );
+				subsidiary_transaction_delete );
 
 	return customer_payment_transaction;
 }

@@ -10,6 +10,7 @@
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "journal.h"
 #include "subsidiary_transaction_state.h"
 
 SUBSIDIARY_TRANSACTION_STATE *
@@ -23,7 +24,8 @@ SUBSIDIARY_TRANSACTION_STATE *
 		char *preupdate_foreign_date_time,
 		char *full_name,
 		char *street_address,
-		char *foreign_date_time )
+		char *foreign_date_time,
+		LIST *insert_journal_list )
 {
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;
 
@@ -79,6 +81,88 @@ SUBSIDIARY_TRANSACTION_STATE *
 			foreign_date_time,
 			preupdate_foreign_date_time_placeholder );
 
+	subsidiary_transaction_state->old_journal_list =
+		journal_transaction_list(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			full_name,
+			street_address,
+			foreign_date_time
+				/* transaction_date_time */ );
+
+	subsidiary_transaction_state->exist_boolean =
+		subsidiary_transaction_state_exist_boolean(
+			subsidiary_transaction_state->old_journal_list );
+
+	if ( subsidiary_transaction_state->exist_boolean )
+	{
+		subsidiary_transaction_state->journal_list_match_boolean =
+			journal_list_match_boolean(
+				insert_journal_list /* journal1_list */,
+				subsidiary_transaction_state->
+					old_journal_list /* journal2_list */ );
+	}
+
+	subsidiary_transaction_state->insert_boolean =
+		subsidiary_transaction_state_insert_boolean(
+			subsidiary_transaction_state->
+				preupdate_change_full_name,
+			subsidiary_transaction_state->
+				preupdate_change_street_address,
+			subsidiary_transaction_state->
+				preupdate_change_foreign_date_time,
+			subsidiary_transaction_state->
+				journal_list_match_boolean );
+
+	if ( subsidiary_transaction_state->insert_boolean )
+	{
+		subsidiary_transaction_state->
+			insert_full_name =
+				full_name;
+
+		subsidiary_transaction_state->
+			insert_street_address =
+				street_address;
+
+		subsidiary_transaction_state->
+			insert_transaction_date_time =
+				foreign_date_time;
+	}
+
+	subsidiary_transaction_state->delete_boolean =
+		subsidiary_transaction_state_delete_boolean(
+			subsidiary_transaction_state->
+				preupdate_change_full_name,
+			subsidiary_transaction_state->
+				preupdate_change_street_address,
+			subsidiary_transaction_state->
+				preupdate_change_foreign_date_time,
+			subsidiary_transaction_state->exist_boolean,
+			subsidiary_transaction_state->
+				journal_list_match_boolean );
+
+	if ( subsidiary_transaction_state->delete_boolean )
+	{
+		subsidiary_transaction_state->
+			subsidiary_transaction_delete =
+			     /* -------------- */
+			     /* Safely returns */
+			     /* -------------- */
+			     subsidiary_transaction_delete_new(
+				preupdate_full_name,
+				preupdate_street_address,
+				preupdate_foreign_date_time,
+				full_name,
+				street_address,
+				foreign_date_time,
+				subsidiary_transaction_state->
+					preupdate_change_full_name,
+				subsidiary_transaction_state->
+					preupdate_change_street_address,
+				subsidiary_transaction_state->
+					preupdate_change_foreign_date_time );
+	}
+
 	return subsidiary_transaction_state;
 }
 
@@ -110,3 +194,94 @@ SUBSIDIARY_TRANSACTION_STATE *
 
 	return subsidiary_transaction_state;
 }
+
+boolean subsidiary_transaction_state_insert_boolean(
+		PREUPDATE_CHANGE *
+			preupdate_change_full_name,
+		PREUPDATE_CHANGE *
+			preupdate_change_street_address,
+		PREUPDATE_CHANGE *
+			preupdate_change_foreign_date_time,
+		boolean journal_list_match_boolean )
+{
+	if (	preupdate_change_full_name->
+			state_evaluate ==
+		from_null_to_something
+	||	preupdate_change_full_name->
+			state_evaluate ==
+		from_something_to_something_else )
+	{
+		return 1;
+	}
+
+	if (	preupdate_change_street_address->
+			state_evaluate ==
+		from_null_to_something
+	||	preupdate_change_street_address->
+			state_evaluate ==
+		from_something_to_something_else )
+	{
+		return 1;
+	}
+
+	if (	preupdate_change_foreign_date_time->
+			state_evaluate ==
+		from_null_to_something
+	||	preupdate_change_foreign_date_time->
+			state_evaluate ==
+		from_something_to_something_else )
+	{
+		return 1;
+	}
+
+	if ( !journal_list_match_boolean )
+	{
+		return 1;
+	}
+	
+	return 0;
+}
+
+boolean subsidiary_transaction_state_delete_boolean(
+		PREUPDATE_CHANGE *
+			preupdate_change_full_name,
+		PREUPDATE_CHANGE *
+			preupdate_change_street_address,
+		PREUPDATE_CHANGE *
+			preupdate_change_foreign_date_time,
+		boolean subsidiary_transaction_state_exist_boolean,
+		boolean journal_list_match_boolean )
+{
+	if (	preupdate_change_full_name->state_evaluate ==
+		from_null_to_something
+	||	preupdate_change_full_name->state_evaluate ==
+		no_change_null )
+	{
+		return 0;
+	}
+
+	if (	!preupdate_change_full_name->
+			no_change_boolean
+	||	!preupdate_change_street_address->
+			no_change_boolean
+	||	!preupdate_change_foreign_date_time->
+			no_change_boolean )
+	{
+		return 1;
+	}
+
+	if (	subsidiary_transaction_state_exist_boolean
+	&&	!journal_list_match_boolean )
+	{
+		return 1;
+	}
+	
+	return 0;
+}
+
+boolean subsidiary_transaction_state_exist_boolean( LIST *old_journal_list )
+{
+	return
+	(boolean)list_length( old_journal_list );
+}
+

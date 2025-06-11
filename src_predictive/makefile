@@ -100,6 +100,7 @@ SALE_LIBRARY=								\
 		customer_payment.o					\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
+		subsidiary_transaction_delete.o				\
 		customer_payment_transaction.o				\
 		sale_transaction.o					\
 		sale_loss_transaction.o
@@ -527,6 +528,7 @@ prior_fixed_asset_trigger:						\
 	${LIBRARY}/preupdate_change.o					\
 	subsidiary_transaction.o					\
 	subsidiary_transaction_state.o					\
+	subsidiary_transaction_delete.o					\
 	prior_fixed_asset.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
@@ -536,6 +538,7 @@ prior_fixed_asset_trigger:						\
 		prior_fixed_asset_trigger.c				\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
+		subsidiary_transaction_delete.o				\
 		prior_fixed_asset.o					\
 		-o prior_fixed_asset_trigger
 
@@ -1127,6 +1130,12 @@ subsidiary_transaction_state.o:						\
 	subsidiary_transaction_state.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c subsidiary_transaction_state.c
+
+subsidiary_transaction_delete.o:					\
+	subsidiary_transaction_delete.c					\
+	subsidiary_transaction_delete.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c subsidiary_transaction_delete.c
 
 prior_fixed_asset.o:							\
 	prior_fixed_asset.c						\

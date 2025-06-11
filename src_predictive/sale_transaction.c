@@ -104,7 +104,9 @@ SALE_TRANSACTION *sale_transaction_new(
 			full_name,
 			street_address,
 			sale_transaction->transaction_date_time
-				/* foreign_date_time */ );
+				/* foreign_date_time */,
+			sale_transaction->journal_list
+				/* insert_journal_list */ );
 
 	sale_transaction->subsidiary_transaction =
 		/* -------------- */
@@ -119,27 +121,25 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_street_address_column */,
 			"transaction_date_time"
 				/* foreign_date_time_column */,
-			preupdate_full_name,
-			preupdate_street_address,
-			transaction_date_time
-				/* preupdate_foreign_date_time */,
+			transaction_date_time,
+			sale_transaction->journal_list
+				/* insert_journal_list */,
 			full_name,
 			street_address,
 			sale_transaction->transaction_date_time
 				/* foreign_date_time */,
 			sale_invoice_amount
 				/* foreign_amount */,
+			"Sale" /* transaction_memo */,
 			sale_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_full_name,
+				insert_boolean,
 			sale_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_street_address,
+				delete_boolean,
 			sale_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			sale_transaction->journal_list,
-			"Sale" /* transaction_memo */ );
+				subsidiary_transaction_delete );
 
 	return sale_transaction;
 }

@@ -133,9 +133,14 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 			full_name,
 			street_address,
 			uncollectible_date_time
-				/* foreign_date_time */ );
+				/* foreign_date_time */,
+			sale_loss_transaction->journal_binary_list
+				/* insert_journal_list */ );
 
 	sale_loss_transaction->subsidiary_transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
@@ -145,27 +150,26 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 				/* foreign_street_address_column */,
 			"uncollectible_date_time"
 				/* foreign_date_time_column */,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_uncollectible_date_time
-				/* preupdate_foreign_date_time */,
+			uncollectible_date_time
+				/* transaction_date_time */,
+			sale_loss_transaction->journal_binary_list
+				/* insert_journal_list */,
 			full_name,
 			street_address,
 			uncollectible_date_time
 				/* foreign_date_time */,
 			sale_amount_due
 				/* foreign_amount */,
+			"Uncollectible loss" /* transaction_memo */,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_full_name,
+				insert_boolean,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_street_address,
+				delete_boolean,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			sale_loss_transaction->journal_binary_list,
-			"Uncollectible loss" /* transaction_memo */ );
+				subsidiary_transaction_delete );
 
 	return sale_loss_transaction;
 }

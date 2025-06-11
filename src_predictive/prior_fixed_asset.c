@@ -167,13 +167,13 @@ PRIOR_FIXED_ASSET *
 			preupdate_street_address,
 			preupdate_purchase_date_time
 			/* preupdate_foreign_date_time */,
-			prior_fixed_asset->
-				full_name,
-			prior_fixed_asset->
-				street_address,
+			prior_fixed_asset->full_name,
+			prior_fixed_asset->street_address,
 			prior_fixed_asset->
 				purchase_date_time
-				/* foreign_date_time */ );
+				/* foreign_date_time */,
+			prior_fixed_asset->journal_binary_list
+				/* insert_journal_list */ );
 
 	prior_fixed_asset->subsidiary_transaction =
 		/* -------------- */
@@ -188,33 +188,31 @@ PRIOR_FIXED_ASSET *
 				/* foreign_street_addres_column */,
 			"purchase_date_time"
 				/* foreign_date_time_column */,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_purchase_date_time
-				/* preupdate_foreign_date_time */,
-			prior_fixed_asset->
-				full_name,
-			prior_fixed_asset->
-				street_address,
 			prior_fixed_asset->
 				purchase_date_time
+				/* transaction_date_time */,
+			prior_fixed_asset->journal_binary_list
+				/* insert_journal_list */,
+			prior_fixed_asset->full_name
+				/* insert_full_name */,
+			prior_fixed_asset->street_address
+				/* insert_street_address */,
+			prior_fixed_asset->purchase_date_time
 				/* foreign_date_time */,
 			prior_fixed_asset->
 				fixed_asset_cost
 				/* foreign_amount */,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				preupdate_change_full_name,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				preupdate_change_street_address,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			prior_fixed_asset->journal_binary_list
-				/* insert_journal_list */,
 			asset_name
-				/* transaction_memo */ );
+				/* transaction_memo */,
+			prior_fixed_asset->
+				subsidiary_transaction_state->
+				insert_boolean,
+			prior_fixed_asset->
+				subsidiary_transaction_state->
+				delete_boolean,
+			prior_fixed_asset->
+				subsidiary_transaction_state->
+				subsidiary_transaction_delete );
 
 	free( system_string );
 	free( pipe_fetch );
