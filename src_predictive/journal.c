@@ -668,12 +668,31 @@ void journal_list_insert(
 	do {
 		journal = list_get( journal_list );
 
+		if ( !journal->account )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"for full_name=%s, journal->account is empty.",
+				full_name );
+
+			pclose( pipe );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		journal_insert(
 			pipe,
 			full_name,
 			street_address,
 			transaction_date_time,
-			journal->account_name,
+			journal->account->account_name,
 			journal->debit_amount,
 			journal->credit_amount );
 
@@ -794,24 +813,27 @@ double journal_credit_debit_difference_sum( LIST *journal_list )
 }
 
 char *journal_delete_system_string(
-		char *journal_table,
+		const char *journal_table,
 		char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !journal_table
-	||   !where )
+	if ( !where )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: where is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	sprintf(system_string,
-		"echo \"delete from %s where %s;\" | sql",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"delete from %s where %s;\" | "
+		"tee_appaserver.sh | "
+		"sql.e",
 		journal_table,
 		where );
 
@@ -821,12 +843,9 @@ char *journal_delete_system_string(
 LIST *journal_extract_account_list( LIST *journal_list )
 {
 	JOURNAL *journal;
-	LIST *account_list;
+	LIST *account_list = list_new();
 
-	if ( !list_rewind( journal_list ) ) return (LIST *)0;
-
-	account_list = list_new();
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
@@ -846,9 +865,12 @@ LIST *journal_extract_account_list( LIST *journal_list )
 	} while ( list_next( journal_list ) );
 
 	if ( !list_length( account_list ) )
-		return (LIST *)0;
-	else
-		return account_list;	
+	{
+		list_free( account_list );
+		account_list = NULL;
+	}
+
+	return account_list;	
 }
 
 LIST *journal_binary_list(
@@ -1460,7 +1482,7 @@ LIST *journal_date_time_account_name_list(
 		transaction_date_time );
 
 	sprintf( system_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "echo \"select %s from %s where %s order by %s;\" | sql.e",
 		 "distinct account",
 		 journal_table,
 		 where,
@@ -1647,7 +1669,9 @@ LIST *journal_account_name_list(
 
 	select = "account";
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"full_name = '%s' and		"
 		"street_address = '%s' and	"
 		"transaction_date_time = '%s'	",
@@ -1655,11 +1679,14 @@ LIST *journal_account_name_list(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( full_name ),
-		street_address,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_street_address( street_address ),
 		transaction_date_time );
 
 	sprintf(system_string,
-		"echo \"select %s from %s where %s order by %s;\" | sql",
+		"echo \"select %s from %s where %s order by %s;\" | sql.e",
 		select,
 		JOURNAL_TABLE,
 		where,
@@ -2672,6 +2699,23 @@ JOURNAL *journal_account_new(
 	{
 		journal->credit_amount = journal_amount;
 		journal->account = credit_account;
+	}
+
+	if ( !journal->account->account_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+	"for journal_amount=%.2lf, journal->account->account_name is empty.",
+			journal_amount );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	return journal;

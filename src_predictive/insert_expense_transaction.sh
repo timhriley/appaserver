@@ -24,15 +24,15 @@ then
 	exit 1
 fi
 
-process="$(echo $1 | escape_security.e)"
-feeder_account="$(echo $2 | escape_security.e)"
-full_name="$(echo $3 | escape_security.e)"
-street_address="$(echo $4 | escape_security.e)"
-transaction_date="$(echo $5 | escape_security.e)"
-debit_account="$(echo $6 | escape_security.e)"
-transaction_amount="$(echo $7 | escape_security.e)"
-check_number="$(echo $8 | escape_security.e)"
-memo="$(echo $9 | escape_security.e)"
+process="$1"
+feeder_account="$2"
+full_name="$3"
+street_address="$4"
+transaction_date="$5"
+debit_account="$6"
+transaction_amount="$7"
+check_number="$8"
+memo="$9"
 
 document_body.sh
 

@@ -26,14 +26,14 @@ then
 	exit 1
 fi
 
-full_name="$(echo $1 | escape_security.e)"
-street_address="$(echo $2 | escape_security.e)"
-transaction_date_time="$(echo $3 | escape_security.e)"
-debit_account="$(echo $4 | escape_security.e)"
-credit_account="$(echo $5 | escape_security.e)"
-transaction_amount="$(echo $6 | escape_security.e)"
-check_number="$(echo $7 | escape_security.e)"
-memo="$(echo $8 | escape_security.e)"
+full_name="$1"
+street_address="$2"
+transaction_date_time="$3"
+debit_account="$4"
+credit_account="$5"
+transaction_amount="$6"
+check_number="$7"
+memo="$8"
 
 table="transaction"
 

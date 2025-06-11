@@ -38,7 +38,8 @@ SALE *sale_trigger_new(
 
 	if ( !full_name
 	||   !street_address
-	||   !sale_date_time )
+	||   !sale_date_time
+	||   !state )
 	{
 		char message[ 128 ];
 
@@ -144,44 +145,41 @@ SALE *sale_trigger_new(
 			sale->invoice_amount,
 			sale->customer_payment_total );
 
-	if ( state )
+	sale->sale_transaction =
+		sale_transaction_new(
+			full_name,
+			street_address,
+			state,
+			preupdate_full_name,
+			preupdate_street_address,
+			sale->sale_fetch->predictive_title_passage_rule,
+			sale->sale_fetch->completed_date_time,
+			sale->sale_fetch->transaction_date_time,
+			sale->sale_fetch->shipped_date_time,
+			sale->sale_fetch->arrived_date,
+			sale->sale_fetch->shipping_charge,
+			sale->inventory_sale_total,
+			sale->inventory_sale_CGS_total,
+			sale->specific_inventory_sale_total,
+			sale->specific_inventory_sale_CGS_total,
+			sale->gross_revenue,
+			sale->sales_tax,
+			sale->invoice_amount );
+
+	if ( sale->sale_fetch->uncollectible_date_time )
 	{
-		sale->sale_transaction =
-			sale_transaction_new(
+		sale->sale_loss_transaction =
+			sale_loss_transaction_new(
 				full_name,
 				street_address,
+				sale->
+					sale_fetch->
+					uncollectible_date_time,
 				state,
 				preupdate_full_name,
 				preupdate_street_address,
-				sale->sale_fetch->predictive_title_passage_rule,
-				sale->sale_fetch->completed_date_time,
-				sale->sale_fetch->transaction_date_time,
-				sale->sale_fetch->shipped_date_time,
-				sale->sale_fetch->arrived_date,
-				sale->sale_fetch->shipping_charge,
-				sale->inventory_sale_total,
-				sale->inventory_sale_CGS_total,
-				sale->specific_inventory_sale_total,
-				sale->specific_inventory_sale_CGS_total,
-				sale->gross_revenue,
-				sale->sales_tax,
-				sale->invoice_amount );
-
-		if ( sale->sale_fetch->uncollectible_date_time )
-		{
-			sale->sale_loss_transaction =
-				sale_loss_transaction_new(
-					full_name,
-					street_address,
-					sale->
-						sale_fetch->
-						uncollectible_date_time,
-					state,
-					preupdate_full_name,
-					preupdate_street_address,
-					preupdate_uncollectible_date_time,
-					sale->amount_due );
-		}
+				preupdate_uncollectible_date_time,
+				sale->amount_due );
 	}
 
 	return sale;

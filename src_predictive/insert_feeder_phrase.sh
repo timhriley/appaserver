@@ -24,10 +24,10 @@ then
 	exit 1
 fi
 
-process="$(echo $1 | escape_security.e)"
-account="$(echo $2 | escape_security.e)"
-full_name="$(echo $3 | escape_security.e)"
-feeder_phrase="$(echo $4 | escape_security.e)"
+process="$1"
+account="$2"
+full_name="$3"
+feeder_phrase="$4"
 
 document_body.sh
 

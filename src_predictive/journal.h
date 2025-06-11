@@ -430,7 +430,7 @@ LIST *journal_extract_account_list(
 		LIST *journal_list );
 
 char *journal_delete_system_string(
-		char *journal_table,
+		const char *journal_table,
 		char *where );
 
 int journal_transaction_count(

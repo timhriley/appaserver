@@ -850,10 +850,14 @@ char *transaction_delete_system_string(
 		char *transaction_table,
 		char *transaction_primary_where )
 {
-	char system_string[ 512 ];
+	char system_string[ 1024 ];
 
-	sprintf(system_string,
-		"echo \"delete from %s where %s;\" | sql",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"delete from %s where %s;\" | "
+	       	"appaserver_tee.sh | "
+		"sql.e",
 		transaction_table,
 		transaction_primary_where );
 
@@ -870,7 +874,7 @@ FILE *transaction_insert_pipe_open(
 		system_string,
 		sizeof ( system_string ),
 		"insert_statement t=%s f=%s delimiter='^'	|"
-/*		"tee_appaserver.sh				|" */
+		"tee_appaserver.sh				|"
 		"sql 2>&1					|"
 		"html_paragraph_wrapper.e			 ",
 		transaction_table,
