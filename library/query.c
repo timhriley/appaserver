@@ -7328,6 +7328,11 @@ char *query_drop_down_process_command_line(
 	string_replace_command_line(
 		command_line,
 		many_folder_name,
+		PROCESS_MANY_TABLE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		many_folder_name,
 		PROCESS_MANY_PLACEHOLDER );
 
 	string_replace_command_line(

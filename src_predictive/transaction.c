@@ -856,7 +856,7 @@ char *transaction_delete_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"echo \"delete from %s where %s;\" | "
-	       	"appaserver_tee.sh | "
+	       	"tee_appaserver.sh | "
 		"sql.e",
 		transaction_table,
 		transaction_primary_where );

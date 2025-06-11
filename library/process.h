@@ -17,6 +17,7 @@
 
 #define PROCESS_APPLICATION_PLACEHOLDER		"$application"
 #define PROCESS_MANY_PLACEHOLDER		"$many"
+#define PROCESS_MANY_TABLE_PLACEHOLDER		"$many_table"
 #define PROCESS_ONE_PLACEHOLDER1		"$one"
 #define PROCESS_APPLICATION_PLACEHOLDER		"$application"
 #define PROCESS_SESSION_PLACEHOLDER		"$session"
