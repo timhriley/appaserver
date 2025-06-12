@@ -45,8 +45,7 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
-PRIOR_FIXED_ASSET *
-	prior_fixed_asset_fetch(
+PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 		char *asset_name,
 		char *state,
 		char *preupdate_full_name,

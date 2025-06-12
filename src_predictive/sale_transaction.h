@@ -34,7 +34,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
-		char *transaction_date_time,
+		char *prior_transaction_date_time,
 		double shipping_charge,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,

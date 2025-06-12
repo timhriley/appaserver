@@ -22,6 +22,8 @@ typedef struct
 {
 	enum preupdate_change_state state_evaluate;
 	boolean no_change_boolean;
+	char *prior_datum;
+	char *new_datum;
 } PREUPDATE_CHANGE;
 
 /* Usage */
@@ -70,7 +72,7 @@ char *preupdate_change_prior_datum(
 
 /* Returns attribute_datum or null */
 /* ------------------------------- */
-char *preupdate_change_datum(
+char *preupdate_change_new_datum(
 		char *attribute_datum,
 		enum preupdate_change_state
 			preupdate_change_state );

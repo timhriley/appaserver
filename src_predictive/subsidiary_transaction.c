@@ -281,9 +281,6 @@ void subsidiary_transaction_execute(
 
 SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete_new(
-		char *preupdate_full_name,
-		char *preupdate_street_address,
-		char *preupdate_foreign_date_time,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
@@ -318,14 +315,8 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete = subsidiary_transaction_delete_calloc();
 
 	subsidiary_transaction_delete->full_name =
-		/* ----------------------------------------- */
-		/* Returns preupdate_attribute_datum or null */
-		/* ----------------------------------------- */
-		preupdate_change_prior_datum(
-			preupdate_full_name
-				/* preupdate_attribute_datum */,
-			preupdate_change_full_name->
-				state_evaluate );
+		preupdate_change_full_name->
+			prior_datum;
 
 	if ( !subsidiary_transaction_delete->full_name )
 	{
@@ -334,14 +325,8 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	}
 
 	subsidiary_transaction_delete->street_address =
-		/* ----------------------------------------- */
-		/* Returns preupdate_attribute_datum or null */
-		/* ----------------------------------------- */
-		preupdate_change_prior_datum(
-			preupdate_street_address
-				/* preupdate_attribute_datum */,
-			preupdate_change_street_address->
-				state_evaluate );
+		preupdate_change_street_address->
+			prior_datum;
 
 	if ( !subsidiary_transaction_delete->street_address )
 	{
@@ -350,14 +335,8 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	}
 
 	subsidiary_transaction_delete->transaction_date_time =
-		/* ----------------------------------------- */
-		/* Returns preupdate_attribute_datum or null */
-		/* ----------------------------------------- */
-		preupdate_change_prior_datum(
-			preupdate_foreign_date_time
-				/* preupdate_attribute_datum */,
-			preupdate_change_foreign_date_time->
-				state_evaluate );
+		preupdate_change_foreign_date_time->
+			prior_datum;
 
 	if ( !subsidiary_transaction_delete->transaction_date_time )
 	{
@@ -397,9 +376,6 @@ SUBSIDIARY_TRANSACTION_DELETE *
 
 SUBSIDIARY_TRANSACTION_INSERT *
 	subsidiary_transaction_insert_new(
-		char *full_name,
-		char *street_address,
-		char *foreign_date_time,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
@@ -434,13 +410,8 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	subsidiary_transaction_insert = subsidiary_transaction_insert_calloc();
 
 	subsidiary_transaction_insert->full_name =
-		/* ------------------------------- */
-		/* Returns attribute_datum or null */
-		/* ------------------------------- */
-		preupdate_change_prior_datum(
-			full_name /* attribute_datum */,
-			preupdate_change_full_name->
-				state_evaluate );
+		preupdate_change_full_name->
+			new_datum;
 
 	if ( !subsidiary_transaction_insert->full_name )
 	{
@@ -449,10 +420,8 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	}
 
 	subsidiary_transaction_insert->street_address =
-		preupdate_change_prior_datum(
-			street_address /* attribute_datum */,
-			preupdate_change_street_address->
-				state_evaluate );
+		preupdate_change_street_address->
+			new_datum;
 
 	if ( !subsidiary_transaction_insert->street_address )
 	{
@@ -461,10 +430,8 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	}
 
 	subsidiary_transaction_insert->transaction_date_time =
-		preupdate_change_prior_datum(
-			foreign_date_time /* attribute_datum */,
-			preupdate_change_foreign_date_time->
-				state_evaluate );
+		preupdate_change_foreign_date_time->
+			new_datum;
 
 	if ( !subsidiary_transaction_insert->transaction_date_time )
 	{

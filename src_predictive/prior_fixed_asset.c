@@ -16,8 +16,7 @@
 #include "journal.h"
 #include "prior_fixed_asset.h"
 
-PRIOR_FIXED_ASSET *
-	prior_fixed_asset_fetch(
+PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 		char *asset_name,
 		char *state,
 		char *preupdate_full_name,
@@ -90,6 +89,23 @@ PRIOR_FIXED_ASSET *
 		prior_fixed_asset_parse(
 			asset_name,
 			pipe_fetch /* input */ );
+
+	if ( !prior_fixed_asset->fixed_asset_cost )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"fixed_asset_cost is zero." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	if ( ! ( prior_fixed_asset->debit_account =
 			account_fetch(

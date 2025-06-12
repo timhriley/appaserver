@@ -154,9 +154,10 @@ SALE *sale_trigger_new(
 			preupdate_street_address,
 			sale->sale_fetch->predictive_title_passage_rule,
 			sale->sale_fetch->completed_date_time,
-			sale->sale_fetch->transaction_date_time,
 			sale->sale_fetch->shipped_date_time,
 			sale->sale_fetch->arrived_date,
+			sale->sale_fetch->transaction_date_time
+				/* prior_transaction_date_time */,
 			sale->sale_fetch->shipping_charge,
 			sale->inventory_sale_total,
 			sale->inventory_sale_CGS_total,

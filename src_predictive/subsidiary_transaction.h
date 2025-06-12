@@ -23,9 +23,6 @@ typedef struct
 /* ----- */
 SUBSIDIARY_TRANSACTION_INSERT *
 	subsidiary_transaction_insert_new(
-		char *full_name,
-		char *street_address,
-		char *foreign_date_time,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
@@ -48,9 +45,6 @@ typedef struct
 /* ----- */
 SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete_new(
-		char *preupdate_full_name,
-		char *preupdate_street_address,
-		char *preupdate_foreign_date_time,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_street_address,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,

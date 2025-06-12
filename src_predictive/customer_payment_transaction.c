@@ -32,8 +32,7 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 	||   !preupdate_full_name
 	||   !preupdate_street_address
 	||   !preupdate_payment_date_time
-	||   !account_cash_string
-	||   !payment_amount )
+	||   !account_cash_string )
 	{
 		char message[ 128 ];
 
@@ -48,6 +47,24 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 			__LINE__,
 			message );
 	}
+
+	if ( !payment_amount || payment_amount < 0.0 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"invalid payment_amount=%.2lf.",
+			payment_amount );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	customer_payment_transaction = customer_payment_transaction_calloc();
 

@@ -30,7 +30,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
-		char *transaction_date_time,
+		char *prior_transaction_date_time,
 		double shipping_charge,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
@@ -59,6 +59,26 @@ SALE_TRANSACTION *sale_transaction_new(
 			__LINE__,
 			message );
 	}
+
+	if ( sale_invoice_amount < 0.0 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"invalid sale_invoice_amount=%.2lf.",
+			sale_invoice_amount );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( !sale_invoice_amount ) return NULL;
 
 	sale_transaction = sale_transaction_calloc();
 
@@ -95,12 +115,12 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* preupdate_full_name_placeholder */,
 			"preupdate_street_address"
 				/* preupdate_street_address_placeholder */,
-			"preupdate_uncollectible_date_time"
+			"preupdate_transaction_date_time"
 				/* preupdate_foreign_date_time_placeholder */,
 			state,
 			preupdate_full_name,
 			preupdate_street_address,
-			transaction_date_time
+			prior_transaction_date_time
 				/* preupdate_foreign_date_time */,
 			full_name,
 			street_address,
@@ -122,8 +142,7 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_street_address_column */,
 			"transaction_date_time"
 				/* foreign_date_time_column */,
-			transaction_date_time
-				/* prior_transaction_date_time */,
+			prior_transaction_date_time,
 			sale_transaction->journal_list
 				/* insert_journal_list */,
 			sale_invoice_amount

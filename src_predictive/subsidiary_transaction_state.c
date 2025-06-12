@@ -49,6 +49,21 @@ SUBSIDIARY_TRANSACTION_STATE *
 	subsidiary_transaction_state =
 		subsidiary_transaction_state_calloc();
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: state=%s, preupdate_full_name=%s, full_name=%s, preupdate_full_name_placeholder=%s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	state,
+	preupdate_full_name,
+	full_name,
+	preupdate_full_name_placeholder );
+msg( (char *)0, message );
+}
 	subsidiary_transaction_state->preupdate_change_full_name =
 		/* -------------- */
 		/* Safely returns */
@@ -64,6 +79,19 @@ SUBSIDIARY_TRANSACTION_STATE *
 			preupdate_full_name_placeholder
 				/* preupdate_placeholder_name */ );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: state_evaluate=%s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	preupdate_change_state_display(
+	subsidiary_transaction_state->preupdate_change_full_name->state_evaluate ) );
+msg( (char *)0, message );
+}
 	subsidiary_transaction_state->preupdate_change_street_address =
 		preupdate_change_new(
 			APPASERVER_INSERT_STATE,
@@ -106,9 +134,6 @@ SUBSIDIARY_TRANSACTION_STATE *
 
 	subsidiary_transaction_state->subsidiary_transaction_insert =
 		subsidiary_transaction_insert_new(
-			full_name,
-			street_address,
-			foreign_date_time,
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
@@ -120,9 +145,6 @@ SUBSIDIARY_TRANSACTION_STATE *
 
 	subsidiary_transaction_state->subsidiary_transaction_delete =
 		subsidiary_transaction_delete_new(
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_foreign_date_time,
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
