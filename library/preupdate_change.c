@@ -162,3 +162,59 @@ boolean preupdate_change_no_change_boolean(
 	||	state_evaluate == no_change_something );
 }
 
+char *preupdate_change_prior_datum(
+		char *preupdate_attribute_datum,
+		enum preupdate_change_state
+			preupdate_change_state )
+{
+	char *prior_datum = {0};
+
+	if (	preupdate_change_state ==
+			from_null_to_something
+	||	preupdate_change_state ==
+			no_change_null )
+	{
+		prior_datum = NULL;
+	}
+	else
+	if (	preupdate_change_state ==
+			from_something_to_null
+	||	preupdate_change_state ==
+			from_something_to_something_else
+	||	preupdate_change_state ==
+			no_change_something )
+	{
+		prior_datum = preupdate_attribute_datum;
+	}
+
+	return prior_datum;
+}
+
+char *preupdate_change_datum(
+		char *attribute_datum,
+		enum preupdate_change_state
+			preupdate_change_state )
+{
+	char *datum = {0};
+
+	if (	preupdate_change_state ==
+			from_something_to_null
+	||	preupdate_change_state ==
+			no_change_null )
+	{
+		datum = NULL;
+	}
+	else
+	if (	preupdate_change_state ==
+			from_null_to_something
+	||	preupdate_change_state ==
+			from_something_to_something_else
+	||	preupdate_change_state ==
+			no_change_something )
+	{
+		datum = attribute_datum;
+	}
+
+	return datum;
+}
+

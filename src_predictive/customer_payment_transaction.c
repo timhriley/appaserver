@@ -147,22 +147,15 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 			"payment_date_time"
 				/* foreign_date_time_column */,
 			payment_date_time
-				/* transaction_date_time */,
+				/* prior_transaction_date_time */,
 			customer_payment_transaction->journal_binary_list
 				/* insert_journal_list */,
-			full_name,
-			street_address,
-			payment_date_time
-				/* foreign_date_time */,
 			payment_amount
 				/* foreign_amount */,
 			CUSTOMER_PAYMENT_MEMO /* transaction_memo */,
 			customer_payment_transaction->
 				subsidiary_transaction_state->
-				insert_boolean,
-			customer_payment_transaction->
-				subsidiary_transaction_state->
-				delete_boolean,
+				subsidiary_transaction_insert,
 			customer_payment_transaction->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete );

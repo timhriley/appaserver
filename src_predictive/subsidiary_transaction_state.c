@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "journal.h"
+#include "subsidiary_transaction.h"
 #include "subsidiary_transaction_state.h"
 
 SUBSIDIARY_TRANSACTION_STATE *
@@ -103,8 +104,11 @@ SUBSIDIARY_TRANSACTION_STATE *
 					old_journal_list /* journal2_list */ );
 	}
 
-	subsidiary_transaction_state->insert_boolean =
-		subsidiary_transaction_state_insert_boolean(
+	subsidiary_transaction_state->subsidiary_transaction_insert =
+		subsidiary_transaction_insert_new(
+			full_name,
+			street_address,
+			foreign_date_time,
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
@@ -114,54 +118,19 @@ SUBSIDIARY_TRANSACTION_STATE *
 			subsidiary_transaction_state->
 				journal_list_match_boolean );
 
-	if ( subsidiary_transaction_state->insert_boolean )
-	{
-		subsidiary_transaction_state->
-			insert_full_name =
-				full_name;
-
-		subsidiary_transaction_state->
-			insert_street_address =
-				street_address;
-
-		subsidiary_transaction_state->
-			insert_transaction_date_time =
-				foreign_date_time;
-	}
-
-	subsidiary_transaction_state->delete_boolean =
-		subsidiary_transaction_state_delete_boolean(
+	subsidiary_transaction_state->subsidiary_transaction_delete =
+		subsidiary_transaction_delete_new(
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_foreign_date_time,
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
 				preupdate_change_street_address,
 			subsidiary_transaction_state->
 				preupdate_change_foreign_date_time,
-			subsidiary_transaction_state->exist_boolean,
 			subsidiary_transaction_state->
 				journal_list_match_boolean );
-
-	if ( subsidiary_transaction_state->delete_boolean )
-	{
-		subsidiary_transaction_state->
-			subsidiary_transaction_delete =
-			     /* -------------- */
-			     /* Safely returns */
-			     /* -------------- */
-			     subsidiary_transaction_delete_new(
-				preupdate_full_name,
-				preupdate_street_address,
-				preupdate_foreign_date_time,
-				full_name,
-				street_address,
-				foreign_date_time,
-				subsidiary_transaction_state->
-					preupdate_change_full_name,
-				subsidiary_transaction_state->
-					preupdate_change_street_address,
-				subsidiary_transaction_state->
-					preupdate_change_foreign_date_time );
-	}
 
 	return subsidiary_transaction_state;
 }

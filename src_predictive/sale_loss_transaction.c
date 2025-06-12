@@ -151,22 +151,15 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 			"uncollectible_date_time"
 				/* foreign_date_time_column */,
 			uncollectible_date_time
-				/* transaction_date_time */,
+				/* prior_transaction_date_time */,
 			sale_loss_transaction->journal_binary_list
 				/* insert_journal_list */,
-			full_name,
-			street_address,
-			uncollectible_date_time
-				/* foreign_date_time */,
 			sale_amount_due
 				/* foreign_amount */,
 			"Uncollectible loss" /* transaction_memo */,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
-				insert_boolean,
-			sale_loss_transaction->
-				subsidiary_transaction_state->
-				delete_boolean,
+				subsidiary_transaction_insert,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete );

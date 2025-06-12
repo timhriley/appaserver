@@ -190,15 +190,9 @@ PRIOR_FIXED_ASSET *
 				/* foreign_date_time_column */,
 			prior_fixed_asset->
 				purchase_date_time
-				/* transaction_date_time */,
+				/* prior_transaction_date_time */,
 			prior_fixed_asset->journal_binary_list
 				/* insert_journal_list */,
-			prior_fixed_asset->full_name
-				/* insert_full_name */,
-			prior_fixed_asset->street_address
-				/* insert_street_address */,
-			prior_fixed_asset->purchase_date_time
-				/* foreign_date_time */,
 			prior_fixed_asset->
 				fixed_asset_cost
 				/* foreign_amount */,
@@ -206,10 +200,7 @@ PRIOR_FIXED_ASSET *
 				/* transaction_memo */,
 			prior_fixed_asset->
 				subsidiary_transaction_state->
-				insert_boolean,
-			prior_fixed_asset->
-				subsidiary_transaction_state->
-				delete_boolean,
+				subsidiary_transaction_insert,
 			prior_fixed_asset->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete );

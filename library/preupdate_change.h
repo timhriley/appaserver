@@ -58,6 +58,26 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 /* Usage */
 /* ----- */
 
+/* Returns preupdate_attribute_datum or null */
+/* ----------------------------------------- */
+char *preupdate_change_prior_datum(
+		char *preupdate_attribute_datum,
+		enum preupdate_change_state
+			preupdate_change_state );
+
+/* Usage */
+/* ----- */
+
+/* Returns attribute_datum or null */
+/* ------------------------------- */
+char *preupdate_change_datum(
+		char *attribute_datum,
+		enum preupdate_change_state
+			preupdate_change_state );
+
+/* Usage */
+/* ----- */
+
 /* Returns program memory */
 /* ---------------------- */
 char *preupdate_change_state_display(

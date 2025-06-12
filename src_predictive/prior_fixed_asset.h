@@ -10,7 +10,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "account.h"
-#include "subsidiary_transaction_delete.h"
 #include "subsidiary_transaction_state.h"
 #include "subsidiary_transaction.h"
 

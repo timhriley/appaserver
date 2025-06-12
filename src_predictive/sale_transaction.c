@@ -109,18 +109,6 @@ SALE_TRANSACTION *sale_transaction_new(
 			sale_transaction->journal_list
 				/* insert_journal_list */ );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: delete_boolean=%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	sale_transaction->subsidiary_transaction_state->delete_boolean );
-msg( (char *)0, message );
-}
 	sale_transaction->subsidiary_transaction =
 		/* -------------- */
 		/* Safely returns */
@@ -134,22 +122,16 @@ msg( (char *)0, message );
 				/* foreign_street_address_column */,
 			"transaction_date_time"
 				/* foreign_date_time_column */,
-			transaction_date_time,
+			transaction_date_time
+				/* prior_transaction_date_time */,
 			sale_transaction->journal_list
 				/* insert_journal_list */,
-			full_name,
-			street_address,
-			sale_transaction->transaction_date_time
-				/* foreign_date_time */,
 			sale_invoice_amount
 				/* foreign_amount */,
 			"Sale" /* transaction_memo */,
 			sale_transaction->
 				subsidiary_transaction_state->
-				insert_boolean,
-			sale_transaction->
-				subsidiary_transaction_state->
-				delete_boolean,
+				subsidiary_transaction_insert,
 			sale_transaction->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete );

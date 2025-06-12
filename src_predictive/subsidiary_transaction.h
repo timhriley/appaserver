@@ -11,7 +11,56 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "preupdate_change.h"
-#include "subsidiary_transaction_delete.h"
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+} SUBSIDIARY_TRANSACTION_INSERT;
+
+/* Usage */
+/* ----- */
+SUBSIDIARY_TRANSACTION_INSERT *
+	subsidiary_transaction_insert_new(
+		char *full_name,
+		char *street_address,
+		char *foreign_date_time,
+		PREUPDATE_CHANGE *preupdate_change_full_name,
+		PREUPDATE_CHANGE *preupdate_change_street_address,
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
+		boolean journal_list_match_boolean );
+
+/* Process */
+/* ------- */
+SUBSIDIARY_TRANSACTION_INSERT *
+	subsidiary_transaction_insert_calloc(
+		void );
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+} SUBSIDIARY_TRANSACTION_DELETE;
+
+/* Usage */
+/* ----- */
+SUBSIDIARY_TRANSACTION_DELETE *
+	subsidiary_transaction_delete_new(
+		char *preupdate_full_name,
+		char *preupdate_street_address,
+		char *preupdate_foreign_date_time,
+		PREUPDATE_CHANGE *preupdate_change_full_name,
+		PREUPDATE_CHANGE *preupdate_change_street_address,
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
+		boolean journal_list_match_boolean );
+
+/* Process */
+/* ------- */
+SUBSIDIARY_TRANSACTION_DELETE *
+	subsidiary_transaction_delete_calloc(
+		void );
 
 typedef struct
 {
@@ -31,15 +80,12 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_full_name_column,
 		const char *foreign_street_address_column,
 		const char *foreign_date_time_column,
-		char *transaction_date_time,
+		char *prior_transaction_date_time,
 		LIST *insert_journal_list,
-		char *insert_full_name,
-		char *insert_street_address,
-		char *foreign_date_time,
 		double foreign_amount,
 		char *transaction_memo,
-		boolean insert_boolean,
-		boolean delete_boolean,
+		SUBSIDIARY_TRANSACTION_INSERT *
+			subsidiary_transaction_insert,
 		SUBSIDIARY_TRANSACTION_DELETE *
 			subsidiary_transaction_delete );
 
@@ -47,16 +93,6 @@ SUBSIDIARY_TRANSACTION *
 /* ------- */
 SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc(
 		void );
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-TRANSACTION *subsidiary_transaction_delete_transaction(
-		char *delete_full_name,
-		char *delete_street_address,
-		char *delete_transaction_date_time );
 
 /* Usage */
 /* ----- */
@@ -71,7 +107,7 @@ char *subsidiary_transaction_update_template(
 		char *full_name,
 		char *street_address,
 		char *foreign_date_time,
-		char *transaction_date_time );
+		char *prior_transaction_date_time );
 
 /* Driver */
 /* ------ */
