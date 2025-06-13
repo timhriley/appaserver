@@ -218,7 +218,7 @@ char *sale_transaction_date_time(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		date_now_colon__hhmmss( date_utc_offset() ) );
+		date_now_colon_hhmmss( date_utc_offset() ) );
 
 	return transaction_date_time;
 }
