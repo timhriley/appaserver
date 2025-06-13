@@ -54,8 +54,7 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 		const char *appaserver_predelete_state,
 		char *state,
 		char *preupdate_datum,
-		char *postupdate_datum,
-		const char *preupdate_placeholder_name );
+		char *postupdate_datum );
 
 /* Usage */
 /* ----- */

@@ -39,21 +39,28 @@ PREUPDATE_CHANGE *preupdate_change_new(
 
 	preupdate_change = preupdate_change_calloc();
 
+	if ( string_strcmp(
+		preupdate_datum,
+		(char *)preupdate_placeholder_name ) == 0 )
+	{
+		preupdate_datum = postupdate_datum;
+	}
+
 	preupdate_change->state_evaluate =
 		preupdate_change_state_evaluate(
 			appaserver_insert_state,
 			appaserver_predelete_state,
 			state,
 			preupdate_datum,
-			postupdate_datum,
-			preupdate_placeholder_name );
+			postupdate_datum );
 
 	preupdate_change->no_change_boolean =
 		preupdate_change_no_change_boolean(
 			preupdate_change->state_evaluate );
 
-	if ( preupdate_change->no_change_boolean
-	||   preupdate_change->state_evaluate == from_something_to_null )
+	/* If preupdate_datum == placeholder_name */
+	/* -------------------------------------- */
+	if ( preupdate_change->state_evaluate == no_change_something )
 	{
 		preupdate_datum = postupdate_datum;
 	}
@@ -128,14 +135,15 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 		const char *appaserver_predelete_state,
 		char *state,
 		char *preupdate_datum,
-		char *postupdate_datum,
-		const char *preupdate_placeholder_name )
+		char *postupdate_datum )
 {
 	enum preupdate_change_state state_evaluate;
 
 	if ( !preupdate_datum
 	||   strcmp( preupdate_datum, "select" ) == 0 )
+	{
 		preupdate_datum = "";
+	}
 
 	if ( !postupdate_datum
 	||   strcmp( postupdate_datum, "/" ) == 0 )
@@ -159,14 +167,6 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 			state_evaluate = no_change_null;
 	}
 	else
-	if ( strcmp( preupdate_datum, preupdate_placeholder_name ) == 0 )
-	{
-		if ( *postupdate_datum )
-			state_evaluate = no_change_something;
-		else
-			state_evaluate = no_change_null;
-	}
-	else
 	if ( !*preupdate_datum && !*postupdate_datum )
 	{
 		state_evaluate = no_change_null;
@@ -180,6 +180,11 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 	if ( !*preupdate_datum )
 	{
 		state_evaluate = from_null_to_something;
+	}
+	else
+	if ( strcmp( preupdate_datum, postupdate_datum ) == 0 )
+	{
+		state_evaluate = no_change_something;
 	}
 	else
 	{

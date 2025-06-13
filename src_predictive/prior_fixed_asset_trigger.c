@@ -4,6 +4,14 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------	*/
 
+/* --------------------------------
+Has a 1:1 TRANSACTION
+1) Need preupdate_full_name
+2) Need preupdate_street_address
+3) Need preupdate_foreign_date_time
+4) Ignore the delete state
+----------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

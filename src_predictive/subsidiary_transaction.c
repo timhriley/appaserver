@@ -33,23 +33,6 @@ SUBSIDIARY_TRANSACTION *
 {
 	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 
-	if ( !foreign_amount || foreign_amount < 0.0 )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"invalid foreign_amount=%.2lf",
-			foreign_amount );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
 	subsidiary_transaction = subsidiary_transaction_calloc();
 
 	if ( subsidiary_transaction_delete )
@@ -67,7 +50,8 @@ SUBSIDIARY_TRANSACTION *
 					transaction_date_time );
 	}
 
-	if ( subsidiary_transaction_insert )
+	if ( foreign_amount > 0.0
+	&&   subsidiary_transaction_insert )
 	{
 		subsidiary_transaction->insert_transaction =
 			/* -------------- */
@@ -306,7 +290,9 @@ SUBSIDIARY_TRANSACTION_DELETE *
 			message );
 	}
 
-	if (	preupdate_change_foreign_date_time->no_change_boolean
+	if (	preupdate_change_full_name->no_change_boolean
+	&&  	preupdate_change_street_address->no_change_boolean
+	&&  	preupdate_change_foreign_date_time->no_change_boolean
 	&&	journal_list_match_boolean )
 	{
 		return NULL;
@@ -401,7 +387,9 @@ SUBSIDIARY_TRANSACTION_INSERT *
 			message );
 	}
 
-	if (	preupdate_change_foreign_date_time->no_change_boolean
+	if (	preupdate_change_full_name->no_change_boolean
+	&&  	preupdate_change_street_address->no_change_boolean
+	&&  	preupdate_change_foreign_date_time->no_change_boolean
 	&&	journal_list_match_boolean )
 	{
 		return NULL;

@@ -90,82 +90,70 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 			asset_name,
 			pipe_fetch /* input */ );
 
-	if ( !prior_fixed_asset->fixed_asset_cost )
+	if ( prior_fixed_asset->fixed_asset_cost
+	&&   prior_fixed_asset->asset_account )
 	{
-		char message[ 128 ];
+		if ( ! ( prior_fixed_asset->debit_account =
+				account_fetch(
+					prior_fixed_asset->asset_account,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ ) ) )
+		{
+			char message[ 128 ];
 
-		snprintf(
-			message,
-			sizeof ( message ),
-			"fixed_asset_cost is zero." );
+			snprintf(
+				message,
+				sizeof ( message ),
+				"account_fetch(%s) returned empty.",
+				prior_fixed_asset->asset_account );
 
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		prior_fixed_asset->account_equity_string =
+			/* ------------------------------------ */
+			/* Returns heap memory from static list */
+			/* ------------------------------------ */
+			account_equity_string(
+				ACCOUNT_EQUITY_KEY,
+				__FUNCTION__ );
+
+		if ( ! ( prior_fixed_asset->credit_account =
+				account_fetch(
+					prior_fixed_asset->
+						account_equity_string,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ ) ) )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"account_fetch(%s) returned empty.",
+				prior_fixed_asset->account_equity_string );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		prior_fixed_asset->journal_binary_list =
+			journal_binary_list(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				prior_fixed_asset->fixed_asset_cost
+					/* transaction_amount */,
+				prior_fixed_asset->debit_account,
+				prior_fixed_asset->credit_account );
 	}
-
-
-	if ( ! ( prior_fixed_asset->debit_account =
-			account_fetch(
-				prior_fixed_asset->asset_account,
-				1 /* fetch_subclassification */,
-				1 /* fetch_element */ ) ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"account_fetch(%s) returned empty.",
-			prior_fixed_asset->asset_account );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	prior_fixed_asset->account_equity_string =
-		/* ------------------------------------ */
-		/* Returns heap memory from static list */
-		/* ------------------------------------ */
-		account_equity_string(
-			ACCOUNT_EQUITY_KEY,
-			__FUNCTION__ );
-
-	if ( ! ( prior_fixed_asset->credit_account =
-			account_fetch(
-				prior_fixed_asset->account_equity_string,
-				1 /* fetch_subclassification */,
-				1 /* fetch_element */ ) ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"account_fetch(%s) returned empty.",
-			prior_fixed_asset->account_equity_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	prior_fixed_asset->journal_binary_list =
-		journal_binary_list(
-			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
-			(char *)0 /* transaction_date_time */,
-			prior_fixed_asset->fixed_asset_cost
-				/* transaction_amount */,
-			prior_fixed_asset->debit_account,
-			prior_fixed_asset->credit_account );
 
 	prior_fixed_asset->subsidiary_transaction_state =
 		/* -------------- */

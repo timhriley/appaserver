@@ -2450,24 +2450,9 @@ LIST *journal_transaction_list(
 {
 	LIST *list = {0};
 
-	if ( !full_name
-	||   !street_address )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( transaction_date_time )
+	if ( full_name
+	&&   street_address
+	&&   transaction_date_time )
 	{
 		list =
 			journal_system_list(
