@@ -314,18 +314,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 			multi_row_dictionary /* in/out */,
 		post_table_edit_input->
 			folder_attribute_append_isa_list );
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: multi_row_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( post_table_edit_input->dictionary_separate->multi_row_dictionary ) );
-msg( (char *)0, message );
-}
+
 	post_table_edit_input->appaserver_error_filename =
 		/* --------------------- */
 		/* Returns static memory */
