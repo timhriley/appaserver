@@ -52,7 +52,8 @@ PREUPDATE_CHANGE *preupdate_change_new(
 		preupdate_change_no_change_boolean(
 			preupdate_change->state_evaluate );
 
-	if ( preupdate_change->no_change_boolean )
+	if ( preupdate_change->no_change_boolean
+	||   preupdate_change->state_evaluate == from_something_to_null )
 	{
 		preupdate_datum = postupdate_datum;
 	}
@@ -142,19 +143,6 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 		postupdate_datum = "";
 	}
 
-	if ( strcmp( preupdate_datum, preupdate_placeholder_name ) == 0 )
-	{
-		if ( *postupdate_datum )
-			state_evaluate = no_change_something;
-		else
-			state_evaluate = no_change_null;
-	}
-	else
-	if ( !*preupdate_datum && !*postupdate_datum )
-	{
-		state_evaluate = no_change_null;
-	}
-	else
 	if ( strcmp( state, appaserver_insert_state ) == 0 )
 	{
 		if ( *postupdate_datum )
@@ -171,13 +159,32 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 			state_evaluate = no_change_null;
 	}
 	else
+	if ( strcmp( preupdate_datum, preupdate_placeholder_name ) == 0 )
+	{
+		if ( *postupdate_datum )
+			state_evaluate = no_change_something;
+		else
+			state_evaluate = no_change_null;
+	}
+	else
+	if ( !*preupdate_datum && !*postupdate_datum )
+	{
+		state_evaluate = no_change_null;
+	}
+	else
 	if ( !*postupdate_datum )
+	{
 		state_evaluate = from_something_to_null;
+	}
 	else
 	if ( !*preupdate_datum )
+	{
 		state_evaluate = from_null_to_something;
+	}
 	else
+	{
 		state_evaluate = from_something_to_something_else;
+	}
 
 	return state_evaluate;
 }

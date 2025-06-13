@@ -3,5 +3,5 @@
 #cd ../library
 #make
 #cd -
-make budget_report
+make prior_fixed_asset_trigger
 
