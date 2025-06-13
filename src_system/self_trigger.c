@@ -46,6 +46,13 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
+	if ( string_strcmp(
+		preupdate_credit_card_number,
+		"preupdate_credit_card_number" ) == 0 )
+	{
+		preupdate_credit_card_number = credit_card_number;
+	}
+
 	preupdate_change_state =
 		preupdate_change_state_evaluate(
 			APPASERVER_INSERT_STATE,
@@ -54,9 +61,7 @@ int main( int argc, char **argv )
 			preupdate_credit_card_number
 				/* preupdate_datum */,
 			credit_card_number
-				/* postupdate_datum */,
-			"preupdate_credit_card_number"
-				/* preupdate_placeholder_name */ );
+				/* postupdate_datum */ );
 
 	if ( preupdate_change_state == no_change_null
 	||   preupdate_change_state == no_change_something )

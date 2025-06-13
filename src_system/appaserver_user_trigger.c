@@ -45,14 +45,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
+	if ( string_strcmp(
+		preupdate_password,
+		"preupdate_password" ) == 0 )
+	{
+		preupdate_password = password;
+	}
+
 	preupdate_change_state =
 		preupdate_change_state_evaluate(
 			APPASERVER_INSERT_STATE,
 			APPASERVER_PREDELETE_STATE,
 			state,
 			preupdate_password /* preupdate_datum */,
-			password /* postupdate_datum */,
-			"preupdate_password" /* preupdate_placeholder_name */ );
+			password /* postupdate_datum */ );
 
 	if ( preupdate_change_state == no_change_null
 	||   preupdate_change_state == no_change_something
