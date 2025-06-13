@@ -251,7 +251,8 @@ boolean attribute_is_current_date_time( char *datatype_name )
 
 boolean attribute_is_date_time( char *datatype_name )
 {
-	if (  string_strcmp( datatype_name, "date_time" ) == 0 )
+	if (  string_strcmp( datatype_name, "date_time" ) == 0
+	||    attribute_is_current_date_time( datatype_name ) )
 	{
 		return 1;
 	}
@@ -786,6 +787,7 @@ DICTIONARY *attribute_query_dictionary(
 {
 	DICTIONARY *query_dictionary = dictionary_small();
 	char *attribute_name;
+	char *sql_injection_escape;
 
 	if ( list_length( attribute_name_list ) !=
 	     list_length( attribute_data_list ) )
@@ -821,10 +823,18 @@ DICTIONARY *attribute_query_dictionary(
 	do {
 		attribute_name = list_get( attribute_name_list );
 
+		sql_injection_escape =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_sql_injection_escape(
+				SECURITY_ESCAPE_CHARACTER_STRING,
+				list_get( attribute_data_list ) );
+
 		dictionary_set(
 			query_dictionary,
 			attribute_name,
-			list_get( attribute_data_list ) );
+			sql_injection_escape );
 
 		dictionary_set(
 			query_dictionary,

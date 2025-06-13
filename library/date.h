@@ -638,7 +638,7 @@ char *date_colon_now_time(
 
 /* Returns heap memory */
 /* ------------------- */
-char *date_now_colon__hhmmss(
+char *date_now_colon_hhmmss(
 		int utc_offset );
 
 void date_place_colon_in_time(
@@ -895,5 +895,14 @@ boolean date_year_leap_boolean(
 boolean date_greater_year_boolean(
 		char *early_yyyy_mm_dd_string,
 		char *late_yyyy_mm_dd_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *date_set_now_hhmmss(
+		char *date_string,
+		int utc_offset );
 
 #endif

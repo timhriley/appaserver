@@ -1866,34 +1866,13 @@ char *date_now_hh_colon_mm( int utc_offset )
 	return strdup( buffer );
 }
 
-char *date_now_colon_hhmmss( int utc_offset )
+char *date_now_hh_colon_mm_colon_ss( int utc_offset )
 {
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	date_now_hh_colon_mm_colon_ss(
-		utc_offset );
-}
-
-char *date_now_hh_colon_mm_colon_ss( int utc_offset )
-{
-	char buffer[ 128 ];
-	DATE *date;
-
-	date = date_today_new( utc_offset );
-
-	snprintf(
-		buffer,
-		sizeof ( buffer ),
-		"%02d:%02d:%02d",
-		date->tm->tm_hour,
-		date->tm->tm_min,
-		date->tm->tm_sec );
-
-	date_free( date );
-
-	return strdup( buffer );
+	date_now_colon_hhmmss( utc_offset );
 }
 
 char *date_time_now19( int utc_offset )
@@ -1955,7 +1934,33 @@ char *date_now_hhmmss( int utc_offset )
 	return strdup( buffer );
 }
 
-char *date_now_colon__hhmmss( int utc_offset )
+char *date_set_now_hhmmss(
+		char *date_string,
+		int utc_offset )
+{
+	char now_hhmmss[ 128 ];
+	char *tmp;
+
+	if ( !date_string ) return NULL;
+
+	if ( string_character_boolean( date_string, ' ' ) ) return NULL;
+
+	snprintf(
+		now_hhmmss,
+		sizeof ( now_hhmmss ),
+		"%s %s",
+		date_string,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = date_now_colon_hhmmss( utc_offset ) ) );
+
+	free( tmp );
+
+	return strdup( now_hhmmss );
+}
+
+char *date_now_colon_hhmmss( int utc_offset )
 {
 	char buffer[ 128 ];
 	DATE *date;

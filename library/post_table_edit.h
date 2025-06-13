@@ -72,6 +72,10 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 POST_TABLE_EDIT_INPUT *post_table_edit_input_calloc(
 		void );
 
+void post_table_edit_input_dictionary_time_set(
+		DICTIONARY *multi_row_dictionary /* in/out */,
+		LIST *folder_attribute_append_isa_list );
+
 typedef struct
 {
 	SESSION_FOLDER *session_folder;
