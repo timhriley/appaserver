@@ -45,12 +45,15 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( string_strcmp(
-		preupdate_password,
-		"preupdate_password" ) == 0 )
-	{
-		preupdate_password = password;
-	}
+	preupdate_password =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		preupdate_change_preupdate_datum(
+				"preupdate_password"
+					/* preupdate_placeholder_name */,
+				preupdate_password,
+				password );
 
 	preupdate_change_state =
 		preupdate_change_state_evaluate(

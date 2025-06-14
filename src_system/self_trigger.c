@@ -46,12 +46,15 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( string_strcmp(
-		preupdate_credit_card_number,
-		"preupdate_credit_card_number" ) == 0 )
-	{
-		preupdate_credit_card_number = credit_card_number;
-	}
+	preupdate_credit_card_number =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		preupdate_change_preupdate_datum(
+				"preupdate_credit_card_number"
+					/* preupdate_placeholder_name */,
+				preupdate_credit_card_number,
+				credit_card_number );
 
 	preupdate_change_state =
 		preupdate_change_state_evaluate(

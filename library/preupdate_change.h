@@ -79,6 +79,16 @@ char *preupdate_change_new_datum(
 /* Usage */
 /* ----- */
 
+/* Returns either parameter */
+/* ------------------------ */
+char *preupdate_change_preupdate_datum(
+		const char *preupdate_placeholder_name,
+		char *preupdate_datum,
+		char *postupdate_datum );
+
+/* Usage */
+/* ----- */
+
 /* Returns program memory */
 /* ---------------------- */
 char *preupdate_change_state_display(

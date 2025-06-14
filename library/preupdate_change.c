@@ -39,12 +39,14 @@ PREUPDATE_CHANGE *preupdate_change_new(
 
 	preupdate_change = preupdate_change_calloc();
 
-	if ( string_strcmp(
-		preupdate_datum,
-		(char *)preupdate_placeholder_name ) == 0 )
-	{
-		preupdate_datum = postupdate_datum;
-	}
+	preupdate_datum =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		preupdate_change_preupdate_datum(
+				preupdate_placeholder_name,
+				preupdate_datum,
+				postupdate_datum );
 
 	preupdate_change->state_evaluate =
 		preupdate_change_state_evaluate(
@@ -256,5 +258,20 @@ char *preupdate_change_new_datum(
 	}
 
 	return datum;
+}
+
+char *preupdate_change_preupdate_datum(
+		const char *placeholder_name,
+		char *preupdate_datum,
+		char *postupdate_datum )
+{
+	if ( string_strcmp(
+		(char *)placeholder_name,
+		preupdate_datum ) == 0 )
+	{
+		preupdate_datum = postupdate_datum;
+	}
+
+	return preupdate_datum;
 }
 
