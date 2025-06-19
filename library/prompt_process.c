@@ -763,10 +763,16 @@ char *prompt_process_not_drillthru_title_string( char *process_or_set_name )
 		exit( 1 );
 	}
 
+	snprintf(
+		title_string,
+		sizeof ( title_string ),
+		"Process: %s",
+		process_or_set_name );
+
 	return
 	string_initial_capital(
 		title_string,
-		process_or_set_name );
+		title_string );
 }
 
 PROMPT_PROCESS_IS_DRILLTHRU *

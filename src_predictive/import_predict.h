@@ -16,7 +16,7 @@
 #include "export_table.h"
 #include "export_process.h"
 
-#define IMPORT_PREDICT_SQL			"home_edition.sql"
+/* #define IMPORT_PREDICT_SQL			"home_edition.sql" */
 #define IMPORT_PREDICT_SQLGZ			"home_edition.sql.gz"
 #define IMPORT_PREDICT_PROCESS_NAME		"import_predictbooks"
 

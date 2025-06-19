@@ -86,7 +86,7 @@ grep -vi duplicate						|
 html_paragraph_wrapper.e
 
 echo "<h2> `now.sh 19` </h2>"
-echo "<h3>Insert complete for $feeder_phrase</h3>"
+echo "<h3>Insert complete for: $feeder_phrase</h3>"
 
 echo "</body>"
 echo "</html>"
