@@ -94,6 +94,8 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 		exit( 1 );
 	}
 
+	/* If success and multiple submits */
+	/* ------------------------------- */
 	if ( post_signup_receive->post_signup->signup_password )
 	{
 		post_signup_receive->success_parameter =
@@ -121,6 +123,8 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 		return post_signup_receive;
 	}
 
+	/* If in progress and multiple submits */
+	/* ----------------------------------- */
 	if ( post_signup_receive->post->confirmation_received_date )
 	{
 		post_signup_receive->in_process_parameter =
@@ -182,11 +186,11 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 					post_receive->
 					appaserver_error_filename );
 
-	post_signup_receive->post_confirmation_update_statement =
+	post_signup_receive->post_confirmation_update_sql =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		post_confirmation_update_statement(
+		post_confirmation_update_sql(
 			POST_TABLE,
 			POST_CONFIRMATION_COLUMN,
 			post_signup_receive->post_receive->email_address,
@@ -214,14 +218,14 @@ POST_SIGNUP_RECEIVE *post_signup_receive_calloc( void )
 	return post_signup_receive;
 }
 
-char *post_signup_receive_password_statement(
+char *post_signup_receive_password_update_sql(
 		const char *post_signup_table,
 		const char *post_signup_password_column,
 		char *email_address,
 		char *timestamp_space,
 		char *post_signup_receive_password )
 {
-	static char password_statement[  256 ];
+	static char password_update_sql[  256 ];
 
 	if ( !email_address
 	||   !timestamp_space
@@ -236,8 +240,8 @@ char *post_signup_receive_password_statement(
 	}
 
 	snprintf(
-		password_statement,
-		sizeof ( password_statement ),
+		password_update_sql,
+		sizeof ( password_update_sql ),
 		"update %s set %s = '%s' where %s;",
 		post_signup_table,
 		post_signup_password_column,
@@ -249,7 +253,7 @@ char *post_signup_receive_password_statement(
 			email_address,
 			timestamp_space ) );
 
-	return password_statement;
+	return password_update_sql;
 }
 
 char *post_signup_receive_in_process_parameter( void )

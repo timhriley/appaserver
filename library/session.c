@@ -223,8 +223,11 @@ SESSION *session_parse(
 	piece( buffer, SQL_DELIMITER, string_fetch, 0 );
 	session->session_key = strdup( buffer );
 
-	piece( full_name, SQL_DELIMITER, string_fetch, 1 );
-	piece( street_address, SQL_DELIMITER, string_fetch, 2 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 1 );
+	if ( *buffer ) strcpy( full_name, buffer );
+
+	piece( buffer, SQL_DELIMITER, string_fetch, 2 );
+	if ( *buffer ) strcpy( street_address, buffer );
 
 	piece( buffer, SQL_DELIMITER, string_fetch, 3 );
 	if ( *buffer ) session->login_date = strdup( buffer );
@@ -248,8 +251,8 @@ SESSION *session_parse(
 	{
 		if ( ! ( session->appaserver_user =
 				appaserver_user_fetch(
-					full_name,
-					street_address,
+					full_name /* stack memory */,
+					street_address /* stack memory */,
 					0 /* not fetch_role_name_list */ ) ) )
 		{
 			return NULL;
@@ -1049,7 +1052,7 @@ char *session_http_user_agent(
 		const int session_user_agent_width,
 		char *environment_http_user_agent )
 {
-	char destination[ 81 ];
+	char destination[ 1024 ];
 
 	if ( !environment_http_user_agent )
 	{
@@ -1199,6 +1202,25 @@ SESSION *session_new(
 			"appaserver_user_login_fetch(%s) returned empty.",
 				login_name );
 
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !session->appaserver_user->full_name
+		||   !*session->appaserver_user->full_name
+		||   !session->appaserver_user->street_address
+		||   !*session->appaserver_user->street_address )
+		{
+			char message[ 128 ];
+	
+			snprintf(
+				message,
+				sizeof ( message ),
+				"appaserver_user is incomplete." );
+	
 			appaserver_error_stderr_exit(
 				__FILE__,
 				__FUNCTION__,

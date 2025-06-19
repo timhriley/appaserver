@@ -35,7 +35,6 @@ typedef struct
 	char *insert_default_system_string;
 	char *insert_entity_system_string;
 	char *insert_self_system_string;
-	char *upgrade_system_string;
 } APPLICATION_CLONE;
 
 /* Usage */
@@ -49,6 +48,7 @@ APPLICATION_CLONE *application_clone_new(
 		char *destination_application_name,
 		char *application_clone_sql_gz_filespecification,
 		char *application_title,
+		boolean application_clone_post_signup_boolean,
 		char *document_root,
 		char *data_directory,
 		char *download_directory,
@@ -65,11 +65,6 @@ APPLICATION_CLONE *application_clone_calloc(
 char *application_clone_gz_system_string(
 		char *destination_application_name,
 		char *application_clone_sql_gz_filespecification );
-
-/* Returns static memory */
-/* --------------------- */
-char *application_clone_upgrade_system_string(
-		char *destination_application_name );
 
 /* Usage */
 /* ----- */
@@ -162,7 +157,8 @@ char *application_clone_insert_entity_system_string(
 /* Safely returns */
 /* -------------- */
 APPASERVER_USER *application_clone_appaserver_user(
-		char *login_name );
+		char *login_name,
+		boolean application_clone_post_signup_boolean );
 
 /* Usage */
 /* ----- */
@@ -174,5 +170,10 @@ LIST *application_clone_zaptable_list(
 void application_clone_system(
 		boolean execute_boolean,
 		char *system_string );
+
+/* Usage */
+/* ----- */
+boolean application_clone_post_signup_boolean(
+		char *process_name );
 
 #endif

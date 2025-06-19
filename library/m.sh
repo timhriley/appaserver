@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make prior_fixed_asset_trigger
+	cd ../src_appaserver
+	make post_login
 fi
 

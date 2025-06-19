@@ -29,6 +29,7 @@ int main( int argc, char **argv )
 	char *application_title;
 	boolean execute_boolean;
 	APPASERVER_PARAMETER *appaserver_parameter;
+	boolean post_signup_boolean;
 	APPLICATION_CLONE *application_clone;
 
 	current_application_name = environ_exit_application_name( argv[ 0 ] );
@@ -72,15 +73,20 @@ int main( int argc, char **argv )
 			message );
 	}
 
+	post_signup_boolean =
+		application_clone_post_signup_boolean(
+			process_name );
+
 	/* If error then exit( 1 ) */
 	/* ----------------------- */
 	(void)session_fetch(
 		current_application_name,
 		session_key,
 		login_name,
-		1 /* appaserver_user_boolean */ );
+		!post_signup_boolean
+			/* appaserver_user_boolean */ );
 
-	if ( *process_name && strcmp( process_name, "process" ) != 0 )
+	if ( !post_signup_boolean )
 	{
 		document_process_output(
 			current_application_name,
@@ -130,6 +136,7 @@ int main( int argc, char **argv )
 			security_sql_injection_escape(
 				SECURITY_ESCAPE_CHARACTER_STRING,
 				application_title ),
+			post_signup_boolean,
 			appaserver_parameter->document_root,
 			appaserver_parameter->data_directory,
 			appaserver_parameter->upload_directory,
@@ -156,7 +163,7 @@ int main( int argc, char **argv )
 		"<h3>ERROR: The application name already exists.</h3>\n" );
 		}
 
-		if ( *process_name && strcmp( process_name, "process" ) != 0 )
+		if ( !post_signup_boolean )
 		{
 			/* ------------------------ */
 			/* Both </body> and </html> */
@@ -174,7 +181,7 @@ int main( int argc, char **argv )
 		printf(
 		"<h3>ERROR: The database name already exists.</h3>\n" );
 
-		if ( *process_name && strcmp( process_name, "process" ) != 0 )
+		if ( !post_signup_boolean )
 		{
 			/* ------------------------ */
 			/* Both </body> and </html> */
@@ -222,13 +229,9 @@ int main( int argc, char **argv )
 		execute_boolean,
 		application_clone->insert_self_system_string );
 
-	application_clone_system(
-		execute_boolean,
-		application_clone->upgrade_system_string );
-
 	if ( execute_boolean )
 	{
-		if ( *process_name && strcmp( process_name, "process" ) != 0 )
+		if ( !post_signup_boolean )
 		{
 			printf( "<h2>Process Complete</h2>\n" );
 
@@ -244,7 +247,7 @@ int main( int argc, char **argv )
 		}
 	}
 
-	if ( *process_name && strcmp( process_name, "process" ) != 0 )
+	if ( !post_signup_boolean )
 	{
 		/* ------------------------ */
 		/* Both </body> and </html> */
@@ -252,8 +255,7 @@ int main( int argc, char **argv )
 		document_close();
 	}
 
-	if ( execute_boolean
-	&&   *process_name && strcmp( process_name, "process" ) != 0 )
+	if ( execute_boolean )
 	{
 		process_execution_count_increment( process_name );
 	}

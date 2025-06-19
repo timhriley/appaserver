@@ -101,11 +101,11 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				post_receive->
 				appaserver_mailname );
 
-	post_contact_receive->post_confirmation_update_statement =
+	post_contact_receive->post_confirmation_update_sql =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		post_confirmation_update_statement(
+		post_confirmation_update_sql(
 			POST_TABLE,
 			POST_CONFIRMATION_COLUMN,
 			post_contact_receive->post_receive->email_address,

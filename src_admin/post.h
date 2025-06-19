@@ -134,7 +134,7 @@ char *post_mailx_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *post_confirmation_update_statement(
+char *post_confirmation_update_sql(
 		const char *post_table,
 		const char *post_confirmation_column,
 		char *email_address,

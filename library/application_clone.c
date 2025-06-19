@@ -21,6 +21,7 @@ APPLICATION_CLONE *application_clone_new(
 		char *destination_application_name,
 		char *application_clone_sql_gz_filespecification,
 		char *application_title,
+		boolean post_signup_boolean,
 		char *document_root,
 		char *data_directory,
 		char *upload_directory,
@@ -122,7 +123,8 @@ APPLICATION_CLONE *application_clone_new(
 		/* Safely returns */
 		/* -------------- */
 		application_clone_appaserver_user(
-			login_name );
+			login_name,
+			post_signup_boolean );
 
 	if ( !application_clone->appaserver_user->password )
 	{
@@ -220,13 +222,6 @@ APPLICATION_CLONE *application_clone_new(
 			application_clone->
 				appaserver_user->
 				street_address );
-
-	application_clone->upgrade_system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		application_clone_upgrade_system_string(
-			destination_application_name );
 
 	return application_clone;
 }
@@ -660,38 +655,9 @@ void application_clone_system(
 	}
 }
 
-char *application_clone_upgrade_system_string(
-		char *destination_application_name )
-{
-	static char system_string[ 128 ];
-
-	if ( !destination_application_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"destination_application_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"appaserver-upgrade %s 2>&1 | "
-		"html_paragraph_wrapper.e",
-		destination_application_name );
-
-	return system_string;
-}
-
-APPASERVER_USER *application_clone_appaserver_user( char *login_name )
+APPASERVER_USER *application_clone_appaserver_user(
+		char *login_name,
+		boolean post_signup_boolean )
 {
 	APPASERVER_USER *appaserver_user;
 
@@ -711,11 +677,30 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 			message );
 	}
 
-	if ( ( appaserver_user =
-		appaserver_user_login_fetch(
-			login_name,
-			0 /* not fetch_role_name_list */ ) ) )
+	if ( !post_signup_boolean )
 	{
+		appaserver_user =
+			appaserver_user_login_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */ );
+
+		if ( !appaserver_user )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+				login_name );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		return appaserver_user;
 	}
 
@@ -738,5 +723,16 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 	appaserver_user->user_date_format = "american";
 
 	return appaserver_user;
+}
+
+boolean application_clone_post_signup_boolean( char *process_name )
+{
+	if ( process_name
+	&&   strcmp( process_name, "process" ) == 0 )
+	{
+		return 1;
+	}
+
+	return 0;
 }
 

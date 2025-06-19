@@ -27,12 +27,12 @@ typedef struct
 	POST_LOGIN_DOCUMENT *post_login_document;
 	SESSION *session;
 	char *execute_system_string_create_application;
-	char *post_confirmation_update_statement;
+	char *post_confirmation_update_sql;
 	/* -------------- */
 	/* Set externally */
 	/* -------------- */
 	char *password;
-	char *password_statement;
+	char *password_update_sql;
 } POST_SIGNUP_RECEIVE;
 
 /* Usage */
@@ -86,7 +86,7 @@ char *post_signup_receive_in_process_parameter(
 
 /* Returns static memory */
 /* --------------------- */
-char *post_signup_receive_password_statement(
+char *post_signup_receive_password_update_sql(
 		const char *post_signup_table,
 		const char *post_signup_password_column,
 		char *email_address,

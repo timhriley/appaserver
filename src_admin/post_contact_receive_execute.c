@@ -48,7 +48,7 @@ int main( int argc, char **argv )
 					appaserver_error_filename,
 				(LIST *)0 /* sql_list */,
 				post_contact_receive->
-					post_confirmation_update_statement );
+					post_confirmation_update_sql );
 		}
 
 		if ( system(

@@ -25,7 +25,7 @@ typedef struct
 	POST_CONTACT *post_contact;
 	char *upload_filespecification;
 	char *mailx_system_string;
-	char *post_confirmation_update_statement;
+	char *post_confirmation_update_sql;
 	char *display_system_string;
 } POST_CONTACT_RECEIVE;
 

@@ -44,6 +44,8 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		char *login_name,
 		boolean fetch_role_name_list )
 {
+	char *where;
+	char *system_string;
 	char *input;
 
 	if ( !login_name )
@@ -62,23 +64,29 @@ APPASERVER_USER *appaserver_user_login_fetch(
 			message );
 	}
 
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_user_login_where(
+			APPASERVER_USER_LOGIN_NAME,
+			login_name );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			APPASERVER_USER_SELECT,
+			APPASERVER_USER_TABLE,
+			where );
+
 	input =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		string_pipe_input(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			appaserver_system_string(
-				APPASERVER_USER_SELECT,
-				APPASERVER_USER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				appaserver_user_login_where(
-					APPASERVER_USER_LOGIN_NAME,
-					login_name ) ) );
+			system_string );
 
 	if ( !input )
 	{
@@ -96,6 +104,8 @@ APPASERVER_USER *appaserver_user_login_fetch(
 			__LINE__,
 			message );
 	}
+
+	free( system_string );
 
 	return
 	appaserver_user_parse(

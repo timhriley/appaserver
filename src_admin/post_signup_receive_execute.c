@@ -40,7 +40,7 @@ int main( int argc, char **argv )
 				appaserver_error_filename,
 			(LIST *)0 /* sql_list */,
 			post_signup_receive->
-				post_confirmation_update_statement );
+				post_confirmation_update_sql );
 
 		session_insert(
 			post_signup_receive->
@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 			post_signup_receive->
 				session->
 				insert_system_string );
-	
+
 		fetch =
 		   spool_fetch(
 			post_signup_receive->
@@ -90,11 +90,11 @@ int main( int argc, char **argv )
 			post_signup_receive_success_parameter(
 				post_signup_receive->password );
 
-		post_signup_receive->password_statement =
+		post_signup_receive->password_update_sql =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			post_signup_receive_password_statement(
+			post_signup_receive_password_update_sql(
 				POST_SIGNUP_TABLE,
 				POST_SIGNUP_PASSWORD_COLUMN,
 				post_signup_receive->
@@ -111,7 +111,7 @@ int main( int argc, char **argv )
 				post_receive->
 				appaserver_error_filename,
 			(LIST *)0 /* sql_list */,
-			post_signup_receive->password_statement );
+			post_signup_receive->password_update_sql );
 
 		post_signup_receive->post_login_document =
 			post_login_document_new(

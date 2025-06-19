@@ -547,13 +547,13 @@ char *post_receive_timestamp_spaceless( char *timestamp_space )
 		'_' /* replace_character */ );
 }
 
-char *post_confirmation_update_statement(
+char *post_confirmation_update_sql(
 		const char *post_table,
 		const char *post_confirmation_column,
 		char *email_address,
 		char *timestamp_space )
 {
-	static char confirmation_update_statement[ 256 ];
+	static char confirmation_update_sql[ 256 ];
 
 	if ( !email_address
 	||   !timestamp_space )
@@ -567,8 +567,8 @@ char *post_confirmation_update_statement(
 	}
 
 	snprintf(
-		confirmation_update_statement,
-		sizeof ( confirmation_update_statement ),
+		confirmation_update_sql,
+		sizeof ( confirmation_update_sql ),
 		"update %s set %s = '%s' where %s;",
 		post_table,
 		post_confirmation_column,
@@ -583,6 +583,6 @@ char *post_confirmation_update_statement(
 			email_address,
 			timestamp_space ) );
 
-	return confirmation_update_statement;
+	return confirmation_update_sql;
 }
 

@@ -115,6 +115,7 @@ int main( int argc, char **argv )
 			security_sql_injection_escape(
 				SECURITY_ESCAPE_CHARACTER_STRING,
 				application_title ),
+			0 /* not application_clone_post_signup_boolean */,
 			appaserver_parameter->document_root,
 			appaserver_parameter->data_directory,
 			appaserver_parameter->upload_directory,
