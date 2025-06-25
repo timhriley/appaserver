@@ -11,64 +11,100 @@
 #include "piece.h"
 
 void piece_commas_double(
-		int piece_offset,
-		int decimal_places );
+		char *argv_0,
+		char *argv_1,
+		int decimal_places,
+		char delimiter );
 
 int main( int argc, char **argv )
 {
-	int piece_offset;
+	char *argv_0;
+	char *argv_1;
 	int decimal_places;
+	char delimiter = '^';
 
-	if ( argc != 3 )
+	if ( argc < 3 )
 	{
-		fprintf( stderr,
-			 "Usage: %s piece_offset decimal_places\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+		"Usage: %s offset[,offset] decimal_places [delimiter]\n",
+			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	piece_offset = atoi( argv[ 1 ] );
-	decimal_places = atof( argv[ 2 ] );
+	argv_0 = argv[ 0 ];
+	argv_1 = argv[ 1 ];
+	decimal_places = atoi( argv[ 2 ] );
 
-	if ( !decimal_places ) decimal_places = 2;
+	if ( argc == 4 ) delimiter = *argv[ 3 ];
 
-	piece_commas_double( piece_offset, decimal_places );
+	piece_commas_double(
+		argv_0,
+		argv_1,
+		decimal_places,
+		delimiter );
 
 	return 0;
 }
 
 void piece_commas_double(
-		int piece_offset,
-		int decimal_places )
+		char *argv_0,
+		char *argv_1,
+		int decimal_places,
+		char delimiter )
 {
-	char buffer[ 1024 ];
+	char buffer[ 2048 ];
+	int line_number = 0;
 	char piece_buffer[ 128 ];
+	int i;
+	char offset_string[ 128 ];
+	int offset;
 
 	while( string_input( buffer, stdin, sizeof ( buffer ) ) )
 	{
-		if ( ! piece( piece_buffer, '^', buffer, piece_offset ) )
+		line_number++;
+
+		for(	i = 0;
+			piece( offset_string, ',', argv_1, i );
+			i++ )
 		{
-			fprintf( stderr, 
-				 "%s: cannot get piece: %d in (%s)\n",
-				 __FILE__,
-				 piece_offset,
-				 buffer );
+			offset = atoi( offset_string );
 
-			printf( "%s\n", buffer );
-			continue;
-		}
+			if ( offset < 0 )
+			{
+				fprintf( stderr,
+			 "ERROR in :%s: Offset (%d) is less than zero\n",
+			 		argv_0,
+			 		offset );
+				exit( 1 );
+			}
+	
+			if ( !piece(	piece_buffer,
+					delimiter,
+					buffer,
+					offset ) )
+			{
+				fprintf( stderr,
+"Warning %s for line=%d: There are less than %d delimiters (%c) in: (%s)\n",
+					argv_0,
+					line_number,
+				 	offset,
+					delimiter,
+				 	buffer );
+				continue;
+			}
 
-		printf( "%s\n",
 			piece_replace(
 				buffer,
-				'^',
+				delimiter,
 				/* ----------------------*/
 				/* Returns static memory */
 				/* ----------------------*/
 				string_commas_double(
-					atof( piece_buffer ),
-					decimal_places /* decima_count */ ),
-				piece_offset ) );
+					string_atof( piece_buffer ),
+					decimal_places /* decimal_count */ ),
+				offset );
+		}
+		printf( "%s\n", buffer );
 	}
 }
 

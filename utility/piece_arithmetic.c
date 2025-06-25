@@ -1,5 +1,8 @@
-/* utility/piece_arithmetic.c */
-/* -------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/piece_arithmetic.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
