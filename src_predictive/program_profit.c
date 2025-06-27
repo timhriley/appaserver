@@ -276,7 +276,7 @@ void program_profit_aggregate_account_html_table(
 	char buffer[ 128 ];
 
 	heading_list = list_new();
-	list_append_pointer( heading_list, "Account" );
+	list_append_pointer( heading_list, STATEMENT_ACCOUNT_HEADING );
 	list_append_pointer( heading_list, "Amount" );
 
 	html_table = new_html_table( title, sub_title );
@@ -409,7 +409,7 @@ void program_profit_html_table(	char *title,
 	char buffer[ 128 ];
 
 	heading_list = list_new();
-	list_append_pointer( heading_list, "Account" );
+	list_append_pointer( heading_list, STATEMENT_ACCOUNT_HEADING );
 	list_append_pointer( heading_list, "Entity" );
 	list_append_pointer( heading_list, "Date/Time" );
 	list_append_pointer( heading_list, "Amount" );
@@ -774,7 +774,7 @@ void program_profit_aggregate_account_PDF(
 	latex_table->heading_list = list_new();
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Account";
+	table_heading->heading = STATEMENT_ACCOUNT_HEADING;
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( latex_table->heading_list, table_heading );
 
@@ -1008,7 +1008,7 @@ void program_profit_PDF(	char *application_name,
 	latex_table->heading_list = list_new();
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Account";
+	table_heading->heading = STATEMENT_ACCOUNT_HEADING;
 	table_heading->paragraph_size = "5.5cm";
 	list_append_pointer( latex_table->heading_list, table_heading );
 

@@ -231,7 +231,7 @@ PAYPAL_DATASET *paypal_dataset_parse(
 			paypal_spreadsheet_heading_data(
 				paypal_spreadsheet_column_list,
 				input,
-				"Balance" ) ) )
+				STATEMENT_BALANCE_HEADING ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: can't parse balance_AD.\n",

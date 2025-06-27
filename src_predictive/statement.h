@@ -21,6 +21,23 @@
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 #define STATEMENT_DAYS_FOR_EMPHASIS		35
 
+#define STATEMENT_ACCOUNT_HEADING		"Account"
+#define STATEMENT_ELEMENT_HEADING		"Element"
+#define STATEMENT_SUBCLASSIFICATION_HEADING	"Subclassification"
+#define STATEMENT_STANDARDIZED_HEADING		"Total%"
+#define STATEMENT_STANDARDIZED_ESCAPED_HEADING	"Total\\%"
+#define STATEMENT_BALANCE_HEADING		"Balance"
+#define STATEMENT_ANNUALIZED_HEADING		"Annualized"
+#define STATEMENT_BUDGET_HEADING		"Budget"
+#define STATEMENT_DIFFERENCE_HEADING		"Difference"
+#define STATEMENT_ROW_COUNT_HEADING		"RowCount"
+#define STATEMENT_COUNT_HEADING			"Count"
+#define STATEMENT_CONFIDENCE_HEADING		"Confidence"
+#define STATEMENT_DEBIT_HEADING			"Debit"
+#define STATEMENT_CREDIT_HEADING		"Credit"
+#define STATEMENT_PERCENT_OF_ASSET_HEADING	"percent_of_asset"
+#define STATEMENT_PERCENT_OF_INCOME_HEADING	"percent_of_income"
+
 #define STATEMENT_GREATER_YEAR_MESSAGE		\
 	"<h3>Warning: the date range exceeds a "\
 	"year. Consider executing:"		\

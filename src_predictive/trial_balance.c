@@ -1247,19 +1247,19 @@ LIST *trial_balance_subclass_display_html_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Subclassification",
+			STATEMENT_SUBCLASSIFICATION_HEADING,
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
@@ -1271,25 +1271,25 @@ LIST *trial_balance_subclass_display_html_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Debit",
+			STATEMENT_DEBIT_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Credit",
+			STATEMENT_CREDIT_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"percent_of_asset",
+			STATEMENT_PERCENT_OF_ASSET_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"percent_of_income",
+			STATEMENT_PERCENT_OF_INCOME_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -1698,13 +1698,13 @@ LIST *trial_balance_subclass_omit_html_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			0 /* not right_Justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
@@ -1716,25 +1716,25 @@ LIST *trial_balance_subclass_omit_html_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Debit",
+			STATEMENT_DEBIT_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Credit",
+			STATEMENT_CREDIT_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"percent_of_asset",
+			STATEMENT_PERCENT_OF_ASSET_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"percent_of_income",
+			STATEMENT_PERCENT_OF_INCOME_HEADING,
 			1 /* right_justify_boolean */ ) );
 
 	if ( list_length( statement_prior_year_list ) )

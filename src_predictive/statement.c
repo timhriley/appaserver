@@ -1888,7 +1888,7 @@ LIST *statement_subclass_display_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -1897,7 +1897,7 @@ LIST *statement_subclass_display_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Subclassification",
+			STATEMENT_SUBCLASSIFICATION_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -1906,7 +1906,7 @@ LIST *statement_subclass_display_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -1914,7 +1914,7 @@ LIST *statement_subclass_display_latex_list_column_list(
 
 	latex_column =
 		latex_column_new(
-			"Standardized",
+			STATEMENT_STANDARDIZED_ESCAPED_HEADING,
 			latex_column_text,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -2264,7 +2264,7 @@ LIST *statement_subclass_omit_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -2273,7 +2273,7 @@ LIST *statement_subclass_omit_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -2281,7 +2281,7 @@ LIST *statement_subclass_omit_latex_list_column_list(
 
 	latex_column =
 		latex_column_new(
-			"Standardized" /* heading_string */,
+			STATEMENT_STANDARDIZED_ESCAPED_HEADING,
 			latex_column_text,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -2947,19 +2947,19 @@ LIST *statement_subclass_omit_html_list_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			1 /* right_Justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Standardized",
+			STATEMENT_STANDARDIZED_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -3379,19 +3379,19 @@ LIST *statement_subclass_aggr_html_list_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Balance",
+			STATEMENT_BALANCE_HEADING,
 			1 /* right_Justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Standardized",
+			STATEMENT_STANDARDIZED_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -3521,25 +3521,25 @@ LIST *statement_subclass_display_html_list_column_list(
 	list_set(
 		column_list,
 		html_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			1 /* right_Justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Subclassification",
+			STATEMENT_SUBCLASSIFICATION_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			1 /* right_justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Standardized",
+			STATEMENT_STANDARDIZED_HEADING,
 			1 /* right_justified_boolean */ ) );;
 
 	if ( list_length( statement_prior_year_list ) )
@@ -4795,7 +4795,7 @@ LIST *statement_subclass_aggr_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Balance",
+			STATEMENT_BALANCE_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -4804,7 +4804,7 @@ LIST *statement_subclass_aggr_latex_list_column_list(
 	list_set(
 		column_list,
 		latex_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			latex_column_float,
 			2 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -4812,7 +4812,7 @@ LIST *statement_subclass_aggr_latex_list_column_list(
 
 	latex_column =
 		latex_column_new(
-			"Standardized",
+			STATEMENT_STANDARDIZED_ESCAPED_HEADING,
 			latex_column_text,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,

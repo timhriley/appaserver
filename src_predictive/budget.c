@@ -858,7 +858,7 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			latex_column_text /* latex_column_enum */,
 			0 /* right_Justified_flag */,
 			(char *)0 /* paragraph_size */,
@@ -867,7 +867,7 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			latex_column_text /* latex_column_enum */,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -876,7 +876,7 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Balance",
+			STATEMENT_BALANCE_HEADING,
 			latex_column_float /* latex_column_enum */,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -1096,19 +1096,19 @@ LIST *budget_html_column_list( void )
 	list_set(
 		column_list,
 		html_column_new(
-			"Element",
+			STATEMENT_ELEMENT_HEADING,
 			0 /* not right_Justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Account",
+			STATEMENT_ACCOUNT_HEADING,
 			0 /* not right_Justified_boolean */ ) );
 
 	list_set(
 		column_list,
 		html_column_new(
-			"Balance",
+			STATEMENT_BALANCE_HEADING,
 			1 /* right_Justified_boolean */ ) );
 
 	list_set(
