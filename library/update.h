@@ -154,6 +154,7 @@ UPDATE_CHANGED *update_changed_calloc(
 /* Usage */
 /* ----- */
 boolean update_changed_boolean(
+		const char *query_is_null,
 		char *file_datum,
 		char *post_datum );
 
@@ -163,6 +164,7 @@ boolean update_changed_boolean(
 /* Returns heap memory */
 /* ------------------- */
 char *update_changed_set_string(
+		const char *query_is_null,
 		char *attribute_name,
 		char *datatype_name,
 		char *post_data );

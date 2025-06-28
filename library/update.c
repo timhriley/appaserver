@@ -1396,6 +1396,7 @@ char *update_command_line(
 				update_attribute->post_datum ) );
 
 		if ( update_changed_boolean(
+			QUERY_IS_NULL,
 			update_attribute->
 				file_datum,
 			update_attribute->
@@ -1550,6 +1551,7 @@ LIST *update_one2m_changed_list(
 				/* Returns heap memory */
 				/* ------------------- */
 				update_changed_set_string(
+					QUERY_IS_NULL,
 					changed_foreign->
 						update_attribute->
 						folder_attribute->
@@ -2212,6 +2214,7 @@ UPDATE_CHANGED *update_changed_new(
 
 	changed_boolean =
 		update_changed_boolean(
+			QUERY_IS_NULL,
 			update_changed->
 				update_attribute->
 				file_datum,
@@ -2245,6 +2248,7 @@ UPDATE_CHANGED *update_changed_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		update_changed_set_string(
+			QUERY_IS_NULL,
 			update_changed->
 				update_attribute->
 				folder_attribute->
@@ -2279,6 +2283,7 @@ UPDATE_CHANGED *update_changed_calloc( void )
 }
 
 boolean update_changed_boolean(
+		const char *query_is_null,
 		char *file_datum,
 		char *post_datum )
 {
@@ -2300,6 +2305,12 @@ boolean update_changed_boolean(
 
 	if ( ( !file_datum || !*file_datum ) && !*post_datum ) return 0;
 
+	if (	!*file_datum
+	&&	strcmp( post_datum, query_is_null ) == 0 )
+	{
+		return 0;
+	}
+
 	unescape =
 		/* ---------------------------- */
 		/* Returns heap memory or datum */
@@ -2319,6 +2330,7 @@ boolean update_changed_boolean(
 }
 
 char *update_changed_set_string(
+		const char *query_is_null,
 		char *attribute_name,
 		char *datatype_name,
 		char *post_datum )
@@ -2341,7 +2353,7 @@ char *update_changed_set_string(
 
 	if ( !*post_datum
 	||   strcmp( post_datum, "/" ) == 0
-	||   strcmp( post_datum, QUERY_IS_NULL ) == 0 )
+	||   strcmp( post_datum, query_is_null ) == 0 )
 	{
 		sprintf(set_string,
 			"%s = null",
@@ -2482,6 +2494,7 @@ char *update_where_list_primary_data_string(
 		}
 
 		if ( update_changed_boolean(
+			QUERY_IS_NULL,
 			update_where->
 				update_attribute->
 				file_datum,
@@ -2657,6 +2670,7 @@ LIST *update_attribute_data_list( LIST *update_attribute_list )
 		}
 
 		if ( update_changed_boolean(
+			QUERY_IS_NULL,
 			update_attribute->file_datum,
 			update_attribute->post_datum ) )
 		{
@@ -3532,6 +3546,7 @@ char *update_sql_statement_string(
 			/* Returns heap memory */
 			/* ------------------- */
 			update_changed_set_string(
+				QUERY_IS_NULL,
 				update_column_name,
 				datatype_name,
 				list_get( update_data_list )
