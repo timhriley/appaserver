@@ -88,24 +88,27 @@ RELATION *relation_parse( char *input )
 	relation->omit_drilldown = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 6 );
-	relation->relation_type_isa = ( *field == 'y' );
+	relation->omit_update = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 7 );
-	relation->copy_common_columns = ( *field == 'y' );
+	relation->relation_type_isa = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 8 );
-	relation->automatic_preselection = ( *field == 'y' );
+	relation->copy_common_columns = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 9 );
-	relation->drop_down_multi_select = ( *field == 'y' );
+	relation->automatic_preselection = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 10 );
-	relation->join_one2m_each_row = ( *field == 'y' );
+	relation->drop_down_multi_select = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 11 );
+	relation->join_one2m_each_row = ( *field == 'y' );
+
+	piece( field, SQL_DELIMITER, input, 12 );
 	relation->ajax_fill_drop_down = ( *field == 'y' );
 
-	piece( hint_message, SQL_DELIMITER, input, 12 );
+	piece( hint_message, SQL_DELIMITER, input, 13 );
 	if ( *hint_message ) relation->hint_message = strdup( hint_message );
 
 	return relation;

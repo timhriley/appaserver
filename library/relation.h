@@ -28,6 +28,7 @@
 					"pair_one2m_order,"		\
 					"omit_drillthru_yn,"		\
 					"omit_drilldown_yn,"		\
+					"omit_update_yn,"		\
 					"relation_type_isa_yn,"		\
 					"copy_common_columns_yn,"	\
 					"automatic_preselection_yn,"	\
@@ -44,6 +45,7 @@ typedef struct
 	int pair_one2m_order;
 	boolean omit_drillthru;
 	boolean omit_drilldown;
+	boolean omit_update;
 	boolean relation_type_isa;
 	boolean copy_common_columns;
 	boolean automatic_preselection;

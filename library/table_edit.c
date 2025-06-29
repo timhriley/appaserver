@@ -184,6 +184,10 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 		relation_mto1_without_omit_drillthru_list(
 			table_edit_input->relation_mto1_list );
 
+	table_edit_input->relation_mto1_list =
+		relation_mto1_without_omit_update_list(
+			table_edit_input->relation_mto1_list );
+
 	table_edit_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
 			(LIST *)0 /* mto1_isa_list */,
