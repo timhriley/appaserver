@@ -320,6 +320,7 @@ LIST *folder_list(
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute )
 {
+	char *where_string;
 	FILE *input_pipe;
 	LIST *list;
 	char input[ STRING_64K ];
@@ -337,6 +338,20 @@ LIST *folder_list(
 			message );
 	}
 
+#ifdef FOLDER_OMIT_ISOLATE_ROLE
+	where_string = NULL;
+#else
+	where_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		folder_role_where_string(
+			ROLE_FOLDER_TABLE,
+			FOLDER_PRIMARY_KEY,
+			role_name
+			/* role_name_list_string */ );
+#endif
+
 	input_pipe =
 		appaserver_input_pipe(
 			/* ------------------- */
@@ -345,14 +360,7 @@ LIST *folder_list(
 			appaserver_system_string(
 				FOLDER_SELECT,
 				FOLDER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				folder_role_where_string(
-					ROLE_FOLDER_TABLE,
-					FOLDER_PRIMARY_KEY,
-					role_name
-					/* role_name_list_string */ ) ) );
+				where_string ) );
 
 	list = list_new();
 

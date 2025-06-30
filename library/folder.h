@@ -11,6 +11,8 @@
 #include "boolean.h"
 #include "process.h"
 
+#define FOLDER_OMIT_ISOLATE_ROLE 1
+
 #define FOLDER_SELECT		"table_name,"			\
 				"appaserver_form,"		\
 				"insert_rows_number,"		\

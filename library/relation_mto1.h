@@ -92,10 +92,16 @@ LIST *relation_mto1_folder_name_list(
 boolean relation_mto1_exists_multi_select(
 		LIST *relation_mto1_list );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 RELATION_MTO1 *relation_mto1_automatic_preselection(
 		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
+void relation_mto1_list_set_one_to_many_list(
+		char *role_name,
+		LIST *relation_mto1_list /* in/out */ );
 
 /* Usage */
 /* ----- */
@@ -115,7 +121,7 @@ LIST *relation_mto1_drillthru_list(
 /* Usage */
 /* ----- */
 LIST *relation_mto1_recursive_list(
-		LIST *relation_mto1_list,
+		LIST *relation_mto1_list /* Pass in NULL */,
 		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,

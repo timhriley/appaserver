@@ -985,3 +985,30 @@ LIST *relation_mto1_common_name_list(
 
 	return common_name_list;
 }
+
+void relation_mto1_list_set_one_to_many_list(
+		char *role_name,
+		LIST *relation_mto1_list )
+{
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		relation_mto1->relation_one2m_list =
+			relation_one2m_list(
+				/* ----------------------------------- */
+				/* Set to cache all folders for a role */
+				/* ----------------------------------- */
+				role_name,
+				relation_mto1->one_folder_name,
+				relation_mto1->
+					one_folder->
+					folder_attribute_primary_key_list
+					/* one_folder_primary_key_list */,
+					0 /* not include_isa_boolean */ );
+
+	} while ( list_next( relation_mto1_list ) );
+}
+

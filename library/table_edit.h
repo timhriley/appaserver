@@ -39,6 +39,7 @@ typedef struct
 	FOLDER *folder;
 	LIST *folder_attribute_non_primary_name_list;
 	LIST *relation_mto1_list;
+	LIST *relation_mto1_recursive_list;
 	LIST *relation_mto1_isa_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *folder_operation_list;

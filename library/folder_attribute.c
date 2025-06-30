@@ -110,6 +110,9 @@ LIST *folder_attribute_role_list(
 			message );
 	}
 
+#ifdef FOLDER_OMIT_ISOLATE_ROLE
+	where_string = NULL;
+#else
 	where_string =
 		/* --------------------- */
 		/* Returns static memory */
@@ -118,6 +121,7 @@ LIST *folder_attribute_role_list(
 			FOLDER_PRIMARY_KEY,
 			ROLE_FOLDER_TABLE,
 			role_name_list_string );
+#endif
 
 	system_string =
 		/* ------------------- */
@@ -230,8 +234,10 @@ char *folder_attribute_system_string(
 	char system_string[ 1024 ];
 	char *order_string;
 
-	/* Ironically, this sorts by primary_key_index then display_order */
-	/* -------------------------------------------------------------- */
+	/* ----------------------------------------------------------------- */
+	/* Mysteriously, this sorts by primary_key_index then display_order, */
+	/* which is what we want.					     */
+	/* ----------------------------------------------------------------- */
 	order_string =
 		"table_name,"
 		"ifnull(display_order,0),"
@@ -241,7 +247,7 @@ char *folder_attribute_system_string(
 		"select.sh \"%s\" %s \"%s\" \"%s\"",
 		folder_attribute_select,
 		folder_attribute_table,
-		where_string,
+		(where_string) ? where_string : "",
 		order_string );
 
 	return strdup( system_string );
