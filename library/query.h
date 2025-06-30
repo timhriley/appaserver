@@ -188,6 +188,10 @@ typedef struct
 {
 	char *input;
 	LIST *cell_list;
+
+	/* Set externally */
+	/* -------------- */
+	boolean viewonly_boolean;
 } QUERY_ROW;
 
 /* Usage */

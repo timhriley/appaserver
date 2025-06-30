@@ -1165,6 +1165,7 @@ void table_edit_output_row_list(
 				login_name,
 				non_owner_viewonly,
 				query_row->cell_list,
+				query_row->viewonly_boolean,
 				row_security_role_update_list );
 
 		apply_widget_container_list =
@@ -1257,6 +1258,7 @@ void table_edit_output_row_list_hidden(
 				login_name,
 				non_owner_viewonly,
 				query_row->cell_list,
+				query_row->viewonly_boolean,
 				row_security_role_update_list );
 
 		apply_widget_container_list =
@@ -1331,10 +1333,13 @@ boolean table_edit_row_viewonly_boolean(
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_row_cell_list,
+		boolean query_row_viewonly_boolean,
 		ROW_SECURITY_ROLE_UPDATE_LIST *
 			row_security_role_update_list )
 {
 	QUERY_CELL *query_cell;
+
+	if ( query_row_viewonly_boolean ) return 1;
 
 	if ( non_owner_viewonly )
 	{

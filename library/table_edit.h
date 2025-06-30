@@ -392,6 +392,7 @@ boolean table_edit_row_viewonly_boolean(
 		char *login_name,
 		boolean non_owner_viewonly,
 		LIST *query_row_cell_list,
+		boolean query_row_viewonly_boolean,
 		ROW_SECURITY_ROLE_UPDATE_LIST *
 			row_security_role_update_list );
 
