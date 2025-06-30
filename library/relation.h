@@ -161,6 +161,14 @@ char *relation_insert_statement(
 char *relation_list_display(
 		LIST *relation_list );
 
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_display(
+		RELATION *relation );
+
 typedef struct
 {
 	char *primary_key;

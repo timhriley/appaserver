@@ -61,7 +61,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 
 	row_security_role_update->relation_one2m_recursive_list =
 		relation_one2m_recursive_list(
-			(LIST *)0 /* one2m_list */,
+			(LIST *)0 /* one2m_list Pass in NULL */,
 			role_name,
 			row_security_role_update->folder_name
 				/* one_folder_name */,

@@ -14,6 +14,7 @@
 #include "foreign_attribute.h"
 #include "folder_attribute.h"
 #include "appaserver.h"
+#include "relation_mto1.h"
 #include "relation_one2m.h"
 
 LIST *relation_one2m_list(
@@ -485,5 +486,45 @@ char *relation_one2m_list_display( LIST *relation_one2m_list )
 	} while ( list_next( relation_one2m_list ) );
 
 	return strdup( display );
+}
+
+LIST *relation_one2m_omit_update_list(
+		LIST *relation_mto1_recursive_list )
+{
+	RELATION_MTO1 *relation_mto1;
+	RELATION_ONE2M *relation_one2m;
+	LIST *list = list_new();
+
+	if ( list_rewind( relation_mto1_recursive_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_recursive_list );
+
+		if ( list_rewind(
+			relation_mto1->
+				relation_one2m_list ) )
+		do {
+			relation_one2m =
+				list_get(
+					relation_mto1->
+						relation_one2m_list );
+
+			if ( relation_one2m->relation->omit_update )
+			{
+				list_set( list, relation_one2m );
+			}
+
+		} while ( list_next( 
+				relation_mto1->
+					relation_one2m_list ) );
+
+	} while ( list_next( relation_mto1_recursive_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 

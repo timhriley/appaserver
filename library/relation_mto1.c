@@ -758,7 +758,7 @@ char *relation_mto1_where_string(
 
 char *relation_mto1_list_display( LIST *relation_mto1_list )
 {
-	char display[ 2048 ];
+	char display[ STRING_64K ];
 	char *ptr = display;
 	RELATION_MTO1 *relation_mto1;
 
@@ -786,14 +786,15 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 			ptr,
 			"one_folder_name=%s, "
 			"related_attribute_name=%s, "
-			"ajax_fill_drop_down=%d, "
-			"copy_common_columns=%d, "
-			"folder_attribute_name_list=%s\n, "
+			"%s, "
+			"folder_attribute_name_list=%s,\n "
 			"relation_foreign_key_list=%s\n",
 			relation_mto1->one_folder_name,
 			relation_mto1->relation->related_attribute_name,
-			relation_mto1->relation->ajax_fill_drop_down,
-			relation_mto1->relation->copy_common_columns,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			relation_display( relation_mto1->relation ),
 			list_display(
 				relation_mto1->
 					one_folder->
@@ -995,6 +996,26 @@ void relation_mto1_list_set_one_to_many_list(
 	if ( list_rewind( relation_mto1_list ) )
 	do {
 		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( !relation_mto1->one_folder
+		||   !list_length(
+			relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list ) )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"relation_mto1->one_folder is empty or incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
 		relation_mto1->relation_one2m_list =
 			relation_one2m_list(

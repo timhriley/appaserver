@@ -687,6 +687,7 @@ char *relation_list_display( LIST *relation_list )
 	RELATION *relation;
 	char display[ 65536 ];
 	char *ptr = display;
+	char *tmp;
 
 	*ptr = '\0';
 
@@ -696,33 +697,72 @@ char *relation_list_display( LIST *relation_list )
 
 		if ( ptr != display ) ptr += sprintf( ptr, ";\n" );
 
-		ptr += sprintf( ptr,
-			"many_folder_name=%s, "
-			"one_folder_name=%s, "
-			"related_attribute_name=%s, "
-			"pair_one2m_order=%d, "
-			"omit_drillthru=%d, "
-			"omit_drilldown=%d, "
-			"relation_type_isa=%d, "
-			"copy_common_columns=%d, "
-			"automatic_preselection=%d, "
-			"drop_down_multi_select=%d, "
-			"join_one2m_each_row=%d, "
-			"ajax_fill_drop_down=%d",
-			relation->many_folder_name,
-			relation->one_folder_name,
-			relation->related_attribute_name,
-			relation->pair_one2m_order,
-			relation->omit_drillthru,
-			relation->omit_drilldown,
-			relation->relation_type_isa,
-			relation->copy_common_columns,
-			relation->automatic_preselection,
-			relation->drop_down_multi_select,
-			relation->join_one2m_each_row,
-			relation->ajax_fill_drop_down );
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			( tmp = relation_display( relation ) ) );
+
+		free( tmp );
 
 	} while ( list_next( relation_list ) );
+
+	return strdup( display );
+}
+
+char *relation_display( RELATION *relation )
+{
+	char display[ STRING_32K ];
+
+	if ( !relation )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"relation is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"\nRELATION:\n"
+		"many_folder_name=%s, "
+		"one_folder_name=%s, "
+		"related_attribute_name=%s, "
+		"pair_one2m_order=%d, "
+		"omit_drillthru=%d, "
+		"omit_drilldown=%d, "
+		"omit_update=%d, "
+		"relation_type_isa=%d, "
+		"copy_common_columns=%d, "
+		"automatic_preselection=%d, "
+		"drop_down_multi_select=%d, "
+		"join_one2m_each_row=%d, "
+		"ajax_fill_drop_down=%d",
+		relation->many_folder_name,
+		relation->one_folder_name,
+		relation->related_attribute_name,
+		relation->pair_one2m_order,
+		relation->omit_drillthru,
+		relation->omit_drilldown,
+		relation->omit_update,
+		relation->relation_type_isa,
+		relation->copy_common_columns,
+		relation->automatic_preselection,
+		relation->drop_down_multi_select,
+		relation->join_one2m_each_row,
+		relation->ajax_fill_drop_down );
 
 	return strdup( display );
 }

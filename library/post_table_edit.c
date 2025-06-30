@@ -201,7 +201,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 
 		post_table_edit_input->relation_one2m_recursive_list =
 			relation_one2m_recursive_list(
-				(LIST *)0 /* one2m_list */,
+				(LIST *)0 /* one2m_list Pass in NULL */,
 				/* ----------------------------------- */
 				/* Set to cache all folders for a role */
 				/* ----------------------------------- */

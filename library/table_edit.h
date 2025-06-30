@@ -39,8 +39,9 @@ typedef struct
 	FOLDER *folder;
 	LIST *folder_attribute_non_primary_name_list;
 	LIST *relation_mto1_list;
-	LIST *relation_mto1_recursive_list;
 	LIST *relation_mto1_isa_list;
+	LIST *relation_mto1_recursive_list;
+	LIST *relation_one2m_omit_update_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *folder_operation_list;
 	char *table_edit_state;
@@ -83,6 +84,9 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 /* ------- */
 TABLE_EDIT_INPUT *table_edit_input_calloc(
 		void );
+
+boolean table_edit_input_omit_update_boolean(
+		LIST *relation_mto1_recursive_list );
 
 /* Returns heap memory or null */
 /* --------------------------- */

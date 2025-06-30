@@ -57,7 +57,7 @@ RELATION_ONE2M *relation_one2m_calloc(
 /* Usage */
 /* ----- */
 LIST *relation_one2m_recursive_list(
-		LIST *one2m_list,
+		LIST *one2m_list /* Pass in NULL */,
 		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );
@@ -114,6 +114,11 @@ char *relation_one2m_where_string(
 /* ------------------------------------- */
 char *relation_one2m_list_display(
 		LIST *relation_one2m_list );
+
+/* Usage */
+/* ----- */
+LIST *relation_one2m_omit_update_list(
+		LIST *relation_mto1_recursive_list );
 
 #endif
 

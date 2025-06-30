@@ -180,37 +180,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 				folder_attribute_primary_key_list
 				/* many_primary_key_list */ );
 
-	table_edit_input->relation_mto1_recursive_list =
-		relation_mto1_recursive_list(
-			(LIST *)0 /* relation_mto1_list pass in NULL */,
-			role_name,
-			folder_name /* many_folder_name */,
-			table_edit_input->
-				folder->
-				folder_attribute_primary_key_list,
-			0 /* not single_foreign_key_only */ );
-
-#ifdef NOT_DEFINED
-	relation_mto1_list_set_one_to_many_list(
-		role_name,
-		table_edit_input->
-			relation_mto1_recursive_list
-				/* in/out */ );
-
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: relation_mto1_recursive_list=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	relation_mto1_list_display(
-		table_edit_input->relation_mto1_recursive_list  ) );
-msg( (char *)0, message );
-}
-#endif
 	table_edit_input->relation_mto1_list =
 		relation_mto1_without_omit_drillthru_list(
 			table_edit_input->relation_mto1_list );
@@ -234,6 +203,43 @@ msg( (char *)0, message );
 				/* many_primary_key_list */,
 			0 /* not fetch_relation_one2m_list */,
 			1 /* fetch_relation_mto1_list */ );
+
+	table_edit_input->relation_mto1_recursive_list =
+		relation_mto1_recursive_list(
+			(LIST *)0 /* relation_mto1_list Pass in NULL */,
+			role_name,
+			folder_name /* many_folder_name */,
+			table_edit_input->
+				folder->
+				folder_attribute_primary_key_list,
+			0 /* not single_foreign_key_only */ );
+
+	relation_mto1_list_set_one_to_many_list(
+		role_name,
+		table_edit_input->
+			relation_mto1_recursive_list
+				/* in/out */ );
+
+	table_edit_input->relation_one2m_omit_update_list =
+		relation_one2m_omit_update_list(
+			table_edit_input->
+				relation_mto1_recursive_list );
+
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: relation_one2m_omit_update_list = %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	relation_one2m_list_display(
+		table_edit_input->relation_one2m_omit_update_list ) );
+msg( (char *)0, message );
+}
+*/
 
 	table_edit_input->folder_attribute_append_isa_list =
 		folder_attribute_append_isa_list(
