@@ -220,26 +220,25 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			relation_mto1_recursive_list
 				/* in/out */ );
 
+	table_edit_input->relation_one2m_list =
+		relation_one2m_list(
+			/* ----------------------------------- */
+			/* Set to cache all folders for a role */
+			/* ----------------------------------- */
+			role_name,
+			folder_name /* one_folder_name */,
+			table_edit_input->
+				folder->
+				folder_attribute_primary_key_list
+					/* one_folder_primary_key_list */,
+			0 /* not include_isa_boolean */ );
+
 	table_edit_input->relation_one2m_omit_update_list =
 		relation_one2m_omit_update_list(
 			table_edit_input->
-				relation_mto1_recursive_list );
-
-/*
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: relation_one2m_omit_update_list = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	relation_one2m_list_display(
-		table_edit_input->relation_one2m_omit_update_list ) );
-msg( (char *)0, message );
-}
-*/
+				relation_mto1_recursive_list,
+			table_edit_input->
+				relation_one2m_list );
 
 	table_edit_input->folder_attribute_append_isa_list =
 		folder_attribute_append_isa_list(
@@ -560,6 +559,24 @@ TABLE_EDIT *table_edit_new(
 				query_fetch->
 				row_list );
 
+	table_edit->query_row_list_set_viewonly_boolean =
+		query_row_list_set_viewonly_boolean(
+			table_edit->
+				query_table_edit->
+				query_fetch->
+				row_list /* in/out */,
+			table_edit->
+				table_edit_input->
+				relation_one2m_omit_update_list );
+
+	table_edit->non_owner_viewonly =
+		table_edit_non_owner_viewonly(
+			table_edit->
+				table_edit_input->
+				folder_row_level_restriction->
+				non_owner_viewonly,
+		table_edit->query_row_list_set_viewonly_boolean );
+
 	table_edit->row_security =
 		/* -------------- */
 		/* Safely returns */
@@ -583,10 +600,7 @@ TABLE_EDIT *table_edit_new(
 				table_edit_input->
 				folder->
 				post_change_javascript,
-			table_edit->
-				table_edit_input->
-				folder_row_level_restriction->
-				non_owner_viewonly,
+			table_edit->non_owner_viewonly,
 			table_edit->
 				table_edit_input->
 				dictionary_separate->
@@ -2214,5 +2228,20 @@ char *table_edit_document_notepad(
 	}
 
 	return NULL;
+}
+
+boolean table_edit_non_owner_viewonly(
+		boolean non_owner_viewonly,
+		boolean viewonly_boolean )
+{
+	if ( non_owner_viewonly
+	||   viewonly_boolean )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

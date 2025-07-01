@@ -6904,58 +6904,87 @@ LIST *query_cell_attribute_data_list(
 {
 	QUERY_CELL *query_cell;
 	char *attribute_name;
-	LIST *data_list;
+	LIST *data_list = list_new();
 
-	if ( !list_rewind( attribute_name_list ) ) return NULL;
-
-	data_list = list_new();
-
+	if ( list_rewind( attribute_name_list ) )
 	do {
 		attribute_name = list_get( attribute_name_list );
 
-		if ( ! ( query_cell =
+		if ( ( query_cell =
 				query_cell_seek(
 					attribute_name,
 					query_row_cell_list ) ) )
 		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"Warning: query_cell_seek(%s) returned empty.",
-				attribute_name );
-
-			fprintf(stderr,
-				"%s/%s()/%d: %s\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-
-			return (LIST *)0;
+			list_set( data_list, query_cell->select_datum );
 		}
-
-		list_set( data_list, query_cell->select_datum );
 
 	} while ( list_next( attribute_name_list ) );
 
+	if ( !list_length( data_list ) )
+	{
+		list_free( data_list );
+		data_list = NULL;
+
+	}
+
 	return data_list;
+}
+
+LIST *query_cell_attribute_list(
+		LIST *attribute_name_list,
+		LIST *query_row_cell_list )
+{
+	QUERY_CELL *query_cell;
+	QUERY_CELL *new_query_cell;
+	char *attribute_name;
+	LIST *list = list_new();
+
+	if ( list_rewind( attribute_name_list ) )
+	do {
+		attribute_name = list_get( attribute_name_list );
+
+		if ( ( query_cell =
+				query_cell_seek(
+					attribute_name,
+					query_row_cell_list ) ) )
+		{
+			new_query_cell =
+				query_cell_simple_new(
+					query_cell->attribute_name,
+					query_cell->select_datum );
+
+			list_set( list, new_query_cell );
+		}
+
+	} while ( list_next( attribute_name_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 
 LIST *query_cell_data_list( LIST *query_row_cell_list )
 {
 	QUERY_CELL *query_cell;
-	LIST *data_list;
+	LIST *data_list = list_new();
 
-	if ( !list_rewind( query_row_cell_list ) ) return NULL;
-
-	data_list = list_new();
-
+	if ( list_rewind( query_row_cell_list ) )
 	do {
 		query_cell = list_get( query_row_cell_list );
 
 		list_set( data_list, query_cell->select_datum );
 
 	} while ( list_next( query_row_cell_list ) );
+
+	if ( !list_length( data_list ) )
+	{
+		list_free( data_list );
+		data_list = NULL;
+	}
 
 	return data_list;
 }
@@ -8648,3 +8677,144 @@ char *query_row_display( QUERY_ROW *query_row )
 	return query_cell_list_display( query_row->cell_list );
 }
 
+boolean query_row_list_set_viewonly_boolean(
+		LIST *query_fetch_row_list,
+		LIST *relation_one2m_list )
+{
+	QUERY_ROW *query_row;
+	boolean viewonly_boolean = 0;
+
+	if ( list_rewind( query_fetch_row_list ) )
+	do {
+		query_row = list_get( query_fetch_row_list );
+
+		if ( query_row_set_viewonly_boolean(
+			query_row,
+			relation_one2m_list ) )
+		{
+			viewonly_boolean = 1;
+		}
+
+	} while ( list_next( query_fetch_row_list ) );
+
+	return viewonly_boolean;
+}
+
+boolean query_row_set_viewonly_boolean(
+		QUERY_ROW *query_row,
+		LIST *relation_one2m_list )
+{
+	RELATION_ONE2M *relation_one2m;
+	LIST *query_cell_list;
+	char *where_string;
+	char *system_string;
+	boolean viewonly_boolean = 0;
+
+	if ( !query_row )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"query_row is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( relation_one2m_list ) )
+	do {
+		relation_one2m =
+			list_get(
+				relation_one2m_list );
+
+		query_cell_list =
+			/* ------------------------------- */
+			/* Returns query_cell_list or null */
+			/* ------------------------------- */
+			query_cell_attribute_list(
+				relation_one2m->
+					one_folder_primary_key_list
+						/* attribute_name_list */,
+				query_row->cell_list );
+
+		if ( list_length( query_cell_list ) )
+		{
+			if ( query_cell_list_set_attribute_name(
+				relation_one2m->relation_foreign_key_list
+					/* attribute_name_list */,
+				query_cell_list /* in/out */ ) )
+			{
+				where_string =
+					/* --------------------------- */
+					/* Returns heap memory or null */
+					/* --------------------------- */
+					query_cell_where_string(
+						query_cell_list );
+
+				system_string =
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					appaserver_system_string(
+						"count(1)" /* select */,
+						/* --------------------- */
+						/* Returns static memory */
+						/* --------------------- */
+						appaserver_table_name(
+							relation_one2m->
+							many_folder_name ),
+						where_string );
+
+				query_row->viewonly_boolean =
+					(boolean)string_atoi(
+						string_pipe_fetch(
+							system_string ) );
+
+				if ( query_row->viewonly_boolean )
+					viewonly_boolean = 1;
+
+				free( where_string );
+				free( system_string );
+			}
+		}
+
+	} while ( list_next( relation_one2m_list ) );
+
+	return viewonly_boolean;
+}
+
+boolean query_cell_list_set_attribute_name(
+		LIST *attribute_name_list,
+		LIST *query_cell_list /* in/out */ )
+{
+	QUERY_CELL *query_cell;
+	boolean return_boolean = 0;
+
+	if (	list_length( attribute_name_list ) !=
+		list_length( query_cell_list ) )
+	{
+		return return_boolean;
+	}
+
+	list_rewind( attribute_name_list );
+
+	if ( list_rewind( query_cell_list ) )
+	do {
+		query_cell = list_get( query_cell_list );
+
+		query_cell->attribute_name =
+			(char *)list_get( attribute_name_list );
+
+		list_next( attribute_name_list );
+
+		return_boolean = 1;
+
+	} while ( list_next( query_cell_list ) );
+
+	return return_boolean;
+}

@@ -41,6 +41,7 @@ typedef struct
 	LIST *relation_mto1_list;
 	LIST *relation_mto1_isa_list;
 	LIST *relation_mto1_recursive_list;
+	LIST *relation_one2m_list;
 	LIST *relation_one2m_omit_update_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *folder_operation_list;
@@ -215,6 +216,8 @@ typedef struct
 	TABLE_EDIT_INPUT *table_edit_input;
 	QUERY_TABLE_EDIT *query_table_edit;
 	int query_row_list_length;
+	boolean query_row_list_set_viewonly_boolean;
+	boolean non_owner_viewonly;
 	ROW_SECURITY *row_security;
 	char *post_action_string;
 	LIST *heading_label_list;
@@ -256,6 +259,10 @@ TABLE_EDIT *table_edit_calloc(
 
 int table_edit_query_row_list_length(
 		LIST *query_fetch_row_list );
+
+boolean table_edit_non_owner_viewonly(
+		boolean non_owner_viewonly,
+		boolean query_row_list_set_viewonly_boolean );
 
 /* Returns heap memory */
 /* ------------------- */

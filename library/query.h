@@ -184,6 +184,21 @@ LIST *query_cell_attribute_build_list(
 		LIST *key_list,
 		LIST *data_list );
 
+/* Usage */
+/* ----- */
+
+/* Returns query_cell_list or null */
+/* ------------------------------- */
+LIST *query_cell_attribute_list(
+		LIST *attribute_name_list,
+		LIST *query_row_cell_list );
+
+/* Usage */
+/* ----- */
+boolean query_cell_list_set_attribute_name(
+		LIST *attribute_name_list,
+		LIST *query_cell_list /* in/out */ );
+
 typedef struct
 {
 	char *input;
@@ -260,6 +275,18 @@ QUERY_ROW *query_row_seek(
 /* ------------------- */
 char *query_row_display(
 		QUERY_ROW *query_row );
+
+/* Usage */
+/* ----- */
+boolean query_row_list_set_viewonly_boolean(
+		LIST *query_fetch_row_list /* in/out */,
+		LIST *relation_one2m_list );
+
+/* Usage */
+/* ----- */
+boolean query_row_set_viewonly_boolean(
+		QUERY_ROW *query_row /* in/out */,
+		LIST *relation_one2m_list );
 
 typedef struct
 {

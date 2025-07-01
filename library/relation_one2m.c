@@ -489,7 +489,8 @@ char *relation_one2m_list_display( LIST *relation_one2m_list )
 }
 
 LIST *relation_one2m_omit_update_list(
-		LIST *relation_mto1_recursive_list )
+		LIST *relation_mto1_recursive_list,
+		LIST *relation_one2m_list )
 {
 	RELATION_MTO1 *relation_mto1;
 	RELATION_ONE2M *relation_one2m;
@@ -518,6 +519,17 @@ LIST *relation_one2m_omit_update_list(
 					relation_one2m_list ) );
 
 	} while ( list_next( relation_mto1_recursive_list ) );
+
+	if ( list_rewind( relation_one2m_list ) )
+	do {
+		relation_one2m = list_get( relation_one2m_list );
+
+		if ( relation_one2m->relation->omit_update )
+		{
+			list_set( list, relation_one2m );
+		}
+
+	} while ( list_next( relation_one2m_list ) );
 
 	if ( !list_length( list ) )
 	{
