@@ -7077,12 +7077,24 @@ QUERY_DROP_DOWN *query_drop_down_new(
 	QUERY_DROP_DOWN *query_drop_down;
 
 	if ( !application_name
-	||   !login_name
-	||   !one_folder_name )
+	||   !login_name )
 	{
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !one_folder_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "one_folder_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

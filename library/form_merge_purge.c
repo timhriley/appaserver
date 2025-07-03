@@ -32,7 +32,6 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 
 	if ( !application_name
 	||   !login_name
-	||   !folder_name
 	||   !list_length( folder_attribute_primary_list )
 	||   !merge_purge_folder_keep_prompt
 	||   !merge_purge_folder_delete_prompt
@@ -41,6 +40,19 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !folder_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "folder_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -60,9 +72,9 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 			(char *)0 /* session_key */,
 			login_name,
 			(char *)0 /* role_name */,
+			(char *)0 /* state */,
 			(char *)0 /* many_folder_name */,
 			folder_name /* one_folder_name */,
-			(char *)0 /* state */,
 			folder_attribute_primary_list
 				/* one_folder_attribute_list */,
 			(char *)0 /* populate_drop_down_process_name */,
