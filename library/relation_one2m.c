@@ -18,7 +18,6 @@
 #include "relation_one2m.h"
 
 LIST *relation_one2m_list(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		boolean include_isa_boolean )
@@ -58,7 +57,6 @@ LIST *relation_one2m_list(
 
 		relation_one2m =
 			relation_one2m_new(
-				role_name,
 				one_folder_name,
 				one_folder_primary_key_list,
 				relation );
@@ -89,7 +87,6 @@ RELATION_ONE2M *relation_one2m_calloc( void )
 }
 
 RELATION_ONE2M *relation_one2m_new(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		RELATION *relation )
@@ -127,10 +124,10 @@ RELATION_ONE2M *relation_one2m_new(
 		/* -------------- */
 		folder_fetch(
 			relation->many_folder_name,
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	relation_one2m->foreign_attribute_list =
 		foreign_attribute_list(
@@ -201,7 +198,6 @@ RELATION_ONE2M *relation_one2m_new(
 }
 
 LIST *relation_one2m_pair_list(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list )
 {
@@ -236,7 +232,6 @@ LIST *relation_one2m_pair_list(
 
 		relation_one2m =
 			relation_one2m_new(
-				role_name,
 				one_folder_name,
 				one_folder_primary_key_list,
 				relation );
@@ -252,7 +247,6 @@ LIST *relation_one2m_pair_list(
 
 LIST *relation_one2m_recursive_list(
 		LIST *one2m_list,
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list )
 {
@@ -284,7 +278,6 @@ LIST *relation_one2m_recursive_list(
 
 		relation_one2m =
 			relation_one2m_new(
-				role_name,
 				one_folder_name,
 				one_folder_primary_key_list,
 				relation );
@@ -298,7 +291,6 @@ LIST *relation_one2m_recursive_list(
 			one2m_list =
 				relation_one2m_recursive_list(
 					one2m_list,
-					role_name,
 					relation->many_folder_name
 					/* one_folder_name */,
 					relation_one2m->
@@ -385,10 +377,6 @@ LIST *relation_one2m_folder_name_list(
 }
 
 LIST *relation_one2m_join_list(
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *no_display_dictionary )
@@ -417,7 +405,6 @@ LIST *relation_one2m_join_list(
 
 		relation_one2m =
 			relation_one2m_new(
-				role_name,
 				one_folder_name,
 				one_folder_primary_key_list,
 				relation );

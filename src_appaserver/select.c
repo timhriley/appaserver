@@ -99,10 +99,10 @@ int main( int argc, char **argv )
 			/* -------------- */
 			folder_fetch(
 				folder_name,
-				(char *)0 /* role_name */,
 				(LIST *)0 /* exclude_lookup_name_list */,
 				1 /* fetch_folder_attribute_list */,
-				1 /* fetch_attribute */ );
+				1 /* fetch_attribute */,
+				0 /* not cache_boolean */ );
 
 		if ( !list_length( folder->folder_attribute_primary_key_list ) )
 		{
@@ -137,10 +137,10 @@ int main( int argc, char **argv )
 			/* -------------- */
 			folder_fetch(
 				folder_name,
-				(char *)0 /* role_name */,
 				(LIST *)0 /* exclude_lookup_name_list */,
 				1 /* fetch_folder_attribute_list */,
-				1 /* fetch_attribute */ );
+				1 /* fetch_attribute */,
+				0 /* not cache_boolean */ );
 
 		if ( !list_length( folder->folder_attribute_name_list ) )
 		{

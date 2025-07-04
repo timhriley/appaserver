@@ -335,13 +335,10 @@ POST_CHOOSE_ISA_INPUT *post_choose_isa_input_new(
 		/* -------------- */
 		folder_fetch(
 			one_folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	post_choose_isa_input->folder =
 		/* -------------- */
@@ -349,13 +346,10 @@ POST_CHOOSE_ISA_INPUT *post_choose_isa_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	post_choose_isa_input->post_dictionary =
 		/* -------------- */

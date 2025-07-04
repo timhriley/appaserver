@@ -785,10 +785,10 @@ PROCESS_GENERIC_VALUE *process_generic_value_fetch(
 
 	process_generic_value->folder_attribute_list =
 		folder_attribute_list(
-			(char *)0 /* role_name */,
 			value_folder_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	process_generic_value->folder_attribute_primary_key_list =
 		folder_attribute_primary_key_list(
@@ -1342,10 +1342,10 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 	process_generic_foreign_folder->folder =
 		folder_fetch(
 			foreign_folder_name,
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	if ( !process_generic_foreign_folder->folder )
 	{

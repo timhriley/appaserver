@@ -47,10 +47,6 @@ CREATE_TABLE *create_table_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* -------------------------------------- */
 			/* Sets folder_attribute_primary_list	  */
@@ -58,7 +54,8 @@ CREATE_TABLE *create_table_new(
 			/* Sets folder_attribute_name_list	  */
 			/* -------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	create_table->appaserver_table_name =
 		/* --------------------- */

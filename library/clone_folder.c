@@ -85,10 +85,10 @@ CLONE_FOLDER *clone_folder_new(
 
 	clone_folder->folder_attribute_list =
 		folder_attribute_list(
-			(char *)0 /* role_name */,
 			folder_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	clone_folder->folder_attribute_name_list =
 		folder_attribute_name_list(

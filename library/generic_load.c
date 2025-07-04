@@ -1094,16 +1094,14 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 	generic_load_insert->folder =
 		folder_fetch(
 			generic_load_insert->folder_name,
-			generic_load_insert->session_process->role_name,
 			generic_load_insert->
 				role_attribute_exclude_name_list,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
-
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	generic_load_insert->relation_mto1_list =
 		relation_mto1_list(
-			generic_load_insert->session_process->role_name,
 			generic_load_insert->folder_name
 				/* many_folder_name */,
 			generic_load_insert->
@@ -1358,10 +1356,10 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 
 	generic_load_folder->folder_attribute_list =
 		folder_attribute_list(
-			role_name,
 			folder_name,
 			generic_load_folder->role_attribute_exclude_name_list,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	generic_load_folder->folder_attribute_primary_key_list =
 		folder_attribute_primary_key_list(
@@ -1370,8 +1368,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 
 	generic_load_folder->relation_mto1_recursive_list =
 		relation_mto1_recursive_list(
-			(LIST *)0 /* recursive_list */,
-			role_name,
+			(LIST *)0 /* relation_mto1_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			generic_load_folder->

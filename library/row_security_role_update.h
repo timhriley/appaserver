@@ -19,6 +19,7 @@
 
 typedef struct
 {
+	char *role_name;
 	char *folder_name;
 	char *attribute_not_null;
 	LIST *relation_one2m_recursive_list;

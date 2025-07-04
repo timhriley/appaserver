@@ -19,18 +19,17 @@
 #include "folder_attribute.h"
 
 LIST *folder_attribute_list(
-		char *role_name,
 		char *folder_name,
 		LIST *role_attribute_exclude_name_list,
-		boolean fetch_attribute )
+		boolean fetch_attribute,
+		boolean cache_boolean )
 {
 	LIST *list;
 
-	if ( role_name )
+	if ( cache_boolean )
 	{
 		list =
-			folder_attribute_role_cache_list(
-				role_name,
+			folder_attribute_cache_list(
 				folder_name,
 				role_attribute_exclude_name_list,
 				fetch_attribute );
@@ -47,21 +46,19 @@ LIST *folder_attribute_list(
 	return list;
 }
 
-LIST *folder_attribute_role_cache_list(
-		char *role_name,
+LIST *folder_attribute_cache_list(
 		char *folder_name,
 		LIST *role_attribute_exclude_name_list,
 		boolean fetch_attribute )
 {
-	static LIST *role_cache_list = {0};
+	static LIST *cache_list = {0};
 	LIST *list;
 
-	if ( !role_name
-	||   !folder_name )
+	if ( !folder_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "folder_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -70,12 +67,10 @@ LIST *folder_attribute_role_cache_list(
 			message );
 	}
 
-	if ( !role_cache_list )
+	if ( !cache_list )
 	{
-		role_cache_list =
-			folder_attribute_role_list(
-				role_name
-					/* role_name_list_string */,
+		cache_list =
+			folder_attribute_get_list(
 				fetch_attribute );
 	}
 
@@ -83,45 +78,15 @@ LIST *folder_attribute_role_cache_list(
 		folder_attribute_seek_list(
 			folder_name,
 			role_attribute_exclude_name_list,
-			role_cache_list
+			cache_list
 				/* folder_attribute_list */ );
 
 	return list;
 }
 
-
-LIST *folder_attribute_role_list(
-		char *role_name_list_string,
-		boolean fetch_attribute )
+LIST *folder_attribute_get_list( boolean fetch_attribute )
 {
-	char *where_string;
 	char *system_string;
-
-	if ( !role_name_list_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "role_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-#ifdef FOLDER_OMIT_ISOLATE_ROLE
-	where_string = NULL;
-#else
-	where_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		folder_attribute_role_where_string(
-			FOLDER_PRIMARY_KEY,
-			ROLE_FOLDER_TABLE,
-			role_name_list_string );
-#endif
 
 	system_string =
 		/* ------------------- */
@@ -130,7 +95,7 @@ LIST *folder_attribute_role_list(
 		folder_attribute_system_string(
 			FOLDER_ATTRIBUTE_SELECT,
 			FOLDER_ATTRIBUTE_TABLE,
-			where_string );
+			(char *)0 /* where_string  */ );
 
 	return
 	folder_attribute_system_list(
@@ -243,7 +208,9 @@ char *folder_attribute_system_string(
 		"ifnull(display_order,0),"
 		"ifnull(primary_key_index,0)";
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof (system_string ),
 		"select.sh \"%s\" %s \"%s\" \"%s\"",
 		folder_attribute_select,
 		folder_attribute_table,
@@ -383,12 +350,9 @@ LIST *folder_attribute_primary_list(
 		LIST *folder_attribute_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	LIST *primary_list;
+	LIST *primary_list = list_new();
 
-	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
-
-	primary_list = list_new();
-
+	if ( list_rewind( folder_attribute_list ) )
 	do {
 		folder_attribute =
 			list_get(
@@ -410,6 +374,12 @@ LIST *folder_attribute_primary_list(
 		}
 
 	} while ( list_next( folder_attribute_list ) );
+
+	if ( !list_length( primary_list ) )
+	{
+		list_free( primary_list );
+		primary_list = NULL;
+	}
 
 	return primary_list;
 }
@@ -1811,49 +1781,6 @@ char *folder_attribute_exclude_where_string(
 		in_clause );
 
 	free( in_clause );
-
-	return where_string;
-}
-
-char *folder_attribute_role_where_string(
-		const char *folder_primary_key,
-		const char *role_folder_table,
-		char *role_name_list_string )
-{
-	static char where_string[ 256 ];
-	LIST *list;
-	char *in_clause;
-	char role_where_string[ 128 ];
-
-	if ( !role_name_list_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "role_name_list_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list = string_list( role_name_list_string );
-	in_clause = string_in_clause( list );
-
-	sprintf(role_where_string,
-		"role in (%s)",
-		in_clause );
-
-	sprintf(where_string,
-		"%s in "
-		"( select distinct %s "
-		"from %s "
-		"where %s )",
-		folder_primary_key,
-		folder_primary_key,
-		role_folder_table,
-		role_where_string );
 
 	return where_string;
 }

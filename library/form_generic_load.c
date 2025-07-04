@@ -196,7 +196,6 @@ FORM_GENERIC_LOAD_RELATION *form_generic_load_relation_new(
 
 	one_folder_relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			form_generic_load_relation->
 				relation_mto1->
 				one_folder_name

@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/src_predictive/generate_home_edition.sh
+# $APPASERVER_HOME/src_predictive/export_home_edition.sh
 # ---------------------------------------------------------------
 # No warranty and freely available software. Visit appaserver.org
 # ---------------------------------------------------------------

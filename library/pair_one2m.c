@@ -163,8 +163,7 @@ char *pair_one2m_prompt_insert_unfulfilled_list_string(
 	char list_string[ 1024 ];
 	char *ptr = list_string;
 
-	if ( !list_rewind( relation_one2m_pair_list ) ) return (char *)0;
-
+	if ( list_rewind( relation_one2m_pair_list ) )
 	do {
 		relation_one2m =
 			list_get(
@@ -194,7 +193,10 @@ char *pair_one2m_prompt_insert_unfulfilled_list_string(
 
 	} while ( list_next( relation_one2m_pair_list ) );
 
-	return strdup( list_string );
+	if ( ptr == list_string )
+		return NULL;
+	else
+		return strdup( list_string );
 }
 
 PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
@@ -278,7 +280,7 @@ LIST *pair_one2m_button_list(
 		LIST *relation_one2m_pair_list )
 {
 	RELATION_ONE2M *relation_one2m;
-	LIST *list;
+	LIST *list = list_new();
 
 	if ( !dictionary_separate_pair_prefix
 	||   !pair_one2m_many_folder_key
@@ -295,10 +297,7 @@ LIST *pair_one2m_button_list(
 			message );
 	}
 
-	if ( !list_rewind( relation_one2m_pair_list ) ) return (LIST *)0;
-
-	list = list_new();
-
+	if ( list_rewind( relation_one2m_pair_list ) )
 	do {
 		relation_one2m =
 			list_get(
@@ -313,6 +312,12 @@ LIST *pair_one2m_button_list(
 				relation_one2m->many_folder_name ) );
 
 	} while ( list_next( relation_one2m_pair_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }

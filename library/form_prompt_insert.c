@@ -1539,7 +1539,6 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 
 	form_prompt_insert_relation->relation_mto1_to_one_fetch_list =
 		relation_mto1_to_one_fetch_list(
-			role_name,
 			form_prompt_insert_relation->
 				relation_mto1->
 				one_folder_name,

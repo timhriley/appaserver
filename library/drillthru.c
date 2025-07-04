@@ -112,8 +112,7 @@ DRILLTHRU_START *drillthru_start_new(
 
 	drillthru_start->relation_mto1_drillthru_list =
 		relation_mto1_drillthru_list(
-			(LIST *)0 /* relation_mto1_list */,
-			role_name,
+			(LIST *)0 /* relation_mto1_list Pass in null */,
 			folder_name
 				/* base_folder_name */,
 			drillthru_start->
@@ -254,14 +253,13 @@ DRILLTHRU_DOCUMENT *drillthru_document_new(
 		/* -------------- */
 		folder_fetch(
 			drillthru_current_folder_name,
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	drillthru_document->relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			drillthru_current_folder_name,
 			drillthru_document->
 				folder->
@@ -607,8 +605,7 @@ DRILLTHRU_CONTINUE *drillthru_continue_new(
 
 	drillthru_continue->relation_mto1_drillthru_list =
 		relation_mto1_drillthru_list(
-			(LIST *)0 /* relation_mto1_list */,
-			role_name,
+			(LIST *)0 /* relation_mto1_list Pass in null */,
 			drillthru_continue->drillthru_status->base_folder_name,
 			drillthru_continue->
 				folder_attribute_fetch_primary_key_list,

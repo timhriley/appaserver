@@ -326,14 +326,6 @@ RECTIFICATION *rectification_calloc(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *rectification_role_list_string(
-		void );
-
-/* Usage */
-/* ----- */
 LIST *rectification_not_in_role_table_name_list(
 		const char *folder_table,
 		const char *role_folder_table,

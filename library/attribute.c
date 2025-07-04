@@ -903,16 +903,16 @@ void attribute_name_list_sort_stdout( LIST *attribute_name_list )
 
 void attribute_folder_name_list_stdout( char *folder_name )
 {
-	LIST *list =
+	LIST *name_list =
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
 			folder_attribute_list(
-				(char *)0 /* role_name */,
 				folder_name,
 				(LIST *)0 /* exclude_attribute... */,
-				0 /* not fetch_attribute */ ) );
+				0 /* not fetch_attribute */,
+				0 /* not cache_boolean */ ) );
 
-	list_display_stdout( list );
+	attribute_name_list_sort_stdout( name_list );
 }
 
 void attribute_name_list_stdout(

@@ -14,7 +14,7 @@
 #include "delete.h"
 #include "piece.h"
 #include "role.h"
-#include "role_folder.h"
+#include "folder.h"
 #include "orphan.h"
 
 LIST *orphan_insert_statement_list(
@@ -500,9 +500,8 @@ char *orphan_subquery_system_string( char *subquery_string )
 
 ORPHAN_FOLDER *orphan_folder_new(
 		char *application_name,
-		char *role_name,
-		char *folder_name,
-		boolean delete_boolean )
+		boolean delete_boolean,
+		char *folder_name )
 {
 	ORPHAN_FOLDER *orphan_folder;
 	RELATION_MTO1 *relation_mto1;
@@ -531,7 +530,6 @@ ORPHAN_FOLDER *orphan_folder_new(
 		/* Safely returns */
 		/* -------------- */
 		orphan_folder_input_new(
-			role_name,
 			folder_name );
 
 	orphan_folder->orphan_subquery_list = list_new();
@@ -735,149 +733,11 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_calloc( void )
 	return orphan_delete_statement;
 }
 
-LIST *orphan_role_list( char *folder_name )
-{
-	LIST *list = list_new();
-
-	if ( folder_name )
-	{
-		ORPHAN_ROLE *orphan_role;
-
-		orphan_role =
-			orphan_role_new(
-				(char *)0 /* role_name */ );
-
-		list_set(
-			orphan_role->folder_name_list,
-			folder_name );
-
-		list_set( list, orphan_role );
-	}
-	else
-	{
-		LIST *name_list;
-		char *role_name;
-		ORPHAN_ROLE *orphan_role;
-		LIST *fetch_name_list;
-		char *folder_name;
-
-		name_list =
-			role_name_list(
-				ROLE_TABLE );
-
-		if ( list_rewind( name_list ) )
-		do {
-			role_name = list_get( name_list );
-
-			orphan_role =
-				orphan_role_new(
-					role_name );
-
-			fetch_name_list =
-				role_folder_fetch_name_list(
-					ROLE_FOLDER_TABLE,
-					FOLDER_PRIMARY_KEY,
-					role_name );
-
-			if ( list_rewind( fetch_name_list ) )
-			do {
-				folder_name =
-					list_get(
-						fetch_name_list );
-
-				if ( !orphan_role_folder_name_boolean(
-					list /* orphan_role_list */,
-					folder_name ) )
-				{
-					list_set(
-						orphan_role->
-							folder_name_list,
-						folder_name );
-				}
-			} while ( list_next( fetch_name_list ) );
-
-			list_set( list, orphan_role );
-
-		} while ( list_next( name_list ) );
-
-	} /* if !folder_name */
-
-	return list;
-}
-
-ORPHAN_ROLE *orphan_role_new( char *role_name )
-{
-	ORPHAN_ROLE *orphan_role = orphan_role_calloc();
-
-	orphan_role->role_name = role_name;
-	orphan_role->folder_name_list = list_new();
-
-	return orphan_role;
-}
-
-ORPHAN_ROLE *orphan_role_calloc( void )
-{
-	ORPHAN_ROLE *orphan_role;
-
-	if ( ! ( orphan_role = calloc( 1, sizeof ( ORPHAN_ROLE ) ) ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "calloc() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return orphan_role;
-}
-
-boolean orphan_role_folder_name_boolean(
-		LIST *orphan_role_list,
-		char *folder_name )
-{
-	ORPHAN_ROLE *orphan_role;
-
-	if ( !folder_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "folder_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_rewind( orphan_role_list ) )
-	do {
-		orphan_role = list_get( orphan_role_list );
-
-		if ( list_string_exists(
-			folder_name,
-			orphan_role->folder_name_list) )
-		{
-			return 1;
-		}
-
-	} while ( list_next( orphan_role_list ) );
-
-	return 0;
-}
-
 ORPHAN *orphan_new(
 		char *application_name,
-		char *folder_name,
 		boolean delete_boolean )
 {
 	ORPHAN *orphan;
-	ORPHAN_ROLE *orphan_role;
-	ORPHAN_FOLDER *orphan_folder;
 
 	if ( !application_name )
 	{
@@ -894,48 +754,11 @@ ORPHAN *orphan_new(
 
 	orphan = orphan_calloc();
 
-	orphan->folder_name =
-		/* --------------------------- */
-		/* Returns folder_name or null */
-		/* --------------------------- */
-		orphan_folder_name(
-			folder_name );
 
-	/* Per role to engage caching. */
-	/* --------------------------- */
-	orphan->orphan_role_list =
-		orphan_role_list(
-			orphan->folder_name );
-
-	orphan->orphan_folder_list = list_new();
-
-	if ( list_rewind( orphan->orphan_role_list ) )
-	do {
-		orphan_role = list_get( orphan->orphan_role_list );
-
-		if ( list_rewind( orphan_role->folder_name_list ) )
-		do {
-			folder_name =
-				list_get(
-					orphan_role->folder_name_list );
-
-			orphan_folder =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				orphan_folder_new(
-					application_name,
-					orphan_role->role_name,
-					folder_name,
-					delete_boolean );
-
-			list_set(
-				orphan->orphan_folder_list,
-				orphan_folder );
-
-		} while ( list_next( orphan_role->folder_name_list ) );
-
-	} while ( list_next( orphan->orphan_role_list ) );
+	orphan->orphan_folder_list =
+		orphan_folder_list(
+			application_name,
+			delete_boolean );
 
 	return orphan;
 }
@@ -1276,19 +1099,6 @@ void orphan_insert_execute( LIST *orphan_insert_list )
 	pclose( output_pipe );
 }
 
-char *orphan_folder_name(
-		char *folder_name )
-{
-	if ( folder_name
-	&&   *folder_name
-	&&   strcmp( folder_name, "orphans_table" ) != 0 )
-	{
-		return folder_name;
-	}
-
-	return (char *)0;
-}
-
 boolean orphan_subquery_clean_boolean( LIST *orphan_subquery_list )
 {
 	ORPHAN_SUBQUERY *orphan_subquery;
@@ -1324,20 +1134,11 @@ boolean orphan_folder_clean_boolean( LIST *orphan_folder_list )
 	return 1;
 }
 
-void orphan_clean_output(
-		boolean stdout_boolean,
-		char *orphan_folder_name )
+void orphan_clean_output( boolean stdout_boolean )
 {
 	if ( !stdout_boolean )
 	{
-		char buffer[ 128 ];
-
-		printf(	"<h3>There are no orphans in %s.</h3>",
-			(orphan_folder_name)
-				? string_initial_capital(
-					buffer,
-					orphan_folder_name )
-				: "the database" );
+		printf(	"<h3>There are no orphans in the database.</h3>" );
 	}
 }
 
@@ -1388,7 +1189,6 @@ void orphan_delete_list_display(
 }
 
 ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
-		char *role_name,
 		char *folder_name )
 {
 	ORPHAN_FOLDER_INPUT *orphan_folder_input;
@@ -1417,14 +1217,13 @@ ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	orphan_folder_input->relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			orphan_folder_input->
@@ -1432,11 +1231,9 @@ ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
 				folder_attribute_primary_key_list
 				/* many_folder_primary_key_list */ );
 
-
 	orphan_folder_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0,
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name,
 			orphan_folder_input->
 				folder->
@@ -1472,3 +1269,38 @@ ORPHAN_FOLDER_INPUT *orphan_folder_input_calloc( void )
 	return orphan_folder_input;
 }
 
+LIST *orphan_folder_list(
+		char *application_name,
+		boolean delete_boolean )
+{
+	LIST *list = list_new();
+	LIST *name_list;
+	char *folder_name;
+	ORPHAN_FOLDER *orphan_folder;
+
+	name_list =
+		folder_fetch_name_list(
+			FOLDER_PRIMARY_KEY,
+			FOLDER_TABLE );
+
+	if ( list_rewind( name_list ) )
+	do {
+		folder_name = list_get( name_list );
+
+		orphan_folder =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			orphan_folder_new(
+				application_name,
+				delete_boolean,
+				folder_name );
+
+		list_set(
+			list,
+			orphan_folder );
+
+	} while ( list_next( name_list ) );
+
+	return list;
+}

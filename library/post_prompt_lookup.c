@@ -163,10 +163,6 @@ POST_PROMPT_LOOKUP *post_prompt_lookup_new(
 	{
 		post_prompt_lookup->relation_one2m_pair_list =
 			relation_one2m_pair_list(
-				/* ----------------------------------- */
-				/* Set to cache all folders for a role */
-				/* ----------------------------------- */
-				role_name,
 				folder_name
 					/* one_folder_name */,
 				post_prompt_lookup->
@@ -701,10 +697,6 @@ POST_PROMPT_LOOKUP_INPUT *post_prompt_lookup_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			post_prompt_lookup_input->
 				role_attribute_exclude_lookup_name_list,
 			/* -------------------------------------- */
@@ -713,7 +705,8 @@ POST_PROMPT_LOOKUP_INPUT *post_prompt_lookup_input_new(
 			/* Sets folder_attribute_name_list	  */
 			/* -------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	if ( !list_length(
 		post_prompt_lookup_input->folder->folder_attribute_list ) )
@@ -731,10 +724,6 @@ POST_PROMPT_LOOKUP_INPUT *post_prompt_lookup_input_new(
 
 	post_prompt_lookup_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			post_prompt_lookup_input->
@@ -744,11 +733,7 @@ POST_PROMPT_LOOKUP_INPUT *post_prompt_lookup_input_new(
 
 	post_prompt_lookup_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			post_prompt_lookup_input->

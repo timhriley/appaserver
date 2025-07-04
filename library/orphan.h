@@ -13,36 +13,6 @@
 
 typedef struct
 {
-	char *role_name;
-	LIST *folder_name_list;
-} ORPHAN_ROLE;
-
-/* Usage */
-/* ----- */
-LIST *orphan_role_list(
-		char *folder_name );
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-ORPHAN_ROLE *orphan_role_new(
-		char *role_name );
-
-/* Process */
-/* ------- */
-ORPHAN_ROLE *orphan_role_calloc(
-		void );
-
-/* Usage */
-/* ----- */
-boolean orphan_role_folder_name_boolean(
-		LIST *orphan_role_list,
-		char *folder_name );
-
-typedef struct
-{
 	RELATION_MTO1 *relation_mto1;
 	char *many_table_name;
 	char *one_table_name;
@@ -241,7 +211,6 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
-		char *role_name,
 		char *folder_name );
 
 /* Process */
@@ -260,14 +229,19 @@ typedef struct
 
 /* Usage */
 /* ----- */
+LIST *orphan_folder_list(
+		char *application_name,
+		boolean delete_boolean );
+
+/* Usage */
+/* ----- */
 
 /* Safely returns */
 /* -------------- */
 ORPHAN_FOLDER *orphan_folder_new(
 		char *application_name,
-		char *role_name,
-		char *folder_name,
-		boolean delete_boolean );
+		boolean delete_boolean,
+		char *folder_name );
 
 /* Process */
 /* ------- */
@@ -281,8 +255,6 @@ boolean orphan_folder_clean_boolean(
 
 typedef struct
 {
-	char *folder_name;
-	LIST *orphan_role_list;
 	LIST *orphan_folder_list;
 } ORPHAN;
 
@@ -293,7 +265,6 @@ typedef struct
 /* -------------- */
 ORPHAN *orphan_new(
 		char *application_name,
-		char *folder_name,
 		boolean delete_boolean );
 
 /* Process */
@@ -301,16 +272,10 @@ ORPHAN *orphan_new(
 ORPHAN *orphan_calloc(
 		void );
 
-/* Returns folder_name or null */
-/* --------------------------- */
-char *orphan_folder_name(
-		char *folder_name );
-
 /* Driver */
 /* ------ */
 void orphan_clean_output(
-		boolean stdout_boolean,
-		char *orphan_folder_name );
+		boolean stdout_boolean );
 
 #endif
 

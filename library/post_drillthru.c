@@ -87,10 +87,10 @@ POST_DRILLTHRU *post_drillthru_new(
 
 	post_drillthru->folder_attribute_list =
 		folder_attribute_list(
-			role_name,
 			post_drillthru->base_folder_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	post_drillthru->folder_attribute_date_name_list =
 		folder_attribute_date_name_list(

@@ -71,10 +71,6 @@ typedef struct
 /* -------------- */
 FOLDER *folder_fetch(
 		char *folder_name,
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
 		LIST *role_attribute_exclude_name_list,
 		/* -------------------------------------------- */
 		/* Sets folder_attribute_primary_list		*/
@@ -82,13 +78,13 @@ FOLDER *folder_fetch(
 		/* Sets folder_attribute_name_list		*/
 		/* -------------------------------------------- */
 		boolean fetch_folder_attribute_list,
-		boolean fetch_attribute );
+		boolean fetch_attribute,
+		boolean cache_boolean );
 
 /* Usage */
 /* ----- */
 FOLDER *folder_cache_fetch(
 		char *folder_name,
-		char *role_name,
 		LIST *role_attribute_exclude_lookup_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute );
@@ -119,10 +115,10 @@ char *folder_primary_where_string(
 /* Usage */
 /* ----- */
 FOLDER *folder_parse(
-		char *role_name,
 		LIST *exclude_attribute_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute,
+		boolean cache_boolean,
 		char *input );
 
 /* Usage */
@@ -138,7 +134,6 @@ FOLDER *folder_calloc(
 /* Usage */
 /* ----- */
 LIST *folder_list(
-		char *role_name,
 		LIST *exclude_attribute_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute );
@@ -201,7 +196,13 @@ char *folder_table_name(
 /* Usage */
 /* ----- */
 LIST *folder_system_name_list(
-		void );
+		const char *role_system );
+
+/* Usage */
+/* ----- */
+LIST *folder_fetch_name_list(
+		const char *folder_primary_key,
+		const char *folder_table );
 
 /* Usage */
 /* ----- */

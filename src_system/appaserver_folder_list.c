@@ -7,13 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "role.h"
 #include "folder.h"
 
 int main( void )
 {
 	LIST *system_name_list;
 
-	system_name_list = folder_system_name_list();
+	system_name_list =
+		folder_system_name_list(
+			ROLE_SYSTEM );
 
 	if ( list_rewind( system_name_list ) )
 	{

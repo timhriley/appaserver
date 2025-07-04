@@ -122,10 +122,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ---------------------------------------- */
-			/* Set to cache folders for the entire role */
-			/* ---------------------------------------- */
-			role_name,
 			table_edit_input->exclude_lookup_attribute_name_list,
 			/* -------------------------------------------- */
 			/* Sets folder_attribute_primary_list		*/
@@ -133,7 +129,8 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			/* Sets folder_attribute_name_list		*/
 			/* -------------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	if ( !list_length( table_edit_input->folder->folder_attribute_list )
 	||   !list_length(
@@ -169,10 +166,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 
 	table_edit_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			table_edit_input->
@@ -190,11 +183,7 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 
 	table_edit_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			table_edit_input->
@@ -206,8 +195,7 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 
 	table_edit_input->relation_mto1_recursive_list =
 		relation_mto1_recursive_list(
-			(LIST *)0 /* relation_mto1_list Pass in NULL */,
-			role_name,
+			(LIST *)0 /* relation_mto1_list Pass in null */,
 			folder_name /* many_folder_name */,
 			table_edit_input->
 				folder->
@@ -215,17 +203,12 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			0 /* not single_foreign_key_only */ );
 
 	relation_mto1_list_set_one_to_many_list(
-		role_name,
 		table_edit_input->
 			relation_mto1_recursive_list
 				/* in/out */ );
 
 	table_edit_input->relation_one2m_list =
 		relation_one2m_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name /* one_folder_name */,
 			table_edit_input->
 				folder->
@@ -325,10 +308,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 
 	table_edit_input->relation_one2m_join_list =
 		relation_one2m_join_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name,
 			table_edit_input->
 				folder->

@@ -559,7 +559,6 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 
 	row_security_relation->relation_mto1_to_one_fetch_list =
 		relation_mto1_to_one_fetch_list(
-			role_name,
 			row_security_relation->
 				relation_mto1->
 				one_folder_name,

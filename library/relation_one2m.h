@@ -33,10 +33,6 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *relation_one2m_list(
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		boolean include_isa_boolean );
@@ -44,7 +40,6 @@ LIST *relation_one2m_list(
 /* Usage */
 /* ----- */
 RELATION_ONE2M *relation_one2m_new(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		RELATION *relation );
@@ -58,7 +53,6 @@ RELATION_ONE2M *relation_one2m_calloc(
 /* ----- */
 LIST *relation_one2m_recursive_list(
 		LIST *one2m_list /* Pass in NULL */,
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );
 
@@ -77,7 +71,6 @@ boolean relation_one2m_foreign_key_none_primary(
 /* Usage */
 /* ----- */
 LIST *relation_one2m_pair_list(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );
 
@@ -89,10 +82,6 @@ LIST *relation_one2m_folder_name_list(
 /* Usage */
 /* ----- */
 LIST *relation_one2m_join_list(
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *no_display_dictionary );

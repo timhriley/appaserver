@@ -407,17 +407,13 @@ AJAX_SERVER *ajax_server_new(
 		/* -------------- */
 		folder_fetch(
 			form_folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	ajax_server->relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			form_folder_name /* many_folder_name */,
 			ajax_server->
 				form_folder->

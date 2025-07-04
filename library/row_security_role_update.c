@@ -38,8 +38,8 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc( void )
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
-			char *role_name,
-			char *input )
+		char *role_name,
+		char *input )
 {
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 	char folder_name[ 128 ];
@@ -48,6 +48,8 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	if ( !input || !*input ) return NULL;
 
 	row_security_role_update = row_security_role_update_calloc();
+
+	row_security_role_update->role_name = role_name;
 
 	/* See ROW_SECURITY_ROLE_UPDATE_SELECT */
 	/* ----------------------------------- */
@@ -62,7 +64,6 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	row_security_role_update->relation_one2m_recursive_list =
 		relation_one2m_recursive_list(
 			(LIST *)0 /* one2m_list Pass in NULL */,
-			role_name,
 			row_security_role_update->folder_name
 				/* one_folder_name */,
 			folder_attribute_fetch_primary_key_list(

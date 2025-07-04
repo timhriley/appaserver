@@ -320,7 +320,6 @@ char *add_column_relation_insert_system_string(
 
 	mto1_list =
 		relation_mto1_list(
-			(char *)0 /* role_name */,
 			folder_name /* many_folder_name */,
 			primary_key_list );
 

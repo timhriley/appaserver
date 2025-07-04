@@ -88,10 +88,10 @@ char *folder_primary_where_string(
 }
 
 FOLDER *folder_parse(
-		char *role_name,
 		LIST *role_attribute_exclude_lookup_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute,
+		boolean cache_boolean,
 		char *input )
 {
 	char field[ 128 ];
@@ -160,10 +160,10 @@ FOLDER *folder_parse(
 	{
 		folder->folder_attribute_list =
 			folder_attribute_list(
-				role_name,
 				folder->folder_name,
 				role_attribute_exclude_lookup_name_list,
-				fetch_attribute );
+				fetch_attribute,
+				cache_boolean );
 
 		if ( !list_length( folder->folder_attribute_list ) )
 		{
@@ -246,12 +246,12 @@ char *folder_table_name(
 
 FOLDER *folder_fetch(
 		char *folder_name,
-		char *role_name,
 		LIST *role_attribute_exclude_name_list,
 		boolean fetch_folder_attribute_list,
-		boolean fetch_attribute )
+		boolean fetch_attribute,
+		boolean cache_boolean )
 {
-	FOLDER *folder;
+	FOLDER *folder = {0};
 
 	if ( !folder_name )
 	{
@@ -266,27 +266,17 @@ FOLDER *folder_fetch(
 			message );
 	}
 
-	if ( role_name )
+	if ( cache_boolean )
 	{
 		folder =
 			folder_cache_fetch(
 				folder_name,
-				role_name,
 				role_attribute_exclude_name_list,
 				fetch_folder_attribute_list,
 				fetch_attribute );
-
-		if ( !folder )
-		{
-			folder =
-				folder_where_fetch(
-					folder_name,
-					role_attribute_exclude_name_list,
-					fetch_folder_attribute_list,
-					fetch_attribute );
-		}
 	}
-	else
+
+	if ( !folder )
 	{
 		folder =
 			folder_where_fetch(
@@ -315,42 +305,13 @@ FOLDER *folder_fetch(
 }
 
 LIST *folder_list(
-		char *role_name,
 		LIST *role_attribute_exclude_lookup_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute )
 {
-	char *where_string;
 	FILE *input_pipe;
 	LIST *list;
 	char input[ STRING_64K ];
-
-	if ( !role_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "role_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-#ifdef FOLDER_OMIT_ISOLATE_ROLE
-	where_string = NULL;
-#else
-	where_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		folder_role_where_string(
-			ROLE_FOLDER_TABLE,
-			FOLDER_PRIMARY_KEY,
-			role_name
-			/* role_name_list_string */ );
-#endif
 
 	input_pipe =
 		appaserver_input_pipe(
@@ -360,7 +321,7 @@ LIST *folder_list(
 			appaserver_system_string(
 				FOLDER_SELECT,
 				FOLDER_TABLE,
-				where_string ) );
+				(char *)0 /* where_string */ ) );
 
 	list = list_new();
 
@@ -369,10 +330,10 @@ LIST *folder_list(
 		list_set(
 			list,
 			folder_parse(
-				role_name,
 				role_attribute_exclude_lookup_name_list,
 				fetch_folder_attribute_list,
 				fetch_attribute,
+				1 /* cache_boolean */,
 				input ) );
 	}
 
@@ -525,19 +486,17 @@ FOLDER *folder_seek(
 
 FOLDER *folder_cache_fetch(
 		char *folder_name,
-		char *role_name,
 		LIST *role_attribute_exclude_lookup_name_list,
 		boolean fetch_folder_attribute_list,
 		boolean fetch_attribute )
 {
 	static LIST *list = {0};
 
-	if ( !folder_name
-	||   !role_name )
+	if ( !folder_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "folder_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -550,7 +509,6 @@ FOLDER *folder_cache_fetch(
 	{
 		list =
 			folder_list(
-				role_name,
 				role_attribute_exclude_lookup_name_list,
 				fetch_folder_attribute_list,
 				fetch_attribute );
@@ -606,10 +564,10 @@ FOLDER *folder_where_fetch(
 
 	return
 	folder_parse(
-		(char *)0 /* role_name */,
 		role_attribute_exclude_lookup_name_list,
 		fetch_folder_attribute_list,
 		fetch_attribute,
+		0 /* not cache_boolean */,
 		input );
 }
 
@@ -636,10 +594,10 @@ char *folder_appaserver_form( char *folder_name )
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	return folder->appaserver_form;
 }
@@ -667,10 +625,10 @@ char *folder_notepad( char *folder_name )
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	return folder->notepad;
 }
@@ -691,15 +649,15 @@ boolean folder_no_initial_capital( char *folder_name )
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	return folder->no_initial_capital;
 }
 
-LIST *folder_system_name_list( void )
+LIST *folder_system_name_list( const char *role_system )
 {
 	char *where_string;
 	char *system_string;
@@ -711,7 +669,7 @@ LIST *folder_system_name_list( void )
 		folder_role_where_string(
 			ROLE_FOLDER_TABLE,
 			FOLDER_PRIMARY_KEY,
-			ROLE_SYSTEM );
+			(char *)role_system );
 
 	system_string =
 		/* ------------------- */
@@ -722,7 +680,27 @@ LIST *folder_system_name_list( void )
 			FOLDER_TABLE,
 			where_string );
 
-	return list_pipe_fetch( system_string );
+	return
+	list_pipe_fetch( system_string );
+}
+
+LIST *folder_fetch_name_list(
+		const char *folder_primary_key,
+		const char *folder_table )
+{
+	char *system_string;
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)folder_primary_key /* select */,
+			(char *)folder_table,
+			(char *)0 /* where_string */  );
+
+	return
+	list_pipe_fetch( system_string );
 }
 
 char *folder_column_fetch(

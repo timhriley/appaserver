@@ -102,10 +102,10 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* not fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	post_choose_folder->fetch_relation_mto1_isa =
 		post_choose_folder_fetch_relation_mto1_isa(
@@ -116,8 +116,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	{
 		post_choose_folder->relation_mto1_isa_list =
 			relation_mto1_isa_list(
-				(LIST *)0,
-				role_name,
+				(LIST *)0 /* mto1_isa_list Pass in null */,
 				folder_name,
 				post_choose_folder->
 					folder->
@@ -128,7 +127,6 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 
 	post_choose_folder->relation_one2m_pair_list =
 		relation_one2m_pair_list(
-			role_name,
 			folder_name,
 			post_choose_folder->
 				folder->

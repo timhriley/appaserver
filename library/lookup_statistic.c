@@ -844,10 +844,6 @@ LOOKUP_STATISTIC_INPUT *lookup_statistic_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			lookup_statistic_input->
 				role_attribute_exclude_lookup_name_list,
 			/* -------------------------------------- */
@@ -856,14 +852,11 @@ LOOKUP_STATISTIC_INPUT *lookup_statistic_input_new(
 			/* Sets folder_attribute_name_list	  */
 			/* -------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	lookup_statistic_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			lookup_statistic_input->
@@ -873,11 +866,7 @@ LOOKUP_STATISTIC_INPUT *lookup_statistic_input_new(
 
 	lookup_statistic_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			lookup_statistic_input->

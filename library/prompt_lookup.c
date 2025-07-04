@@ -392,10 +392,6 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			prompt_lookup_input->exclude_attribute_name_list,
 			/* -------------------------------------------- */
 			/* Sets folder_attribute_primary_list		*/
@@ -403,14 +399,11 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 			/* Sets folder_attribute_name_list		*/
 			/* -------------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	prompt_lookup_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			prompt_lookup_input->
@@ -424,11 +417,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 
 	prompt_lookup_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			prompt_lookup_input->
@@ -526,10 +515,6 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 	{
 		prompt_lookup_input->relation_one2m_join_list =
 			relation_one2m_join_list(
-				/* ----------------------------------- */
-				/* Set to cache all folders for a role */
-				/* ----------------------------------- */
-				role_name,
 				folder_name
 					/* one_folder_name */,
 				prompt_lookup_input->
@@ -541,10 +526,6 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 
 	pair_list =
 		relation_one2m_pair_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name /* one_folder_name */,
 			prompt_lookup_input->
 				folder->

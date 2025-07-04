@@ -617,7 +617,6 @@ DRILLDOWN *drilldown_new(
 
 			drilldown->drilldown_input->relation_mto1_list =
 			    relation_mto1_to_one_fetch_list(
-				role_name,
 				relation_mto1->one_folder_name,
 				relation_mto1->
 					one_folder->
@@ -1327,10 +1326,6 @@ DRILLDOWN_INPUT *drilldown_input_new(
 		/* -------------- */
 		folder_fetch(
 			drilldown_base_folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* -------------------------------------------- */
 			/* Sets folder_attribute_primary_list		*/
@@ -1338,14 +1333,11 @@ DRILLDOWN_INPUT *drilldown_input_new(
 			/* Sets primary_key_list			*/
 			/* -------------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	drilldown_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			drilldown_base_folder_name
 				/* many_folder_name */,
 			drilldown_input->
@@ -1355,11 +1347,7 @@ DRILLDOWN_INPUT *drilldown_input_new(
 
 	drilldown_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			drilldown_base_folder_name
 				/* many_folder_name */,
 			drilldown_input->
@@ -1371,10 +1359,6 @@ DRILLDOWN_INPUT *drilldown_input_new(
 
 	drilldown_input->relation_one2m_list =
 		relation_one2m_list(
-			/* ---------------------------------------- */
-			/* Set to cache folders for the entire role */
-			/* ---------------------------------------- */
-			role_name,
 			drilldown_base_folder_name
 				/* one_folder_name */,
 			drilldown_input->

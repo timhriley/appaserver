@@ -362,10 +362,10 @@ SALE_FETCH *sale_fetch_new(
 		/* -------------- */
 		folder_fetch(
 			SALE_TABLE /* folder_name */,
-			(char *)0 /* role_name */,
 			(LIST *)0 /* role_attribute_exclude_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	sale_fetch->inventory_sale_boolean =
 		sale_fetch_inventory_sale_boolean(

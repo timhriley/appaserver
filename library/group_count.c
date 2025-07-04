@@ -1123,10 +1123,6 @@ GROUP_COUNT_INPUT *group_count_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			group_count_input->
 				role_attribute_exclude_lookup_name_list,
 			/* -------------------------------------- */
@@ -1135,14 +1131,11 @@ GROUP_COUNT_INPUT *group_count_input_new(
 			/* Sets folder_attribute_name_list	  */
 			/* -------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	group_count_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			group_count_input->
@@ -1152,11 +1145,7 @@ GROUP_COUNT_INPUT *group_count_input_new(
 
 	group_count_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			group_count_input->

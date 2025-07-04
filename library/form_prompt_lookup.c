@@ -914,7 +914,6 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 	{
 		mto1_to_one_list =
 			relation_mto1_list(
-				role_name,
 				form_prompt_lookup_relation->
 					relation_mto1->
 					one_folder_name
@@ -1642,7 +1641,6 @@ AJAX_CLIENT *form_prompt_lookup_relation_ajax_client(
 
 	relation_mto1_list =
 		relation_mto1_to_one_fetch_list(
-			role_name,
 			relation_mto1->one_folder_name,
 			relation_mto1->
 				one_folder->

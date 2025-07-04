@@ -33,17 +33,12 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *relation_mto1_list(
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list );
 
 /* Usage */
 /* ----- */
 RELATION_MTO1 *relation_mto1_new(
-		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		RELATION *relation );
@@ -100,7 +95,6 @@ RELATION_MTO1 *relation_mto1_automatic_preselection(
 /* Usage */
 /* ----- */
 void relation_mto1_list_set_one_to_many_list(
-		char *role_name,
 		LIST *relation_mto1_list /* in/out */ );
 
 /* Usage */
@@ -112,8 +106,7 @@ LIST *relation_mto1_foreign_key_less_equal_list(
 /* Usage */
 /* ----- */
 LIST *relation_mto1_drillthru_list(
-		LIST *relation_mto1_list,
-		char *role_name,
+		LIST *relation_mto1_list /* Pass in null */,
 		char *base_folder_name,
 		LIST *base_folder_primary_key_list,
 		LIST *fulfilled_folder_name_list );
@@ -121,8 +114,7 @@ LIST *relation_mto1_drillthru_list(
 /* Usage */
 /* ----- */
 LIST *relation_mto1_recursive_list(
-		LIST *relation_mto1_list /* Pass in NULL */,
-		char *role_name,
+		LIST *relation_mto1_list /* Pass in null */,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		boolean single_foreign_key_only );
@@ -130,11 +122,7 @@ LIST *relation_mto1_recursive_list(
 /* Usage */
 /* ----- */
 LIST *relation_mto1_isa_list(
-		LIST *mto1_list,
-		/* ----------------------------------- */
-		/* Set to cache all folders for a role */
-		/* ----------------------------------- */
-		char *role_name,
+		LIST *mto1_isa_list /* Pass in null */,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		boolean fetch_relation_one2m_list,
@@ -160,7 +148,6 @@ char *relation_mto1_list_display(
 /* Usage */
 /* ----- */
 LIST *relation_mto1_to_one_fetch_list(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );
 

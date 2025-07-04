@@ -107,10 +107,10 @@ void attribute_list_with_null_stdout( char *folder_name )
 {
 	LIST *attribute_list =
 		folder_attribute_list(
-			(char *)0 /* role_name */,
 			folder_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			0 /* not fetch_attribute */ );
+			0 /* not fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	list_set(
 		attribute_list,

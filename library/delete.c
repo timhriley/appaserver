@@ -572,10 +572,6 @@ DELETE_ONE2M *delete_one2m_new(
 
 	delete_one2m->relation_one2m_list =
 		relation_one2m_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			many_folder_name
 				/* one_folder_name */,
 			many_folder_primary_key_list
@@ -737,7 +733,6 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 
 	delete_mto1_isa->relation_one2m_list =
 		relation_one2m_list(
-			role_name,
 			one_folder_name,
 			one_folder_attribute_primary_key_list,
 			1 /* include_isa_boolean */ );
@@ -1079,10 +1074,6 @@ DELETE_INPUT *delete_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* -------------------------------------------- */
 			/* Sets folder_attribute_primary_list		*/
@@ -1090,14 +1081,11 @@ DELETE_INPUT *delete_input_new(
 			/* Sets folder_attribute_name_list		*/
 			/* -------------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
-			1 /* not fetch_attribute */ );
+			1 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	delete_input->relation_one2m_list =
 		relation_one2m_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* one_folder_name */,
 			delete_input->folder->folder_attribute_primary_key_list
@@ -1106,11 +1094,7 @@ DELETE_INPUT *delete_input_new(
 
 	delete_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			delete_input->folder->folder_attribute_primary_key_list

@@ -18,7 +18,6 @@
 #include "relation_mto1.h"
 
 LIST *relation_mto1_list(
-		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list )
 {
@@ -55,7 +54,6 @@ LIST *relation_mto1_list(
 
 		relation_mto1 =
 			relation_mto1_new(
-				role_name,
 				many_folder_name,
 				many_folder_primary_key_list,
 				relation );
@@ -75,7 +73,6 @@ LIST *relation_mto1_list(
 
 LIST *relation_mto1_recursive_list(
 		LIST *relation_mto1_list,
-		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		boolean single_foreign_key_only )
@@ -110,7 +107,6 @@ LIST *relation_mto1_recursive_list(
 
 		relation_mto1 =
 			relation_mto1_new(
-				role_name,
 				many_folder_name,
 				many_folder_primary_key_list,
 				relation );
@@ -134,7 +130,6 @@ LIST *relation_mto1_recursive_list(
 		relation_mto1_list =
 			relation_mto1_recursive_list(
 				relation_mto1_list,
-				role_name,
 				relation->one_folder_name
 					/* many_folder_name */,
 				relation_mto1->
@@ -149,8 +144,7 @@ LIST *relation_mto1_recursive_list(
 }
 
 LIST *relation_mto1_isa_list(
-		LIST *mto1_list,
-		char *role_name,
+		LIST *mto1_isa_list,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		boolean fetch_relation_one2m_list,
@@ -186,14 +180,13 @@ LIST *relation_mto1_isa_list(
 
 		relation_mto1 =
 			relation_mto1_new(
-				role_name,
 				many_folder_name,
 				many_folder_primary_key_list,
 				relation );
 
-		if ( !mto1_list ) mto1_list = list_new();
+		if ( !mto1_isa_list ) mto1_isa_list = list_new();
 
-		list_set( mto1_list, relation_mto1 );
+		list_set( mto1_isa_list, relation_mto1 );
 
 		if ( fetch_relation_one2m_list )
 		{
@@ -217,7 +210,6 @@ LIST *relation_mto1_isa_list(
 
 			relation_mto1->relation_one2m_list =
 				relation_one2m_list(
-					role_name,
 					relation_mto1->one_folder_name,
 					relation_mto1->
 					    one_folder->
@@ -230,7 +222,6 @@ LIST *relation_mto1_isa_list(
 		{
 			relation_mto1->relation_mto1_list =
 				relation_mto1_list(
-				    role_name,
 				    relation_mto1->one_folder_name
 					/* many_folder_name */,
 				    relation_mto1->
@@ -239,10 +230,9 @@ LIST *relation_mto1_isa_list(
 					   /* many_folder_primary_key_list */ );
 		}
 
-		mto1_list =
+		mto1_isa_list =
 			relation_mto1_isa_list(
-				mto1_list,
-				role_name,
+				mto1_isa_list,
 				relation->one_folder_name
 					/* many_folder_name */,
 				relation_mto1->
@@ -254,12 +244,11 @@ LIST *relation_mto1_isa_list(
 
 	} while ( list_next( seek_mto1_list ) );
 
-	return mto1_list;
+	return mto1_isa_list;
 }
 
 LIST *relation_mto1_drillthru_list(
 		LIST *relation_mto1_list,
-		char *role_name,
 		char *base_folder_name,
 		LIST *base_folder_primary_key_list,
 		LIST *fulfilled_folder_name_list )
@@ -302,7 +291,6 @@ LIST *relation_mto1_drillthru_list(
 
 		relation_mto1 =
 			relation_mto1_new(
-				role_name,
 				base_folder_name
 					/* many_folder_name */,
 				base_folder_primary_key_list
@@ -318,7 +306,6 @@ LIST *relation_mto1_drillthru_list(
 		relation_mto1_list =
 			relation_mto1_drillthru_list(
 				relation_mto1_list,
-				role_name,
 				relation->one_folder_name
 					/* base_folder_name */,
 				relation_mto1->
@@ -592,7 +579,6 @@ LIST *relation_mto1_foreign_key_less_equal_list(
 }
 
 RELATION_MTO1 *relation_mto1_new(
-		char *role_name,
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
 		RELATION *relation )
@@ -631,10 +617,10 @@ RELATION_MTO1 *relation_mto1_new(
 		/* -------------- */
 		folder_fetch(
 			relation->one_folder_name,
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	if ( !list_length(
 		relation_mto1->
@@ -653,7 +639,6 @@ RELATION_MTO1 *relation_mto1_new(
 			__LINE__,
 			message );
 	}
-
 
 	relation_mto1->foreign_attribute_list =
 		foreign_attribute_list(
@@ -837,12 +822,10 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 }
 
 LIST *relation_mto1_to_one_fetch_list(
-		char *role_name,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list )
 {
-	if ( !role_name
-	||   !one_folder_name
+	if ( !one_folder_name
 	||   !list_length(
 		one_folder_primary_key_list ) )
 	{
@@ -859,7 +842,6 @@ LIST *relation_mto1_to_one_fetch_list(
 
 	return
 	relation_mto1_list(
-		role_name,
 		one_folder_name
 			/* many_folder_name */,
 		one_folder_primary_key_list
@@ -988,7 +970,6 @@ LIST *relation_mto1_common_name_list(
 }
 
 void relation_mto1_list_set_one_to_many_list(
-		char *role_name,
 		LIST *relation_mto1_list )
 {
 	RELATION_MTO1 *relation_mto1;
@@ -1019,16 +1000,12 @@ void relation_mto1_list_set_one_to_many_list(
 
 		relation_mto1->relation_one2m_list =
 			relation_one2m_list(
-				/* ----------------------------------- */
-				/* Set to cache all folders for a role */
-				/* ----------------------------------- */
-				role_name,
 				relation_mto1->one_folder_name,
 				relation_mto1->
 					one_folder->
 					folder_attribute_primary_key_list
 					/* one_folder_primary_key_list */,
-					0 /* not include_isa_boolean */ );
+				0 /* not include_isa_boolean */ );
 
 	} while ( list_next( relation_mto1_list ) );
 }

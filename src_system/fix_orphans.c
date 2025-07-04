@@ -20,7 +20,6 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *table_name;
 	boolean delete_boolean;
 	boolean execute_boolean;
 	boolean stdout_boolean = 0;
@@ -34,22 +33,21 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 5 )
+	if ( argc < 4 )
 	{
 		fprintf(stderr,
-"Usage: %s process_name table_name delete_yn execute_yn [stdout]\n",
+"Usage: %s process_name delete_yn execute_yn [stdout]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	table_name = argv[ 2 ];
-	delete_boolean = ( *argv[ 3 ] == 'y' );
-	execute_boolean = ( *argv[ 4 ] == 'y' );
+	delete_boolean = ( *argv[ 2 ] == 'y' );
+	execute_boolean = ( *argv[ 3 ] == 'y' );
 
-	if ( argc == 6 )
+	if ( argc == 5 )
 	{
-		stdout_boolean = ( strcmp( argv[ 5 ], "stdout" ) == 0 );
+		stdout_boolean = ( strcmp( argv[ 4 ], "stdout" ) == 0 );
 	}
 
 	if ( !stdout_boolean )
@@ -66,20 +64,13 @@ int main( int argc, char **argv )
 		/* -------------- */
 		orphan_new(
 			application_name,
-			/* ---------------------------- */
-			/* Returns heap memory or datum */
-			/* ---------------------------- */
-			security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-				table_name ) /* folder_name */,
 			delete_boolean );
 
 	if ( orphan_folder_clean_boolean(
 		orphan->orphan_folder_list ) )
 	{
 		orphan_clean_output(
-			stdout_boolean,
-			orphan->folder_name );
+			stdout_boolean );
 	}
 	else
 	if ( list_rewind( orphan->orphan_folder_list ) )

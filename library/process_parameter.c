@@ -928,13 +928,10 @@ PROCESS_PARAMETER_DROP_DOWN *
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 
 	process_parameter_drop_down->fetch_mto1 =
@@ -946,10 +943,6 @@ PROCESS_PARAMETER_DROP_DOWN *
 	{
 		process_parameter_drop_down->relation_mto1_list =
 			relation_mto1_list(
-				/* ----------------------------------- */
-				/* Set to cache all folders for a role */
-				/* ----------------------------------- */
-				role_name,
 				folder_name
 					/* many_folder_name */,
 				process_parameter_drop_down->

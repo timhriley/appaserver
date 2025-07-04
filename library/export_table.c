@@ -55,10 +55,10 @@ EXPORT_TABLE *export_table_new(
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
 			folder_attribute_list(
-				(char *)0 /* role_name */,
 				folder_name,
 				(LIST *)0 /* exclude_attribute_name_list */,
-				0 /* not fetch_attribute */ ) );
+				0 /* not fetch_attribute */,
+				0 /* not cache_boolean */ ) );
 
 	if ( !list_length( export_table->folder_attribute_name_list ) )
 	{

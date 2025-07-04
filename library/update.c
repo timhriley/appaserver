@@ -717,7 +717,6 @@ msg( (char *)0, message );
 	{
 		update_mto1_isa->relation_one2m_list =
 			relation_one2m_list(
-				role_name,
 				relation_mto1_isa->one_folder_name,
 				relation_mto1_isa->
 					one_folder->
@@ -2932,7 +2931,6 @@ msg( (char *)0, message );
 	{
 		update_one2m_row->relation_one2m_list =
 			relation_one2m_list(
-				role_name,
 				many_folder_name,
 				folder_attribute_primary_key_list(
 					many_folder_name,

@@ -364,7 +364,6 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 
 	one_folder_relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			form_table_insert_relation->
 				relation_mto1->
 				one_folder_name
@@ -1461,7 +1460,6 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 
 	one_folder_relation_mto1_list =
 		relation_mto1_list(
-			role_name,
 			relation_mto1_automatic_preselection->
 				one_folder_name
 				/* many_folder_name */,
@@ -2093,7 +2091,6 @@ AJAX_CLIENT *form_table_insert_relation_ajax_client(
 
 	relation_mto1_list =
 		relation_mto1_to_one_fetch_list(
-			role_name,
 			relation_mto1->one_folder_name,
 			relation_mto1->
 				one_folder->

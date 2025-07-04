@@ -51,23 +51,21 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *folder_attribute_list(
-		char *role_name,
 		char *folder_name,
 		LIST *role_attribute_exclude_name_list,
-		boolean fetch_attribute );
+		boolean fetch_attribute,
+		boolean cache_boolean );
 
 /* Usage */
 /* ----- */
-LIST *folder_attribute_role_cache_list(
-		char *role_name,
+LIST *folder_attribute_cache_list(
 		char *folder_name,
 		LIST *role_attribute_exclude_lookup_list,
 		boolean fetch_attribute );
 
 /* Usage */
 /* ----- */
-LIST *folder_attribute_role_list(
-		char *role_name_list_string,
+LIST *folder_attribute_get_list(
 		boolean fetch_attribute );
 
 /* Usage */
@@ -206,16 +204,6 @@ char *folder_attribute_fetch_where_string(
 		const char *folder_primary_key,
 		char *folder_name,
 		LIST *role_attribute_exclude_name_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *folder_attribute_role_where_string(
-		const char *folder_primary_key,
-		const char *role_folder_table,
-		char *role_name_list_string );
 
 /* Usage */
 /* ----- */

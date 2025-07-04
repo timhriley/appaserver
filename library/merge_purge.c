@@ -834,10 +834,10 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 
 	merge_purge_process->folder_attribute_list =
 		folder_attribute_list(
-			role_name,
 			merge_purge_process->folder_name,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	merge_purge_process->folder_attribute_primary_list =
 		folder_attribute_primary_list(
@@ -851,7 +851,6 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 
 	merge_purge_process->relation_one2m_list =
 		relation_one2m_list(
-			role_name,
 			merge_purge_process->folder_name
 				/* one_folder_name */,
 			merge_purge_process->
@@ -878,11 +877,7 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 
 	merge_purge_process->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			merge_purge_process->
@@ -1222,14 +1217,13 @@ MERGE_PURGE_FOLDER *merge_purge_folder_new(
 		/* -------------- */
 		folder_fetch(
 			merge_purge_folder->folder_name,
-			/* Leave blank b/c not caching */
-			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* Sets folder_attribute_primary_list */
 			/* Sets folder_attribute_primary_key_list */
 			/* Sets folder_attribute_name_list */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			0 /* not cache_boolean */ );
 
 	merge_purge_folder->application_menu_horizontal_boolean =
 		application_menu_horizontal_boolean(

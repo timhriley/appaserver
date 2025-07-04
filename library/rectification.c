@@ -892,11 +892,6 @@ RECTIFICATION *rectification_fetch(
 
 	rectification->folder_list =
 		folder_list(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			rectification_role_list_string()
-				/* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_attribute */ );
@@ -1426,17 +1421,6 @@ char *rectification_mismatch_drop_table_tag(
 		table_prompt );
 
 	return strdup( table_tag );
-}
-
-char *rectification_role_list_string( void )
-{
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	list_display_delimited(
-		role_name_list( ROLE_TABLE ),
-		',' );
 }
 
 LIST *rectification_index_list(

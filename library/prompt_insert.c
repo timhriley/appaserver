@@ -134,13 +134,10 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 		/* -------------- */
 		folder_fetch(
 			folder_name,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			prompt_insert_input->role_attribute_exclude_name_list,
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_attribute */ );
+			1 /* fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	prompt_insert_input->folder_attribute_non_primary_name_list =
 		folder_attribute_non_primary_name_list(
@@ -150,10 +147,6 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->relation_mto1_list =
 		relation_mto1_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* many_folder_name */,
 			prompt_insert_input->
@@ -167,11 +160,7 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
-			(LIST *)0 /* mto1_isa_list */,
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
+			(LIST *)0 /* mto1_isa_list Pass in null */,
 			folder_name
 				/* many_folder_name */,
 			prompt_insert_input->
@@ -183,10 +172,6 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->relation_one2m_pair_list =
 		relation_one2m_pair_list(
-			/* ----------------------------------- */
-			/* Set to cache all folders for a role */
-			/* ----------------------------------- */
-			role_name,
 			folder_name
 				/* one_folder_name */,
 			prompt_insert_input->
