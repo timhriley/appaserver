@@ -689,6 +689,9 @@ LIST *folder_fetch_name_list(
 		const char *folder_table )
 {
 	char *system_string;
+	char *where_string;
+
+	where_string = "table_name <> 'null'";
 
 	system_string =
 		/* ------------------- */
@@ -697,7 +700,7 @@ LIST *folder_fetch_name_list(
 		appaserver_system_string(
 			(char *)folder_primary_key /* select */,
 			(char *)folder_table,
-			(char *)0 /* where_string */  );
+			where_string );
 
 	return
 	list_pipe_fetch( system_string );
