@@ -20,6 +20,7 @@ typedef struct
 {
 	POST_RECEIVE *post_receive;
 	POST *post;
+	boolean post_bot_boolean;
 	int sleep_seconds;
 	POST_SIGNUP *post_signup;
 	char *success_parameter;

@@ -22,6 +22,7 @@ typedef struct
 {
 	POST_RECEIVE *post_receive;
 	POST *post;
+	boolean post_bot_boolean;
 	POST_CONTACT *post_contact;
 	char *upload_filespecification;
 	char *mailx_system_string;

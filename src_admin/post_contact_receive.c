@@ -51,6 +51,14 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 
 	if ( !post_contact_receive->post ) return post_contact_receive;
 
+	post_contact_receive->post_bot_boolean =
+		post_bot_boolean(
+			post_contact_receive->post_receive->random_number,
+			post_contact_receive->post->random_number );
+
+	if ( post_contact_receive->post_bot_boolean )
+		return post_contact_receive;
+
 	post_contact_receive->post_contact =
 		/* -------------- */
 		/* Safely returns */

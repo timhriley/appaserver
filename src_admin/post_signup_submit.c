@@ -340,7 +340,10 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new(
 			post_signup_submit->
 				post->
 				timestamp
-				/* timestamp_space */ );
+				/* timestamp_space */,
+			post_signup_submit->
+				post->
+				random_number );
 
 	appaserver_error_message_file(
 		APPLICATION_ADMIN_NAME,

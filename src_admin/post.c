@@ -52,6 +52,10 @@ POST *post_new(	char *email_address )
 	/* ------------------- */
 	post->timestamp = post_timestamp();
 
+	post->random_number =
+		post_random_number(
+			POST_RANDOM_NUMBER_SYSTEM );
+
 	post->email_address =
 		email_address_fetch(
 			email_address );
@@ -92,7 +96,8 @@ POST *post_new(	char *email_address )
 			email_address,
 			post->ip_address,
 			post->http_user_agent,
-			post->timestamp );
+			post->timestamp,
+			post->random_number );
 
 	return post;
 }
@@ -121,7 +126,8 @@ char *post_insert_statement(
 		char *email_address,
 		char *ip_address,
 		char *http_user_agent,
-		char *timestamp )
+		char *timestamp,
+		int random_number )
 {
 	char insert_statement[ 1024 ];
 	char http_user_agent_trimmed[ 256 ];
@@ -147,13 +153,14 @@ char *post_insert_statement(
 	snprintf(
 		insert_statement,
 		sizeof ( insert_statement ),
-		"insert into %s (%s) values ('%s','%s','%s','%s');",
+		"insert into %s (%s) values ('%s','%s','%s','%s',%d);",
 		post_table,
 		post_insert,
 		email_address,
 		ip_address,
 		http_user_agent_trimmed,
-		timestamp );
+		timestamp,
+		random_number );
 
 	return strdup( insert_statement );
 }
@@ -348,6 +355,9 @@ POST *post_parse(
 	if ( *buffer ) post->http_user_agent = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, string_fetch, 2 );
+	if ( *buffer ) post->random_number = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, string_fetch, 3 );
 	if ( *buffer ) post->confirmation_received_date = strdup( buffer );
 
 	return post;
@@ -370,7 +380,7 @@ POST_RECEIVE *post_receive_new(
 {
 	POST_RECEIVE *post_receive;
 
-	if ( argc != 3
+	if ( argc != 4
 	||   !argv )
 	{
 		fprintf(stderr,
@@ -392,6 +402,8 @@ POST_RECEIVE *post_receive_new(
 		/* --------------------- */
 		post_receive_timestamp_space(
 			post_receive->timestamp_spaceless );
+
+	post_receive->random_number = atoi( argv[ 3 ] );
 
 	post_receive->appaserver_parameter =
 		/* -------------- */
@@ -440,13 +452,15 @@ char *post_receive_url(
 		const char *website_domain_name,
 		char *apache_cgi_directory,
 		char *email_address,
-		char *timestamp_space )
+		char *timestamp_space,
+		int post_random_number )
 {
 	char receive_url[ 1024 ];
 
 	if ( !apache_cgi_directory
 	||   !email_address
-	||   !timestamp_space )
+	||   !timestamp_space
+	||   !post_random_number )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -459,7 +473,7 @@ char *post_receive_url(
 	snprintf(
 		receive_url,
 		sizeof ( receive_url ),
-		"https://%s%s/%s?%s+%s",
+		"https://%s%s/%s?%s+%s+%d",
 		website_domain_name,
 		apache_cgi_directory,
 		receive_executable,
@@ -468,7 +482,8 @@ char *post_receive_url(
 		/* Returns static memory */
 		/* --------------------- */
 		post_receive_timestamp_spaceless(
-			timestamp_space ) );
+			timestamp_space ),
+		post_random_number );
 
 	return strdup( receive_url );
 }
@@ -586,3 +601,18 @@ char *post_confirmation_update_sql(
 	return confirmation_update_sql;
 }
 
+int post_random_number( const char *post_random_number_system )
+{
+	return
+	string_atoi(
+		string_pipe_fetch(
+			(char *)post_random_number_system ) );
+}
+
+boolean post_bot_boolean(
+		int receive_random_number,
+		int post_random_number )
+{
+	return
+	( ! ( receive_random_number == post_random_number ) );
+}

@@ -21,15 +21,18 @@
 #define POST_HTTP_USER_AGENT_SIZE	80
 #define POST_TABLE			"post"
 #define POST_CONFIRMATION_COLUMN	"confirmation_received_date"
+#define POST_RANDOM_NUMBER_SYSTEM	"random.e 100000 1"
 
 #define POST_SELECT			"IP_address,"			\
 					"http_user_agent,"		\
+					"random_number,"		\
 					"confirmation_received_date"
 
 #define POST_INSERT			"email_address,"		\
 					"IP_address,"			\
 					"http_user_agent,"		\
-					"timestamp"
+					"timestamp,"			\
+					"random_number"
 
 #define POST_DENY_EXECUTABLE		"/usr2/ufw/ufw_submit"
 #define POST_SLEEP_SECONDS		60
@@ -39,6 +42,7 @@ typedef struct
 	char *ip_address;
 	char *http_user_agent;
 	char *timestamp;
+	int random_number;
 	EMAIL_ADDRESS *email_address;
 	char *ip_deny_system_string;
 	char *insert_statement;
@@ -72,7 +76,8 @@ char *post_insert_statement(
 		char *email_address,
 		char *environment_remote_ip_address,
 		char *environment_http_user_agent,
-		char *post_timestamp );
+		char *post_timestamp,
+		int post_random_number );
 
 /* Usage */
 /* ----- */
@@ -103,6 +108,11 @@ POST *post_parse(
 /* ------------------- */
 char *post_timestamp(
 		void );
+
+/* Usage */
+/* ----- */
+int post_random_number(
+		const char *post_random_number_system );
 
 /* Usage */
 /* ----- */
@@ -140,11 +150,18 @@ char *post_confirmation_update_sql(
 		char *email_address,
 		char *timestamp_space );
 
+/* Usage */
+/* ----- */
+boolean post_bot_boolean(
+		int receive_random_number,
+		int post_random_number );
+
 typedef struct
 {
 	char *email_address;
 	char *timestamp_spaceless;
 	char *timestamp_space;
+	int random_number;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	char *appaserver_mailname;
 	char *appaserver_error_filename;
@@ -181,7 +198,8 @@ char *post_receive_url(
 		const char *website_domain_name,
 		char *apache_cgi_directory,
 		char *email_address,
-		char *timestamp_space );
+		char *timestamp_space,
+		int post_random_number );
 
 /* Process */
 /* ------- */

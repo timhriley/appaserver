@@ -141,7 +141,10 @@ POST_CONTACT_SUBMIT *post_contact_submit_new(
 			post_contact_submit->
 				post->
 				timestamp
-			       /* timestamp_space */ 	);
+			       /* timestamp_space */,
+			post_contact_submit->
+				post->
+				random_number );
 
 	appaserver_error_message_file(
 		APPLICATION_ADMIN_NAME,

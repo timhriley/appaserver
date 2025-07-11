@@ -77,6 +77,20 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 		return post_signup_receive;
 	}
 
+	post_signup_receive->post_bot_boolean =
+		post_bot_boolean(
+			post_signup_receive->post_receive->random_number,
+			post_signup_receive->post->random_number );
+
+	if ( post_signup_receive->post_bot_boolean )
+	{
+		post_signup_receive->sleep_seconds =
+			post_signup_receive_sleep_seconds(
+				POST_SLEEP_SECONDS );
+
+		return post_signup_receive;
+	}
+
 	post_signup_receive->post_signup =
 		post_signup_fetch(
 			post_signup_receive->post_receive->email_address,
