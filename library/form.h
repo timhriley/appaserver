@@ -34,7 +34,6 @@
 
 #define FORM_RADIO_LIST_NAME		"form_radio_list"
 #define FORM_NO_DISPLAY_HEADING 	"No Display"
-#define FORM_IGNORE_PREFIX		"iignore_"
 #define FORM_IGNORE_PUSH_BUTTON_HEADING "ignore"
 
 #define FORM_PROMPT_ORIGINAL_PREFIX	"original_"

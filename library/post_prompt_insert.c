@@ -230,7 +230,11 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 				dictionary_separate->
 				ignore_dictionary,
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			(DICTIONARY *)0 /* no_display_dictionary */,
+			post_prompt_insert->
+				post_prompt_insert_input->
+				dictionary_separate->
+				ignore_dictionary
+				/* no_display_dictionary if lookup button */,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			post_prompt_insert->
 				post_prompt_insert_input->
