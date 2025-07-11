@@ -35,11 +35,13 @@ int main( int argc, char **argv )
 			post->
 			confirmation_received_date )
 		{
+/*
 			post_mailx(
 				post_contact_receive->
 					post_contact->
 					message,
 				post_contact_receive->mailx_system_string );
+*/
 
 			(void)sql_execute(
 				SQL_EXECUTABLE,
