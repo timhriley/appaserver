@@ -31,10 +31,10 @@ post_email_address_block.sh
 post_ufw_deny.sh
 
 
-echo "delete from post_contact where exists ( select 1 from post where post_contact.email_address = post.email_address and post_contact.timestamp = post.timestamp and confirmation_received_date is not null );" | sql
+echo "delete from post_contact where exists ( select 1 from post where post_contact.email_address = post.email_address and post_contact.timestamp = post.timestamp and confirmation_received_date is null );" | sql
 
-echo "delete from post_signup where exists ( select 1 from post where post_signup.email_address = post.email_address and post_signup.timestamp = post.timestamp and confirmation_received_date is not null );" | sql
+echo "delete from post_signup where exists ( select 1 from post where post_signup.email_address = post.email_address and post_signup.timestamp = post.timestamp and confirmation_received_date is null );" | sql
 
-echo "delete from post where confirmation_received_date is not null;" | sql
+echo "delete from post where confirmation_received_date is null;" | sql
 
 exit $?
