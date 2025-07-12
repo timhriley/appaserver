@@ -26,7 +26,8 @@ int main( int argc, char **argv )
 		/* Safely returns */
 		/* -------------- */
 		post_contact_submit_new(
-			argc, argv );
+			argc,
+			argv );
 
 	if ( post_contact_submit->post_contact )
 	{
