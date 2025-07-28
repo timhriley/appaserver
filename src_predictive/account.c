@@ -709,12 +709,12 @@ ACCOUNT *account_seek(
 	do {
 		account = list_get( account_list );
 
-		if ( strcmp( account->account_name, account_name ) == 0 )
+		if ( string_strcmp( account->account_name, account_name ) == 0 )
 			return account;
 
 	} while ( list_next( account_list ) );
 
-	return (ACCOUNT *)0;
+	return NULL;
 }
 
 ACCOUNT *account_parse(

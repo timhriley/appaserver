@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_system
-	make post_merge_purge_choose
+	cd ../src_appaserver
+	make post_ajax_window
 fi
 

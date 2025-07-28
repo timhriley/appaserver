@@ -558,8 +558,10 @@ AJAX_SERVER *ajax_server_new(
 			ajax_server_return_string(
 				SQL_DELIMITER,
 				WIDGET_DROP_DOWN_DASH_DELIMITER,
-				AJAX_SERVER_DATA_DELIMITER,
-				AJAX_SERVER_FORMAT_DELIMITER,
+				AJAX_SERVER_DATA_DELIMITER
+					/* probably "@&" */,
+				AJAX_SERVER_FORMAT_DELIMITER
+					/* probably '|' */,
 				ajax_server->result_list );
 	}
 
@@ -720,8 +722,10 @@ LIST *ajax_server_result_list( char *system_string )
 char *ajax_server_return_string(
 		const char sql_delimiter,
 		const char *widget_drop_down_dash_delimiter,
-		const char ajax_server_data_delimiter,
-		const char ajax_server_format_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list )
 {
 	char *format_return_string;
@@ -733,7 +737,9 @@ char *ajax_server_return_string(
 
 	first_result = list_first( ajax_server_result_list );
 
-	if ( string_exists_character( first_result, '|' ) )
+	if ( string_exists_character(
+		first_result,
+		ajax_server_format_delimiter ) )
 	{
 		data_string =
 			/* ------------------- */
@@ -741,6 +747,7 @@ char *ajax_server_return_string(
 			/* ------------------- */
 			ajax_server_delimited_data_string(
 				ajax_server_data_delimiter,
+				ajax_server_format_delimiter,
 				ajax_server_result_list );
 
 		format_string =
@@ -749,6 +756,7 @@ char *ajax_server_return_string(
 			/* ------------------- */
 			ajax_server_delimited_format_string(
 				ajax_server_data_delimiter,
+				ajax_server_format_delimiter,
 				ajax_server_result_list );
 	}
 	else
@@ -777,7 +785,8 @@ char *ajax_server_return_string(
 		/* Returns heap memory */
 		/* ------------------- */
 		ajax_server_format_return_string(
-			ajax_server_format_delimiter,
+			ajax_server_format_delimiter
+				/* probably | */,
 			data_string,
 			format_string );
 
@@ -788,7 +797,10 @@ char *ajax_server_return_string(
 }
 
 char *ajax_server_delimited_data_string(
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list )
 {
 	char data_string[ STRING_64K ];
@@ -814,17 +826,20 @@ char *ajax_server_delimited_data_string(
 	}
 
 	do {
+		result = list_get( ajax_server_result_list );
+
 		if ( !list_first_boolean( ajax_server_result_list ) )
 		{
 			ptr += sprintf(
 				ptr,
-				"%c",
+				"%s",
 				ajax_server_data_delimiter );
 		}
 
-		result = list_get( ajax_server_result_list );
-
-		piece( piece_buffer, '|', result, 0 );
+		piece(	piece_buffer,
+			ajax_server_format_delimiter,
+			result,
+			0 );
 
 		if (	strlen( data_string ) +
 			strlen( piece_buffer ) >= STRING_64K )
@@ -854,7 +869,10 @@ char *ajax_server_delimited_data_string(
 }
 
 char *ajax_server_delimited_format_string(
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list )
 {
 	char format_string[ STRING_64K ];
@@ -880,20 +898,16 @@ char *ajax_server_delimited_format_string(
 	}
 
 	do {
-		if ( !list_first_boolean( ajax_server_result_list ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"%c",
-				ajax_server_data_delimiter );
-		}
-
 		result = list_get( ajax_server_result_list );
 
-		piece( piece_buffer, '|', result, 1 );
+		piece(	piece_buffer,
+			ajax_server_format_delimiter,
+			result,
+			1 );
 
 		if (	strlen( format_string ) +
-			strlen( piece_buffer ) >= STRING_64K )
+			strlen( piece_buffer ) +
+			1 >= STRING_64K )
 		{
 			char message[ 128 ];
 
@@ -912,6 +926,14 @@ char *ajax_server_delimited_format_string(
 			exit( 1 );
 		}
 
+		if ( !list_first_boolean( ajax_server_result_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				ajax_server_data_delimiter );
+		}
+
 		ptr += sprintf( ptr, "%s", piece_buffer );
 
 	} while ( list_next( ajax_server_result_list ) );
@@ -921,7 +943,8 @@ char *ajax_server_delimited_format_string(
 
 char *ajax_server_list_format_string(
 		const char sql_delimiter,
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
 		const char *widget_drop_down_dash_delimiter,
 		LIST *ajax_server_result_list )
 {
@@ -961,7 +984,7 @@ char *ajax_server_list_format_string(
 		{
 			ptr += sprintf(
 				ptr,
-				"%c",
+				"%s",
 				ajax_server_data_delimiter );
 		}
 
@@ -1038,11 +1061,12 @@ char *ajax_server_format_string(
 }
 
 char *ajax_server_format_return_string(
-		const char ajax_server_format_delimiter,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		char *data_string,
 		char *format_string )
 {
-	char format_return_string[ STRING_128K ];
+	char format_return_string[ STRING_1K ];
 
 	if ( !data_string
 	||   !format_string )
@@ -1064,13 +1088,13 @@ char *ajax_server_format_return_string(
 
 	if (	strlen( data_string ) +
 		strlen( format_string ) +
-		1 >= STRING_128K )
+		1 >= STRING_1K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_64K );
+			STRING_1K );
 
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: %s\n",
@@ -1150,10 +1174,11 @@ char *ajax_server_foreign_key_list_string(
 }
 
 char *ajax_server_data_string(
-		char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
 		LIST *ajax_server_result_list )
 {
-	char data_string[ STRING_64K ];
+	char data_string[ STRING_1K ];
 	char *ptr = data_string;
 	char *result;
 
@@ -1176,24 +1201,17 @@ char *ajax_server_data_string(
 	}
 
 	do {
-		if ( !list_first_boolean( ajax_server_result_list ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"%c",
-				ajax_server_data_delimiter );
-		}
-
 		result = list_get( ajax_server_result_list );
 
 		if (	strlen( data_string ) +
-			strlen( result ) >= STRING_64K )
+			strlen( result ) +
+			1 >= STRING_1K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
+				STRING_1K );
 
 			fprintf(stderr,
 				"ERROR in %s/%s()/%d: %s\n",
@@ -1204,6 +1222,14 @@ char *ajax_server_data_string(
 
 			printf( "ERROR\n" );
 			exit( 1 );
+		}
+
+		if ( !list_first_boolean( ajax_server_result_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				ajax_server_data_delimiter );
 		}
 
 		ptr += sprintf( ptr, "%s", result );

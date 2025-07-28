@@ -21,7 +21,7 @@
 
 /* Synchronize with $APPASERVER_HOME/src_appaserver/ajax_window.sh */
 /* --------------------------------------------------------------- */
-#define AJAX_SERVER_DATA_DELIMITER		'&'
+#define AJAX_SERVER_DATA_DELIMITER		"@&"
 #define AJAX_SERVER_FORMAT_DELIMITER		'|'
 
 typedef struct
@@ -212,8 +212,10 @@ LIST *ajax_server_result_list(
 char *ajax_server_return_string(
 		const char sql_delimiter,
 		const char *widget_drop_down_dash_delimiter,
-		const char ajax_server_data_delimiter,
-		const char ajax_server_format_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list );
 
 /* Usage */
@@ -222,7 +224,10 @@ char *ajax_server_return_string(
 /* Returns heap memory */
 /* ------------------- */
 char *ajax_server_delimited_data_string(
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list );
 
 /* Usage */
@@ -231,7 +236,10 @@ char *ajax_server_delimited_data_string(
 /* Returns heap memory */
 /* ------------------- */
 char *ajax_server_delimited_format_string(
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
+		const char ajax_server_format_delimiter
+			/* probably '|' */,
 		LIST *ajax_server_result_list );
 
 /* Usage */
@@ -240,7 +248,8 @@ char *ajax_server_delimited_format_string(
 /* Returns heap memory */
 /* ------------------- */
 char *ajax_server_data_string(
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
 		LIST *ajax_server_result_list );
 
 /* Usage */
@@ -250,7 +259,8 @@ char *ajax_server_data_string(
 /* ------------------- */
 char *ajax_server_list_format_string(
 		const char sql_delimiter,
-		const char ajax_server_data_delimiter,
+		const char *ajax_server_data_delimiter
+			/* probably "@&" */,
 		const char *widget_drop_down_dash_delimiter,
 		LIST *ajax_server_result_list );
 
@@ -270,7 +280,8 @@ char *ajax_server_format_string(
 /* Returns heap memory */
 /* ------------------- */
 char *ajax_server_format_return_string(
-		const char ajax_server_format_delimiter,
+		const char ajax_server_format_delimiter
+			/* probably | */,
 		char *data_string,
 		char *format_string );
 

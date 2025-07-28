@@ -392,7 +392,7 @@ int string_strcmp( char *s1, char *s2 )
 	if ( !s2 ) return -1;
 	if ( !s1 ) return 1;
 
-	return strcasecmp( s1, s2 );
+	return string_strcasecmp( s1, s2 );
 }
 
 char *string_strcpy( char *d, char *s, unsigned int buffer_size )
@@ -2522,3 +2522,26 @@ int string_strict_case_strcmp( char *s1, char *s2 )
 	return strcmp( s1, s2 );
 }
 
+int string_strcasecmp( char *s1, char *s2 )
+{
+	char tmp1[ STRING_16K ];
+	char tmp2[ STRING_16K ];
+
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	if ( strlen( s1 ) >= STRING_16K
+	||   strlen( s2) >= STRING_16K )
+	{
+		return strcasecmp( s1, s2 );
+	}
+
+	strcpy( tmp1, s1 );
+	strcpy( tmp2, s2 );
+
+	string_remove_character( tmp1, '\\' );
+	string_remove_character( tmp2, '\\' );
+
+	return strcasecmp( tmp1, tmp2 );
+}

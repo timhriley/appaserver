@@ -91,8 +91,8 @@ html_string += '	value = result.split( "|" );\n';
 
 // Synchronize with AJAX_SERVER_DATA_DELIMITER
 // -------------------------------------------
-html_string += '	mnemonic = value[ 0 ].split( "&" );\n';
-html_string += '	label = value[ 1 ].split( "&" );\n';
+html_string += '	mnemonic = value[ 0 ].split( "@&" );\n';
+html_string += '	label = value[ 1 ].split( "@&" );\n';
 
 html_string += '	options_length = \n';
 html_string += '	local_destination_element.options.length;\n';
