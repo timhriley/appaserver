@@ -417,7 +417,7 @@ char *post_signup_submit_message(
 		const char *post_signup_submit_message_prompt,
 		char *receive_url )
 {
-	static char message[ 128 ];
+	static char message[ 256 ];
 
 	if ( !receive_url )
 	{
