@@ -464,7 +464,7 @@ void transaction_fetch_update(
 /* Usage */
 /* ----- */
 void transaction_update(
-		double journal_list_transaction_amount,
+		double journal_transaction_amount,
 		char *transaction_primary_where );
 
 /* Process */
@@ -474,7 +474,7 @@ void transaction_update(
 /* ----------------------------- */
 char *transaction_set_clause(
 		char *transaction_amount_column,
-		double journal_list_transaction_amount );
+		double journal_transaction_amount );
 
 /* Returns heap memory */
 /* ------------------- */

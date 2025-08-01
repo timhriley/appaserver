@@ -11,8 +11,8 @@
 #include "boolean.h"
 #include "list.h"
 
-#define DICTIONARY_ATTRIBUTE_DATUM_DELIMITER	'='
-#define DICTIONARY_ELEMENT_DELIMITER		'&'
+#define DICTIONARY_ATTRIBUTE_DATUM_DELIMITER	"@="
+#define DICTIONARY_ELEMENT_DELIMITER		"@&"
 
 typedef struct
 {
@@ -65,8 +65,8 @@ DICTIONARY *dictionary_calloc(
 /* Returns dictionary_large() or null */
 /* ---------------------------------- */
 DICTIONARY *dictionary_string_new(
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		char *dictionary_string );
 
 /* Usage */
@@ -251,8 +251,8 @@ DICTIONARY *dictionary_remove_index(
 /* ------------------- */ 
 char *dictionary_display_delimited(
 		DICTIONARY *dictionary,
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter );
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter );
 
 /* Public */
 /* ------ */

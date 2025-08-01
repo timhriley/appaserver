@@ -137,8 +137,8 @@ void hash_table_display_key_list(
 char *hash_table_display_delimiter( 
 		char *destination, 
 		HASH_TABLE *h,
-		const char attribute_datum_delimiter,
-		const char element_delimiter,
+		const char *attribute_datum_delimiter,
+		const char *element_delimiter,
 		unsigned long buffer_size );
 
 char *hash_table_index_zero_display_delimiter(

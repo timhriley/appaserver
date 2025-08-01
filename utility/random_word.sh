@@ -3,7 +3,7 @@
 # $APPASERVER_HOME/utility/random_word.sh
 # ---------------------------------------
 
-word_file=/usr/share/dict/words
+word_file="$APPASERVER_HOME/utility/positive-words.txt.gz"
 
 if [ ! -r $word_file ]
 then
@@ -11,25 +11,14 @@ then
 	exit 0
 fi
 
-word_file_length=`cat $word_file | wc -l`
+word_file_length=`zcat $word_file | grep '^[a-z]' | wc -l`
 
-while [ true ]
-do
-	random_number=`random.e ${word_file_length}`
+random_number=`random.e ${word_file_length}`
 
-	word=`	cat $word_file			|
-		head -$random_number		|
-		tail -1				|
-		piece.e "'" 0			|
-		sed 's/.*/\L&/g'`
-
-	ene=`echo $word | od -c | grep ' 303 '`
-
-	if [ "$ene" = "" ]
-	then
-		break
-	fi
-done
+word=`	zcat $word_file			|
+	grep '^[a-z]'			|
+	head -$random_number		|
+	tail -1`
 
 echo $word
 

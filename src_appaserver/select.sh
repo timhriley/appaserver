@@ -50,7 +50,7 @@ fi
 
 if [ "$where" != "" ]
 then
-	where=`echo $where | sed 's/^where //'`
+	where=`echo "$where" | sed 's/^where //'`
 fi
 
 if [ "$#" -gt 3 ]

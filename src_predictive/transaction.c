@@ -1442,7 +1442,7 @@ void transaction_fetch_update(
 	}
 
 	transaction_update(
-		journal_list_transaction_amount(
+		journal_transaction_amount(
 			transaction->journal_list ),
 		/* --------------------- */
 		/* Returns static memory */

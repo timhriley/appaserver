@@ -174,8 +174,8 @@ int post_dictionary_row_number(
 /* Safely returns */
 /* -------------- */
 POST_DICTIONARY *post_dictionary_string_new(
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		char *dictionary_string );
 
 /* Usage */

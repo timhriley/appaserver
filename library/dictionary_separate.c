@@ -896,9 +896,9 @@ char *dictionary_separate_send_string( DICTIONARY *send_dictionary )
 		dictionary_display_delimited(
 			send_dictionary,
 			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER
-				/* probably '=' */,
+				/* probably "@=" */,
 			DICTIONARY_ELEMENT_DELIMITER
-				/* probably '&' */ );
+				/* probably "@&" */ );
 
 	if ( !*display_delimited ) return "";
 

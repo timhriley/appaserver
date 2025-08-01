@@ -929,6 +929,8 @@ boolean account_name_changed( char *preupdate_account_name )
 }
 
 char *account_action_string(
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		const char *journal_table,
 		const char *dictionary_separate_drillthru_prefix,
 		const char *drillthru_skipped_key,
@@ -975,45 +977,45 @@ char *account_action_string(
 
 	ptr += sprintf(
 		ptr,
-		"form_radio_list%cradio_lookup%c",
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
-		DICTIONARY_ELEMENT_DELIMITER );
+		"form_radio_list%sradio_lookup%s",
+		dictionary_attribute_datum_delimiter,
+		dictionary_element_delimiter );
 
 	ptr += sprintf(
 		ptr,
-		"account%c%s%c",
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
+		"account%s%s%s",
+		dictionary_attribute_datum_delimiter,
 		account_name,
-		DICTIONARY_ELEMENT_DELIMITER );
+		dictionary_element_delimiter );
 
 	ptr += sprintf(
 		ptr,
-		"relation_operator_transaction_date_time%cbetween%c",
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
-		DICTIONARY_ELEMENT_DELIMITER );
+		"relation_operator_transaction_date_time%sbetween%s",
+		dictionary_attribute_datum_delimiter,
+		dictionary_element_delimiter );
 
 	ptr += sprintf(
 		ptr,
-		"%stransaction_date_time%c%s 00:00:00%c",
+		"%stransaction_date_time%s%s 00:00:00%s",
 		prompt_lookup_from_prefix,
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
+		dictionary_attribute_datum_delimiter,
 		transaction_begin_date_string,
-		DICTIONARY_ELEMENT_DELIMITER );
+		dictionary_element_delimiter );
 
 	ptr += sprintf(
 		ptr,
-		"%stransaction_date_time%c%s%c",
+		"%stransaction_date_time%s%s%s",
 		prompt_lookup_to_prefix,
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
+		dictionary_attribute_datum_delimiter,
 		end_date_time_string,
-		DICTIONARY_ELEMENT_DELIMITER );
+		dictionary_element_delimiter );
 
 	ptr += sprintf(
 		ptr,
-		"%s%s%cyes",
+		"%s%s%syes",
 		dictionary_separate_drillthru_prefix,
 		drillthru_skipped_key,
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER );
+		dictionary_attribute_datum_delimiter );
 
 	return strdup( action_string );
 }
@@ -1040,6 +1042,8 @@ void account_list_action_string_set(
 				/* Returns heap memory */
 				/* ------------------- */
 				account_action_string(
+					DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
+					DICTIONARY_ELEMENT_DELIMITER,
 					JOURNAL_TABLE,
 					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					DRILLTHRU_SKIPPED_KEY,

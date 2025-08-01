@@ -59,7 +59,9 @@ char *journal_maximum_prior_where(
 			message );
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"transaction_date_time < '%s' and account = '%s'",
 		transaction_date_time,
 		account_name );
@@ -1265,60 +1267,19 @@ double journal_credit_sum( LIST *journal_list )
 	return sum;
 }
 
-double journal_list_transaction_amount( LIST *journal_list )
+double journal_transaction_amount( LIST *journal_list )
 {
-	static LIST *cash_name_list = {0};
-	static LIST *current_liability_name_list = {0};
-	double cash_sum;
-	double current_liability_sum;
+	JOURNAL *journal;
 
-	if ( !cash_name_list )
-	{
-		cash_name_list =
-			account_cash_name_list(
-				ACCOUNT_TABLE,
-				SUBCLASSIFICATION_CASH );
-	}
+	if ( list_rewind( journal_list ) )
+	do {
+		journal = list_get( journal_list );
 
-	if ( !current_liability_name_list )
-	{
-		LIST *exclude_account_name_list = list_new();
+		if ( journal->debit_amount ) return journal->debit_amount;
 
-		list_set(
-			exclude_account_name_list,
-			ACCOUNT_UNCLEARED_CHECKS );
+	} while ( list_next( journal_list ) );
 
-		current_liability_name_list =
-			account_current_liability_name_list(
-				ACCOUNT_TABLE,
-				SUBCLASSIFICATION_CURRENT_LIABILITY,
-				ACCOUNT_CREDIT_CARD_KEY,
-				exclude_account_name_list );
-	}
-
-	cash_sum =
-		journal_account_list_debit_sum(
-			journal_list,
-			cash_name_list );
-
-	current_liability_sum =
-		journal_account_list_credit_sum(
-			journal_list,
-			current_liability_name_list );
-
-	if ( cash_sum )
-	{
-		return cash_sum;
-	}
-	else
-	if ( current_liability_sum )
-	{
-		return current_liability_sum;
-	}
-	else
-	{
-		return journal_debit_sum( journal_list );
-	}
+	return 0;
 }
 
 LIST *journal_year_list(
@@ -2252,16 +2213,18 @@ char *journal_propagate_greater_equal_where(
 
 	if ( prior_transaction_date_time )
 	{
-		sprintf(
+		snprintf(
 			where,
+			sizeof ( where ),
 			"account = '%s' and transaction_date_time >= '%s'",
 			account_name,
 			prior_transaction_date_time );
 	}
 	else
 	{
-		sprintf(
+		snprintf(
 			where,
+			sizeof ( where ),
 			"account = '%s'",
 			account_name );
 	}

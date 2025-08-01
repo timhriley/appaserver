@@ -503,17 +503,25 @@ char *hash_table_index_zero_display_delimiter(
 char *hash_table_display_delimiter(
 		char *destination, 
 		HASH_TABLE *h,
-		const char attribute_datum_delimiter,
-		const char element_delimiter,
+		const char *attribute_datum_delimiter,
+		const char *element_delimiter,
 		unsigned long buffer_size )
 {
 	char *destination_ptr = destination;
 	int i;
 	LIST *list;
 	HASH_TABLE_CELL *hash_table_cell;
-	int first_time = 1;
-	char data_to_output[ 4096 ];
-	char buffer[ 4096 ];
+	register int first_time = 1;
+
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	*destination_ptr = '\0';
 
@@ -528,40 +536,23 @@ char *hash_table_display_delimiter(
 
 			if ( !hash_table_cell->other_data ) continue;
 
-			strcpy(	buffer,
-				hash_table_cell->
-					other_data );
-
-			string_escape_character(
-				data_to_output,
-				buffer,
-				element_delimiter );
-
-			strcpy( buffer, data_to_output );
-
-			string_escape_character(
-				data_to_output,
-				buffer,
-				attribute_datum_delimiter );
-
 			if ( first_time )
 			{
 				first_time = 0;
-					
-				destination_ptr += sprintf( 
-					destination_ptr, 
-					"%s%c%s", 
-					hash_table_cell->key,
-					attribute_datum_delimiter,
-					data_to_output );
 			}
 			else
 			{
-				if (	buffer_size
-				&&	strlen( destination ) +
-					strlen( hash_table_cell->key ) +
-					strlen( data_to_output ) +
-					2 > buffer_size )
+				destination_ptr += sprintf( 
+					destination_ptr, 
+					"%s", 
+					element_delimiter );
+			}
+
+			if (	buffer_size
+			&&	strlen( destination ) +
+				strlen( hash_table_cell->key ) +
+				strlen( hash_table_cell->other_data ) +
+				2 > buffer_size )
 				{
 					char message[ 128 ];
 
@@ -576,14 +567,12 @@ char *hash_table_display_delimiter(
 						message );
 				}
 
-				destination_ptr += sprintf( 
-					destination_ptr, 
-					"%c%s%c%s", 
-					element_delimiter,
-					hash_table_cell->key,
-					attribute_datum_delimiter,
-					data_to_output );
-			}
+			destination_ptr += sprintf( 
+				destination_ptr, 
+				"%s%s%s", 
+				hash_table_cell->key,
+				attribute_datum_delimiter,
+				(char *)hash_table_cell->other_data );
 
 		} while( next_item( list ) );
 	}
@@ -597,8 +586,8 @@ char *hash_table_display( char *destination, HASH_TABLE *h )
 	hash_table_display_delimiter(
 		destination,
 		h,
-		'=',
-		'&',
+		"@=",
+		"@&",
 		0L );
 }
 

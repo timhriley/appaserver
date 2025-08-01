@@ -459,8 +459,8 @@ int dictionary_prefix_highest_row(
 
 char *dictionary_display_delimited(
 		DICTIONARY *dictionary,
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter )
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter )
 {
 	char buffer[ STRING_SIZE_HASH_TABLE ];
 
@@ -496,11 +496,11 @@ DICTIONARY *dictionary_string_resolve( char *dictionary_string )
 		dictionary_string );
 }
 
-/* Sample: "datatype=salinity&station=BA&grade_1=a" */
+/* Sample: "datatype@=salinity@&station@=BA@&grade_1@=a" */
 /* ------------------------------------------------ */
 DICTIONARY *dictionary_string_new(
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		char *dictionary_string )
 {
 	DICTIONARY *dictionary;
@@ -514,19 +514,22 @@ DICTIONARY *dictionary_string_new(
 	dictionary = dictionary_large();
 
  	for(	i = 0;
-		piece(	element,
-			dictionary_element_delimiter,
+		piece_string(
+			element,
+			(char *)dictionary_element_delimiter,
 			dictionary_string,
 			i );
 		i++ )
         {
-                piece(	attribute,
-			dictionary_attribute_datum_delimiter,
+                piece_string(
+			attribute,
+			(char *)dictionary_attribute_datum_delimiter,
 			element,
 			0 );
 
-                piece(	datum,
-			dictionary_attribute_datum_delimiter,
+                piece_string(
+			datum,
+			(char *)dictionary_attribute_datum_delimiter,
 			element,
 			1 );
 

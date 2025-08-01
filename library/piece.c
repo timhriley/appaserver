@@ -1232,6 +1232,16 @@ char *piece_string(
 	int source_strlen = strlen( source );
 	int delimiter_strlen = strlen( delimiter );
 
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	*destination = '\0';
 	if ( !source ) return (char *)0;
 	if ( !*source ) return "";
@@ -1277,6 +1287,16 @@ char *piece_delete_quote_comma(
 	int start_offset;
 	int end_offset;
 	char *delimiter = "\",\"";
+
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	*destination = '\0';
 	if ( !source ) return (char *)0;
@@ -1353,6 +1373,16 @@ char *piece_insert_quote_comma(
 	int start_offset;
 	char *delimiter = "\",\"";
 
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !source ) return (char *)0;
 
 	/* If empty source */
@@ -1411,6 +1441,16 @@ char *piece_replace_quote_comma(
 	char tmp[ 1024 ];
 	char *results;
 
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	piece_delete_quote_comma( tmp, source, piece_offset );
 
 	*destination = '\0';
@@ -1423,8 +1463,7 @@ char *piece_replace_quote_comma(
 	return results;
 }
 
-PIECE_DELIMITER_COUNT *piece_delimiter_count_new(
-			char delimiter )
+PIECE_DELIMITER_COUNT *piece_delimiter_count_new( char delimiter )
 {
 	PIECE_DELIMITER_COUNT *piece_delimiter_count;
 

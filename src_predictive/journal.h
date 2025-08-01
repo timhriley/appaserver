@@ -244,7 +244,7 @@ void journal_list_sum_html_display(
 
 /* Usage */
 /* ----- */
-double journal_list_transaction_amount(
+double journal_transaction_amount(
 		LIST *journal_list );
 
 /* Usage */

@@ -609,8 +609,8 @@ void process_replace_row_count_command_line(
 void process_replace_dictionary_command_line(
 		char *command_line,
 		DICTIONARY *dictionary_single_row,
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		const char *process_dictionary_placeholder )
 {
 	char *tmp;

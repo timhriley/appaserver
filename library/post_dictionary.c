@@ -83,8 +83,8 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 }
 
 POST_DICTIONARY *post_dictionary_string_new(
-		const char dictionary_attribute_datum_delimiter,
-		const char dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
 		char *dictionary_string )
 {
 	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();

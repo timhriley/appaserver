@@ -294,7 +294,7 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
-	double journal_list_transaction_amount;
+	/* double journal_transaction_amount; */
 } LIABILITY_TRANSACTION;
 
 /* Usage */
