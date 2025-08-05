@@ -1066,7 +1066,7 @@ char *ajax_server_format_return_string(
 		char *data_string,
 		char *format_string )
 {
-	char format_return_string[ STRING_1K ];
+	char format_return_string[ STRING_64K ];
 
 	if ( !data_string
 	||   !format_string )
@@ -1088,13 +1088,13 @@ char *ajax_server_format_return_string(
 
 	if (	strlen( data_string ) +
 		strlen( format_string ) +
-		1 >= STRING_1K )
+		1 >= STRING_64K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_1K );
+			STRING_64K );
 
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: %s\n",
