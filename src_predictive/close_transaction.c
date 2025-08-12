@@ -296,8 +296,7 @@ LIST *close_transaction_account_journal_list(
 	do {
 		account = list_get( account_list );
 
-		if ( !account->account_journal_latest->balance )
-				continue;
+		if ( !account->account_journal_latest->balance ) continue;
 
 		journal =
 			/* -------------- */
@@ -308,6 +307,8 @@ LIST *close_transaction_account_journal_list(
 				self_street_address,
 				transaction_date_close_date_time,
 				account->account_name );
+
+		journal->account = account;
 
 		journal->debit_amount =
 			close_transaction_debit_amount(
@@ -338,14 +339,28 @@ LIST *close_transaction_account_journal_list(
 
 double close_transaction_debit_amount(
 		double balance,
-		boolean element_accumulate_debit )
+		boolean accumulate_debit )
 {
 	double debit_amount;
 
-	if ( !element_accumulate_debit )
-		debit_amount = balance;
+	/* If accumulate_credit */
+	/* -------------------- */
+	if ( !accumulate_debit )
+	{
+		if ( balance < 0.0 )
+			debit_amount = 0.0;
+		else
+			debit_amount = balance;
+	}
 	else
-		debit_amount = 0.0;
+	/* If accumulate_debit */
+	/* ------------------- */
+	{
+		if ( balance < 0.0 )
+			debit_amount = -balance;
+		else
+			debit_amount = 0.0;
+	}
 
 	return debit_amount;
 }
@@ -353,14 +368,24 @@ double close_transaction_debit_amount(
 
 double close_transaction_credit_amount(
 		double balance,
-		boolean element_accumulate_debit )
+		boolean accumulate_debit )
 {
 	double credit_amount;
 
-	if ( element_accumulate_debit )
-		credit_amount = balance;
+	if ( accumulate_debit )
+	{
+		if ( balance < 0.0 )
+			credit_amount = 0.0;
+		else
+			credit_amount = balance;
+	}
 	else
-		credit_amount = 0.0;
+	{
+		if ( balance < 0.0 )
+			credit_amount = -balance;
+		else
+			credit_amount = 0.0;
+	}
 
 	return credit_amount;
 }

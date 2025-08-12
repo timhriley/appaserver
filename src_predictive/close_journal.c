@@ -66,6 +66,12 @@ CLOSE_JOURNAL *close_journal_new(
 			close_journal->account_closing_entry_string
 				/* account_name */ );
 
+	close_journal->journal->account =
+		account_fetch(
+			close_journal->account_closing_entry_string,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+	
 	close_journal->element_list_debit_sum =
 		element_list_debit_sum(
 			element_statement_list

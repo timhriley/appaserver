@@ -74,14 +74,14 @@ LIST *close_transaction_account_journal_list(
 /* ----- */
 double close_transaction_debit_amount(
 		double balance,
-		boolean element_accumulate_debit );
+		boolean accumulate_debit );
 
 
 /* Usage */
 /* ----- */
 double close_transaction_credit_amount(
 		double balance,
-		boolean element_accumulate_debit );
+		boolean accumulate_debit );
 
 /* Usage */
 /* ----- */
