@@ -396,13 +396,14 @@ TRIAL_BALANCE *trial_balance_calloc(
 		void );
 
 LIST *trial_balance_element_name_list(
-		char *element_asset,
-		char *element_liability,
-		char *element_revenue,
-		char *element_expense,
-		char *element_gain,
-		char *element_loss,
-		char *element_equity );
+		const char *element_asset,
+		const char *element_liability,
+		const char *element_revenue,
+		const char *element_expense,
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss,
+		const char *element_equity );
 
 /* Returns static memory */
 /* --------------------- */

@@ -46,6 +46,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_calloc(
 LIST *close_nominal_do_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
+		const char *element_expenditure,
 		const char *element_gain,
 		const char *element_loss );
 

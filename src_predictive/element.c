@@ -689,7 +689,9 @@ double element_net_income( LIST *element_statement_list )
 
 	expense =
 		element_seek_sum(
-			ELEMENT_EXPENSE,
+			(char *)element_resolve_expense(
+				ELEMENT_EXPENSE,
+				ELEMENT_EXPENDITURE ),
 			element_statement_list );
 
 	loss =
@@ -741,4 +743,19 @@ double element_income(
 	if ( element_gain ) income += element_gain->sum;
 
 	return income;
+}
+
+const char *element_resolve_expense(
+		const char *element_expense,
+		const char *element_expenditure )
+{
+	if ( element_fetch(
+		(char *)element_expense ) )
+	{
+		return element_expense;
+	}
+	else
+	{
+		return element_expenditure;
+	}
 }

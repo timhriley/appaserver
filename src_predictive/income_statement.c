@@ -503,6 +503,7 @@ INCOME_STATEMENT *income_statement_fetch(
 		income_statement_element_name_list(
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
+			ELEMENT_EXPENDITURE,
 			ELEMENT_GAIN,
 			ELEMENT_LOSS );
 
@@ -642,28 +643,33 @@ INCOME_STATEMENT *income_statement_calloc( void )
 }
 
 LIST *income_statement_element_name_list(
-		char *element_revenue,
-		char *element_expense,
-		char *element_gain,
-		char *element_loss )
+		const char *element_revenue,
+		const char *element_expense,
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss )
 {
 	LIST *element_name_list = list_new();
 
 	list_set(
 		element_name_list,
-		element_revenue );
+		(char *)element_revenue );
 
 	list_set(
 		element_name_list,
-		element_expense );
+		(char *)element_expense );
 
 	list_set(
 		element_name_list,
-		element_gain );
+		(char *)element_expenditure );
 
 	list_set(
 		element_name_list,
-		element_loss );
+		(char *)element_gain );
+
+	list_set(
+		element_name_list,
+		(char *)element_loss );
 
 	return element_name_list;
 }
@@ -1422,6 +1428,7 @@ double income_statement_fetch_net_income(
 		income_statement_element_name_list(
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
+			ELEMENT_EXPENDITURE,
 			ELEMENT_GAIN,
 			ELEMENT_LOSS );
 

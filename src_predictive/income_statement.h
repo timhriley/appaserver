@@ -287,10 +287,11 @@ INCOME_STATEMENT *income_statement_calloc(
 		void );
 
 LIST *income_statement_element_name_list(
-		char *element_revenue,
-		char *element_expense,
-		char *element_gain,
-		char *element_loss );
+		const char *element_revenue,
+		const char *element_expense,
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss );
 
 /* Returns heap memory */
 /* ------------------- */

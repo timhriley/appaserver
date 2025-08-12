@@ -378,7 +378,8 @@ BUDGET *budget_fetch(
 	budget->element_name_list =
 		budget_element_name_list(
 			ELEMENT_REVENUE,
-			ELEMENT_EXPENSE );
+			ELEMENT_EXPENSE,
+			ELEMENT_EXPENDITURE );
 
 	budget->transaction_date_close_boolean =
 		transaction_date_close_boolean(
@@ -592,12 +593,14 @@ DATE *budget_begin_date( char *transaction_date_begin_date_string )
 
 LIST *budget_element_name_list(
 		const char *element_revenue,
-		const char *element_expense )
+		const char *element_expense,
+		const char *element_expenditure )
 {
 	LIST *name_list = list_new();
 
 	list_set( name_list, (char *)element_revenue );
 	list_set( name_list, (char *)element_expense );
+	list_set( name_list, (char *)element_expenditure );
 
 	return name_list;
 }
@@ -1566,7 +1569,12 @@ int budget_annualized_amount_net( LIST *budget_annualized_list )
 
 	expense_sum =
 		budget_annualized_amount_sum(
-			ELEMENT_EXPENSE,
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			(char *)element_resolve_expense(
+				ELEMENT_EXPENSE,
+				ELEMENT_EXPENDITURE ),
 			budget_annualized_list );
 
 	return revenue_sum - expense_sum;
@@ -1610,7 +1618,12 @@ int budget_annualized_budget_net(
 
 	expense_sum =
 		budget_annualized_budget_sum(
-			ELEMENT_EXPENSE,
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			(char *)element_resolve_expense(
+				ELEMENT_EXPENSE,
+				ELEMENT_EXPENDITURE ),
 			budget_annualized_list );
 
 	return revenue_sum - expense_sum;
@@ -2862,7 +2875,12 @@ double budget_amount_net( LIST *budget_annualized_list )
 
 	expense_sum =
 		budget_amount_sum(
-			ELEMENT_EXPENSE,
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			(char *)element_resolve_expense(
+				ELEMENT_EXPENSE,
+				ELEMENT_EXPENDITURE ),
 			budget_annualized_list );
 
 	return revenue_sum - expense_sum;

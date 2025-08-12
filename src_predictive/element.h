@@ -19,6 +19,7 @@
 #define ELEMENT_EQUITY			"equity"
 #define ELEMENT_REVENUE			"revenue"
 #define ELEMENT_EXPENSE			"expense"
+#define ELEMENT_EXPENDITURE		"expenditure"
 #define ELEMENT_GAIN			"gain"
 #define ELEMENT_LOSS			"loss"
 
@@ -149,6 +150,15 @@ void element_account_transaction_count_set(
 		LIST *element_statement_list,
 		char *transaction_begin_date_string,
 		char *end_date_time_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns either parameter */
+/* ------------------------ */
+const char *element_resolve_expense(
+		const char *element_expense,
+		const char *element_expenditure );
 
 /* Usage */
 /* ----- */

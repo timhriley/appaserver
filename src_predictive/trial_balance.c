@@ -101,6 +101,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			ELEMENT_LIABILITY,
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
+			ELEMENT_EXPENDITURE,
 			ELEMENT_GAIN,
 			ELEMENT_LOSS,
 			ELEMENT_EQUITY );
@@ -352,23 +353,25 @@ TRIAL_BALANCE *trial_balance_fetch(
 }
 
 LIST *trial_balance_element_name_list(
-		char *element_asset,
-		char *element_liability,
-		char *element_revenue,
-		char *element_expense,
-		char *element_gain,
-		char *element_loss,
-		char *element_equity )
+		const char *element_asset,
+		const char *element_liability,
+		const char *element_revenue,
+		const char *element_expense,
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss,
+		const char *element_equity )
 {
 	LIST *element_name_list = list_new();
 
-	list_set( element_name_list, element_asset );
-	list_set( element_name_list, element_liability );
-	list_set( element_name_list, element_revenue );
-	list_set( element_name_list, element_expense );
-	list_set( element_name_list, element_gain );
-	list_set( element_name_list, element_loss );
-	list_set( element_name_list, element_equity );
+	list_set( element_name_list, (char *)element_asset );
+	list_set( element_name_list, (char *)element_liability );
+	list_set( element_name_list, (char *)element_revenue );
+	list_set( element_name_list, (char *)element_expense );
+	list_set( element_name_list, (char *)element_expenditure );
+	list_set( element_name_list, (char *)element_gain );
+	list_set( element_name_list, (char *)element_loss );
+	list_set( element_name_list, (char *)element_equity );
 
 	return element_name_list;
 }

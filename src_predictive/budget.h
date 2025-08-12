@@ -546,7 +546,8 @@ double budget_year_ratio(
 
 LIST *budget_element_name_list(
 		const char *element_revenue,
-		const char *element_expense );
+		const char *element_expense,
+		const char *element_expenditure );
 
 /* Returns heap memory */
 /* ------------------- */

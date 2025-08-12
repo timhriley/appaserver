@@ -68,6 +68,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 		close_nominal_do_element_name_list(
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
+			ELEMENT_EXPENDITURE,
 			ELEMENT_GAIN,
 			ELEMENT_LOSS );
 
@@ -180,6 +181,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 LIST *close_nominal_do_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
+		const char *element_expenditure,
 		const char *element_gain,
 		const char *element_loss )
 {
@@ -187,6 +189,7 @@ LIST *close_nominal_do_element_name_list(
 
 	list_set( list, (char *)element_revenue );
 	list_set( list, (char *)element_expense );
+	list_set( list, (char *)element_expenditure );
 	list_set( list, (char *)element_gain );
 	list_set( list, (char *)element_loss );
 
