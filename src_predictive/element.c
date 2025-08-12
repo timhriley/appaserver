@@ -149,12 +149,13 @@ ELEMENT *element_statement_parse(
 	if ( fetch_subclassification_list )
 	{
 		element->subclassification_statement_list =
-			subclassification_statement_list(
+			subclassification_where_statement_list(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
 				element_primary_where( element->element_name ),
 				end_date_time_string,
+				0 /* not fetch_element */,
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction );
@@ -281,10 +282,10 @@ double element_sum( ELEMENT *element )
 	}
 
 	return
+	/* --------------------------- */
+	/* Sets subclassification->sum */
+	/* --------------------------- */
 	subclassification_list_sum_set(
-		/* --------------------------- */
-		/* Sets subclassification->sum */
-		/* --------------------------- */
 		element->subclassification_statement_list );
 }
 

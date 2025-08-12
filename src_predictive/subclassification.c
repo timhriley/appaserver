@@ -16,9 +16,10 @@
 #include "appaserver_error.h"
 #include "subclassification.h"
 
-LIST *subclassification_statement_list(
-		char *element_primary_where,
+LIST *subclassification_where_statement_list(
+		char *where,
 		char *end_date_time_string,
+		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction )
@@ -27,7 +28,7 @@ LIST *subclassification_statement_list(
 	char input[ 256 ];
 	LIST *list;
 
-	if ( !element_primary_where
+	if ( !where
 	||   !end_date_time_string )
 	{
 		char message[ 128 ];
@@ -51,7 +52,7 @@ LIST *subclassification_statement_list(
 			subclassification_system_string(
 				SUBCLASSIFICATION_SELECT,
 				SUBCLASSIFICATION_TABLE,
-				element_primary_where ) );
+				where ) );
 
 	while ( string_input( input, pipe, 256 ) )
 	{
@@ -60,6 +61,7 @@ LIST *subclassification_statement_list(
 			subclassification_statement_parse(
 				input,
 				end_date_time_string,
+				fetch_element,
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction ) );
@@ -73,6 +75,7 @@ LIST *subclassification_statement_list(
 SUBCLASSIFICATION *subclassification_statement_parse(
 		char *input,
 		char *end_date_time_string,
+		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction )
@@ -97,7 +100,7 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 	if ( ! ( subclassification =
 			subclassification_parse(
 				input,
-				0 /* not fetch_element */ ) ) )
+				fetch_element ) ) )
 	{
 		return NULL;
 	}
@@ -506,12 +509,9 @@ double subclassification_list_debit_sum(
 		boolean element_accumulate_debit )
 {
 	SUBCLASSIFICATION *subclassification;
-	double sum;
+	double sum = {0};
 
-	if ( !list_rewind( subclassification_statement_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( subclassification_statement_list ) )
 	do {
 		subclassification =
 			list_get(
@@ -524,7 +524,9 @@ double subclassification_list_debit_sum(
 					subclassification->
 						account_statement_list
 							/* account_list */,
-					element_accumulate_debit );
+					subclassification_accumulate_debit(
+						element_accumulate_debit,
+						subclassification->element ) );
 		}
 
 	} while ( list_next( subclassification_statement_list ) );
@@ -537,12 +539,9 @@ double subclassification_list_credit_sum(
 		boolean element_accumulate_debit )
 {
 	SUBCLASSIFICATION *subclassification;
-	double sum;
+	double sum = {0};
 
-	if ( !list_rewind( subclassification_statement_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( subclassification_statement_list ) )
 	do {
 		subclassification =
 			list_get(
@@ -555,7 +554,9 @@ double subclassification_list_credit_sum(
 					subclassification->
 						account_statement_list
 							/* account_list */,
-						element_accumulate_debit );
+					subclassification_accumulate_debit(
+						element_accumulate_debit,
+						subclassification->element ) );
 		}
 
 	} while ( list_next( subclassification_statement_list ) );
@@ -774,3 +775,37 @@ boolean subclassification_receivable_boolean(
 			subclassification_name ) == 0 );
 }
 
+boolean subclassification_accumulate_debit(
+		boolean element_accumulate_debit,
+		ELEMENT *element )
+{
+	boolean accumulate_debit;
+
+	if ( element_accumulate_debit != -1 )
+	{
+		accumulate_debit =
+			element_accumulate_debit;
+	}
+	else
+	{
+		if ( !element )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"element is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		accumulate_debit = element->accumulate_debit;
+	}
+
+	return accumulate_debit;
+}

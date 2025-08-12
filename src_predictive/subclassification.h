@@ -33,6 +33,12 @@
 						"Equity Beginning Balance"
 
 #define SUBCLASSIFICATION_NET_ASSETS		"net_assets"
+#define SUBCLASSIFICATION_DRAWING		"drawing"
+#define SUBCLASSIFICATION_APPROPRIATION		"appropriation"
+#define SUBCLASSIFICATION_ENCUMBRANCE		"encumbrance"
+#define SUBCLASSIFICATION_ESTIMATED_INTERFUND	"estimated_interfund"
+#define SUBCLASSIFICATION_ESTIMATED_REVENUE	"estimated_revenue"
+#define SUBCLASSIFICATION_INTERFUND		"interfund"
 
 typedef struct
 {
@@ -49,9 +55,10 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *subclassification_statement_list(
-		char *element_primary_where,
+LIST *subclassification_where_statement_list(
+		char *where,
 		char *end_date_time_string,
+		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction );
@@ -74,6 +81,7 @@ FILE *subclassification_pipe(
 SUBCLASSIFICATION *subclassification_statement_parse(
 		char *input,
 		char *end_date_time_string,
+		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction );
@@ -130,10 +138,11 @@ LIST *subclassification_system_list(
 
 /* Usage */
 /* ----- */
+
+/* --------------------------- */
+/* Sets subclassification->sum */
+/* --------------------------- */
 double subclassification_list_sum_set(
-		/* --------------------------- */
-		/* Sets subclassification->sum */
-		/* --------------------------- */
 		LIST *subclassification_statement_list );
 
 /* Usage */
@@ -184,22 +193,34 @@ SUBCLASSIFICATION *subclassification_element_list_seek(
 		char *subclassification_name,
 		LIST *element_statement_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 double subclassification_list_debit_sum(
 		LIST *subclassification_statement_list,
 		boolean element_accumulate_debit );
 
+/* Usage */
+/* ----- */
 double subclassification_list_credit_sum(
 		LIST *subclassification_statement_list,
 		boolean element_accumulate_debit );
 
+/* Usage */
+/* ----- */
 boolean subclassification_current_liability_boolean(
 		char *subclassification_current_liability,
 		char *subclassification_name );
 
+/* Usage */
+/* ----- */
 boolean subclassification_receivable_boolean(
 		char *subclassification_receivable,
 		char *subclassification_name );
+
+/* Usage */
+/* ----- */
+boolean subclassification_accumulate_debit(
+		boolean element_accumulate_debit,
+		ELEMENT *element );
 
 #endif

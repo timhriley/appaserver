@@ -103,7 +103,11 @@ SALE_LIBRARY=								\
 		customer_payment_transaction.o				\
 		sale_transaction.o					\
 		sale_loss_transaction.o
-										
+CLOSE_LIBRARY= 								\
+		close_nominal.o						\
+		close_journal.o						\
+		close_transaction.o
+
 EXECUTABLES=	trial_balance_output					\
 		income_statement_output					\
 		balance_sheet_output					\
@@ -329,13 +333,13 @@ balance_sheet_output: balance_sheet_output.c				\
 
 close_nominal_accounts: close_nominal_accounts.c			\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
-	close_nominal.o
+	${CLOSE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
+		${CLOSE_LIBRARY}					\
 		close_nominal_accounts.c				\
-		close_nominal.o						\
 		-o close_nominal_accounts
 
 import_predictbooks: import_predictbooks.c				\
@@ -1097,6 +1101,14 @@ recovery_statutory_accelerated_half_year:				\
 close_nominal.o: close_nominal.c close_nominal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c close_nominal.c
+
+close_transaction.o: close_transaction.c close_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c close_transaction.c
+
+close_journal.o: close_journal.c close_journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c close_journal.c
 
 invoice.o: invoice.c invoice.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

@@ -115,6 +115,9 @@ ELEMENT *element_statement_parse(
 
 /* Usage */
 /* ----- */
+
+/* Sets element->sum */
+/* ----------------- */
 void element_list_sum_set(
 		LIST *element_statement_list );
 

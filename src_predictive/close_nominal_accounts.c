@@ -189,13 +189,13 @@ void close_nominal_accounts_do(
 	else
 	if ( execute )
 	{
-		if ( !close_nominal_do->close_nominal_transaction
-		||   !close_nominal_do->close_nominal_transaction->transaction )
+		if ( !close_nominal_do->close_transaction
+		||   !close_nominal_do->close_transaction->transaction )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-			"close_nominal_transaction is empty or incomplete." );
+			"close_transaction is empty or incomplete." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -206,29 +206,29 @@ void close_nominal_accounts_do(
 
 		transaction_insert(
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				full_name,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				street_address,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				transaction_date_time,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				transaction_amount,
 			0 /* check_number */,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				memo,
 			'n' /* transaction_lock_yn */,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				journal_list,
 			1 /* insert_journal_list_boolean */ );
@@ -237,15 +237,15 @@ void close_nominal_accounts_do(
 	{
 		journal_list_sum_html_display(
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				journal_list,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				transaction_date_time,
 			close_nominal_do->
-				close_nominal_transaction->
+				close_transaction->
 				transaction->
 				memo,
 			close_nominal_do->
