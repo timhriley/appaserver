@@ -1644,8 +1644,18 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 	statement_account->balance = account_journal_latest->balance;
 
-	/* For non trial_balance reports */
-	/* ----------------------------- */
+	/* For trial_balance report */
+	/* ------------------------ */
+/*
+	if ( statement_account->balance < 0.0 )
+	{
+		statement_account->balance =
+			0.0 - statement_account->balance;
+
+		element_accumulate_debit = 1 - element_accumulate_debit;
+	}
+*/
+
 	statement_account->balance_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1654,16 +1664,6 @@ STATEMENT_ACCOUNT *statement_account_new(
 			statement_account->balance,
 			account_action_string,
 			round_dollar_boolean );
-
-	/* For trial_balance report */
-	/* ------------------------ */
-	if ( statement_account->balance < 0.0 )
-	{
-		statement_account->balance =
-			0.0 - statement_account->balance;
-
-		element_accumulate_debit = 1 - element_accumulate_debit;
-	}
 
 	if ( element_accumulate_debit )
 	{
