@@ -34,13 +34,16 @@ state_code="CA"
 canvass_name="discovery 1"
 utm_zone=10
 
-heading="Street,Apartments,Houses,Total"
-
 document_body.sh
+
+title_html="<h1>`echo "$process" | format_initial_capital.e`</h1>"
+echo "$title_html"
+echo "<h2> `now.sh 19` </h2>"
+
+heading="Street,Apartments,Houses,Total"
 
 # Send to screen
 # --------------
-echo "$heading"
 canvass_execute	"$start_street_address"		\
 		"$city"				\
 		"$state_code"			\
@@ -48,8 +51,7 @@ canvass_execute	"$start_street_address"		\
 		"$maximum_weight"		\
 		$utm_zone			|
 piece_sum.e '^' 1,2,3				|
-double_quote_comma_delimited.e '^'		|
-html_paragraph_wrapper.e			|
+html_table.e '' "$heading" '^' "left,right"
 cat
 
 # Send to file

@@ -31,7 +31,7 @@ process_name=$1
 
 process_title=`echo "$process_name" | string_initial_capital.e '|' 0`
 
-document_body.sh $application
+document_body.sh
 echo "<h1>$process_title</h1>"
 
 ledger_propagate ''

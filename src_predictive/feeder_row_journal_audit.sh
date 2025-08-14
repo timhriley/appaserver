@@ -35,7 +35,7 @@ title_html="<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
 
 if [ "$feeder_account" = "feeder_account" ]
 then
-	document_body.sh $application
+	document_body.sh
 	echo "$title_html"
 
 	echo "<h3>Please select a Feeder Account</h3>"

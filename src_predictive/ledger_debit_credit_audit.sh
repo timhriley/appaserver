@@ -58,7 +58,7 @@ ledger_debit_credit_audit "$minimum_transaction_date"		|
 html_table.e "" "$heading" "^" "$justification"			|
 cat
 
-echo "</body></html>"
+document_close.sh
 
 exit 0
 
