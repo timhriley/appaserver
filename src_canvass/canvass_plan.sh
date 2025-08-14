@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/canvass_plan.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -15,11 +19,14 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage $0 maximum_weight" 1>&2
+	echo "Usage $0 process maximum_weight" 1>&2
 	exit 1
 fi
+
+process="$1"
+maximum_weight=$2
 
 start_street_address="DELGADO WAY"
 city="SACRAMENTO"
@@ -27,9 +34,9 @@ state_code="CA"
 canvass_name="discovery 1"
 utm_zone=10
 
-maximum_weight=$1
-
 heading="Street,Apartments,Houses,Total"
+
+document_body.sh
 
 # Send to screen
 # --------------
@@ -42,6 +49,7 @@ canvass_execute	"$start_street_address"		\
 		$utm_zone			|
 piece_sum.e '^' 1,2,3				|
 double_quote_comma_delimited.e '^'		|
+html_paragraph_wrapper.e			|
 cat
 
 # Send to file
@@ -58,7 +66,9 @@ piece_sum.e '^' 1,2,3				|
 double_quote_comma_delimited.e '^'		|
 cat
 ) | cat > /tmp/household.csv
-echo "Created: /tmp/household.csv"
+
+echo "Created: /tmp/household.csv"		|
+html_paragraph_wrapper.e
 
 # Send to apartment.sh
 # --------------------
@@ -70,7 +80,9 @@ canvass_execute	"$start_street_address"		\
 		$utm_zone			|
 apartment.sh 					|
 cat > /tmp/apartment.csv
-echo "Created: /tmp/apartment.csv"
+
+echo "Created: /tmp/apartment.csv"		|
+html_paragraph_wrapper.e
 
 # Send to lookup.sh
 # -----------------
@@ -80,6 +92,9 @@ canvass_execute	"$start_street_address"		\
 		"$canvass_name"			\
 		"$maximum_weight"		\
 		$utm_zone			|
-lookup.sh
+lookup.sh					|
+html_paragraph_wrapper.e
+
+document_close.sh
 
 exit 0
