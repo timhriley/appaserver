@@ -18,10 +18,16 @@ int number_match_function(
 void sort_delimited_numbers(
 		char reverse_yn );
 
+int sort_delimited_numbers_integer_compare(
+		char *list_string,
+		char *input_string );
+
 void sort_delimited_numbers_output(
 		LIST *list,
 		char reverse_yn );
 
+/* Needs to be global b/c number_match_function() can only have 2 parameters. */
+/* -------------------------------------------------------------------------- */
 char delimiter;
 
 int main( int argc, char **argv )
@@ -67,56 +73,48 @@ int number_match_function(
 		char *list_number_string,
 		char *input_number_string )
 {
-	char list_left_half_string[ 16 ];
-	char list_right_half_string[ 16 ];
-	char input_left_half_string[ 16 ];
-	char input_right_half_string[ 16 ];
-	int list_left_half_integer;
-	int list_right_half_integer;
-	int input_left_half_integer;
-	int input_right_half_integer;
+	int p;
+	char list_string[ 128 ];
+	char input_string[ 128 ];
+	int integer_compare;
 
-	/* Parse number in list */
-	/* -------------------- */
-	piece( list_left_half_string, delimiter, list_number_string, 0 );
-
-	*list_right_half_string = '\0';
-	piece( list_right_half_string, delimiter, list_number_string, 1 );
-
-	list_left_half_integer = atoi( list_left_half_string );
-	list_right_half_integer = atoi( list_right_half_string );
-
-	/* Parse input number */
-	/* ------------------ */
-	piece( input_left_half_string, delimiter, input_number_string, 0 );
-
-	*input_right_half_string = '\0';
-	piece( input_right_half_string, delimiter, input_number_string, 1 );
-
-	input_left_half_integer = atoi( input_left_half_string );
-	input_right_half_integer = atoi( input_right_half_string );
-
-	if ( list_left_half_integer < input_left_half_integer )
+	for (	p = 0;
+		piece( list_string, delimiter, list_number_string, p );
+		p++ )
 	{
-		return -1;
-	}
+		if ( !piece( input_string, delimiter, input_number_string, p ) )
+		{
+			return -1;
+		}
 
-	if ( list_left_half_integer > input_left_half_integer )
-	{
-		return 1;
-	}
+		integer_compare =
+			sort_delimited_numbers_integer_compare(
+				list_string,
+				input_string );
 
-	if ( list_right_half_integer < input_right_half_integer )
-	{
-		return -1;
-	}
-
-	if ( list_right_half_integer > input_right_half_integer )
-	{
-		return 1;
+		if ( integer_compare != 0 ) return integer_compare;
 	}
 
 	return 0;
+}
+
+int sort_delimited_numbers_integer_compare(
+		char *list_string,
+		char *input_string )
+{
+	int list;
+	int input;
+
+	list = string_atoi( list_string );
+	input = string_atoi( input_string );
+
+	if ( list < input )
+		return -1;
+	else
+	if ( list == input )
+		return 0;
+	else
+		return 1;
 }
 
 void sort_delimited_numbers_output(
