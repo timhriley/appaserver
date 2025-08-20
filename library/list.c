@@ -992,6 +992,24 @@ LIST *list_pipe( char *system_string )
 	return list;
 }
 
+LIST *list_stdin( void )
+{
+	char buffer[ 65536 ];
+	FILE *p;
+	LIST *list = list_new();
+
+	p = popen( "cat", "r" );
+
+	while( string_input( buffer, p, 65536 ) )
+	{
+		list_set_string( list, buffer );
+	}
+
+	pclose( p );
+
+	return list;
+}
+
 void list_load_from_pipe( LIST *list, char *pipe_string )
 {
 	char buffer[ 65536 ];

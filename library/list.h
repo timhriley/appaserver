@@ -57,6 +57,11 @@ LIST *list_new( void );
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+LIST *list_stdin(
+		void );
+
 /* Public */
 /* ------ */
 void list_load_from_pipe( LIST *list, char *pipe_string );

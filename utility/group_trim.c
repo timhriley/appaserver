@@ -1,7 +1,7 @@
-/* $APPASERVER_HOME/utility/group_trim.c			*/
-/* ------------------------------------------------------------ */
-/* Freely available software: see Appaserver.org		*/
-/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/utility/group_trim.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,8 +44,7 @@ int main( int argc, char **argv )
 	group_trim( delimiter, column_count );
 	
 	return 0;
-
-} /* main() */
+}
 
 void group_trim( char delimiter, int column_count )
 {
@@ -87,14 +86,12 @@ void group_trim( char delimiter, int column_count )
 			printf( "%s\n", input_buffer );
 		}
 	}
-
-} /* group_trim() */
+}
 
 void output_delimiters(
 		char delimiter,
 		int column_count )
 {
 	while( column_count-- ) printf( "%c", delimiter );
-
-} /* output_delimiters() */
+}
 
