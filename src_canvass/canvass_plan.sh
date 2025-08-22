@@ -33,6 +33,8 @@ city="SACRAMENTO"
 state_code="CA"
 canvass_name="discovery 1"
 utm_zone=10
+household_file="/tmp/household.csv"
+apartment_file="/tmp/apartment.csv"
 
 document_body.sh
 
@@ -67,9 +69,9 @@ canvass_execute	"$start_street_address"		\
 piece_sum.e '^' 1,2,3				|
 double_quote_comma_delimited.e '^'		|
 cat
-) | cat > /tmp/household.csv
+) | cat > $household_file
 
-echo "Created: /tmp/household.csv"		|
+echo "Created: $household_file"			|
 html_paragraph_wrapper.e
 
 # Send to apartment.sh
@@ -81,9 +83,9 @@ canvass_execute	"$start_street_address"		\
 		"$maximum_weight"		\
 		$utm_zone			|
 apartment.sh 					|
-cat > /tmp/apartment.csv
+cat > $apartment_file
 
-echo "Created: /tmp/apartment.csv"		|
+echo "Created: $apartment_file"			|
 html_paragraph_wrapper.e
 
 # Send to lookup.sh
