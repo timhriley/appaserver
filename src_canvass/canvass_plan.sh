@@ -51,7 +51,7 @@ canvass_execute	"$start_street_address"		\
 		"$maximum_weight"		\
 		$utm_zone			|
 piece_sum.e '^' 1,2,3				|
-html_table.e '' "$heading" '^' "left,right"
+html_table.e '' "$heading" '^' "left,right"	|
 cat
 
 # Send to file
