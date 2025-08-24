@@ -28,7 +28,9 @@ int main( int argc, char **argv )
 	EXECUTE_SELECT *execute_select;
 	int row_count;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	application_name =
+		environ_exit_application_name(
+			argv[ 0 ] );
 
 	if ( argc != 7 )
 	{
@@ -82,7 +84,6 @@ int main( int argc, char **argv )
 			session_key,
 			role_name,
 			select_statement_title,
-			login_name,
 			statement,
 			appaserver_parameter->data_directory );
 

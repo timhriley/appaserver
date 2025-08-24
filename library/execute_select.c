@@ -27,7 +27,6 @@ EXECUTE_SELECT *execute_select_new(
 		char *session_key,
 		char *role_name,
 		char *select_statement_title,
-		char *login_name,
 		char *statement,
 		char *data_directory )
 {
@@ -37,7 +36,6 @@ EXECUTE_SELECT *execute_select_new(
 	||   !session_key
 	||   !role_name
 	||   !select_statement_title
-	||   !login_name
 	||   !statement
 	||   !data_directory )
 	{
@@ -62,15 +60,13 @@ EXECUTE_SELECT *execute_select_new(
 	{
 		if ( ! ( execute_select->select_statement =
 				select_statement_fetch(
-					select_statement_title,
-					login_name ) ) )
+					select_statement_title ) ) )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-			"select_statement_fetch( %s, %s ) returned empty.",
-				select_statement_title,
-				login_name );
+			"select_statement_fetch( %s ) returned empty.",
+				select_statement_title );
 
 			appaserver_error_stderr_exit(
 				__FILE__,

@@ -54,7 +54,6 @@ EXECUTE_SELECT *execute_select_new(
 		char *session_key,
 		char *role_name,
 		char *select_statement_title,
-		char *login_name,
 		char *statement,
 		char *data_directory );
 
