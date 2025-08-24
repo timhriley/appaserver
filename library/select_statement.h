@@ -1,7 +1,8 @@
-/* $APPASERVER_HOME/library/select_statement.h		*/
-/* ---------------------------------------------------- */
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
+/* -------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/select_statement.h				*/
+/* -------------------------------------------------------------	*/
+/* No warranty and freely available software: see Appaserver.org	*/
+/* -------------------------------------------------------------	*/
 
 #ifndef SELECT_STATEMENT_H
 #define SELECT_STATEMENT_H
@@ -22,8 +23,7 @@ typedef struct
 /* Usage */
 /* ----- */
 SELECT_STATEMENT *select_statement_fetch(
-			char *select_statement_title,
-			char *login_name );
+			char *select_statement_title );
 
 /* Process */
 /* ------- */
@@ -31,14 +31,12 @@ SELECT_STATEMENT *select_statement_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *select_statement_primary_where(
-			char *select_statement_title,
-			char *login_name );
+			char *select_statement_title );
 
 /* Usage */
 /* ----- */
 SELECT_STATEMENT *select_statement_parse(
 			char *select_statement_title,
-			char *login_name,
 			char *input );
 
 /* Process */

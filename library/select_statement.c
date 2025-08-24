@@ -1,7 +1,8 @@
-/* $APPASERVER_HOME/library/select_statement.c		*/
-/* ---------------------------------------------------- */
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
+/* -------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/select_statement.c				*/
+/* -------------------------------------------------------------	*/
+/* No warranty and freely available software: see Appaserver.org	*/
+/* -------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,16 +15,14 @@
 #include "select_statement.h"
 
 SELECT_STATEMENT *select_statement_fetch(
-		char *select_statement_title,
-		char *login_name )
+		char *select_statement_title )
 {
 	char *system_string;
 	char *input;
 
-	if ( !select_statement_title
-	||   !login_name )
+	if ( !select_statement_title )
 	{
-		char message[ 256 ];
+		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
 
@@ -45,8 +44,7 @@ SELECT_STATEMENT *select_statement_fetch(
 			/* Returns static memory */
 			/* --------------------- */
 			select_statement_primary_where(
-				select_statement_title,
-				login_name ) );
+				select_statement_title ) );
 
 	if ( ! ( input =
 			/* --------------------------- */
@@ -61,20 +59,16 @@ SELECT_STATEMENT *select_statement_fetch(
 	return
 	select_statement_parse(
 		select_statement_title,
-		login_name,
 		input );
 }
 
-char *select_statement_primary_where(
-		char *select_statement_title,
-		char *login_name )
+char *select_statement_primary_where( char *select_statement_title )
 {
 	static char where[ 256 ];
 
-	if ( !select_statement_title
-	||   !login_name )
+	if ( !select_statement_title  )
 	{
-		char message[ 256 ];
+		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
 
@@ -83,29 +77,31 @@ char *select_statement_primary_where(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
-	sprintf(where,
-		"select_statement_title = '%s' and "
-		"login_name = '%s'",
-		select_statement_title,
-		login_name );
+	snprintf(
+		where,
+		sizeof ( where ),
+		"select_statement_title = '%s'",
+		select_statement_title );
 
 	return where;
 }
 
 SELECT_STATEMENT *select_statement_parse(
 		char *select_statement_title,
-		char *login_name,
 		char *input )
 {
 	SELECT_STATEMENT *select_statement;
 
 	if ( !select_statement_title
-	||   !login_name
 	||   !input )
 	{
-		char message[ 256 ];
+		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
 
@@ -119,7 +115,6 @@ SELECT_STATEMENT *select_statement_parse(
 	select_statement = select_statement_calloc();
 
 	select_statement->select_statement_title = select_statement_title;
-	select_statement->login_name = login_name;
 	select_statement->statement = strdup( input );
 
 	return select_statement;
@@ -133,7 +128,7 @@ SELECT_STATEMENT *select_statement_calloc( void )
 			calloc( 1,
 				sizeof ( SELECT_STATEMENT ) ) ) )
 	{
-		char message[ 256 ];
+		char message[ 128 ];
 
 		sprintf(message, "calloc() returned empty." );
 
