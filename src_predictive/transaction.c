@@ -82,12 +82,10 @@ TRANSACTION *transaction_fetch(
 		char *transaction_date_time,
 		boolean fetch_journal_list )
 {
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time )
+	if ( !transaction_date_time )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		"ERROR in %s/%s()/%d: transaction_date_time is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -97,13 +95,16 @@ TRANSACTION *transaction_fetch(
 	return
 	transaction_parse(
 		string_pipe_fetch(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			transaction_system_string(
 				TRANSACTION_SELECT,
 				TRANSACTION_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-	 			transaction_primary_where(
+	 			transaction_fetch_where(
 					full_name,
 					street_address,
 					transaction_date_time ) ) ),
@@ -436,11 +437,19 @@ char *transaction_race_free_date_time( char *transaction_date_time )
 			1 );
 
 		transaction_date_time =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			date_display_yyyy_mm_dd_colon_hms(
 				next_transaction_date_time );
 	}
 
 	semaphore_signal( semaphore->id );
+
+	if ( next_transaction_date_time )
+	{
+		date_free( next_transaction_date_time );
+	}
 
 	return transaction_date_time;
 }
@@ -1619,34 +1628,14 @@ char *transaction_date_time_fetch_where( char *transaction_date_time )
 
 char *transaction_date_time_memo_maximum_string(
 		const char *transaction_table,
-		const char *transaction_close_memo,
-		char *entity_self_full_name,
-		char *entity_self_street_address )
+		const char *transaction_close_memo )
 {
-	char where_string[ 256 ];
+	char where_string[ 128 ];
 
-	if ( !entity_self_full_name
-	||   !entity_self_street_address )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(where_string,
-		"%s and memo = '%s'",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_primary_where(
-			entity_self_full_name,
-			entity_self_street_address ),
+	snprintf(
+		where_string,
+		sizeof ( where_string ),
+		"memo = '%s'",
 		transaction_close_memo );
 
 	return
@@ -1688,25 +1677,11 @@ char *transaction_date_end_date_time_string(
 
 TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 	transaction_date_close_nominal_undo_new(
-		char *entity_self_full_name,
-		char *entity_self_street_address )
+		const char *transaction_table,
+		const char *transaction_close_memo )
 {
 	TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 		transaction_date_close_nominal_undo;
-
-	if ( !entity_self_full_name
-	||   !entity_self_street_address )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
 
 	transaction_date_close_nominal_undo =
 		transaction_date_close_nominal_undo_calloc();
@@ -1717,10 +1692,8 @@ TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			transaction_date_time_memo_maximum_string(
-				TRANSACTION_TABLE,
-				TRANSACTION_CLOSE_MEMO,
-				entity_self_full_name,
-				entity_self_street_address );
+				transaction_table,
+				transaction_close_memo );
 
 	return transaction_date_close_nominal_undo;
 }
@@ -2225,5 +2198,38 @@ TRANSACTION *transaction_binary_account_key(
 		memo,
 		debit_account_name,
 		credit_account_name );
+}
+
+char *transaction_fetch_where(
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time )
+{
+	char *return_where;
+	static char where[ 128 ];
+
+	if ( full_name && street_address )
+	{
+		return_where =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_primary_where(
+				full_name,
+				street_address,
+				transaction_date_time );
+	}
+	else
+	{
+		snprintf(
+			where,
+			sizeof ( where ),
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+		return_where = where;
+	}
+
+	return return_where;
 }
 

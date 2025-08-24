@@ -183,6 +183,8 @@ char *date_display19(
 char *date_display_19(
 		DATE *date );
 
+/* Returns heap memory */
+/* ------------------- */
 char *date_display_yyyy_mm_dd_colon_hms(
 		DATE *date );
 

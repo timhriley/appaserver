@@ -58,8 +58,8 @@ typedef struct
 /* -------------- */
 TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 	transaction_date_close_nominal_undo_new(
-		char *entity_self_full_name,
-		char *entity_self_street_address );
+		const char *transaction_table,
+		const char *transaction_close_memo );
 
 /* Process */
 /* ------- */
@@ -263,9 +263,7 @@ char *transaction_date_time_maximum_string(
 /* --------------------------- */
 char *transaction_date_time_memo_maximum_string(
 		const char *transaction_table,
-		const char *transaction_close_memo,
-		char *entity_self_full_name,
-		char *entity_self_street_address );
+		const char *transaction_close_memo );
 
 /* Usage */
 /* ----- */
@@ -610,6 +608,19 @@ char *transaction_increment_date_time(
 
 /* Usage */
 /* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_fetch_where(
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns transaction_date_time or heap memory */
+/* -------------------------------------------- */
 char *transaction_race_free_date_time(
 		char *transaction_date_time );
 

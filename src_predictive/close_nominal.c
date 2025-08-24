@@ -226,7 +226,9 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
-			close_nominal_undo_fetch();
+			close_nominal_undo_fetch(
+				TRANSACTION_TABLE,
+				TRANSACTION_CLOSE_MEMO );
 
 		if ( !close_nominal->
 			close_nominal_undo->
@@ -345,27 +347,12 @@ char *close_nominal_do_transaction_exists_message(
 	return message;
 }
 
-CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch( void )
+CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
+		const char *transaction_table,
+		const char *transaction_close_memo )
 {
 	CLOSE_NOMINAL_UNDO *close_nominal_undo =
 		close_nominal_undo_calloc();
-
-	close_nominal_undo->entity_self =
-		entity_self_fetch(
-			0 /* not fetch_entity_boolean */ );
-
-	if ( !close_nominal_undo->entity_self )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "entity_self_fetch() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
 
 	close_nominal_undo->
 		transaction_date_close_nominal_undo =
@@ -373,12 +360,8 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch( void )
 			/* Safely returns */
 			/* -------------- */
 			transaction_date_close_nominal_undo_new(
-				close_nominal_undo->
-					entity_self->
-					full_name,
-				close_nominal_undo->
-					entity_self->
-					street_address );
+				transaction_table,
+				transaction_close_memo );
 
 	if ( !close_nominal_undo->
 		transaction_date_close_nominal_undo->
@@ -389,12 +372,8 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch( void )
 
 	if ( ! ( close_nominal_undo->transaction =
 		    transaction_fetch(
-			close_nominal_undo->
-				entity_self->
-				full_name,
-			close_nominal_undo->
-				entity_self->
-				street_address,
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
 			close_nominal_undo->
 				transaction_date_close_nominal_undo->
 				transaction_date_time_memo_maximum_string,
@@ -402,7 +381,9 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch( void )
 	{
 		char message[ 128 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"transaction_fetch(%s) returned empty.",
 			close_nominal_undo->
 				transaction_date_close_nominal_undo->

@@ -67,7 +67,6 @@ char *close_nominal_do_transaction_exists_message(
 
 typedef struct
 {
-	ENTITY_SELF *entity_self;
 	TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 		transaction_date_close_nominal_undo;
 	TRANSACTION *transaction;
@@ -79,7 +78,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
-		void );
+		const char *transaction_table,
+		const char *transaction_close_memo );
 
 /* Process */
 /* ------- */
