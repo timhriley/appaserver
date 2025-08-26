@@ -108,7 +108,7 @@ DICTIONARY *post_dictionary_fetch(
 		char *apache_key )
 {
 	char input[ STRING_65K ];
-	char *apache_label;
+	char *apache_marker;
 	char *attribute_name;
 	char *datum;
 	POST_DICTIONARY_FILE *post_dictionary_file;
@@ -134,17 +134,19 @@ DICTIONARY *post_dictionary_fetch(
 	{
 		if ( !*input ) continue;
 
-		apache_label =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			post_dictionary_apache_label(
+		apache_marker =
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			post_dictionary_apache_marker(
 				input );
+
+		if ( !apache_marker ) continue;
 
 		/* New attribute */
 		/* ------------- */
 		if ( strcmp(
-			apache_label,
+			apache_marker,
 			"Content-Disposition: form-data; name=" ) == 0 )
 		{
 			attribute_name =
@@ -393,14 +395,16 @@ char *post_dictionary_file_specification(
 	return strdup( specification );
 }
 
-char *post_dictionary_apache_label( char *input )
+char *post_dictionary_apache_marker( char *input )
 {
-	static char apache_label[ 128 ];
+	static char apache_marker[ 128 ];
+
+	if ( strlen( input ) > 127 ) return NULL;
 
 	/* ---------------------------------------------------- */
 	/* Returns destination or null if not enough delimiters */
 	/* ---------------------------------------------------- */
-	return piece( apache_label, '"', input, 0 );
+	return piece( apache_marker, '"', input, 0 );
 }
 
 char *post_dictionary_attribute_name( char *input )
@@ -761,30 +765,77 @@ char *post_dictionary_datum(
 		FILE *input_stream,
 		char *post_dictionary_apache_key )
 {
-	char datum[ STRING_64K ];
+	char datum[ STRING_128K ];
+	char *ptr = datum;
+	char input[ STRING_64K ];
 
-	/* Skip "\n" */
-	/* --------- */
-	file_skip_line( input_stream );
+	*ptr = '\0';
 
-	if ( !string_input(
+	while ( 1 )
+	{
+		if ( !string_input(
+			input,
+			input_stream,
+			sizeof ( input )  ) )
+		{
+			break;
+		}
+
+		if ( !*input ) continue;
+
+		/* The last line will have "--" appended to the key */
+		/* ------------------------------------------------ */
+		if ( string_strncmp(
+			input,
+			post_dictionary_apache_key ) == 0 )
+		{
+			break;
+		}
+
+		if ( strlen( datum ) +
+		     strlen( input ) +
+		     1 >= STRING_128K )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_128K );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( *datum )
+		{
+			ptr += sprintf( ptr, " " );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			input );
+	}
+
+	if ( strcmp(
 		datum,
-		input_stream,
-		sizeof ( datum ) ) )
+		widget_select_operator ) == 0 )
 	{
 		return NULL;
 	}
 
-	if ( !*datum ) return NULL;
-	if ( strcmp( datum, widget_select_operator ) == 0 ) return NULL;
-	if ( strcmp( datum, post_dictionary_apache_key ) == 0 ) return NULL;
-
 	return
 	strdup(
-		/* --------------------------------- */
-		/* Trims leading and trailing spaces */
-		/* --------------------------------- */
-		string_trim( datum ) );
+		/* ------------------------------------ */
+		/* Trims leading and trailing spaces.	*/
+		/* Returns buffer.			*/
+		/* ------------------------------------ */
+		string_trim( datum /* buffer */ ) );
 }
 
 char *post_dictionary_file_datum(

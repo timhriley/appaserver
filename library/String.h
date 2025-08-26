@@ -391,8 +391,9 @@ char *string_in_clause(
 int string_length(
 		char *string );
 
-/* Trims leading and trailing spaces */
-/* --------------------------------- */
+/* Trims leading and trailing spaces.	*/
+/* Returns buffer.			*/
+/* ------------------------------------ */
 char *string_trim(
 		char *buffer );
 

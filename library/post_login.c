@@ -221,7 +221,7 @@ DICTIONARY *post_login_input_dictionary( void )
 	{
 		return (DICTIONARY *)0;
 	}
-} 
+}
 
 char *post_login_input_application_name(
 		int argc,
@@ -1147,6 +1147,28 @@ POST_LOGIN_INPUT *post_login_input_new(
 
 	post_login_input->dictionary = post_login_input_dictionary();
 
+	if ( !post_login_input->dictionary )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d post_login_input_dictionary() returned empty.:\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: dictionary=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	dictionary_display( post_login_input->dictionary ) );
+msg( "timriley", message );
+}
 	post_login_input->application_name =
 	/* ------------------------------------------------------------ */
 	/* Returns component of argv, component of dictionary, or null. */

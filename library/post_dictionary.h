@@ -136,9 +136,9 @@ char *post_dictionary_apache_key(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
-char *post_dictionary_apache_label(
+/* Returns static memory or null */
+/* ----------------------------- */
+char *post_dictionary_apache_marker(
 		char *input );
 
 /* Usage */
