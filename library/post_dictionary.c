@@ -783,6 +783,13 @@ char *post_dictionary_datum(
 
 		if ( !*input ) continue;
 
+		if ( string_strncmp(
+			input,
+			"Content-Type: " ) == 0 )
+		{
+			continue;
+		}
+
 		/* The last line will have "--" appended to the key */
 		/* ------------------------------------------------ */
 		if ( string_strncmp(
@@ -811,10 +818,7 @@ char *post_dictionary_datum(
 				message );
 		}
 
-		if ( *datum )
-		{
-			ptr += sprintf( ptr, " " );
-		}
+		if ( *datum ) ptr += sprintf( ptr, " " );
 
 		ptr += sprintf(
 			ptr,
