@@ -33,8 +33,9 @@ city="SACRAMENTO"
 state_code="CA"
 canvass_name="discovery 1"
 utm_zone=10
-household_file="/tmp/household.csv"
-apartment_file="/tmp/apartment.csv"
+
+household_file="/usr2/tmp/household.csv"
+apartment_file="/usr2/tmp/apartment.csv"
 
 document_body.sh
 
