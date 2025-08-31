@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include "String.h"
 #include "float.h"
-#include "timlib.h"
 #include "appaserver_error.h"
 #include "income_statement.h"
 #include "journal.h"

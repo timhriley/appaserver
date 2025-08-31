@@ -126,22 +126,6 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			message );
 	}
 
-	close_nominal_do->close_journal =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		close_journal_new(
-			ACCOUNT_CLOSING_KEY,
-			ACCOUNT_EQUITY_KEY,
-			close_nominal_do->
-				transaction_date_close_nominal_do->
-				transaction_date_close_date_time,
-			close_nominal_do->element_statement_list,
-			close_nominal_do->
-				equity_subclassification_statement_list,
-			close_nominal_do->entity_self->full_name,
-			close_nominal_do->entity_self->street_address );
-
 	close_nominal_do->close_transaction =
 		/* -------------- */
 		/* Safely returns */
@@ -154,9 +138,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->
 				equity_subclassification_statement_list,
 			close_nominal_do->entity_self->full_name,
-			close_nominal_do->entity_self->street_address,
-			close_nominal_do->close_journal->journal
-				/* close_journal */ );
+			close_nominal_do->entity_self->street_address );
 
 	if ( close_nominal_do->close_transaction->transaction )
 	{

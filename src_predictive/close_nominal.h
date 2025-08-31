@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "entity.h"
 #include "entity_self.h"
-#include "close_journal.h"
 #include "close_transaction.h"
 #include "statement.h"
 
@@ -24,7 +23,6 @@ typedef struct
 	char *equity_subclassification_where;
 	LIST *equity_subclassification_statement_list;
 	ENTITY_SELF *entity_self;
-	CLOSE_JOURNAL *close_journal;
 	CLOSE_TRANSACTION *close_transaction;
 	double journal_debit_sum;
 	double journal_credit_sum;

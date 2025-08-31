@@ -12,6 +12,8 @@
 #include "element.h"
 #include "subclassification.h"
 #include "journal.h"
+#include "close_equity.h"
+#include "close_account.h"
 #include "close_transaction.h"
 
 CLOSE_TRANSACTION *close_transaction_new(
@@ -19,8 +21,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 		LIST *element_statement_list,
 		LIST *equity_subclassification_statement_list,
 		char *self_full_name,
-		char *self_street_address,
-		JOURNAL *close_journal )
+		char *self_street_address )
 {
 	CLOSE_TRANSACTION *close_transaction;
 
@@ -44,6 +45,14 @@ CLOSE_TRANSACTION *close_transaction_new(
 
 	close_transaction = close_transaction_calloc();
 
+	close_transaction->close_equity_list =
+		close_equity_list(
+			CLOSE_EQUITY_TABLE,
+			CLOSE_EQUITY_SELECT,
+			CLOSE_EQUITY_PRIMARY_KEY,
+			ACCOUNT_CLOSING_KEY,
+			ACCOUNT_EQUITY_KEY );
+
 	close_transaction->nominal_journal_list =
 		close_transaction_nominal_journal_list(
 			transaction_date_close_date_time,
@@ -51,7 +60,14 @@ CLOSE_TRANSACTION *close_transaction_new(
 			self_full_name,
 			self_street_address );
 
-	close_transaction->equity_journal_list =
+	close_transaction->close_account_list =
+		close_account_list(
+			equity_subclassification_statement_list
+				/* subclassification_list */,
+			close_transaction->close_equity_list,
+			close_transaction->nominal_journal_list );
+
+	close_transaction->subclassification_journal_list =
 		close_transaction_subclassification_journal_list(
 			transaction_date_close_date_time,
 			equity_subclassification_statement_list,
@@ -59,11 +75,40 @@ CLOSE_TRANSACTION *close_transaction_new(
 			self_street_address,
 			-1 /* element_accumulate_debit */ );
 
+	close_account_list_journal_set(
+		close_transaction->close_account_list /* in/out */,
+		close_transaction->nominal_journal_list,
+		close_transaction->subclassification_journal_list );
+
+	close_transaction->close_equity_journal_list =
+		close_equity_journal_list(
+			close_transaction->close_equity_list );
+
+	if ( !list_length( close_transaction->close_equity_journal_list ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"close_equity_journal_list() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	close_equity_journal_list_debit_credit_set(
+		close_transaction->close_equity_journal_list
+			/* in/out */ );
+
 	close_transaction->journal_list =
 		close_transaction_journal_list(
 			close_transaction->nominal_journal_list,
-			close_transaction->equity_journal_list,
-			close_journal );
+			close_transaction->subclassification_journal_list,
+			close_transaction->close_equity_journal_list );
 
 	if ( list_length( close_transaction->journal_list ) )
 	{
@@ -121,32 +166,30 @@ CLOSE_TRANSACTION *close_transaction_calloc( void )
 LIST *close_transaction_journal_list(
 		LIST *nominal_journal_list,
 		LIST *equity_journal_list,
-		JOURNAL *close_journal )
+		LIST *close_equity_journal_list )
 {
 	LIST *journal_list = list_new();
 	JOURNAL *journal;
 
-	if ( list_rewind( nominal_journal_list ) )
+	(void)list_append_list(
+		journal_list /* destination_list */, 
+		nominal_journal_list /* source_list */ );
+
+	(void)list_append_list(
+		journal_list /* destination_list */, 
+		equity_journal_list /* source_list */ );
+
+	/* Might not be increase nor decrease in equity */
+	/* -------------------------------------------- */
+	if ( list_rewind( close_equity_journal_list ) )
 	do {
-		journal = list_get( nominal_journal_list );
-		list_set( journal_list, journal );
+		journal = list_get( close_equity_journal_list );
 
-	} while ( list_next( nominal_journal_list ) );
-
-	if ( list_rewind( equity_journal_list ) )
-	do {
-		journal = list_get( equity_journal_list );
-		list_set( journal_list, journal );
-
-	} while ( list_next( equity_journal_list ) );
-
-	if ( close_journal ) list_set( journal_list, close_journal );
-
-	if ( !list_length( journal_list ) )
-	{
-		list_free( journal_list );
-		journal_list = NULL;
-	}
+		if ( journal->debit_amount || journal->credit_amount )
+		{
+			list_set( journal_list, journal );
+		}
+	} while ( list_next( close_equity_journal_list ) );
 
 	return journal_list;
 }
@@ -323,6 +366,11 @@ LIST *close_transaction_account_journal_list(
 					account_journal_latest->
 					balance,
 				element_accumulate_debit );
+
+		journal->balance =
+			account->
+				account_journal_latest->
+				balance;
 
 		list_set( journal_list, journal );
 

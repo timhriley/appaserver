@@ -741,13 +741,7 @@ void journal_insert(
 		credit_amount,
 		0.0 ) )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: both debit_amount and credit_amount are empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		pclose( pipe );
-		exit( 1 );
+		return;
 	}
 
 	*debit_amount_string = '\0';

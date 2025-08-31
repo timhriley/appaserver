@@ -899,12 +899,10 @@ LIST *list_set_list(	LIST *destination_list,
 	if ( !destination_list ) destination_list = list_new();
 
 	if ( list_rewind( source_list ) )
-	{
-		do {
-			list_set( destination_list, list_get( source_list ) );
+	do {
+		list_set( destination_list, list_get( source_list ) );
 
-		} while( list_next( source_list ) );
-	}
+	} while( list_next( source_list ) );
 
 	return destination_list;
 }

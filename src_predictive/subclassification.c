@@ -116,8 +116,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 					subclassification->
 						subclassification_name ),
 				end_date_time_string,
-				0 /* not fetch_subclassification */,
-				0 /* not fetch_element */,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */,
 				fetch_journal_latest,
 				fetch_transaction );
 

@@ -105,7 +105,8 @@ SALE_LIBRARY=								\
 		sale_loss_transaction.o
 CLOSE_LIBRARY= 								\
 		close_nominal.o						\
-		close_journal.o						\
+		close_equity.o						\
+		close_account.o						\
 		close_transaction.o
 
 EXECUTABLES=	trial_balance_output					\
@@ -1106,9 +1107,13 @@ close_transaction.o: close_transaction.c close_transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c close_transaction.c
 
-close_journal.o: close_journal.c close_journal.h
+close_equity.o: close_equity.c close_equity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c close_journal.c
+		-c close_equity.c
+
+close_account.o: close_account.c close_account.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c close_account.c
 
 invoice.o: invoice.c invoice.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
