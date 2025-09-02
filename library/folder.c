@@ -158,6 +158,8 @@ FOLDER *folder_parse(
 
 	if ( fetch_folder_attribute_list )
 	{
+		/* Will be empty if inserting new rows. */
+		/* ------------------------------------ */
 		folder->folder_attribute_list =
 			folder_attribute_list(
 				folder->folder_name,
@@ -165,40 +167,10 @@ FOLDER *folder_parse(
 				fetch_attribute,
 				cache_boolean );
 
-		if ( !list_length( folder->folder_attribute_list ) )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"folder_attribute_list(%s) returned empty.",
-				folder->folder_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		folder->folder_attribute_primary_list =
 			folder_attribute_primary_list(
 				folder->folder_name,
 				folder->folder_attribute_list );
-
-		if ( !list_length( folder->folder_attribute_primary_list ) )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"folder_attribute_primary_list(%s) returned empty.",
-				folder->folder_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
 
 		folder->folder_attribute_primary_key_list =
 			folder_attribute_primary_key_list(
