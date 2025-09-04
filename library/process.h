@@ -28,6 +28,7 @@
 #define PROCESS_FOLDER_PLACEHOLDER		"$folder"
 #define PROCESS_TABLE_PLACEHOLDER		"$table"
 #define PROCESS_NAME_PLACEHOLDER		"$process"
+#define PROCESS_RELATED_COLUMN_PLACEHOLDER	"$related_column"
 #define PROCESS_STATE_PLACEHOLDER		"$state"
 #define PROCESS_UPDATE_RESULTS_PLACEHOLDER	"$update_results"
 #define PROCESS_UPDATE_ERROR_PLACEHOLDER	"$update_error"

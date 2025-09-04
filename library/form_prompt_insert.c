@@ -1648,6 +1648,11 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 				one_folder_name,
 			form_prompt_insert_relation->
 				relation_mto1->
+				relation->
+				related_attribute_name
+					/* related_column */,
+			form_prompt_insert_relation->
+				relation_mto1->
 				one_folder->
 				folder_attribute_list,
 			form_prompt_insert_relation->

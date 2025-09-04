@@ -75,6 +75,7 @@ FORM_MERGE_PURGE *form_merge_purge_new(
 			(char *)0 /* state */,
 			(char *)0 /* many_folder_name */,
 			folder_name /* one_folder_name */,
+			(char *)0 /* related_column */,
 			folder_attribute_primary_list
 				/* one_folder_attribute_list */,
 			(char *)0 /* populate_drop_down_process_name */,

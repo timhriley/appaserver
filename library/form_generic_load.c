@@ -215,11 +215,12 @@ FORM_GENERIC_LOAD_RELATION *form_generic_load_relation_new(
 			(char *)0 /* session_key */,
 			login_name,
 			(char *)0 /* role_name */,
+			(char *)0 /* state */,
 			folder_name /* many_folder_name */,
 			form_generic_load_relation->
 				relation_mto1->
 				one_folder_name,
-			(char *)0 /* state */,
+			(char *)0 /* related_column */,
 			form_generic_load_relation->
 				relation_mto1->
 				one_folder->

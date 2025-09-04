@@ -7067,6 +7067,7 @@ QUERY_DROP_DOWN *query_drop_down_new(
 		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
+		char *related_column,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
@@ -7132,6 +7133,7 @@ QUERY_DROP_DOWN *query_drop_down_new(
 				state,
 				many_folder_name,
 				one_folder_name,
+				related_column,
 				one_folder_attribute_list,
 				populate_drop_down_process_name,
 				relation_mto1_to_one_list,
@@ -7196,6 +7198,7 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 		char *state,
 		char *many_folder_name,
 		char *one_folder_name,
+		char *related_column,
 		LIST *one_folder_attribute_list,
 		char *populate_drop_down_process_name,
 		LIST *relation_mto1_to_one_list,
@@ -7264,6 +7267,7 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 			role_name,
 			state,
 			many_folder_name,
+			related_column,
 			populate_drop_down_process_name,
 			dictionary,
 			query_drop_down_process->
@@ -7308,6 +7312,7 @@ char *query_drop_down_process_command_line(
 		char *role_name,
 		char *state,
 		char *many_folder_name,
+		char *related_column,
 		char *populate_drop_down_process_name,
 		DICTIONARY *dictionary,
 		char *where_string,
@@ -7375,6 +7380,11 @@ char *query_drop_down_process_command_line(
 		command_line,
 		many_folder_name,
 		PROCESS_MANY_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		related_column,
+		PROCESS_RELATED_COLUMN_PLACEHOLDER );
 
 	string_replace_command_line(
 		command_line,

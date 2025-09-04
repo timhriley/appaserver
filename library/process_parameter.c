@@ -1004,6 +1004,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 				(char *)0 /* state */,
 				(char *)0 /* many_folder_name */,
 				folder_name /* one_folder_name */,
+				(char *)0 /* related_column */,
 				process_parameter_drop_down->
 					folder->
 					folder_attribute_list,

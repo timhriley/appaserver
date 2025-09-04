@@ -18,20 +18,21 @@ then
 	exit 1
 fi
 
-#echo $0 $* 1>&2
+echo $0 $* 1>&2
 
-if [ "$#" -lt 2 ]
+if [ "$#" -lt 3 ]
 then
-	echo "Usage: $0 many_table subclassification [element]" 1>&2
+	echo "Usage: $0 many_table related_column subclassification [element]" 1>&2
 	exit 1
 fi
 
 many_table=$1
-subclassification="$2"
+related_column=$2
+subclassification="$3"
 
-if [ "$#" -eq 3 -a "$3" != "" -a "$3" != "element" ]
+if [ "$#" -eq 4 -a "$4" != "" -a "$4" != "element" ]
 then
-	element="$3"
+	element="$4"
 else
 	element=""
 fi
@@ -88,11 +89,14 @@ order="account"
 
 # Where
 # -----
-if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
+if [ "$subclassification" != "" -a "$subclassification" != "subclassification" ]
 then
-	subclassification_where="1 = 1"
-else
 	subclassification_where="account.subclassification = '$subclassification'"
+elif [ "$many_table" = "close_equity" -a "$related_column" = "equity_account" ]
+then
+	subclassification_where="account.subclassification = 'equity'"
+else
+	subclassification_where="1 = 1"
 fi
 
 if [ "$element" != "" ]

@@ -630,6 +630,11 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 				one_folder_name,
 			row_security_relation->
 				relation_mto1->
+				relation->
+				related_attribute_name
+					/* related_column */,
+			row_security_relation->
+				relation_mto1->
 				one_folder->
 				folder_attribute_list,
 			row_security_relation->

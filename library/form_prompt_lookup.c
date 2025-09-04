@@ -941,6 +941,11 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 					folder_name,
 				form_prompt_lookup_relation->
 					relation_mto1->
+					relation->
+					related_attribute_name
+						/* related_column */,
+				form_prompt_lookup_relation->
+					relation_mto1->
 					one_folder->
 					folder_attribute_list,
 				form_prompt_lookup_relation->

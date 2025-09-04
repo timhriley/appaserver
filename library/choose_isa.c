@@ -397,6 +397,7 @@ char *choose_isa_command_line(
 		role_name,
 		(char *)0 /* state */,
 		insert_folder_name /* many_folder_name */,
+		(char *)0 /* related_column */,
 		(char *)0 /* populate_drop_down_process_name */,
 		(DICTIONARY *)0 /* dictionary */,
 		security_entity_where /* where_string */,

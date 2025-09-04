@@ -403,6 +403,11 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 				one_folder_name,
 			form_table_insert_relation->
 				relation_mto1->
+				relation->
+				related_attribute_name
+					/* related_column */,
+			form_table_insert_relation->
+				relation_mto1->
 				one_folder->
 				folder_attribute_list,
 			form_table_insert_relation->
@@ -1486,10 +1491,11 @@ FORM_TABLE_INSERT_AUTOMATIC *form_table_insert_automatic_new(
 			session_key,
 			login_name,
 			role_name,
+			APPASERVER_INSERT_STATE,
 			folder_name /* many_folder_name */,
 			relation_mto1_automatic_preselection->
 				one_folder_name,
-			APPASERVER_INSERT_STATE,
+			(char *)0 /* related_column */,
 			relation_mto1_automatic_preselection->
 				one_folder->
 				folder_attribute_list,
