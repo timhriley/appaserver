@@ -715,16 +715,6 @@ char *insert_statement_execute(
 			extract_sql_list,
 			(char *)0 /* sql_statement */ );
 
-	if ( error_string )
-	{
-		appaserver_error_message_file(
-			application_name,
-			(char *)0 /* login_name */,
-			error_string /* message */ );
-
-		return error_string;
-	}
-
 	extract_command_list =
 		insert_statement_extract_command_list(
 			insert_folder_statement_list );
@@ -735,7 +725,17 @@ char *insert_statement_execute(
 			extract_command_list );
 	}
 
-	return (char *)0;
+	if ( error_string )
+	{
+		appaserver_error_message_file(
+			application_name,
+			(char *)0 /* login_name */,
+			error_string /* message */ );
+
+		return error_string;
+	}
+
+	return NULL;
 }
 
 INSERT_FOLDER *insert_folder_new(
