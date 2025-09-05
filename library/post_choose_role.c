@@ -132,6 +132,17 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 {
 	POST_CHOOSE_ROLE *post_choose_role;
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( "brighton", message );
+}
 	if ( argc < 3 )
 	{
 		fprintf(stderr,
@@ -143,6 +154,17 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 
 	post_choose_role = post_choose_role_calloc();
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( "brighton", message );
+}
 	post_choose_role->sql_injection_escape_application_name =
 		/* ---------------------------- */
 		/* Returns heap memory or datum */
@@ -151,6 +173,17 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			argv[ 1 ] /* datum */ );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( "brighton", message );
+}
 	post_choose_role->sql_injection_escape_session_key =
 		security_sql_injection_escape(
 			SECURITY_ESCAPE_CHARACTER_STRING,
@@ -170,6 +203,18 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 			argv[ 4 ],
 			choose_role_drop_down_element_name );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: application_name=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	post_choose_role->sql_injection_escape_application_name );
+msg( "brighton", message );
+}
 	if ( !post_choose_role->name )
 	{
 		fprintf(stderr,
@@ -185,6 +230,17 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 		post_choose_role->
 			sql_injection_escape_application_name );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( "brighton", message );
+}
 	post_choose_role->execute_system_string_menu =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -199,6 +255,17 @@ POST_CHOOSE_ROLE *post_choose_role_new(
 				post_choose_role->
 				     sql_injection_escape_application_name ) );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( "brighton", message );
+}
 	return post_choose_role;
 }
 

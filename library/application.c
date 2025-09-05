@@ -257,7 +257,7 @@ char *application_system_string(
 		char *application_table_name,
 		char *where )
 {
-	char system_string[ 1024 ];
+	char system_string[ 65536 ];
 
 	if ( !application_select
 	||   !application_table_name
@@ -274,11 +274,13 @@ char *application_system_string(
 			message );
 	}
 
-	sprintf( system_string,
-		 "select.sh \"%s\" %s \"%s\"",
-		 application_select,
-		 application_table_name,
-		 where );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh \"%s\" %s \"%s\"",
+		application_select,
+		application_table_name,
+		where );
 
 	return strdup( system_string );
 }

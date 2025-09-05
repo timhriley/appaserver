@@ -1045,6 +1045,11 @@ boolean at_head( LIST *list )
 
 boolean list_at_tail( LIST *list )
 {
+	return list_tail_boolean( list );
+}
+
+boolean list_tail_boolean( LIST *list )
+{
         return (list->current == list->tail->previous);
 }
 

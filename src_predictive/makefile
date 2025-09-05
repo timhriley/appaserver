@@ -106,6 +106,7 @@ SALE_LIBRARY=								\
 CLOSE_LIBRARY= 								\
 		close_nominal.o						\
 		close_equity.o						\
+		equity_journal.o					\
 		close_account.o						\
 		close_transaction.o
 
@@ -1110,6 +1111,10 @@ close_transaction.o: close_transaction.c close_transaction.h
 close_equity.o: close_equity.c close_equity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c close_equity.c
+
+equity_journal.o: equity_journal.c equity_journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c equity_journal.c
 
 close_account.o: close_account.c close_account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

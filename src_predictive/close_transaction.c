@@ -14,6 +14,7 @@
 #include "journal.h"
 #include "close_equity.h"
 #include "close_account.h"
+#include "equity_journal.h"
 #include "close_transaction.h"
 
 CLOSE_TRANSACTION *close_transaction_new(
@@ -45,13 +46,20 @@ CLOSE_TRANSACTION *close_transaction_new(
 
 	close_transaction = close_transaction_calloc();
 
+	close_transaction->equity_journal_list =
+		equity_journal_list(
+			CLOSE_EQUITY_TABLE,
+			EQUITY_JOURNAL_SELECT,
+			CLOSE_EQUITY_PRIMARY_KEY,
+			ACCOUNT_CLOSING_KEY,
+			ACCOUNT_EQUITY_KEY );
+
 	close_transaction->close_equity_list =
 		close_equity_list(
 			CLOSE_EQUITY_TABLE,
 			CLOSE_EQUITY_SELECT,
 			CLOSE_EQUITY_PRIMARY_KEY,
-			ACCOUNT_CLOSING_KEY,
-			ACCOUNT_EQUITY_KEY );
+			close_transaction->equity_journal_list );
 
 	close_transaction->nominal_journal_list =
 		close_transaction_nominal_journal_list(
@@ -64,6 +72,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 		close_account_list(
 			equity_subclassification_statement_list
 				/* subclassification_list */,
+			close_transaction->equity_journal_list,
 			close_transaction->close_equity_list,
 			close_transaction->nominal_journal_list );
 
@@ -75,40 +84,24 @@ CLOSE_TRANSACTION *close_transaction_new(
 			self_street_address,
 			-1 /* element_accumulate_debit */ );
 
-	close_account_list_journal_set(
+	close_account_list_journal_accumulate(
 		close_transaction->close_account_list /* in/out */,
 		close_transaction->nominal_journal_list,
 		close_transaction->subclassification_journal_list );
 
-	close_transaction->close_equity_journal_list =
-		close_equity_journal_list(
-			close_transaction->close_equity_list );
+	close_transaction->equity_journal_extract_list =
+		equity_journal_extract_list(
+			close_transaction->equity_journal_list );
 
-	if ( !list_length( close_transaction->close_equity_journal_list ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"close_equity_journal_list() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	close_equity_journal_list_debit_credit_set(
-		close_transaction->close_equity_journal_list
+	equity_journal_list_debit_credit_set(
+		close_transaction->equity_journal_extract_list
 			/* in/out */ );
 
 	close_transaction->journal_list =
 		close_transaction_journal_list(
 			close_transaction->nominal_journal_list,
 			close_transaction->subclassification_journal_list,
-			close_transaction->close_equity_journal_list );
+			close_transaction->equity_journal_extract_list );
 
 	if ( list_length( close_transaction->journal_list ) )
 	{
@@ -165,8 +158,8 @@ CLOSE_TRANSACTION *close_transaction_calloc( void )
 
 LIST *close_transaction_journal_list(
 		LIST *nominal_journal_list,
-		LIST *equity_journal_list,
-		LIST *close_equity_journal_list )
+		LIST *subclassification_journal_list,
+		LIST *equity_journal_extract_list )
 {
 	LIST *journal_list = list_new();
 	JOURNAL *journal;
@@ -177,19 +170,19 @@ LIST *close_transaction_journal_list(
 
 	(void)list_append_list(
 		journal_list /* destination_list */, 
-		equity_journal_list /* source_list */ );
+		subclassification_journal_list /* source_list */ );
 
 	/* Might not be increase nor decrease in equity */
 	/* -------------------------------------------- */
-	if ( list_rewind( close_equity_journal_list ) )
+	if ( list_rewind( equity_journal_extract_list ) )
 	do {
-		journal = list_get( close_equity_journal_list );
+		journal = list_get( equity_journal_extract_list );
 
 		if ( journal->debit_amount || journal->credit_amount )
 		{
 			list_set( journal_list, journal );
 		}
-	} while ( list_next( close_equity_journal_list ) );
+	} while ( list_next( equity_journal_extract_list ) );
 
 	return journal_list;
 }
@@ -391,7 +384,7 @@ double close_transaction_debit_amount(
 {
 	double debit_amount;
 
-	/* If accumulate_credit */
+	/* If accumulate credit */
 	/* -------------------- */
 	if ( !accumulate_debit )
 	{
@@ -401,6 +394,7 @@ double close_transaction_debit_amount(
 			debit_amount = balance;
 	}
 	else
+	/* ------------------- */
 	/* If accumulate_debit */
 	/* ------------------- */
 	{
@@ -428,6 +422,9 @@ double close_transaction_credit_amount(
 			credit_amount = balance;
 	}
 	else
+	/* -------------------- */
+	/* If accumulate credit */
+	/* -------------------- */
 	{
 		if ( balance < 0.0 )
 			credit_amount = -balance;

@@ -26,6 +26,7 @@ then
 fi
 
 SQL_EXECUTABLE=sql_quick.e
+#SQL_EXECUTABLE=cat
 
 select="$1"
 
@@ -81,7 +82,7 @@ then
 	$SQL_EXECUTABLE
 elif [ "$order" = "" ]
 then
-	echo "select $select from $table where $where;"|
+	echo "select $select from $table where $where;" |
 	$SQL_EXECUTABLE
 else
 	echo "select $select from $table where $where order by $order;" |

@@ -14,6 +14,7 @@
 
 LIST *close_account_list(
 		LIST *subclassification_list,
+		LIST *equity_journal_list,
 		LIST *close_equity_list,
 		LIST *nominal_journal_list )
 {
@@ -39,6 +40,7 @@ LIST *close_account_list(
 				/* Safely returns */
 				/* -------------- */
 				close_account_new(
+					equity_journal_list,
 					close_equity_list,
 					account->account_name,
 					account );
@@ -76,6 +78,7 @@ LIST *close_account_list(
 			/* Safely returns */
 			/* -------------- */
 			close_account_new(
+				equity_journal_list,
 				close_equity_list,
 				journal->account->account_name,
 				journal->account );
@@ -88,13 +91,14 @@ LIST *close_account_list(
 }
 
 CLOSE_ACCOUNT *close_account_new(
+		LIST *equity_journal_list,
 		LIST *close_equity_list,
 		char *account_name,
 		ACCOUNT *account )
 {
 	CLOSE_ACCOUNT *close_account;
 
-	if ( !list_length( close_equity_list )
+	if ( !list_length( equity_journal_list )
 	||   !account_name
 	||   !account )
 	{
@@ -117,13 +121,15 @@ CLOSE_ACCOUNT *close_account_new(
 	close_account->account_name = account_name;
 	close_account->account = account;
 
-	close_account->close_equity =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		close_equity_seek(
-			close_equity_list,
-			account_name );
+	if ( ( close_account->close_equity =
+			close_equity_seek(
+				close_equity_list,
+				account_name ) ) )
+	{
+		return close_account;
+	}
+
+	close_account->equity_journal = list_first( equity_journal_list );
 
 	return close_account;
 }
@@ -173,22 +179,7 @@ CLOSE_ACCOUNT *close_account_seek(
 			message );
 	}
 
-	if ( !list_rewind( close_account_list ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"close_account_list is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	if ( list_rewind( close_account_list ) )
 	do {
 		close_account = list_get( close_account_list );
 
@@ -220,7 +211,7 @@ CLOSE_ACCOUNT *close_account_seek(
 	return NULL;
 }
 
-void close_account_list_journal_set(
+void close_account_list_journal_accumulate(
 		LIST *close_account_list,
 		LIST *nominal_journal_list,
 		LIST *subclassification_journal_list )
@@ -252,7 +243,7 @@ void close_account_list_journal_set(
 				message );
 		}
 
-		close_account_journal_set(
+		close_account_journal_accumulate(
 			journal->balance,
 			close_account /* in/out */ );
 
@@ -284,19 +275,20 @@ void close_account_list_journal_set(
 				message );
 		}
 
-		close_account_journal_set(
+		close_account_journal_accumulate(
 			journal->balance,
 			close_account /* in/out */ );
 
 	} while ( list_next( subclassification_journal_list ) );
 }
 
-void close_account_journal_set(
+void close_account_journal_accumulate(
 		double journal_balance,
 		CLOSE_ACCOUNT *close_account )
 {
 	double debit_amount;
 	double credit_amount;
+	EQUITY_JOURNAL *equity_journal;
 
 	if ( !journal_balance )
 	{
@@ -306,22 +298,6 @@ void close_account_journal_set(
 			message,
 			sizeof ( message ),
 			"journal_balance is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !close_account )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"close_account is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -363,37 +339,13 @@ void close_account_journal_set(
 			message );
 	}
 
-	if ( !close_account->close_equity )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"close_account->close_equity is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !close_account->close_equity->journal )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"close_account->close_equity->journal is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	equity_journal =
+		/* ----------------------------------------------------- */
+		/* Returns equity_journal or a component of close_equity */
+		/* ----------------------------------------------------- */
+		close_account_equity_journal(
+			close_account->close_equity,
+			close_account->equity_journal );
 
 	debit_amount =
 		close_account_debit_amount(
@@ -403,13 +355,11 @@ void close_account_journal_set(
 				subclassification->
 				element->
 				accumulate_debit,
-			close_account->
-				close_equity->
+			equity_journal->
 				journal->
 				debit_amount );			
 
-	close_account->
-		close_equity->
+	equity_journal->
 		journal->
 		debit_amount =
 			debit_amount;
@@ -422,13 +372,11 @@ void close_account_journal_set(
 				subclassification->
 				element->
 				accumulate_debit,
-			close_account->
-				close_equity->
+			equity_journal->
 				journal->
 				credit_amount );			
 
-	close_account->
-		close_equity->
+	equity_journal->
 		journal->
 		credit_amount =
 			credit_amount;
@@ -456,3 +404,62 @@ double close_account_credit_amount(
 	balance + close_account_credit_amount;
 }
 
+EQUITY_JOURNAL *close_account_equity_journal(
+		CLOSE_EQUITY *close_equity,
+		EQUITY_JOURNAL *equity_journal )
+{
+	if ( !close_equity
+	&&   !equity_journal )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"both close_equity and equity_journal are empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( close_equity
+	&&   equity_journal )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"both close_equity and equity_journal are populated." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( close_equity && !close_equity->equity_journal )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"close_equity->equity_journal is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( close_equity )
+		return close_equity->equity_journal;
+	else
+		return equity_journal;
+}

@@ -637,6 +637,9 @@ LIST *string_array2string_list(
 boolean list_at_tail(
 		LIST *list );
 
+boolean list_tail_boolean(
+		LIST *list );
+
 boolean at_tail(LIST *list );
 
 void list_bye(	char *s );

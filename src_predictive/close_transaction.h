@@ -14,11 +14,12 @@
 
 typedef struct
 {
+	LIST *equity_journal_list;
 	LIST *close_equity_list;
 	LIST *close_account_list;
 	LIST *nominal_journal_list;
 	LIST *subclassification_journal_list;
-	LIST *close_equity_journal_list;
+	LIST *equity_journal_extract_list;
 	LIST *journal_list;
 	double amount;
 	TRANSACTION *transaction;
@@ -43,8 +44,8 @@ CLOSE_TRANSACTION *close_transaction_calloc(
 
 LIST *close_transaction_journal_list(
 		LIST *close_transaction_nominal_journal_list,
-		LIST *equity_journal_list,
-		LIST *close_equity_journal_list );
+		LIST *close_transaction_subclassification_journal_list,
+		LIST *equity_journal_extract_list );
 
 /* Usage */
 /* ----- */
