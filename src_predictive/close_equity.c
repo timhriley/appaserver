@@ -208,3 +208,4 @@ CLOSE_EQUITY *close_equity_seek(
 
 	return NULL;
 }
+

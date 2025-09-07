@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "document.h"
 #include "transaction.h"
+#include "close_account.h"
 #include "close_nominal.h"
 
 void close_nominal_accounts_do(
@@ -252,6 +253,17 @@ void close_nominal_accounts_do(
 				journal_debit_sum,
 			close_nominal_do->
 				journal_credit_sum );
+
+		if ( list_length(
+			close_nominal_do->
+				close_transaction->
+				close_equity_list ) )
+		{
+			close_account_list_display(
+				close_nominal_do->
+					close_transaction->
+					close_account_list );
+		}
 	}
 }
 

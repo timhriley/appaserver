@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "String.h"
 #include "appaserver_error.h"
+#include "appaserver.h"
 #include "subclassification.h"
 #include "close_account.h"
 
@@ -462,4 +463,112 @@ EQUITY_JOURNAL *close_account_equity_journal(
 		return close_equity->equity_journal;
 	else
 		return equity_journal;
+}
+
+void close_account_list_display( LIST *close_account_list )
+{
+	char *system_string;
+	FILE *output_pipe;
+	CLOSE_ACCOUNT *close_account;
+
+	system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		close_account_html_system_string(
+			CLOSE_ACCOUNT_HEADING,
+			CLOSE_ACCOUNT_JUSTIFY );
+
+	output_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			system_string );
+
+	if ( list_rewind( close_account_list ) )
+	do {
+		close_account = list_get( close_account_list );
+
+		if ( close_account->close_equity )
+		{
+			close_account_display(
+				output_pipe,
+				close_account->account_name,
+				close_account->
+					close_equity->
+					equity_journal->
+					equity_account_name,
+				close_account->
+					account->
+					account_journal_latest->
+					balance,
+				close_account->
+					close_equity->
+					reverse_boolean );
+		}
+
+	} while ( list_next( close_account_list ) );
+
+	pclose( output_pipe );
+}
+
+char *close_account_html_system_string(
+		const char *close_account_heading,
+		const char *close_account_justify )
+{
+	static char system_string[ 256 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"html_table.e 'Close Equity' %s '^' %s",
+		close_account_heading,
+		close_account_justify );
+
+	return system_string;
+}
+
+void close_account_display(
+		FILE *appaserver_output_pipe,
+		char *account_name,
+		char *equity_account_name,
+		double latest_balance,
+		boolean reverse_boolean )
+{
+	char buffer1[ 128 ];
+	char buffer2[ 128 ];
+
+	if ( !appaserver_output_pipe
+	||   !account_name
+	||   !equity_account_name
+	||   !latest_balance )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		if ( appaserver_output_pipe )
+			pclose( appaserver_output_pipe );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fprintf(
+		appaserver_output_pipe,
+		"%s^%s^%s^%s\n",
+		string_initial_capital( buffer1, account_name ),
+		string_initial_capital( buffer2, equity_account_name ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_commas_money( latest_balance ),
+		(reverse_boolean) ? "Yes" : "No" );
 }

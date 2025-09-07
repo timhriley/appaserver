@@ -13,6 +13,13 @@
 #include "close_equity.h"
 #include "equity_journal.h"
 
+#define CLOSE_ACCOUNT_HEADING		"account,"		\
+					"equity_account,"	\
+					"balance,"		\
+					"reverse"
+
+#define CLOSE_ACCOUNT_JUSTIFY		"left,left,right,left"
+
 typedef struct
 {
 	char *account_name;
@@ -86,5 +93,26 @@ double close_account_credit_amount(
 		double balance,
 		boolean accumulate_debit,
 		double close_account_credit_amount );
+
+/* Usage */
+/* ----- */
+void close_account_list_display(
+		LIST *close_account_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *close_account_html_system_string(
+		const char *close_account_heading,
+		const char *close_account_justify );
+
+void close_account_display(
+		FILE *appaserver_output_pipe,
+		char *account_name,
+		char *equity_account_name,
+		double latest_balance,
+		boolean reverse_boolean );
 
 #endif
