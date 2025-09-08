@@ -17,6 +17,7 @@
 #include "element.h"
 #include "journal.h"
 #include "transaction.h"
+#include "transaction_date.h"
 #include "budget.h"
 
 LIST *budget_annualized_list(

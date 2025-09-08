@@ -24,6 +24,7 @@
 #include "date_convert.h"
 #include "account.h"
 #include "exchange.h"
+#include "transaction_date.h"
 #include "feeder.h"
 
 LIST *feeder_phrase_list(

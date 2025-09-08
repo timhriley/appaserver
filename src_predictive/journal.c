@@ -21,6 +21,7 @@
 #include "predictive.h"
 #include "account.h"
 #include "transaction.h"
+#include "transaction_date.h"
 #include "journal.h"
 
 JOURNAL *journal_new(

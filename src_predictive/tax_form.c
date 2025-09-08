@@ -13,6 +13,7 @@
 #include "appaserver_error.h"
 #include "piece.h"
 #include "sql.h"
+#include "transaction_date.h"
 #include "tax_form.h"
 
 TAX_FORM_ENTITY *tax_form_entity_calloc( void )
