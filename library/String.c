@@ -2545,3 +2545,19 @@ int string_strcasecmp( char *s1, char *s2 )
 
 	return strcasecmp( tmp1, tmp2 );
 }
+
+boolean string_populated_boolean(
+		const char *filler_string,
+		char *string )
+{
+	if ( string
+	&&   *string
+	&&   strcmp( string, filler_string ) != 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}

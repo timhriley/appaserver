@@ -77,7 +77,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->element_name_list,
 			close_nominal_do->
 				transaction_date_close_nominal_do->
-				transaction_date_close_date_time
+				transaction_date_close_date_time_string
 				/* end_date_time_string */,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
@@ -101,7 +101,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			close_nominal_do->equity_subclassification_where,
 			close_nominal_do->
 				transaction_date_close_nominal_do->
-				transaction_date_close_date_time
+				transaction_date_close_date_time_string
 					/* end_date_time_string */,
 			1 /* fetch_element */,
 			1 /* fetch_account_list */,
@@ -133,7 +133,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 		close_transaction_new(
 			close_nominal_do->
 				transaction_date_close_nominal_do->
-				transaction_date_close_date_time,
+				transaction_date_close_date_time_string,
 			close_nominal_do->element_statement_list,
 			close_nominal_do->
 				equity_subclassification_statement_list,
@@ -236,7 +236,8 @@ CLOSE_NOMINAL *close_nominal_fetch(
 	}
 	else
 	{
-		if ( !transaction_date_as_of_date_populated(
+		if ( !string_populated_boolean(
+			TRANSACTION_DATE_AS_OF_DATE_FILLER,
 			as_of_date_string ) )
 		{
 			close_nominal->empty_date_message =
@@ -268,9 +269,9 @@ CLOSE_NOMINAL *close_nominal_fetch(
 				/* --------------------- */
 				close_nominal_do_transaction_exists_message(
 				   close_nominal->
-					close_nominal_do->
-					transaction_date_close_nominal_do->
-					transaction_date_close_date_time );
+				     close_nominal_do->
+				     transaction_date_close_nominal_do->
+				     transaction_date_close_date_time_string );
 
 			goto set_statement_caption;
 		}

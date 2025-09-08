@@ -14,6 +14,7 @@
 #include "account.h"
 #include "latex.h"
 #include "html.h"
+#include "transaction_date.h"
 #include "statement.h"
 
 typedef struct

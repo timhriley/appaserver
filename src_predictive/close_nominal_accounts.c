@@ -113,9 +113,9 @@ int main( int argc, char **argv )
 				/* --------------------- */
 				close_nominal_do_execute_message(
 				    close_nominal->
-					close_nominal_do->
-					transaction_date_close_nominal_do->
-					transaction_date_close_date_time ) );
+				      close_nominal_do->
+				      transaction_date_close_nominal_do->
+				      transaction_date_close_date_time_string));
 		}
 		else
 		{

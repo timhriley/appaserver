@@ -15,6 +15,7 @@
 #include "transaction.h"
 #include "latex.h"
 #include "html.h"
+#include "transaction_date.h"
 #include "statement.h"
 
 #define BALANCE_SHEET_BEGIN_BALANCE_LABEL   	   "equity_begin_balance"

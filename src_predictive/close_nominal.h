@@ -12,6 +12,7 @@
 #include "entity.h"
 #include "entity_self.h"
 #include "close_transaction.h"
+#include "transaction_date.h"
 #include "statement.h"
 
 typedef struct

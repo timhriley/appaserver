@@ -73,6 +73,7 @@ SOURCE_LIBRARY= 							\
 		predictive.o						\
 		subclassification.o					\
 		transaction.o						\
+		transaction_date.o					\
 		account.o						\
 		statement.o						\
 		element.o						\
@@ -965,6 +966,10 @@ recovery.o: recovery.c recovery.h
 transaction.o: transaction.c transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c transaction.c
+
+transaction_date.o: transaction_date.c transaction_date.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c transaction_date.c
 
 journal.o: journal.c journal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
