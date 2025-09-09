@@ -7,9 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "appaserver_error.h"
 #include "String.h"
 #include "piece.h"
-#include "appaserver_error.h"
 #include "appaserver.h"
 #include "sql.h"
 #include "float.h"

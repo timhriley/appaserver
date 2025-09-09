@@ -23,7 +23,8 @@ typedef struct
 /* ----- */
 LIST *equity_journal_list(
 		const char *close_equity_table,
-		const char *equity_journal_select,
+		const char *equity_journal_select
+			/* probably "distinct equity_account" */,
 		const char *close_equity_primary_key,
 		const char *account_closing_key,
 		const char *account_equity_key );

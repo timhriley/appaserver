@@ -109,7 +109,8 @@ CLOSE_LIBRARY= 								\
 		close_equity.o						\
 		equity_journal.o					\
 		close_account.o						\
-		close_transaction.o
+		close_transaction.o					\
+		reverse_transaction.o
 
 EXECUTABLES=	trial_balance_output					\
 		income_statement_output					\
@@ -1112,6 +1113,10 @@ close_nominal.o: close_nominal.c close_nominal.h
 close_transaction.o: close_transaction.c close_transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c close_transaction.c
+
+reverse_transaction.o: reverse_transaction.c reverse_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c reverse_transaction.c
 
 close_equity.o: close_equity.c close_equity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
