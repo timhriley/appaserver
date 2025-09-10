@@ -332,7 +332,7 @@ char *close_nominal_do_transaction_exists_message(
 
 CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 		const char *transaction_table,
-		const char *transaction_close_memo )
+		const char *memo )
 {
 	CLOSE_NOMINAL_UNDO *close_nominal_undo =
 		close_nominal_undo_calloc();
@@ -344,7 +344,7 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 			/* -------------- */
 			transaction_date_close_nominal_undo_new(
 				transaction_table,
-				transaction_close_memo );
+				memo );
 
 	if ( !close_nominal_undo->
 		transaction_date_close_nominal_undo->

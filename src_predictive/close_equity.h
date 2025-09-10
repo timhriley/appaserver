@@ -60,4 +60,10 @@ CLOSE_EQUITY *close_equity_seek(
 		LIST *close_equity_list,
 		char *account_name );
 
+/* Usage */
+/* ----- */
+CLOSE_EQUITY *close_equity_account_seek(
+		LIST *close_equity_list,
+		char *equity_account_name );
+
 #endif

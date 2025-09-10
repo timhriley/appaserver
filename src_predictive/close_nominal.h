@@ -78,7 +78,7 @@ typedef struct
 /* -------------- */
 CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 		const char *transaction_table,
-		const char *transaction_close_memo );
+		const char *memo );
 
 /* Process */
 /* ------- */

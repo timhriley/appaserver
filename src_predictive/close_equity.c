@@ -209,3 +209,60 @@ CLOSE_EQUITY *close_equity_seek(
 	return NULL;
 }
 
+CLOSE_EQUITY *close_equity_account_seek(
+		LIST *close_equity_list,
+		char *equity_account_name )
+{
+	CLOSE_EQUITY *close_equity;
+
+	if ( !equity_account_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"equity_account_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( close_equity_list ) )
+	do {
+		close_equity = list_get( close_equity_list );
+
+		if ( !close_equity->equity_journal
+		||   !close_equity->equity_journal->equity_account_name )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"close_equity->equity_journal is empty or incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( strcmp(
+			close_equity->
+				equity_journal->
+				equity_account_name,
+			equity_account_name ) == 0 )
+		{
+			return close_equity;
+		}
+
+	} while ( list_next( close_equity_list ) );
+
+	return NULL;
+}
+
