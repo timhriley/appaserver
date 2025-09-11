@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/close_nominal_accounts.c		*/
+/* $APPASERVER_HOME/src_predictive/reverse_nominal_accounts.c		*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
@@ -11,13 +11,13 @@
 #include "document.h"
 #include "transaction.h"
 #include "close_account.h"
-#include "close_nominal.h"
+#include "reverse_nominal.h"
 
-void close_nominal_accounts_do(
-		CLOSE_NOMINAL_DO *close_nominal_do,
+void reverse_nominal_accounts_do(
+		REVERSE_NOMINAL_DO *reverse_nominal_do,
 		boolean execute );
 
-void close_nominal_accounts_undo(
+void reverse_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
 		boolean execute );
 
@@ -25,10 +25,10 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *as_of_date;
+	char *reverse_date_string;
 	boolean undo;
 	boolean execute;
-	CLOSE_NOMINAL *close_nominal;
+	REVERSE_NOMINAL *reverse_nominal;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -40,25 +40,25 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s process as_of_date undo execute_yn\n",
+		"Usage: %s process reverse_date_string undo execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	as_of_date = argv[ 2 ];
+	reverse_date_string = argv[ 2 ];
 	undo = (*argv[ 3 ]) == 'y';
 	execute = (*argv[ 4 ] == 'y');
 
-	close_nominal =
+	reverse_nominal =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		close_nominal_fetch(
+		reverse_nominal_fetch(
 			application_name,
 			process_name,
-			as_of_date,
+			reverse_date_string,
 			undo );
 
 	document_process_output(
@@ -67,42 +67,42 @@ int main( int argc, char **argv )
 		(char *)0 /* title */ );
 
 	printf( "%s\n",
-		close_nominal->
+		reverse_nominal->
 			statement_caption->
 			frame_title );
 
-	if ( close_nominal->undo_no_transaction_message )
+	if ( reverse_nominal->undo_no_transaction_message )
 	{
 		printf( "%s\n",
-			close_nominal->
+			reverse_nominal->
 				undo_no_transaction_message );
 	}
 	else
-	if ( close_nominal->do_no_transaction_message )
+	if ( reverse_nominal->do_no_transaction_message )
 	{
 		printf( "%s\n",
-			close_nominal->
+			reverse_nominal->
 				do_no_transaction_message );
 	}
 	else
-	if ( close_nominal->do_empty_date_message )
+	if ( reverse_nominal->do_empty_date_message )
 	{
 		printf( "%s\n",
-			close_nominal->
+			reverse_nominal->
 				do_empty_date_message );
 	}
 	else
-	if ( close_nominal->do_transaction_exists_message )
+	if ( reverse_nominal->do_transaction_exists_message )
 	{
 		printf( "%s\n",
-			close_nominal->
+			reverse_nominal->
 				do_transaction_exists_message );
 	}
 	else
-	if ( close_nominal->close_nominal_do )
+	if ( reverse_nominal->reverse_nominal_do )
 	{
-		close_nominal_accounts_do(
-			close_nominal->close_nominal_do,
+		reverse_nominal_accounts_do(
+			reverse_nominal->reverse_nominal_do,
 			execute );
 
 		if ( execute )
@@ -111,11 +111,11 @@ int main( int argc, char **argv )
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				close_nominal_do_execute_message(
-				    close_nominal->
-				      close_nominal_do->
-				      transaction_date_close_nominal_do->
-				      transaction_date_close_date_time ) );
+				reverse_nominal_do_execute_message(
+				    reverse_nominal->
+				      reverse_nominal_do->
+				      transaction_date_reverse_nominal_do->
+				      transaction_date_reverse_date_time ) );
 		}
 		else
 		{
@@ -123,11 +123,11 @@ int main( int argc, char **argv )
 				/* ---------------------- */
 				/* Returns program memory */
 				/* ---------------------- */
-				close_nominal_do_no_execute_message() );
+				reverse_nominal_do_no_execute_message() );
 		}
 	}
 	else
-	if ( close_nominal->close_nominal_undo )
+	if ( reverse_nominal->close_nominal_undo )
 	{
 		if ( !execute )
 		{
@@ -138,20 +138,20 @@ int main( int argc, char **argv )
 				close_nominal_undo_no_execute_message() );
 		}
 
-		close_nominal_accounts_undo(
-			close_nominal->close_nominal_undo,
+		reverse_nominal_accounts_undo(
+			reverse_nominal->close_nominal_undo,
 			execute );
 
 		if ( execute )
 		{
 			char *transaction_date_time = {0};
 
-			if ( close_nominal->
+			if ( reverse_nominal->
 				close_nominal_undo->
 				transaction )
 			{
 				transaction_date_time =
-					close_nominal->
+					reverse_nominal->
 						close_nominal_undo->
 						transaction->
 						transaction_date_time;
@@ -161,7 +161,7 @@ int main( int argc, char **argv )
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				close_nominal_undo_execute_message(
+				reverse_nominal_undo_execute_message(
 					transaction_date_time ) );
 		}
 	}
@@ -171,15 +171,15 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void close_nominal_accounts_do(
-		CLOSE_NOMINAL_DO *close_nominal_do,
+void reverse_nominal_accounts_do(
+		REVERSE_NOMINAL_DO *reverse_nominal_do,
 		boolean execute )
 {
-	if ( !close_nominal_do )
+	if ( !reverse_nominal_do )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "close_nominal_do is empty." );
+		sprintf(message, "reverse_nominal_do is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -190,13 +190,15 @@ void close_nominal_accounts_do(
 	else
 	if ( execute )
 	{
-		if ( !close_nominal_do->close_transaction
-		||   !close_nominal_do->close_transaction->transaction )
+		if ( !reverse_nominal_do->reverse_transaction
+		||   !reverse_nominal_do->reverse_transaction->transaction )
 		{
 			char message[ 128 ];
 
-			sprintf(message,
-			"close_transaction is empty or incomplete." );
+			snprintf(
+				message,
+				sizeof ( message ),
+				"reverse_transaction is empty or incomplete." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -206,30 +208,30 @@ void close_nominal_accounts_do(
 		}
 
 		transaction_insert(
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				full_name,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				street_address,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				transaction_date_time,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				transaction_amount,
 			0 /* check_number */,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				memo,
 			'n' /* transaction_lock_yn */,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				journal_list,
 			1 /* insert_journal_list_boolean */ );
@@ -237,37 +239,26 @@ void close_nominal_accounts_do(
 	else
 	{
 		journal_list_sum_html_display(
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				journal_list,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				transaction_date_time,
-			close_nominal_do->
-				close_transaction->
+			reverse_nominal_do->
+				reverse_transaction->
 				transaction->
 				memo,
-			close_nominal_do->
+			reverse_nominal_do->
 				journal_debit_sum,
-			close_nominal_do->
+			reverse_nominal_do->
 				journal_credit_sum );
-
-		if ( list_length(
-			close_nominal_do->
-				close_transaction->
-				close_equity_list ) )
-		{
-			close_account_list_display(
-				close_nominal_do->
-					close_transaction->
-					close_account_list );
-		}
 	}
 }
 
-void close_nominal_accounts_undo(
+void reverse_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
 		boolean execute )
 {
@@ -288,7 +279,10 @@ void close_nominal_accounts_undo(
 	{
 		char message[ 128 ];
 
-		sprintf(message, "close_nominal_undo->transaction is empty." );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"close_nominal_undo->transaction is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

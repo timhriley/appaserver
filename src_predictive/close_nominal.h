@@ -100,7 +100,7 @@ typedef struct
 	CLOSE_NOMINAL_DO *close_nominal_do;
 	CLOSE_NOMINAL_UNDO *close_nominal_undo;
 	char *undo_no_transaction_message;
-	char *empty_date_message;
+	char *do_empty_date_message;
 	char *do_transaction_exists_message;
 	char *do_no_transaction_message;
 	STATEMENT_CAPTION *statement_caption;
@@ -129,7 +129,7 @@ char *close_nominal_undo_no_transaction_message(
 
 /* Returns program memory */
 /* ---------------------- */
-char *close_nominal_empty_date_message(
+char *close_nominal_do_empty_date_message(
 		void );
 
 /* Returns program memory */

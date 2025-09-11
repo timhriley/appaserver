@@ -124,6 +124,7 @@ EXECUTABLES=	trial_balance_output					\
 		journal_trigger						\
 		tax_form_report						\
 		close_nominal_accounts					\
+		reverse_nominal_accounts				\
 		populate_print_checks_entity				\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
@@ -346,6 +347,17 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		${CLOSE_LIBRARY}					\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
+
+reverse_nominal_accounts: reverse_nominal_accounts.c			\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+	${CLOSE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${CLOSE_LIBRARY}					\
+		reverse_nominal_accounts.c				\
+		-o reverse_nominal_accounts
 
 import_predictbooks: import_predictbooks.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\

@@ -353,3 +353,9 @@ char *reverse_nominal_do_close_transaction_date_time(
 
 }
 
+char *reverse_nominal_do_no_execute_message( void )
+{
+	return
+	"<h3>Reversing entry display complete.</h3>";
+}
+

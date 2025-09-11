@@ -14,6 +14,7 @@
 #include "reverse_transaction.h"
 #include "transaction_date.h"
 #include "statement.h"
+#include "close_nominal.h"
 
 typedef struct
 {
@@ -122,10 +123,5 @@ char *reverse_nominal_do_no_execute_message(
 /* --------------------- */
 char *reverse_nominal_undo_execute_message(
 		char *transaction_date_time );
-
-/* Returns program memory */
-/* ---------------------- */
-char *reverse_nominal_undo_no_execute_message(
-		void );
 
 #endif

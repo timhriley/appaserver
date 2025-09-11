@@ -240,11 +240,11 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			TRANSACTION_DATE_AS_OF_DATE_FILLER,
 			as_of_date_string ) )
 		{
-			close_nominal->empty_date_message =
+			close_nominal->do_empty_date_message =
 				/* ---------------------- */
 				/* Returns program memory */
 				/* ---------------------- */
-				close_nominal_empty_date_message();
+				close_nominal_do_empty_date_message();
 
 			as_of_date_string = (char *)0;
 
@@ -468,7 +468,7 @@ char *close_nominal_do_no_transaction_message( void )
 	"<h3>Warning: there are no transactions to close.</h3>";
 }
 
-char *close_nominal_empty_date_message( void )
+char *close_nominal_do_empty_date_message( void )
 {
 	return
 	"<h3>Please enter the as of date to close.</h3>";
