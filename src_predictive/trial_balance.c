@@ -125,7 +125,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 					transaction_date_begin_date_string,
 				trial_balance->
 					transaction_date_trial_balance->
-					preclose_end_date_time_string,
+					preclose_end_date_time,
 				1 /* fetch_transaction */ );
 
 		if ( !trial_balance->preclose_statement )
@@ -136,7 +136,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				"statement_fetch(%s) returned empty.",
 				trial_balance->
 					transaction_date_trial_balance->
-					preclose_end_date_time_string );
+					preclose_end_date_time );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -154,7 +154,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				transaction_date_begin_date_string,
 			trial_balance->
 				transaction_date_trial_balance->
-				preclose_end_date_time_string );
+				preclose_end_date_time );
 
 		if ( trial_balance->statement_output_medium ==
 			statement_output_table )
@@ -172,7 +172,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 					transaction_date_begin_date_string,
 				trial_balance->
 					transaction_date_trial_balance->
-					preclose_end_date_time_string );
+					preclose_end_date_time );
 		}
 
 		if ( prior_year_count )
@@ -183,7 +183,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 						element_name_list,
 					trial_balance->
 						transaction_date_trial_balance->
-						preclose_end_date_time_string,
+						preclose_end_date_time,
 					prior_year_count,
 					trial_balance->preclose_statement
 						/* statement */ );
@@ -201,7 +201,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				transaction_date_begin_date_string,
 			trial_balance->
 				transaction_date_trial_balance->
-				end_date_time_string,
+				end_date_time,
 			1 /* fetch_transaction */ );
 
 	if ( !trial_balance->statement )
@@ -212,7 +212,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			"statement_fetch(%s) returned empty.",
 			trial_balance->
 				transaction_date_trial_balance->
-				end_date_time_string );
+				end_date_time );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -228,7 +228,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			transaction_date_begin_date_string,
 		trial_balance->
 			transaction_date_trial_balance->
-			end_date_time_string );
+			end_date_time );
 
 	if ( trial_balance->statement_output_medium ==
 		statement_output_table )
@@ -244,7 +244,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				transaction_date_begin_date_string,
 			trial_balance->
 				transaction_date_trial_balance->
-				end_date_time_string );
+				end_date_time );
 	}
 
 	if ( prior_year_count )
@@ -255,7 +255,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 					element_name_list,
 				trial_balance->
 					transaction_date_trial_balance->
-					end_date_time_string,
+					end_date_time,
 				prior_year_count,
 				trial_balance->statement );
 	}
@@ -427,7 +427,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 				preclose_statement->
 					transaction_date_begin_date_string,
 				preclose_statement->
-					end_date_time_string,
+					end_date_time,
 				process_id );
 
 		trial_balance_pdf->preclose_trial_balance_latex =
@@ -456,7 +456,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			statement->process_name,
 			data_directory,
 			statement->transaction_date_begin_date_string,
-			statement->end_date_time_string,
+			statement->end_date_time,
 			process_id );
 
 	trial_balance_pdf->trial_balance_latex =
@@ -794,7 +794,7 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
 	LATEX_ROW *latex_row;
 
 	if ( !statement
-	||   !statement->end_date_time_string
+	||   !statement->end_date_time
 	||   !list_rewind( statement->element_statement_list ) )
 	{
 		char message[ 128 ];
@@ -843,7 +843,7 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
 			row_list =
 				trial_balance_subclass_display_latex_row_list(
 					statement->
-						end_date_time_string,
+						end_date_time,
 					element_name,
 					element->accumulate_debit,
 					subclassification->
@@ -904,7 +904,7 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
 }
 
 LIST *trial_balance_subclass_display_latex_row_list(
-		char *end_date_time_string,
+		char *end_date_time,
 		char *element_name,
 		boolean element_accumulate_debit,
 		char *subclassification_name,
@@ -916,11 +916,11 @@ LIST *trial_balance_subclass_display_latex_row_list(
 	ACCOUNT *account;
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !end_date_time_string )
+	if ( !end_date_time )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "end_date_time_string is empty." );
+		sprintf(message, "end_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -955,7 +955,7 @@ LIST *trial_balance_subclass_display_latex_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				end_date_time_string,
+				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
 				(char *)0 /* account_action_string */,
@@ -982,7 +982,7 @@ LIST *trial_balance_subclass_display_latex_row_list(
 LIST *trial_balance_subclass_display_html_row_list(
 		char *application_name,
 		char *login_name,
-		char *end_date_time_string,
+		char *end_date_time,
 		char *element_name,
 		boolean element_accumulate_debit,
 		char *subclassification_name,
@@ -993,11 +993,11 @@ LIST *trial_balance_subclass_display_html_row_list(
 	ACCOUNT *account;
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !end_date_time_string )
+	if ( !end_date_time )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "end_date_time_string is empty." );
+		sprintf(message, "end_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1033,7 +1033,7 @@ LIST *trial_balance_subclass_display_html_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				end_date_time_string,
+				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
 				account->action_string,
@@ -1402,7 +1402,7 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 	HTML_ROW *total_row;
 
 	if ( !statement
-	||   !statement->end_date_time_string
+	||   !statement->end_date_time
 	||   !list_rewind( statement->element_statement_list ) )
 	{
 		char message[ 128 ];
@@ -1455,7 +1455,7 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 					application_name,
 					login_name,
 					statement->
-						end_date_time_string,
+						end_date_time,
 					element_name,
 					element->accumulate_debit,
 					subclassification->
@@ -1525,7 +1525,7 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 	TRIAL_BALANCE_HTML *trial_balance_html;
 
 	if ( !statement
-	||   !statement->end_date_time_string
+	||   !statement->end_date_time
 	||   !statement->statement_caption )
 	{
 		char message[ 128 ];
@@ -1618,7 +1618,7 @@ TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 	HTML_ROW *total_row;
 
 	if ( !statement
-	||   !statement->end_date_time_string
+	||   !statement->end_date_time
 	||   !list_rewind( statement->element_statement_list ) )
 	{
 		char message[ 128 ];
@@ -1652,7 +1652,7 @@ TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 		list_set_list(
 			trial_balance_subclass_omit_html->row_list,
 			trial_balance_subclass_omit_html_row_list(
-				statement->end_date_time_string,
+				statement->end_date_time,
 				element->element_name,
 				element->accumulate_debit,
 				element->account_statement_list,
@@ -1756,7 +1756,7 @@ LIST *trial_balance_subclass_omit_html_column_list(
 }
 
 LIST *trial_balance_subclass_omit_html_row_list(
-		char *end_date_time_string,
+		char *end_date_time,
 		char *element_name,
 		boolean element_accumulate_debit,
 		LIST *account_statement_list,
@@ -1766,7 +1766,7 @@ LIST *trial_balance_subclass_omit_html_row_list(
 	ACCOUNT *account;
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !end_date_time_string
+	if ( !end_date_time
 	||   !list_rewind( account_statement_list ) )
 	{
 		char message[ 128 ];
@@ -1805,7 +1805,7 @@ LIST *trial_balance_subclass_omit_html_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				end_date_time_string,
+				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
 				account->action_string,
@@ -1999,7 +1999,7 @@ TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 	LATEX_ROW *latex_row;
 
 	if ( !statement
-	||   !statement->end_date_time_string
+	||   !statement->end_date_time
 	||   !list_rewind( statement->element_statement_list ) )
 	{
 		char message[ 128 ];
@@ -2031,7 +2031,7 @@ TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 		list_set_list(
 			trial_balance_subclass_omit_latex->row_list,
 		   	trial_balance_subclass_omit_latex_row_list(
-				statement->end_date_time_string,
+				statement->end_date_time,
 				element->element_name,
 				element->accumulate_debit,
 				element->account_statement_list,
@@ -2468,7 +2468,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 }
 
 LIST *trial_balance_subclass_omit_latex_row_list(
-		char *end_date_time_string,
+		char *end_date_time,
 		char *element_name,
 		boolean element_accumulate_debit,
 		LIST *account_statement_list,
@@ -2480,7 +2480,7 @@ LIST *trial_balance_subclass_omit_latex_row_list(
 	ACCOUNT *account;
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !end_date_time_string
+	if ( !end_date_time
 	||   !list_length( latex_column_list ) )
 	{
 		char message[ 128 ];
@@ -2521,7 +2521,7 @@ LIST *trial_balance_subclass_omit_latex_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				end_date_time_string,
+				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
 				(char *)0 /* account_action_string */,

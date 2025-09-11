@@ -76,7 +76,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 STATEMENT_ACCOUNT *statement_account_new(
-		char *end_date_time_string,
+		char *end_date_time,
 		boolean element_accumulate_debit,
 		ACCOUNT_JOURNAL *account_journal,
 		char *account_action_string,
@@ -612,7 +612,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		char *application_name,
 		char *process_name,
 		char *transaction_begin_date_string,
-		char *end_date_time_string );
+		char *end_date_time );
 
 /* Process */
 /* ------- */
@@ -638,7 +638,7 @@ char *statement_caption_title(
 /* --------------------- */
 char *statement_caption_sub_title(
 		char *begin_date_string,
-		char *end_date_time_string );
+		char *end_date_time );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -656,7 +656,7 @@ typedef struct
 {
 	char *process_name;
 	char *transaction_date_begin_date_string;
-	char *end_date_time_string;
+	char *end_date_time;
 	LIST *element_statement_list;
 	boolean pdf_landscape_boolean;
 	STATEMENT_CAPTION *statement_caption;
@@ -671,7 +671,7 @@ STATEMENT *statement_fetch(
 		int prior_year_count,
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string /* optional */,
-		char *end_date_time_string,
+		char *end_date_time,
 		boolean fetch_transaction );
 
 /* Process */
@@ -688,7 +688,7 @@ boolean statement_pdf_landscape_boolean(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *statement_date_american(
-		char *date_time_string );
+		char *date_time );
 
 /* Usage */
 /* ----- */
@@ -698,7 +698,7 @@ char *statement_date_american(
 char *statement_date_convert(
 		char *application_name,
 		char *login_name,
-		char *date_time_string );
+		char *date_time );
 
 /* Usage */
 /* ----- */
@@ -729,7 +729,7 @@ char *statement_element_sum_name(
 /* ------------------------------ */
 char *statement_greater_year_message(
 		char *transaction_date_begin_date_string,
-		char *end_date_time_string );
+		char *end_date_time );
 
 /* Usage */
 /* ----- */
@@ -756,7 +756,7 @@ void statement_html_output(
 
 typedef struct
 {
-	char *date_time_string;
+	char *date_time;
 	LIST *element_statement_list;
 } STATEMENT_PRIOR_YEAR;
 
@@ -764,7 +764,7 @@ typedef struct
 /* ----- */
 LIST *statement_prior_year_list(
 		LIST *filter_element_name_list,
-		char *end_date_time_string,
+		char *end_date_time,
 		int prior_year_count,
 		STATEMENT *statement );
 
@@ -772,7 +772,7 @@ LIST *statement_prior_year_list(
 /* ----- */
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *filter_element_name_list,
-		char *end_date_time_string,
+		char *end_date_time,
 		int years_ago,
 		STATEMENT *statement );
 
@@ -786,8 +786,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *statement_prior_year_date_time_string(
-		char *end_date_time_string,
+char *statement_prior_year_date_time(
+		char *end_date_time,
 		int years_ago );
 
 /* Usage */
@@ -866,7 +866,7 @@ STATEMENT_LINK *statement_link_new(
 		char *process_name,
 		char *appaserver_parameter_data_directory,
 		char *transaction_date_begin_date_string,
-		char *end_date_time_string,
+		char *end_date_time,
 		pid_t process_id );
 
 /* Process */

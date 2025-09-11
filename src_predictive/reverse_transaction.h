@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "account.h"
+#include "close_equity.h"
 #include "journal.h"
 
 typedef struct

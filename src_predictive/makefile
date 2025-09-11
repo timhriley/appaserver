@@ -110,6 +110,7 @@ CLOSE_LIBRARY= 								\
 		equity_journal.o					\
 		close_account.o						\
 		close_transaction.o					\
+		reverse_nominal.o					\
 		reverse_transaction.o
 
 EXECUTABLES=	trial_balance_output					\
@@ -1109,6 +1110,10 @@ recovery_statutory_accelerated_half_year:				\
 close_nominal.o: close_nominal.c close_nominal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c close_nominal.c
+
+reverse_nominal.o: reverse_nominal.c reverse_nominal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c reverse_nominal.c
 
 close_transaction.o: close_transaction.c close_transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

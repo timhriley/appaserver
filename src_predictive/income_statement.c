@@ -323,7 +323,7 @@ INCOME_STATEMENT_LATEX *income_statement_latex_new(
 			process_name,
 			data_directory,
 			statement->transaction_date_begin_date_string,
-			statement->end_date_time_string,
+			statement->end_date_time,
 			process_id );
 
 	income_statement_latex->latex =
@@ -518,7 +518,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				transaction_date_begin_date_string,
 			income_statement->
 				transaction_date_statement->
-				end_date_time_string,
+				end_date_time,
 			0 /* not fetch_transaction */ );
 
 	if ( income_statement->statement_output_medium ==
@@ -531,7 +531,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				transaction_date_begin_date_string,
 			income_statement->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 		element_account_action_string_set(
 			income_statement->statement->element_statement_list,
@@ -544,7 +544,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				transaction_date_begin_date_string,
 			income_statement->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 	}
 
 	if ( prior_year_count )
@@ -554,7 +554,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				income_statement->element_name_list,
 				income_statement->
 					transaction_date_statement->
-					end_date_time_string,
+					end_date_time,
 				prior_year_count,
 				income_statement->statement );
 	}
@@ -1406,16 +1406,16 @@ LATEX_TABLE *income_statement_latex_table(
 }
 
 double income_statement_fetch_net_income(
-		char *end_date_time_string )
+		char *end_date_time )
 {
 	LIST *element_name_list;
 	STATEMENT *statement;
 
-	if ( !end_date_time_string )
+	if ( !end_date_time )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "end_date_time_string is empty." );
+		sprintf(message, "end_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1439,7 +1439,7 @@ double income_statement_fetch_net_income(
 			0 /* prior_year_count */,
 			element_name_list,
 			(char *)0 /* transaction_begin_date_string */,
-			end_date_time_string,
+			end_date_time,
 			0 /* not fetch_transaction */ );
 
 	if ( !statement ) return 0.0;

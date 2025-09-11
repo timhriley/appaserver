@@ -115,7 +115,7 @@ int main( int argc, char **argv )
 				    close_nominal->
 				      close_nominal_do->
 				      transaction_date_close_nominal_do->
-				      transaction_date_close_date_time_string));
+				      transaction_date_close_date_time ) );
 		}
 		else
 		{

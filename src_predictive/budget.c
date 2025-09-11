@@ -389,8 +389,8 @@ BUDGET *budget_fetch(
 			TRANSACTION_CLOSE_MEMO,
 			display_yyyy_mm_dd );
 
-	budget->transaction_date_close_date_time_string =
-		transaction_date_close_date_time_string(
+	budget->transaction_date_close_date_time =
+		transaction_date_close_date_time(
 			TRANSACTION_DATE_PRECLOSE_TIME,
 			TRANSACTION_DATE_CLOSE_TIME,
 			display_yyyy_mm_dd
@@ -405,24 +405,24 @@ BUDGET *budget_fetch(
 			0 /* prior_year_count */,
 			budget->element_name_list,
 			budget->transaction_date_begin_date_string,
-			budget->transaction_date_close_date_time_string
-				/* end_date_time_string */,
+			budget->transaction_date_close_date_time
+				/* end_date_time */,
 			0 /* not fetch_transaction */ );
 
 	element_list_account_statement_list_set(
 		budget->statement->element_statement_list );
 
-	budget->end_date_time_string =
+	budget->end_date_time =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		budget_end_date_time_string(
+		budget_end_date_time(
 			budget->transaction_date_begin_date_string );
 
 	budget->statement_prior_year_list =
 		statement_prior_year_list(
 				budget->element_name_list,
-				budget->end_date_time_string,
+				budget->end_date_time,
 				1 /* prior_year_count */,
 				budget->statement );
 
@@ -510,7 +510,7 @@ BUDGET *budget_fetch(
 					transaction_date_begin_date_string,
 				budget->
 					statement->
-					end_date_time_string,
+					end_date_time,
 				budget->
 					statement->
 					statement_caption->
@@ -606,7 +606,7 @@ LIST *budget_element_name_list(
 	return name_list;
 }
 
-char *budget_end_date_time_string(
+char *budget_end_date_time(
 		char *transaction_date_begin_date_string )
 {
 	DATE *future_date;
@@ -961,7 +961,7 @@ BUDGET_LATEX *budget_latex_new(
 		char *process_name,
 		char *data_directory,
 		char *transaction_date_begin_date_string,
-		char *statement_end_date_time_string,
+		char *statement_end_date_time,
 		char *statement_caption_logo_filename,
 		char *budget_year_percent_sub_title,
 		LIST *budget_annualized_list,
@@ -999,7 +999,7 @@ BUDGET_LATEX *budget_latex_new(
 			process_name,
 			data_directory,
 			transaction_date_begin_date_string,
-			statement_end_date_time_string,
+			statement_end_date_time,
 			process_id );
 
 	budget_latex->latex =

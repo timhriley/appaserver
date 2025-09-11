@@ -46,7 +46,7 @@ char *transaction_date_where_string(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_date_time_string(
+		transaction_date_time(
 			date_string,
 			time_string ),
 		memo );
@@ -213,13 +213,13 @@ boolean transaction_date_reverse_boolean(
 	return return_value;
 }
 
-char *transaction_date_close_date_time_string(
+char *transaction_date_close_date_time(
 		const char *transaction_date_preclose_time,
 		const char *transaction_date_close_time,
 		char *transaction_date_as_of,
 		boolean preclose_time_boolean )
 {
-	char *date_time_string;
+	char *date_time;
 
 	if ( !transaction_date_as_of )
 	{
@@ -236,29 +236,29 @@ char *transaction_date_close_date_time_string(
 
 	if ( preclose_time_boolean )
 	{
-		date_time_string =
+		date_time =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			transaction_date_time_string(
+			transaction_date_time(
 				transaction_date_as_of,
 				(char *)transaction_date_preclose_time );
 	}
 	else
 	{
-		date_time_string =
+		date_time =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			transaction_date_time_string(
+			transaction_date_time(
 				transaction_date_as_of,
 				(char *)transaction_date_close_time );
 	}
 
-	return strdup( date_time_string );
+	return strdup( date_time );
 }
 
-char *transaction_date_reverse_date_time_string(
+char *transaction_date_reverse_date_time(
 		const char *transaction_date_reverse_time,
 		char *reverse_date_string )
 {
@@ -280,7 +280,7 @@ char *transaction_date_reverse_date_time_string(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_date_time_string(
+		transaction_date_time(
 			reverse_date_string,
 			(char *)transaction_date_reverse_time ) );
 }
@@ -369,7 +369,7 @@ DATE *transaction_date_prior_close_date(
 		char *transaction_date_as_of )
 {
 	char *select;
-	char *date_time_string;
+	char *date_time;
 	char where_string[ 128 ];
 	char system_string[ 256 ];
 	char *string;
@@ -389,11 +389,11 @@ DATE *transaction_date_prior_close_date(
 
 	select = "max( transaction_date_time )";
 
-	date_time_string =
+	date_time =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_date_time_string(
+		transaction_date_time(
 			transaction_date_as_of
 				/* date_string */,
 			(char *)transaction_date_close_time
@@ -402,7 +402,7 @@ DATE *transaction_date_prior_close_date(
 	sprintf(where_string,
 		"memo = '%s' and transaction_date_time < '%s'",
 		transaction_close_memo,
-		date_time_string );
+		date_time );
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
@@ -534,11 +534,11 @@ char *transaction_date_time_memo_maximum_string(
 		where_string );
 }
 
-char *transaction_date_end_date_time_string(
+char *transaction_date_end_date_time(
 		char *end_date_string,
 		char *time_string )
 {
-	static char end_date_time_string[ 32 ];
+	static char end_date_time[ 32 ];
 
 	if ( !end_date_string
 	||   !time_string )
@@ -554,12 +554,12 @@ char *transaction_date_end_date_time_string(
 			message );
 	}
 
-	sprintf(end_date_time_string,
+	sprintf(end_date_time,
 		"%s %s",
 		end_date_string,
 		time_string );
 
-	return end_date_time_string;
+	return end_date_time;
 }
 
 TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
@@ -646,11 +646,11 @@ TRANSACTION_DATE_CLOSE_NOMINAL_DO *
 		transaction_date_close_boolean )
 	{
 	    transaction_date_close_nominal_do->
-		transaction_date_close_date_time_string =
+		transaction_date_close_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			transaction_date_close_date_time_string(
+			transaction_date_close_date_time(
 				TRANSACTION_DATE_PRECLOSE_TIME,
 				TRANSACTION_DATE_CLOSE_TIME,
 				as_of_date_string,
@@ -757,11 +757,11 @@ TRANSACTION_DATE_STATEMENT *
 			transaction_date_statement->
 				transaction_date_as_of );
 
-	transaction_date_statement->end_date_time_string =
+	transaction_date_statement->end_date_time =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		transaction_date_close_date_time_string(
+		transaction_date_close_date_time(
 			TRANSACTION_DATE_PRECLOSE_TIME,
 			TRANSACTION_DATE_CLOSE_TIME,
 			transaction_date_statement->
@@ -771,11 +771,11 @@ TRANSACTION_DATE_STATEMENT *
 				/* preclose_time_boolean */ );
 
 	transaction_date_statement->
-		prior_end_date_time_string =
+		prior_end_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			transaction_date_prior_end_date_time_string(
+			transaction_date_prior_end_date_time(
 				transaction_date_statement->
 					transaction_date_begin_date_string );
 
@@ -804,34 +804,6 @@ TRANSACTION_DATE_STATEMENT *
 	}
 
 	return transaction_date_statement;
-}
-
-char *transaction_date_time_string(
-		char *date_string,
-		char *time_string )
-{
-	static char date_time_string[ 32 ];
-
-	if ( !date_string
-	||   !time_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(date_time_string,
-		"%s %s",
-		date_string,
-		time_string );
-
-	return date_time_string;
 }
 
 TRANSACTION_DATE_TRIAL_BALANCE *
@@ -899,11 +871,11 @@ TRANSACTION_DATE_TRIAL_BALANCE *
 		transaction_date_close_boolean )
 	{
 		transaction_date_trial_balance->
-			preclose_end_date_time_string =
+			preclose_end_date_time =
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
-				transaction_date_close_date_time_string(
+				transaction_date_close_date_time(
 					TRANSACTION_DATE_PRECLOSE_TIME,
 					TRANSACTION_DATE_CLOSE_TIME,
 					transaction_date_trial_balance->
@@ -912,11 +884,11 @@ TRANSACTION_DATE_TRIAL_BALANCE *
 	}
 
 	transaction_date_trial_balance->
-		end_date_time_string =
+		end_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			transaction_date_close_date_time_string(
+			transaction_date_close_date_time(
 				TRANSACTION_DATE_PRECLOSE_TIME,
 				TRANSACTION_DATE_CLOSE_TIME,
 				transaction_date_trial_balance->
@@ -997,15 +969,15 @@ char *transaction_date_time_where_string( char *transaction_date_time )
 	return where_string;
 }
 
-char *transaction_date_prior_end_date_time_string(
-		char *transaction_date_begin_date_string )
+char *transaction_date_prior_end_date_time(
+		char *transaction_date_begin_date )
 {
 	DATE *prior =
 		/* ------------------- */
 		/* Trims trailing time */
 		/* ------------------- */
 		date_yyyy_mm_dd_new(
-			transaction_date_begin_date_string );
+			transaction_date_begin_date );
 
 	date_decrement_second( prior, 1 );
 
@@ -1100,11 +1072,11 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 		transaction_date_reverse_boolean )
 	{
 	    transaction_date_reverse_nominal_do->
-		transaction_date_reverse_date_time_string =
+		transaction_date_reverse_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			transaction_date_reverse_date_time_string(
+			transaction_date_reverse_date_time(
 				TRANSACTION_DATE_REVERSE_TIME,
 				reverse_date_string );
 	}

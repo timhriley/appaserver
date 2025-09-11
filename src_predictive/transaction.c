@@ -489,41 +489,6 @@ char *transaction_date_time_where(
 	return where;
 }
 
-char *transaction_date_close_where_string(
-		const char *transaction_close_memo,
-		char *date_string,
-		char *time_string )
-{
-	static char where_string[ 128 ];
-
-	if ( !date_string
-	||   !time_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(where_string,
-		"transaction_date_time = '%s' and "
-		"memo = '%s'",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_date_time_string(
-			date_string,
-			time_string ),
-		transaction_close_memo );
-
-	return where_string;
-}
-
 char *transaction_closing_entry_where(
 		char *transaction_date_time_where,
 		char *transaction_closing_memo_where )

@@ -103,7 +103,7 @@ char *statement_caption_logo_filename(
 
 char *statement_caption_sub_title(
 		char *begin_date_string,
-		char *end_date_time_string )
+		char *end_date_time )
 {
 	static char sub_title[ 128 ];
 	char *begin_date_american = {0};
@@ -121,14 +121,14 @@ char *statement_caption_sub_title(
 		if ( !begin_date_american ) return NULL;
 	}
 
-	if ( end_date_time_string )
+	if ( end_date_time )
 	{
 		end_date_american =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			statement_date_american(
-				end_date_time_string );
+				end_date_time );
 
 		if ( !end_date_american ) return NULL;
 	}
@@ -168,13 +168,13 @@ STATEMENT *statement_fetch(
 		int prior_year_count,
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string,
-		char *end_date_time_string,
+		char *end_date_time,
 		boolean fetch_transaction )
 {
 	STATEMENT *statement;
 
 	if ( !list_length( element_name_list )
-	||   !end_date_time_string )
+	||   !end_date_time )
 	{
 		char message[ 128 ];
 
@@ -194,13 +194,13 @@ STATEMENT *statement_fetch(
 	statement->transaction_date_begin_date_string =
 		transaction_date_begin_date_string;
 
-	statement->end_date_time_string =
-		end_date_time_string;
+	statement->end_date_time =
+		end_date_time;
 
 	statement->element_statement_list =
 		element_statement_list(
 			element_name_list,
-			end_date_time_string,
+			end_date_time,
 			1 /* fetch_subclassification */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -232,7 +232,7 @@ STATEMENT *statement_fetch(
 				application_name,
 				process_name,
 				transaction_date_begin_date_string,
-				end_date_time_string );
+				end_date_time );
 	}
 
 	statement->greater_year_message =
@@ -241,7 +241,7 @@ STATEMENT *statement_fetch(
 		/* ------------------------------ */
 		statement_greater_year_message(
 			transaction_date_begin_date_string,
-			end_date_time_string );
+			end_date_time );
 
 	return statement;
 }
@@ -455,7 +455,7 @@ STATEMENT_LINK *statement_link_new(
 		char *process_name,
 		char *data_directory,
 		char *transaction_date_begin_date_string,
-		char *end_date_time_string,
+		char *end_date_time,
 		pid_t process_id )
 {
 	STATEMENT_LINK *statement_link;
@@ -492,7 +492,7 @@ STATEMENT_LINK *statement_link_new(
 			process_id,
 			(char *)0 /* session_key */,
 			transaction_date_begin_date_string,
-			end_date_time_string,
+			end_date_time,
 			"tex" /* extension */ );
 
 	statement_link->tex_filename =
@@ -587,7 +587,7 @@ STATEMENT_LINK *statement_link_calloc( void )
 	return statement_link;
 }
 
-char *statement_date_american( char *date_time_string )
+char *statement_date_american( char *date_time )
 {
 	char date_string[ 16 ];
 	char *date_american;
@@ -601,7 +601,7 @@ char *statement_date_american( char *date_time_string )
 			column(
 				date_string,
 				0,
-				date_time_string )
+				date_time )
 				/* source_date_string */ );
 
 	if ( !date_american ) return (char *)0;
@@ -615,7 +615,7 @@ char *statement_date_american( char *date_time_string )
 char *statement_date_convert(
 		char *application_name,
 		char *login_name,
-		char *date_time_string )
+		char *date_time )
 {
 	char date_string[ 16 ];
 	enum date_convert_format_enum format_enum;
@@ -638,7 +638,7 @@ char *statement_date_convert(
 			column(
 				date_string,
 				0,
-				date_time_string )
+				date_time )
 				/* source_date_string */ );
 
 	if ( !date_convert ) return (char *)0;
@@ -741,7 +741,7 @@ LIST *statement_prior_year_heading_list(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			statement_date_american(
-				statement_prior_year->date_time_string ) );
+				statement_prior_year->date_time ) );
 
 	} while ( list_next( statement_prior_year_list ) );
 
@@ -777,7 +777,7 @@ void statement_html_output(
 
 LIST *statement_prior_year_list(
 		LIST *element_name_list,
-		char *end_date_time_string,
+		char *end_date_time,
 		int prior_year_count,
 		STATEMENT *statement )
 {
@@ -785,7 +785,7 @@ LIST *statement_prior_year_list(
 	int years_ago;
 
 	if ( !list_length( element_name_list )
-	||   !end_date_time_string
+	||   !end_date_time
 	||   !prior_year_count
 	||   !statement
 	||   !list_length( statement->element_statement_list ) )
@@ -811,7 +811,7 @@ LIST *statement_prior_year_list(
 			prior_year_list,
 			statement_prior_year_fetch(
 				element_name_list,
-				end_date_time_string,
+				end_date_time,
 				years_ago,
 				statement ) );
 	}
@@ -821,7 +821,7 @@ LIST *statement_prior_year_list(
 
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *element_name_list,
-		char *end_date_time_string,
+		char *end_date_time,
 		int years_ago,
 		STATEMENT *statement )
 {
@@ -830,7 +830,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 	ELEMENT *prior_element;
 
 	if ( !list_length( element_name_list )
-	||   !end_date_time_string
+	||   !end_date_time
 	||   !years_ago
 	||   !statement )
 	{
@@ -849,18 +849,18 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 
 	statement_prior_year = statement_prior_year_calloc();
 
-	statement_prior_year->date_time_string =
+	statement_prior_year->date_time =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		statement_prior_year_date_time_string(
-			end_date_time_string,
+		statement_prior_year_date_time(
+			end_date_time,
 			years_ago );
 
 	statement_prior_year->element_statement_list =
 		element_statement_list(
 			element_name_list,
-			statement_prior_year->date_time_string,
+			statement_prior_year->date_time,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -918,13 +918,13 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc( void )
 	return statement_prior_year;
 }
 
-char *statement_prior_year_date_time_string(
-		char *end_date_time_string,
+char *statement_prior_year_date_time(
+		char *end_date_time,
 		int years_ago )
 {
 	DATE *prior_date;
 
-	if ( !end_date_time_string
+	if ( !end_date_time
 	||   !years_ago )
 	{
 		char message[ 128 ];
@@ -938,7 +938,7 @@ char *statement_prior_year_date_time_string(
 			message );
 	}
 
-	prior_date = date_19new( end_date_time_string );
+	prior_date = date_19new( end_date_time );
 
 	date_subtract_year( prior_date, years_ago );
 
@@ -1401,7 +1401,7 @@ LIST *statement_subclass_display_latex_account_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				(char *)0 /* end_date_time_string */,
+				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
 				(char *)0 /* account_action_string */,
@@ -1617,7 +1617,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 }
 
 STATEMENT_ACCOUNT *statement_account_new(
-		char *end_date_time_string,
+		char *end_date_time,
 		boolean element_accumulate_debit,
 		ACCOUNT_JOURNAL *account_journal_latest,
 		char *account_action_string,
@@ -1698,7 +1698,7 @@ STATEMENT_ACCOUNT *statement_account_new(
 			account->percent_of_asset,
 			account->percent_of_income );
 
-	if ( end_date_time_string )
+	if ( end_date_time )
 	{
 		statement_account->date_days_between =
 			/* ---------------------- */
@@ -1706,7 +1706,7 @@ STATEMENT_ACCOUNT *statement_account_new(
 			/* ---------------------- */
 			date_days_between(
 				account_journal_latest->transaction_date_time,
-				end_date_time_string );
+				end_date_time );
 
 		statement_account->within_days_between_boolean =
 			( statement_account->date_days_between <=
@@ -2121,7 +2121,7 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				(char *)0 /* end_date_time_string */,
+				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
 				(char *)0 /* account_action_string */,
@@ -2610,7 +2610,7 @@ STATEMENT_SUBCLASS_OMIT_HTML *
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				(char *)0 /* end_date_time_string */,
+				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
 				account->action_string,
@@ -4098,7 +4098,7 @@ LIST *statement_subclass_display_html_account_row_list(
 			/* Safely returns */
 			/* -------------- */
 			statement_account_new(
-				(char *)0 /* end_date_time_string */,
+				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
 				account->action_string,
@@ -4626,7 +4626,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		char *application_name,
 		char *process_name,
 		char *transaction_begin_date_string,
-		char *end_date_time_string )
+		char *end_date_time )
 {
 	STATEMENT_CAPTION *statement_caption;
 
@@ -4669,7 +4669,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		/* ----------------------------- */
 		statement_caption_sub_title(
 			transaction_begin_date_string,
-			end_date_time_string );
+			end_date_time );
 
 	statement_caption->combined =
 		/* ------------------- */
@@ -5038,11 +5038,11 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 
 char *statement_greater_year_message(
 		char *transaction_date_begin_date_string,
-		char *end_date_time_string )
+		char *end_date_time )
 {
 	if ( date_greater_year_boolean(
 		transaction_date_begin_date_string,
-		end_date_time_string ) )
+		end_date_time ) )
 	{
 		return STATEMENT_GREATER_YEAR_MESSAGE;
 	}

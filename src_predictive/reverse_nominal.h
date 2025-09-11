@@ -20,7 +20,7 @@ typedef struct
 	TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 		transaction_date_reverse_nominal_do;
 	char *close_transaction_date_time;
-	CLOSE_TRANSACTION *close_transaction;
+	TRANSACTION *close_transaction;
 	ENTITY_SELF *entity_self;
 	REVERSE_TRANSACTION *reverse_transaction;
 	double journal_debit_sum;
@@ -43,12 +43,20 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_calloc(
 /* Returns transaction_date_reverse_date_time minus one second */
 /* ----------------------------------------------------------- */
 char *reverse_nominal_do_close_transaction_date_time(
-	char *transaction_date_reverse_date_time );
+		char *transaction_date_reverse_date_time );
 
 /* Returns static memory */
 /* --------------------- */
 char *reverse_nominal_do_transaction_exists_message(
 		char *transaction_date_close_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *reverse_nominal_do_close_transaction_date_time(
+		char *transaction_date_reverse_date_time );
 
 /* Driver */
 /* ------ */
@@ -59,10 +67,10 @@ typedef struct
 {
 	REVERSE_NOMINAL_DO *reverse_nominal_do;
 	CLOSE_NOMINAL_UNDO *close_nominal_undo;
-	char *close_nominal_undo_no_transaction_message;
-	char *close_nominal_empty_date_message;
-	char *close_nominal_do_transaction_exists_message;
-	char *close_nominal_do_no_transaction_message;
+	char *undo_no_transaction_message;
+	char *do_empty_date_message;
+	char *do_transaction_exists_message;
+	char *do_no_transaction_message;
 	STATEMENT_CAPTION *statement_caption;
 } REVERSE_NOMINAL;
 
@@ -80,6 +88,21 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 /* Process */
 /* ------- */
 REVERSE_NOMINAL *reverse_nominal_calloc(
+		void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *reverse_nominal_undo_no_transaction_message(
+		void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *reverse_nominal_do_empty_date_message(
+		void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *reverse_nominal_do_no_transaction_message(
 		void );
 
 /* Driver */

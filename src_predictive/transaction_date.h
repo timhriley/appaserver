@@ -31,7 +31,7 @@ typedef struct
 
 /* Returns static memory */
 /* --------------------- */
-char *transaction_date_time_string(
+char *transaction_date_time(
 		char *date_string,
 		char *time_string );
 
@@ -40,7 +40,7 @@ char *transaction_date_time_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *transaction_date_end_date_time_string(
+char *transaction_date_end_date_time(
 	char *end_date_string,
 	char *time_string );
 
@@ -93,7 +93,7 @@ char *transaction_date_begin_date_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *transaction_date_close_date_time_string(
+char *transaction_date_close_date_time(
 		const char *transaction_date_preclose_time,
 		const char *transaction_date_close_time,
 		char *transaction_date_as_of,
@@ -104,7 +104,7 @@ char *transaction_date_close_date_time_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *transaction_date_reverse_date_time_string(
+char *transaction_date_reverse_date_time(
 		const char *transaction_date_reverse_time,
 		char *reverse_date_string );
 
@@ -190,7 +190,7 @@ char *transaction_date_count_system_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *transaction_date_prior_end_date_time_string(
+char *transaction_date_prior_end_date_time(
 		char *transaction_date_begin_date_string );
 
 typedef struct
@@ -217,7 +217,7 @@ TRANSACTION_DATE_CLOSE_NOMINAL_UNDO *
 typedef struct
 {
 	boolean transaction_date_close_boolean;
-	char *transaction_date_close_date_time_string;
+	char *transaction_date_close_date_time;
 } TRANSACTION_DATE_CLOSE_NOMINAL_DO;
 
 /* Usage */
@@ -259,7 +259,7 @@ TRANSACTION_DATE_REVERSE_NOMINAL_UNDO *
 typedef struct
 {
 	boolean transaction_date_reverse_boolean;
-	char *transaction_date_reverse_date_time_string;
+	char *transaction_date_reverse_date_time;
 } TRANSACTION_DATE_REVERSE_NOMINAL_DO;
 
 /* Usage */
@@ -282,8 +282,8 @@ typedef struct
 	char *transaction_date_as_of;
 	char *transaction_date_begin_date_string;
 	boolean transaction_date_close_boolean;
-	char *end_date_time_string;
-	char *prior_end_date_time_string;
+	char *end_date_time;
+	char *prior_end_date_time;
 } TRANSACTION_DATE_STATEMENT;
 
 /* Usage */
@@ -306,8 +306,8 @@ typedef struct
 	char *transaction_date_as_of;
 	char *transaction_date_begin_date_string;
 	boolean transaction_date_close_boolean;
-	char *preclose_end_date_time_string;
-	char *end_date_time_string;
+	char *preclose_end_date_time;
+	char *end_date_time;
 } TRANSACTION_DATE_TRIAL_BALANCE;
 
 /* Usage */

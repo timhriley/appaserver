@@ -336,7 +336,7 @@ BUDGET_LATEX *budget_latex_new(
 		char *process_name,
 		char *appaserver_parameter_data_directory,
 		char *transaction_date_begin_date_string,
-		char *statement_end_date_time_string,
+		char *statement_end_date_time,
 		char *statement_logo_filename,
 		char *budget_year_percent_sub_title,
 		LIST *budget_annualized_list,
@@ -498,9 +498,9 @@ typedef struct
 	double year_ratio;
 	LIST *element_name_list;
 	boolean transaction_date_close_boolean;
-	char *transaction_date_close_date_time_string;
+	char *transaction_date_close_date_time;
 	STATEMENT *statement;
-	char *end_date_time_string;
+	char *end_date_time;
 	LIST *statement_prior_year_list;
 	DATE *forecast_date;
 	char *forecast_date_string;
@@ -551,7 +551,7 @@ LIST *budget_element_name_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *budget_end_date_time_string(
+char *budget_end_date_time(
 		char *transaction_date_begin_date_string );
 
 /* Usage */

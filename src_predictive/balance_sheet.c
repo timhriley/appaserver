@@ -2640,7 +2640,7 @@ BALANCE_SHEET_LATEX *balance_sheet_latex_new(
 			process_name,
 			data_directory,
 			statement->transaction_date_begin_date_string,
-			statement->end_date_time_string,
+			statement->end_date_time,
 			process_id );
 
 	balance_sheet_latex->latex =
@@ -2870,7 +2870,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				transaction_date_begin_date_string,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string,
+				end_date_time,
 			0 /* not fetch_transaction */ );
 
 	if ( !balance_sheet->statement )
@@ -2893,7 +2893,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			ELEMENT_EQUITY,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string,
+				end_date_time,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -2907,7 +2907,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			"element_statement_fetch(%s) returned empty.",
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2925,7 +2925,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			ELEMENT_EQUITY,
 			balance_sheet->
 				transaction_date_statement->
-				prior_end_date_time_string,
+				prior_end_date_time,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -2949,7 +2949,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 		income_statement_fetch_net_income(
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 	balance_sheet->drawing_amount =
 		balance_sheet_drawing_amount(
@@ -2957,7 +2957,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			ACCOUNT_DRAWING_KEY,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 	balance_sheet->balance_sheet_equity =
 		/* -------------- */
@@ -2977,7 +2977,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				balance_sheet->element_name_list,
 				balance_sheet->
 					transaction_date_statement->
-					end_date_time_string,
+					end_date_time,
 				prior_year_count,
 				balance_sheet->statement );
 	}
@@ -3021,7 +3021,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				transaction_date_begin_date_string,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 		element_account_action_string_set(
 			balance_sheet->statement->element_statement_list,
@@ -3034,7 +3034,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				transaction_date_begin_date_string,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time_string );
+				end_date_time );
 
 		balance_sheet->balance_sheet_html =
 			balance_sheet_html_new(
@@ -3299,20 +3299,20 @@ LATEX_ROW *balance_sheet_latex_net_income_row(
 double balance_sheet_drawing_amount(
 		const char *journal_table,
 		const char *account_drawing_key,
-		char *transaction_end_date_time_string )
+		char *transaction_end_date_time )
 {
 	char *drawing_string;
 	ACCOUNT_JOURNAL *account_journal;
 	double drawing_amount = {0};
 
-	if ( !transaction_end_date_time_string )
+	if ( !transaction_end_date_time )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"transaction_end_date_time_string is empty." );
+			"transaction_end_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3331,7 +3331,7 @@ double balance_sheet_drawing_amount(
 		account_journal_latest(
 			journal_table,
 			drawing_string /* account_name */,
-			transaction_end_date_time_string,
+			transaction_end_date_time,
 			0 /* not fetch_transaction */ );
 
 	if ( account_journal )
