@@ -975,6 +975,81 @@ void journal_list_html_display(
 	fflush( stdout );
 }
 
+char *journal_list_display( LIST *journal_list )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+	JOURNAL *journal;
+
+	*ptr = '\0';
+
+	if ( list_rewind( journal_list ) )
+	do {
+		journal = list_get( journal_list );
+
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_display( journal ) );
+
+	} while ( list_next( journal_list ) );
+
+	return strdup( display );
+}
+
+char *journal_display( JOURNAL *journal )
+{
+	static char display[ 128 ];
+	char buffer1[ 128 ];
+	char buffer2[ 128 ];
+	char buffer3[ 128 ];
+
+	if ( !journal )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"journal is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	strcpy(	buffer1,
+		/* ----------------------*/
+		/* Returns static memory */
+		/* ----------------------*/
+		string_commas_dollar(
+			journal->debit_amount ) );
+
+	strcpy(	buffer2,
+		/* ----------------------*/
+		/* Returns static memory */
+		/* ----------------------*/
+		string_commas_dollar(
+			journal->credit_amount ) );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"%s^Dr: %s^Cr: %s\n",
+		format_initial_capital(
+			buffer3,
+			journal->account_name ),
+		buffer1,
+		buffer2 );
+
+	return display;
+}
+
 void journal_list_pipe_display(
 		FILE *output_pipe,
 		char *transaction_date_time,

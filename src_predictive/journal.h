@@ -563,4 +563,20 @@ char *journal_propagate_update_statement(
 		double previous_balance,
 		double balance );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_list_display(
+		LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_display(
+		JOURNAL *journal );
+
 #endif

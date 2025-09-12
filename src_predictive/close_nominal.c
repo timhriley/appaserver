@@ -263,6 +263,25 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			transaction_date_close_nominal_do->
 			transaction_date_close_boolean )
 		{
+			if ( !close_nominal->
+				     close_nominal_do->
+				     transaction_date_close_nominal_do->
+				     transaction_date_close_date_time )
+			{
+				char message[ 128 ];
+
+				snprintf(
+					message,
+					sizeof ( message ),
+				"transaction_date_close_date_time is empty." );
+
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
+			}
+
 			close_nominal->do_transaction_exists_message =
 				/* --------------------- */
 				/* Returns static memory */
@@ -323,7 +342,25 @@ char *close_nominal_do_transaction_exists_message(
 {
 	static char message[ 128 ];
 
-	sprintf(message,
+	if ( !transaction_date_close_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"transaction_date_close_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		message,
+		sizeof ( message ),
 		"<h3>ERROR: a closing entry exists as transaction %s.</h3>",
 		transaction_date_close_date_time );
 

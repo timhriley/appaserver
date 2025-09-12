@@ -642,10 +642,7 @@ TRANSACTION_DATE_CLOSE_NOMINAL_DO *
 				TRANSACTION_CLOSE_MEMO,
 				as_of_date_string );
 
-	if ( !transaction_date_close_nominal_do->
-		transaction_date_close_boolean )
-	{
-	    transaction_date_close_nominal_do->
+	transaction_date_close_nominal_do->
 		transaction_date_close_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
@@ -655,7 +652,6 @@ TRANSACTION_DATE_CLOSE_NOMINAL_DO *
 				TRANSACTION_DATE_CLOSE_TIME,
 				as_of_date_string,
 				0 /* not preclose_time_boolean */ );
-	}
 
 	return transaction_date_close_nominal_do;
 }
@@ -1068,10 +1064,7 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 				TRANSACTION_REVERSE_MEMO,
 				reverse_date_string );
 
-	if ( !transaction_date_reverse_nominal_do->
-		transaction_date_reverse_boolean )
-	{
-	    transaction_date_reverse_nominal_do->
+	transaction_date_reverse_nominal_do->
 		transaction_date_reverse_date_time =
 			/* ------------------- */
 			/* Returns heap memory */
@@ -1079,7 +1072,6 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 			transaction_date_reverse_date_time(
 				TRANSACTION_DATE_REVERSE_TIME,
 				reverse_date_string );
-	}
 
 	return transaction_date_reverse_nominal_do;
 }

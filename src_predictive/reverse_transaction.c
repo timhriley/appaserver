@@ -201,16 +201,16 @@ JOURNAL *reverse_transaction_equity_list_journal(
 }
 
 double reverse_transaction_equity_debit_accumulate(
-		double journal_credit_amount,
+		double journal_debit_amount,
 		double equity_debit_amount )
 {
 	double equity_debit_accumulate;
 
-	if ( journal_credit_amount )
+	if ( journal_debit_amount )
 	{
 		equity_debit_accumulate =
 			equity_debit_amount +
-			journal_credit_amount;
+			journal_debit_amount;
 	}
 	else
 	{
@@ -222,16 +222,16 @@ double reverse_transaction_equity_debit_accumulate(
 }
 
 double reverse_transaction_equity_credit_accumulate(
-		double journal_debit_amount,
+		double journal_credit_amount,
 		double equity_credit_amount )
 {
 	double equity_credit_accumulate;
 
-	if ( journal_debit_amount )
+	if ( journal_credit_amount )
 	{
 		equity_credit_accumulate =
 			equity_credit_amount +
-			journal_debit_amount;
+			journal_credit_amount;
 	}
 	else
 	{
@@ -281,13 +281,26 @@ LIST *reverse_transaction_extract_journal_list(
 		LIST *equity_journal_list,
 		LIST *reverse_transaction_journal_list )
 {
-	return
-	list_append_list(
+	LIST *journal_list;
+	LIST *extract_journal_list = list_new();
+
+	journal_list =
 		equity_journal_extract_list(
-			equity_journal_list )
+			equity_journal_list );
+
+	(void)list_append_list(
+		extract_journal_list
+			/* destination_list */,
+		journal_list
+			/* source_list */ );
+
+	(void)list_append_list(
+		extract_journal_list
 			/* destination_list */,
 		reverse_transaction_journal_list
 			/* source_list */ );
+
+	return extract_journal_list;
 }
 
 void reverse_transaction_equity_accumulate(
@@ -298,7 +311,7 @@ void reverse_transaction_equity_accumulate(
 
 	accumulate =
 		reverse_transaction_equity_debit_accumulate(
-			journal->credit_amount,
+			journal->debit_amount,
 			close_equity->
 				equity_journal->
 				journal->
@@ -312,11 +325,11 @@ void reverse_transaction_equity_accumulate(
 
 	accumulate =
 		reverse_transaction_equity_credit_accumulate(
-			journal->debit_amount,
+			journal->credit_amount,
 			close_equity->
 				equity_journal->
 				journal->
-				debit_amount );
+				credit_amount );
 
 	close_equity->
 		equity_journal->

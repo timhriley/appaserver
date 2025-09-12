@@ -67,13 +67,13 @@ JOURNAL *reverse_transaction_equity_list_journal(
 /* Usage */
 /* ----- */
 double reverse_transaction_equity_debit_accumulate(
-		double journal_credit_amount,
+		double journal_debit_amount,
 		double equity_debit_amount );
 
 /* Usage */
 /* ----- */
 double reverse_transaction_equity_credit_accumulate(
-		double journal_debit_amount,
+		double journal_credit_amount,
 		double equity_credit_amount );
 
 /* Usage */

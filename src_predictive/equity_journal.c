@@ -307,6 +307,7 @@ void equity_journal_debit_credit_set( JOURNAL *journal )
 		journal->credit_amount = 0.0;
 		journal->debit_amount = 0.0;
 	}
+	else
 	if ( difference > 0.0 )
 	{
 		journal->credit_amount = difference;

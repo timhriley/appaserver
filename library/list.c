@@ -890,7 +890,8 @@ LIST *list_append_current_list(
 LIST *list_append_list(	LIST *destination_list,
 			LIST *source_list )
 {
-	return list_set_list( destination_list, source_list );
+	return
+	list_set_list( destination_list, source_list );
 }
 
 LIST *list_set_list(	LIST *destination_list,
