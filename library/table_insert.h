@@ -122,7 +122,7 @@ TABLE_INSERT *table_insert_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		char *results_string,
+		char *result_string,
 		char *error_string,
 		DICTIONARY *original_post_dictionary );
 

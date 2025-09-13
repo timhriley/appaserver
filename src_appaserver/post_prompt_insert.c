@@ -28,7 +28,7 @@ int main( int argc, char **argv )
 	boolean omit_content_type_boolean = 0;
 	POST_PROMPT_INSERT *post_prompt_insert;
 	char *insert_statement_error_string = {0};
-	char *results_string = {0};
+	char *result_string = {0};
 	char *system_string = {0};
 	boolean fatal_duplicate_boolean;
 
@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 				role_name,
 				folder_name,
 				FRAMESET_TABLE_FRAME /* target_frame */,
-				(char *)0 /* results_string */,
+				(char *)0 /* result_string */,
 				(char *)0 /* error_string */,
 				post_prompt_insert->
 					dictionary_separate_send_string,
@@ -187,7 +187,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			results_string =
+			result_string =
 				post_prompt_insert->
 					insert->
 					results_string;
@@ -204,7 +204,7 @@ int main( int argc, char **argv )
 		many_folder_name
 	&&   !post_prompt_insert->
 		pair_one2m_post_prompt_insert->
-		next_folder )
+		next_folder_name )
 	{
 		document_process_output(
 			application_name,
@@ -232,7 +232,7 @@ int main( int argc, char **argv )
 				role_name,
 				folder_name,
 				FRAMESET_TABLE_FRAME /* target_frame */,
-				results_string,
+				result_string,
 				insert_statement_error_string,
 				post_prompt_insert->
 					dictionary_separate_send_string,
@@ -247,7 +247,10 @@ int main( int argc, char **argv )
 	/* ------------------------------ */
 	if ( post_prompt_insert->
 		pair_one2m_post_prompt_insert->
-		next_folder )
+		next_folder_name
+	&&   *post_prompt_insert->
+		pair_one2m_post_prompt_insert->
+		next_folder_name )
 	{
 		system_string =
 			execute_system_string_table_insert(
@@ -257,9 +260,9 @@ int main( int argc, char **argv )
 				role_name,
 				post_prompt_insert->
 					pair_one2m_post_prompt_insert->
-					next_folder,
+					next_folder_name,
 				FRAMESET_TABLE_FRAME /* target_frame */,
-				results_string,
+				result_string,
 				insert_statement_error_string,
 				post_prompt_insert->
 					dictionary_separate_send_string,
@@ -282,7 +285,7 @@ int main( int argc, char **argv )
 				role_name,
 				folder_name,
 				FRAMESET_TABLE_FRAME /* target_frame */,
-				results_string,
+				result_string,
 				insert_statement_error_string,
 				post_prompt_insert->
 					dictionary_separate_send_string,
@@ -301,7 +304,7 @@ int main( int argc, char **argv )
 			role_name,
 			folder_name,
 			FRAMESET_TABLE_FRAME /* target_frame */,
-			results_string,
+			result_string,
 			insert_statement_error_string,
 			post_prompt_insert->
 				dictionary_separate_send_string,

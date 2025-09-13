@@ -64,7 +64,7 @@ typedef struct
 	char *many_folder_name;
 	char *unfulfilled_list_string;
 	LIST *unfulfilled_list;
-	char *next_folder;
+	char *next_folder_name;
 } PAIR_ONE2M_POST_PROMPT_INSERT;
 
 /* Usage */
@@ -84,9 +84,9 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_calloc(
 		void );
 
-/* Returns many_folder_name, a component of unfulfilled_list, or null */
-/* ------------------------------------------------------------------ */
-char *pair_one2m_post_prompt_insert_next_folder(
+/* Returns many_folder_name, a component of unfulfilled_list, "" or null */
+/* --------------------------------------------------------------------- */
+char *pair_one2m_post_prompt_insert_next_folder_name(
 		char *many_folder_name,
 		LIST *unfulfilled_list );
 

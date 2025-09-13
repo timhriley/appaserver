@@ -47,7 +47,7 @@ TABLE_INSERT *table_insert_new(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		char *results_string,
+		char *result_string,
 		char *error_string,
 		DICTIONARY *original_post_dictionary )
 {
@@ -91,7 +91,7 @@ TABLE_INSERT *table_insert_new(
 		char message[ 128 ];
 
 		sprintf(message,
-			"table_insert_forbid(%s,%s,%s) returned true.",
+	"table_insert_forbid(login=%s,role=%s,folder=%s) returned true.",
 			login_name,
 			role_name,
 			folder_name );
@@ -313,7 +313,7 @@ TABLE_INSERT *table_insert_new(
 			    table_insert_input->
 			    folder_attribute_calendar_date_name_list_length );
 
-	if ( error_string && *error_string ) results_string = NULL;
+	if ( error_string && *error_string ) result_string = NULL;
 
 	table_insert->onload_javascript_string =
 		/* ----------------------------------------------- */
@@ -351,7 +351,7 @@ TABLE_INSERT *table_insert_new(
 			table_insert->
 				table_insert_input->
 				title_string,
-			results_string /* sub_title_string */,
+			result_string /* sub_title_string */,
 			error_string /* sub_sub_title_string */,
 			table_insert->
 				table_insert_input->

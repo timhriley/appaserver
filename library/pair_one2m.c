@@ -560,27 +560,45 @@ PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_new(
 			pair_one2m_post_prompt_insert->unfulfilled_list_string,
 			pair_one2m_folder_delimiter );
 
-	pair_one2m_post_prompt_insert->next_folder =
-	/* ------------------------------------------------------------------ */
-	/* Returns many_folder_name, a component of unfulfilled_list, or null */
-	/* ------------------------------------------------------------------ */
-		pair_one2m_post_prompt_insert_next_folder(
+	pair_one2m_post_prompt_insert->next_folder_name =
+/* --------------------------------------------------------------------- */
+/* Returns many_folder_name, a component of unfulfilled_list, "" or null */
+/* --------------------------------------------------------------------- */
+		pair_one2m_post_prompt_insert_next_folder_name(
 			pair_one2m_post_prompt_insert->many_folder_name,
 			pair_one2m_post_prompt_insert->unfulfilled_list );
 
 	return pair_one2m_post_prompt_insert;
 }
 
-char *pair_one2m_post_prompt_insert_next_folder(
+char *pair_one2m_post_prompt_insert_next_folder_name(
 		char *many_folder_name,
 		LIST *unfulfilled_list )
 {
-	if ( many_folder_name )
-		return many_folder_name;
+	char *next_folder_name;
+
+	/* If has pairs available, but press [Submit] */
+	/* ------------------------------------------ */
+	if ( many_folder_name
+	&&   !*many_folder_name )
+	{
+		next_folder_name = "";
+	}
 	else
-		/* Returns the first element or null */
-		/* --------------------------------- */
-		return list_first( unfulfilled_list );
+	if ( many_folder_name )
+	{
+		next_folder_name = many_folder_name;
+	}
+	else
+	{
+		next_folder_name =
+			/* --------------------------------- */
+			/* Returns the first element or null */
+			/* --------------------------------- */
+			list_first( unfulfilled_list );
+	}
+
+	return next_folder_name;
 }
 
 PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert_calloc( void )

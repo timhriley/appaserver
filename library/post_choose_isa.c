@@ -706,7 +706,7 @@ char *post_choose_isa_skip_system_string(
 				role_name,
 				folder_name,
 				FRAMESET_PROMPT_FRAME /* target_frame */,
-				(char *)0 /* results_string */,
+				(char *)0 /* result_string */,
 				(char *)0 /* error_string */,
 				(char *)0 /* dictionary_separate_send_string */,
 				appaserver_error_filename );

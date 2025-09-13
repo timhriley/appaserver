@@ -22,8 +22,8 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *folder_name;
 	char *target_frame;
-	char *results_string;
-	char *error_string;
+	char *result_string = {0};
+	char *error_string = {0};
 	POST_DICTIONARY *post_dictionary;
 	TABLE_INSERT *table_insert;
 
@@ -34,10 +34,22 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: argc=%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	argc );
+msg( "brighton", message );
+}
+	if ( argc < 7 )
 	{
 		fprintf(stderr, 
-	"Usage: %s session login role folder target_frame results error\n",
+	"Usage: %s session login role folder target_frame [result] [error]\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -47,9 +59,22 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
-	results_string = argv[ 6 ];
-	error_string = argv[ 7 ];
 
+	if ( argc > 7 ) result_string = argv[ 6 ];
+	if ( argc == 8 ) error_string = argv[ 7 ];
+
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: folder_name=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	folder_name );
+msg( (char *)0, message );
+}
 	post_dictionary =
 		/* -------------- */
 		/* Safely returns */
@@ -73,7 +98,7 @@ int main( int argc, char **argv )
 			role_name,
 			folder_name,
 			target_frame,
-			results_string,
+			result_string,
 			error_string,
 			post_dictionary->original_post_dictionary );
 

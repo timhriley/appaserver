@@ -71,26 +71,48 @@ char *execute_system_string_table_insert(
 		char *role_name,
 		char *folder_name,
 		char *target_frame,
-		char *results_string,
+		char *result_string,
 		char *error_string,
 		char *dictionary_separate_send_string,
 		char *appaserver_error_filename )
 {
 	char system_string[ STRING_SIZE_HASH_TABLE ];
 
+	if ( !folder_name
+	||   !*folder_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if ( !session_key
 	||   !login_name
 	||   !role_name
-	||   !folder_name
 	||   !target_frame
 	||   !appaserver_error_filename )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
 	}
 
 	snprintf(
@@ -106,8 +128,8 @@ char *execute_system_string_table_insert(
 		role_name,
 		folder_name,
 		target_frame,
-		(results_string)
-			? results_string
+		(result_string)
+			? result_string
 			: "",
 		(error_string)
 			? error_string

@@ -107,7 +107,7 @@ VERTICAL_NEW_PROMPT *vertical_new_prompt_new(
 			vertical_new_prompt->
 				one_folder_name /* folder_name */,
 			(char *)frameset_table_frame /* target_frame */,
-			(char *)0 /* results_string */,
+			(char *)0 /* result_string */,
 			(char *)0 /* error_string */,
 			send_string /* dictionary_separate_send_string */,
 			appaserver_error_filename( application_name ) );
