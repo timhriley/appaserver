@@ -90,6 +90,7 @@ POST_LOGIN *post_login_new(
 	}
 
 	if ( !post_login->post_login_input->missing_application_boolean
+	&&   !post_login->post_login_input->public_boolean
 	&&   !post_login->post_login_input->user_not_found_boolean
 	&&   !post_login->post_login_input->missing_login_name_boolean )
 	{
@@ -1157,18 +1158,6 @@ POST_LOGIN_INPUT *post_login_input_new(
 		exit( 1 );
 	}
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( post_login_input->dictionary ) );
-msg( "timriley", message );
-}
 	post_login_input->application_name =
 	/* ------------------------------------------------------------ */
 	/* Returns component of argv, component of dictionary, or null. */
