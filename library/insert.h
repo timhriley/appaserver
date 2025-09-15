@@ -105,8 +105,8 @@ INSERT_FOLDER *insert_folder_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *root_folder_attribute_primary_key_list,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
+		LIST *isa_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
@@ -171,7 +171,7 @@ INSERT_ROW *insert_row_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
@@ -233,11 +233,11 @@ INSERT_MULTI *insert_multi_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
-		DICTIONARY *prompt_dictionary,
+		DICTIONARY *prompt_dictionary /* in/out */,
 		DICTIONARY *multi_row_dictionary /* in/out */,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
@@ -248,12 +248,6 @@ INSERT_MULTI *insert_multi_new(
 INSERT_MULTI *insert_multi_calloc(
 		void );
 
-boolean insert_multi_all_primary_null_boolean(
-		const char *appaserver_null_string,
-		LIST *folder_attribute_primary_key_list,
-		DICTIONARY *multi_row_dictionary,
-		int row_number );
-
 /* Usage */
 /* ----- */
 void insert_multi_attribute_default_set(
@@ -261,8 +255,24 @@ void insert_multi_attribute_default_set(
 		DICTIONARY *multi_row_dictionary /* in/out */,
 		int row_number );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
+void insert_multi_attribute_default_value_set(
+		char *attribute_name,
+		char *default_value,
+		DICTIONARY *multi_row_dictionary /* in/out */,
+		int row_number );
+
+/* Usage */
+/* ----- */
+boolean insert_multi_any_primary_null_boolean(
+		const char *appaserver_null_string,
+		LIST *root_primary_key_list,
+		DICTIONARY *multi_row_dictionary,
+		int row_number );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -298,6 +308,8 @@ INSERT_ZERO *insert_zero_new(
 INSERT_ZERO *insert_zero_calloc(
 		void );
 
+/* Usage */
+/* ----- */
 void insert_zero_attribute_default_set(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *prompt_dictionary /* in/out */,
@@ -358,7 +370,7 @@ typedef struct
 	INSERT_MULTI *insert_multi;
 	INSERT_STATEMENT *insert_statement;
 	int insert_folder_statement_sql_list_length;
-	char *results_string;
+	char *result_string;
 } INSERT;
 
 /* Usage */
@@ -369,7 +381,7 @@ INSERT *insert_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
@@ -409,7 +421,7 @@ DICTIONARY *insert_automatic_multi_row_dictionary(
 
 /* Returns static memory */
 /* --------------------- */
-char *insert_results_string(
+char *insert_result_string(
 		char *folder_name,
 		LIST *relation_mto1_isa_list,
 		int insert_folder_statement_sql_list_length );

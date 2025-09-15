@@ -18,7 +18,7 @@ then
 	exit 1
 fi
 
-echo $0 $* 1>&2
+#echo $0 $* 1>&2
 
 if [ "$#" -lt 3 ]
 then

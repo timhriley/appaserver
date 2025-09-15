@@ -63,18 +63,6 @@ msg( "brighton", message );
 	if ( argc > 7 ) result_string = argv[ 6 ];
 	if ( argc == 8 ) error_string = argv[ 7 ];
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: folder_name=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	folder_name );
-msg( (char *)0, message );
-}
 	post_dictionary =
 		/* -------------- */
 		/* Safely returns */

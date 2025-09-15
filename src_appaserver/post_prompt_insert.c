@@ -190,7 +190,7 @@ int main( int argc, char **argv )
 			result_string =
 				post_prompt_insert->
 					insert->
-					results_string;
+					result_string;
 		}
 	}
 

@@ -121,7 +121,8 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 				post_prompt_insert->
 					post_prompt_insert_input->
 					folder->
-					folder_attribute_primary_key_list,
+					folder_attribute_primary_key_list
+					/* root_primary_key_list */,
 				post_prompt_insert->
 					post_prompt_insert_input->
 					folder_attribute_append_isa_list,

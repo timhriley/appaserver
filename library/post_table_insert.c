@@ -204,7 +204,8 @@ POST_TABLE_INSERT *post_table_insert_new(
 				post_table_insert->
 					post_table_insert_input->
 					folder->
-					folder_attribute_primary_key_list,
+					folder_attribute_primary_key_list
+					/* root_primary_key_list */,
 				post_table_insert->
 					post_table_insert_input->
 					folder_attribute_append_isa_list,
@@ -221,7 +222,8 @@ POST_TABLE_INSERT *post_table_insert_new(
 				post_table_insert->
 					post_table_insert_input->
 					dictionary_separate->
-					multi_row_dictionary,
+					multi_row_dictionary
+					/* in/out */,
 				post_table_insert->
 					post_table_insert_input->
 					dictionary_separate->

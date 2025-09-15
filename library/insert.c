@@ -27,7 +27,7 @@ INSERT *insert_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
@@ -43,7 +43,7 @@ INSERT *insert_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !list_length( folder_attribute_primary_key_list )
+	||   !list_length( root_primary_key_list )
 	||   !list_length( folder_attribute_append_isa_list ) )
 	{
 		char message[ 128 ];
@@ -81,7 +81,7 @@ INSERT *insert_new(
 				login_name,
 				role_name,
 				folder_name,
-				folder_attribute_primary_key_list,
+				root_primary_key_list,
 				folder_attribute_append_isa_list,
 				relation_mto1_list,
 				relation_mto1_isa_list,
@@ -99,11 +99,11 @@ INSERT *insert_new(
 				login_name,
 				role_name,
 				folder_name,
-				folder_attribute_primary_key_list,
+				root_primary_key_list,
 				folder_attribute_append_isa_list,
 				relation_mto1_list,
 				relation_mto1_isa_list,
-				prompt_dictionary,
+				prompt_dictionary /* in/out */,
 				multi_row_dictionary /* in/out */,
 				ignore_name_list,
 				post_change_process,
@@ -130,11 +130,11 @@ INSERT *insert_new(
 				insert_statement->
 				insert_folder_statement_list );
 
-	insert->results_string =
+	insert->result_string =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		insert_results_string(
+		insert_result_string(
 			folder_name,
 			relation_mto1_isa_list,
 			insert->insert_folder_statement_sql_list_length );
@@ -246,7 +246,7 @@ INSERT_ROW *insert_row_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
@@ -266,7 +266,7 @@ INSERT_ROW *insert_row_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !list_length( folder_attribute_primary_key_list )
+	||   !list_length( root_primary_key_list )
 	||   !list_length( folder_attribute_append_isa_list )
 	||   !appaserver_error_filename )
 	{
@@ -301,10 +301,8 @@ INSERT_ROW *insert_row_new(
 				login_name,
 				role_name,
 				folder_name,
-				folder_attribute_primary_key_list
-				   /* root_folder_attribute_primary_key_list */,
-				(LIST *)0
-				   /* folder_attribute_primary_key_list */,
+				root_primary_key_list,
+				(LIST *)0 /* isa_primary_key_list */,
 				folder_attribute_append_isa_list,
 				prompt_dictionary,
 				multi_row_dictionary,
@@ -377,11 +375,11 @@ INSERT_ROW *insert_row_new(
 				login_name,
 				role_name,
 				relation_mto1->one_folder_name,
-				folder_attribute_primary_key_list
-				   /* root_folder_attribute_primary_key_list */,
+				root_primary_key_list,
 				relation_mto1->
 					one_folder->
-					folder_attribute_primary_key_list,
+					folder_attribute_primary_key_list
+					/* isa_primary_key_list */,
 				folder_attribute_append_isa_list,
 				prompt_dictionary,
 				multi_row_dictionary,
@@ -459,7 +457,8 @@ INSERT_DATUM *insert_datum_extract(
 	if ( ( datum =
 		dictionary_get(
 			attribute_name,
-			prompt_dictionary ) ) )
+			prompt_dictionary ) )
+	&&     *datum )
 	{
 		return
 		insert_datum_new(
@@ -477,7 +476,8 @@ INSERT_DATUM *insert_datum_extract(
 			widget_container_key(
 				attribute_name /* widget_name */,
 				row_number ),
-			multi_row_dictionary ) ) )
+			multi_row_dictionary ) )
+	&&   *datum )
 	{
 		return
 		insert_datum_new(
@@ -744,8 +744,8 @@ INSERT_FOLDER *insert_folder_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *root_folder_attribute_primary_key_list,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
+		LIST *isa_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
@@ -768,7 +768,7 @@ INSERT_FOLDER *insert_folder_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !list_rewind( root_folder_attribute_primary_key_list )
+	||   !list_rewind( root_primary_key_list )
 	||   !appaserver_error_filename )
 	{
 		char message[ 128 ];
@@ -815,15 +815,15 @@ INSERT_FOLDER *insert_folder_new(
 
 	insert_folder->insert_datum_list = list_new();
 
-	if ( folder_attribute_primary_key_list )
+	if ( isa_primary_key_list )
 	{
-		list_rewind( folder_attribute_primary_key_list );
+		list_rewind( isa_primary_key_list );
 	}
 
 	do {
 		attribute_name =
 			list_get(
-				root_folder_attribute_primary_key_list );
+				root_primary_key_list );
 
 		if ( ! ( folder_attribute =
 				folder_attribute_seek(
@@ -877,19 +877,19 @@ INSERT_FOLDER *insert_folder_new(
 			return NULL;
 		}
 
-		if ( folder_attribute_primary_key_list )
+		if ( isa_primary_key_list )
 		{
 			datum_extract->attribute_name =
-				list_get( folder_attribute_primary_key_list );
+				list_get( isa_primary_key_list );
 
-			list_next( folder_attribute_primary_key_list );
+			list_next( isa_primary_key_list );
 		}
 
 		list_set(
 			insert_folder->insert_datum_list,
 			datum_extract );
 
-	} while ( list_next( root_folder_attribute_primary_key_list ) );
+	} while ( list_next( root_primary_key_list ) );
 
 	list_rewind( folder_attribute_name_list );
 
@@ -1418,12 +1418,12 @@ char *insert_folder_value_list_string(
 	return strdup( value_list_string );
 }
 
-char *insert_results_string(
+char *insert_result_string(
 		char *folder_name,
 		LIST *relation_mto1_isa_list,
 		int insert_folder_statement_sql_list_length )
 {
-	static char results_string[ 256 ];
+	static char result_string[ 256 ];
 	char buffer[ 256 ];
 	char *label;
 	LIST *mto1_folder_name_list = {0};
@@ -1462,7 +1462,9 @@ char *insert_results_string(
 			folder_name,
 			mto1_folder_name_list );
 
-	sprintf(results_string,
+	snprintf(
+		result_string,
+		sizeof ( result_string ),
 		"Inserted %d %s into %s",
 		insert_folder_statement_sql_list_length,
 		label,
@@ -1470,7 +1472,7 @@ char *insert_results_string(
 			buffer,
 			display ) );
 
-	return results_string;
+	return result_string;
 }
 
 APPASERVER_USER *insert_appaserver_user(
@@ -1758,10 +1760,11 @@ INSERT_ZERO *insert_zero_new(
 				role_name,
 				relation_mto1->one_folder_name,
 				folder_attribute_primary_key_list
-				   /* root_folder_attribute_primary_key_list */,
+					/* root_primary_key_list */,
 				relation_mto1->
 					one_folder->
-					folder_attribute_primary_key_list,
+					folder_attribute_primary_key_list
+					/* isa_primary_key_list */,
 				folder_attribute_append_isa_list,
 				prompt_dictionary,
 				(DICTIONARY *)0 /* multi_row_dictionary */,
@@ -1802,7 +1805,7 @@ INSERT_MULTI *insert_multi_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		LIST *folder_attribute_primary_key_list,
+		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
@@ -1821,7 +1824,7 @@ INSERT_MULTI *insert_multi_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !list_length( folder_attribute_primary_key_list )
+	||   !list_length( root_primary_key_list )
 	||   !list_length( folder_attribute_append_isa_list )
 	||   !dictionary_length( multi_row_dictionary )
 	||   !appaserver_error_filename )
@@ -1870,9 +1873,9 @@ INSERT_MULTI *insert_multi_new(
 			relation_mto1_list,
 			row_number );
 
-		if ( insert_multi_all_primary_null_boolean(
+		if ( insert_multi_any_primary_null_boolean(
 			APPASERVER_NULL_STRING,
-			folder_attribute_primary_key_list,
+			root_primary_key_list,
 			multi_row_dictionary,
 			row_number ) )
 		{
@@ -1886,7 +1889,7 @@ INSERT_MULTI *insert_multi_new(
 				login_name,
 				role_name,
 				folder_name,
-				folder_attribute_primary_key_list,
+				root_primary_key_list,
 				folder_attribute_append_isa_list,
 				relation_mto1_isa_list,
 				prompt_dictionary,
@@ -2240,7 +2243,8 @@ INSERT *insert_automatic_new(
 			login_name,
 			role_name,
 			folder_name,
-			folder_attribute_primary_key_list,
+			folder_attribute_primary_key_list
+				/* root_primary_key_list */,
 			folder_attribute_append_isa_list,
 			(LIST *)0 /* relation_mto1_list */,
 			relation_mto1_isa_list,
@@ -2259,8 +2263,6 @@ void insert_multi_attribute_default_set(
 		int row_number )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	char *key;
-	char *get;
 
 	if ( list_rewind( folder_attribute_append_isa_list ) )
 	do {
@@ -2270,29 +2272,64 @@ void insert_multi_attribute_default_set(
 
 		if ( folder_attribute->default_value )
 		{
-			key =
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				insert_multi_key(
-					folder_attribute->attribute_name,
-					row_number );
-
-			get =
-				dictionary_get(
-					key,
-					multi_row_dictionary );
-
-			if ( !get )
-			{
-				dictionary_set(
-					multi_row_dictionary,
-					strdup( key ),
-					folder_attribute->default_value );
-			}
+			insert_multi_attribute_default_value_set(
+				folder_attribute->attribute_name,
+				folder_attribute->default_value,
+				multi_row_dictionary /* in/out */,
+				row_number );
 		}
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
+}
+
+void insert_multi_attribute_default_value_set(
+		char *attribute_name,
+		char *default_value,
+		DICTIONARY *multi_row_dictionary /* in/out */,
+		int row_number )
+{
+	char *key;
+	char *get;
+
+	if ( !attribute_name
+	||   !default_value
+	||   !dictionary_length( multi_row_dictionary )
+	||   !row_number )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	key =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		insert_multi_key(
+			attribute_name,
+			row_number );
+
+	get =
+		dictionary_get(
+			key,
+			multi_row_dictionary );
+
+	if ( !get || !*get )
+	{
+		dictionary_set(
+			multi_row_dictionary,
+			strdup( key ),
+			default_value );
+	}
 }
 
 char *insert_multi_key(
@@ -2325,9 +2362,9 @@ char *insert_multi_key(
 	return key;
 }
 
-boolean insert_multi_all_primary_null_boolean(
+boolean insert_multi_any_primary_null_boolean(
 		const char *appaserver_null_string,
-		LIST *primary_key_list,
+		LIST *root_primary_key_list,
 		DICTIONARY *multi_row_dictionary,
 		int row_number )
 {
@@ -2335,7 +2372,7 @@ boolean insert_multi_all_primary_null_boolean(
 	char *key;
 	char *get;
 
-	if ( !list_rewind( primary_key_list )
+	if ( !list_rewind( root_primary_key_list )
 	||   !dictionary_length( multi_row_dictionary )
 	||   !row_number )
 	{
@@ -2353,8 +2390,7 @@ boolean insert_multi_all_primary_null_boolean(
 	do {
 		primary_key =
 			list_get(
-				primary_key_list );
-
+				root_primary_key_list );
 
 		key =
 			/* --------------------- */
@@ -2369,16 +2405,21 @@ boolean insert_multi_all_primary_null_boolean(
 				key,
 				multi_row_dictionary );
 
-		if ( string_strcmp(
-			get,
-			(char *)appaserver_null_string ) != 0 )
+		if ( !get || !*get )
 		{
-			return 0;
+			return 1;
 		}
 
-	} while ( list_next( primary_key_list ) );
+		if ( string_strcmp(
+			get,
+			(char *)appaserver_null_string ) == 0 )
+		{
+			return 1;
+		}
 
-	return 1;
+	} while ( list_next( root_primary_key_list ) );
+
+	return 0;
 }
 
 void insert_zero_attribute_default_set(

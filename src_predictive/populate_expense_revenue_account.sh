@@ -18,10 +18,10 @@ then
 	exit 1
 fi
 
-echo $0 $* 1>&2
+#echo $0 $* 1>&2
 
-populate_account.sh many_table subclassification expense
-populate_account.sh many_table subclassification revenue
+populate_account.sh many_table '' subclassification expense
+populate_account.sh many_table '' subclassification revenue
 
 exit 0
 

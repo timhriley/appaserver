@@ -26,7 +26,7 @@ int main( int argc, char **argv )
 	char *target_frame;
 	POST_TABLE_INSERT *post_table_insert;
 	char *insert_statement_error_string = {0};
-	char *results_string;
+	char *result_string;
 	char *system_string;
 
 	if ( argc != 7 )
@@ -72,14 +72,14 @@ int main( int argc, char **argv )
 					insert->
 					appaserver_error_filename );
 	
-		results_string =
+		result_string =
 			post_table_insert->
 				insert->
-				results_string;
+				result_string;
 	}
 	else
 	{
-		results_string = "No Rows Inserted";
+		result_string = "No Rows Inserted";
 	}
 
 	if ( post_table_insert->vertical_new_post )
@@ -133,7 +133,7 @@ int main( int argc, char **argv )
 					pair_one2m_post_table_insert->
 					next_folder_name,
 				target_frame,
-				results_string,
+				result_string,
 				insert_statement_error_string,
 				post_table_insert->
 					dictionary_separate_send_string,
@@ -157,10 +157,10 @@ int main( int argc, char **argv )
 		printf(	"%s\n",
 			PAIR_ONE2M_COMPLETE_HTML );
 	
-		if ( results_string )
+		if ( result_string )
 		{
 			printf(	"<h2>%s</h2>\n",
-				results_string );
+				result_string );
 		}
 
 		if ( insert_statement_error_string )
@@ -181,7 +181,7 @@ int main( int argc, char **argv )
 				role_name,
 				folder_name,
 				target_frame,
-				results_string,
+				result_string,
 				insert_statement_error_string,
 				post_table_insert->
 					dictionary_separate_send_string,
