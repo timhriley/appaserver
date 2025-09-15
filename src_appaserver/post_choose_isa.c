@@ -108,7 +108,7 @@ int main( int argc, char **argv )
 				FRAMESET_PROMPT_FRAME /* target_frame */,
 				post_choose_isa->
 					insert->
-					results_string,
+					result_string,
 				insert_statement_error_string,
 				post_choose_isa->
 					dictionary_separate_send_string,
