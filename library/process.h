@@ -37,7 +37,6 @@
 #define PROCESS_ROW_COUNT_PLACEHOLDER		"$operation_row_count"
 #define PROCESS_DICTIONARY_PLACEHOLDER		"$dictionary"
 #define PROCESS_WHERE_PLACEHOLDER		"$where"
-#define PROCESS_REALLY_PLACEHOLDER		"really_yn"
 #define PROCESS_FOLDER_NAME_PLACEHOLDER		"folder"
 #define PROCESS_TABLE_NAME_PLACEHOLDER		"table_name"
 #define PROCESS_ATTRIBUTE_PLACEHOLDER		"attribute"

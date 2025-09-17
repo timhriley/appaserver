@@ -21,6 +21,7 @@
 #define APPASERVER_DELETE_STATE			"delete"
 #define APPASERVER_PREDELETE_STATE		"predelete"
 #define APPASERVER_EXECUTE_YN			"execute_yn"
+#define APPASERVER_REALLY_YN			"really_yn"
 #define APPASERVER_STATION_TABLE		"station"
 #define APPASERVER_NAVD88_ATTRIBUTE		"ngvd29_navd88_increment"
 #define APPASERVER_CAPACITY_THRESHOLD		75.0

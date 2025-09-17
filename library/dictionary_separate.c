@@ -2972,7 +2972,7 @@ void dictionary_separate_parse_multi_non_relation(
 {
 	int index;
 	char multi_key_without_index[ 256 ];
-	char *multi_data;
+	char *get;
 
 	if ( !dictionary
 	||   !multi_key )
@@ -3001,24 +3001,13 @@ void dictionary_separate_parse_multi_non_relation(
 			/* destination */,
 		multi_key );
 
-	if ( ! ( multi_data =
+	if ( ! ( get =
 			dictionary_get(
 				multi_key,
-				dictionary ) ) )
+				dictionary ) )
+	||   !*get )
 	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"dictionary_get(%s) returned empty.",
-			multi_key );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return;
 	}
 
 	dictionary_separate_parse_multi_key(
@@ -3026,6 +3015,6 @@ void dictionary_separate_parse_multi_non_relation(
 		dictionary /* in/out */,
 		index,
 		multi_key_without_index,
-		multi_data );
+		get );
 }
 

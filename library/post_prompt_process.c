@@ -469,13 +469,13 @@ char *post_prompt_process_command_line(
 
 	if ( ( execute_yn =
 		dictionary_get(
-			"execute_yn",
+			APPASERVER_EXECUTE_YN,
 			non_prefixed_dictionary ) ) )
 	{
 		string_replace_command_line(
 			command_line /* in/out */,
 			execute_yn,
-			PROCESS_REALLY_PLACEHOLDER );
+			APPASERVER_REALLY_YN );
 	}
 
 	sprintf(command_line + strlen( command_line ),
