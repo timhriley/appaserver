@@ -71,9 +71,10 @@ typedef struct
 	char *account_where;
 	LIST *journal_system_list;
 	double journal_credit_debit_difference_sum;
-	char *timlib_in_clause;
+	char *string_in_clause;
 	char *entity_where;
 	LIABILITY_ACCOUNT_LIST *liability_account_list;
+	char *journal_list_last_memo;
 } LIABILITY;
 
 /* Usage */
@@ -106,7 +107,7 @@ LIABILITY *liability_entity_fetch(
 char *liability_entity_where(
 		char *full_name,
 		char *street_address,
-		char *timlib_in_clause );
+		char *string_in_clause );
 
 typedef struct
 {
@@ -117,7 +118,8 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *liability_account_entity_list(
-		void );
+		const char *liability_account_entity_select,
+		const char *liability_account_entity_table );
 
 /* Process */
 /* ------- */
@@ -125,8 +127,8 @@ LIST *liability_account_entity_list(
 /* Returns static memory */
 /* --------------------- */
 char *liability_account_entity_system_string(
-		char *liability_account_entity_select,
-		char *liability_account_entity_table );
+		const char *liability_account_entity_select,
+		const char *liability_account_entity_table );
 
 /* Usage */
 /* ----- */
@@ -172,12 +174,12 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *liability_entity_list_account(
+LIST *liability_entity_account_list(
 		LIST *liability_account_entity_list );
 
 /* Usage */
 /* ----- */
-LIST *liability_entity_list_entity(
+LIST *liability_entity_distinct_entity_list(
 		LIST *account_current_liability_name_list,
 		LIST *journal_account_distinct_entity_list,
 		LIST *account_receivable_name_list,
@@ -382,6 +384,6 @@ LIST *liability_payment_entity_list(
 /* Returns message */
 /* --------------- */
 char *liability_payment_error_message(
-		char *message );
+		const char *message );
 
 #endif

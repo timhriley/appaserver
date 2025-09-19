@@ -28,7 +28,8 @@
 				"street_address,"		\
 				"transaction_date_time,"	\
 				"transaction_amount,"		\
-				"check_number"
+				"check_number,"			\
+				"memo"
 
 #define TRANSACTION_INSERT	"full_name,"			\
 				"street_address,"		\
@@ -305,6 +306,14 @@ void transaction_html_display(
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_display(
+		TRANSACTION *transaction );
+
+/* Usage */
+/* ----- */
 TRANSACTION *transaction_binary_account_key(
 		const char *debit_account_key,
 		const char *credit_account_key,
@@ -354,8 +363,8 @@ char *transaction_fetch_where(
 char *transaction_race_free_date_time(
 		char *transaction_date_time );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -364,11 +373,22 @@ char *transaction_primary_where(
 		char *street_address,
 		char *transaction_date_time );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *transaction_system_string(
 		char *transaction_select,
 		char *transaction_table,
 		char *transaction_primary_where );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_fetch_memo(
+		char *transaction_date_time );
 
 #endif

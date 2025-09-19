@@ -9,12 +9,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "String.h"
-#include "timlib.h"
 #include "piece.h"
 #include "date.h"
 #include "sql.h"
 #include "appaserver.h"
 #include "folder.h"
+#include "float.h"
 #include "appaserver_error.h"
 #include "transaction.h"
 #include "subclassification.h"
@@ -42,11 +42,11 @@ LIABILITY *liability_entity_fetch(
 		exit( 1 );
 	}
 
-	liability->timlib_in_clause =
+	liability->string_in_clause =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		timlib_in_clause(
+		string_in_clause(
 			account_current_liability_name_list );
 
 	liability->entity_where =
@@ -56,7 +56,7 @@ LIABILITY *liability_entity_fetch(
 		liability_entity_where(
 			full_name,
 			street_address,
-			liability->timlib_in_clause );
+			liability->string_in_clause );
 
 	liability->journal_system_list =
 		journal_system_list(
@@ -67,7 +67,7 @@ LIABILITY *liability_entity_fetch(
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
-			0 /* not fetch_transaction */ );
+			1 /* fetch_transaction */ );
 
 	if ( !list_length( liability->journal_system_list ) )
 	{
@@ -91,19 +91,26 @@ LIABILITY *liability_entity_fetch(
 		liability_account_list_new(
 			liability->journal_system_list );
 
+	liability->journal_list_last_memo =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		journal_list_last_memo(
+			liability->journal_system_list );
+
 	return liability;
 }
 
 char *liability_entity_where(
 		char *full_name,
 		char *street_address,
-		char *timlib_in_clause )
+		char *string_in_clause )
 {
 	static char where[ 512 ];
 
 	if ( !full_name
 	||   !street_address
-	||   !timlib_in_clause )
+	||   !string_in_clause )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -123,7 +130,7 @@ char *liability_entity_where(
 		entity_escape_full_name(
 			full_name ),
 			street_address,
-			timlib_in_clause );
+			string_in_clause );
 
 	return where;
 }
@@ -274,10 +281,12 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
 	return liability_account_entity;
 }
 
-LIST *liability_account_entity_list( void )
+LIST *liability_account_entity_list(
+		const char *liability_account_entity_select,
+		const char *liability_account_entity_table )
 {
 	if ( !folder_column_boolean(
-		LIABILITY_ACCOUNT_ENTITY_TABLE,
+		(char *)liability_account_entity_table,
 		"account" /* column_name */ ) )
 	{
 		return (LIST *)0;
@@ -289,13 +298,13 @@ LIST *liability_account_entity_list( void )
 		/* Returns static memory */
 		/* --------------------- */
 		liability_account_entity_system_string(
-			LIABILITY_ACCOUNT_ENTITY_SELECT,
-			LIABILITY_ACCOUNT_ENTITY_TABLE ) );
+			liability_account_entity_select,
+			liability_account_entity_table ) );
 }
 
 char *liability_account_entity_system_string(
-		char *select,
-		char *table )
+		const char *select,
+		const char *table )
 {
 	static char system_string[ 128 ];
 
@@ -346,11 +355,7 @@ LIST *liability_account_entity_account_name_list(
 
 	account_name_list = list_new();
 
-	if ( !list_rewind( liability_account_entity_list ) )
-	{
-		return account_name_list;
-	}
-
+	if ( list_rewind( liability_account_entity_list ) )
 	do {
 		liability_account_entity =
 			list_get(
@@ -391,11 +396,7 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( liability_account_entity_list ) )
-	{
-		return (LIABILITY_ACCOUNT_ENTITY *)0;
-	}
-
+	if ( list_rewind( liability_account_entity_list ) )
 	do {
 		liability_account_entity =
 			list_get(
@@ -419,9 +420,7 @@ ENTITY *liability_account_entity(
 {
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 
-	if ( !list_rewind( liability_account_entity_list ) )
-		return (ENTITY *)0;
-
+	if ( list_rewind( liability_account_entity_list ) )
 	do {
 		liability_account_entity =
 			list_get(
@@ -539,7 +538,7 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 				account_current_liability_name_list ) ) )
 	{
 		free( liability_entity );
-		return (LIABILITY_ENTITY *)0;
+		return NULL;
 	}
 
 	if ( list_length( account_receivable_name_list ) )
@@ -663,7 +662,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 	{
 		liability_payment->error_message =
 			liability_payment_error_message(
-			"No liabilities due." );
+				"No liabilities due." );
 
 		return liability_payment;
 	}
@@ -915,7 +914,9 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 	liability_calculate = liability_calculate_calloc();
 
 	liability_calculate->liability_account_entity_list =
-		liability_account_entity_list();
+		liability_account_entity_list(
+			LIABILITY_ACCOUNT_ENTITY_SELECT,
+			LIABILITY_ACCOUNT_ENTITY_TABLE );
 
 	liability_calculate->exclude_account_name_list =
 		/* -------------- */
@@ -968,7 +969,7 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 	{
 		list_set_list(
 			liability_calculate->liability_entity_list,
-			liability_entity_list_account(
+			liability_entity_account_list(
 				liability_calculate->
 					liability_account_entity_list ) );
 	}
@@ -979,7 +980,7 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 	{
 		list_set_list(
 			liability_calculate->liability_entity_list,
-			liability_entity_list_entity(
+			liability_entity_distinct_entity_list(
 				liability_calculate->
 					account_current_liability_name_list,
 				liability_calculate->
@@ -1432,12 +1433,12 @@ char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
 	return display;
 }
 
-char *liability_payment_error_message( char *message )
+char *liability_payment_error_message( const char *message )
 {
-	return message;
+	return (char *)message;
 }
 
-LIST *liability_entity_list_account(
+LIST *liability_entity_account_list(
 	LIST *liability_account_entity_list )
 {
 	LIST *liability_entity_list = list_new();
@@ -1479,7 +1480,7 @@ LIST *liability_entity_list_account(
 	return liability_entity_list;
 }
 
-LIST *liability_entity_list_entity(
+LIST *liability_entity_distinct_entity_list(
 		LIST *account_current_liability_name_list,
 		LIST *journal_account_distinct_entity_list,
 		LIST *account_receivable_name_list,

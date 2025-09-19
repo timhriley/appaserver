@@ -142,6 +142,9 @@ TRANSACTION *transaction_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	transaction->check_number = atoi( piece_buffer );
 
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	if ( *piece_buffer ) transaction->memo = strdup( piece_buffer );
+
 	if ( fetch_journal_list )
 	{
 		transaction->journal_list =
@@ -883,6 +886,38 @@ void transaction_html_display( TRANSACTION *transaction )
 		transaction->full_name );
 }
 
+char *transaction_display( TRANSACTION *transaction )
+{
+	char display[ 1024 ];
+
+	if ( !transaction )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "transaction is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"full_name=%s; "
+		"transaction_date_time=%s; "
+		"amount=%.2lf; "
+		"memo=%s\n",
+		transaction->full_name,
+		transaction->transaction_date_time,
+		transaction->transaction_amount,
+		(transaction->memo) ? transaction->memo : "" );
+
+	return strdup( display );
+}
+
 TRANSACTION *transaction_binary(
 		char *full_name,
 		char *street_address,
@@ -1188,7 +1223,9 @@ TRANSACTION *transaction_date_time_fetch(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				transaction_date_time_fetch_where(
+				transaction_fetch_where(
+					(char *)0 /* full_name */,
+					(char *)0 /* street_address */,
 					transaction_date_time ) ) ),
 		fetch_journal_list );
 }
@@ -1314,5 +1351,34 @@ char *transaction_fetch_where(
 	}
 
 	return return_where;
+}
+
+char *transaction_fetch_memo( char *transaction_date_time )
+{
+	TRANSACTION *transaction;
+
+	if ( !transaction_date_time ) return NULL;
+
+	if ( ! ( transaction =
+			transaction_date_time_fetch(
+				transaction_date_time,
+				0 /* not fetch_journal_list */ ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"transaction_date_time_fetch(%s) returned empty.",
+			transaction_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return transaction->memo;
 }
 

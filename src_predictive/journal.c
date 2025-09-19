@@ -459,7 +459,7 @@ char *journal_system_string(
 		const char *journal_table,
 		char *where )
 {
-	char system_string[ STRING_64K ];
+	char system_string[ STRING_16K ];
 
 	if ( !where ) where = "1 = 1";
 
@@ -1002,7 +1002,8 @@ char *journal_list_display( LIST *journal_list )
 
 char *journal_display( JOURNAL *journal )
 {
-	static char display[ 128 ];
+	static char display[ 256 ];
+	char *ptr = display;
 	char buffer1[ 128 ];
 	char buffer2[ 128 ];
 	char buffer3[ 128 ];
@@ -1037,15 +1038,24 @@ char *journal_display( JOURNAL *journal )
 		string_commas_dollar(
 			journal->credit_amount ) );
 
-	snprintf(
-		display,
-		sizeof ( display ),
-		"%s^Dr: %s^Cr: %s\n",
+	ptr += sprintf( ptr,
+		"%s^%s^Dr: %s^Cr: %s",
 		format_initial_capital(
 			buffer3,
 			journal->account_name ),
+		journal->transaction_date_time,
 		buffer1,
 		buffer2 );
+
+	if ( journal->transaction
+	&&   journal->transaction->memo )
+	{
+		ptr += sprintf( ptr,
+			"^%s",
+			journal->transaction->memo );
+	}
+
+	ptr += sprintf( ptr, "\n" );
 
 	return display;
 }
@@ -2743,5 +2753,23 @@ JOURNAL *journal_account_new(
 	}
 
 	return journal;
+}
+
+char *journal_list_last_memo( LIST *journal_list )
+{
+	JOURNAL *journal;
+
+	if ( !list_length( journal_list ) ) return NULL;
+
+	/* Returns the last element or null */
+	/* -------------------------------- */
+	journal = list_last( journal_list );
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	transaction_fetch_memo(
+		journal->transaction_date_time );
 }
 

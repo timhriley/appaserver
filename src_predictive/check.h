@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "appaserver_link.h"
 
-#define CHECK_PROMPT		"Press here to view the check."
+#define CHECK_PROMPT		"Press here to view the check(s)."
 #define CHECK_DATE_COMMAND	"now.sh pretty | column.e 0"
 
 typedef struct

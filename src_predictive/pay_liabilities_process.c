@@ -9,7 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
-#include "timlib.h"
 #include "environ.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"

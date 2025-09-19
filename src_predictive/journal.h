@@ -420,45 +420,69 @@ boolean journal_match_boolean(
 		JOURNAL *journal1,
 		JOURNAL *journal2 );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 LIST *journal_account_distinct_entity_list(
 		char *journal_table,
 		LIST *account_name_list );
 
+/* Usage */
+/* ----- */
 LIST *journal_extract_account_list(
 		LIST *journal_list );
 
+/* Usage */
+/* ----- */
 char *journal_delete_system_string(
 		const char *journal_table,
 		char *where );
 
+/* Usage */
+/* ----- */
 int journal_transaction_count(
 		const char *journal_table,
 		char *account_name,
 		char *transaction_begin_date_string,
 		char *transaction_date_time_closing );
 
+/* Usage */
+/* ----- */
 LIST *journal_date_time_account_name_list(
 		char *journal_table,
 		char *transaction_date_time );
 
+/* Usage */
+/* ----- */
 char *journal_minimum_transaction_date_time(
 		char *account_name );
 
+/* Usage */
+/* ----- */
 double journal_signed_balance(
 		double balance,
 		boolean accumulate_debit );
 
+/* Usage */
+/* ----- */
 LIST *journal_account_name_list(
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time );
 
+/* Usage */
+/* ----- */
 double journal_amount(
 		double debit_amount,
 		double credit_amount,
 		boolean element_accumulate_debit );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_list_last_memo(
+		LIST *journal_list );
 
 typedef struct
 {
