@@ -117,7 +117,14 @@ CHECK_LIST *check_list_new(
 				dialog_box_payment_amount,
 				starting_check_number++
 					/* check_number */,
-				transaction_memo,
+				/* ------------------------ */
+				/* Returns either parameter */
+				/* ------------------------ */
+				check_list_memo(
+					transaction_memo,
+					liability_entity->
+						liability->
+						journal_list_last_memo ),
 				liability_entity->amount_due,
 				liability_entity->entity->full_name ) );
 
@@ -212,7 +219,7 @@ CHECK_LIST *check_list_new(
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *transaction_memo,
+		char *check_list_memo,
 		double liability_entity_amount_due,
 		char *entity_full_name )
 {
@@ -320,7 +327,7 @@ CHECK *check_new(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_memo_display( transaction_memo );
+		check_memo_display( check_list_memo );
 
 	check->number_display =
 		/* --------------------- */
@@ -887,4 +894,14 @@ char *check_stub_memo(
 	{
 		return transaction_memo;
 	}
+}
+
+char *check_list_memo(
+		char *transaction_memo,
+		char *journal_list_last_memo )
+{
+	if ( transaction_memo && *transaction_memo )
+		return transaction_memo;
+	else
+		return journal_list_last_memo;
 }

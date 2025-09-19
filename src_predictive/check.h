@@ -36,7 +36,7 @@ typedef struct
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *transaction_memo,
+		char *check_list_memo,
 		double liability_entity_amount_due,
 		char *entity_full_name );
 
@@ -203,6 +203,12 @@ char *check_list_heading(
 		char *check_list_usepackage,
 		char *check_list_pagenumbering_gobble,
 		char *check_list_begin_document );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *check_list_memo(
+		char *transaction_memo,
+		char *journal_list_last_memo );
 
 /* Returns program memory */
 /* ---------------------- */
