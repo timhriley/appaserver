@@ -34,18 +34,6 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: argc=%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	argc );
-msg( "brighton", message );
-}
 	if ( argc < 7 )
 	{
 		fprintf(stderr, 
