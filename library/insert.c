@@ -1876,6 +1876,7 @@ INSERT_MULTI *insert_multi_new(
 		if ( insert_multi_any_primary_null_boolean(
 			APPASERVER_NULL_STRING,
 			root_primary_key_list,
+			prompt_dictionary,
 			multi_row_dictionary,
 			row_number ) )
 		{
@@ -2365,6 +2366,7 @@ char *insert_multi_key(
 boolean insert_multi_any_primary_null_boolean(
 		const char *appaserver_null_string,
 		LIST *root_primary_key_list,
+		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
 		int row_number )
 {
@@ -2391,6 +2393,13 @@ boolean insert_multi_any_primary_null_boolean(
 		primary_key =
 			list_get(
 				root_primary_key_list );
+
+		get =
+			dictionary_get(
+				primary_key,
+				prompt_dictionary );
+
+		if ( get && *get ) continue;
 
 		key =
 			/* --------------------- */
