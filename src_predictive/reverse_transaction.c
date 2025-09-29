@@ -15,6 +15,7 @@
 
 REVERSE_TRANSACTION *reverse_transaction_new(
 		char *transaction_date_reverse_date_time,
+		char *reverse_nominal_do_close_date_time,
 		LIST *close_transaction_journal_list,
 		char *self_full_name,
 		char *self_street_address )
@@ -22,6 +23,7 @@ REVERSE_TRANSACTION *reverse_transaction_new(
 	REVERSE_TRANSACTION *reverse_transaction;
 
 	if ( !transaction_date_reverse_date_time
+	||   !reverse_nominal_do_close_date_time
 	||   !self_full_name
 	||   !self_street_address )
 	{
@@ -62,35 +64,43 @@ REVERSE_TRANSACTION *reverse_transaction_new(
 			close_transaction_journal_list,
 			reverse_transaction->close_equity_list );
 
-	if ( list_length( reverse_transaction->journal_list ) )
-	{
-		reverse_transaction->extract_journal_list =
-			reverse_transaction_extract_journal_list(
-				reverse_transaction->equity_journal_list,
-				reverse_transaction->journal_list );
+	reverse_transaction->no_reverse_message =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		reverse_transaction_no_reverse_message(
+			reverse_nominal_do_close_date_time,
+			reverse_transaction->journal_list );
 
-		reverse_transaction->reverse_transaction_amount =
-			close_transaction_amount(
-				reverse_transaction->extract_journal_list );
+	if ( reverse_transaction->no_reverse_message )
+		return reverse_transaction;
 
-		reverse_transaction->transaction =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			transaction_new(
-				self_full_name,
-				self_street_address,
-				transaction_date_reverse_date_time );
+	reverse_transaction->extract_journal_list =
+		reverse_transaction_extract_journal_list(
+			reverse_transaction->equity_journal_list,
+			reverse_transaction->journal_list );
 
-		reverse_transaction->transaction->transaction_amount =
-			reverse_transaction->reverse_transaction_amount;
+	reverse_transaction->reverse_transaction_amount =
+		close_transaction_amount(
+			reverse_transaction->extract_journal_list );
 
-		reverse_transaction->transaction->memo =
-			TRANSACTION_REVERSE_MEMO;
+	reverse_transaction->transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		transaction_new(
+			self_full_name,
+			self_street_address,
+			transaction_date_reverse_date_time );
 
-		reverse_transaction->transaction->journal_list =
-			reverse_transaction->extract_journal_list;
-	}
+	reverse_transaction->transaction->transaction_amount =
+		reverse_transaction->reverse_transaction_amount;
+
+	reverse_transaction->transaction->memo =
+		TRANSACTION_REVERSE_MEMO;
+
+	reverse_transaction->transaction->journal_list =
+		reverse_transaction->extract_journal_list;
 
 	return reverse_transaction;
 }
@@ -336,4 +346,35 @@ void reverse_transaction_equity_accumulate(
 		journal->
 		credit_amount =
 		accumulate;
+}
+
+char *reverse_transaction_no_reverse_message(
+		char *reverse_nominal_do_close_date_time,
+		LIST *reverse_transaction_journal_list )
+{
+	static char message[ 128 ];
+
+	if ( !reverse_nominal_do_close_date_time )
+	{
+		snprintf(
+			message,
+			sizeof ( message ),
+			"reverse_nominal_do_close_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_length( reverse_transaction_journal_list ) ) return NULL;
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"<h3>Transaction %s has no journal entries to reverse.</h3>",
+		reverse_nominal_do_close_date_time );
+
+	return message;
 }

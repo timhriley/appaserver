@@ -1064,6 +1064,18 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 				TRANSACTION_REVERSE_MEMO,
 				reverse_date_string );
 
+	transaction_date_reverse_nominal_do->message =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		transaction_date_reverse_nominal_do_message(
+				reverse_date_string,
+				transaction_date_reverse_nominal_do->
+					transaction_date_reverse_boolean );
+
+	if ( transaction_date_reverse_nominal_do->message )
+		return transaction_date_reverse_nominal_do;
+
 	transaction_date_reverse_nominal_do->
 		transaction_date_reverse_date_time =
 			/* ------------------- */
@@ -1102,3 +1114,33 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 	return transaction_date_reverse_nominal_do;
 }
 
+char *transaction_date_reverse_nominal_do_message(
+		char *reverse_date_string,
+		boolean transaction_date_reverse_boolean )
+{
+	static char message[ 128 ];
+
+	if ( !reverse_date_string )
+	{
+		snprintf(
+			message,
+			sizeof ( message ),
+			"reverse_date_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !transaction_date_reverse_boolean ) return NULL;
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"<h3>A reverse transaction exists for date %s</h3>",
+		reverse_date_string );
+
+	return message;
+}

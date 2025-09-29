@@ -78,13 +78,6 @@ int main( int argc, char **argv )
 				undo_no_transaction_message );
 	}
 	else
-	if ( reverse_nominal->do_no_transaction_message )
-	{
-		printf( "%s\n",
-			reverse_nominal->
-				do_no_transaction_message );
-	}
-	else
 	if ( reverse_nominal->do_empty_date_message )
 	{
 		printf( "%s\n",
@@ -92,11 +85,50 @@ int main( int argc, char **argv )
 				do_empty_date_message );
 	}
 	else
-	if ( reverse_nominal->do_transaction_exists_message )
+	if (	reverse_nominal->
+			reverse_nominal_do
+	&&	reverse_nominal->
+			reverse_nominal_do->
+			transaction_date_reverse_nominal_do
+	&&		reverse_nominal->
+				reverse_nominal_do->
+				transaction_date_reverse_nominal_do->
+				message )
 	{
 		printf( "%s\n",
 			reverse_nominal->
-				do_transaction_exists_message );
+				reverse_nominal_do->
+				transaction_date_reverse_nominal_do->
+				message );
+	}
+	else
+	if (	reverse_nominal->
+			reverse_nominal_do
+	&&	reverse_nominal->
+			reverse_nominal_do->
+			no_close_message )
+	{
+		printf( "%s\n",
+			reverse_nominal->
+				reverse_nominal_do->
+				no_close_message );
+	}
+	else
+	if (	reverse_nominal->
+			reverse_nominal_do
+	&&	reverse_nominal->
+			reverse_nominal_do->
+			reverse_transaction
+	&&	reverse_nominal->
+			reverse_nominal_do->
+			reverse_transaction->
+			no_reverse_message )
+	{
+		printf( "%s\n",
+			reverse_nominal->
+				reverse_nominal_do->
+				reverse_transaction->
+				no_reverse_message );
 	}
 	else
 	if ( reverse_nominal->reverse_nominal_do )
@@ -187,26 +219,26 @@ void reverse_nominal_accounts_do(
 			__LINE__,
 			message );
 	}
-	else
+
+	if ( !reverse_nominal_do->reverse_transaction
+	||   !reverse_nominal_do->reverse_transaction->transaction )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"reverse_transaction is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if ( execute )
 	{
-		if ( !reverse_nominal_do->reverse_transaction
-		||   !reverse_nominal_do->reverse_transaction->transaction )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"reverse_transaction is empty or incomplete." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		transaction_insert(
 			reverse_nominal_do->
 				reverse_transaction->

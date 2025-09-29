@@ -20,8 +20,9 @@ typedef struct
 {
 	TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 		transaction_date_reverse_nominal_do;
-	char *close_transaction_date_time;
+	char *close_date_time;
 	TRANSACTION *close_transaction;
+	char *no_close_message;
 	ENTITY_SELF *entity_self;
 	REVERSE_TRANSACTION *reverse_transaction;
 	double journal_debit_sum;
@@ -41,10 +42,11 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch(
 REVERSE_NOMINAL_DO *reverse_nominal_do_calloc(
 		void );
 
-/* Returns transaction_date_reverse_date_time minus one second */
-/* ----------------------------------------------------------- */
-char *reverse_nominal_do_close_transaction_date_time(
-		char *transaction_date_reverse_date_time );
+/* Returns static memory or null */
+/* ----------------------------- */
+char *reverse_nominal_do_no_close_message(
+		char *reverse_nominal_do_close_date_time,
+		TRANSACTION *close_transaction );
 
 /* Returns static memory */
 /* --------------------- */
@@ -54,9 +56,9 @@ char *reverse_nominal_do_transaction_exists_message(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *reverse_nominal_do_close_transaction_date_time(
+/* Returns heap: transaction_date_reverse_date_time minus one second. */
+/* ------------------------------------------------------------------ */
+char *reverse_nominal_do_close_date_time(
 		char *transaction_date_reverse_date_time );
 
 /* Driver */
@@ -70,8 +72,6 @@ typedef struct
 	CLOSE_NOMINAL_UNDO *close_nominal_undo;
 	char *undo_no_transaction_message;
 	char *do_empty_date_message;
-	char *do_transaction_exists_message;
-	char *do_no_transaction_message;
 	STATEMENT_CAPTION *statement_caption;
 } REVERSE_NOMINAL;
 

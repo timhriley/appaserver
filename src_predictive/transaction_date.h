@@ -259,6 +259,7 @@ TRANSACTION_DATE_REVERSE_NOMINAL_UNDO *
 typedef struct
 {
 	boolean transaction_date_reverse_boolean;
+	char *message;
 	char *transaction_date_reverse_date_time;
 } TRANSACTION_DATE_REVERSE_NOMINAL_DO;
 
@@ -276,6 +277,12 @@ TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 TRANSACTION_DATE_REVERSE_NOMINAL_DO *
 	transaction_date_reverse_nominal_do_calloc(
 		void );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *transaction_date_reverse_nominal_do_message(
+		char *reverse_date_string,
+		boolean transaction_date_reverse_boolean );
 
 typedef struct
 {

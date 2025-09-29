@@ -83,18 +83,13 @@ TRANSACTION *transaction_fetch(
 		char *transaction_date_time,
 		boolean fetch_journal_list )
 {
-	if ( !transaction_date_time )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: transaction_date_time is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !transaction_date_time ) return NULL;
 
 	return
 	transaction_parse(
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		string_pipe_fetch(
 			/* ------------------- */
 			/* Returns heap memory */
@@ -122,7 +117,7 @@ TRANSACTION *transaction_parse(
 	char piece_buffer[ 1024 ];
 	TRANSACTION *transaction;
 
-	if ( !input || !*input ) return (TRANSACTION *)0;
+	if ( !input || !*input ) return NULL;
 
 	/* See TRANSACTION_SELECT */
 	/* ---------------------- */
@@ -1213,6 +1208,9 @@ TRANSACTION *transaction_date_time_fetch(
 
 	return
 	transaction_parse(
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		string_pipe_fetch(
 			/* ------------------- */
 			/* Returns heap memory */
@@ -1325,12 +1323,11 @@ char *transaction_fetch_where(
 		char *street_address,
 		char *transaction_date_time )
 {
-	char *return_where;
-	static char where[ 128 ];
+	char *fetch_where;
 
 	if ( full_name && street_address )
 	{
-		return_where =
+		fetch_where =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -1341,16 +1338,15 @@ char *transaction_fetch_where(
 	}
 	else
 	{
-		snprintf(
-			where,
-			sizeof ( where ),
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		return_where = where;
+		fetch_where =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_fetch_where(
+				transaction_date_time );
 	}
 
-	return return_where;
+	return fetch_where;
 }
 
 char *transaction_fetch_memo( char *transaction_date_time )

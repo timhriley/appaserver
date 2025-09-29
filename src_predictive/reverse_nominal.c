@@ -59,18 +59,17 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 
 	if ( reverse_nominal_do->
 		transaction_date_reverse_nominal_do->
-		transaction_date_reverse_boolean )
+		message )
 	{
 		return reverse_nominal_do;
 	}
 
-
-	reverse_nominal_do->close_transaction_date_time =
-		/* -------------------------------------------- */
-		/* Returns transaction_date_reverse_date_time	*/
-		/* minus one second.				*/
-		/* -------------------------------------------- */
-		reverse_nominal_do_close_transaction_date_time(
+	reverse_nominal_do->close_date_time =
+		/* ------------------------------------------------ */
+		/* Returns heap: transaction_date_reverse_date_time */
+		/* minus one second.				    */
+		/* ------------------------------------------------ */
+		reverse_nominal_do_close_date_time(
 			reverse_nominal_do->
 				transaction_date_reverse_nominal_do->
 				transaction_date_reverse_date_time );
@@ -79,10 +78,18 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 		transaction_fetch(
 			(char *)0 /* full_name */,
 			(char *)0 /* street_address */,
-			reverse_nominal_do->close_transaction_date_time,
+			reverse_nominal_do->close_date_time,
 			1 /* fetch_journal_list */ );
 
-	if ( !reverse_nominal_do->close_transaction )
+	reverse_nominal_do->no_close_message =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		reverse_nominal_do_no_close_message(
+			reverse_nominal_do->close_date_time,
+			reverse_nominal_do->close_transaction );
+
+	if ( reverse_nominal_do->no_close_message )
 		return reverse_nominal_do;
 
 	reverse_nominal_do->entity_self =
@@ -111,28 +118,31 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 			reverse_nominal_do->
 				transaction_date_reverse_nominal_do->
 				transaction_date_reverse_date_time,
+			reverse_nominal_do->close_date_time,
 			reverse_nominal_do->
 				close_transaction->
 				journal_list,
 			reverse_nominal_do->entity_self->full_name,
 			reverse_nominal_do->entity_self->street_address );
 
-	if ( reverse_nominal_do->reverse_transaction->transaction )
+	if ( reverse_nominal_do->reverse_transaction->no_reverse_message )
 	{
-		reverse_nominal_do->journal_debit_sum =
-			journal_debit_sum(
-				reverse_nominal_do->
-					reverse_transaction->
-					transaction->
-					journal_list );
-
-		reverse_nominal_do->journal_credit_sum =
-			journal_credit_sum(
-				reverse_nominal_do->
-					reverse_transaction->
-					transaction->
-					journal_list );
+		return reverse_nominal_do;
 	}
+
+	reverse_nominal_do->journal_debit_sum =
+		journal_debit_sum(
+			reverse_nominal_do->
+				reverse_transaction->
+				transaction->
+				journal_list );
+
+	reverse_nominal_do->journal_credit_sum =
+		journal_credit_sum(
+			reverse_nominal_do->
+				reverse_transaction->
+				transaction->
+				journal_list );
 
 	return reverse_nominal_do;
 }
@@ -183,17 +193,20 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 				reverse_nominal_undo_no_transaction_message();
 
 			reverse_date_string = (char *)0;
-
-			goto set_statement_caption;
 		}
-
-		reverse_date_string =
-		    reverse_nominal->
-			close_nominal_undo->
-			transaction_date_close_nominal_undo->
-			transaction_date_time_memo_maximum_string;
+		else
+		{
+			reverse_date_string =
+		    	reverse_nominal->
+				close_nominal_undo->
+				transaction_date_close_nominal_undo->
+				transaction_date_time_memo_maximum_string;
+		}
 	}
 	else
+	/* ----- */
+	/* If do */
+	/* ----- */
 	{
 		if ( !string_populated_boolean(
 			TRANSACTION_DATE_REVERSE_DATE_FILLER,
@@ -206,49 +219,17 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 				reverse_nominal_do_empty_date_message();
 
 			reverse_date_string = (char *)0;
-
-			goto set_statement_caption;
 		}
-
-		reverse_nominal->reverse_nominal_do =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			reverse_nominal_do_fetch(
-				reverse_date_string );
-
-		if ( reverse_nominal->
-			reverse_nominal_do->
-			transaction_date_reverse_nominal_do->
-			transaction_date_reverse_boolean )
+		else
 		{
-			reverse_nominal->do_transaction_exists_message =
-			     /* --------------------- */
-			     /* Returns static memory */
-			     /* --------------------- */
-			     reverse_nominal_do_transaction_exists_message(
-				reverse_nominal->
-				  reverse_nominal_do->
-				  transaction_date_reverse_nominal_do->
-				  transaction_date_reverse_date_time );
-
-			goto set_statement_caption;
-		}
-
-		if ( !reverse_nominal->
-			reverse_nominal_do->
-			reverse_transaction->
-			transaction )
-		{
-			reverse_nominal->do_no_transaction_message =
-				/* ---------------------- */
-				/* Returns program memory */
-				/* ---------------------- */
-				reverse_nominal_do_no_transaction_message();
+			reverse_nominal->reverse_nominal_do =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				reverse_nominal_do_fetch(
+					reverse_date_string );
 		}
 	}
-
-set_statement_caption:
 
 	reverse_nominal->statement_caption =
 		statement_caption_new(
@@ -282,8 +263,26 @@ char *reverse_nominal_do_transaction_exists_message(
 {
 	static char message[ 128 ];
 
-	sprintf(message,
-		"<h3>ERROR: a reversing entry exists as transaction %s.</h3>",
+	if ( !transaction_date_reverse_date_time )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"transaction_date_reverse_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"<h3>A reversing entry exists as transaction %s.</h3>",
 		transaction_date_reverse_date_time );
 
 	return message;
@@ -341,7 +340,7 @@ char *reverse_nominal_do_execute_message(
 	return message;
 }
 
-char *reverse_nominal_do_close_transaction_date_time(
+char *reverse_nominal_do_close_date_time(
 		char *transaction_date_reverse_date_time )
 {
 	return
@@ -350,12 +349,28 @@ char *reverse_nominal_do_close_transaction_date_time(
 	/* ------------------- */
 	transaction_date_prior_end_date_time(
 		transaction_date_reverse_date_time );
-
 }
 
 char *reverse_nominal_do_no_execute_message( void )
 {
 	return
 	"<h3>Reversing entry display complete.</h3>";
+}
+
+char *reverse_nominal_do_no_close_message(
+		char *close_date_time,
+		TRANSACTION *close_transaction )
+{
+	static char message[ 128 ];
+
+	if ( close_transaction ) return NULL;
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"<h3>No closing entry exists for %s.</h3>",
+		close_date_time );
+
+	return message;
 }
 

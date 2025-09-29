@@ -3,5 +3,5 @@
 #cd ../library
 #make
 #cd -
-make journal_trigger
+make reverse_nominal_accounts
 

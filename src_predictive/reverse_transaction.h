@@ -19,6 +19,7 @@ typedef struct
 	LIST *equity_journal_list;
 	LIST *close_equity_list;
 	LIST *journal_list;
+	char *no_reverse_message;
 	LIST *extract_journal_list;
 	double reverse_transaction_amount;
 	TRANSACTION *transaction;
@@ -31,6 +32,7 @@ typedef struct
 /* -------------- */
 REVERSE_TRANSACTION *reverse_transaction_new(
 		char *transaction_date_reverse_date_time,
+		char *reverse_nominal_do_close_date_time,
 		LIST *close_transaction_journal_list,
 		char *self_full_name,
 		char *self_street_address );
@@ -39,6 +41,12 @@ REVERSE_TRANSACTION *reverse_transaction_new(
 /* ------- */
 REVERSE_TRANSACTION *reverse_transaction_calloc(
 		void );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *reverse_transaction_no_reverse_message(
+		char *reverse_nominal_do_close_date_time,
+		LIST *reverse_transaction_journal_list );
 
 /* Usage */
 /* ----- */
