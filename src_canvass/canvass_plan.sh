@@ -21,12 +21,12 @@ fi
 
 if [ "$#" -ne 2 ]
 then
-	echo "Usage $0 process maximum_weight" 1>&2
+	echo "Usage $0 process radius_yards" 1>&2
 	exit 1
 fi
 
 process="$1"
-maximum_weight=$2
+radius_yards=$2
 
 start_street_address="DELGADO WAY"
 city="SACRAMENTO"
@@ -43,7 +43,7 @@ title_html="<h1>`echo "$process" | format_initial_capital.e`</h1>"
 echo "$title_html"
 echo "<h2> `now.sh 19` </h2>"
 
-heading="Street,Apartments,Houses,Total"
+heading="Street,Apartments,Houses,Total,Yards"
 
 # Send to screen
 # --------------
@@ -51,9 +51,9 @@ canvass_execute	"$start_street_address"		\
 		"$city"				\
 		"$state_code"			\
 		"$canvass_name"			\
-		"$maximum_weight"		\
-		$utm_zone			|
-piece_sum.e '^' 1,2,3				|
+		"$radius_yards"			\
+		"$utm_zone"			|
+piece_sum.e '^' 1,2,3,4				|
 html_table.e '' "$heading" '^' "left,right"	|
 cat
 
@@ -65,9 +65,9 @@ canvass_execute	"$start_street_address"		\
 		"$city"				\
 		"$state_code"			\
 		"$canvass_name"			\
-		"$maximum_weight"		\
-		$utm_zone			|
-piece_sum.e '^' 1,2,3				|
+		"$radius_yards"			\
+		"$utm_zone"			|
+piece_sum.e '^' 1,2,3,4				|
 double_quote_comma_delimited.e '^'		|
 cat
 ) | cat > $household_file
@@ -81,8 +81,8 @@ canvass_execute	"$start_street_address"		\
 		"$city"				\
 		"$state_code"			\
 		"$canvass_name"			\
-		"$maximum_weight"		\
-		$utm_zone			|
+		"$radius_yards"			\
+		"$utm_zone"			|
 apartment.sh 					|
 cat > $apartment_file
 
@@ -95,8 +95,8 @@ canvass_execute	"$start_street_address"		\
 		"$city"				\
 		"$state_code"			\
 		"$canvass_name"			\
-		"$maximum_weight"		\
-		$utm_zone			|
+		"$radius_yards"			\
+		"$utm_zone"			|
 lookup.sh					|
 html_paragraph_wrapper.e
 
