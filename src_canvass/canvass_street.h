@@ -13,20 +13,21 @@
 
 #define CANVASS_STREET_SELECT		"street_name,"		\
 					"city,"			\
-					"state_code"
+					"state_code,"		\
+					"include_yn"
 
 #define CANVASS_STREET_TABLE		"canvass_street"
 
 typedef struct
 {
 	STREET *street;
+	boolean include_boolean;
 } CANVASS_STREET;
 
 /* Usage */
 /* ----- */
-LIST *canvass_street_fetch_list(
+LIST *canvass_street_list(
 		char *canvass_name,
-		boolean include_boolean,
 		LIST *street_list );
 
 /* Usage */
@@ -46,20 +47,12 @@ CANVASS_STREET *canvass_street_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *canvass_street_where(
-		char *canvass_name,
-		boolean include_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns program memory */
-/* ---------------------- */
-char *canvass_street_include_where(
-		boolean include_boolean );
+		char *canvass_name );
 
 /* Usage */
 /* ----- */
 void canvass_street_output(
-		CANVASS_STREET *canvass_street );
+		CANVASS_STREET *canvass_street,
+		int anchor_distance_yards );
 
 #endif

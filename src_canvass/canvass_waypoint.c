@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include "canvass_street.h"
@@ -15,15 +16,15 @@
 CANVASS_WAYPOINT *canvass_waypoint_new(
 		char *start_longitude_string,
 		char *start_latitude_string,
+		int radius_yards,
 		int utm_zone,
-		int maximum_weight,
-		LIST *waypoint_lonlat_list )
+		LIST *canvass_waypoint_utm_list )
 {
 	CANVASS_WAYPOINT *canvass_waypoint;
 
 	if ( !start_longitude_string
 	||   !start_latitude_string
-	||   !maximum_weight
+	||   !radius_yards
 	||   !utm_zone )
 	{
 		fprintf(stderr,
@@ -36,28 +37,27 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 
 	canvass_waypoint = canvass_waypoint_calloc();
 
-	canvass_waypoint->waypoint =
+	canvass_waypoint->start_waypoint_utm =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		waypoint_new(
+		start_waypoint_utm(
 			start_longitude_string,
 			start_latitude_string,
-			utm_zone,
-			waypoint_lonlat_list );
+			utm_zone );
 
-	canvass_waypoint->waypoint_utm_list =
-		canvass_waypoint_utm_list(
-			maximum_weight,
-			canvass_waypoint->
-				waypoint->
-				waypoint_utm_distance_sort_list
-					/* utm_distance_sort_list in/out */ );
+	canvass_waypoint->anchor_waypoint_utm =
+		canvass_waypoint_anchor_utm(
+			canvass_waypoint_utm_list,
+			canvass_waypoint->start_waypoint_utm );
 
-	canvass_waypoint->total_weight =
-		canvass_waypoint_total_weight(
-			canvass_waypoint->
-				waypoint_utm_list );
+	if ( !canvass_waypoint->anchor_waypoint_utm ) return canvass_waypoint;
+
+	canvass_waypoint->radius_utm_list =
+		canvass_waypoint_radius_utm_list(
+			radius_yards,
+			canvass_waypoint_utm_list,
+			canvass_waypoint->anchor_waypoint_utm );
 
 	return canvass_waypoint;
 }
@@ -81,105 +81,98 @@ CANVASS_WAYPOINT *canvass_waypoint_calloc( void )
 	return canvass_waypoint;
 }
 
-LIST *canvass_waypoint_utm_list(
-		int maximum_weight,
-		LIST *utm_distance_sort_list )
+WAYPOINT_UTM *canvass_waypoint_anchor_utm(
+		LIST *canvass_waypoint_utm_list,
+		WAYPOINT_UTM *start_waypoint_utm )
 {
-	LIST *waypoint_utm_list = list_new();
-	int total_weight = 0;
+	int minimum_distance = INT_MAX;
+	WAYPOINT_UTM *anchor_waypoint_utm = {0};
 	WAYPOINT_UTM *waypoint_utm;
-
-	while ( 1 )
-	{
-		if ( !list_rewind( utm_distance_sort_list ) ) break;
-
-		waypoint_utm =
-			list_get(
-				utm_distance_sort_list );
-
-		total_weight += waypoint_utm->weight;
-
-		if ( total_weight > maximum_weight ) break;
-
-		list_set( waypoint_utm_list, waypoint_utm );
-
-		list_delete( utm_distance_sort_list );
-
-		waypoint_utm_distance_set(
-			waypoint_utm
-				/* waypoint_utm_start */,
-			utm_distance_sort_list
-				/* waypoint_utm_list in/out */ );
-
-		utm_distance_sort_list =
-			waypoint_utm_distance_sort_list(
-				utm_distance_sort_list
-					/* waypoint_utm_list */ );
-	}
- 
-	return waypoint_utm_list;
-}
-
-LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
-{
+	int distance_yards;
 	CANVASS_STREET *canvass_street;
-	LIST *lonlat_list = list_new();
-	WAYPOINT_LONLAT *waypoint_lonlat;
 
-	if ( list_rewind( canvass_street_list ) )
+	if ( !start_waypoint_utm )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: start_waypoint_utm is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( canvass_waypoint_utm_list ) )
 	do {
-		canvass_street = list_get( canvass_street_list );
+		waypoint_utm = list_get( canvass_waypoint_utm_list );
 
-		if ( !canvass_street->street
-		||   !canvass_street->street->total_count
-		||   !canvass_street->street->longitude_string
-		||   !canvass_street->street->latitude_string )
+		canvass_street = waypoint_utm->record;
+
+		if ( canvass_street->include_boolean )
 		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: canvass_street is incomplete\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			anchor_waypoint_utm = waypoint_utm;
+			break;
 		}
 
-		waypoint_lonlat =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			waypoint_lonlat_new(
-				canvass_street /* record */,
-				canvass_street->street->total_count
-					/* weight */,
-				canvass_street->street->longitude_string,
-				canvass_street->street->latitude_string );
+		distance_yards =
+			waypoint_utm_distance_yards(
+				start_waypoint_utm,
+				waypoint_utm->utm_x,
+				waypoint_utm->utm_y );
 
-		list_set( lonlat_list, waypoint_lonlat );
+		if ( distance_yards < minimum_distance )
+		{
+			anchor_waypoint_utm = waypoint_utm;
+			minimum_distance = distance_yards;
+		}
 
-	} while ( list_next( canvass_street_list ) );
+	} while ( list_next( canvass_waypoint_utm_list ) );
 
-	if ( !list_length( lonlat_list ) )
-	{
-		list_free( lonlat_list );
-		lonlat_list = NULL;
-	}
-
-	return lonlat_list;
+	return anchor_waypoint_utm;
 }
 
-int canvass_waypoint_total_weight( LIST *waypoint_utm_list )
+LIST *canvass_waypoint_radius_utm_list(
+		int radius_yards,
+		LIST *canvass_waypoint_utm_list,
+		WAYPOINT_UTM *canvass_waypoint_anchor_utm )
 {
-	int total_weight = 0;
+	LIST *radius_utm_list = list_new();
 	WAYPOINT_UTM *waypoint_utm;
+	int distance_yards;
 
-	if ( list_rewind( waypoint_utm_list ) )
+	if ( !canvass_waypoint_anchor_utm )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: canvass_waypoint_anchor_utm is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( canvass_waypoint_utm_list ) )
 	do {
-		waypoint_utm = list_get( waypoint_utm_list );
+		waypoint_utm = list_get( canvass_waypoint_utm_list );
 
-		total_weight += waypoint_utm->weight;
+		distance_yards =
+			waypoint_utm_distance_yards(
+				canvass_waypoint_anchor_utm,
+				waypoint_utm->utm_x,
+				waypoint_utm->utm_y );
 
-	} while ( list_next( waypoint_utm_list ) );
+		if (distance_yards <= radius_yards )
+		{
+			waypoint_utm->distance_yards = distance_yards;
+			list_set( radius_utm_list, waypoint_utm );
+		}
 
-	return total_weight;
+	} while ( list_next( canvass_waypoint_utm_list ) );
+
+	if ( !list_length( radius_utm_list ) )
+	{
+		list_free( radius_utm_list );
+		radius_utm_list = NULL;
+	}
+
+	return radius_utm_list;
 }
 

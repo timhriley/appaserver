@@ -16,13 +16,10 @@ typedef struct
 {
 	STREET *start_street;
 	LIST *street_list;
-	LIST *include_canvass_street_list;
-	LIST *not_include_canvass_street_list;
-	LIST *include_canvass_waypoint_lonlat_list;
-	LIST *not_include_canvass_waypoint_lonlat_list;
-	CANVASS_WAYPOINT *include_canvass_waypoint;
-	STREET *continue_street;
-	CANVASS_WAYPOINT *not_include_canvass_waypoint;
+	LIST *canvass_street_list;
+	LIST *canvass_waypoint_lonlat_list;
+	LIST *canvass_waypoint_utm_list;
+	CANVASS_WAYPOINT *canvass_waypoint;
 } CANVASS;
 
 /* Usage */
@@ -35,7 +32,7 @@ CANVASS *canvass_new(
 		char *city,
 		char *state_code,
 		char *canvass_name,
-		int maximum_weight,
+		int radius_yards,
 		int utm_zone );
 
 /* Process */
@@ -43,16 +40,20 @@ CANVASS *canvass_new(
 CANVASS *canvass_calloc(
 		void );
 
-/* Returns component of second parameter or first parameter */
-/* -------------------------------------------------------- */
-STREET *canvass_continue_street(
-		STREET *start_street,
-		LIST *include_canvass_street_list );
+/* Usage */
+/* ----- */
+LIST *canvass_waypoint_lonlat_list(
+		LIST *canvass_street_list );
+
+/* Usage */
+/* ----- */
+LIST *canvass_waypoint_utm_list(
+		int utm_zone,
+		LIST *canvass_waypoint_lonlat_list );
 
 /* Driver */
 /* ------ */
 void canvass_output(
-		LIST *include_waypoint_utm_list,
-		LIST *not_include_waypoint_utm_list );
+		LIST *radius_utm_list );
 
 #endif

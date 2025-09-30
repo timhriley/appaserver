@@ -13,9 +13,9 @@
 
 typedef struct
 {
-	WAYPOINT *waypoint;
-	LIST *waypoint_utm_list;
-	int total_weight;
+	WAYPOINT_UTM *start_waypoint_utm;
+	WAYPOINT_UTM *anchor_waypoint_utm;
+	LIST *radius_utm_list;
 } CANVASS_WAYPOINT;
 
 /* Usage */
@@ -26,27 +26,26 @@ typedef struct
 CANVASS_WAYPOINT *canvass_waypoint_new(
 		char *start_longitude_string,
 		char *start_latitude_string,
+		int radius_yards,
 		int utm_zone,
-		int maximum_weight,
-		LIST *waypoint_lonlat_list );
+		LIST *canvass_waypoint_utm_list );
 
 /* Process */
 /* ------- */
 CANVASS_WAYPOINT *canvass_waypoint_calloc(
 		void );
 
-int canvass_waypoint_total_weight(
-		LIST *waypoint_utm_list );
+/* Usage */
+/* ----- */
+WAYPOINT_UTM *canvass_waypoint_anchor_utm(
+		LIST *canvass_waypoint_utm_list,
+		WAYPOINT_UTM *start_waypoint_utm );
 
 /* Usage */
 /* ----- */
-LIST *canvass_waypoint_lonlat_list(
-		LIST *canvass_street_list );
-
-/* Usage */
-/* ----- */
-LIST *canvass_waypoint_utm_list(
-		int maximum_weight,
-		LIST *utm_distance_sort_list /* in/out */ );
+LIST *canvass_waypoint_radius_utm_list(
+		int radius_yards,
+		LIST *canvass_waypoint_utm_list,
+		WAYPOINT_UTM *canvass_waypoint_anchor_utm );
 
 #endif

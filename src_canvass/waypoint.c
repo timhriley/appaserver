@@ -15,26 +15,8 @@
 #include "distance.h"
 #include "waypoint.h"
 
-WAYPOINT *waypoint_calloc( void )
-{
-	WAYPOINT *waypoint;
-
-	if ( ! ( waypoint = calloc( 1, sizeof ( WAYPOINT ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return waypoint;
-}
-
 WAYPOINT_UTM *waypoint_utm_column_new(
 		void *record,
-		int weight,
 		char *column_string )
 {
 	char utm_x_string[ 128 ];
@@ -62,14 +44,12 @@ WAYPOINT_UTM *waypoint_utm_column_new(
 	/* -------------- */
 	waypoint_utm_new(
 		record,
-		weight,
 		strdup( utm_x_string ),
 		strdup( utm_y_string ) );
 }
 
 WAYPOINT_UTM *waypoint_utm_new(
 		void *record,
-		int weight,
 		char *utm_x_string,
 		char *utm_y_string )
 {
@@ -89,7 +69,6 @@ WAYPOINT_UTM *waypoint_utm_new(
 	waypoint_utm = waypoint_utm_calloc();
 
 	waypoint_utm->record = record;
-	waypoint_utm->weight = weight;
 	waypoint_utm->utm_x = atoi( utm_x_string );
 	waypoint_utm->utm_y = atoi( utm_y_string );
 
@@ -103,7 +82,7 @@ WAYPOINT_UTM *waypoint_utm_calloc( void )
 	if ( ! ( waypoint_utm = calloc( 1, sizeof ( WAYPOINT_UTM ) ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -140,7 +119,6 @@ WAYPOINT_UTM *start_waypoint_utm(
 		/* -------------- */
 		waypoint_lonlat_new(
 			(void *)0 /* record */,
-			0 /* weight */,
 			start_longitude_string,
 			start_latitude_string );
 
@@ -150,6 +128,16 @@ WAYPOINT_UTM *start_waypoint_utm(
 		waypoint_utm_list(
 			utm_zone,
 			lonlat_list );
+
+	if ( !list_length( utm_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: waypoint_utm_list() returned empty\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	return list_first( utm_list );
 }
@@ -267,7 +255,6 @@ int waypoint_utm_compare(
 
 WAYPOINT_LONLAT *waypoint_lonlat_new(
 		void *record,
-		int weight,
 		char *longitude_string,
 		char *latitude_string )
 {
@@ -287,7 +274,6 @@ WAYPOINT_LONLAT *waypoint_lonlat_new(
 	waypoint_lonlat  = waypoint_lonlat_calloc();
 
 	waypoint_lonlat->record = record;
-	waypoint_lonlat->weight = weight;
 	waypoint_lonlat->longitude_string = longitude_string;
 	waypoint_lonlat->latitude_string = latitude_string;
 
@@ -311,62 +297,6 @@ WAYPOINT_LONLAT *waypoint_lonlat_calloc( void )
 	}
 
 	return waypoint_lonlat;
-}
-
-WAYPOINT *waypoint_new(
-		char *start_longitude_string,
-		char *start_latitude_string,
-		int utm_zone,
-		LIST *waypoint_lonlat_list )
-{
-	WAYPOINT *waypoint;
-
-	if ( !start_longitude_string
-	||   !start_latitude_string
-	||   !utm_zone )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	waypoint = waypoint_calloc();
-
-	waypoint->start_waypoint_utm =
-		start_waypoint_utm(
-			start_longitude_string,
-			start_latitude_string,
-			utm_zone );
-
-	if ( !waypoint->start_waypoint_utm )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: start_waypoint_utm(%s,%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			start_longitude_string,
-			start_latitude_string );
-		exit( 1 );
-	}
-
-	waypoint->utm_list =
-		waypoint_utm_list(
-			utm_zone,
-			waypoint_lonlat_list );
-
-	waypoint_utm_distance_set(
-		waypoint->start_waypoint_utm,
-		waypoint->utm_list /* in/out */ );
-
-	waypoint->waypoint_utm_distance_sort_list =
-		waypoint_utm_distance_sort_list(
-			waypoint->utm_list );
-
-	return waypoint;
 }
 
 LIST *waypoint_utm_list(
@@ -450,7 +380,6 @@ LIST *waypoint_utm_list(
 			/* -------------- */
 			waypoint_utm_column_new(
 				waypoint_lonlat->record,
-				waypoint_lonlat->weight,
 				column_string );
 
 		list_set( utm_list, waypoint_utm );

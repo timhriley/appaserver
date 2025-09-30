@@ -20,7 +20,7 @@ CANVASS *canvass_new(
 		char *city,
 		char *state_code,
 		char *canvass_name,
-		int maximum_weight,
+		int radius_yards,
 		int utm_zone )
 {
 	CANVASS *canvass;
@@ -29,7 +29,7 @@ CANVASS *canvass_new(
 	||   !city
 	||   !state_code
 	||   !canvass_name
-	||   !maximum_weight
+	||   !radius_yards
 	||   !utm_zone )
 	{
 		fprintf(stderr,
@@ -56,59 +56,30 @@ CANVASS *canvass_new(
 			city,
 			state_code );
 
-	canvass->include_canvass_street_list =
-		canvass_street_fetch_list(
+	canvass->canvass_street_list =
+		canvass_street_list(
 			canvass_name,
-			1 /* include_boolean */,
 			canvass->street_list );
 
-	canvass->not_include_canvass_street_list =
-		canvass_street_fetch_list(
-			canvass_name,
-			0 /* not include_boolean */,
-			canvass->street_list );
-
-	canvass->include_canvass_waypoint_lonlat_list =
+	canvass->canvass_waypoint_lonlat_list =
 		canvass_waypoint_lonlat_list(
-			canvass->include_canvass_street_list );
+			canvass->canvass_street_list );
 
-	canvass->not_include_canvass_waypoint_lonlat_list =
-		canvass_waypoint_lonlat_list(
-			canvass->not_include_canvass_street_list );
+	canvass->canvass_waypoint_utm_list =
+		canvass_waypoint_utm_list(
+			utm_zone,
+			canvass->canvass_waypoint_lonlat_list );
 
-	canvass->include_canvass_waypoint =
+	canvass->canvass_waypoint =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		canvass_waypoint_new(
 			canvass->start_street->longitude_string,
 			canvass->start_street->latitude_string,
+			radius_yards,
 			utm_zone,
-			maximum_weight,
-			canvass->include_canvass_waypoint_lonlat_list );
-
-	canvass->continue_street =
-		/* -------------------------------------------------------- */
-		/* Returns component of second parameter or first parameter */
-		/* -------------------------------------------------------- */
-		canvass_continue_street(
-			canvass->start_street,
-			canvass->include_canvass_street_list );
-
-	canvass->not_include_canvass_waypoint =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		canvass_waypoint_new(
-			canvass->continue_street->longitude_string
-				/* start_longitude_string */,
-			canvass->continue_street->latitude_string
-				/* start_latitude_string */,
-			utm_zone,
-			maximum_weight -
-			canvass->include_canvass_waypoint->total_weight
-				/* maximum_weight */,
-			canvass->not_include_canvass_waypoint_lonlat_list );
+			canvass->canvass_waypoint_utm_list );
 
 	return canvass;
 }
@@ -130,50 +101,79 @@ CANVASS *canvass_calloc( void )
 	return canvass;
 }
 
-void canvass_output(
-		LIST *include_waypoint_utm_list,
-		LIST *not_include_waypoint_utm_list )
+void canvass_output( LIST *radius_utm_list )
 {
 	WAYPOINT_UTM *waypoint_utm;
 	CANVASS_STREET *canvass_street;
 
-	if ( list_rewind( include_waypoint_utm_list ) )
+	if ( list_rewind( radius_utm_list ) )
 	do {
-		waypoint_utm = list_get( include_waypoint_utm_list );
+		waypoint_utm = list_get( radius_utm_list );
 
 		canvass_street = waypoint_utm->record;
 
-		canvass_street_output( canvass_street );
+		canvass_street_output(
+			canvass_street,
+			waypoint_utm->distance_yards );
 
-	} while ( list_next( include_waypoint_utm_list ) );
-
-	if ( list_rewind( not_include_waypoint_utm_list ) )
-	do {
-		waypoint_utm = list_get( not_include_waypoint_utm_list );
-
-		canvass_street = waypoint_utm->record;
-		canvass_street_output( canvass_street );
-
-	} while ( list_next( not_include_waypoint_utm_list ) );
-
+	} while ( list_next( radius_utm_list ) );
 }
 
-STREET *canvass_continue_street(
-		STREET *start_street,
-		LIST *include_canvass_street_list )
+LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 {
 	CANVASS_STREET *canvass_street;
+	LIST *lonlat_list = list_new();
+	WAYPOINT_LONLAT *waypoint_lonlat;
 
-	if ( !list_length( include_canvass_street_list ) )
-		return start_street;
+	if ( list_rewind( canvass_street_list ) )
+	do {
+		canvass_street = list_get( canvass_street_list );
 
+		if ( !canvass_street->street )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: canvass_street->street is empty\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-	canvass_street =
-		/* -------------------------------- */
-		/* Returns the last element or null */
-		/* -------------------------------- */
-		list_last(
-			include_canvass_street_list );
+		if ( !canvass_street->street->total_count
+		||   !canvass_street->street->longitude_string
+		||   !canvass_street->street->latitude_string )
+		{
+			continue;
+		}
 
-	return canvass_street->street;
+		waypoint_lonlat =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			waypoint_lonlat_new(
+				canvass_street /* record */,
+				canvass_street->street->longitude_string,
+				canvass_street->street->latitude_string );
+
+		list_set( lonlat_list, waypoint_lonlat );
+
+	} while ( list_next( canvass_street_list ) );
+
+	if ( !list_length( lonlat_list ) )
+	{
+		list_free( lonlat_list );
+		lonlat_list = NULL;
+	}
+
+	return lonlat_list;
+}
+
+LIST *canvass_waypoint_utm_list(
+		int utm_zone,
+		LIST *canvass_waypoint_lonlat_list )
+{
+	return
+	waypoint_utm_list(
+		utm_zone,
+		canvass_waypoint_lonlat_list );
 }

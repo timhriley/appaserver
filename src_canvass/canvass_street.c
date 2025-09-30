@@ -30,12 +30,11 @@ CANVASS_STREET *canvass_street_calloc( void )
 	return canvass_street;
 }
 
-LIST *canvass_street_fetch_list(
+LIST *canvass_street_list(
 		char *canvass_name,
-		boolean include_boolean,
 		LIST *street_list )
 {
-	LIST *canvass_street_list = list_new();
+	LIST *list = list_new();
 	char *where;
 	char *system_string;
 	FILE *input_pipe;
@@ -57,8 +56,7 @@ LIST *canvass_street_fetch_list(
 		/* Returns static memory */
 		/* --------------------- */
 		canvass_street_where(
-			canvass_name,
-			include_boolean );
+			canvass_name );
 
 	system_string =
 		/* Returns heap memory */
@@ -78,7 +76,7 @@ LIST *canvass_street_fetch_list(
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
-			canvass_street_list,
+			list,
 			canvass_street_parse(
 				street_list,
 				input ) );
@@ -86,48 +84,38 @@ LIST *canvass_street_fetch_list(
 
 	pclose( input_pipe );
 
-	if ( !list_length( canvass_street_list ) )
+	if ( !list_length( list ) )
 	{
-		list_free( canvass_street_list );
-		canvass_street_list = NULL;
+		list_free( list );
+		list = NULL;
 	}
 
-	return canvass_street_list;
+	return list;
 }
 
-char *canvass_street_where(
-		char *canvass_name,
-		boolean include_boolean )
+char *canvass_street_where( char *canvass_name )
 {
-	char *include_where;
 	static char where[ 512 ];
 
-	include_where =
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		canvass_street_include_where(
-			include_boolean );
+	if ( !canvass_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: canvass_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	snprintf(
 		where,
 		sizeof ( where ),
 		"canvass = '%s' and "
 		"canvass_date is null and "
-		"ifnull( bypass_yn,'n' ) <> 'y' and "
-		"%s",
-		canvass_name,
-		include_where );
+		"ifnull( bypass_yn,'n' ) <> 'y'",
+		canvass_name );
 
 	return where;
-}
-
-char *canvass_street_include_where( boolean include_boolean )
-{
-	if ( include_boolean )
-		return "include_yn = 'y'";
-	else
-		return "(include_yn = 'n' or include_yn is null)";
 }
 
 CANVASS_STREET *canvass_street_parse(
@@ -137,6 +125,7 @@ CANVASS_STREET *canvass_street_parse(
 	char street_name[ 128 ];
 	char city[ 128 ];
 	char state_code[ 128 ];
+	char include_yn[ 128 ];
 	CANVASS_STREET *canvass_street;
 
 	if ( !input )
@@ -149,11 +138,18 @@ CANVASS_STREET *canvass_street_parse(
 		exit( 1 );
 	}
 
+	/* See CANVASS_STREET_SELECT */
+	/* ------------------------- */
 	piece( street_name, SQL_DELIMITER, input, 0 );
 	piece( city, SQL_DELIMITER, input, 1 );
 	piece( state_code, SQL_DELIMITER, input, 2 );
+	piece( include_yn, SQL_DELIMITER, input, 3 );
 
 	canvass_street = canvass_street_calloc();
+
+	if ( *include_yn )
+		canvass_street->include_boolean =
+			( *include_yn == 'y' );
 
 	canvass_street->street =
 		street_seek(
@@ -171,7 +167,9 @@ CANVASS_STREET *canvass_street_parse(
 	return canvass_street;
 }
 
-void canvass_street_output( CANVASS_STREET *canvass_street )
+void canvass_street_output(
+		CANVASS_STREET *canvass_street,
+		int distance_yards )
 {
 	if ( !canvass_street
 	||   !canvass_street->street )
@@ -184,7 +182,7 @@ void canvass_street_output( CANVASS_STREET *canvass_street )
 		exit( 1 );
 	}
 
-	printf(	"%s^%d^%d^%d\n",
+	printf(	"%s^%d^%d^%d^%d\n",
 		canvass_street->
 			street->
 			street_name,
@@ -196,5 +194,6 @@ void canvass_street_output( CANVASS_STREET *canvass_street )
 			house_count,
 		canvass_street->
 			street->
-			total_count );
+			total_count,
+		distance_yards );
 }

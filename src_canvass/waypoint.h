@@ -15,7 +15,6 @@
 typedef struct
 {
 	void *record;
-	int weight;
 	char *longitude_string;
 	char *latitude_string;
 } WAYPOINT_LONLAT;
@@ -27,7 +26,6 @@ typedef struct
 /* -------------- */
 WAYPOINT_LONLAT *waypoint_lonlat_new(
 		void *record,
-		int weight,
 		char *longitude_string,
 		char *latitude_string );
 
@@ -39,7 +37,6 @@ WAYPOINT_LONLAT *waypoint_lonlat_calloc(
 typedef struct
 {
 	void *record;
-	int weight;
 	int utm_x;
 	int utm_y;
 
@@ -50,6 +47,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 WAYPOINT_UTM *start_waypoint_utm(
 		char *start_longitude_string,
 		char *start_latitude_string,
@@ -62,7 +62,6 @@ WAYPOINT_UTM *start_waypoint_utm(
 /* -------------- */
 WAYPOINT_UTM *waypoint_utm_column_new(
 		void *record,
-		int weight,
 		char *column_string );
 
 /* Usage */
@@ -72,7 +71,6 @@ WAYPOINT_UTM *waypoint_utm_column_new(
 /* -------------- */
 WAYPOINT_UTM *waypoint_utm_new(
 		void *record,
-		int weight,
 		char *utm_x_string,
 		char *utm_y_string );
 
@@ -107,26 +105,8 @@ int waypoint_utm_compare(
 
 typedef struct
 {
-	WAYPOINT_UTM *start_waypoint_utm;
-	LIST *utm_list;
-	LIST *waypoint_utm_distance_sort_list;
+	/* Stub */
 } WAYPOINT;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-WAYPOINT *waypoint_new(
-		char *start_longitude_string,
-		char *start_latitude_string,
-		int utm_zone,
-		LIST *waypoint_lonlat_list );
-
-/* Process */
-/* ------- */
-WAYPOINT *waypoint_calloc(
-		void );
 
 /* Usage */
 /* ----- */

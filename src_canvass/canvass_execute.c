@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_canvass/canvass_street.c			*/
+/* $APPASERVER_HOME/src_canvass/canvass_execute.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -19,14 +19,14 @@ int main( int argc, char **argv )
 	char *city;
 	char *state_code;
 	char *canvass_name;
-	int maximum_weight;
+	int radius_yards;
 	int utm_zone;
 	CANVASS *canvass;
 
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s start_street_name city state_code canvass_name maximum_weight utm_zone\n",
+"Usage: %s start_street_name city state_code canvass_name radius_yards utm_zone\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -35,7 +35,7 @@ int main( int argc, char **argv )
 	city = argv[ 2 ];
 	state_code = argv[ 3 ];
 	canvass_name = argv[ 4 ];
-	maximum_weight = atoi( argv[ 5 ] );
+	radius_yards = atoi( argv[ 5 ] );
 	utm_zone = atoi( argv[ 6 ] );
 
 	canvass =
@@ -47,16 +47,13 @@ int main( int argc, char **argv )
 			city,
 			state_code,
 			canvass_name,
-			maximum_weight,
+			radius_yards,
 			utm_zone );
 
 	canvass_output(
 		canvass->
-			include_canvass_waypoint->
-			waypoint_utm_list,
-		canvass->
-			not_include_canvass_waypoint->
-			waypoint_utm_list );
+			canvass_waypoint->
+			radius_utm_list );
 
 	return 0;
 }
