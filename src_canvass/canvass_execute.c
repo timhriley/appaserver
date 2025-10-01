@@ -15,7 +15,7 @@
 
 int main( int argc, char **argv )
 {
-	char *start_street_name;
+	char *home_street_name;
 	char *city;
 	char *state_code;
 	char *canvass_name;
@@ -26,12 +26,12 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s start_street_name city state_code canvass_name radius_yards utm_zone\n",
+"Usage: %s home_street_name city state_code canvass_name radius_yards utm_zone\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	start_street_name = argv[ 1 ];
+	home_street_name = argv[ 1 ];
 	city = argv[ 2 ];
 	state_code = argv[ 3 ];
 	canvass_name = argv[ 4 ];
@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 		/* Safely returns */
 		/* -------------- */
 		canvass_new(
-			start_street_name,
+			home_street_name,
 			city,
 			state_code,
 			canvass_name,

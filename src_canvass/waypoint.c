@@ -92,17 +92,17 @@ WAYPOINT_UTM *waypoint_utm_calloc( void )
 	return waypoint_utm;
 }
 
-WAYPOINT_UTM *start_waypoint_utm(
-		char *start_longitude_string,
-		char *start_latitude_string,
+WAYPOINT_UTM *home_waypoint_utm(
+		char *home_longitude_string,
+		char *home_latitude_string,
 		int utm_zone )
 {
 	WAYPOINT_LONLAT *waypoint_lonlat;
 	LIST *lonlat_list = list_new();
 	LIST *utm_list;
 
-	if ( !start_longitude_string
-	||   !start_latitude_string
+	if ( !home_longitude_string
+	||   !home_latitude_string
 	||   !utm_zone )
 	{
 		fprintf(stderr,
@@ -119,8 +119,8 @@ WAYPOINT_UTM *start_waypoint_utm(
 		/* -------------- */
 		waypoint_lonlat_new(
 			(void *)0 /* record */,
-			start_longitude_string,
-			start_latitude_string );
+			home_longitude_string,
+			home_latitude_string );
 
 	list_set( lonlat_list, waypoint_lonlat );
 
@@ -143,15 +143,15 @@ WAYPOINT_UTM *start_waypoint_utm(
 }
 
 void waypoint_utm_distance_set(
-		WAYPOINT_UTM *start_waypoint_utm,
+		WAYPOINT_UTM *home_waypoint_utm,
 		LIST *waypoint_utm_list /* in/out */ )
 {
 	WAYPOINT_UTM *waypoint_utm;
 
-	if ( !start_waypoint_utm )
+	if ( !home_waypoint_utm )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: start_waypoint_utm is empty.\n",
+			"ERROR in %s/%s()/%d: home_waypoint_utm is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -164,7 +164,7 @@ void waypoint_utm_distance_set(
 
 		waypoint_utm->distance_yards =
 			waypoint_utm_distance_yards(
-				start_waypoint_utm,
+				home_waypoint_utm,
 				waypoint_utm->utm_x,
 				waypoint_utm->utm_y );
 
@@ -172,11 +172,11 @@ void waypoint_utm_distance_set(
 }
 
 int waypoint_utm_distance_yards(
-		WAYPOINT_UTM *start_waypoint_utm,
+		WAYPOINT_UTM *home_waypoint_utm,
 		int utm_x,
 		int utm_y )
 {
-	if ( !start_waypoint_utm
+	if ( !home_waypoint_utm
 	||   !utm_x
 	||   !utm_y )
 	{
@@ -190,8 +190,8 @@ int waypoint_utm_distance_yards(
 
 	return
 	distance_pythagorean_integer(
-		start_waypoint_utm->utm_x /* point_a_x */,
-		start_waypoint_utm->utm_y /* point_a_y */,
+		home_waypoint_utm->utm_x /* point_a_x */,
+		home_waypoint_utm->utm_y /* point_a_y */,
 		utm_x /* point_b_x */,
 		utm_y /* point_b_y */ );
 }

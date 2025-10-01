@@ -53,6 +53,6 @@ char *canvass_street_where(
 /* ----- */
 void canvass_street_output(
 		CANVASS_STREET *canvass_street,
-		int anchor_distance_yards );
+		int start_distance_yards );
 
 #endif

@@ -16,7 +16,7 @@
 #include "canvass.h"
 
 CANVASS *canvass_new(
-		char *start_street_name,
+		char *home_street_name,
 		char *city,
 		char *state_code,
 		char *canvass_name,
@@ -25,7 +25,7 @@ CANVASS *canvass_new(
 {
 	CANVASS *canvass;
 
-	if ( !start_street_name
+	if ( !home_street_name
 	||   !city
 	||   !state_code
 	||   !canvass_name
@@ -42,12 +42,12 @@ CANVASS *canvass_new(
 
 	canvass = canvass_calloc();
 
-	canvass->start_street =
+	canvass->home_street =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		street_fetch(
-			start_street_name,
+			home_street_name,
 			city,
 			state_code );
 
@@ -75,8 +75,8 @@ CANVASS *canvass_new(
 		/* Safely returns */
 		/* -------------- */
 		canvass_waypoint_new(
-			canvass->start_street->longitude_string,
-			canvass->start_street->latitude_string,
+			canvass->home_street->longitude_string,
+			canvass->home_street->latitude_string,
 			radius_yards,
 			utm_zone,
 			canvass->canvass_waypoint_utm_list );

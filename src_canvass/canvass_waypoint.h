@@ -13,8 +13,8 @@
 
 typedef struct
 {
+	WAYPOINT_UTM *home_waypoint_utm;
 	WAYPOINT_UTM *start_waypoint_utm;
-	WAYPOINT_UTM *anchor_waypoint_utm;
 	LIST *radius_utm_list;
 } CANVASS_WAYPOINT;
 
@@ -24,8 +24,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 CANVASS_WAYPOINT *canvass_waypoint_new(
-		char *start_longitude_string,
-		char *start_latitude_string,
+		char *home_longitude_string,
+		char *home_latitude_string,
 		int radius_yards,
 		int utm_zone,
 		LIST *canvass_waypoint_utm_list );
@@ -37,15 +37,15 @@ CANVASS_WAYPOINT *canvass_waypoint_calloc(
 
 /* Usage */
 /* ----- */
-WAYPOINT_UTM *canvass_waypoint_anchor_utm(
+WAYPOINT_UTM *canvass_waypoint_start_utm(
 		LIST *canvass_waypoint_utm_list,
-		WAYPOINT_UTM *start_waypoint_utm );
+		WAYPOINT_UTM *home_waypoint_utm );
 
 /* Usage */
 /* ----- */
 LIST *canvass_waypoint_radius_utm_list(
 		int radius_yards,
 		LIST *canvass_waypoint_utm_list,
-		WAYPOINT_UTM *canvass_waypoint_anchor_utm );
+		WAYPOINT_UTM *canvass_waypoint_start_utm );
 
 #endif

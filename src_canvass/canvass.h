@@ -14,7 +14,7 @@
 
 typedef struct
 {
-	STREET *start_street;
+	STREET *home_street;
 	LIST *street_list;
 	LIST *canvass_street_list;
 	LIST *canvass_waypoint_lonlat_list;
@@ -28,7 +28,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 CANVASS *canvass_new(
-		char *start_street_name,
+		char *home_street_name,
 		char *city,
 		char *state_code,
 		char *canvass_name,

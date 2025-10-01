@@ -50,9 +50,9 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
-WAYPOINT_UTM *start_waypoint_utm(
-		char *start_longitude_string,
-		char *start_latitude_string,
+WAYPOINT_UTM *home_waypoint_utm(
+		char *home_longitude_string,
+		char *home_latitude_string,
 		int utm_zone );
 
 /* Usage */
@@ -82,13 +82,13 @@ WAYPOINT_UTM *waypoint_utm_calloc(
 /* Usage */
 /* ----- */
 void waypoint_utm_distance_set(
-		WAYPOINT_UTM *start_waypoint_utm,
+		WAYPOINT_UTM *home_waypoint_utm,
 		LIST *waypoint_utm_list /* in/out */ );
 
 /* Usage */
 /* ----- */
 int waypoint_utm_distance_yards(
-		WAYPOINT_UTM *start_waypoint_utm,
+		WAYPOINT_UTM *home_waypoint_utm,
 		int utm_x,
 		int utm_y );
 
