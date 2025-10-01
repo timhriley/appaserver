@@ -2318,7 +2318,7 @@ boolean update_changed_boolean(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			post_datum );
 
-	if ( string_strcmp( file_datum, unescape ) != 0 )
+	if ( strcmp( file_datum, unescape ) != 0 )
 	{
 		return_value = 1;
 	}
