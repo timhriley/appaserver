@@ -1350,16 +1350,20 @@ double journal_credit_sum( LIST *journal_list )
 double journal_transaction_amount( LIST *journal_list )
 {
 	JOURNAL *journal;
+	double transaction_amount = {0};
 
 	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
-		if ( journal->debit_amount ) return journal->debit_amount;
+		if ( journal->debit_amount > transaction_amount )
+		{
+			transaction_amount = journal->debit_amount;
+		}
 
 	} while ( list_next( journal_list ) );
 
-	return 0;
+	return transaction_amount;
 }
 
 LIST *journal_year_list(
