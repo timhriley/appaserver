@@ -104,9 +104,9 @@ char *button_html(
 
 char *button_reset_html(
 		char *form_name,
-		char widget_multi_left_right_delimiter,
+		const char widget_multi_left_right_delimiter,
 		char *javascript_replace,
-		char *button_reset_message )
+		const char *button_reset_message )
 {
 	char html[ STRING_4K ];
 	char *ptr = html;
@@ -116,7 +116,7 @@ char *button_reset_html(
 	ptr += sprintf(
 		ptr,
 "<input type=button value=\"Reset\" title=\"%s\" onClick=\"form_reset(%s, '%c')",
-		(button_reset_message) ? button_reset_message : "",
+		button_reset_message,
 		form_name,
 		widget_multi_left_right_delimiter );
 
@@ -158,29 +158,15 @@ BUTTON *button_submit(
 
 char *button_submit_html(
 		char *form_name,
-		char *button_submit_display,
+		const char *button_submit_display,
 		char *form_multi_select_all_javascript,
 		char *recall_save_javascript,
 		char *form_verify_notepad_widths_javascript,
-		char *button_submit_message )
+		const char *button_submit_message )
 {
 	char html[ STRING_4K ];
 	char *ptr = html;
 	boolean got_one = 0;
-
-	if ( !button_submit_display
-	||   !button_submit_message )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
 
 	if ( !form_name ) form_name = "document.forms[0]";
 

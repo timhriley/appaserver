@@ -76,11 +76,11 @@ BUTTON *button_submit(
 /* ------------------- */
 char *button_submit_html(
 		char *form_name,
-		char *button_submit_display,
+		const char *button_submit_display,
 		char *form_multi_select_all_javascript,
 		char *recall_save_javascript,
 		char *form_verify_notepad_widths_javascript,
-		char *button_submit_message );
+		const char *button_submit_message );
 
 /* Usage */
 /* ----- */
@@ -98,27 +98,39 @@ BUTTON *button_reset(
 /* ------------------- */
 char *button_reset_html(
 		char *form_name,
-		char widget_multi_left_right_delimiter,
+		const char widget_multi_left_right_delimiter,
 		char *javascript_replace,
-		char *button_reset_message );
+		const char *button_reset_message );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_back(
 		void );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_forward(
 		void );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_restart_drillthru(
 		char *post_choose_folder_action_string );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_to_top(
 		void );
 
@@ -133,11 +145,17 @@ char *button_to_top_html(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_recall(
 		char *recall_load_javascript );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_drillthru_skip(
 		void );
 
@@ -152,6 +170,9 @@ char *button_drillthru_skip_html(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUTTON *button_help(
 		char *application_name,
 		char *html_help_file_anchor );
@@ -205,14 +226,16 @@ char *button_anchor_html(
 		char *onclick_action_string,
 		char *hover_message );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
 char *button_list_html(
 		LIST *button_list );
 
+/* Usage */
+/* ----- */
 void button_list_free(
 		LIST *button_list );
 

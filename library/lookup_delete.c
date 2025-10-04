@@ -258,6 +258,14 @@ void lookup_delete_state_two_execute(
 
 		} while ( list_next( query_fetch_row_list ) );
 
+		if ( !execute_boolean )
+		{
+			/* Safely returns */
+			/* -------------- */
+			BUTTON *button = button_back();
+
+			printf( "%s\n", button->html );
+		}
 	}
 	else
 	{
