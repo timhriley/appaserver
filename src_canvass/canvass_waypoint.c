@@ -156,19 +156,14 @@ LIST *canvass_waypoint_radius_utm_list(
 
 		canvass_street = waypoint_utm->record;
 
-		if ( canvass_street->include_boolean )
-		{
-			list_set( radius_utm_list, waypoint_utm );
-			continue;
-		}
-
 		distance_yards =
 			waypoint_utm_distance_yards(
 				canvass_waypoint_start_utm,
 				waypoint_utm->utm_x,
 				waypoint_utm->utm_y );
 
-		if (distance_yards <= radius_yards )
+		if (distance_yards <= radius_yards
+		||  canvass_street->include_boolean )
 		{
 			waypoint_utm->distance_yards = distance_yards;
 			list_set( radius_utm_list, waypoint_utm );
