@@ -137,6 +137,7 @@ LIST *canvass_waypoint_radius_utm_list(
 {
 	LIST *radius_utm_list = list_new();
 	WAYPOINT_UTM *waypoint_utm;
+	CANVASS_STREET *canvass_street;
 	int distance_yards;
 
 	if ( !canvass_waypoint_start_utm )
@@ -152,6 +153,14 @@ LIST *canvass_waypoint_radius_utm_list(
 	if ( list_rewind( canvass_waypoint_utm_list ) )
 	do {
 		waypoint_utm = list_get( canvass_waypoint_utm_list );
+
+		canvass_street = waypoint_utm->record;
+
+		if ( canvass_street->include_boolean )
+		{
+			list_set( radius_utm_list, waypoint_utm );
+			continue;
+		}
 
 		distance_yards =
 			waypoint_utm_distance_yards(
