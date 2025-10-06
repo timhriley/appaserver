@@ -19,19 +19,19 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 2 ]
+if [ "$#" -ne 3 ]
 then
-	echo "Usage $0 process radius_yards" 1>&2
+	echo "Usage $0 process canvass_name radius_yards" 1>&2
 	exit 1
 fi
 
 process="$1"
-radius_yards=$2
+canvass_name="$2"
+radius_yards=$3
 
 start_street_address="DELGADO WAY"
 city="SACRAMENTO"
 state_code="CA"
-canvass_name="discovery 1"
 utm_zone=10
 
 household_file="/usr2/tmp/household.csv"
