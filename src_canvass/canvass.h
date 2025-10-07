@@ -54,6 +54,6 @@ LIST *canvass_waypoint_utm_list(
 /* Driver */
 /* ------ */
 void canvass_output(
-		LIST *radius_utm_list );
+		LIST *waypoint_utm_distance_sort_list );
 
 #endif

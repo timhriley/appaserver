@@ -59,6 +59,10 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 			canvass_waypoint_utm_list,
 			canvass_waypoint->start_waypoint_utm );
 
+	canvass_waypoint->waypoint_utm_distance_sort_list =
+		waypoint_utm_distance_sort_list(
+			canvass_waypoint->radius_utm_list );
+
 	return canvass_waypoint;
 }
 

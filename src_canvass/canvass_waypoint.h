@@ -16,6 +16,7 @@ typedef struct
 	WAYPOINT_UTM *home_waypoint_utm;
 	WAYPOINT_UTM *start_waypoint_utm;
 	LIST *radius_utm_list;
+	LIST *waypoint_utm_distance_sort_list;
 } CANVASS_WAYPOINT;
 
 /* Usage */

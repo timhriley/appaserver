@@ -101,14 +101,14 @@ CANVASS *canvass_calloc( void )
 	return canvass;
 }
 
-void canvass_output( LIST *radius_utm_list )
+void canvass_output( LIST *waypoint_utm_distance_sort_list )
 {
 	WAYPOINT_UTM *waypoint_utm;
 	CANVASS_STREET *canvass_street;
 
-	if ( list_rewind( radius_utm_list ) )
+	if ( list_rewind( waypoint_utm_distance_sort_list ) )
 	do {
-		waypoint_utm = list_get( radius_utm_list );
+		waypoint_utm = list_get( waypoint_utm_distance_sort_list );
 
 		canvass_street = waypoint_utm->record;
 
@@ -116,7 +116,7 @@ void canvass_output( LIST *radius_utm_list )
 			canvass_street,
 			waypoint_utm->distance_yards );
 
-	} while ( list_next( radius_utm_list ) );
+	} while ( list_next( waypoint_utm_distance_sort_list ) );
 }
 
 LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )

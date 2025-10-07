@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 	canvass_output(
 		canvass->
 			canvass_waypoint->
-			radius_utm_list );
+			waypoint_utm_distance_sort_list );
 
 	return 0;
 }
