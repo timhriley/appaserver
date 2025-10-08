@@ -14,7 +14,7 @@
 #define CANVASS_STREET_SELECT		"street_name,"		\
 					"city,"			\
 					"state_code,"		\
-					"include_yn"
+					"action"
 
 #define CANVASS_STREET_TABLE		"canvass_street"
 
@@ -22,6 +22,7 @@ typedef struct
 {
 	STREET *street;
 	boolean include_boolean;
+	boolean start_boolean;
 } CANVASS_STREET;
 
 /* Usage */

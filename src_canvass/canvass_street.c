@@ -112,7 +112,7 @@ char *canvass_street_where( char *canvass_name )
 		sizeof ( where ),
 		"canvass = '%s' and "
 		"canvass_date is null and "
-		"ifnull( bypass_yn,'n' ) <> 'y'",
+		"ifnull( action,'' ) <> 'bypass'",
 		canvass_name );
 
 	return where;
@@ -125,7 +125,7 @@ CANVASS_STREET *canvass_street_parse(
 	char street_name[ 128 ];
 	char city[ 128 ];
 	char state_code[ 128 ];
-	char include_yn[ 128 ];
+	char action[ 128 ];
 	CANVASS_STREET *canvass_street;
 
 	if ( !input )
@@ -143,13 +143,16 @@ CANVASS_STREET *canvass_street_parse(
 	piece( street_name, SQL_DELIMITER, input, 0 );
 	piece( city, SQL_DELIMITER, input, 1 );
 	piece( state_code, SQL_DELIMITER, input, 2 );
-	piece( include_yn, SQL_DELIMITER, input, 3 );
+	piece( action, SQL_DELIMITER, input, 3 );
 
 	canvass_street = canvass_street_calloc();
 
-	if ( *include_yn )
-		canvass_street->include_boolean =
-			( *include_yn == 'y' );
+	if ( strcmp( action, "include" ) == 0 )
+		canvass_street->include_boolean = 1;
+	else
+	if ( strcmp( action, "start" ) == 0 )
+		canvass_street->start_boolean = 1;
+
 
 	canvass_street->street =
 		street_seek(

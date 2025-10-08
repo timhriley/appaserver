@@ -111,7 +111,7 @@ WAYPOINT_UTM *canvass_waypoint_start_utm(
 
 		canvass_street = waypoint_utm->record;
 
-		if ( canvass_street->include_boolean )
+		if ( canvass_street->start_boolean )
 		{
 			start_waypoint_utm = waypoint_utm;
 			break;
