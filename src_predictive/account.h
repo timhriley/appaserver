@@ -79,13 +79,12 @@ typedef struct
 /* Usage */
 /* ----- */
 
-/* Returns null if balance is zero */
-/* ------------------------------- */
 ACCOUNT_JOURNAL *account_journal_latest(
 		const char *journal_table,
 		char *account_name,
 		char *end_date_time_string,
-		boolean fetch_transaction );
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean );
 
 /* Process */
 /* ------- */
@@ -121,7 +120,8 @@ LIST *account_statement_list(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction );
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean );
 
 /* Process */
 /* ------- */
@@ -130,10 +130,6 @@ FILE *account_pipe(
 
 /* Usage */
 /* ----- */
-
-/* ------------------------------- */
-/* Returns null if balance is zero */
-/* ------------------------------- */
 ACCOUNT *account_statement_parse(
 		char *input,
 		char *end_date_time_string,
@@ -141,7 +137,8 @@ ACCOUNT *account_statement_parse(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction );
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean );
 
 /* Usage */
 /* ----- */

@@ -135,7 +135,8 @@ ELEMENT *element_statement_parse(
 		boolean fetch_subclassification_list,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	ELEMENT *element;
 
@@ -158,7 +159,8 @@ ELEMENT *element_statement_parse(
 				0 /* not fetch_element */,
 				fetch_account_list,
 				fetch_journal_latest,
-				fetch_transaction );
+				fetch_transaction,
+				latest_zero_balance_boolean );
 	}
 
 	return element;
@@ -224,7 +226,8 @@ LIST *element_statement_list(
 		boolean fetch_subclassification_list,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	LIST *element_list;
 	char *element_name;
@@ -243,7 +246,8 @@ LIST *element_statement_list(
 				fetch_subclassification_list,
 				fetch_account_list,
 				fetch_journal_latest,
-				fetch_transaction ) );
+				fetch_transaction,
+				latest_zero_balance_boolean ) );
 
 	} while ( list_next( element_name_list ) );
 
@@ -337,7 +341,8 @@ ELEMENT *element_statement_fetch(
 		boolean fetch_subclassification_list,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	FILE *pipe;
 	ELEMENT *element;
@@ -374,7 +379,8 @@ ELEMENT *element_statement_fetch(
 			fetch_subclassification_list,
 			fetch_account_list,
 			fetch_journal_latest,
-			fetch_transaction );
+			fetch_transaction,
+			latest_zero_balance_boolean );
 
 
 	pclose( pipe );
@@ -413,12 +419,9 @@ double element_list_credit_sum(
 		LIST *element_statement_list )
 {
 	ELEMENT *element;
-	double sum;
+	double sum = {0};
 
-	if ( !list_rewind( element_statement_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( element_statement_list ) )
 	do {
 		element = list_get( element_statement_list );
 
@@ -441,8 +444,7 @@ void element_list_account_statement_list_set(
 {
 	ELEMENT *element;
 
-	if ( !list_rewind( element_statement_list ) ) return;
-
+	if ( list_rewind( element_statement_list ) )
 	do {
 		element = list_get( element_statement_list );
 

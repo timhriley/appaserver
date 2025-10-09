@@ -29,7 +29,8 @@ LIST *account_statement_list(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	boolean chart_account_boolean;
 	char *select_string;
@@ -77,9 +78,6 @@ LIST *account_statement_list(
 	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
 		account =
-			/* ------------------------------- */
-			/* Returns null if balance is zero */
-			/* ------------------------------- */
 			account_statement_parse(
 				input,
 				transaction_date_time_closing,
@@ -87,7 +85,8 @@ LIST *account_statement_list(
 				fetch_subclassification,
 				fetch_element,
 				fetch_journal_latest,
-				fetch_transaction );
+				fetch_transaction,
+				latest_zero_balance_boolean );
 
 		if ( account )
 		{
@@ -109,7 +108,8 @@ ACCOUNT *account_statement_parse(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	ACCOUNT *account;
 
@@ -133,14 +133,12 @@ ACCOUNT *account_statement_parse(
 	if ( fetch_journal_latest )
 	{
 		if ( ! ( account->account_journal_latest =
-				/* ------------------------------- */
-				/* Returns null if balance is zero */
-				/* ------------------------------- */
 				account_journal_latest(
 					JOURNAL_TABLE,
 					account->account_name,
 					transaction_date_time_closing,
-					fetch_transaction ) ) )
+					fetch_transaction,
+					latest_zero_balance_boolean ) ) )
 		{
 			free( account );
 			account = NULL;
@@ -1582,7 +1580,8 @@ ACCOUNT_JOURNAL *account_journal_latest(
 		const char *journal_table,
 		char *account_name,
 		char *end_date_time_string,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	ACCOUNT_JOURNAL *account_journal;
 	JOURNAL *journal;
@@ -1607,12 +1606,10 @@ ACCOUNT_JOURNAL *account_journal_latest(
 				account_name,
 				end_date_time_string,
 				fetch_transaction,
-				0 /* not zero_balance_boolean */ ) ) )
+				latest_zero_balance_boolean ) ) )
 	{
 		return NULL;
 	}
-
-	if ( float_virtually_same( journal->balance, 0.0 ) ) return NULL;
 
 	account_journal = account_journal_calloc();
 

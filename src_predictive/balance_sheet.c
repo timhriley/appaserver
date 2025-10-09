@@ -2871,7 +2871,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			balance_sheet->
 				transaction_date_statement->
 				end_date_time,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( !balance_sheet->statement )
 	{
@@ -2897,7 +2898,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( !balance_sheet->element_equity_current )
 	{
@@ -2929,7 +2931,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( balance_sheet->element_equity_begin )
 	{
@@ -3332,7 +3335,8 @@ double balance_sheet_drawing_amount(
 			journal_table,
 			drawing_string /* account_name */,
 			transaction_end_date_time,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( account_journal )
 		drawing_amount =

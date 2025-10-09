@@ -126,7 +126,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 				trial_balance->
 					transaction_date_trial_balance->
 					preclose_end_date_time,
-				1 /* fetch_transaction */ );
+				1 /* fetch_transaction */,
+				0 /* not latest_zero_balance_boolean */ );
 
 		if ( !trial_balance->preclose_statement )
 		{
@@ -202,7 +203,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->
 				transaction_date_trial_balance->
 				end_date_time,
-			1 /* fetch_transaction */ );
+			1 /* fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( !trial_balance->statement )
 	{

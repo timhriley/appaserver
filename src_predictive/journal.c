@@ -162,7 +162,7 @@ JOURNAL *journal_latest(
 		char *account_name,
 		char *end_date_time_string,
 		boolean fetch_transaction_boolean,
-		boolean zero_balance_boolean )
+		boolean latest_zero_balance_boolean )
 {
 	JOURNAL *fetch;
 
@@ -200,7 +200,7 @@ JOURNAL *journal_latest(
 			0 /* not fetch_element */,
 			fetch_transaction_boolean );
 
-	if ( !zero_balance_boolean && fetch && !fetch->balance )
+	if ( !latest_zero_balance_boolean && fetch && !fetch->balance )
 		return NULL;
 	else
 		return fetch;

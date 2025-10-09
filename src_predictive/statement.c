@@ -169,7 +169,8 @@ STATEMENT *statement_fetch(
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string,
 		char *end_date_time,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean )
 {
 	STATEMENT *statement;
 
@@ -204,7 +205,8 @@ STATEMENT *statement_fetch(
 			1 /* fetch_subclassification */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			fetch_transaction );
+			fetch_transaction,
+			latest_zero_balance_boolean );
 
 	if ( !list_length( statement->element_statement_list ) )
 	{
@@ -864,7 +866,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( !list_length( statement_prior_year->element_statement_list ) )
 	{

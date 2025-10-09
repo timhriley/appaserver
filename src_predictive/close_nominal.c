@@ -82,7 +82,8 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	close_nominal_do->equity_subclassification_where =
 		/* --------------------- */
@@ -106,7 +107,8 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 			1 /* fetch_element */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	close_nominal_do->entity_self =
 		entity_self_fetch(

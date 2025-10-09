@@ -519,7 +519,8 @@ INCOME_STATEMENT *income_statement_fetch(
 			income_statement->
 				transaction_date_statement->
 				end_date_time,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( income_statement->statement_output_medium ==
 		statement_output_table )
@@ -1440,7 +1441,8 @@ double income_statement_fetch_net_income(
 			element_name_list,
 			(char *)0 /* transaction_begin_date_string */,
 			end_date_time,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	if ( !statement ) return 0.0;
 

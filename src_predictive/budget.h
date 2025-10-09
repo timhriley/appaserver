@@ -418,9 +418,6 @@ LIST *budget_annualized_list(
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 BUDGET_ANNUALIZED *budget_annualized_new(
 		char *application_name,
 		char *session_key,

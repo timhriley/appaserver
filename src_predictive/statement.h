@@ -672,7 +672,8 @@ STATEMENT *statement_fetch(
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string /* optional */,
 		char *end_date_time,
-		boolean fetch_transaction );
+		boolean fetch_transaction,
+		boolean latest_zero_balance_boolean );
 
 /* Process */
 /* ------- */

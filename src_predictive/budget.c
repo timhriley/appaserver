@@ -83,9 +83,6 @@ LIST *budget_annualized_list(
 			}
 
 			budget_annualized =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
 				budget_annualized_new(
 					application_name,
 					session_key,
@@ -99,10 +96,13 @@ LIST *budget_annualized_list(
 					budget_forecast_julian_string,
 					appaserver_link_working_directory );
 
-			list_set_order(
-				list,
-				budget_annualized,
-				budget_annualized_compare_function );
+			if ( budget_annualized )
+			{
+				list_set_order(
+					list,
+					budget_annualized,
+					budget_annualized_compare_function );
+			}
 
 		} while ( list_next( element->account_statement_list ) );
 
@@ -178,6 +178,12 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 				budget_regression->
 				forecast_integer,
 			budget_annualized->budget_integer );
+
+	if ( !budget_annualized->budget_integer
+	&&   !budget_annualized->amount_integer )
+	{
+		return NULL;
+	}
 
 	budget_annualized->statement_delta =
 		statement_delta_new(
@@ -407,7 +413,8 @@ BUDGET *budget_fetch(
 			budget->transaction_date_begin_date_string,
 			budget->transaction_date_close_date_time
 				/* end_date_time */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			1 /* latest_zero_balance_boolean */ );
 
 	element_list_account_statement_list_set(
 		budget->statement->element_statement_list );

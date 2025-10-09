@@ -42,7 +42,8 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 			investment_transaction->account_key_account_name,
 			investment_transaction->date_now19
 				/* end_date_time_string */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_transaction */,
+			0 /* not latest_zero_balance_boolean */ );
 
 	investment_transaction->current_balance =
 		investment_transaction_current_balance(
