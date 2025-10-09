@@ -1660,11 +1660,6 @@ INSERT_ZERO *insert_zero_new(
 
 	insert_zero = insert_zero_calloc();
 
-	insert_zero_attribute_default_set(
-		folder_attribute_append_isa_list,
-		prompt_dictionary /* in/out */,
-		ignore_name_list );
-
 	(void)relation_copy_new(
 		prompt_dictionary /* in/out */,
 		folder_attribute_append_isa_list,
@@ -2429,56 +2424,6 @@ boolean insert_multi_any_primary_null_boolean(
 	} while ( list_next( root_primary_key_list ) );
 
 	return 0;
-}
-
-void insert_zero_attribute_default_set(
-		LIST *folder_attribute_append_isa_list,
-		DICTIONARY *prompt_dictionary /* in/out */,
-		LIST *ignore_name_list )
-{
-	FOLDER_ATTRIBUTE *folder_attribute;
-	char *ignore_name;
-	char *get;
-
-	if ( list_rewind( ignore_name_list ) )
-	do {
-		ignore_name = list_get( ignore_name_list );
-
-		if ( ! ( folder_attribute =
-				folder_attribute_seek(
-					ignore_name,
-					folder_attribute_append_isa_list ) ) )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"folder_attribute_seek(%s) returned empty.",
-				ignore_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		if ( folder_attribute->default_value )
-		{
-			get =
-				dictionary_get(
-					folder_attribute->attribute_name,
-					prompt_dictionary );
-
-			if ( !get )
-			{
-				dictionary_set(
-					prompt_dictionary,
-					folder_attribute->attribute_name,
-					folder_attribute->default_value );
-			}
-		}
-
-	} while ( list_next( ignore_name_list ) );
 }
 
 char *insert_folder_statement_system_string(

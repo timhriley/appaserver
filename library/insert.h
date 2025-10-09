@@ -309,13 +309,6 @@ INSERT_ZERO *insert_zero_new(
 INSERT_ZERO *insert_zero_calloc(
 		void );
 
-/* Usage */
-/* ----- */
-void insert_zero_attribute_default_set(
-		LIST *folder_attribute_append_isa_list,
-		DICTIONARY *prompt_dictionary /* in/out */,
-		LIST *ignore_name_list );
-
 typedef struct
 {
 	LIST *insert_folder_statement_list;
