@@ -141,20 +141,20 @@ char *statement_caption_sub_title(
 	if ( !end_date_american )
 	{
 		sprintf(sub_title,
-			"Beginning: %s",
+			"Begin: %s",
 			begin_date_american );
 	}
 	else
 	if ( !begin_date_american )
 	{
 		sprintf(sub_title,
-			"Ending: %s",
+			"End: %s",
 			end_date_american );
 	}
 	else
 	{
 		sprintf(sub_title,
-			"Beginning: %s, Ending: %s",
+			"Begin: %s, End: %s",
 			begin_date_american,
 			end_date_american );
 	}
