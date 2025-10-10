@@ -28,6 +28,7 @@ LIST *subclassification_where_statement_list(
 	FILE *pipe;
 	char input[ 256 ];
 	LIST *list;
+	SUBCLASSIFICATION *subclassification;
 
 	if ( !where
 	||   !end_date_time_string )
@@ -55,10 +56,9 @@ LIST *subclassification_where_statement_list(
 				SUBCLASSIFICATION_TABLE,
 				where ) );
 
-	while ( string_input( input, pipe, 256 ) )
+	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
-		list_set(
-			list,
+		subclassification =
 			subclassification_statement_parse(
 				input,
 				end_date_time_string,
@@ -66,7 +66,27 @@ LIST *subclassification_where_statement_list(
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean ) );
+				latest_zero_balance_boolean );
+
+		if ( !subclassification )
+		{
+			char message[ 128 ];
+
+			pclose( pipe );
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"subclassification_statement_parse() returned empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		list_set( list, subclassification );
 	}
 
 	pclose( pipe );
@@ -85,20 +105,12 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 {
 	SUBCLASSIFICATION *subclassification;
 
-	if ( !end_date_time_string )
+	if ( !end_date_time_string
+	||   !input
+	||   !*input )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "end_date_time_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return NULL;
 	}
-
-	if ( !input ) return NULL;
 
 	if ( ! ( subclassification =
 			subclassification_parse(

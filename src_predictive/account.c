@@ -583,13 +583,10 @@ char *account_name_display( char *account_name )
 
 LIST *account_balance_sort_list( LIST *account_list )
 {
-	LIST *balance_sort_list;
+	LIST *balance_sort_list = list_new();
 	ACCOUNT *account;
 
-	if ( !list_rewind( account_list ) ) return NULL;
-
-	balance_sort_list = list_new();
-
+	if ( list_rewind( account_list ) )
 	do {
 		account = list_get( account_list );
 
@@ -599,6 +596,12 @@ LIST *account_balance_sort_list( LIST *account_list )
 			account_balance_compare_function );
 
 	} while ( list_next( account_list ) );
+
+	if ( !list_length( balance_sort_list ) )
+	{
+		list_free( balance_sort_list );
+		balance_sort_list = NULL;
+	}
 
 	return balance_sort_list;
 }
@@ -625,7 +628,7 @@ int account_balance_compare_function(
 	if ( !compare_latest_journal
 	||   !compare_latest_journal->balance )
 	{
-		return 1;
+		return -1;
 	}
 
 	if (	from_list_latest_journal->balance <=

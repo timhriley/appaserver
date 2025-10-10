@@ -164,7 +164,7 @@ JOURNAL *journal_latest(
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean )
 {
-	JOURNAL *fetch;
+	JOURNAL *journal_fetch;
 
 	if ( !account_name
 	||   !end_date_time_string )
@@ -180,7 +180,7 @@ JOURNAL *journal_latest(
 			message );
 	}
 
-	fetch =
+	journal_fetch =
 		journal_account_fetch(
 			/* --------------------------- */
 			/* Returns heap memory or null */
@@ -200,10 +200,26 @@ JOURNAL *journal_latest(
 			0 /* not fetch_element */,
 			fetch_transaction_boolean );
 
-	if ( !latest_zero_balance_boolean && fetch && !fetch->balance )
-		return NULL;
+	if ( !journal_fetch )
+	{
+		if ( latest_zero_balance_boolean )
+		{
+			journal_fetch =
+				journal_new(
+					(char *)0 /* full_name */,
+					(char *)0 /* street_address */,
+					end_date_time_string
+						/* transaction_date_time */,
+					account_name );
+		}
+	}
 	else
-		return fetch;
+	if ( !journal_fetch->balance )
+	{
+		journal_fetch = NULL;
+	}
+
+	return journal_fetch;
 }
 
 char *journal_less_equal_where(
