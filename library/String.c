@@ -554,11 +554,20 @@ char *string_commas_integer( int i )
 	return string_commas_number_string( s );
 }
  
+char *string_integer( int i )
+{
+	static char s[ 64 ];
+
+	snprintf( s, sizeof ( s ), "%d", i );
+
+	return s;
+}
+ 
 char *string_commas_long( long n )
 {
 	char s[ 64 ];
 
-	sprintf( s, "%ld", n );
+	snprintf( s, sizeof ( s ), "%ld", n );
 
 	/* Returns static memory or "" */
 	/* --------------------------- */
@@ -569,7 +578,7 @@ char *string_commas_rounded_dollar( double d )
 {
 	char s[ 20 ];
 
-	sprintf( s, "%.0lf", round_double( d ) );
+	snprintf( s, sizeof ( s ), "%.0lf", round_double( d ) );
 
 	return
 	/* --------------------------- */

@@ -387,6 +387,7 @@ LATEX_ROW *budget_latex_row(
 		char *element_name,
 		char *account_name,
 		double account_amount,
+		int confidence_integer,
 		int annualized_amount_integer,
 		int annualized_budget_integer,
 		STATEMENT_DELTA *statement_delta,

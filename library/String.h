@@ -321,6 +321,14 @@ char *string_commas_integer(
 /* Usage */
 /* ----- */
 
+/* Returns static memory */
+/* --------------------- */
+char *string_integer(
+		int i );
+
+/* Usage */
+/* ----- */
+
 /* Returns static memory or "" */
 /* --------------------------- */
 char *string_commas_long(

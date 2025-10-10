@@ -683,6 +683,7 @@ LATEX_ROW *budget_latex_row(
 		char *element_name,
 		char *account_name,
 		double account_amount,
+		int confidence_integer,
 		int annualized_amount_integer,
 		int annualized_budget_integer,
 		STATEMENT_DELTA *statement_delta,
@@ -763,6 +764,21 @@ LATEX_ROW *budget_latex_row(
 				/* ---------------------- */
 				/* Returns static memory. */
 				/* ---------------------- */
+				string_integer(
+					confidence_integer ) ) ) );
+
+	latex_column = list_get( latex_column_list );
+	list_next( latex_column_list );
+
+	list_set(
+		cell_list,
+		latex_cell_small_new(
+			latex_column,
+			0 /* not first_row_boolean */,
+			strdup(
+				/* ---------------------- */
+				/* Returns static memory. */
+				/* ---------------------- */
 				string_commas_integer(
 					annualized_amount_integer ) ) ) );
 
@@ -823,7 +839,8 @@ LIST *budget_latex_row_list(
 		budget_annualized = list_get( budget_annualized_list );
 
 		if ( !budget_annualized->account
-		||   !budget_annualized->account->account_journal_latest )
+		||   !budget_annualized->account->account_journal_latest
+		||   !budget_annualized->budget_regression )
 		{
 			char message[ 128 ];
 
@@ -852,6 +869,9 @@ LIST *budget_latex_row_list(
 					account_journal_latest->
 					balance
 						/* account_amount */,
+				budget_annualized->
+					budget_regression->
+					confidence_integer,
 				budget_annualized->amount_integer,
 				budget_annualized->budget_integer,
 				budget_annualized->statement_delta,
@@ -896,7 +916,7 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Annualized",
+			STATEMENT_CONFIDENCE_HEADING,
 			latex_column_float /* latex_column_enum */,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -905,7 +925,7 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Budget",
+			STATEMENT_ANNUALIZED_HEADING,
 			latex_column_float /* latex_column_enum */,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -914,7 +934,16 @@ LIST *budget_latex_column_list( void )
 	list_set(
 		column_list,
 		latex_column_new(
-			"Difference",
+			STATEMENT_BUDGET_HEADING,
+			latex_column_float /* latex_column_enum */,
+			0 /* float_decimal_count */,
+			(char *)0 /* paragraph_size */,
+			0 /* not first_column_boolean */ ) );
+
+	list_set(
+		column_list,
+		latex_column_new(
+			STATEMENT_DIFFERENCE_HEADING,
 			latex_column_float /* latex_column_enum */,
 			0 /* float_decimal_count */,
 			(char *)0 /* paragraph_size */,
@@ -1496,6 +1525,8 @@ LATEX_ROW *budget_latex_sum_row(
 			0 /* not first_row_boolean */,
 			"Net" ) );
 
+	/* Account is blank */
+	/* ---------------- */
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
 
@@ -1520,6 +1551,18 @@ LATEX_ROW *budget_latex_sum_row(
 			     /* ---------------------- */
 			     string_commas_money(
 				    budget_amount_net ) ) ) );
+
+	/* Confidence is blank */
+	/* ------------------- */
+	latex_column = list_get( latex_column_list );
+	list_next( latex_column_list );
+
+	list_set(
+		cell_list,
+		latex_cell_small_new(
+			latex_column,
+			0 /* not first_row_boolean */,
+			(char *)0 ) );
 
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
