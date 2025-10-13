@@ -790,10 +790,20 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			folder_name );
 
-	session_folder->state =
+	session_folder->state1 =
 		security_sql_injection_escape(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			state1 );
+
+	session_folder->state2 =
+		/* ------------------------------------------------ */
+		/* Returns APPASERVER_UPDATE_STATE, state2, or null */
+		/* ------------------------------------------------ */
+		session_folder_state2(
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
+			state1,
+			state2 );
 
 	session_folder->session =
 		/* ----------------------- */
@@ -811,8 +821,8 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			session_folder->folder_name );
 
 	if ( !session_folder_valid(
-		session_folder->state /* state1 */,
-		state2,
+		session_folder->state1,
+		session_folder->state2,
 		session_folder->folder_name,
 		session_folder->role_folder_list ) )
 	{
@@ -821,7 +831,7 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name,
-			session_folder->state,
+			session_folder->state1,
 			session_folder->session->current_ip_address );
 	}
 
@@ -1305,3 +1315,42 @@ SESSION *session_new(
 	return session;
 }
 
+char *session_folder_state2(
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
+		char *state1,
+		char *state2 )
+{
+	char *folder_state2 = {0};
+
+	if ( !state1 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"state1 is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( state2 )
+	{
+		folder_state2 = state2;
+	}
+	else
+	if ( 	strcmp(
+			state1,
+			appaserver_lookup_state ) == 0 )
+	{
+		folder_state2 = (char *)appaserver_update_state;
+	}
+
+	return folder_state2;
+}

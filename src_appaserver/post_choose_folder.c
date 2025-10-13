@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 			session_folder->login_name,
 			session_folder->role_name,
 			session_folder->folder_name,
-			session_folder->state,
+			session_folder->state1,
 			appaserver_parameter->data_directory
 				/* appaserver_data_directory */ );
 

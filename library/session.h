@@ -278,7 +278,8 @@ typedef struct
 	char *login_name;
 	char *role_name;
 	char *folder_name;
-	char *state;
+	char *state1;
+	char *state2;
 	LIST *role_folder_list;
 	SESSION *session;
 } SESSION_FOLDER;
@@ -312,6 +313,17 @@ boolean session_folder_valid(
 		char *state2,
 		char *folder_name,
 		LIST *role_folder_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns APPASERVER_UPDATE_STATE, state2, or null */
+/* ------------------------------------------------ */
+char *session_folder_state2(
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
+		char *state1,
+		char *state2 );
 
 typedef struct
 {

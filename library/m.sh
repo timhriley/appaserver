@@ -5,6 +5,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make lookup_statistic
+	make post_choose_folder
 fi
 
