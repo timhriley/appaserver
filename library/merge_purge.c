@@ -180,7 +180,7 @@ MERGE_PURGE_CHOOSE *merge_purge_choose_new(
 		merge_purge_choose_role_folder_where(
 			ROLE_FOLDER_TABLE,
 			RELATION_TABLE,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			role_name );
 
 	merge_purge_choose->role_folder_name_list =
@@ -727,6 +727,7 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 
 	if ( !session_folder_valid(
 		APPASERVER_UPDATE_STATE,
+		(char *)0 /* state2 */,
 		merge_purge_process->folder_name,
 		merge_purge_process->role_folder_list ) )
 	{
@@ -1029,7 +1030,7 @@ LIST *merge_purge_process_delete_string_list(
 char *merge_purge_choose_role_folder_where(
 		const char *role_folder_table,
 		const char *relation_table,
-		const char *role_permission_update,
+		const char *appaserver_update_state,
 		char *role_name )
 {
 	static char where[ 256 ];
@@ -1055,7 +1056,7 @@ char *merge_purge_choose_role_folder_where(
 		"	from %s "
 		"	where %s.table_name = %s.related_table )",
 		role_name,
-		role_permission_update,
+		appaserver_update_state,
 		relation_table,
 		role_folder_table,
 		relation_table );
@@ -1200,6 +1201,7 @@ MERGE_PURGE_FOLDER *merge_purge_folder_new(
 
 	if ( !session_folder_valid(
 		APPASERVER_UPDATE_STATE,
+		(char *)0 /* state2 */,
 		merge_purge_folder->folder_name,
 		merge_purge_folder->role_folder_list ) )
 	{

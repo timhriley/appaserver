@@ -503,7 +503,7 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 
 	table_insert_input->role_folder_insert_boolean =
 		role_folder_insert_boolean(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			folder_name,
 			table_insert_input->role_folder_list );
 
@@ -532,7 +532,7 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 
 	table_insert_input->role_attribute_exclude_insert_name_list =
 		role_attribute_exclude_insert_name_list(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			table_insert_input->role->role_attribute_exclude_list );
 
 	table_insert_input->folder =

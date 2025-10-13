@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "environ.h"
 #include "dictionary.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "operation.h"
 #include "list.h"
@@ -1495,7 +1496,7 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 
 	form_prompt_insert_relation->role_folder_insert_boolean =
 		role_folder_insert_boolean(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			form_prompt_insert_relation->
 				relation_mto1->
 				one_folder_name,

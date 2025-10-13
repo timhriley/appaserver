@@ -12,10 +12,10 @@
 #include "String.h"
 #include "environ.h"
 #include "appaserver_parameter.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "row_security.h"
 #include "application.h"
-#include "appaserver.h"
 #include "role.h"
 #include "folder_operation.h"
 #include "role_folder.h"
@@ -161,7 +161,7 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 
 	table_edit_input->exclude_lookup_attribute_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_LOOKUP,
+			APPASERVER_LOOKUP_STATE,
 			table_edit_input->role->role_attribute_exclude_list );
 
 	table_edit_input->relation_mto1_list =
@@ -758,7 +758,7 @@ char *table_edit_state(
 	if ( viewonly_boolean ) return APPASERVER_VIEWONLY_STATE;
 
 	if ( role_folder_update_boolean(
-		ROLE_PERMISSION_UPDATE,
+		APPASERVER_UPDATE_STATE,
 		folder_name,
 		role_folder_list ) )
 	{
@@ -766,15 +766,15 @@ char *table_edit_state(
 	}
 
 	if ( role_folder_lookup_boolean(
-		ROLE_PERMISSION_LOOKUP,
-		ROLE_PERMISSION_UPDATE,
+		APPASERVER_LOOKUP_STATE,
+		APPASERVER_UPDATE_STATE,
 		folder_name,
 		role_folder_list ) )
 	{
 		return APPASERVER_VIEWONLY_STATE;
 	}
 
-	return (char *)0;
+	return NULL;
 }
 
 char *table_edit_document_html(
@@ -1753,7 +1753,7 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 
 	viewonly_attribute_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			role_attribute_exclude_list );
 
 	if ( !viewonly_attribute_name_list )

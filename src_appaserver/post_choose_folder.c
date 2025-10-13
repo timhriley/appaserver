@@ -57,7 +57,8 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name,
-			state );
+			state /* state1 */,
+			(char *)0 /* state2 */ );
 
 	appaserver_parameter =
 		/* -------------- */

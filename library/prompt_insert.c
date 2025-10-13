@@ -96,7 +96,7 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->role_folder_insert_boolean =
 		role_folder_insert_boolean(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			folder_name,
 			prompt_insert_input->role_folder_list );
 
@@ -108,8 +108,8 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->role_folder_lookup_boolean =
 		role_folder_lookup_boolean(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			folder_name,
 			prompt_insert_input->role_folder_list );
 
@@ -123,7 +123,7 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 
 	prompt_insert_input->role_attribute_exclude_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE /* permission */,
 			prompt_insert_input->
 			     role->
 			     role_attribute_exclude_list );

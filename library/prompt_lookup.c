@@ -341,8 +341,8 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 
 	prompt_lookup_input->role_folder_lookup_boolean =
 		role_folder_lookup_boolean(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			folder_name,
 			prompt_lookup_input->role_folder_list );
 
@@ -356,7 +356,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 
 	prompt_lookup_input->role_folder_insert_boolean =
 		role_folder_insert_boolean(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			folder_name,
 			prompt_lookup_input->role_folder_list );
 
@@ -373,7 +373,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 	list_set_list(
 		prompt_lookup_input->exclude_attribute_name_list,
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_LOOKUP,
+			APPASERVER_LOOKUP_STATE,
 			prompt_lookup_input->
 				role->
 				role_attribute_exclude_list ) );
@@ -381,7 +381,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 	list_set_list(
 		prompt_lookup_input->exclude_attribute_name_list,
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			prompt_lookup_input->
 				role->
 				role_attribute_exclude_list ) );

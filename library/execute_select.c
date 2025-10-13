@@ -9,8 +9,8 @@
 #include <string.h>
 #include "String.h"
 #include "sql.h"
-#include "timlib.h"
 #include "token.h"
+#include "timlib.h"
 #include "html.h"
 #include "role.h"
 #include "role_folder.h"
@@ -862,7 +862,7 @@ boolean execute_select_exists_attribute_exclude(
 
 	exclude_exists_permission =
 		role_attribute_exclude_exists_permission(
-			ROLE_PERMISSION_LOOKUP,
+			APPASERVER_LOOKUP_STATE,
 			attribute_name,
 			role_attribute_exclude_list );
 
@@ -870,7 +870,7 @@ boolean execute_select_exists_attribute_exclude(
 
 	exclude_exists_permission =
 		role_attribute_exclude_exists_permission(
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			attribute_name,
 			role_attribute_exclude_list );
 

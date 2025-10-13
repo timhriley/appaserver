@@ -64,7 +64,8 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				form_folder_name,
-				APPASERVER_INSERT_STATE );
+				APPASERVER_INSERT_STATE,
+				(char *)0 /* state2 */ );
 
 		application_name = session_folder->application_name;
 		form_folder_name = session_folder->folder_name;

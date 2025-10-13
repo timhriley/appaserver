@@ -63,8 +63,8 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 
 	post_table_edit_input->role_folder_lookup_boolean =
 		role_folder_lookup_boolean(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			folder_name,
 			post_table_edit_input->role_folder_list );
 
@@ -77,7 +77,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 
 	post_table_edit_input->role_folder_update_boolean =
 		role_folder_update_boolean(
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			folder_name,
 			post_table_edit_input->role_folder_list );
 
@@ -115,7 +115,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 	list_set_list(
 		post_table_edit_input->exclude_attribute_name_list,
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
 			post_table_edit_input->
 				role->
 				role_attribute_exclude_list ) );
@@ -123,7 +123,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 	list_set_list(
 		post_table_edit_input->exclude_attribute_name_list,
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_LOOKUP,
+			APPASERVER_LOOKUP_STATE,
 			post_table_edit_input->
 				role->
 				role_attribute_exclude_list ) );
@@ -380,7 +380,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 			login_name,
 			role_name,
 			folder_name,
-			APPASERVER_LOOKUP_STATE );
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE );
 
 	post_table_edit->post_table_edit_input =
 		/* -------------- */

@@ -223,7 +223,7 @@ char *merge_purge_choose_sub_sub_title_string(
 char *merge_purge_choose_role_folder_where(
 		const char *role_folder_table,
 		const char *relation_table,
-		const char *role_permission_update,
+		const char *appaserver_update_state,
 		char *role_name );
 
 LIST *merge_purge_choose_role_folder_name_list(

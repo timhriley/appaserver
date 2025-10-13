@@ -426,7 +426,8 @@ DRILLDOWN *drilldown_new(
 			login_name,
 			role_name,
 			drilldown_base_folder_name,
-			APPASERVER_LOOKUP_STATE );
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE );
 
 	drilldown->drilldown_input =
 		/* -------------- */

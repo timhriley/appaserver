@@ -119,6 +119,60 @@ void session_access_failed_message_exit(
 	exit( 1 );
 }
 
+void session_folder_permission_message_exit(
+		char *application_name,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *state,
+		char *current_ip_address )
+{
+	char msg[ 1024 ];
+
+	if ( !application_name
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !state
+	||   !current_ip_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	document_process_output(
+		application_name,
+		(LIST *)0 /* javascript_filename_list */,
+		(char *)0 /* process_name */ );
+
+	snprintf(
+		msg,
+		sizeof ( msg ),
+	"ERROR for %s@%s: You don't have %s permission for %s as role %s.",
+		login_name,
+		current_ip_address,
+		state,
+		folder_name,
+		role_name );
+
+	appaserver_error_message_file( application_name, login_name, msg );
+	printf( "<h3>%s</h3>\n", msg );
+
+	document_close();
+	sleep( SESSION_SLEEP_SECONDS );
+	exit( 1 );
+}
+
 SESSION *session_calloc( void )
 {
 	SESSION *session;
@@ -653,19 +707,30 @@ SESSION_FOLDER *session_folder_integrity_exit(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		char *state )
+		char *state1,
+		char *state2 )
 {
 	SESSION_FOLDER *session_folder;
 
 	session_folder = session_folder_calloc();
 
 	if ( !argc
-	||   !argv
-	||   !application_name
+	||   !argv )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: argc or argv are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		exit( 1 );
+	}
+
+	if ( !application_name
 	||   !*application_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -692,7 +757,7 @@ SESSION_FOLDER *session_folder_integrity_exit(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !state )
+	||   !state1 )
 	{
 		char message[ 128 ];
 
@@ -728,7 +793,7 @@ SESSION_FOLDER *session_folder_integrity_exit(
 	session_folder->state =
 		security_sql_injection_escape(
 			SECURITY_ESCAPE_CHARACTER_STRING,
-			state );
+			state1 );
 
 	session_folder->session =
 		/* ----------------------- */
@@ -746,13 +811,17 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			session_folder->folder_name );
 
 	if ( !session_folder_valid(
-		session_folder->state,
+		session_folder->state /* state1 */,
+		state2,
 		session_folder->folder_name,
 		session_folder->role_folder_list ) )
 	{
-		session_access_failed_message_exit(
+		session_folder_permission_message_exit(
 			session_folder->application_name,
 			session_folder->login_name,
+			session_folder->role_name,
+			session_folder->folder_name,
+			session_folder->state,
 			session_folder->session->current_ip_address );
 	}
 
@@ -760,11 +829,12 @@ SESSION_FOLDER *session_folder_integrity_exit(
 }
 
 boolean session_folder_valid(
-		char *state,
+		char *state1,
+		char *state2,
 		char *folder_name,
 		LIST *role_folder_list )
 {
-	if ( !state
+	if ( !state1
 	||   !folder_name )
 	{
 		char message[ 128 ];
@@ -780,41 +850,24 @@ boolean session_folder_valid(
 
 	if ( !list_length( role_folder_list ) ) return 0;
 
-	if ( strcmp( state, APPASERVER_VIEWONLY_STATE ) == 0 )
-		state = ROLE_PERMISSION_LOOKUP;
+	if ( strcmp( state1, APPASERVER_VIEWONLY_STATE ) == 0 )
+		state1 = APPASERVER_LOOKUP_STATE;
 
-	if ( strcmp( state, ROLE_PERMISSION_LOOKUP ) == 0 )
+	if ( role_folder_state_boolean(
+		state1,
+		folder_name,
+		role_folder_list ) )
 	{
-		if ( role_folder_lookup_boolean(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
-			folder_name,
-			role_folder_list ) )
-		{
-			return 1;
-		}
+		return 1;
 	}
 
-	if ( strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
-	{
-		if ( role_folder_update_boolean(
-			ROLE_PERMISSION_UPDATE,
+	if (	state2
+	&&	role_folder_state_boolean(
+			state2,
 			folder_name,
 			role_folder_list ) )
-		{
-			return 1;
-		}
-	}
-
-	if ( strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 	{
-		if ( role_folder_insert_boolean(
-			ROLE_PERMISSION_INSERT,
-			folder_name,
-			role_folder_list ) )
-		{
-			return 1;
-		}
+		return 1;
 	}
 
 	return 0;

@@ -842,20 +842,11 @@ int date_days_between(
 	time_t difference;
 
 	if ( !early_date_string
-	||   !late_date_string )
+	||   !*early_date_string
+	||   !late_date_string
+	||   !*late_date_string )
 	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return 0;
 	}
 
 	if ( ! ( late_date =
@@ -865,19 +856,7 @@ int date_days_between(
 			date_yyyy_mm_dd_new(
 				late_date_string ) ) )
 	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"late date format is invalid %s.",
-			late_date_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return 0;
 	}
 
 	if ( ! ( early_date =
@@ -887,19 +866,7 @@ int date_days_between(
 			date_yyyy_mm_dd_new(
 				early_date_string ) ) )
 	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"early date format is invalid %s.",
-			early_date_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return 0;
 	}
 
 	difference = late_date->current - early_date->current;

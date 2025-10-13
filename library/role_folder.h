@@ -54,8 +54,8 @@ LIST *role_folder_lookup_list(
 /* Returns static memory */
 /* --------------------- */
 char *role_folder_lookup_where(
-		const char *role_folder_lookup,
-		const char *role_folder_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		char *role_name );
 
 /* Usage */
@@ -69,7 +69,7 @@ LIST *role_folder_insert_list(
 /* Returns static memory */
 /* --------------------- */
 char *role_folder_insert_where(
-		const char *role_permssion_insert,
+		const char *appaserver_insert_state,
 		char *role_name );
 
 /* Usage */
@@ -119,8 +119,8 @@ char *role_folder_left_join(
 /* --------------------- */
 char *role_folder_lookup_in_clause(
 		const char *role_folder_table,
-		const char *role_permission_lookup,
-		const char *role_permission_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		const char *folder_primary_key,
 		char *role_name );
 
@@ -130,8 +130,8 @@ char *role_folder_lookup_in_clause(
 /* Returns static memory */
 /* --------------------- */
 char *role_folder_permission_where(
-		const char *role_permission_lookup,
-		const char *role_permission_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		char *role_name );
 
 /* Usage */
@@ -152,49 +152,75 @@ char *role_folder_system_string(
 		char *where,
 		char *role_folder_left_join );
 
-/* Public */
-/* ------ */
-boolean role_folder_insert_boolean(
-		const char *role_permssion_insert,
-		char *folder_name,
-		LIST *role_folder_list );
-
-boolean role_folder_update_boolean(
-		const char *role_permssion_update,
-		char *folder_name,
-		LIST *role_folder_list );
-
-boolean role_folder_lookup_boolean(
-		const char *role_permission_lookup,
-		const char *role_permission_update,
-		char *folder_name,
-		LIST *role_folder_list );
-
+/* Usage */
+/* ----- */
 LIST *role_folder_name_list(
 		LIST *role_folder_list );
 
+/* Usage */
+/* ----- */
 ROLE_FOLDER *role_folder_permission_seek(
 		char *folder_name,
 		char *permission,
 		LIST *role_folder_list );
 
+/* Usage */
+/* ----- */
 boolean role_folder_insert_exists(
 		char *folder_name,
 		LIST *role_folder_list );
 
+/* Usage */
+/* ----- */
 LIST *role_folder_subschema_folder_name_list(
 		char *subschema_name,
 		LIST *role_folder_list );
 
+/* Usage */
+/* ----- */
 LIST *role_folder_subschema_name_list(
 		LIST *role_folder_lookup_list );
 
+/* Usage */
+/* ----- */
 LIST *role_folder_subschema_missing_folder_name_list(
 		LIST *role_folder_lookup_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
 char *role_folder_list_display(
+		LIST *role_folder_list );
+
+/* Usage */
+/* ----- */
+boolean role_folder_lookup_boolean(
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
+		char *folder_name,
+		LIST *role_folder_list );
+
+/* Usage */
+/* ----- */
+boolean role_folder_update_boolean(
+		const char *appaserver_update_state,
+		char *folder_name,
+		LIST *role_folder_list );
+
+/* Usage */
+/* ----- */
+boolean role_folder_insert_boolean(
+		const char *appaserver_insert_state,
+		char *folder_name,
+		LIST *role_folder_list );
+
+/* Usage */
+/* ----- */
+boolean role_folder_state_boolean(
+		char *state,
+		char *folder_name,
 		LIST *role_folder_list );
 
 #endif

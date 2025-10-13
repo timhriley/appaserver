@@ -55,7 +55,8 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			insert_folder_name,
-			APPASERVER_INSERT_STATE );
+			APPASERVER_INSERT_STATE,
+			(char *)0 /* state2 */ );
 
 	post_choose_isa =
 		/* -------------- */

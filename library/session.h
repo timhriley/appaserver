@@ -261,6 +261,16 @@ char *session_delete_sql(
 char *session_right_trim(
 		char *directory_filename_session_suffix );
 
+/* Usage */
+/* ----- */
+void session_folder_permission_message_exit(
+		char *application_name,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *state,
+		char *session_current_ip_address );
+
 typedef struct
 {
 	char *application_name;
@@ -289,7 +299,8 @@ SESSION_FOLDER *session_folder_integrity_exit(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		char *state );
+		char *state1,
+		char *state2 );
 
 /* Process */
 /* ------- */
@@ -297,7 +308,8 @@ SESSION_FOLDER *session_folder_calloc(
 		void );
 
 boolean session_folder_valid(
-		char *state,
+		char *state1,
+		char *state2,
 		char *folder_name,
 		LIST *role_folder_list );
 

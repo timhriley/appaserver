@@ -1077,8 +1077,8 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_calloc( void )
 }
 
 LIST *role_attribute_exclude_lookup_name_list(
-		char *role_permission_lookup,
-		char *role_permission_update,
+		char *appaserver_lookup_state,
+		char *appaserver_update_state,
 		LIST *role_attribute_exclude_list )
 {
 	LIST *list = {0};
@@ -1086,7 +1086,7 @@ LIST *role_attribute_exclude_lookup_name_list(
 
 	name_list =
 		role_attribute_exclude_name_list(
-			role_permission_lookup,
+			appaserver_lookup_state,
 			role_attribute_exclude_list );
 
 	if ( list_length( name_list ) )
@@ -1102,7 +1102,7 @@ LIST *role_attribute_exclude_lookup_name_list(
 
 	name_list =
 		role_attribute_exclude_name_list(
-			role_permission_update,
+			appaserver_update_state,
 			role_attribute_exclude_list );
 
 	if ( list_length( name_list ) )
@@ -1120,12 +1120,12 @@ LIST *role_attribute_exclude_lookup_name_list(
 }
 
 LIST *role_attribute_exclude_insert_name_list(
-		char *role_permission_insert,
+		char *appaserver_insert_state,
 		LIST *role_attribute_exclude_list )
 {
 	return
 	role_attribute_exclude_name_list(
-		role_permission_insert,
+		appaserver_insert_state,
 		role_attribute_exclude_list );
 }
 

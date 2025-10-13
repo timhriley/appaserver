@@ -322,8 +322,8 @@ LOOKUP_SPREADSHEET_INPUT *lookup_spreadsheet_input_new(
 
 	lookup_spreadsheet_input->role_attribute_exclude_lookup_name_list =
 		role_attribute_exclude_lookup_name_list(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			lookup_spreadsheet_input->
 				role->
 				role_attribute_exclude_list );

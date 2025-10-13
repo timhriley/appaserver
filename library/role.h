@@ -13,10 +13,6 @@
 
 #define ROLE_TABLE 			"role"
 
-#define ROLE_PERMISSION_LOOKUP		"lookup"
-#define ROLE_PERMISSION_INSERT		"insert"
-#define ROLE_PERMISSION_UPDATE		"update"
-
 #define ROLE_SYSTEM			"system"
 #define ROLE_SUPERVISOR			"supervisor"
 #define ROLE_NAME_COLUMN		"role"
@@ -112,14 +108,14 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_calloc(
 /* Usage */
 /* ----- */
 LIST *role_attribute_exclude_lookup_name_list(
-		char *role_permission_lookup,
-		char *role_permission_update,
+		char *appaserver_lookup_state,
+		char *appaserver_update_state,
 		LIST *role_attribute_exclude_list );
 
 /* Usage */
 /* ----- */
 LIST *role_attribute_exclude_insert_name_list(
-		char *role_permission_insert,
+		char *appaserver_insert_state,
 		LIST *role_attribute_exclude_list );
 
 /* Usage */

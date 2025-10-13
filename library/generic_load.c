@@ -1026,6 +1026,7 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 
 	if ( !session_folder_valid(
 		APPASERVER_INSERT_STATE,
+		(char *)0 /* state2 */,
 		generic_load_insert->folder_name,
 		generic_load_insert->role_folder_list ) )
 	{
@@ -1086,7 +1087,7 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 
 	generic_load_insert->role_attribute_exclude_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			generic_load_insert->
 				role->
 				role_attribute_exclude_list );
@@ -1310,7 +1311,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 	}
 
 	if ( !role_folder_insert_boolean(
-		ROLE_PERMISSION_INSERT,
+		APPASERVER_INSERT_STATE,
 		generic_load_folder->folder_name,
 		generic_load_folder->role_folder_insert_list ) )
 	{
@@ -1349,7 +1350,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 
 	generic_load_folder->role_attribute_exclude_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			generic_load_folder->
 				role->
 				role_attribute_exclude_list );

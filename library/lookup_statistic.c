@@ -11,8 +11,9 @@
 #include <unistd.h>
 #include "sql.h"
 #include "String.h"
-#include "appaserver_error.h"
 #include "timlib.h"
+#include "appaserver_error.h"
+#include "appaserver.h"
 #include "relation_mto1.h"
 #include "document.h"
 #include "query_statistic.h"
@@ -832,8 +833,8 @@ LOOKUP_STATISTIC_INPUT *lookup_statistic_input_new(
 
 	lookup_statistic_input->role_attribute_exclude_lookup_name_list =
 		role_attribute_exclude_lookup_name_list(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			lookup_statistic_input->
 				role->
 				role_attribute_exclude_list );

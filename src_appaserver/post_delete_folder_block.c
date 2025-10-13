@@ -15,6 +15,7 @@
 #include "document.h"
 #include "environ.h"
 #include "session.h"
+#include "appaserver.h"
 #include "post_dictionary.h"
 #include "lookup_delete.h"
 
@@ -78,7 +79,8 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name,
-			ROLE_PERMISSION_UPDATE /* state */ );
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE );
 
 	if ( strcmp( state, "one" ) == 0 )
 	{

@@ -64,7 +64,8 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name,
-			APPASERVER_INSERT_STATE );
+			APPASERVER_INSERT_STATE,
+			(char *)0 /* state2 */ );
 
 	choose_isa =
 		choose_isa_new(

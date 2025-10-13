@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "String.h"
 #include "appaserver_error.h"
+#include "appaserver.h"
 #include "document.h"
 #include "sql.h"
 #include "application.h"
@@ -1113,8 +1114,8 @@ GROUP_COUNT_INPUT *group_count_input_new(
 
 	group_count_input->role_attribute_exclude_lookup_name_list =
 		role_attribute_exclude_lookup_name_list(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			group_count_input->role->role_attribute_exclude_list );
 
 	group_count_input->folder =

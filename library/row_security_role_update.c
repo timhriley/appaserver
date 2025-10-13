@@ -12,6 +12,7 @@
 #include "String.h"
 #include "piece.h"
 #include "sql.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "folder.h"
 #include "role_folder.h"
@@ -141,8 +142,8 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 		/* --------------------- */
 		role_folder_lookup_in_clause(
 			ROLE_FOLDER_TABLE,
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
 			FOLDER_PRIMARY_KEY,
 			role_name );
 

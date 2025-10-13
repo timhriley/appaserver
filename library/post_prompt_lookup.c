@@ -76,7 +76,8 @@ POST_PROMPT_LOOKUP *post_prompt_lookup_new(
 			login_name,
 			role_name,
 			folder_name,
-			APPASERVER_LOOKUP_STATE );
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE );
 
 	post_prompt_lookup->post_prompt_lookup_input =
 		/* -------------- */
@@ -685,8 +686,8 @@ POST_PROMPT_LOOKUP_INPUT *post_prompt_lookup_input_new(
 
 	post_prompt_lookup_input->role_attribute_exclude_lookup_name_list =
 		role_attribute_exclude_lookup_name_list(
-			ROLE_PERMISSION_LOOKUP,
-			ROLE_PERMISSION_UPDATE,
+			APPASERVER_UPDATE_STATE,
+			APPASERVER_LOOKUP_STATE,
 			post_prompt_lookup_input->
 				role->
 				role_attribute_exclude_list );

@@ -73,7 +73,8 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name,
-			APPASERVER_UPDATE_STATE );
+			APPASERVER_UPDATE_STATE,
+			(char *)0 /* state2 */ );
 
 	post_dictionary =
 		/* -------------- */

@@ -70,7 +70,8 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 			login_name,
 			role_name,
 			folder_name,
-			APPASERVER_INSERT_STATE );
+			APPASERVER_INSERT_STATE,
+			(char *)0 /* state2 */ );
 
 	post_prompt_insert->post_prompt_insert_input =
 		/* -------------- */
@@ -380,7 +381,7 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 
 	post_prompt_insert_input->role_attribute_exclude_insert_name_list =
 		role_attribute_exclude_name_list(
-			ROLE_PERMISSION_INSERT,
+			APPASERVER_INSERT_STATE,
 			post_prompt_insert_input->
 				role->
 				role_attribute_exclude_list );

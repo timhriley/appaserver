@@ -11,6 +11,7 @@
 #include "piece.h"
 #include "sql.h"
 #include "appaserver_error.h"
+#include "appaserver.h"
 #include "folder.h"
 #include "role_folder.h"
 
@@ -217,18 +218,19 @@ LIST *role_folder_system_list( char *system_string )
 	return list;
 }
 
-boolean role_folder_insert_boolean(
-		const char *role_permssion_insert,
+boolean role_folder_state_boolean(
+		char *state,
 		char *folder_name,
 		LIST *role_folder_list )
 {
 	ROLE_FOLDER *role_folder;
 
-	if ( !folder_name )
+	if ( !state
+	||   !folder_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "folder_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -237,111 +239,21 @@ boolean role_folder_insert_boolean(
 			message );
 	}
 
-	if ( list_rewind( role_folder_list ) )
-	do {
-		role_folder = list_get( role_folder_list );
+	role_folder =
+		role_folder_permission_seek(
+			folder_name,
+			state /* permission */,
+			role_folder_list );
 
-		if ( strcmp(
-			role_folder->folder_name,
-			folder_name ) == 0
-		&&   strcmp(
-			role_folder->permission,
-			role_permssion_insert ) == 0 )
-		{
-			return 1;
-		}
-
-	} while ( list_next( role_folder_list ) );
-
-	return 0;
-}
-
-boolean role_folder_update_boolean(
-		const char *role_permssion_update,
-		char *folder_name,
-		LIST *role_folder_list )
-{
-	ROLE_FOLDER *role_folder;
-
-	if ( !folder_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "folder_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_rewind( role_folder_list ) )
-	do {
-		role_folder = list_get( role_folder_list );
-
-		if ( strcmp(
-			role_folder->folder_name,
-			folder_name ) == 0
-		&&   strcmp(
-			role_folder->permission,
-			role_permssion_update ) == 0 )
-		{
-			return 1;
-		}
-
-	} while ( list_next( role_folder_list ) );
-
-	return 0;
-}
-
-boolean role_folder_lookup_boolean(
-		const char *role_permission_lookup,
-		const char *role_permission_update,
-		char *folder_name,
-		LIST *role_folder_list )
-{
-	ROLE_FOLDER *role_folder;
-
-	if ( !folder_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "folder_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_rewind( role_folder_list ) )
-	do {
-		role_folder = list_get( role_folder_list );
-
-		if ( strcmp(	role_folder->folder_name,
-				folder_name ) == 0 )
-		{
-			if ( strcmp(
-				role_folder->permission,
-				role_permission_lookup ) == 0
-			||   strcmp(
-				role_folder->permission,
-				role_permission_update ) == 0 )
-			{
-				return 1;
-			}
-		}
-
-	} while ( list_next( role_folder_list ) );
-
-	return 0;
+	if ( role_folder )
+		return 1;
+	else
+		return 0;
 }
 
 char *role_folder_lookup_where(
-		const char *role_permission_lookup,
-		const char *role_permission_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		char *role_name )
 {
 	static char where[ 128 ];
@@ -364,14 +276,14 @@ char *role_folder_lookup_where(
 		sizeof ( where ),
 		"role = '%s' and permission in ('%s','%s')",
 		role_name,
-		role_permission_lookup,
-		role_permission_update );
+		appaserver_lookup_state,
+		appaserver_update_state );
 
 	return where;
 }
 
 char *role_folder_insert_where(
-		const char *role_permission_insert,
+		const char *appaserver_insert_state,
 		char *role_name )
 {
 	static char where[ 128 ];
@@ -394,7 +306,7 @@ char *role_folder_insert_where(
 		sizeof ( where ),
 		"role = '%s' and permission = '%s'",
 		role_name,
-		role_permission_insert );
+		appaserver_insert_state );
 
 	return where;
 }
@@ -426,8 +338,8 @@ LIST *role_folder_lookup_list( char *role_name )
 			/* Returns static memory */
 			/* --------------------- */
 			role_folder_lookup_where(
-				ROLE_PERMISSION_LOOKUP,
-				ROLE_PERMISSION_UPDATE,
+				APPASERVER_LOOKUP_STATE,
+				APPASERVER_UPDATE_STATE,
 				role_name ),
 			/* --------------------- */
 			/* Returns static memory */
@@ -465,7 +377,7 @@ LIST *role_folder_insert_list( char *role_name )
 			/* Returns static memory */
 			/* --------------------- */
 			role_folder_insert_where(
-				ROLE_PERMISSION_INSERT,
+				APPASERVER_INSERT_STATE,
 				role_name ),
 			/* --------------------- */
 			/* Returns static memory */
@@ -538,7 +450,7 @@ boolean role_folder_insert_exists(
 {
 	if ( role_folder_permission_seek(
 		folder_name,
-		ROLE_PERMISSION_INSERT,
+		APPASERVER_INSERT_STATE,
 		role_folder_list ) )
 	{
 		return 1;
@@ -662,8 +574,8 @@ LIST *role_folder_subschema_name_list( LIST *role_folder_lookup_list )
 
 char *role_folder_lookup_in_clause(
 		const char *role_folder_table,
-		const char *role_permission_lookup,
-		const char *role_permission_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		const char *folder_primary_key,
 		char *role_name )
 {
@@ -693,16 +605,16 @@ char *role_folder_lookup_in_clause(
 		/* Returns static memory */
 		/* --------------------- */
 		role_folder_permission_where(
-			role_permission_lookup,
-			role_permission_update,
+			appaserver_lookup_state,
+			appaserver_update_state,
 			role_name ) );
 
 	return in_clause;
 }
 
 char *role_folder_permission_where(
-		const char *role_permission_lookup,
-		const char *role_permission_update,
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
 		char *role_name )
 {
 	static char where[ 128 ];
@@ -712,8 +624,8 @@ char *role_folder_permission_where(
 		sizeof ( where ),
 		"where role = '%s' and permission in ('%s','%s')",
 		role_name,
-		role_permission_lookup,
-		role_permission_update );
+		appaserver_lookup_state,
+		appaserver_update_state );
 
 	return where;
 }
@@ -779,5 +691,50 @@ LIST *role_folder_fetch_name_list(
 		where );
 
 	return list_pipe( system_string );
+}
+
+boolean role_folder_lookup_boolean(
+		const char *appaserver_lookup_state,
+		const char *appaserver_update_state,
+		char *folder_name,
+		LIST *role_folder_list )
+{
+	if ( role_folder_state_boolean(
+		(char *)appaserver_lookup_state,
+		folder_name,
+		role_folder_list ) )
+	{
+		return 1;
+	}
+
+	return
+	role_folder_state_boolean(
+		(char *)appaserver_update_state,
+		folder_name,
+		role_folder_list );
+}
+
+boolean role_folder_update_boolean(
+		const char *appaserver_update_state,
+		char *folder_name,
+		LIST *role_folder_list )
+{
+	return
+	role_folder_state_boolean(
+		(char *)appaserver_update_state,
+		folder_name,
+		role_folder_list );
+}
+
+boolean role_folder_insert_boolean(
+		const char *appaserver_insert_state,
+		char *folder_name,
+		LIST *role_folder_list )
+{
+	return
+	role_folder_state_boolean(
+		(char *)appaserver_insert_state,
+		folder_name,
+		role_folder_list );
 }
 
