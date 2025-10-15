@@ -14,6 +14,7 @@
 #include "piece.h"
 #include "column.h"
 #include "float.h"
+#include "journal_propagate.h"
 #include "exchange.h"
 
 EXCHANGE_JOURNAL *exchange_journal_extract(
