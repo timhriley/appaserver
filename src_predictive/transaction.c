@@ -26,6 +26,7 @@
 #include "predictive.h"
 #include "float.h"
 #include "transaction_date.h"
+#include "journal_propagate.h"
 #include "transaction.h"
 
 TRANSACTION *transaction_calloc( void )
@@ -309,7 +310,7 @@ char *transaction_insert(
 			race_free_date_time,
 			journal_list );
 
-		journal_account_list_propagate(
+		journal_propagate_account_list(
 			race_free_date_time,
 			journal_extract_account_list(
 				journal_list ) );
@@ -650,7 +651,7 @@ void transaction_delete(
 
 	if ( system( system_string ) ){}
 
-	journal_account_list_propagate(
+	journal_propagate_account_list(
 		transaction_date_time,
 		journal_extract_account_list(
 			transaction->journal_list )  );
@@ -1017,7 +1018,7 @@ void transaction_journal_list_insert(
 
 	if ( with_propagate )
 	{
-		journal_account_list_propagate(
+		journal_propagate_account_list(
 			first_transaction_date_time,
 			transaction_list_extract_account_list(
 				transaction_list ) );

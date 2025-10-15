@@ -18,6 +18,7 @@
 #include "transaction.h"
 #include "preupdate_change.h"
 #include "journal.h"
+#include "journal_propagate.h"
 
 void journal_trigger_insert(
 		char *full_name,

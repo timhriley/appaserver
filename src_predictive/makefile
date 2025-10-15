@@ -77,7 +77,8 @@ SOURCE_LIBRARY= 							\
 		account.o						\
 		statement.o						\
 		element.o						\
-		journal.o
+		journal.o						\
+		journal_propagate.o
 
 PAYPAL_LIBRARY= 							\
 		paypal.o						\
@@ -988,6 +989,10 @@ transaction_date.o: transaction_date.c transaction_date.h
 journal.o: journal.c journal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c journal.c
+
+journal_propagate.o: journal_propagate.c journal_propagate.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c journal_propagate.c
 
 account.o: account.c account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

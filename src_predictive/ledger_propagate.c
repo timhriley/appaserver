@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "transaction.h"
 #include "journal.h"
+#include "journal_propagate.h"
 #include "account.h"
 
 int main( int argc, char **argv )
