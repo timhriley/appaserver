@@ -25,6 +25,7 @@
 #include "account.h"
 #include "exchange.h"
 #include "transaction_date.h"
+#include "journal_propagate.h"
 #include "feeder.h"
 
 LIST *feeder_phrase_list(
