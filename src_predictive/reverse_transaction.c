@@ -89,6 +89,7 @@ REVERSE_TRANSACTION *reverse_transaction_new(
 		/* Safely returns */
 		/* -------------- */
 		transaction_new(
+			(char *)0 /* fund_name */,
 			self_full_name,
 			self_street_address,
 			transaction_date_reverse_date_time );

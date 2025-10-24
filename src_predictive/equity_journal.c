@@ -149,6 +149,7 @@ EQUITY_JOURNAL *equity_journal_new( char *equity_account_name )
 		/* Safely returns */
 		/* -------------- */
 		journal_new(
+			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
 			(char *)0 /* street_address */,
 			(char *)0 /* transaction_date_time */,

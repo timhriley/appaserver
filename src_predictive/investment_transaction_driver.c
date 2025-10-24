@@ -63,6 +63,9 @@ int main( int argc, char **argv )
 				transaction_insert(
 					investment_transaction->
 						transaction->
+						fund_name,
+					investment_transaction->
+						transaction->
 						full_name,
 					investment_transaction->
 						transaction->
@@ -77,7 +80,6 @@ int main( int argc, char **argv )
 					investment_transaction->
 						transaction->
 						memo,
-					'n' /* lock_transaction_yn not there */,
 					investment_transaction->
 						transaction->
 						journal_list,

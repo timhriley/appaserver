@@ -114,6 +114,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 			/* Safely returns */
 			/* -------------- */
 			transaction_new(
+				(char *)0 /* fund_name */,
 				self_full_name,
 				self_street_address,
 				transaction_date_close_date_time );
@@ -339,6 +340,7 @@ LIST *close_transaction_account_journal_list(
 			/* Safely returns */
 			/* -------------- */
 			journal_new(
+				(char *)0 /* fund_name */,
 				self_full_name,
 				self_street_address,
 				transaction_date_close_date_time,

@@ -613,6 +613,7 @@ TRANSACTION *depreciation_transaction(
 
 	if ( ! ( transaction =
 			transaction_new(
+				(char *)0 /* fund_name */,
 				full_name,
 				street_address,
 				transaction_date_time ) ) )

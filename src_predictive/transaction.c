@@ -47,6 +47,7 @@ TRANSACTION *transaction_calloc( void )
 }
 
 TRANSACTION *transaction_new(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -55,6 +56,7 @@ TRANSACTION *transaction_new(
 
 	transaction = transaction_calloc();
 
+	transaction->fund_name = fund_name;
 	transaction->full_name = full_name;
 	transaction->street_address = street_address;
 	transaction->transaction_date_time = transaction_date_time;
@@ -63,22 +65,25 @@ TRANSACTION *transaction_new(
 }
 
 char *transaction_system_string(
-		char *transaction_select,
-		char *transaction_table,
+		const char *transaction_select,
+		const char *transaction_table,
 		char *transaction_primary_where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" transaction_date_time",
-		 transaction_select,
-		 transaction_table,
-		 transaction_primary_where );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh \"%s\" %s \"%s\" transaction_date_time",
+		transaction_select,
+		transaction_table,
+		transaction_primary_where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 TRANSACTION *transaction_fetch(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -88,6 +93,7 @@ TRANSACTION *transaction_fetch(
 
 	return
 	transaction_parse(
+		fund_name,
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -102,6 +108,7 @@ TRANSACTION *transaction_fetch(
 				/* Returns static memory */
 				/* --------------------- */
 	 			transaction_fetch_where(
+					fund_name,
 					full_name,
 					street_address,
 					transaction_date_time ) ) ),
@@ -109,6 +116,7 @@ TRANSACTION *transaction_fetch(
 }
 
 TRANSACTION *transaction_parse(
+		char *fund_name,
 		char *input,
 		boolean fetch_journal_list )
 {
@@ -128,6 +136,7 @@ TRANSACTION *transaction_parse(
 
 	transaction =
 		transaction_new(
+			fund_name,
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( transaction_date_time ) );
@@ -145,6 +154,7 @@ TRANSACTION *transaction_parse(
 	{
 		transaction->journal_list =
 			journal_system_list(
+				fund_name,
 				journal_system_string(
 					JOURNAL_SELECT,
 					JOURNAL_TABLE,
@@ -152,6 +162,7 @@ TRANSACTION *transaction_parse(
 					/* Returns static memory */
 					/* --------------------- */
 					transaction_primary_where(
+						fund_name,
 						full_name,
 						street_address,
 						transaction_date_time ) ),
@@ -165,6 +176,7 @@ TRANSACTION *transaction_parse(
 }
 
 char *transaction_primary_where(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -201,9 +213,16 @@ char *transaction_primary_where(
 	snprintf(
 		where,
 		sizeof ( where ),
+		"%s"
 		"full_name = '%s' and		"
 		"street_address = '%s' and	"
 		"transaction_date_time = '%s'	",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_fund_where(
+			TRANSACTION_FUND_COLUMN,
+			fund_name ),
 		escape_full_name,
 		escape_street_address,
 		escape_transaction_date_time );
@@ -215,22 +234,21 @@ char *transaction_primary_where(
 	return where;
 }
 
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
 char *transaction_insert(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
 		double transaction_amount,
 		int check_number,
 		char *memo,
-		char transaction_lock_yn,
 		LIST *journal_list,
 		boolean insert_journal_list_boolean )
 {
+	boolean lock_column_boolean;
 	FILE *pipe_open;
 	char *race_free_date_time;
-	const char *insert_column_list_string;
+	char *column_list_string;
 
 	if ( !full_name
 	||   !street_address
@@ -266,26 +284,31 @@ char *transaction_insert(
 			message );
 	}
 
+	lock_column_boolean =
+		transaction_lock_column_boolean(
+			TRANSACTION_TABLE,
+			TRANSACTION_LOCK_COLUMN );
+
+	column_list_string =
+		transaction_column_list_string(
+			TRANSACTION_INSERT /* input_column_list_string */,
+			TRANSACTION_FUND_COLUMN,
+			TRANSACTION_LOCK_COLUMN,
+			fund_name,
+			lock_column_boolean );
+
 	race_free_date_time =
 		transaction_race_free_date_time(
 			transaction_date_time );
 
-	insert_column_list_string =
-		/* ------------------------ */
-		/* Returns either parameter */
-		/* ------------------------ */
-		transaction_insert_column_list_string(
-			TRANSACTION_INSERT,
-			TRANSACTION_LOCK_INSERT,
-			transaction_lock_yn );
-
 	pipe_open =
 		transaction_insert_pipe_open(
-			insert_column_list_string,
+			column_list_string,
 			TRANSACTION_TABLE );
 
 	transaction_insert_pipe(
 		pipe_open,
+		fund_name,
 		full_name,
 		street_address,
 		race_free_date_time,
@@ -298,19 +321,21 @@ char *transaction_insert(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_memo( memo ),
-		transaction_lock_yn );
+		lock_column_boolean );
 
 	pclose( pipe_open );
 
 	if ( insert_journal_list_boolean )
 	{
 		journal_list_insert(
+			fund_name,
 			full_name,
 			street_address,
 			race_free_date_time,
 			journal_list );
 
 		journal_propagate_account_list(
+			fund_name,
 			race_free_date_time,
 			journal_extract_account_list(
 				journal_list ) );
@@ -321,14 +346,18 @@ char *transaction_insert(
 
 void transaction_insert_pipe(
 		FILE *pipe_open,
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *race_free_date_time,
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		char transaction_lock_yn )
+		boolean lock_column_boolean )
 {
+	char *fund_datum;
+	char *insert_data_string;
+
 	if ( transaction_amount <= 0.0 )
 	{
 		fprintf(stderr,
@@ -339,27 +368,35 @@ void transaction_insert_pipe(
 			transaction_amount );
 	}
 
-	if ( transaction_lock_yn == 'y' )
-	{
-		fprintf(pipe_open,
-			"%s^%s^%s^%.2lf^%s^%s^y\n",
-	 		entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+	fund_datum =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_fund_datum(
+			TRANSACTION_FUND_COLUMN,
+			fund_name );
+
+	insert_data_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		transaction_insert_data_string(
+			full_name,
+			street_address,
 			race_free_date_time,
 			transaction_amount,
 			transaction_check_number,
-			transaction_memo );
-	}
-	else
+			transaction_memo,
+			lock_column_boolean,
+			fund_datum );
+
+	if ( insert_data_string )
 	{
 		fprintf(pipe_open,
-			"%s^%s^%s^%.2lf^%s^%s\n",
-	 		entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
-			race_free_date_time,
-			transaction_amount,
-			transaction_check_number,
-			transaction_memo );
+			"%s\n",
+			insert_data_string );
+
+		free( insert_data_string );
 	}
 }
 
@@ -368,7 +405,7 @@ char *transaction_check_number( int check_number )
 	static char number[ 16 ];
 
 	if ( check_number )
-		sprintf( number, "%d", check_number );
+		snprintf( number, sizeof ( number ), "%d", check_number );
 	else
 		*number = '\0';
 
@@ -595,6 +632,7 @@ char *transaction_update_statement_system_string(
 }
 
 void transaction_delete(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -617,6 +655,7 @@ void transaction_delete(
 
 	if ( ! ( transaction =
 			transaction_fetch(
+				fund_name,
 				full_name,
 				street_address,
 				transaction_date_time,
@@ -630,6 +669,7 @@ void transaction_delete(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_primary_where(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time );
@@ -652,6 +692,7 @@ void transaction_delete(
 	if ( system( system_string ) ){}
 
 	journal_propagate_account_list(
+		fund_name,
 		transaction_date_time,
 		journal_extract_account_list(
 			transaction->journal_list )  );
@@ -676,7 +717,7 @@ char *transaction_delete_system_string(
 }
 
 FILE *transaction_insert_pipe_open(
-		const char *column_list_string,
+		char *column_list_string,
 		const char *transaction_table )
 {
 	char system_string[ 1024 ];
@@ -701,6 +742,7 @@ FILE *transaction_input_pipe( char *transaction_system_string )
 }
 
 LIST *transaction_list(
+		char *fund_name,
 		char *where,
 		boolean fetch_journal_list )
 {
@@ -739,6 +781,7 @@ LIST *transaction_list(
 		list_set(
 			list,
 			transaction_parse(
+				fund_name,
 				input,
 				fetch_journal_list ) );
 	}
@@ -750,15 +793,9 @@ LIST *transaction_list(
 
 void transaction_list_insert(
 		LIST *transaction_list,
-		boolean insert_journal_list_boolean,
-		boolean transaction_lock_boolean )
+		boolean insert_journal_list_boolean )
 {
 	TRANSACTION *transaction;
-	char lock_yn;
-
-	lock_yn =
-		transaction_lock_yn(
-			transaction_lock_boolean );
 
 	if ( list_rewind( transaction_list ) )
 	do {
@@ -787,13 +824,13 @@ void transaction_list_insert(
 
 		transaction->transaction_date_time =
 			transaction_insert(
+				transaction->fund_name,
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
 				transaction->transaction_amount,
 				transaction->check_number,
 				transaction->memo,
-				lock_yn,
 				transaction->journal_list,
 				insert_journal_list_boolean );
 
@@ -929,6 +966,7 @@ TRANSACTION *transaction_binary(
 
 	transaction =
 		transaction_new(
+			(char *)0 /* fund_name */,
 			full_name,
 			street_address,
 			transaction_date_time );
@@ -979,19 +1017,35 @@ LIST *transaction_list_extract_account_list( LIST *transaction_list )
 }
 
 void transaction_journal_list_insert(
+		char *fund_name,
 		LIST *transaction_list,
 		boolean with_propagate )
 {
+	char *column_list_string;
 	FILE *insert_pipe;
 	TRANSACTION *transaction;
 	char *first_transaction_date_time = {0};
 
 	if ( !list_rewind( transaction_list ) ) return;
 
+	column_list_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_column_list_string(
+			JOURNAL_INSERT /* input_column_list_string */,
+			TRANSACTION_FUND_COLUMN,
+			TRANSACTION_LOCK_COLUMN,
+			fund_name,
+			0 /* not transaction_lock_boolean */ );
+
 	insert_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		journal_insert_pipe(
-			JOURNAL_INSERT,
-			JOURNAL_TABLE );
+			JOURNAL_TABLE,
+			column_list_string );
 
 	do {
 		transaction = list_get( transaction_list );
@@ -1006,6 +1060,7 @@ void transaction_journal_list_insert(
 		{
 			journal_list_transaction_insert(
 				insert_pipe,
+				fund_name,
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
@@ -1019,6 +1074,7 @@ void transaction_journal_list_insert(
 	if ( with_propagate )
 	{
 		journal_propagate_account_list(
+			fund_name,
 			first_transaction_date_time,
 			transaction_list_extract_account_list(
 				transaction_list ) );
@@ -1026,6 +1082,7 @@ void transaction_journal_list_insert(
 }
 
 void transaction_fetch_update(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -1049,6 +1106,7 @@ void transaction_fetch_update(
 
 	if ( ! ( transaction =
 			transaction_fetch(
+				fund_name,
 				full_name,
 				street_address,
 				transaction_date_time,
@@ -1066,19 +1124,20 @@ void transaction_fetch_update(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_primary_where(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time ) );
 }
 
 char *transaction_refresh(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
 		double transaction_amount,
 		int check_number,
 		char *memo,
-		char lock_transaction_yn,
 		LIST *journal_list )
 {
 	if ( !full_name
@@ -1094,6 +1153,7 @@ char *transaction_refresh(
 	}
 
 	transaction_delete(
+		fund_name,
 		full_name,
 		street_address,
 		transaction_date_time );
@@ -1102,13 +1162,13 @@ char *transaction_refresh(
 	/* --------------------------------------------- */
 	transaction_date_time =
 		transaction_insert(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time,
 			transaction_amount,
 			check_number,
 			memo,
-			lock_transaction_yn,
 			journal_list,
 			1 /* insert_journal_list */ );
 
@@ -1155,11 +1215,8 @@ char *transaction_increment_date_time( char *transaction_date_string )
 
 char *transaction_stamp_insert(
 		TRANSACTION *transaction /* in/out */,
-		boolean insert_journal_list_boolean,
-		boolean transaction_lock_boolean )
+		boolean insert_journal_list_boolean )
 {
-	char lock_yn;
-
 	if ( !transaction
 	||   !transaction->transaction_amount )
 	{
@@ -1174,19 +1231,15 @@ char *transaction_stamp_insert(
 			message );
 	}
 
-	lock_yn =
-		transaction_lock_yn(
-			transaction_lock_boolean );
-
 	transaction->transaction_date_time =
 		transaction_insert(
+			transaction->fund_name,
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
 			transaction->transaction_amount,
 			transaction->check_number,
 			transaction->memo,
-			lock_yn,
 			transaction->journal_list,
 			insert_journal_list_boolean );
 
@@ -1209,6 +1262,7 @@ TRANSACTION *transaction_date_time_fetch(
 
 	return
 	transaction_parse(
+		(char *)0 /* fund_name */,
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -1223,6 +1277,7 @@ TRANSACTION *transaction_date_time_fetch(
 				/* Returns static memory */
 				/* --------------------- */
 				transaction_fetch_where(
+					(char *)0 /* fund_name */,
 					(char *)0 /* full_name */,
 					(char *)0 /* street_address */,
 					transaction_date_time ) ) ),
@@ -1240,23 +1295,6 @@ char *transaction_date_time_fetch_where( char *transaction_date_time )
 		transaction_date_time );
 
 	return where;
-}
-
-char transaction_lock_yn( boolean transaction_lock_boolean )
-{
-	return
-	(transaction_lock_boolean) ? 'y' : 'n';
-}
-
-const char *transaction_insert_column_list_string(
-		const char *transaction_insert,
-		const char *transaction_lock_insert,
-		char transaction_lock_yn )
-{
-	if ( transaction_lock_yn == 'y' )
-		return transaction_lock_insert;
-	else
-		return transaction_insert;
 }
 
 TRANSACTION *transaction_binary_account_key(
@@ -1320,6 +1358,7 @@ TRANSACTION *transaction_binary_account_key(
 }
 
 char *transaction_fetch_where(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time )
@@ -1333,6 +1372,7 @@ char *transaction_fetch_where(
 			/* Returns static memory */
 			/* --------------------- */
 			transaction_primary_where(
+				fund_name,
 				full_name,
 				street_address,
 				transaction_date_time );
@@ -1377,5 +1417,151 @@ char *transaction_fetch_memo( char *transaction_date_time )
 	}
 
 	return transaction->memo;
+}
+
+char *transaction_fund_where(
+		const char *transaction_fund_column,
+		char *fund_name )
+{
+	static char where[ 128 ];
+
+	*where = '\0';
+
+	if ( fund_name )
+	{
+		snprintf(
+			where,
+			sizeof ( where ),
+			"%s = '%s' and ",
+			transaction_fund_column,
+			fund_name );
+	}
+
+	return where;
+}
+
+char *transaction_column_list_string(
+		const char *input_column_list_string,
+		const char *transaction_fund_column,
+		const char *transaction_lock_column,
+		char *fund_name,
+		boolean transaction_lock_column_boolean )
+{
+	static char column_list_string[ 128 ];
+	char *ptr = column_list_string;
+	char fund_column_string[ 32 ];
+
+	if ( fund_name )
+	{
+		snprintf(
+			fund_column_string,
+			sizeof ( fund_column_string ),
+			",%s",
+			transaction_fund_column );
+	}
+	else
+	{
+		*fund_column_string = '\0';
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s%s",
+		input_column_list_string,
+		fund_column_string );
+
+	if ( transaction_lock_column_boolean )
+	{
+		ptr += sprintf( ptr, ",%s", transaction_lock_column );
+	}
+
+	return column_list_string;
+}
+
+char *transaction_fund_datum(
+		const char *transaction_fund_column,
+		char *fund_name )
+{
+	static char datum[ 32 ];
+
+	if ( !*datum
+	&&   fund_name
+	&&   strcmp( fund_name, transaction_fund_column ) != 0 )
+	{
+		snprintf(
+			datum,
+			sizeof ( datum ),
+			"^%s",
+			fund_name );
+	}
+
+	return datum;
+}
+
+boolean transaction_lock_column_boolean(
+		const char *transaction_table,
+		const char *transaction_lock_column )
+{
+	static boolean lock_column_boolean = -1;
+
+	if ( lock_column_boolean == -1 )
+	{
+		lock_column_boolean =
+			folder_attribute_exists(
+				(char *)transaction_table,
+				(char *)transaction_lock_column );
+	}
+
+	return lock_column_boolean;
+}
+
+char *transaction_insert_data_string(
+		char *full_name,
+		char *street_address,
+		char *transaction_race_free_date_time,
+		double transaction_amount,
+		char *transaction_check_number,
+		char *transaction_memo,
+		boolean transaction_lock_column_boolean,
+		char *transaction_fund_datum )
+{
+	char insert_data_string[ 1024 ];
+	char *ptr = insert_data_string;
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_race_free_date_time
+	||   !transaction_check_number
+	||   !transaction_memo
+	||   !transaction_fund_datum )
+	{
+		return NULL;
+	}
+
+	if ( float_dollar_virtually_same(
+		transaction_amount, 0.0 ) )
+	{
+		return NULL;
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s^%s^%s^%.2lf^%s^%s%s",
+	 	entity_escape_full_name( full_name ),
+		entity_escape_street_address( street_address ),
+		transaction_race_free_date_time,
+		transaction_amount,
+		transaction_check_number,
+		transaction_memo,
+		transaction_fund_datum );
+
+	if ( transaction_lock_column_boolean )
+	{
+		ptr += sprintf(
+			ptr,
+			"^y" );
+	}
+
+	return strdup( insert_data_string );
 }
 

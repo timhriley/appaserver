@@ -60,6 +60,10 @@ LIABILITY *liability_entity_fetch(
 
 	liability->journal_system_list =
 		journal_system_list(
+			(char *)0 /* fund_name */,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
@@ -160,6 +164,7 @@ LIABILITY *liability_account_fetch( char *liability_account_name )
 
 	liability->journal_system_list =
 		journal_system_list(
+			(char *)0 /* fund_name */,
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
@@ -497,7 +502,7 @@ LIABILITY_ENTITY *liability_entity_account_name_new(
 				account_name ) ) )
 	{
 		free( liability_entity );
-		return (LIABILITY_ENTITY *)0;
+		return NULL;
 	}
 
 	liability_entity->amount_due =
@@ -1336,8 +1341,7 @@ void liability_transaction_list_insert(
 	transaction_list_insert(
 		liability_transaction_list_extract(
 			liability_transaction_list->list ),
-		1 /* insert_journal_list_boolean */,
-		0 /* not transaction_lock_boolean */ );
+		1 /* insert_journal_list_boolean */ );
 }
 
 LIST *liability_transaction_list_extract( LIST *list )

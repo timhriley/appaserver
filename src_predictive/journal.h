@@ -32,6 +32,7 @@
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
 	char *street_address;
 	char *transaction_date_time;
@@ -47,6 +48,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *journal_system_list(
+		char *fund_name,
 		char *journal_system_string,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -61,6 +63,7 @@ FILE *journal_input_pipe(
 /* Usage */
 /* ----- */
 JOURNAL	*journal_parse(
+		char *fund_name,
 		char *input,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -73,6 +76,7 @@ JOURNAL	*journal_parse(
 /* Safely returns */
 /* -------------- */
 JOURNAL *journal_new(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -86,6 +90,7 @@ JOURNAL *journal_calloc(
 /* Usage */
 /* ----- */
 JOURNAL *journal_prior(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
 		boolean fetch_account,
@@ -98,6 +103,7 @@ JOURNAL *journal_prior(
 /* Returns static memory */
 /* --------------------- */
 char *journal_maximum_prior_where(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name );
 
@@ -111,6 +117,7 @@ char *journal_maximum_prior_transaction_date_time(
 /* ----- */
 JOURNAL *journal_latest(
 		const char *journal_table,
+		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
 		boolean fetch_transaction_boolean,
@@ -122,6 +129,7 @@ JOURNAL *journal_latest(
 /* Returns static memory */
 /* --------------------- */
 char *journal_less_equal_where(
+		char *fund_name,
 		char *transaction_date_time_closing,
 		char *account_name );
 
@@ -151,6 +159,7 @@ char *journal_year_where(
 /* Usage */
 /* ----- */
 JOURNAL *journal_account_fetch(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
 		boolean fetch_account,
@@ -164,6 +173,7 @@ JOURNAL *journal_account_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *journal_transaction_account_where(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name );
 
@@ -181,19 +191,27 @@ void journal_list_update(
 /* Usage */
 /* ----- */
 void journal_list_insert(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
 		LIST *journal_list );
 
-/* Process */
-/* ------- */
-FILE *journal_insert_pipe(
-		char *journal_insert,
-		char *journal_table );
-
-void journal_insert(
+/* Usage */
+/* ----- */
+void journal_list_transaction_insert(
 		FILE *pipe,
+		char *fund_name,
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time,
+		LIST *journal_list );
+
+/* Usage */
+/* ----- */
+void journal_insert(
+		FILE *journal_insert_pipe,
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -201,14 +219,16 @@ void journal_insert(
 		double debit_amount,
 		double credit_amount );
 
-/* Usage */
-/* ----- */
-void journal_list_transaction_insert(
-		FILE *pipe,
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_insert_data_string(
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
-		LIST *journal_list );
+		char *account_name,
+		double debit_amount,
+		double credit_amount,
+		char *transaction_fund_datum );
 
 /* Usage */
 /* ----- */
@@ -256,6 +276,7 @@ double journal_account_list_credit_sum(
 /* Usage */
 /* ----- */
 double journal_first_account_balance(
+		char *fund_name,
 		char *account_name );
 
 /* Usage */
@@ -353,6 +374,7 @@ char *journal_system_string(
 /* Usage */
 /* ----- */
 JOURNAL *journal_seek(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
 		LIST *journal_system_list );
@@ -362,16 +384,7 @@ JOURNAL *journal_seek(
 LIST *journal_entity_list(
 		const char *journal_select,
 		const char *journal_table,
-		char *full_name,
-		char *street_address,
-		char *account_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_entity_where(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *account_name );
@@ -381,6 +394,7 @@ char *journal_entity_where(
 LIST *journal_transaction_list(
 		const char *journal_select,
 		const char *journal_table,
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time );
@@ -391,9 +405,21 @@ LIST *journal_transaction_list(
 /* Returns heap memory */
 /* ------------------- */
 char *journal_primary_where(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
+		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_entity_where(
+		char *fund_name,
+		char *full_name,
+		char *street_address,
 		char *account_name );
 
 /* Usage */
@@ -448,6 +474,7 @@ LIST *journal_date_time_account_name_list(
 /* Usage */
 /* ----- */
 char *journal_minimum_transaction_date_time(
+		char *fund_name,
 		char *account_name );
 
 /* Usage */
@@ -473,14 +500,6 @@ double journal_amount(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *journal_list_last_memo(
-		LIST *journal_list );
-
-/* Usage */
-/* ----- */
-
 /* Returns heap memory */
 /* ------------------- */
 char *journal_list_display(
@@ -493,5 +512,31 @@ char *journal_list_display(
 /* --------------------- */
 char *journal_display(
 		JOURNAL *journal );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_list_last_memo(
+		LIST *journal_list );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FILE *journal_insert_pipe(
+		const char *journal_table,
+		char *transaction_column_list_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_insert_system_string(
+		const char *journal_table,
+		char *transaction_column_list_string );
 
 #endif

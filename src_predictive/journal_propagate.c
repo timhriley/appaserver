@@ -26,6 +26,7 @@
 #include "journal_propagate.h"
 
 JOURNAL_PROPAGATE *journal_propagate_new(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name )
 {
@@ -52,6 +53,7 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 	{
 		transaction_date_time =
 			journal_minimum_transaction_date_time(
+				fund_name,
 				account_name );
 	}
 
@@ -61,6 +63,7 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 
 	journal_propagate->journal_prior =
 		journal_prior(
+			fund_name,
 			transaction_date_time,
 			account_name,
 			1 /* fetch_subclassification */,
@@ -77,6 +80,7 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 
 	journal_propagate->journal_list =
 		journal_propagate_journal_list(
+			fund_name,
 			account_name,
 			journal_propagate->prior_transaction_date_time,
 			journal_propagate->prior_previous_balance );
@@ -166,6 +170,7 @@ boolean journal_propagate_accumulate_debit(
 }
 
 LIST *journal_propagate_journal_list(
+		char *fund_name,
 		char *account_name,
 		char *prior_transaction_date_time,
 		double prior_previous_balance )
@@ -187,6 +192,7 @@ LIST *journal_propagate_journal_list(
 
 	journal_list =
 		journal_system_list(
+			fund_name,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -197,6 +203,7 @@ LIST *journal_propagate_journal_list(
 				/* Returns static memory */
 				/* --------------------- */
 				journal_propagate_greater_equal_where(
+					fund_name,
 					account_name,
 					prior_transaction_date_time ) ),
 			0 /* not fetch_account */,
@@ -347,17 +354,29 @@ double journal_propagate_previous_balance(
 }
 
 char *journal_propagate_greater_equal_where(
+		char *fund_name,
 		char *account_name,
 		char *prior_transaction_date_time )
 {
 	static char where[ 128 ];
+	char *fund_where;
+
+	fund_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_fund_where(
+			TRANSACTION_FUND_COLUMN,
+			fund_name );
 
 	if ( prior_transaction_date_time )
 	{
 		snprintf(
 			where,
 			sizeof ( where ),
+			"%s"
 			"account = '%s' and transaction_date_time >= '%s'",
+			fund_where,
 			account_name,
 			prior_transaction_date_time );
 	}
@@ -366,7 +385,9 @@ char *journal_propagate_greater_equal_where(
 		snprintf(
 			where,
 			sizeof ( where ),
+			"%s"
 			"account = '%s'",
+			fund_where,
 			account_name );
 	}
 
@@ -393,6 +414,7 @@ LIST *journal_propagate_update_statement_list(
 			/* ------------------- */
 			journal_propagate_update_statement(
 				journal_table,
+				journal->fund_name,
 				journal->full_name,
 				journal->street_address,
 				journal->transaction_date_time,
@@ -417,6 +439,7 @@ LIST *journal_propagate_update_statement_list(
 
 char *journal_propagate_update_statement(
 		const char *journal_table,
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -451,6 +474,7 @@ char *journal_propagate_update_statement(
 		/* Returns heap memory */
 		/* ------------------- */
 		journal_primary_where(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -474,6 +498,7 @@ char *journal_propagate_update_statement(
 }
 
 void journal_propagate_account_list(
+		char *fund_name,
 		char *transaction_date_time,
 		LIST *journal_extract_account_list )
 {
@@ -488,6 +513,7 @@ void journal_propagate_account_list(
 
 		journal_propagate =
 			journal_propagate_new(
+				fund_name,
 				transaction_date_time,
 				account->account_name );
 

@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "piece.h"
 #include "column.h"
 #include "list.h"
@@ -22,6 +21,7 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
 	char *transaction_date_time;
 	char *preupdate_transaction_date_time = "";
 	char *propagate_transaction_date_time = {0};
@@ -34,19 +34,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 2 )
+	if ( argc < 3 )
 	{
 		fprintf( stderr, 
-"Usage: %s transaction_date_time [preupdate_transaction_date_time] [account ...]\n",
+"Usage: %s fund transaction_date_time [preupdate_transaction_date_time] [account ...]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	transaction_date_time = argv[ 1 ];
+	fund_name = argv[ 1 ];
+	transaction_date_time = argv[ 2 ];
 
-	if ( argc >= 3 )
+	if ( argc >= 4 )
 	{
-		preupdate_transaction_date_time = argv[ 2 ];
+		preupdate_transaction_date_time = argv[ 3 ];
 
 		if ( strcmp( 
 			preupdate_transaction_date_time,
@@ -73,8 +74,8 @@ int main( int argc, char **argv )
 
 	/* If every account */
 	/* ---------------- */
-	if (	argc < 4
-	|| 	( argc >= 4 && strcmp( argv[ 3 ], "account" ) == 0 ) )
+	if (	argc < 5
+	|| 	( argc >= 5 && strcmp( argv[ 4 ], "account" ) == 0 ) )
 	{
 		LIST *account_name_list;
 		char *account_name;
@@ -92,6 +93,7 @@ int main( int argc, char **argv )
 
 			journal_propagate =
 				journal_propagate_new(
+					fund_name,
 					propagate_transaction_date_time,
 					account_name );
 
@@ -108,12 +110,12 @@ int main( int argc, char **argv )
 	/* ---------------------- */
 	/* If listed the accounts */
 	/* ---------------------- */
-	if ( argc >= 4 )
+	if ( argc >= 5 )
 	{
 		int i;
 		char *account_name;
 
-		for(	i = 3;
+		for(	i = 4;
 			i < argc;
 			i++ )
 		{
@@ -121,6 +123,7 @@ int main( int argc, char **argv )
 
 			journal_propagate =
 				journal_propagate_new(
+					fund_name,
 					propagate_transaction_date_time,
 					account_name );
 

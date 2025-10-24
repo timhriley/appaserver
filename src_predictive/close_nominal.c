@@ -394,6 +394,7 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 
 	if ( ! ( close_nominal_undo->transaction =
 		    transaction_fetch(
+			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
 			(char *)0 /* street_address */,
 			close_nominal_undo->
@@ -470,6 +471,7 @@ void close_nominal_undo_execute( TRANSACTION *transaction )
 	}
 
 	transaction_delete(
+		transaction->fund_name,
 		transaction->full_name,
 		transaction->street_address,
 		transaction->transaction_date_time );

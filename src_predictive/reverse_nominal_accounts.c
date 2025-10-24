@@ -243,6 +243,10 @@ void reverse_nominal_accounts_do(
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->
+				fund_name,
+			reverse_nominal_do->
+				reverse_transaction->
+				transaction->
 				full_name,
 			reverse_nominal_do->
 				reverse_transaction->
@@ -261,7 +265,6 @@ void reverse_nominal_accounts_do(
 				reverse_transaction->
 				transaction->
 				memo,
-			'n' /* transaction_lock_yn */,
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->

@@ -1094,8 +1094,7 @@ void fixed_asset_purchase_transaction_list_insert(
 	/* -------------------------------------------- */
 	transaction_list_insert(
 		transaction_list_extract,
-		1 /* insert_journal_list_boolean */,
-		1 /* transaction_lock_boolean */ );
+		1 /* insert_journal_list_boolean */ );
 }
 
 void fixed_asset_purchase_depreciation_list_insert(

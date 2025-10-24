@@ -76,6 +76,7 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 
 	reverse_nominal_do->close_transaction =
 		transaction_fetch(
+			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
 			(char *)0 /* street_address */,
 			reverse_nominal_do->close_date_time,

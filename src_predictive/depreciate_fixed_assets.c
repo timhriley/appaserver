@@ -334,6 +334,7 @@ void depreciate_fixed_assets_undo_execute(
 		/* Performs journal_propagate() */
 		/* ---------------------------- */
 		transaction_delete(
+			(char *)0 /* fund_name */,
 			fixed_asset_purchase->
 				last_depreciation->
 				entity_self->

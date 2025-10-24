@@ -146,6 +146,7 @@ CUSTOMER *customer_parse(
 			journal_entity_list(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
+				(char *)0 /* fund_name */,
 				customer_full_name,
 				customer_street_address,
 				/* ------------------------------------ */

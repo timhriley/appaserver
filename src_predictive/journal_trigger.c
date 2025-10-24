@@ -21,18 +21,21 @@
 #include "journal_propagate.h"
 
 void journal_trigger_insert(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
 		char *account_name );
 
 void journal_trigger_delete(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
 		char *account_name );
 
 void journal_trigger_update(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -52,6 +55,7 @@ char *journal_trigger_earlier_date_time(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
 	char *full_name;
 	char *street_address;
 	char *transaction_date_time;
@@ -75,31 +79,33 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 12 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address transaction_date_time account debit_amount credit_amount state preupdate_transaction_date_time preupdate_account preupdate_debit_amount preupdate_credit_amount\n",
+"Usage: %s fund full_name street_address transaction_date_time account debit_amount credit_amount state preupdate_transaction_date_time preupdate_account preupdate_debit_amount preupdate_credit_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
-	transaction_date_time = argv[ 3 ];
-	account_name = argv[ 4 ];
-	debit_amount = argv[ 5 ];
-	credit_amount = argv[ 6 ];
-	state = argv[ 7 ];
-	preupdate_transaction_date_time = argv[ 8 ];
-	preupdate_account = argv[ 9 ];
-	preupdate_debit_amount = argv[ 10 ];
-	preupdate_credit_amount = argv[ 11 ];
+	fund_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	transaction_date_time = argv[ 5 ];
+	account_name = argv[ 5 ];
+	debit_amount = argv[ 6 ];
+	credit_amount = argv[ 7 ];
+	state = argv[ 8 ];
+	preupdate_transaction_date_time = argv[ 9 ];
+	preupdate_account = argv[ 10 ];
+	preupdate_debit_amount = argv[ 11 ];
+	preupdate_credit_amount = argv[ 12 ];
 
 	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 )
 	{
 		journal_trigger_delete(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -111,6 +117,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		journal_trigger_insert(
+			fund_name,
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -182,6 +189,7 @@ int main( int argc, char **argv )
 	}
 
 	journal_trigger_update(
+		fund_name,
 		full_name,
 		street_address,
 		transaction_date_time,
@@ -195,6 +203,7 @@ int main( int argc, char **argv )
 }
 
 void journal_trigger_update(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -220,6 +229,7 @@ void journal_trigger_update(
 	{
 		journal_propagate =
 			journal_propagate_new(
+				fund_name,
 				earlier_date_time,
 				preupdate_account /* account_name */ );
 
@@ -248,6 +258,7 @@ void journal_trigger_update(
 
 	journal_propagate =
 		journal_propagate_new(
+			fund_name,
 			earlier_date_time,
 			account_name );
 
@@ -274,12 +285,14 @@ void journal_trigger_update(
 			update_statement_list );
 
 	transaction_fetch_update(
+		fund_name,
 		full_name,
 		street_address,
 		transaction_date_time );
 }
 
 void journal_trigger_insert(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -305,6 +318,7 @@ void journal_trigger_insert(
 
 	journal_propagate =
 		journal_propagate_new(
+			fund_name,
 			transaction_date_time,
 			account_name );
 
@@ -331,12 +345,14 @@ void journal_trigger_insert(
 			update_statement_list );
 
 	transaction_fetch_update(
+		fund_name,
 		full_name,
 		street_address,
 		transaction_date_time );
 }
 
 void journal_trigger_delete(
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -362,6 +378,7 @@ void journal_trigger_delete(
 
 	journal_propagate =
 		journal_propagate_new(
+			fund_name,
 			transaction_date_time,
 			account_name );
 
@@ -375,6 +392,7 @@ void journal_trigger_delete(
 	}
 
 	transaction_fetch_update(
+		fund_name,
 		full_name,
 		street_address,
 		transaction_date_time );

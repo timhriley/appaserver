@@ -1606,6 +1606,7 @@ ACCOUNT_JOURNAL *account_journal_latest(
 	if ( ! ( journal =
 			journal_latest(
 				journal_table,
+				(char *)0 /* fund_name */,
 				account_name,
 				end_date_time_string,
 				fetch_transaction,

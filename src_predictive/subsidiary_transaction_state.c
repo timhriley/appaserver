@@ -86,6 +86,7 @@ SUBSIDIARY_TRANSACTION_STATE *
 		journal_transaction_list(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			(char *)0 /* fund_name */,
 			full_name,
 			street_address,
 			foreign_date_time

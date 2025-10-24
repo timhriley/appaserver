@@ -209,6 +209,10 @@ void close_nominal_accounts_do(
 			close_nominal_do->
 				close_transaction->
 				transaction->
+				fund_name,
+			close_nominal_do->
+				close_transaction->
+				transaction->
 				full_name,
 			close_nominal_do->
 				close_transaction->
@@ -227,7 +231,6 @@ void close_nominal_accounts_do(
 				close_transaction->
 				transaction->
 				memo,
-			'n' /* transaction_lock_yn */,
 			close_nominal_do->
 				close_transaction->
 				transaction->

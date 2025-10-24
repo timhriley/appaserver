@@ -95,6 +95,7 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 
 	list =
 		transaction_list(
+			(char *)0 /* fund_name */,
 			where_clause,
 			1 /* fetch_journal_list */ );
 

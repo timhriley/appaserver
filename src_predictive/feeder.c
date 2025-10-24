@@ -1052,7 +1052,7 @@ LIST *feeder_matched_journal_list(
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks )
 {
-	LIST *list;
+	LIST *list = list_new();
 	char *subquery;
 	char *where;
 	LIST *system_list;
@@ -1096,6 +1096,7 @@ LIST *feeder_matched_journal_list(
 
 	system_list =
 		journal_system_list(
+			(char *)0 /* fund_name */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -1103,15 +1104,12 @@ LIST *feeder_matched_journal_list(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
 				where ),
-		0 /* not fetch_account */,
-		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */,
-		1 /* fetch_transaction */ );
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			1 /* fetch_transaction */ );
 
-	if ( !list_rewind( system_list ) ) return (LIST *)0;
-
-	list = list_new();
-
+	if ( list_rewind( system_list ) )
 	do {
 		journal = list_get( system_list );
 
@@ -1121,6 +1119,12 @@ LIST *feeder_matched_journal_list(
 				journal ) );
 
 	} while ( list_next( system_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
@@ -1746,6 +1750,7 @@ JOURNAL *feeder_row_journal(
 	{
 		return
 		journal_new(
+			(char *)0 /* fund_name */,
 			feeder_phrase_seek->full_name,
 			feeder_phrase_seek->street_address,
 			transaction_date_time,
@@ -1755,6 +1760,7 @@ JOURNAL *feeder_row_journal(
 	{
 		return
 		journal_new(
+			(char *)0 /* fund_name */,
 			feeder_matched_journal->full_name,
 			feeder_matched_journal->street_address,
 			transaction_date_time,
@@ -1871,10 +1877,10 @@ void feeder_row_transaction_insert(
 		/* -------------------------------------------- */
 		transaction_list_insert(
 			transaction_list,
-			0 /* not insert_journal_list_boolean */,
-			0 /* not transaction_lock_boolean */ );
+			0 /* not insert_journal_list_boolean */ );
 
 		transaction_journal_list_insert(
+			(char *)0 /* fund_name */,
 			transaction_list,
 			1 /* with_propagate */ );
 
@@ -2977,6 +2983,7 @@ double feeder_prior_account_end_balance(
 	{
 		prior_account_end_balance =
 			journal_first_account_balance(
+				(char *)0 /* fund_name */,
 				feeder_account_name /* account_name */ );
 
 		if ( !accumulate_debit_boolean )
@@ -3481,10 +3488,11 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	feeder_audit->journal_latest =
 		journal_latest(
 			JOURNAL_TABLE,
+			(char *)0 /* fund_name */,
 			feeder_account_name,
 			feeder_audit->end_transaction_date_time,
-			0 /* not fetch_transaction */,
-			1 /* zero_balance_boolean */ );
+			0 /* not fetch_transaction_boolean */,
+			1 /* latest_zero_balance_boolean */ );
 
 	if ( !feeder_audit->journal_latest ) return feeder_audit;
 
@@ -3940,6 +3948,7 @@ char *feeder_matched_journal_check_update_statement(
 		/* Returns heap memory */
 		/* ------------------- */
 		journal_primary_where(
+			(char *)0 /* fund_name */,
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -4211,6 +4220,7 @@ void feeder_row_journal_propagate(
 
 	journal_propagate =
 		journal_propagate_new(
+			(char *)0 /* fund_name */,
 			minimum_transaction_date_time,
 			feeder_account_name );
 
@@ -4223,6 +4233,7 @@ void feeder_row_journal_propagate(
 
 	journal_propagate =
 		journal_propagate_new(
+			(char *)0 /* fund_name */,
 			minimum_transaction_date_time,
 			account_uncleared_checks );
 

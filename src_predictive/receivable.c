@@ -82,6 +82,7 @@ RECEIVABLE *receivable_fetch(
 
 	receivable->journal_system_list =
 		journal_system_list(
+			(char *)0 /* fund_name */,
 			system_string,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,

@@ -26,6 +26,7 @@ typedef struct
 /* Usage */
 /* ----- */
 JOURNAL_PROPAGATE *journal_propagate_new(
+		char *fund_name,
 		char *transaction_date_time,
 		char *account_name );
 
@@ -56,6 +57,7 @@ boolean journal_propagate_accumulate_debit(
 /* Usage */
 /* ----- */
 LIST *journal_propagate_journal_list(
+		char *fund_name,
 		char *account_name,
 		char *journal_propagate_prior_transaction_date_time,
 		double journal_propagate_prior_previous_balance );
@@ -93,6 +95,7 @@ double journal_propagate_previous_balance(
 /* Returns static memory */
 /* --------------------- */
 char *journal_propagate_greater_equal_where(
+		char *fund_name,
 		char *account_name,
 		char *prior_transaction_date_time );
 
@@ -109,6 +112,7 @@ LIST *journal_propagate_update_statement_list(
 /* ------------------- */
 char *journal_propagate_update_statement(
 		const char *journal_table,
+		char *fund_name,
 		char *full_name,
 		char *street_address,
 		char *transaction_date_time,
@@ -119,6 +123,7 @@ char *journal_propagate_update_statement(
 /* Usage */
 /* ----- */
 void journal_propagate_account_list(
+		char *fund_name,
 		char *transaction_date_time,
 		LIST *journal_extract_account_list );
 

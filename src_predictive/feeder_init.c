@@ -312,6 +312,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		/* Safely returns */
 		/* -------------- */
 		transaction_new(
+			(char *)0 /* fund_name */,
 			entity_self_full_name,
 			entity_self_street_address,
 			feeder_init_transaction->date_time );
@@ -432,6 +433,7 @@ JOURNAL *feeder_init_transaction_journal(
 
 	journal =
 		journal_new(
+			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
 			(char *)0 /* street_address */,
 			(char *)0 /* transaction_date_time */,
@@ -498,6 +500,9 @@ void feeder_init_transaction_insert(
 	transaction_insert(
 		feeder_init_transaction->
 			transaction->
+			fund_name,
+		feeder_init_transaction->
+			transaction->
 			full_name,
 		feeder_init_transaction->
 			transaction->
@@ -512,7 +517,6 @@ void feeder_init_transaction_insert(
 		feeder_init_transaction->
 			transaction->
 			memo,
-		'n' /* lock_transaction_yn */,
 		feeder_init_transaction->
 			transaction->
 			journal_list,

@@ -110,17 +110,15 @@ int main( int argc, char **argv )
 			transaction_list_insert(
 				accrual_transaction_list_extract(
 					accrual_list ),
-				1 /* insert_journal_list_boolean */,
-				1 /* transaction_lock_boolean */ );
+				1 /* insert_journal_list_boolean */ );
 		}
 		else
 		if ( accrual )
 		{
 			transaction_date_time =
 				transaction_stamp_insert(
-					accrual->transaction,
-					1 /* insert_journal_list_boolean */,
-					1 /* transaction_lock_boolean */ );
+					accrual->transaction /* in/out */,
+					1 /* insert_journal_list_boolean */ );
 		}
 
 		if ( with_html )

@@ -42,6 +42,7 @@ SUBSIDIARY_TRANSACTION *
 			/* Safely returns */
 			/* -------------- */
 			transaction_new(
+				(char *)0 /* fund_name */,
 				subsidiary_transaction_delete->
 					full_name,
 				subsidiary_transaction_delete->
@@ -58,6 +59,7 @@ SUBSIDIARY_TRANSACTION *
 			/* Safely returns */
 			/* -------------- */
 			transaction_new(
+				(char *)0 /* fund_name */,
 				subsidiary_transaction_insert->
 					full_name,
 				subsidiary_transaction_insert->
@@ -214,6 +216,7 @@ void subsidiary_transaction_execute(
 	if ( delete_transaction )
 	{
 		transaction_delete(
+			delete_transaction->fund_name,
 			delete_transaction->full_name,
 			delete_transaction->street_address,
 			delete_transaction->transaction_date_time );
@@ -226,13 +229,13 @@ void subsidiary_transaction_execute(
 			/* Returns inserted transaction_date_time */
 			/* -------------------------------------- */
 			transaction_insert(
+				insert_transaction->fund_name,
 				insert_transaction->full_name,
 				insert_transaction->street_address,
 				insert_transaction->transaction_date_time,
 				insert_transaction->transaction_amount,
 				0 /* check_number */,
 				insert_transaction->memo,
-				'n' /* lock_transaction_yn not present */,
 				insert_transaction->journal_list,
 				1 /* insert_journal_list_boolean */ );
 
