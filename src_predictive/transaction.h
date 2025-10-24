@@ -24,7 +24,7 @@
 #define TRANSACTION_DATE_TIME_COLUMN		"transaction_date_time"
 #define TRANSACTION_AMOUNT_COLUMN		"transaction_amount"
 
-#define TRANSACTION_FUND_COLUMN			"fund_name"
+#define TRANSACTION_FUND_COLUMN			"fund"
 #define TRANSACTION_LOCK_COLUMN			"transaction_lock_yn"
 
 #define TRANSACTION_SELECT	"full_name,"			\
@@ -202,6 +202,12 @@ char *transaction_stamp_insert(
 boolean transaction_lock_column_boolean(
 		const char *transaction_table,
 		const char *transaction_lock_column );
+
+/* Usage */
+/* ----- */
+boolean transaction_fund_column_boolean(
+		const char *transaction_table,
+		const char *transaction_fund_column );
 
 /* Usage */
 /* ----- */

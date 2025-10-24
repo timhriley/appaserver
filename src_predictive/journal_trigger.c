@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 	fund_name = argv[ 1 ];
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
-	transaction_date_time = argv[ 5 ];
+	transaction_date_time = argv[ 4 ];
 	account_name = argv[ 5 ];
 	debit_amount = argv[ 6 ];
 	credit_amount = argv[ 7 ];

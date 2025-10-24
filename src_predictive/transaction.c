@@ -1425,16 +1425,19 @@ char *transaction_fund_where(
 {
 	static char where[ 128 ];
 
-	*where = '\0';
-
-	if ( fund_name )
+	if ( transaction_fund_column_boolean(
+		TRANSACTION_TABLE,
+		transaction_fund_column ) )
 	{
-		snprintf(
-			where,
-			sizeof ( where ),
-			"%s = '%s' and ",
-			transaction_fund_column,
-			fund_name );
+		if ( fund_name )
+		{
+			snprintf(
+				where,
+				sizeof ( where ),
+				"%s = '%s' and ",
+				transaction_fund_column,
+				fund_name );
+		}
 	}
 
 	return where;
@@ -1484,15 +1487,20 @@ char *transaction_fund_datum(
 {
 	static char datum[ 32 ];
 
-	if ( !*datum
-	&&   fund_name
-	&&   strcmp( fund_name, transaction_fund_column ) != 0 )
+	if ( transaction_fund_column_boolean(
+		TRANSACTION_TABLE,
+		transaction_fund_column ) )
 	{
-		snprintf(
-			datum,
-			sizeof ( datum ),
-			"^%s",
-			fund_name );
+		if ( !*datum
+		&&   fund_name
+		&&   strcmp( fund_name, transaction_fund_column ) != 0 )
+		{
+			snprintf(
+				datum,
+				sizeof ( datum ),
+				"^%s",
+				fund_name );
+		}
 	}
 
 	return datum;
@@ -1513,6 +1521,23 @@ boolean transaction_lock_column_boolean(
 	}
 
 	return lock_column_boolean;
+}
+
+boolean transaction_fund_column_boolean(
+		const char *transaction_table,
+		const char *transaction_fund_column )
+{
+	static boolean fund_column_boolean = -1;
+
+	if ( fund_column_boolean == -1 )
+	{
+		fund_column_boolean =
+			folder_attribute_exists(
+				(char *)transaction_table,
+				(char *)transaction_fund_column );
+	}
+
+	return fund_column_boolean;
 }
 
 char *transaction_insert_data_string(
