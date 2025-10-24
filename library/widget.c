@@ -1657,9 +1657,9 @@ char *widget_container_html(
 		}
 
 		return
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		widget_hidden_html(
 			row_number,
 			query_row_cell_list,
@@ -3199,7 +3199,9 @@ char *widget_hidden_html_string(
 		exit( 1 );
 	}
 
-	sprintf(html,
+	snprintf(
+		html,
+		sizeof ( html ),
 		"<input name=%s type=hidden value=\"%s\">",
 		widget_hidden_container_key,
 		(widget_hidden_value) ? widget_hidden_value : "" );
@@ -5829,9 +5831,11 @@ char *widget_container_list_html(
 				message );
 		}
 
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
 		ptr += sprintf(
 			ptr,
-			"%s\n",
+			"%s",
 			container_html );
 
 		free( container_html );
@@ -6061,7 +6065,7 @@ char *widget_hidden_value(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		widget_container_value(
-			(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			query_row_cell_list,
 			widget_name );
 

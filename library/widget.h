@@ -621,8 +621,8 @@ WIDGET_HIDDEN *widget_hidden_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *widget_hidden_html(
 		int row_number,
 		LIST *query_cell_list,
