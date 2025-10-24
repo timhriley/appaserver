@@ -851,10 +851,6 @@ FEEDER_PHRASE *feeder_phrase_seek(
 		char *description_space_trim,
 		LIST *feeder_phrase_list )
 {
-	FEEDER_PHRASE *feeder_phrase = {0};
-	char feeder_component[ 128 ];
-	int piece_number;
-
 	if ( !financial_institution_full_name
 	||   !financial_institution_street_address
 	||   !description_space_trim )
@@ -873,13 +869,37 @@ FEEDER_PHRASE *feeder_phrase_seek(
 			message );
 	}
 
+	feeder_phrase_zap_match_length(
+		feeder_phrase_list );
+
+	feeder_phrase_set_match_length(
+		FEEDER_PHRASE_DELIMITER,
+		description_space_trim,
+		feeder_phrase_list );
+
+	return
+	feeder_phrase_extract(
+		financial_institution_full_name,
+		financial_institution_street_address,
+		feeder_phrase_list );
+}
+
+void feeder_phrase_set_match_length(
+		const char feeder_phrase_delimiter,
+		char *description_space_trim,
+		LIST *feeder_phrase_list )
+{
+	FEEDER_PHRASE *feeder_phrase;
+	char feeder_component[ 128 ];
+	int piece_number;
+
 	if ( list_rewind( feeder_phrase_list ) )
 	do {
 		feeder_phrase = list_get( feeder_phrase_list );
 
 		for(	piece_number = 0;
 			piece(	feeder_component,
-				FEEDER_PHRASE_DELIMITER,
+				feeder_phrase_delimiter,
 				feeder_phrase->phrase,
 				piece_number );
 			piece_number++ )
@@ -888,20 +908,12 @@ FEEDER_PHRASE *feeder_phrase_seek(
 				description_space_trim /* string */,
 				feeder_component /* substring */ ) )
 			{
-				return
-				/* --------------------- */
-				/* Returns feeder_phrase */
-				/* --------------------- */
-				feeder_phrase_entity_set(
-					financial_institution_full_name,
-					financial_institution_street_address,
-					feeder_phrase );
+				feeder_phrase->match_length =
+					strlen( feeder_component );
 			}
 		}
 
 	} while ( list_next( feeder_phrase_list ) );
-
-	return NULL;
 }
 
 char *feeder_exist_row_where(
@@ -1895,16 +1907,10 @@ LIST *feeder_row_extract_transaction_list(
 		LIST *feeder_row_list,
 		FEEDER_ROW *feeder_row_first_out_balance )
 {
-	LIST *transaction_list;
+	LIST *transaction_list = list_new();
 	FEEDER_ROW *feeder_row;
 
-	if ( !list_rewind( feeder_row_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	transaction_list = list_new();
-
+	if ( list_rewind( feeder_row_list ) )
 	do {
 		feeder_row =
 			list_get(
@@ -1929,12 +1935,11 @@ LIST *feeder_row_extract_transaction_list(
 
 	if ( !list_length( transaction_list ) )
 	{
-		return (LIST *)0;
+		list_free( transaction_list );
+		transaction_list = NULL;
 	}
-	else
-	{
-		return transaction_list;
-	}
+
+	return transaction_list;
 }
 
 FILE *feeder_row_display_output(
@@ -4845,5 +4850,46 @@ char *feeder_phrase_street_address(
 		return feeder_phrase_street_address;
 	else
 		return financial_institution_street_address;
+}
+
+void feeder_phrase_zap_match_length( LIST *feeder_phrase_list )
+{
+	FEEDER_PHRASE *feeder_phrase;
+
+	if ( list_rewind( feeder_phrase_list ) )
+	do {
+		feeder_phrase = list_get( feeder_phrase_list );
+		feeder_phrase->match_length = 0;
+
+	} while ( list_next( feeder_phrase_list ) );
+}
+
+FEEDER_PHRASE *feeder_phrase_extract(
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
+		LIST *feeder_phrase_list )
+{
+	FEEDER_PHRASE *return_feeder_phrase = {0};
+	int highest_length = 0;
+	FEEDER_PHRASE *feeder_phrase;
+
+	if ( list_rewind( feeder_phrase_list ) )
+	do {
+		feeder_phrase = list_get( feeder_phrase_list );
+
+		if ( feeder_phrase->match_length > highest_length )
+		{
+			return_feeder_phrase =
+				feeder_phrase_entity_set(
+					financial_institution_full_name,
+					financial_institution_street_address,
+					feeder_phrase /* in/out */ );
+
+			highest_length = feeder_phrase->match_length;
+		}
+
+	} while ( list_next( feeder_phrase_list ) );
+
+	return return_feeder_phrase;
 }
 

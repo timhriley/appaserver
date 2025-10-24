@@ -149,6 +149,7 @@ typedef struct
 	char *nominal_account;
 	char *full_name;
 	char *street_address;
+	int match_length;
 } FEEDER_PHRASE;
 
 /* Usage */
@@ -162,11 +163,13 @@ LIST *feeder_phrase_list(
 FEEDER_PHRASE *feeder_phrase_parse(
 		char *input );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 FEEDER_PHRASE *feeder_phrase_new(
 		char *phrase );
 
+/* Process */
+/* ------- */
 FEEDER_PHRASE *feeder_phrase_calloc(
 		void );
 
@@ -180,8 +183,22 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 /* Process */
 /* ------- */
-char feeder_phrase_delimiter(
-		char *phrase );
+void feeder_phrase_zap_match_length(
+		LIST *feeder_phrase_list );
+
+/* Usage */
+/* ----- */
+void feeder_phrase_set_match_length(
+		const char feeder_phrase_delimiter,
+		char *description_space_trim,
+		LIST *feeder_phrase_list );
+
+/* Usage */
+/* ----- */
+FEEDER_PHRASE *feeder_phrase_extract(
+		char *financial_institution_full_name,
+		char *financial_institution_street_address,
+		LIST *feeder_phrase_list );
 
 /* Usage */
 /* ----- */
@@ -199,7 +216,7 @@ char *feeder_phrase_primary_where(
 FEEDER_PHRASE *feeder_phrase_entity_set(
 		char *financial_institution_full_name,
 		char *feeder_phrase_seek_full_name,
-		FEEDER_PHRASE *feeder_phrase );
+		FEEDER_PHRASE *feeder_phrase /* in/out */ );
 
 /* Process */
 /* ------- */
