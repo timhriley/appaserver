@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
-			exchange_parse(
+			exchange_fetch(
 				application_name,
 				exchange_format_filename,
 				appaserver_parameter_upload_directory() );

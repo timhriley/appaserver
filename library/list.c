@@ -956,9 +956,15 @@ LIST *list_stream_fetch( FILE *stream )
 	char buffer[ 65536 ];
 	LIST *list = list_new();
 
-	while( string_input( buffer, stream, 65536 ) )
+	while( string_input( buffer, stream, sizeof ( buffer ) ) )
 	{
 		list_set( list, strdup( buffer ) );
+	}
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
 	}
 
 	return list;

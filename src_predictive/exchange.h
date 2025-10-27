@@ -31,7 +31,7 @@ typedef struct
 /* Usage */
 /* ----- */
 EXCHANGE_JOURNAL *exchange_journal_extract(
-		LIST *list );
+		LIST *exchange_file_list );
 
 /* Usage */
 /* ----- */
@@ -50,7 +50,7 @@ EXCHANGE_JOURNAL *exchange_journal_calloc(
 
 boolean exchange_open_tag_boolean(
 		const char *exchange_ofx_tag,
-		LIST *list_stream_fetch );
+		LIST *exchange_file_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -62,6 +62,11 @@ double exchange_journal_debit_amount(
 
 double exchange_journal_credit_amount(
 		char *amount_string );
+
+/* Usage */
+/* ----- */
+LIST *exchange_journal_list(
+		LIST *exchange_file_list );
 
 /* Usage */
 /* ----- */
@@ -101,7 +106,7 @@ typedef struct
 {
 	char *exchange_format_filename;
 	char *filespecification;
-	LIST *list_stream_fetch;
+	LIST *file_list;
 	boolean open_tag_boolean;
 	char *financial_institution;
 	LIST *exchange_journal_list;
@@ -115,7 +120,7 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
-EXCHANGE *exchange_parse(
+EXCHANGE *exchange_fetch(
 		char *application_name,
 		char *exchange_format_filename,
 		char *upload_directory );
@@ -139,19 +144,24 @@ char *exchange_minimum_date_string(
 
 /* Usage */
 /* ----- */
+LIST *exchange_file_list(
+		FILE *appaserver_input_file );
 
-/* Returns list */
-/* ------------ */
+/* Usage */
+/* ----- */
+
+/* Returns exchange_file_list */
+/* -------------------------- */
 LIST *exchange_tag_seek_list(
 		const char *tag,
 		char *stop_tag,
-		LIST *list );
+		LIST *exchange_file_list );
 
 /* Usage */
 /* ----- */
 boolean exchange_open_tag_boolean(
 		const char *exchange_ofx_tag,
-		LIST *list );
+		LIST *exchange_file_list );
 
 /* Usage */
 /* ----- */
@@ -166,12 +176,12 @@ boolean exchange_tag_boolean(
 /* --------------------------- */
 char *exchange_financial_institution(
 		const char *exchange_org_tag,
-		LIST *list );
+		LIST *exchange_file_list );
 
 /* Usage */
 /* ----- */
 double exchange_balance_amount(
 		const char *exchange_balamt_tag,
-		LIST *list );
+		LIST *exchange_file_list );
 
 #endif
