@@ -644,6 +644,7 @@ void feeder_load_event_insert_pipe(
 FEEDER *feeder_fetch(
 		char *application_name,
 		char *login_name,
+		/* char *fund_name, */
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
