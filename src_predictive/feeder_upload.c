@@ -116,6 +116,7 @@ int main( int argc, char **argv )
 					feeder_account_name,
 					exchange_format_filename,
 					exchange->exchange_journal_list,
+					exchange->exchange_journal_begin_amount,
 					exchange->balance_amount,
 					exchange->minimum_date_string );
 		}

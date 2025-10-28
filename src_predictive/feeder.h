@@ -356,8 +356,9 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
-	/* Saved as file_row_amount */
-	/* ------------------------ */
+	/* Saved as file_row_balance.   */
+	/* Doesn't apply if multi-fund. */
+	/* ---------------------------- */
 	double calculate_balance;
 } FEEDER_LOAD_ROW;
 
@@ -979,8 +980,10 @@ typedef struct
 	char *match_minimum_date;
 	LIST *feeder_matched_journal_list;
 	LIST *feeder_row_list;
-	FEEDER_ROW *feeder_row_first_out_balance;
+	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
+	boolean latest_fetch_match_boolean;
 	int feeder_row_count;
+	FEEDER_ROW *feeder_row_first_out_balance;
 	int feeder_row_insert_count;
 	boolean account_accumulate_debit_boolean;
 	double prior_account_end_balance;
@@ -1003,6 +1006,7 @@ FEEDER *feeder_fetch(
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
+		double exchange_journal_begin_amount,
 		double exchange_balance_amount,
 		char *exchange_minimum_date_string );
 
@@ -1040,6 +1044,13 @@ char *feeder_parameter_end_balance_error(
 		FEEDER_ROW *feeder_row_first_out_balance,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance );
+
+/* Usage */
+/* ----- */
+boolean feeder_latest_fetch_match_boolean(
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch,
+		double exchange_journal_begin_amount,
+		LIST *feeder_row_list );
 
 /* Usage */
 /* ----- */

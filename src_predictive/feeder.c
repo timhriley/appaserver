@@ -648,6 +648,7 @@ FEEDER *feeder_fetch(
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
+		double exchange_journal_begin_amount,
 		double exchange_balance_amount,
 		char *exchange_minimum_date_string )
 {
@@ -746,10 +747,17 @@ FEEDER *feeder_fetch(
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
 			feeder->feeder_matched_journal_list,
-			feeder->feeder_load_row_list );
+			feeder->feeder_load_row_list /* sets taken_boolean */ );
 
-	feeder->feeder_row_first_out_balance =
-		feeder_row_first_out_balance(
+	feeder->feeder_load_event_latest_fetch =
+		feeder_load_event_latest_fetch(
+			FEEDER_LOAD_EVENT_TABLE,
+			feeder_account_name );
+
+	feeder->latest_fetch_match_boolean =
+		feeder_latest_fetch_match_boolean(
+			feeder->feeder_load_event_latest_fetch,
+			exchange_journal_begin_amount,
 			feeder->feeder_row_list );
 
 	feeder->feeder_row_count =
@@ -760,6 +768,10 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_row_insert_count =
 		feeder_row_insert_count(
+			feeder->feeder_row_list );
+
+	feeder->feeder_row_first_out_balance =
+		feeder_row_first_out_balance(
 			feeder->feeder_row_list );
 
 	feeder->account_accumulate_debit_boolean =
@@ -1439,14 +1451,18 @@ void feeder_row_list_insert(
 			journal->transaction_date_time,
 			feeder_row->
 				feeder_load_row->
-				description_embedded,
+				description_embedded
+				/* file_row_description */,
 			feeder_row->
 				feeder_load_row->
-				exchange_journal_amount,
+				exchange_journal_amount
+				/* file_row_amount */,
 			feeder_row->
 				feeder_load_row->
-				calculate_balance,
-			feeder_row->calculate_balance,
+				calculate_balance
+				/* file_row_balance */,
+			feeder_row->calculate_balance
+				/* calculate_balance */,
 			feeder_row->
 				feeder_load_row->
 				check_number,
@@ -4894,3 +4910,45 @@ FEEDER_PHRASE *feeder_phrase_extract(
 	return return_feeder_phrase;
 }
 
+boolean feeder_latest_fetch_match_boolean(
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch,
+		double exchange_journal_begin_amount,
+		LIST *feeder_row_list )
+{
+	/* If first time run, then this is the init exchange file. */
+	/* ------------------------------------------------------- */
+	if ( !feeder_load_event_latest_fetch ) return 1;
+
+	if ( !list_length( feeder_row_list ) ) return 0;
+
+	/* Stub */
+	/* ---- */
+	if ( exchange_journal_begin_amount ){}
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: feeder_row_account_end_balance=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	feeder_load_event_latest_fetch->feeder_row_account_end_balance );
+msg( (char *)0, message );
+}
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	exchange_journal_begin_amount );
+msg( (char *)0, message );
+}
+*/
+	return 1;
+}
