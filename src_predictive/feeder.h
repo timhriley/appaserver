@@ -24,6 +24,9 @@
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
+#define FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE				\
+"<h3>Mismatched input file. A transaction is likely missing. Expected begin amount: %.2lf</h3>"
+
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\
 					"transaction_date_time,"	\
@@ -356,10 +359,9 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
-	/* Saved as file_row_balance.   */
-	/* Doesn't apply if multi-fund. */
-	/* ---------------------------- */
-	double calculate_balance;
+	/* Not used if multi-fund. */
+	/* ----------------------- */
+	double file_row_balance;
 } FEEDER_LOAD_ROW;
 
 /* Usage */
@@ -425,9 +427,19 @@ char *feeder_load_row_description_crop(
 
 /* Usage */
 /* ----- */
-void feeder_load_row_calculate_balance_set(
+void feeder_load_row_file_row_balance_set(
 		double exchange_balance_amount,
-		LIST *feeder_load_row_list /* in/out */ );
+		LIST *feeder_load_row_list
+			/* reads exchange_journal_amount */
+			/* sets file_row_balance */ );
+
+/* Process */
+/* ------- */
+
+/* Returns exchange_balance_amount */
+/* ------------------------------- */
+double feeder_load_row_file_row_balance(
+		double exchange_balance_amount );
 
 /* Usage */
 /* ----- */
@@ -456,6 +468,12 @@ int feeder_load_row_pound_number(
 /* ------------------------------------ */
 int feeder_load_row_check_text_number(
 		char *feeder_load_row_description_space_trim );
+
+/* Usage */
+/* ----- */
+void feeder_load_row_list_raw_display(
+		FILE *stream,
+		LIST *feeder_load_row_list );
 
 /* Usage */
 /* ----- */
@@ -558,7 +576,7 @@ void feeder_row_status_set(
 /* Usage */
 /* ----- */
 enum feeder_row_status feeder_row_status_evaluate(
-		double feeder_load_row_calculate_balance,
+		double feeder_load_row_file_row_balance,
 		double feeder_row_calculate_balance );
 
 /* Usage */
@@ -787,11 +805,16 @@ void feeder_row_insert(
 		char *transaction_date_time,
 		char *description_embedded,
 		double exchange_journal_amount,
-		double feeder_load_row_calculate_balance,
+		double feeder_load_row_file_row_balance,
 		double feeder_row_calculate_balance,
 		int check_number,
 		char *feeder_row_phrase,
 		char sql_delimiter );
+
+/* Usage */
+/* ----- */
+double feeder_row_exist_sum(
+		LIST *feeder_row_list );
 
 /* Driver */
 /* ------ */
@@ -843,6 +866,12 @@ FILE *feeder_row_check_journal_update_pipe(
 
 /* Usage */
 /* ----- */
+void feeder_row_list_raw_display(
+		FILE *stream,
+		LIST *feeder_row_list );
+
+/* Process */
+/* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -1051,6 +1080,12 @@ boolean feeder_latest_fetch_match_boolean(
 		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch,
 		double exchange_journal_begin_amount,
 		LIST *feeder_row_list );
+
+/* Process */
+/* ------- */
+double feeder_latest_fetch_match_difference(
+		double feeder_row_account_end_balance,
+		double feeder_row_exist_sum );
 
 /* Usage */
 /* ----- */

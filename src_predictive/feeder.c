@@ -688,9 +688,11 @@ FEEDER *feeder_fetch(
 		feeder_load_row_list(
 			exchange_journal_list );
 
-	feeder_load_row_calculate_balance_set(
+	feeder_load_row_file_row_balance_set(
 		exchange_balance_amount,
-		feeder->feeder_load_row_list /* in/out */ );
+		feeder->feeder_load_row_list
+			/* reads exchange_journal_amount */
+			/* sets file_row_balance */ );
 
 	feeder->account_uncleared_checks_string =
 		/* -------------- */
@@ -747,7 +749,13 @@ FEEDER *feeder_fetch(
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
 			feeder->feeder_matched_journal_list,
-			feeder->feeder_load_row_list /* sets taken_boolean */ );
+			feeder->feeder_load_row_list );
+
+	feeder->feeder_row_count =
+		feeder_row_count(
+			feeder->feeder_row_list );
+
+	if ( !feeder->feeder_row_count ) return feeder;
 
 	feeder->feeder_load_event_latest_fetch =
 		feeder_load_event_latest_fetch(
@@ -760,11 +768,7 @@ FEEDER *feeder_fetch(
 			exchange_journal_begin_amount,
 			feeder->feeder_row_list );
 
-	feeder->feeder_row_count =
-		feeder_row_count(
-			feeder->feeder_row_list );
-
-	if ( !feeder->feeder_row_count ) return feeder;
+	if ( !feeder->latest_fetch_match_boolean ) return feeder;
 
 	feeder->feeder_row_insert_count =
 		feeder_row_insert_count(
@@ -1459,10 +1463,8 @@ void feeder_row_list_insert(
 				/* file_row_amount */,
 			feeder_row->
 				feeder_load_row->
-				calculate_balance
-				/* file_row_balance */,
-			feeder_row->calculate_balance
-				/* calculate_balance */,
+				file_row_balance,
+			feeder_row->calculate_balance,
 			feeder_row->
 				feeder_load_row->
 				check_number,
@@ -1534,7 +1536,7 @@ void feeder_row_insert(
 		char *transaction_date_time,
 		char *description_embedded,
 		double exchange_journal_amount,
-		double feeder_load_row_calculate_balance,
+		double file_row_balance,
 		double feeder_row_calculate_balance,
 		int check_number,
 		char *phrase,
@@ -1593,7 +1595,7 @@ void feeder_row_insert(
 		sql_delimiter,
 		exchange_journal_amount,
 		sql_delimiter,
-		feeder_load_row_calculate_balance,
+		file_row_balance,
 		sql_delimiter,
 		feeder_row_calculate_balance,
 		sql_delimiter,
@@ -1966,7 +1968,7 @@ FILE *feeder_row_display_output(
 	char *display_results;
 	char *status_string;
 	char feeder_row_calculate_balance_string[ 128 ];
-	char feeder_load_row_calculate_balance_string[ 128 ];
+	char feeder_load_row_file_row_balance_string[ 128 ];
 	double difference;
 	char difference_string[ 128 ];
 
@@ -2001,17 +2003,17 @@ FILE *feeder_row_display_output(
 		string_commas_money(
 			feeder_row->calculate_balance ) );
 
-	strcpy(	feeder_load_row_calculate_balance_string,
+	strcpy(	feeder_load_row_file_row_balance_string,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		string_commas_money(
 			feeder_row->
 				feeder_load_row->
-				calculate_balance ) );
+				file_row_balance ) );
 
 	difference =
-		feeder_row->feeder_load_row->calculate_balance  -
+		feeder_row->feeder_load_row->file_row_balance  -
 		feeder_row->calculate_balance;
 
 	strcpy(	difference_string,
@@ -2041,7 +2043,7 @@ FILE *feeder_row_display_output(
 			feeder_row->
 				feeder_load_row->
 				exchange_journal_amount ),
-		feeder_load_row_calculate_balance_string,
+		feeder_load_row_file_row_balance_string,
 		feeder_row_calculate_balance_string,
 		difference_string,
 		status_string );
@@ -4327,7 +4329,7 @@ char *feeder_load_file_filename(
 	return filename;
 }
 
-void feeder_load_row_calculate_balance_set(
+void feeder_load_row_file_row_balance_set(
 		double exchange_balance_amount,
 		LIST *feeder_load_row_list )
 {
@@ -4339,7 +4341,12 @@ void feeder_load_row_calculate_balance_set(
 			list_get(
 				feeder_load_row_list );
 
-		feeder_load_row->calculate_balance = exchange_balance_amount;
+		feeder_load_row->file_row_balance =
+			/* ------------------------------- */
+			/* Returns exchange_balance_amount */
+			/* ------------------------------- */
+			feeder_load_row_file_row_balance(
+				exchange_balance_amount );
 
 		exchange_balance_amount -=
 			feeder_load_row->
@@ -4378,18 +4385,18 @@ void feeder_row_status_set(
 			feeder_row_status_evaluate(
 				feeder_row->
 					feeder_load_row->
-					calculate_balance,
+					file_row_balance,
 				feeder_row->calculate_balance );
 
 	} while ( list_next( feeder_row_list ) );
 }
 
 enum feeder_row_status feeder_row_status_evaluate(
-		double feeder_load_row_calculate_balance,
+		double feeder_load_row_file_row_balance,
 		double feeder_row_calculate_balance )
 {
 	if ( float_money_virtually_same(
-		feeder_load_row_calculate_balance,
+		feeder_load_row_file_row_balance,
 		feeder_row_calculate_balance ) )
 	{
 		return feeder_row_status_okay;
@@ -4574,6 +4581,44 @@ char *feeder_audit_end_transaction_date_time(
 	return end_transaction_date_time;
 }
 
+void feeder_row_list_raw_display(
+		FILE *stream,
+		LIST *feeder_row_list )
+{
+	FEEDER_ROW *feeder_row;
+	char *display;
+
+	if ( !stream )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: stream is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( feeder_row_list ) )
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		display =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_row_raw_display(
+				feeder_row );
+
+		fprintf(
+			stream,
+			"%s\n",
+			display );
+
+		free( display );
+
+	} while ( list_next( feeder_row_list ) );
+}
+
 char *feeder_row_raw_display( FEEDER_ROW *feeder_row )
 {
 	char display[ 2048 ];
@@ -4728,6 +4773,44 @@ LIST *feeder_load_row_list( LIST *exchange_journal_list )
 	return list;
 }
 
+void feeder_load_row_list_raw_display(
+		FILE *stream,
+		LIST *feeder_load_row_list )
+{
+	FEEDER_LOAD_ROW *feeder_load_row;
+	char *display;
+
+	if ( !stream )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: stream is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( feeder_load_row_list ) )
+	do {
+		feeder_load_row = list_get( feeder_load_row_list );
+
+		display =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_load_row_raw_display(
+				feeder_load_row );
+
+		fprintf(
+			stream,
+			"%s\n",
+			display );
+
+		free( display );
+
+	} while ( list_next( feeder_load_row_list ) );
+}
+
 char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 {
 	char display[ 2048 ];
@@ -4791,8 +4874,8 @@ char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 
 	ptr += sprintf(
 		ptr,
-		"calculate_balance=%.2lf",
-		feeder_load_row->calculate_balance );
+		"file_row_balance=%.2lf",
+		feeder_load_row->file_row_balance );
 
 	return strdup( display );
 }
@@ -4910,45 +4993,68 @@ FEEDER_PHRASE *feeder_phrase_extract(
 	return return_feeder_phrase;
 }
 
+double feeder_load_row_file_row_balance( double exchange_balance_amount )
+{
+	return exchange_balance_amount;
+}
+
 boolean feeder_latest_fetch_match_boolean(
 		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch,
 		double exchange_journal_begin_amount,
 		LIST *feeder_row_list )
 {
-	/* If first time run, then this is the init exchange file. */
-	/* ------------------------------------------------------- */
+	double exist_sum;
+	double match_difference;
+
+	/* If first time run, then this is the initial exchange file. */
+	/* ---------------------------------------------------------- */
 	if ( !feeder_load_event_latest_fetch ) return 1;
 
 	if ( !list_length( feeder_row_list ) ) return 0;
 
-	/* Stub */
-	/* ---- */
-	if ( exchange_journal_begin_amount ){}
-/*
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: feeder_row_account_end_balance=%.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	feeder_load_event_latest_fetch->feeder_row_account_end_balance );
-msg( (char *)0, message );
+	/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
+
+	exist_sum = feeder_row_exist_sum( feeder_row_list );
+
+	match_difference =
+		feeder_latest_fetch_match_difference(
+			feeder_load_event_latest_fetch->
+				feeder_row_account_end_balance,
+			exist_sum );
+
+	return
+	float_money_virtually_same(
+		exchange_journal_begin_amount,
+		match_difference );
 }
+
+double feeder_row_exist_sum( LIST *feeder_row_list )
 {
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	exchange_journal_begin_amount );
-msg( (char *)0, message );
+	FEEDER_ROW *feeder_row;
+	double sum = 0.0;
+
+	if ( list_rewind( feeder_row_list ) )
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if ( feeder_row->feeder_exist_row_seek )
+		{
+			sum +=
+				feeder_row->
+					feeder_exist_row_seek->
+					file_row_amount;
+		}
+
+	} while ( list_next( feeder_row_list ) );
+
+	return sum;
 }
-*/
-	return 1;
+
+double feeder_latest_fetch_match_difference(
+		double feeder_row_account_end_balance,
+		double feeder_row_exist_sum )
+{
+	return
+	feeder_row_account_end_balance -
+	feeder_row_exist_sum;
 }

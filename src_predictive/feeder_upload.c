@@ -135,6 +135,19 @@ int main( int argc, char **argv )
 			printf( "<h3>No new feeder rows to process.</h3>\n" );
 		}
 		else
+		if ( !feeder->latest_fetch_match_boolean )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
+				exchange->exchange_journal_begin_amount );
+
+			printf( "%s\n", message );
+		}
+		else
 		if ( execute_boolean
 		&&   feeder->feeder_row_insert_count )
 		{
