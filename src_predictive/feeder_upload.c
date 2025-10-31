@@ -17,6 +17,7 @@
 #include "application.h"
 #include "exchange.h"
 #include "feeder_load_event.h"
+#include "feeder_audit.h"
 #include "feeder.h"
 
 int main( int argc, char **argv )
