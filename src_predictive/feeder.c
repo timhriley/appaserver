@@ -24,8 +24,10 @@
 #include "date_convert.h"
 #include "account.h"
 #include "exchange.h"
+#include "transaction.h"
 #include "transaction_date.h"
 #include "journal_propagate.h"
+#include "feeder_load_event.h"
 #include "feeder.h"
 
 LIST *feeder_phrase_list(
@@ -411,240 +413,9 @@ FILE *feeder_load_file_input_open( char *feeder_load_file_filename )
 	return input_open;
 }
 
-FEEDER_LOAD_EVENT *feeder_load_event_new(
-		char *feeder_account_name,
-		char *feeder_load_date_time,
-		char *login_name,
-		char *feeder_load_filename,
-		char *feeder_row_account_end_date,
-		double feeder_row_account_end_balance )
-{
-	FEEDER_LOAD_EVENT *feeder_load_event;
-
-	if ( !feeder_account_name
-	||   !feeder_load_date_time
-	||   !login_name
-	||   !feeder_load_filename
-	||   !feeder_row_account_end_date )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	feeder_load_event = feeder_load_event_calloc();
-
-	feeder_load_event->feeder_account_name = feeder_account_name;
-	feeder_load_event->feeder_load_date_time = feeder_load_date_time;
-	feeder_load_event->feeder_load_filename = feeder_load_filename;
-
-	feeder_load_event->feeder_row_account_end_date =
-		feeder_row_account_end_date;
-
-	feeder_load_event->feeder_row_account_end_balance =
-		feeder_row_account_end_balance;
-
-	feeder_load_event->appaserver_user =
-		appaserver_user_login_fetch(
-			login_name,
-			0 /* not fetch_role_name_list */ );
-
-	if ( !feeder_load_event->appaserver_user )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"appaserver_user_login_fetch(%s) returned empty.",
-			login_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return feeder_load_event;
-}
-
-FEEDER_LOAD_EVENT *feeder_load_event_calloc( void )
-{
-	FEEDER_LOAD_EVENT *feeder_load_event;
-
-	if ( ! ( feeder_load_event =
-			calloc( 1, sizeof ( FEEDER_LOAD_EVENT ) ) ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "calloc() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return feeder_load_event;
-}
-
-void feeder_load_event_insert(
-		const char *feeder_load_event_table,
-		const char *feeder_load_event_insert,
-		char *feeder_account_name,
-		char *feeder_load_date_time,
-		char *full_name,
-		char *street_address,
-		char *feeder_load_filename,
-		char *feeder_row_account_end_date,
-		double feeder_row_account_end_balance )
-{
-	FILE *insert_open;
-
-	if ( !feeder_account_name
-	||   !feeder_load_date_time
-	||   !full_name
-	||   !street_address
-	||   !feeder_load_filename
-	||   !feeder_row_account_end_date )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	insert_open =
-		feeder_load_event_insert_open(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			feeder_load_event_insert_system_string(
-				feeder_load_event_table,
-				feeder_load_event_insert,
-				SQL_DELIMITER ) );
-
-	feeder_load_event_insert_pipe(
-		insert_open,
-		SQL_DELIMITER,
-		feeder_account_name,
-		feeder_load_date_time,
-		full_name,
-		street_address,
-		feeder_load_filename,
-		feeder_row_account_end_date,
-		feeder_row_account_end_balance );
-
-	pclose( insert_open );
-}
-
-FILE *feeder_load_event_insert_open( char *system_string )
-{
-	if ( !system_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "system_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return
-	popen( system_string, "w" );
-}
-
-char *feeder_load_event_insert_system_string(
-		const char *feeder_load_event_table,
-		const char *feeder_load_event_insert,
-		const char sql_delimiter )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-	 	"insert_statement table=%s field=%s del='%c' 		  |"
-	 	"sql 2>&1						  |"
-		"grep -vi duplicate					  |"
-	 	"html_paragraph_wrapper.e				   ",
-	 	feeder_load_event_table,
-	 	feeder_load_event_insert,
-	 	sql_delimiter );
-
-	return strdup( system_string );
-}
-
-void feeder_load_event_insert_pipe(
-		FILE *insert_open,
-		char sql_delimiter,
-		char *feeder_account_name,
-		char *feeder_load_date_time,
-		char *full_name,
-		char *street_address,
-		char *feeder_load_filename,
-		char *feeder_row_account_end_date,
-		double feeder_row_account_end_calculate_balance )
-{
-	if ( !insert_open
-	||   !sql_delimiter
-	||   !feeder_account_name
-	||   !feeder_load_date_time
-	||   !full_name
-	||   !street_address
-	||   !feeder_load_filename
-	||   !feeder_row_account_end_date )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		if ( insert_open ) pclose( insert_open );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	/* See FEEDER_LOAD_EVENT_INSERT */
-	/* ---------------------------- */
-	fprintf(insert_open,
-		"%s%c%s%c%s%c%s%c%s%c%s%c%.2lf\n",
-		feeder_account_name,
-		sql_delimiter,
-	 	feeder_load_date_time,
-		sql_delimiter,
-		full_name,
-		sql_delimiter,
-		street_address,
-		sql_delimiter,
-		feeder_load_filename,
-		sql_delimiter,
-		feeder_row_account_end_date,
-		sql_delimiter,
-		feeder_row_account_end_calculate_balance );
-}
-
 FEEDER *feeder_fetch(
 		char *application_name,
 		char *login_name,
-		/* char *fund_name, */
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
@@ -688,19 +459,19 @@ FEEDER *feeder_fetch(
 		feeder_load_row_list(
 			exchange_journal_list );
 
-	feeder_load_row_file_row_balance_set(
-		exchange_balance_amount,
-		feeder->feeder_load_row_list
-			/* reads exchange_journal_amount */
-			/* sets file_row_balance */ );
+	feeder->transaction_fund_column_boolean =
+		transaction_fund_column_boolean(
+			TRANSACTION_TABLE,
+			TRANSACTION_FUND_COLUMN );
 
-	feeder->account_uncleared_checks_string =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		account_uncleared_checks_string(
-			ACCOUNT_UNCLEARED_CHECKS_KEY,
-			__FUNCTION__ );
+	if ( !feeder->transaction_fund_column_boolean )
+	{
+		feeder_load_row_file_row_balance_set(
+			exchange_balance_amount,
+			feeder->feeder_load_row_list
+				/* reads exchange_journal_amount */
+				/* sets file_row_balance */ );
+	}
 
 	feeder->feeder_phrase_list =
 		feeder_phrase_list(
@@ -729,10 +500,18 @@ FEEDER *feeder_fetch(
 			feeder_account_name,
 			feeder->match_minimum_date );
 
+	feeder->account_uncleared_checks_string =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		account_uncleared_checks_string(
+			ACCOUNT_UNCLEARED_CHECKS_KEY,
+			__FUNCTION__ );
+
 	feeder->feeder_matched_journal_list =
 		feeder_matched_journal_list(
-			feeder_account_name,
 			FEEDER_ROW_TABLE,
+			feeder_account_name,
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
 
@@ -764,9 +543,9 @@ FEEDER *feeder_fetch(
 
 	feeder->latest_fetch_match_boolean =
 		feeder_latest_fetch_match_boolean(
-			feeder->feeder_load_event_latest_fetch,
 			exchange_journal_begin_amount,
-			feeder->feeder_row_list );
+			feeder->feeder_row_list,
+			feeder->feeder_load_event_latest_fetch );
 
 	if ( !feeder->latest_fetch_match_boolean ) return feeder;
 
@@ -774,70 +553,67 @@ FEEDER *feeder_fetch(
 		feeder_row_insert_count(
 			feeder->feeder_row_list );
 
-	feeder->feeder_row_first_out_balance =
-		feeder_row_first_out_balance(
-			feeder->feeder_row_list );
-
 	feeder->account_accumulate_debit_boolean =
 		account_accumulate_debit_boolean(
 			feeder_account_name );
 
-	feeder->prior_account_end_balance =
-		feeder_prior_account_end_balance(
+	feeder->feeder_load_event_prior_account_end_balance =
+		feeder_load_event_prior_account_end_balance(
 			FEEDER_LOAD_EVENT_TABLE,
 			feeder_account_name,
 			feeder->account_accumulate_debit_boolean );
 
-	feeder_row_calculate_balance_set(
-		feeder->feeder_row_list /* in/out */,
-		feeder->feeder_row_first_out_balance,
-		feeder->prior_account_end_balance );
+	if ( !feeder->transaction_fund_column_boolean )
+	{
+		feeder_row_calculate_balance_set(
+			feeder->feeder_row_list /* sets calculate_balance */,
+			feeder->feeder_load_event_prior_account_end_balance );
+	}
 
-	feeder_row_status_set(
-		feeder->feeder_row_list /* in/out */,
-		feeder->feeder_row_first_out_balance );
+	feeder_row_list_status_set(
+		feeder->transaction_fund_column_boolean,
+		feeder->feeder_row_list /* sets feeder_row_status */ );
 
-	feeder->feeder_load_date_time =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		date_now19( date_utc_offset() );
+	if ( !feeder->transaction_fund_column_boolean )
+	{
+		feeder->feeder_row_list_status_out_of_balance_boolean =
+			feeder_row_list_status_out_of_balance_boolean(
+				feeder->feeder_row_list );
+	}
 
 	feeder->feeder_row_account_end_date =
 		/* ------------------------------------------------------- */
 		/* Returns feeder_row->feeder_load_row->international_date */
-		/* or null.						   */
 		/* ------------------------------------------------------- */
 		feeder_row_account_end_date(
-			feeder->feeder_row_list,
-			feeder->feeder_row_first_out_balance );
+			feeder->feeder_row_list );
 
-	if ( feeder->feeder_row_account_end_date )
+	feeder->feeder_row_account_end_balance =
+		/* ------------------------------------------------------ */
+		/* Returns feeder_row->feeder_load_row->calculate_balance */
+		/* ------------------------------------------------------ */
+		feeder_row_account_end_balance(
+			feeder->feeder_row_list );
+
+	if (	!feeder->feeder_row_list_status_out_of_balance_boolean
+	&&	!feeder->feeder_row_list_non_match_boolean )
 	{
-		feeder->feeder_row_account_end_balance =
-			feeder_row_account_end_balance(
-				feeder->feeder_row_list,
-				feeder->feeder_row_first_out_balance );
-
 		feeder->feeder_load_event =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			feeder_load_event_new(
-				feeder_account_name,
-				feeder->feeder_load_date_time,
 				login_name,
+				feeder_account_name,
 				exchange_format_filename,
 				feeder->feeder_row_account_end_date,
-				feeder->feeder_row_account_end_balance );
+				feeder->feeder_row_account_end_balance,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				date_now19( date_utc_offset() )
+					/* feeder_load_date_time */ );
 	}
-
-	feeder->parameter_end_balance_error =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		feeder_parameter_end_balance_error(
-			exchange_balance_amount,
-			feeder->feeder_row_first_out_balance,
-			feeder->feeder_row_account_end_date,
-			feeder->feeder_row_account_end_balance );
 
 	return feeder;
 }
@@ -1076,10 +852,10 @@ FEEDER_TRANSACTION *feeder_transaction_calloc( void )
 }
 
 LIST *feeder_matched_journal_list(
+		const char *feeder_row_table,
 		char *feeder_account_name,
-		char *feeder_row_table,
 		char *feeder_match_minimum_date,
-		char *account_uncleared_checks )
+		char *account_uncleared_checks_string )
 {
 	LIST *list = list_new();
 	char *subquery;
@@ -1088,9 +864,8 @@ LIST *feeder_matched_journal_list(
 	JOURNAL *journal;
 
 	if ( !feeder_account_name
-	||   !feeder_row_table
 	||   !feeder_match_minimum_date
-	||   !account_uncleared_checks )
+	||   !account_uncleared_checks_string )
 	{
 		char message[ 128 ];
 
@@ -1108,10 +883,10 @@ LIST *feeder_matched_journal_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		feeder_matched_journal_subquery(
-			feeder_account_name,
-			account_uncleared_checks,
 			JOURNAL_TABLE,
-			feeder_row_table );
+			feeder_row_table,
+			feeder_account_name,
+			account_uncleared_checks_string );
 
 	where =
 		/* ------------------- */
@@ -1119,7 +894,7 @@ LIST *feeder_matched_journal_list(
 		/* ------------------- */
 		feeder_matched_journal_where(
 			feeder_account_name,
-			account_uncleared_checks,
+			account_uncleared_checks_string,
 			subquery,
 			feeder_match_minimum_date );
 
@@ -1181,14 +956,16 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_calloc( void )
 }
 
 char *feeder_matched_journal_subquery(
+		const char *journal_table,
+		const char *feeder_row_table,
 		char *feeder_account_name,
-		char *account_uncleared_checks,
-		char *journal_table,
-		char *feeder_row_table )
+		char *account_uncleared_checks_string )
 {
 	char subquery[ 1024 ];
 
-	sprintf(subquery,
+	snprintf(
+		subquery,
+		sizeof ( subquery ),
 		"not exists						"
 		"(select 1 from %s					"
 		"	where %s.full_name =				"
@@ -1207,7 +984,7 @@ char *feeder_matched_journal_subquery(
 		journal_table,
 		feeder_row_table,
 		feeder_account_name,
-		account_uncleared_checks );
+		account_uncleared_checks_string );
 
 	return strdup( subquery );
 }
@@ -1387,37 +1164,36 @@ int feeder_load_row_check_number( char *description_space_trim )
 }
 
 void feeder_row_list_insert(
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
 		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		boolean transaction_fund_column_boolean )
 {
-	FILE *insert_open;
+	FILE *output_pipe;
+	char *tmp;
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
 
 	if ( !list_rewind( feeder_row_list ) ) return;
 
-	insert_open =
+	output_pipe =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		feeder_row_list_insert_open(
+		appaserver_output_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			feeder_row_list_insert_system_string(
+			( tmp = feeder_row_list_insert_system_string(
+				SQL_DELIMITER,
 				FEEDER_ROW_INSERT_COLUMNS,
+				FEEDER_ROW_FUND_INSERT_COLUMNS,
 				FEEDER_ROW_TABLE,
-				SQL_DELIMITER ) );
+				transaction_fund_column_boolean ) ) );
 
 	do {
 		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance )
-		{
-			break;
-		}
 
 		if ( feeder_row->feeder_exist_row_seek )
 		{
@@ -1443,16 +1219,15 @@ void feeder_row_list_insert(
 			feeder_row->transaction_date_time );
 
 		feeder_row_insert(
-			insert_open,
+			SQL_DELIMITER,
+			fund_name,
 			feeder_account_name,
 			feeder_load_date_time,
 			feeder_row->
 				feeder_load_row->
-				international_date,
+				international_date
+				/* feeder_date */,
 			feeder_row->feeder_row_number,
-			journal->full_name,
-			journal->street_address,
-			journal->transaction_date_time,
 			feeder_row->
 				feeder_load_row->
 				description_embedded
@@ -1468,100 +1243,90 @@ void feeder_row_list_insert(
 			feeder_row->
 				feeder_load_row->
 				check_number,
+			transaction_fund_column_boolean,
+			output_pipe,
+			journal->full_name,
+			journal->street_address,
+			journal->transaction_date_time,
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
 			feeder_row_phrase(
-				feeder_row->feeder_phrase_seek ),
-			SQL_DELIMITER );
+				feeder_row->feeder_phrase_seek ) );
 
 	} while ( list_next( feeder_row_list ) );
 
-	pclose( insert_open );
+	pclose( output_pipe );
+	free( tmp );
 }
 
 char *feeder_row_list_insert_system_string(
-		char *feeder_row_insert_columns,
-		char *feeder_row_table,
-		char sql_delimiter )
+		const char sql_delimiter,
+		const char *feeder_row_insert_columns,
+		const char *feeder_row_fund_insert_columns,
+		const char *feeder_row_table,
+		boolean transaction_fund_column_boolean )
 {
 	char system_string[ 1024 ];
+	const char *insert_columns;
 
-	if ( !feeder_row_insert_columns
-	||   !feeder_row_table )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !transaction_fund_column_boolean )
+		insert_columns = feeder_row_insert_columns;
+	else
+		insert_columns = feeder_row_fund_insert_columns;
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 	 	"insert_statement table=%s field=%s del='%c' 	|"
 		"tee_appaserver.sh				|"
 	 	"sql.e 2>&1					|"
 	 	"html_paragraph_wrapper.e			 ",
 	 	feeder_row_table,
-	 	feeder_row_insert_columns,
+	 	insert_columns,
 	 	sql_delimiter );
 
 	return strdup( system_string );
 }
 
-FILE *feeder_row_list_insert_open( char *insert_system_string )
-{
-	if ( !insert_system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return popen( insert_system_string, "w" );
-}
-
 void feeder_row_insert(
-		FILE *insert_open,
+		const char sql_delimiter,
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *international_date,
+		char *feeder_date,
 		int feeder_row_number,
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		char *description_embedded,
-		double exchange_journal_amount,
+		char *file_row_description,
+		double file_row_amount,
 		double file_row_balance,
 		double feeder_row_calculate_balance,
 		int check_number,
-		char *phrase,
-		char sql_delimiter )
+		boolean transaction_fund_column_boolean,
+		FILE *output_pipe,
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time,
+		char *phrase )
 {
 	char check_number_string[ 16 ];
 
-	if ( !insert_open
-	||   !feeder_account_name
+	if ( !feeder_account_name
 	||   !feeder_load_date_time
-	||   !international_date
+	||   !feeder_date
 	||   !feeder_row_number
+	||   !file_row_description
+	||   !file_row_amount
+	||   !output_pipe
 	||   !full_name
 	||   !street_address
 	||   !transaction_date_time
-	||   !description_embedded
-	||   !exchange_journal_amount
-	||   !phrase
-	||   !sql_delimiter )
+	||   !phrase )
 	{
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
 
-		if ( insert_open ) pclose( insert_open );
+		if ( output_pipe ) pclose( output_pipe );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1575,25 +1340,22 @@ void feeder_row_insert(
 	else
 		*check_number_string = '\0';
 
-	fprintf(insert_open,
-		"%s%c%s%c%s%c%d%c%s%c%s%c%s%c%s%c%.2lf%c%.2lf%c%.2lf%c%s%c%s\n",
+	if ( !transaction_fund_column_boolean )
+	{
+		fprintf(
+		output_pipe,
+		"%s%c%s%c%s%c%d%c%s%c%.2lf%c%.2lf%c%.2lf%c%s%c%s%c%s%c%s%c%s\n",
 		feeder_account_name,
 		sql_delimiter,
 		feeder_load_date_time,
 		sql_delimiter,
-		international_date,
+		feeder_date,
 		sql_delimiter,
 		feeder_row_number,
 		sql_delimiter,
-	 	full_name,
+		file_row_description,
 		sql_delimiter,
-	 	street_address,
-		sql_delimiter,
-		transaction_date_time,
-		sql_delimiter,
-		description_embedded,
-		sql_delimiter,
-		exchange_journal_amount,
+		file_row_amount,
 		sql_delimiter,
 		file_row_balance,
 		sql_delimiter,
@@ -1601,7 +1363,43 @@ void feeder_row_insert(
 		sql_delimiter,
 		check_number_string,
 		sql_delimiter,
+	 	full_name,
+		sql_delimiter,
+	 	street_address,
+		sql_delimiter,
+		transaction_date_time,
+		sql_delimiter,
 		phrase );
+	}
+	else
+	{
+		fprintf(
+		output_pipe,
+		"%s%c%s%c%s%c%s%c%d%c%s%c%.2lf%c%s%c%s%c%s%c%s%c%s\n",
+		fund_name,
+		sql_delimiter,
+		feeder_account_name,
+		sql_delimiter,
+		feeder_load_date_time,
+		sql_delimiter,
+		feeder_date,
+		sql_delimiter,
+		feeder_row_number,
+		sql_delimiter,
+		file_row_description,
+		sql_delimiter,
+		file_row_amount,
+		sql_delimiter,
+		check_number_string,
+		sql_delimiter,
+	 	full_name,
+		sql_delimiter,
+	 	street_address,
+		sql_delimiter,
+		transaction_date_time,
+		sql_delimiter,
+		phrase );
+	}
 }
 
 char *feeder_row_transaction_date_time(
@@ -1665,29 +1463,14 @@ char *feeder_row_transaction_date_time(
 	return strdup( transaction_date_time );
 }
 
-FILE *feeder_exist_row_input_open( char *feeder_exist_row_system_string )
-{
-	if ( !feeder_exist_row_system_string )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: feeder_exist_row_system_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	popen( feeder_exist_row_system_string, "r" );
-}
-
 LIST *feeder_exist_row_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
 		char *feeder_match_minimum_date )
 {
 	LIST *list;
-	FILE *input_open;
+	char *tmp;
+	FILE *input_pipe;
 	char input[ 1024 ];
 
 	if ( !feeder_account_name
@@ -1703,12 +1486,12 @@ LIST *feeder_exist_row_list(
 
 	list = list_new();
 
-	input_open =
-		feeder_exist_row_input_open(
+	input_pipe =
+		appaserver_input_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			feeder_exist_row_system_string(
+			( tmp = feeder_exist_row_system_string(
 				FEEDER_EXIST_ROW_SELECT,
 				feeder_row_table,
 				/* --------------------- */
@@ -1716,9 +1499,9 @@ LIST *feeder_exist_row_list(
 				/* --------------------- */
 				feeder_exist_row_where(
 					feeder_account_name,
-					feeder_match_minimum_date ) ) );
+					feeder_match_minimum_date ) ) ) );
 
-	while ( string_input( input, input_open, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			list,
@@ -1726,7 +1509,7 @@ LIST *feeder_exist_row_list(
 				input ) );
 	}
 
-	pclose( input_open );
+	pclose( input_pipe );
 
 	return list;
 }
@@ -1892,8 +1675,8 @@ void feeder_row_list_display(
 }
 
 void feeder_row_transaction_insert(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		char *fund_name,
+		LIST *feeder_row_list )
 {
 	LIST *transaction_list;
 
@@ -1901,8 +1684,8 @@ void feeder_row_transaction_insert(
 
 	if ( ( transaction_list =
 			feeder_row_extract_transaction_list(
-				feeder_row_list,
-				feeder_row_first_out_balance ) ) )
+				fund_name,
+				feeder_row_list ) ) )
 	{
 		/* May reset transaction->transaction_date_time */
 		/* -------------------------------------------- */
@@ -1911,7 +1694,7 @@ void feeder_row_transaction_insert(
 			0 /* not insert_journal_list_boolean */ );
 
 		transaction_journal_list_insert(
-			(char *)0 /* fund_name */,
+			fund_name,
 			transaction_list,
 			1 /* with_propagate */ );
 
@@ -1923,8 +1706,8 @@ void feeder_row_transaction_insert(
 }
 
 LIST *feeder_row_extract_transaction_list(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		char *fund_name,
+		LIST *feeder_row_list )
 {
 	LIST *transaction_list = list_new();
 	FEEDER_ROW *feeder_row;
@@ -1935,14 +1718,15 @@ LIST *feeder_row_extract_transaction_list(
 			list_get(
 				feeder_row_list );
 
-		if ( feeder_row == feeder_row_first_out_balance )
-		{
-			break;
-		}
-
 		if ( feeder_row->feeder_transaction
 		&&   feeder_row->feeder_transaction->transaction )
 		{
+			feeder_row->
+				feeder_transaction->
+				transaction->
+				fund_name =
+					fund_name;
+
 			list_set(
 				transaction_list,
 				feeder_row->
@@ -2356,8 +2140,7 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 
 void feeder_row_calculate_balance_set(
 		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance,
-		double feeder_prior_account_end_balance )
+		double prior_account_end_balance )
 {
 	FEEDER_ROW *feeder_row;
 
@@ -2379,14 +2162,12 @@ void feeder_row_calculate_balance_set(
 				message );
 		}
 
-		if ( feeder_row == feeder_row_first_out_balance ) break;
-
 		feeder_row->calculate_balance =
 			feeder_row_calculate_balance(
 				feeder_row,
-				feeder_prior_account_end_balance );
+				prior_account_end_balance );
 
-		feeder_prior_account_end_balance =
+		prior_account_end_balance =
 			feeder_row->
 				calculate_balance;
 
@@ -2395,7 +2176,7 @@ void feeder_row_calculate_balance_set(
 
 double feeder_row_calculate_balance(
 		FEEDER_ROW *feeder_row,
-		double feeder_prior_account_end_balance )
+		double prior_account_end_balance )
 {
 	double calculate_balance;
 
@@ -2409,33 +2190,13 @@ double feeder_row_calculate_balance(
 	else
 	{
 		calculate_balance =
-			feeder_prior_account_end_balance +
+			prior_account_end_balance +
 			feeder_row->
 				feeder_load_row->
 				exchange_journal_amount;
 	}
 
 	return calculate_balance;
-}
-
-FEEDER_ROW *feeder_row_first_out_balance( LIST *feeder_row_list )
-{
-	FEEDER_ROW *feeder_row;
-
-	if ( list_rewind( feeder_row_list ) )
-	do {
-		feeder_row = list_get( feeder_row_list );
-
-		if ( !feeder_row->feeder_exist_row_seek
-		&&   !feeder_row->feeder_matched_journal
-		&&   !feeder_row->feeder_phrase_seek )
-		{
-			return feeder_row;
-		}
-
-	} while ( list_next( feeder_row_list ) );
-
-	return NULL;
 }
 
 FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
@@ -2503,47 +2264,51 @@ double feeder_matched_journal_amount(
 		return 0.0 - credit_amount;
 }
 
-char *feeder_row_account_end_date(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+char *feeder_row_account_end_date( LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
-	char *account_end_date = {0};
 
-	if ( list_rewind( feeder_row_list ) )
-	do {
-		feeder_row = list_get( feeder_row_list );
+	feeder_row =
+		/* -------------------------------- */
+		/* Returns the last element or null */
+		/* -------------------------------- */
+		list_last( feeder_row_list );
 
-		if ( !feeder_row->feeder_load_row )
-		{
-			char message[ 128 ];
+	if ( !feeder_row )
+	{
+		char message[ 128 ];
 
-			sprintf(message,
-				"feeder_row->feeder_load_row is empty." );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"list_last() returned empty." );
 
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
-		if ( feeder_row == feeder_row_first_out_balance )
-			break;
 
-		account_end_date =
-			feeder_row->
-				feeder_load_row->
-				international_date;
+	if ( !feeder_row->feeder_load_row )
+	{
+		char message[ 128 ];
 
-	} while ( list_next( feeder_row_list ) );
+		sprintf(message,
+			"feeder_row->feeder_load_row is empty." );
 
-	return account_end_date;
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return feeder_row->feeder_load_row->international_date;
 }
 
-double feeder_row_account_end_balance(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+double feeder_row_account_end_balance( LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
 	double account_end_balance = 0.0;
@@ -2551,9 +2316,6 @@ double feeder_row_account_end_balance(
 	if ( list_rewind( feeder_row_list ) )
 	do {
 		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance )
-			break;
 
 		account_end_balance =
 			feeder_row->
@@ -2666,358 +2428,6 @@ LIST *feeder_row_error_extract_list( LIST *feeder_row_list )
 	} while ( list_next( feeder_row_list ) );
 
 	return extract_list;
-}
-
-FEEDER_LOAD_EVENT *feeder_load_event_fetch(
-		char *feeder_account_name,
-		char *feeder_load_date_time )
-{
-	FEEDER_LOAD_EVENT *feeder_load_event;
-	FILE *input_open;
-	char input[ 1024 ];
-
-	if ( !feeder_account_name
-	||   !feeder_load_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	input_open =
-		feeder_load_event_input_open(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			feeder_load_event_system_string(
-				FEEDER_LOAD_EVENT_SELECT,
-				FEEDER_LOAD_EVENT_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				feeder_load_event_primary_where(
-					feeder_account_name,
-					feeder_load_date_time ) ) );
-
-	feeder_load_event =
-		feeder_load_event_parse(
-			string_input(
-				input,
-				input_open,
-				1024 ) );
-
-	pclose( input_open );
-
-	if ( feeder_load_event && !feeder_load_event->appaserver_user )
-	{
-		feeder_load_event = NULL;
-	}
-
-	return feeder_load_event;
-}
-
-char *feeder_load_event_primary_where(
-		char *feeder_account_name,
-		char *feeder_load_date_time )
-{
-	static char where[ 128 ];
-
-	if ( !feeder_account_name
-	||   !feeder_load_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"feeder_account = '%s' and "
-		"feeder_load_date_time = '%s'",
-		feeder_account_name,
-		feeder_load_date_time );
-
-	return where;
-}
-
-char *feeder_load_event_system_string(
-		char *feeder_load_event_select,
-		char *feeder_load_event_table,
-		char *feeder_load_event_primary_where )
-{
-	char system_string[ 1024 ];
-
-	if ( !feeder_load_event_select
-	||   !feeder_load_event_table
-	||   !feeder_load_event_primary_where )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"select.sh \"%s\" %s \"%s\"",
-		feeder_load_event_select,
-		feeder_load_event_table,
-		feeder_load_event_primary_where );
-
-	return strdup( system_string );
-}
-
-FILE *feeder_load_event_input_open( char *feeder_load_event_system_string )
-{
-	if ( !feeder_load_event_system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	popen( feeder_load_event_system_string, "r" );
-}
-
-FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
-{
-	char buffer[ 128 ];
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	FEEDER_LOAD_EVENT *feeder_load_event;
-
-	if ( !input || !*input ) return NULL;
-
-	feeder_load_event = feeder_load_event_calloc();
-
-	/* See FEEDER_LOAD_EVENT_SELECT */
-	/* ---------------------------- */
-	piece( buffer, SQL_DELIMITER, input, 0 );
-	feeder_load_event->feeder_account_name = strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	feeder_load_event->feeder_load_date_time = strdup( buffer );
-
-	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
-
-	if ( *full_name && *street_address )
-	{
-		feeder_load_event->appaserver_user =
-			appaserver_user_new(
-				strdup( full_name ),
-				strdup( street_address ) );
-	}
-
-	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer )
-		feeder_load_event->feeder_load_filename =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer )
-	{
-		feeder_load_event->feeder_row_account_end_date =
-			strdup( buffer );
-	}
-
-	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer )
-	{
-		feeder_load_event->feeder_row_account_end_balance =
-			atof( buffer );
-	}
-
-	return feeder_load_event;
-}
-
-FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
-		const char *feeder_load_event_table,
-		char *feeder_account_name )
-{
-	char *latest_date_time;
-
-	if ( ! ( latest_date_time =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			feeder_load_event_latest_date_time(
-				feeder_load_event_latest_system_string(
-					feeder_load_event_table,
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					feeder_load_event_account_where(
-						feeder_account_name ) ) ) ) )
-	{
-		return NULL;
-	}
-
-	return
-	feeder_load_event_fetch(
-		feeder_account_name,
-		latest_date_time );
-}
-
-char *feeder_load_event_account_where( char *feeder_account_name )
-{
-	static char where[ 128 ];
-
-	if ( !feeder_account_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"feeder_account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"feeder_account = '%s'",
-		feeder_account_name );
-
-	return where;
-}
-
-char *feeder_load_event_latest_system_string(
-		const char *table,
-		char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !where )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"where is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"select.sh \"%s\" %s \"%s\"",
-		"max( feeder_load_date_time )",
-		table,
-		where );
-
-	return strdup( system_string );
-}
-
-char *feeder_load_event_latest_date_time(
-		char *feeder_load_event_latest_system_string )
-{
-	if ( !feeder_load_event_latest_system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	string_pipe_fetch(
-		feeder_load_event_latest_system_string );
-}
-
-double feeder_prior_account_end_balance(
-		const char *feeder_load_event_table,
-		char *feeder_account_name,
-		boolean accumulate_debit_boolean )
-{
-	FEEDER_LOAD_EVENT *feeder_load_event;
-	double prior_account_end_balance = {0};
-
-	if ( !feeder_account_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "feeder_account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ( feeder_load_event =
-		feeder_load_event_latest_fetch(
-			feeder_load_event_table,
-			feeder_account_name ) ) )
-	{
-		prior_account_end_balance =
-			feeder_load_event->feeder_row_account_end_balance;
-	}
-	else
-	{
-		prior_account_end_balance =
-			journal_first_account_balance(
-				(char *)0 /* fund_name */,
-				feeder_account_name /* account_name */ );
-
-		if ( !accumulate_debit_boolean )
-		{
-			prior_account_end_balance =
-				-prior_account_end_balance;
-		}
-	}
-
-	return prior_account_end_balance;
 }
 
 LIST *feeder_row_list(
@@ -3241,31 +2651,6 @@ FEEDER_ROW *feeder_row_calloc( void )
 	return feeder_row;
 }
 
-char *feeder_parameter_end_balance_error(
-		double exchange_balance_amount,
-		FEEDER_ROW *feeder_row_first_out_balance,
-		char *feeder_row_account_end_date,
-		double feeder_row_account_end_balance )
-{
-	char error[ 256 ];
-
-	if ( float_dollar_virtually_same(
-			exchange_balance_amount,
-			feeder_row_account_end_balance )
-	||   feeder_row_first_out_balance
-	||   !feeder_row_account_end_date )
-	{
-		return "";
-	}
-
-	sprintf(error,
-"<h3>Warning: financial exchange balance (%.2lf) doesn't match the calculated end balance (%.2lf).</h3>\n",
-		exchange_balance_amount,
-		feeder_row_account_end_balance );
-
-	return strdup( error );
-}
-
 int feeder_row_count( LIST *feeder_row_list )
 {
 	return list_length( feeder_row_list );
@@ -3291,19 +2676,17 @@ int feeder_row_insert_count( LIST *feeder_row_list )
 }
 
 char *feeder_row_system_string(
-		char *select,
-		char *table,
+		const char *select,
+		const char *table,
 		char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !select
-	||   !table
-	||   !where )
+	if ( !where )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "where is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3312,7 +2695,9 @@ char *feeder_row_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\" feeder_row_number",
 		select,
 		table,
@@ -3339,9 +2724,12 @@ LIST *feeder_row_system_list( char *system_string )
 	}
 
 	list = list_new();
-	input_pipe = feeder_row_input_pipe( system_string );
 
-	while ( string_input( input, input_pipe, 2048 ) )
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		if ( !*input ) continue;
 
@@ -3355,22 +2743,6 @@ LIST *feeder_row_system_list( char *system_string )
 	pclose( input_pipe );
 
 	return list;
-}
-
-FILE *feeder_row_input_pipe( char *feeder_row_system_string )
-{
-	if ( !feeder_row_system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	popen( feeder_row_system_string, "r" );
 }
 
 FEEDER_ROW *feeder_row_parse( char *input )
@@ -3937,7 +3309,7 @@ LIST *feeder_audit_html_cell_list(
 }
 
 char *feeder_matched_journal_check_update_statement(
-		char *journal_table,
+		const char *journal_table,
 		char *feeder_account,
 		char *account_uncleared_checks_string,
 		char *full_name,
@@ -3946,8 +3318,7 @@ char *feeder_matched_journal_check_update_statement(
 {
 	char update_statement[ 1024 ];
 
-	if ( !journal_table
-	||   !feeder_account
+	if ( !feeder_account
 	||   !account_uncleared_checks_string
 	||   !full_name
 	||   !street_address
@@ -3964,7 +3335,9 @@ char *feeder_matched_journal_check_update_statement(
 			message );
 	}
 
-	sprintf(update_statement,
+	snprintf(
+		update_statement,
+		sizeof ( update_statement ),
 		"update %s set account = '%s' where %s;",
 		journal_table,
 		feeder_account,
@@ -3982,8 +3355,7 @@ char *feeder_matched_journal_check_update_statement(
 }
 
 void feeder_row_check_journal_update(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		LIST *feeder_row_list )
 {
 	FILE *update_pipe;
 	FEEDER_ROW *feeder_row;
@@ -3994,9 +3366,6 @@ void feeder_row_check_journal_update(
 
 	do {
 		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance )
-			break;
 
 		if ( feeder_row->feeder_matched_journal
 		&&   feeder_row->
@@ -4021,18 +3390,17 @@ FILE *feeder_row_check_journal_update_pipe( void )
 }
 
 char *feeder_row_maximum_transaction_date_time(
-		char *feeder_row_table,
+		const char *feeder_row_table,
 		char *feeder_account_name,
 		char *feeder_load_date_time )
 {
 	char system_string[ 1024 ];
 
-	if ( !feeder_row_table
-	||   !feeder_account_name )
+	if ( !feeder_account_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "feeder_account_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -4043,7 +3411,9 @@ char *feeder_row_maximum_transaction_date_time(
 
 	if ( !feeder_load_date_time ) return (char *)0;
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\"",
 		"max( transaction_date_time )",
 		feeder_row_table,
@@ -4062,14 +3432,13 @@ char *feeder_row_maximum_transaction_date_time(
 }
 
 char *feeder_row_minimum_transaction_date_time(
-		char *feeder_row_table,
+		const char *feeder_row_table,
 		char *feeder_account_name,
 		char *feeder_load_date_time )
 {
 	char system_string[ 1024 ];
 
-	if ( !feeder_row_table
-	||   !feeder_account_name )
+	if ( !feeder_account_name )
 	{
 		char message[ 128 ];
 
@@ -4084,7 +3453,9 @@ char *feeder_row_minimum_transaction_date_time(
 
 	if ( !feeder_load_date_time ) return (char *)0;
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\"",
 		"min( transaction_date_time )",
 		feeder_row_table,
@@ -4108,18 +3479,17 @@ char *feeder_row_final_number_select( void )
 }
 
 int feeder_row_final_number(
-		char *feeder_row_table,
+		const char *feeder_row_table,
 		char *feeder_account_name,
 		char *feeder_load_date_time )
 {
 	char system_string[ 1024 ];
 
-	if ( !feeder_row_table
-	||   !feeder_account_name )
+	if ( !feeder_account_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "feeder_account_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -4211,6 +3581,7 @@ char *feeder_row_primary_where(
 }
 
 void feeder_row_journal_propagate(
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
 		char *account_uncleared_checks )
@@ -4244,7 +3615,7 @@ void feeder_row_journal_propagate(
 
 	journal_propagate =
 		journal_propagate_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			minimum_transaction_date_time,
 			feeder_account_name );
 
@@ -4257,7 +3628,7 @@ void feeder_row_journal_propagate(
 
 	journal_propagate =
 		journal_propagate_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			minimum_transaction_date_time,
 			account_uncleared_checks );
 
@@ -4355,17 +3726,15 @@ void feeder_load_row_file_row_balance_set(
 	} while ( list_previous( feeder_load_row_list ) );
 }
 
-void feeder_row_status_set(
-		LIST *feeder_row_list /* in/out */,
-		FEEDER_ROW *feeder_row_first_out_balance )
+void feeder_row_list_status_set(
+		boolean transaction_fund_column_boolean,
+		LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
 
 	if ( list_rewind( feeder_row_list ) )
 	do {
 		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance ) break;
 
 		if ( !feeder_row->feeder_load_row )
 		{
@@ -4386,29 +3755,41 @@ void feeder_row_status_set(
 				feeder_row->
 					feeder_load_row->
 					file_row_balance,
-				feeder_row->calculate_balance );
+				feeder_row->calculate_balance,
+				transaction_fund_column_boolean );
 
 	} while ( list_next( feeder_row_list ) );
 }
 
 enum feeder_row_status feeder_row_status_evaluate(
 		double feeder_load_row_file_row_balance,
-		double feeder_row_calculate_balance )
+		double feeder_row_calculate_balance,
+		boolean transaction_fund_column_boolean )
 {
+	enum feeder_row_status status;
+
+	if ( transaction_fund_column_boolean )
+	{
+		status = feeder_row_status_cannot_determine;
+	}
+	else
 	if ( float_money_virtually_same(
 		feeder_load_row_file_row_balance,
 		feeder_row_calculate_balance ) )
 	{
-		return feeder_row_status_okay;
+		status = feeder_row_status_okay;
 	}
 	else
 	{
-		return feeder_row_status_out_of_balance;
+		status = feeder_row_status_out_of_balance;
 	}
+
+	return status;
 }
 
 void feeder_execute(
 		char *process_name,
+		char *fund_name,
 		FEEDER *feeder )
 {
 	if ( !process_name
@@ -4432,14 +3813,14 @@ void feeder_execute(
 	/*	transaction_date_time	*/
 	/* ---------------------------- */
 	feeder_row_transaction_insert(
-		feeder->feeder_row_list,
-		feeder->feeder_row_first_out_balance );
+		fund_name,
+		feeder->feeder_row_list );
 
 	feeder_row_check_journal_update(
-		feeder->feeder_row_list,
-		feeder->feeder_row_first_out_balance );
+		feeder->feeder_row_list );
 
 	feeder_row_journal_propagate(
+		fund_name,
 		feeder->feeder_account_name,
 		feeder->
 			feeder_load_event->
@@ -4454,6 +3835,16 @@ void feeder_execute(
 			feeder_account_name,
 		feeder->
 			feeder_load_event->
+			exchange_format_filename
+				/* feeder_load_filename */,
+		feeder->
+			feeder_load_event->
+			feeder_row_account_end_date,
+		feeder->
+			feeder_load_event->
+			feeder_row_account_end_balance,
+		feeder->
+			feeder_load_event->
 			feeder_load_date_time,
 		feeder->
 			feeder_load_event->
@@ -4462,27 +3853,16 @@ void feeder_execute(
 		feeder->
 			feeder_load_event->
 			appaserver_user->
-			street_address,
-		feeder->
-			feeder_load_event->
-			feeder_load_filename,
-		feeder->
-			feeder_load_event->
-			feeder_row_account_end_date,
-		feeder->
-			feeder_load_event->
-			feeder_row_account_end_balance );
+			street_address );
 
 	feeder_row_list_insert(
+		fund_name,
 		feeder->feeder_account_name,
 		feeder->
 			feeder_load_event->
 			feeder_load_date_time,
 		feeder->feeder_row_list,
-		feeder->feeder_row_first_out_balance );
-
-	printf( "%s\n",
-		feeder->parameter_end_balance_error );
+		feeder->transaction_fund_column_boolean );
 
 	printf( "<h3>Execute feeder row count: %d</h3>\n",
 		feeder->feeder_row_count );
@@ -4506,7 +3886,7 @@ void feeder_display( FEEDER *feeder )
 			message );
 	}
 
-	if ( feeder->feeder_row_first_out_balance )
+	if ( feeder->feeder_row_list_non_match_boolean )
 	{
 		printf( "<h1>Feeder Error Table</h1>\n" );
 
@@ -4518,9 +3898,6 @@ void feeder_display( FEEDER *feeder )
 
 	feeder_row_list_display(
 		feeder->feeder_row_list );
-
-	printf( "%s\n",
-		feeder->parameter_end_balance_error );
 
 	printf( "<h3>Non-execute feeder row count: %d</h3>\n",
 		feeder->feeder_row_count );
@@ -4882,12 +4259,16 @@ char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 
 boolean feeder_execute_boolean(
 		boolean execute_boolean,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		boolean non_match_boolean,
+		boolean out_of_balance_boolean )
 {
-	if ( feeder_row_first_out_balance )
+	if ( non_match_boolean
+	||   out_of_balance_boolean )
+	{
 		return 0;
-	else
-		return execute_boolean;
+	}
+
+	return execute_boolean;
 }
 
 FEEDER_PHRASE *feeder_phrase_entity_set(
@@ -4999,9 +4380,9 @@ double feeder_load_row_file_row_balance( double exchange_balance_amount )
 }
 
 boolean feeder_latest_fetch_match_boolean(
-		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch,
 		double exchange_journal_begin_amount,
-		LIST *feeder_row_list )
+		LIST *feeder_row_list,
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch )
 {
 	double exist_sum;
 	double match_difference;
@@ -5058,3 +4439,23 @@ double feeder_latest_fetch_match_difference(
 	feeder_row_account_end_balance -
 	feeder_row_exist_sum;
 }
+
+boolean feeder_row_list_status_out_of_balance_boolean( LIST *feeder_row_list )
+{
+	FEEDER_ROW *feeder_row;
+
+	if ( list_rewind( feeder_row_list ) )
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if (	feeder_row->feeder_row_status ==
+			feeder_row_status_out_of_balance )
+		{
+			return 1;
+		}
+
+	} while ( list_next( feeder_row_list ) );
+
+	return 0;
+}
+

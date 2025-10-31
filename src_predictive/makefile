@@ -440,7 +440,8 @@ feeder_upload: feeder_upload.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
 	exchange.o							\
 	feeder.o							\
-	feeder_account.o
+	feeder_account.o						\
+	feeder_load_event.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
@@ -449,6 +450,7 @@ feeder_upload: feeder_upload.c						\
 		exchange.o						\
 		feeder.o						\
 		feeder_account.o					\
+		feeder_load_event.o					\
 		-o feeder_upload
 
 feeder_init_execute: feeder_init_execute.c				\
@@ -456,6 +458,7 @@ feeder_init_execute: feeder_init_execute.c				\
 	exchange.o							\
 	feeder.o							\
 	feeder_account.o						\
+	feeder_load_event.o						\
 	feeder_init.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
@@ -465,6 +468,7 @@ feeder_init_execute: feeder_init_execute.c				\
 		exchange.o						\
 		feeder.o						\
 		feeder_account.o					\
+		feeder_load_event.o					\
 		feeder_init.o						\
 		-o feeder_init_execute
 
@@ -969,6 +973,10 @@ feeder_init.o: feeder_init.c feeder_init.h
 feeder_account.o: feeder_account.c feeder_account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_account.c
+
+feeder_load_event.o: feeder_load_event.c feeder_load_event.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_load_event.c
 
 exchange.o: exchange.c exchange.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

@@ -16,6 +16,7 @@
 #include "process.h"
 #include "application.h"
 #include "exchange.h"
+#include "feeder_load_event.h"
 #include "feeder.h"
 
 int main( int argc, char **argv )
@@ -23,6 +24,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *login_name;
+	char *fund_name;
 	char *feeder_account_name;
 	char *exchange_format_filename;
 	boolean execute_boolean;
@@ -35,10 +37,10 @@ int main( int argc, char **argv )
 		environment_exit_application_name(
 			argv[ 0 ] );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name feeder_account exchange_format_filename execute_yn\n",
+"Usage: %s process_name login_name fund feeder_account exchange_format_filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -46,9 +48,10 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	feeder_account_name = argv[ 3 ];
-	exchange_format_filename = argv[ 4 ];
-	execute_boolean = (*argv[ 5 ] == 'y');
+	fund_name = argv[ 3 ];
+	feeder_account_name = argv[ 4 ];
+	exchange_format_filename = argv[ 5 ];
+	execute_boolean = (*argv[ 6 ] == 'y');
 
 	appaserver_error_argv_file(
 		argc,
@@ -126,9 +129,10 @@ int main( int argc, char **argv )
 	{
 		execute_boolean =
 			feeder_execute_boolean(
-				execute_boolean,
-				feeder->
-					feeder_row_first_out_balance );
+			    execute_boolean,
+			    feeder->feeder_row_list_non_match_boolean,
+			    feeder->
+				feeder_row_list_status_out_of_balance_boolean );
 
 		if ( !feeder->feeder_row_count )
 		{
@@ -151,7 +155,7 @@ int main( int argc, char **argv )
 		if ( execute_boolean
 		&&   feeder->feeder_row_insert_count )
 		{
-			feeder_execute( process_name, feeder );
+			feeder_execute( process_name, fund_name, feeder );
 		}
 		else
 		{
