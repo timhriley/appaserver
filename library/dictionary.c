@@ -1164,17 +1164,13 @@ DICTIONARY *dictionary_large_copy( DICTIONARY *dictionary )
 	return destination;
 }
 
-/* ----------------------------------------------------------------- 
-Two notes:
-1) No memory gets allocated.
-2) If a they share a key, then it clobbers the source_destinatation.
--------------------------------------------------------------------- */
 DICTIONARY *dictionary_append_dictionary(
 		DICTIONARY *source_destination,
 		DICTIONARY *append_dictionary )
 {
 	LIST *key_list;
 	char *key;
+	char *datum;
 
 	if ( !append_dictionary ) return source_destination;
 	if ( !source_destination ) return source_destination;
@@ -1185,15 +1181,21 @@ DICTIONARY *dictionary_append_dictionary(
 	do {
 		key = list_get( key_list );
 
-		dictionary_set(
-			source_destination,
-			key,
+		datum =
 			/* --------------------------------------- */
 			/* Returns component of dictionary or null */
 			/* --------------------------------------- */
 			dictionary_get(
 				key,
-				append_dictionary ) );
+				append_dictionary );
+
+		if ( datum && *datum )
+		{
+			dictionary_set(
+				source_destination,
+				key,
+				datum );
+		}
 
 	} while( list_next( key_list ) );
 

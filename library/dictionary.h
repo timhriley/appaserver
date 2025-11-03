@@ -227,10 +227,10 @@ int dictionary_key_list_highest_index(
 /* ----- */
 
 /* --------------------------------------------------------------------------- 
-Two notes:
 1) No memory gets allocated. Both the key and data still exist
    in the append_dictionary dictionary.
 2) If a they share a key, then it doesn't clobber the source_destinatation.
+3) If a datum is "", then it doesn't get set.
 --------------------------------------------------------------------------- */
 DICTIONARY *dictionary_append_dictionary(
 		DICTIONARY *source_destination /* in/out */,

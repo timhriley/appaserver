@@ -105,18 +105,20 @@ POST_DRILLTHRU *post_drillthru_new(
 			post_drillthru->folder_attribute_list );
 
 /* --------------------------------------------------------------------------- 
-Two notes:
 1) No memory gets allocated. Both the key and data still exist
    in the append_dictionary dictionary.
 2) If a they share a key, then it doesn't clobber the source_destinatation.
+3) If a datum is "", then it doesn't get set.
 --------------------------------------------------------------------------- */
 	dictionary_append_dictionary(
 		post_drillthru->
 			dictionary_separate_drillthru->
-			drillthru_dictionary,
+			drillthru_dictionary
+				/* source_destination */,
 		post_drillthru->
 			dictionary_separate_drillthru->
-			non_prefixed_dictionary );
+			non_prefixed_dictionary
+				/* append_dictionary */ );
 
 	post_drillthru->drillthru_continue =
 		/* -------------- */
@@ -139,6 +141,8 @@ Two notes:
 		return post_drillthru;
 	}
 
+	/* Must be skipped or completed */
+	/* ---------------------------- */
 	post_drillthru->dictionary_separate_send_dictionary =
 		/* -------------- */
 		/* Safely returns */

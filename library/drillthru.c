@@ -700,7 +700,7 @@ boolean drillthru_status_skipped_boolean(
 	{
 		return 1;
 	}
-
+	else
 	if ( !first_time_boolean )
 		return 0;
 	else
