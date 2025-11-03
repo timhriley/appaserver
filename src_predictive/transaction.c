@@ -182,54 +182,54 @@ char *transaction_primary_where(
 		char *transaction_date_time )
 {
 	static char where[ 512 ];
+	char *fund_where;
 	char *escape_full_name;
 	char *escape_street_address;
 	char *escape_transaction_date_time;
 
+	fund_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		/* If set, appends an "and" */
+		/* ------------------------ */
+		transaction_fund_where(
+			TRANSACTION_TABLE,
+			TRANSACTION_FUND_COLUMN,
+			fund_name );
+
 	escape_full_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
-			full_name /* datum */ );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name(
+			full_name );
 
 	escape_street_address =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
-			street_address /* datum */ );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_street_address(
+			street_address );
 
 	escape_transaction_date_time =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
-			transaction_date_time /* datum */ );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_escape_date_time(
+			transaction_date_time );
 
 	snprintf(
 		where,
 		sizeof ( where ),
 		"%s"
-		"full_name = '%s' and		"
-		"street_address = '%s' and	"
-		"transaction_date_time = '%s'	",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_fund_where(
-			TRANSACTION_FUND_COLUMN,
-			fund_name ),
+		"full_name = '%s' and "
+		"street_address = '%s' and "
+		"transaction_date_time = '%s'",
+		fund_where,
 		escape_full_name,
 		escape_street_address,
 		escape_transaction_date_time );
-
-	free( escape_full_name );
-	free( escape_street_address );
-	free( escape_transaction_date_time );
 
 	return where;
 }
@@ -290,12 +290,14 @@ char *transaction_insert(
 			TRANSACTION_LOCK_COLUMN );
 
 	column_list_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		transaction_column_list_string(
 			TRANSACTION_INSERT /* input_column_list_string */,
+			TRANSACTION_TABLE,
 			TRANSACTION_FUND_COLUMN,
-			TRANSACTION_LOCK_COLUMN,
-			fund_name,
-			lock_column_boolean );
+			TRANSACTION_LOCK_COLUMN );
 
 	race_free_date_time =
 		transaction_race_free_date_time(
@@ -373,6 +375,7 @@ void transaction_insert_pipe(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_datum(
+			TRANSACTION_TABLE,
 			TRANSACTION_FUND_COLUMN,
 			fund_name );
 
@@ -645,12 +648,18 @@ void transaction_delete(
 	||   !street_address
 	||   !transaction_date_time )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
 	}
 
 	if ( ! ( transaction =
@@ -684,12 +693,16 @@ void transaction_delete(
 
 	if ( system( system_string ) ){}
 
+	free( system_string );
+
 	system_string =
 		journal_delete_system_string(
 			JOURNAL_TABLE,
 			primary_where );
 
 	if ( system( system_string ) ){}
+
+	free( system_string );
 
 	journal_propagate_account_list(
 		fund_name,
@@ -1032,12 +1045,10 @@ void transaction_journal_list_insert(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_column_list_string(
-			JOURNAL_INSERT /* input_column_list_string */,
-			TRANSACTION_FUND_COLUMN,
-			TRANSACTION_LOCK_COLUMN,
-			fund_name,
-			0 /* not transaction_lock_boolean */ );
+		journal_column_list_string(
+			JOURNAL_INSERT,
+			TRANSACTION_TABLE,
+			TRANSACTION_FUND_COLUMN );
 
 	insert_pipe =
 		/* -------------- */
@@ -1420,24 +1431,40 @@ char *transaction_fetch_memo( char *transaction_date_time )
 }
 
 char *transaction_fund_where(
+		const char *transaction_table,
 		const char *transaction_fund_column,
 		char *fund_name )
 {
 	static char where[ 128 ];
 
+	if ( *where ) return where;
+
 	if ( transaction_fund_column_boolean(
-		TRANSACTION_TABLE,
+		transaction_table,
 		transaction_fund_column ) )
 	{
-		if ( fund_name )
+		if ( !fund_name )
 		{
+			char message[ 128 ];
+
 			snprintf(
-				where,
-				sizeof ( where ),
-				"%s = '%s' and ",
-				transaction_fund_column,
-				fund_name );
+				message,
+				sizeof ( message ),
+				"fund_name is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
 		}
+
+		snprintf(
+			where,
+			sizeof ( where ),
+			"%s = '%s' and ",
+			transaction_fund_column,
+			fund_name );
 	}
 
 	return where;
@@ -1445,62 +1472,75 @@ char *transaction_fund_where(
 
 char *transaction_column_list_string(
 		const char *input_column_list_string,
+		const char *transaction_table,
 		const char *transaction_fund_column,
-		const char *transaction_lock_column,
-		char *fund_name,
-		boolean transaction_lock_column_boolean )
+		const char *transaction_lock_column )
 {
 	static char column_list_string[ 128 ];
 	char *ptr = column_list_string;
-	char fund_column_string[ 32 ];
-
-	if ( fund_name )
-	{
-		snprintf(
-			fund_column_string,
-			sizeof ( fund_column_string ),
-			",%s",
-			transaction_fund_column );
-	}
-	else
-	{
-		*fund_column_string = '\0';
-	}
 
 	ptr += sprintf(
 		ptr,
-		"%s%s",
-		input_column_list_string,
-		fund_column_string );
+		"%s",
+		input_column_list_string );
 
-	if ( transaction_lock_column_boolean )
+	if ( transaction_fund_column_boolean(
+		transaction_table,
+		transaction_fund_column ) )
 	{
-		ptr += sprintf( ptr, ",%s", transaction_lock_column );
+		ptr += sprintf(
+			ptr,
+			",%s",
+			transaction_fund_column );
+	}
+
+	if ( transaction_lock_column_boolean(
+		transaction_table,
+		transaction_lock_column ) )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			transaction_lock_column );
 	}
 
 	return column_list_string;
 }
 
 char *transaction_fund_datum(
+		const char *transaction_table,
 		const char *transaction_fund_column,
 		char *fund_name )
 {
 	static char datum[ 32 ];
 
+	if ( *datum ) return datum;
+
 	if ( transaction_fund_column_boolean(
-		TRANSACTION_TABLE,
+		transaction_table,
 		transaction_fund_column ) )
 	{
-		if ( !*datum
-		&&   fund_name
-		&&   strcmp( fund_name, transaction_fund_column ) != 0 )
+		if ( !fund_name )
 		{
+			char message[ 128 ];
+
 			snprintf(
-				datum,
-				sizeof ( datum ),
-				"^%s",
-				fund_name );
+				message,
+				sizeof ( message ),
+				"fund_name is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
 		}
+
+		snprintf(
+			datum,
+			sizeof ( datum ),
+			"^%s",
+			fund_name );
 	}
 
 	return datum;
@@ -1588,5 +1628,40 @@ char *transaction_insert_data_string(
 	}
 
 	return strdup( insert_data_string );
+}
+
+char *transaction_lock_datum(
+		const char *transaction_table,
+		const char *transaction_lock_column )
+{
+	static char datum[ 16 ];
+
+	if ( *datum ) return datum;
+
+	if ( transaction_lock_column_boolean(
+		transaction_table,
+		transaction_lock_column ) )
+	{
+		snprintf(
+			datum,
+			sizeof ( datum ),
+			"^y" );
+	}
+
+	return datum;
+}
+
+char *transaction_escape_date_time( char *transaction_date_time )
+{
+	static char escape_date_time[ 64 ];
+
+	*escape_date_time = '\0';
+
+	if ( !transaction_date_time ) return escape_date_time;
+
+	return
+	string_escape_quote(
+		escape_date_time,
+		transaction_date_time );
 }
 

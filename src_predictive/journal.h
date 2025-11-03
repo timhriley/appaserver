@@ -55,11 +55,6 @@ LIST *journal_system_list(
 		boolean fetch_element,
 		boolean fetch_transaction );
 
-/* Process */
-/* ------- */
-FILE *journal_input_pipe(
-		char *journal_system_string );
-
 /* Usage */
 /* ----- */
 JOURNAL	*journal_parse(
@@ -97,47 +92,44 @@ JOURNAL *journal_prior(
 		boolean fetch_subclassification,
 		boolean fetch_element );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_maximum_prior_where(
-		char *fund_name,
-		char *transaction_date_time,
-		char *account_name );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *journal_maximum_prior_transaction_date_time(
-		char *journal_maximum_prior_where,
-		const char *journal_table );
-
 /* Usage */
 /* ----- */
 JOURNAL *journal_latest(
 		const char *journal_table,
 		char *fund_name,
 		char *account_name,
-		char *end_date_time_string,
+		char *transaction_date_time,
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
-char *journal_less_equal_where(
+char *journal_transaction_account_where(
 		char *fund_name,
-		char *transaction_date_time_closing,
+		char *transaction_date_time,
 		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_max_prior_where(
+		char *fund_name,
+		char *transaction_date_time,
+		char *account_name );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *journal_maximum_transaction_date_time(
+char *journal_max_prior_transaction_date_time(
 		const char *journal_table,
-		char *journal_less_equal_where );
+		char *journal_max_prior_where );
 
 /* Usage */
 /* ----- */
@@ -166,16 +158,6 @@ JOURNAL *journal_account_fetch(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_transaction );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_transaction_account_where(
-		char *fund_name,
-		char *transaction_date_time,
-		char *account_name );
 
 /* Usage */
 /* ----- */
@@ -276,6 +258,7 @@ double journal_account_list_credit_sum(
 /* Usage */
 /* ----- */
 double journal_first_account_balance(
+		const char *journal_table,
 		char *fund_name,
 		char *account_name );
 
@@ -473,9 +456,79 @@ LIST *journal_date_time_account_name_list(
 
 /* Usage */
 /* ----- */
-char *journal_minimum_transaction_date_time(
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_min_transaction_date_time(
+		const char *journal_table,
 		char *fund_name,
 		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_max_transaction_date_time(
+		const char *journal_table,
+		char *where );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_account_where(
+		char *fund_name,
+		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_transaction_account_where(
+		char *fund_name,
+		char *transaction_date_time,
+		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_less_equal_where(
+		char *fund_name,
+		char *transaction_date_time,
+		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_less_where(
+		char *fund_name,
+		char *transaction_date_time,
+		char *account_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_min_transaction_system_string(
+		const char *journal_table,
+		char *where );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_max_transaction_system_string(
+		const char *journal_table,
+		char *where );
 
 /* Usage */
 /* ----- */
@@ -496,22 +549,6 @@ double journal_amount(
 		double debit_amount,
 		double credit_amount,
 		boolean element_accumulate_debit );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *journal_list_display(
-		LIST *journal_list );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_display(
-		JOURNAL *journal );
 
 /* Usage */
 /* ----- */
@@ -538,5 +575,31 @@ FILE *journal_insert_pipe(
 char *journal_insert_system_string(
 		const char *journal_table,
 		char *transaction_column_list_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_column_list_string(
+		const char *journal_insert,
+		const char *transaction_table,
+		const char *transaction_fund_column );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_list_display(
+		LIST *journal_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_display(
+		JOURNAL *journal );
 
 #endif

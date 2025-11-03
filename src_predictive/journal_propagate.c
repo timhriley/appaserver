@@ -52,7 +52,8 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 	if ( !string_atoi( transaction_date_time ) )
 	{
 		transaction_date_time =
-			journal_minimum_transaction_date_time(
+			journal_min_transaction_date_time(
+				JOURNAL_TABLE,
 				fund_name,
 				account_name );
 	}
@@ -359,39 +360,32 @@ char *journal_propagate_greater_equal_where(
 		char *prior_transaction_date_time )
 {
 	static char where[ 128 ];
-	char *fund_where;
+	char *account_where;
+	char *return_where = where;
 
-	fund_where =
+	account_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_fund_where(
-			TRANSACTION_FUND_COLUMN,
-			fund_name );
+		journal_account_where(
+			fund_name,
+			account_name );
 
 	if ( prior_transaction_date_time )
 	{
 		snprintf(
 			where,
 			sizeof ( where ),
-			"%s"
-			"account = '%s' and transaction_date_time >= '%s'",
-			fund_where,
-			account_name,
+			"%s and transaction_date_time >= '%s'",
+			account_where,
 			prior_transaction_date_time );
 	}
 	else
 	{
-		snprintf(
-			where,
-			sizeof ( where ),
-			"%s"
-			"account = '%s'",
-			fund_where,
-			account_name );
+		return_where = account_where;
 	}
 
-	return where;
+	return return_where;
 }
 
 LIST *journal_propagate_update_statement_list(

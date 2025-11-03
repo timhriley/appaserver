@@ -557,6 +557,7 @@ double feeder_load_event_prior_account_end_balance(
 	{
 		prior_account_end_balance =
 			journal_first_account_balance(
+				JOURNAL_TABLE,
 				(char *)0 /* fund_name */,
 				feeder_account_name /* account_name */ );
 

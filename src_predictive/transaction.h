@@ -387,6 +387,14 @@ char *transaction_primary_where(
 		char *street_address,
 		char *transaction_date_time );
 
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_escape_date_time(
+		char *transaction_date_time );
+
 /* Usage */
 /* ----- */
 
@@ -410,7 +418,10 @@ char *transaction_fetch_memo(
 
 /* Returns static memory */
 /* --------------------- */
+/* If set, appends an "and" */
+/* ------------------------ */
 char *transaction_fund_where(
+		const char *transaction_table,
 		const char *transaction_fund_column,
 		char *fund_name );
 
@@ -420,11 +431,13 @@ char *transaction_fund_where(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_column_list_string(
+		/* ---------------------------------------- */
+		/* TRANSACTION_SELECT or TRANSACTION_INSERT */
+		/* ---------------------------------------- */
 		const char *input_column_list_string,
+		const char *transaction_table,
 		const char *transaction_fund_column,
-		const char *transaction_lock_column,
-		char *fund_name,
-		boolean transaction_lock_column_boolean );
+		const char *transaction_lock_column );
 
 /* Usage */
 /* ----- */
@@ -432,7 +445,17 @@ char *transaction_column_list_string(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_fund_datum(
+		const char *transaction_table,
 		const char *transaction_fund_column,
 		char *fund_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_lock_datum(
+		const char *transaction_table,
+		const char *transaction_lock_column );
 
 #endif

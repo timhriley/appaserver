@@ -1882,11 +1882,13 @@ char *feeder_row_display_results(
 		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
 		FEEDER_PHRASE *feeder_phrase )
 {
-	char buffer[ 1024 ];
+	char buffer[ STRING_64K ];
 
 	if ( feeder_exist_row_seek )
 	{
-		sprintf(buffer,
+		snprintf(
+			buffer,
+			sizeof ( buffer ),
 		"<p style=\"color:black\">Existing transaction:</p> %s/%s",
 			feeder_exist_row_seek->file_row_description,
 			feeder_exist_row_seek->transaction_date_time );
@@ -1896,15 +1898,21 @@ char *feeder_row_display_results(
 	{
 		if ( feeder_matched_journal->check_number )
 		{
-			sprintf(buffer,
-				"Matched check# %d/%s/%s",
+			snprintf(
+				buffer,
+				sizeof ( buffer ),
+				"Matched check# %d/%s/%s; %s",
 				feeder_matched_journal->check_number,
 				feeder_matched_journal->full_name,
-				feeder_matched_journal->transaction_date_time );
+				feeder_matched_journal->transaction_date_time,
+				feeder_matched_journal->
+					check_update_statement );
 		}
 		else
 		{
-			sprintf(buffer,
+			snprintf(
+				buffer,
+				sizeof ( buffer ),
 				"Matched amount: %.2lf/%s/%s",
 				feeder_matched_journal->amount,
 				feeder_matched_journal->full_name,
@@ -1914,7 +1922,9 @@ char *feeder_row_display_results(
 	else
 	if ( feeder_phrase )
 	{
-		sprintf(buffer,
+		snprintf(
+			buffer,
+			sizeof ( buffer ),
 			"Matched feeder phrase: %s<br>Entity: %s",
 			feeder_phrase->phrase,
 			feeder_phrase->full_name );
@@ -2483,6 +2493,8 @@ LIST *feeder_row_list(
 
 		if ( feeder_row->transaction_date_time )
 		{
+			/* Minimum transaction for each day */
+			/* -------------------------------- */
 			minimum_transaction_date_time =
 				feeder_row->
 					transaction_date_time;

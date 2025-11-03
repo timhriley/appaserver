@@ -838,8 +838,8 @@ ACCOUNT *account_fetch(
 
 char *account_primary_where( char *account_name )
 {
-	static char where[ 128 ];
-	char escape_account[ 64 ];
+	static char where[ 64 ];
+	char escape_account[ 50 ];
 
 	snprintf(
 		where,
