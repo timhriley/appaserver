@@ -80,18 +80,6 @@ int main( int argc, char **argv )
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: original_post_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( post_dictionary->original_post_dictionary ) );
-msg( "timriley", message );
-}
 	post_drillthru =
 		/* -------------- */
 		/* Safely returns */
