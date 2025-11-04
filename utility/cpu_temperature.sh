@@ -1,6 +1,6 @@
 :
 # -------------------------
-# apt -y install ln-sensors
+# apt -y install lm-sensors
 # sensors-detect
 # -------------------------
 sensors | egrep 'Physical id|Package id' | column.e 2,3

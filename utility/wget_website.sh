@@ -1,7 +1,7 @@
 :
 if [ $# -ne 1 ]
 then
-	echo "Usage: `echo $0 | basename.e ` URL" 1>&2
+	echo "Usage: `echo $0 | basename.e` URL" 1>&2
 	exit 1
 fi
 

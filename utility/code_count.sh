@@ -1,6 +1,6 @@
 :
 # ------------------------------------------------------------------------
-# $APPASERVER_HOME/code_count.sh
+# $APPASERVER_HOME/utility/code_count.sh
 # ------------------------------------------------------------------------
 # This file represents 15 lines of code. However, this isn't adding to the
 # line or file counts because the find doesn't include shell scripts.

@@ -1,10 +1,14 @@
 :
+# $APPASERVER_HOME/utility/convert_resize.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
+
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 new_size filename.ext" 1>&2
 	exit 1
 fi
-
 
 new_size=$1
 filename=$2
