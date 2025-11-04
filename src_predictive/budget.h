@@ -477,8 +477,7 @@ int budget_annualized_budget_integer(
 /* ----- */
 int budget_annualized_amount_integer(
 		double account_amount,
-		int forecast_integer,
-		int budget_annualized_budget_integer );
+		int forecast_integer );
 
 /* Usage */
 /* ----- */

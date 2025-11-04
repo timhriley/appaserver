@@ -176,8 +176,7 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 				balance /* account_amount */,
 			budget_annualized->
 				budget_regression->
-				forecast_integer,
-			budget_annualized->budget_integer );
+				forecast_integer );
 
 	if ( !budget_annualized->budget_integer
 	&&   !budget_annualized->amount_integer )
@@ -2860,8 +2859,7 @@ char *budget_link_begin_date_string( void )
 
 int budget_annualized_amount_integer(
 		double account_amount,
-		int forecast_integer,
-		int budget_annualized_budget_integer )
+		int forecast_integer )
 {
 	int amount_integer;
 
@@ -2869,7 +2867,8 @@ int budget_annualized_amount_integer(
 		amount_integer = forecast_integer;
 	else
 		amount_integer =
-			budget_annualized_budget_integer;
+			float_round_integer(
+				account_amount );
 
 	if ( (double)amount_integer < account_amount )
 	{
