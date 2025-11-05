@@ -178,6 +178,11 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 				budget_regression->
 				forecast_integer );
 
+	budget_annualized->budget_integer =
+		budget_annualized_again_budget_integer(
+			budget_annualized->budget_integer,
+			budget_annualized->amount_integer );
+
 	if ( !budget_annualized->budget_integer
 	&&   !budget_annualized->amount_integer )
 	{
@@ -192,11 +197,6 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 				/* change_value */ );
 
 	return budget_annualized;
-}
-
-double budget_annualized_budget( double prior_account_balance )
-{
-	return prior_account_balance;
 }
 
 BUDGET_ANNUALIZED *budget_annualized_calloc( void )
@@ -264,16 +264,6 @@ double budget_year_ratio(
 		return 0.0;
 	else
 		return (double)days_so_far / (double)days_in_year;
-}
-
-double budget_annualized_account_amount(
-		double account_latest_balance,
-		int account_annual_amount )
-{
-	if ( account_annual_amount )
-		return (double)account_annual_amount;
-	else
-		return account_latest_balance;
 }
 
 BUDGET *budget_fetch(
@@ -3000,4 +2990,14 @@ int budget_annualized_compare_function(
 	{
 		return -1;
 	}
+}
+
+int budget_annualized_again_budget_integer(
+		int budget_integer,
+		int annualized_amount_integer )
+{
+	if ( budget_integer )
+		return budget_integer;
+	else
+		return annualized_amount_integer;
 }

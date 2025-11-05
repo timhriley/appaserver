@@ -437,12 +437,9 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 BUDGET_ANNUALIZED *budget_annualized_calloc(
 		void );
 
-double budget_annualized_account_amount(
-		double account_latest_balance,
-		int account_annual_amount );
-
-double budget_annualized_budget(
-		double prior_account_balance );
+int budget_annualized_again_budget_integer(
+		int budget_integer,
+		int annualized_amount_integer );
 
 /* Usage */
 /* ----- */
