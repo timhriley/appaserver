@@ -19,6 +19,7 @@
 #include "appaserver_user.h"
 #include "vertical_new_prompt.h"
 #include "dictionary_separate.h"
+#include "appaserver_parameter.h"
 
 #define POST_PROMPT_INSERT_EXECUTABLE	"post_prompt_insert"
 
