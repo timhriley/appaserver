@@ -408,16 +408,16 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 			post_table_insert_input->
 				folder_attribute_append_isa_list );
 
-	post_table_insert_input->folder_attribute_upload_filename_list =
-		folder_attribute_upload_filename_list(
-			post_table_insert_input->
-				folder_attribute_append_isa_list );
-
 	post_table_insert_input->appaserver_parameter =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_parameter_new();
+
+	post_table_insert_input->folder_attribute_upload_filename_list =
+		folder_attribute_upload_filename_list(
+			post_table_insert_input->
+				folder_attribute_append_isa_list );
 
 	post_table_insert_input->post_dictionary =
 		/* -------------- */

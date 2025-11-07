@@ -33,6 +33,8 @@ typedef struct
 	LIST *relation_mto1_list;
 	LIST *relation_mto1_isa_list;
 	LIST *folder_attribute_append_isa_list;
+	APPASERVER_PARAMETER *appaserver_parameter;
+	LIST *folder_attribute_upload_filename_list;
 	POST_DICTIONARY *post_dictionary;
 	LIST *folder_attribute_name_list;
 	LIST *folder_attribute_date_name_list;

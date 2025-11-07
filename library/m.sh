@@ -5,6 +5,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make post_drillthru
+	make post_prompt_insert
 fi
 

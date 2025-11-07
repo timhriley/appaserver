@@ -1906,9 +1906,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		char *application_name,
 		char *login_name,
 		LIST *relation_mto1_list,
+		LIST *folder_attribute_append_isa_list,
 		LIST *folder_attribute_name_list,
-		LIST *folder_attribute_date_name_list,
-		LIST *folder_attribute_append_isa_list )
+		LIST *folder_attribute_date_name_list )
 {
 	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		dictionary_separate_post_prompt_insert;
@@ -1919,8 +1919,8 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 
 	if ( !application_name
 	||   !login_name
-	||   !folder_attribute_name_list
-	||   !folder_attribute_append_isa_list )
+	||   !list_length( folder_attribute_name_list )
+	||   !list_length( folder_attribute_append_isa_list ) )
 	{
 		char message[ 128 ];
 

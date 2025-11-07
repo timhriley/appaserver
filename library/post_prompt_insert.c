@@ -426,21 +426,37 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 				folder_attribute_list,
 			post_prompt_insert_input->relation_mto1_isa_list );
 
+	post_prompt_insert_input->appaserver_parameter =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_parameter_new();
+
+	post_prompt_insert_input->folder_attribute_upload_filename_list =
+		folder_attribute_upload_filename_list(
+			post_prompt_insert_input->
+				folder_attribute_append_isa_list );
+
 	post_prompt_insert_input->post_dictionary =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		post_dictionary_stdin_new(
-			(char *)0 /* application_name */,
-			(char *)0 /* upload_directory */,
-			(LIST *)0 /* upload_filename_list */ );
+			/* ---------------------------------- */
+			/* Used when expecting a spooled file */
+			/* ---------------------------------- */
+			application_name,
+			post_prompt_insert_input->
+				appaserver_parameter->
+				upload_directory,
+			post_prompt_insert_input->
+				folder_attribute_append_isa_list );
 
 	post_prompt_insert_input->folder_attribute_name_list =
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
 			post_prompt_insert_input->
-				folder->
-				folder_attribute_list );
+				folder_attribute_append_isa_list );
 
 	post_prompt_insert_input->folder_attribute_date_name_list =
 		folder_attribute_date_name_list(
@@ -460,11 +476,11 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 			post_prompt_insert_input->
 				relation_mto1_list,
 			post_prompt_insert_input->
+				folder_attribute_append_isa_list,
+			post_prompt_insert_input->
 				folder_attribute_name_list,
 			post_prompt_insert_input->
-				folder_attribute_date_name_list,
-			post_prompt_insert_input->
-				folder_attribute_append_isa_list );
+				folder_attribute_date_name_list );
 
 	post_prompt_insert_input->lookup_boolean =
 		post_prompt_insert_input_lookup_boolean(

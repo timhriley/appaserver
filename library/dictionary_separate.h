@@ -445,9 +445,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		char *application_name,
 		char *login_name,
 		LIST *relation_mto1_list,
+		LIST *folder_attribute_append_isa_list,
 		LIST *folder_attribute_name_list,
-		LIST *folder_attribute_date_name_list,
-		LIST *folder_attribute_append_isa_list );
+		LIST *folder_attribute_date_name_list );
 
 /* Process */
 /* ------- */
