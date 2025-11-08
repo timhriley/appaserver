@@ -272,7 +272,7 @@ RCHART *rchart_new(
 		char *time_attribute_name,
 		char *number_attribute_name,
 		LIST *query_fetch_row_list,
-		char *query_table_edit_where_string,
+		char *sub_title,
 		char *chart_title,
 		char *chart_filename_key );
 
@@ -291,7 +291,7 @@ char *rchart_file_header_string(
 char *rchart_file_trailer_string(
 		char *date_attribute_name,
 		char *number_attribute_name,
-		char *query_table_edit_where_string,
+		char *sub_title,
 		char *chart_title,
 		char *pdf_output_filename );
 

@@ -648,28 +648,12 @@ boolean prompt_lookup_include_chart_buttons(
 	boolean return_value = 0;
 
 	name_list =
-		folder_attribute_float_name_list(
+		folder_attribute_number_name_list(
 			folder_attribute_append_isa_list );
 
-	if ( list_length( name_list ) )
-	{
-		return_value = 1;
-		list_free_container( name_list );
-	}
-/* To be added later.
-	else
-	{
-		name_list =
-			folder_attribute_integer_name_list(
-				folder_attribute_append_isa_list );
+	if ( list_length( name_list ) ) return_value = 1;
 
-		if ( list_length( name_list ) )
-		{
-			return_value = 1;
-			list_free_container( name_list );
-		}
-	}
-*/
+	if ( name_list ) list_free_container( name_list );
 
 	return return_value;
 }

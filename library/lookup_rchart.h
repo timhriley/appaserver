@@ -43,6 +43,7 @@ LOOKUP_RCHART_AGGREGATE *
 
 typedef struct
 {
+	char *query_where_display;
 	RCHART *rchart;
 	RCHART_PROMPT *rchart_prompt;
 } LOOKUP_RCHART_CHART;

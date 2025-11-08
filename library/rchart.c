@@ -1130,7 +1130,7 @@ RCHART *rchart_new(
 		char *time_attribute_name,
 		char *number_attribute_name,
 		LIST *query_fetch_row_list,
-		char *query_table_edit_where_string,
+		char *sub_title,
 		char *chart_title,
 		char *chart_filename_key )
 {
@@ -1142,7 +1142,7 @@ RCHART *rchart_new(
 	||   !date_attribute_name
 	||   !number_attribute_name
 	||   !query_fetch_row_list
-	||   !query_table_edit_where_string
+	||   !sub_title
 	||   !chart_title
 	||   !chart_filename_key )
 	{
@@ -1210,7 +1210,7 @@ RCHART *rchart_new(
 		rchart_file_trailer_string(
 			date_attribute_name,
 			number_attribute_name,
-			query_table_edit_where_string,
+			sub_title,
 			chart_title,
 			rchart->rchart_filename->pdf_output_filename );
 	
@@ -1257,7 +1257,7 @@ RCHART *rchart_calloc( void )
 char *rchart_file_trailer_string(
 		char *date_attribute_name,
 		char *number_attribute_name,
-		char *query_table_edit_where_string,
+		char *sub_title,
 		char *chart_title,
 		char *pdf_output_filename )
 {
@@ -1265,7 +1265,7 @@ char *rchart_file_trailer_string(
 
 	if ( !date_attribute_name
 	||   !number_attribute_name
-	||   !query_table_edit_where_string
+	||   !sub_title
 	||   !chart_title
 	||   !pdf_output_filename )
 	{
@@ -1301,7 +1301,7 @@ char *rchart_file_trailer_string(
 		date_attribute_name,
 		number_attribute_name,
 		chart_title,
-		query_table_edit_where_string,
+		sub_title,
 		pdf_output_filename );
 
 	return strdup( trailer_string );

@@ -394,7 +394,6 @@ LOOKUP_RCHART_CHART *lookup_rchart_chart_new(
 	if ( !application_name
 	||   !session_key
 	||   !data_directory
-	||   !sub_title
 	||   !date_attribute_name
 	||   !number_attribute_name
 	||   !query_fetch_row_list
@@ -417,6 +416,14 @@ LOOKUP_RCHART_CHART *lookup_rchart_chart_new(
 
 	lookup_rchart_chart = lookup_rchart_chart_calloc();
 
+	lookup_rchart_chart->query_where_display =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		query_where_display(
+			sub_title,
+			0 /* max_length */ );
+
 	lookup_rchart_chart->rchart =
 		/* -------------- */
 		/* Safely returns */
@@ -429,7 +436,8 @@ LOOKUP_RCHART_CHART *lookup_rchart_chart_new(
 			time_attribute_name,
 			number_attribute_name,
 			query_fetch_row_list,
-			sub_title /* query_table_edit_where_string */,
+			lookup_rchart_chart->query_where_display
+				/* sub_title */,
 			chart_title,
 			chart_filename_key );
 
@@ -682,3 +690,4 @@ RCHART_FILENAME *lookup_rchart_filename( LIST *lookup_rchart_chart_list )
 		return NULL;
 	}
 }
+
