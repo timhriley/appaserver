@@ -958,7 +958,7 @@ LIST *list_stream_fetch( FILE *stream )
 
 	while( string_input( buffer, stream, sizeof ( buffer ) ) )
 	{
-		list_set( list, strdup( buffer ) );
+		if ( *buffer ) list_set( list, strdup( buffer ) );
 	}
 
 	if ( !list_length( list ) )
@@ -2580,8 +2580,9 @@ char *list_display( LIST *list )
 	return list_delimited( list, '^' );
 }
 
-char *list_double_list_display(	char *destination,
-				LIST *double_list )
+char *list_double_list_display(
+		char *destination,
+		LIST *double_list )
 {
 	char *anchor = destination;
 	double *d_ptr;
@@ -2608,8 +2609,7 @@ char *list_double_list_display(	char *destination,
 	return anchor;
 }
 
-LIST *list_string_to_double_list(
-				LIST *string_list )
+LIST *list_string_to_double_list( LIST *string_list )
 {
 	LIST *double_list;
 	double *d_ptr;
@@ -2830,11 +2830,23 @@ LIST *list_string_initial_capital( LIST *string_list )
 	return return_list;
 }
 
-void list_display_stdout( LIST *list )
+void list_display_stream(
+		LIST *list,
+		FILE *stream )
 {
+	if ( !stream )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: stream is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( list_rewind( list ) )
 	do {
-		printf( "%s\n", (char *)list_get( list ) );
+		fprintf( stream, "%s\n", (char *)list_get( list ) );
 
 	}  while ( list_next( list ) );
 }

@@ -142,12 +142,15 @@ int main( int argc, char **argv )
 		else
 		if ( !feeder->latest_fetch_match_boolean )
 		{
-			char message[ 128 ];
+			char message[ 2048 ];
 
 			snprintf(
 				message,
 				sizeof ( message ),
 				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
+				feeder->
+					feeder_load_event_latest_fetch->
+					feeder_row_account_end_balance,
 				exchange->exchange_journal_begin_amount );
 
 			printf( "%s\n", message );

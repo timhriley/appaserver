@@ -26,7 +26,7 @@
 #define FEEDER_DESCRIPTION_SIZE		140
 
 #define FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE				\
-"<h3>Mismatched input file. A transaction is likely missing. Expected begin amount: %.2lf</h3>"
+"<h3>Mismatched input file. Either:</h3><ul><li>The bank's begin date is too recent or ... <li>The Application Constant of feeder_load_transaction_days_ago is too small or ...<li>A duplicate transaction exists.</ul><ul><li>Feeder Load Event->Account End Balance is: %.2lf<li>Exchange Format File yields an account end balance of: %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ul>"
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\

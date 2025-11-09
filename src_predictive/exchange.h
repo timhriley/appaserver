@@ -81,14 +81,6 @@ LIST *exchange_journal_extract_list(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *exchange_journal_datum(
-		char *list_get );
-
-/* Usage */
-/* ----- */
 int exchange_journal_compare_function(
 		EXCHANGE_JOURNAL *exchange_journal_from_list,
 		EXCHANGE_JOURNAL *exchange_journal_compare );
@@ -106,6 +98,7 @@ typedef struct
 {
 	char *exchange_format_filename;
 	char *filespecification;
+	char *system_string;
 	LIST *file_list;
 	boolean open_tag_boolean;
 	char *financial_institution;
@@ -144,8 +137,16 @@ char *exchange_minimum_date_string(
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *exchange_system_string(
+		char *exchange_filespecification );
+
+/* Usage */
+/* ----- */
 LIST *exchange_file_list(
-		FILE *appaserver_input_file );
+		FILE *appaserver_input_pipe );
 
 /* Usage */
 /* ----- */

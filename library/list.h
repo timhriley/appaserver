@@ -888,7 +888,8 @@ void list_write(
 LIST *list_string_initial_capital(
 		LIST *string_list );
 
-void list_display_stdout(
-		LIST *list );
+void list_display_stream(
+		LIST *list,
+		FILE *stream );
 
 #endif

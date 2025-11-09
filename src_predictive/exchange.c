@@ -64,13 +64,10 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 				(char *)0 /* stop_tag */,
 				exchange_file_list );
 
-		get = list_get( exchange_file_list );
+		if ( list_past_end( exchange_file_list ) ) return NULL;
 
-		date_posted =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			exchange_journal_datum( get );
+		list_next( exchange_file_list );
+		date_posted = list_get( exchange_file_list );
 
 		exchange_file_list =
 			/* -------------------------- */
@@ -81,13 +78,10 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 				(char *)0 /* stop_tag */,
 				exchange_file_list );
 
-		get = list_get( exchange_file_list );
+		if ( list_past_end( exchange_file_list ) ) return NULL;
 
-		amount_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			exchange_journal_datum( get );
+		list_next( exchange_file_list );
+		amount_string = list_get( exchange_file_list );
 
 		exchange_file_list =
 			/* -------------------------- */
@@ -98,13 +92,11 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 				(char *)0 /* stop_tag */,
 				exchange_file_list );
 
-		get = list_get( exchange_file_list );
+		if ( list_past_end( exchange_file_list ) ) return NULL;
 
-		name =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			exchange_journal_datum( get );
+		list_next( exchange_file_list );
+
+		name = list_get( exchange_file_list );
 
 		exchange_file_list =
 			/* -------------------------- */
@@ -115,18 +107,17 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 				EXCHANGE_STMTTRN_END_TAG /* stop_tag */,
 				exchange_file_list );
 
+		if ( list_past_end( exchange_file_list ) ) return NULL;
+
 		get = list_get( exchange_file_list );
 
 		if ( !exchange_tag_boolean(
 			EXCHANGE_STMTTRN_END_TAG,
 			get ) )
 		{
-			memo =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				exchange_journal_datum(
-					get );
+			list_next( exchange_file_list );
+
+			memo = list_get( exchange_file_list );
 		}
 
 		description =
@@ -435,7 +426,7 @@ EXCHANGE *exchange_fetch(
 		char *upload_directory )
 {
 	EXCHANGE *exchange;
-	FILE *input_file;
+	FILE *input_pipe;
 
 	if ( !application_name
 	||   !exchange_format_filename
@@ -468,18 +459,27 @@ EXCHANGE *exchange_fetch(
 			exchange_format_filename,
 			upload_directory );
 
-	input_file =
+	exchange->system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		exchange_system_string(
+			exchange->filespecification );
+
+	input_pipe =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		appaserver_input_file(
-			exchange->filespecification );
+		appaserver_input_pipe(
+			exchange->system_string );
 
 	exchange->file_list =
 		exchange_file_list(
-			input_file );
+			input_pipe );
 
-	fclose( input_file );
+	pclose( input_pipe );
+
+	/* list_display_stream( exchange->file_list, stderr); */
 
 	exchange->open_tag_boolean =
 		exchange_open_tag_boolean(
@@ -569,12 +569,9 @@ char *exchange_financial_institution(
 
 	if ( list_past_end( exchange_file_list ) ) return NULL;
 
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	exchange_journal_datum(
-		list_get( exchange_file_list ) );
+	list_next( exchange_file_list );
+
+	return list_get( exchange_file_list );
 }
 
 double exchange_balance_amount(
@@ -609,13 +606,12 @@ double exchange_balance_amount(
 			message );
 	}
 
+	list_next( exchange_file_list );
+
 	return
 	string_atof(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		exchange_journal_datum(
-			(char *)list_get( exchange_file_list ) ) );
+		(char *)list_get(
+			exchange_file_list ) );
 }
 
 LIST *exchange_tag_seek_list(
@@ -640,53 +636,14 @@ LIST *exchange_tag_seek_list(
 		}
 
 		if ( exchange_tag_boolean( tag, get ) )
+		{
 			return exchange_file_list;
+		}
 
 		list_next( exchange_file_list );
 	}
 
 	return exchange_file_list;
-}
-
-char *exchange_journal_datum( char *list_get )
-{
-	char datum[ 65536 ];
-
-	if ( !list_get )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"list_get is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	(void )piece( datum, '>', list_get, 1 );
-
-	if ( !*datum )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-		"Sorry, but this file is not in open exchange format." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return strdup( datum );
 }
 
 int exchange_journal_compare_function(
@@ -740,17 +697,10 @@ boolean exchange_tag_boolean(
 			message );
 	}
 
-	if ( string_instr(
-		(char *)tag /* substr */,
-		list_get,
-		1 /* occurrence */ ) > -1 )
-	{
+	if ( string_strcmp( (char *)tag, list_get ) == 0 )
 		return 1;
-	}
 	else
-	{
 		return 0;
-	}
 }
 
 char *exchange_journal_description(
@@ -906,9 +856,39 @@ LIST *exchange_journal_list( LIST *exchange_file_list )
 	return list;
 }
 
-LIST *exchange_file_list( FILE *appaserver_input_file )
+LIST *exchange_file_list( FILE *appaserver_input_pipe )
 {
 	return
-	list_stream_fetch( appaserver_input_file );
+	list_stream_fetch(
+		appaserver_input_pipe );
+}
+
+char *exchange_system_string( char *exchange_filespecification )
+{
+	char system_string[ 1024 ];
+
+	if ( !exchange_filespecification )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"exchange_filespecification is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"cat %s | exchange_separate_lines.sh",
+		exchange_filespecification );
+
+	return strdup( system_string );
 }
 

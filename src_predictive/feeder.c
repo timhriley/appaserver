@@ -3866,10 +3866,27 @@ boolean feeder_latest_fetch_match_boolean(
 
 	if ( !list_length( feeder_row_list ) ) return 0;
 
-	/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
+	feeder_row_list_raw_display( stderr, feeder_row_list );
 
 	exist_sum = feeder_row_exist_sum( feeder_row_list );
 
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; end_balance=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	exchange_journal_begin_amount,
+	exist_sum,
+	feeder_load_event_latest_fetch->
+		feeder_row_account_end_balance );
+msg( (char *)0, message );
+}
+*/
 	match_difference =
 		feeder_latest_fetch_match_difference(
 			feeder_load_event_latest_fetch->
