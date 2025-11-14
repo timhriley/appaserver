@@ -133,7 +133,8 @@ double element_sum(
 /* Usage */
 /* ----- */
 void element_list_account_statement_list_set(
-		LIST *element_statement_list /* in/out */ );
+		LIST *element_statement_list
+			/* Sets account_statement_list */ );
 
 /* Usage */
 /* ----- */

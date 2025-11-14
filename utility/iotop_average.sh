@@ -1,19 +1,18 @@
 :
 # $APPASERVER_HOME/utility/iotop_average.sh
-# ---------------------------------------------
-# Freely available software: see Appaserver.org
-# ---------------------------------------------
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 3 ]
 then
-	echo "Usage: `echo $0 | basename.e` read|write" 1>&2
+	echo "Usage: `echo $0 | basename.e` read|write seconds iterations" 1>&2
 	exit 1
 fi
 
 operation=$1
-
-iterations=10
-seconds=5
+seconds=$2
+iterations=$2
 
 if [ "$operation" = "read" ]
 then
@@ -22,11 +21,12 @@ else
 	grab=1
 fi
 
-iotop.sh $seconds $iterations n	|
+iotop.sh $seconds $iterations 	|
 grep -i '^total'		|
 piece.e '|' $grab		|
 piece.e ':' 1			|
 column.e 0			|
+# Don't let sleeping skew
 grep -v '0.00'			|
 average.e '|'			|
 cat

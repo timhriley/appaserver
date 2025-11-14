@@ -132,17 +132,13 @@ ACCOUNT *account_statement_parse(
 
 	if ( fetch_journal_latest )
 	{
-		if ( ! ( account->account_journal_latest =
-				account_journal_latest(
-					JOURNAL_TABLE,
-					account->account_name,
-					transaction_date_time_closing,
-					fetch_transaction,
-					latest_zero_balance_boolean ) ) )
-		{
-			free( account );
-			account = NULL;
-		}
+		account->account_journal_latest =
+			account_journal_latest(
+				JOURNAL_TABLE,
+				account->account_name,
+				transaction_date_time_closing,
+				fetch_transaction,
+				latest_zero_balance_boolean );
 	}
 
 	return account;
@@ -648,19 +644,20 @@ void account_percent_of_asset_set(
 {
 	ACCOUNT *account;
 
-	if ( !asset_sum
-	||   !list_rewind( subclassification_account_statement_list ) )
-	{
-		return;
-	}
-
+	if ( asset_sum
+	&&   list_rewind( subclassification_account_statement_list ) )
 	do {
 		account = list_get( subclassification_account_statement_list );
 
-		account->percent_of_asset =
-			float_percent_of_total(
-				account->account_journal_latest->balance,
-				asset_sum );
+		if ( account->account_journal_latest )
+		{
+			account->percent_of_asset =
+				float_percent_of_total(
+					account->
+						account_journal_latest->
+						balance,
+					asset_sum );
+		}
 
 	} while ( list_next( subclassification_account_statement_list ) );
 }
@@ -671,19 +668,20 @@ void account_percent_of_income_set(
 {
 	ACCOUNT *account;
 
-	if ( float_virtually_same( element_income, 0.0 )
-	||   !list_rewind( subclassification_account_statement_list ) )
-	{
-		return;
-	}
-
+	if ( !float_virtually_same( element_income, 0.0 )
+	&&   list_rewind( subclassification_account_statement_list ) )
 	do {
 		account = list_get( subclassification_account_statement_list );
 
-		account->percent_of_income =
-			float_percent_of_total(
-				account->account_journal_latest->balance,
-				element_income );
+		if ( account->account_journal_latest )
+		{
+			account->percent_of_income =
+				float_percent_of_total(
+					account->
+						account_journal_latest->
+						balance,
+					element_income );
+		}
 
 	} while ( list_next( subclassification_account_statement_list ) );
 }
@@ -1075,15 +1073,7 @@ void account_list_delta_prior_percent_set(
 			list_get(
 				current_account_list );
 
-		if ( !current_account->account_journal_latest )
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: current_account->account_journal_latest is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+		if ( !current_account->account_journal_latest ) continue;
 
 		if ( ! ( prior_account =
 				account_seek(
@@ -1093,15 +1083,7 @@ void account_list_delta_prior_percent_set(
 			continue;
 		}
 
-		if ( !prior_account->account_journal_latest )
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: prior_account->account_journal_latest is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+		if ( !prior_account->account_journal_latest ) continue;
 
 		if ( prior_account->account_journal_latest->balance )
 		{
@@ -1129,19 +1111,7 @@ double account_list_debit_sum(
 	do {
 		account = list_get( account_list );
 
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"account->account_journal_latest is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		if ( !account->account_journal_latest ) continue;
 
 		if ( !element_accumulate_debit
 		&&   account->account_journal_latest->balance < 0.0 )
@@ -1171,19 +1141,7 @@ double account_list_credit_sum(
 	do {
 		account = list_get( account_list );
 
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"account->account_journal_latest is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		if ( !account->account_journal_latest ) continue;
 
 		if ( element_accumulate_debit
 		&&   account->account_journal_latest->balance < 0.0 )
@@ -1211,19 +1169,7 @@ double account_balance_total( LIST *account_list )
 	do {
 		account = list_get( account_list );
 
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"account->account_journal_latest is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		if ( !account->account_journal_latest ) continue;
 
 		balance_total += account->account_journal_latest->balance;
 
@@ -1463,21 +1409,10 @@ double account_list_sum( LIST *account_statement_list )
 	do {
 		account = list_get( account_statement_list );
 
-		if ( !account->account_journal_latest )
+		if ( account->account_journal_latest )
 		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"account->account_journal_latest is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			list_sum += account->account_journal_latest->balance;
 		}
-
-		list_sum += account->account_journal_latest->balance;
 
 	} while ( list_next( account_statement_list ) );
 
@@ -1495,19 +1430,7 @@ void account_transaction_count_set(
 	do {
 		account = list_get( account_statement_list );
 
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"account->account_journal_latest is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
+		if ( !account->account_journal_latest ) continue;
 
 		if ( account->account_journal_latest->balance )
 		{

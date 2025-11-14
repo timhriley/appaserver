@@ -1,8 +1,8 @@
 :
 # $APPASERVER_HOME/utility/iotop_average_loop.sh
-# ----------------------------------------------
-# Freely available software: see Appaserver.org
-# ----------------------------------------------
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 if [ "$#" -ne 1 ]
 then
@@ -12,12 +12,15 @@ fi
 
 operation=$1
 
+seconds=5
+iterations=10
+
 while [ true ]
 do
-	iotop_average.sh $operation		|
-	tail -1					|
-	piece.e '|' 1				|
-	commas_in_long.e			|
+	iotop_average.sh $operation $seconds $iterations	|
+	tail -1							|
+	piece.e '|' 1						|
+	commas_in_long.e					|
 	cat
 done
 

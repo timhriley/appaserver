@@ -473,8 +473,16 @@ int budget_annualized_budget_integer(
 /* Usage */
 /* ----- */
 int budget_annualized_amount_integer(
-		double account_amount,
+		ACCOUNT_JOURNAL *account_journal_latest,
 		int forecast_integer );
+
+/* Process */
+/* ------- */
+
+/* Returns account_journal_latest->balance or 0.0 */
+/* ---------------------------------------------- */
+double budget_annualized_journal_balance(
+		ACCOUNT_JOURNAL *account_journal );
 
 /* Usage */
 /* ----- */

@@ -72,16 +72,6 @@ LIST *budget_annualized_list(
 				list_get(
 					element->account_statement_list );
 
-			if ( !account->account_journal_latest )
-			{
-				fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
 			budget_annualized =
 				budget_annualized_new(
 					application_name,
@@ -126,15 +116,14 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 {
 	BUDGET_ANNUALIZED *budget_annualized;
 
-	if ( !account
-	||   !account->account_journal_latest )
+	if ( !account )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"account is empty or incomplete." );
+			"account is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -171,9 +160,7 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 
 	budget_annualized->amount_integer =
 		budget_annualized_amount_integer(
-			account->
-				account_journal_latest->
-				balance /* account_amount */,
+			account->account_journal_latest,
 			budget_annualized->
 				budget_regression->
 				forecast_integer );
@@ -828,7 +815,6 @@ LIST *budget_latex_row_list(
 		budget_annualized = list_get( budget_annualized_list );
 
 		if ( !budget_annualized->account
-		||   !budget_annualized->account->account_journal_latest
 		||   !budget_annualized->budget_regression )
 		{
 			char message[ 128 ];
@@ -853,11 +839,14 @@ LIST *budget_latex_row_list(
 			budget_latex_row(
 				budget_annualized->element_name,
 				budget_annualized->account->account_name,
-				budget_annualized->
-					account->
-					account_journal_latest->
-					balance
-						/* account_amount */,
+			/* ---------------------------------------------- */
+			/* Returns account_journal_latest->balance or 0.0 */
+			/* ---------------------------------------------- */
+				budget_annualized_journal_balance(
+					budget_annualized->
+						account->
+						account_journal_latest )
+					/* account_amount */,
 				budget_annualized->
 					budget_regression->
 					confidence_integer,
@@ -1185,11 +1174,10 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 	do {
 		budget_annualized = list_get( budget_annualized_list );
 
-		if ( !budget_annualized->account
-		||   !budget_annualized->account->account_journal_latest )
+		if ( !budget_annualized->account )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+		"ERROR in %s/%s()/%d: budget_annualized->account is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -1201,10 +1189,13 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 			budget_html_row(
 				budget_annualized->element_name,
 				budget_annualized->account->account_name,
-				budget_annualized->
-					account->
-					account_journal_latest->
-					balance
+			/* ---------------------------------------------- */
+			/* Returns account_journal_latest->balance or 0.0 */
+			/* ---------------------------------------------- */
+				budget_annualized_journal_balance(
+					budget_annualized->
+						account->
+						account_journal_latest )
 					/* account_amount */,
 				budget_annualized->
 					budget_regression->
@@ -2848,23 +2839,31 @@ char *budget_link_begin_date_string( void )
 }
 
 int budget_annualized_amount_integer(
-		double account_amount,
+		ACCOUNT_JOURNAL *account_journal_latest,
 		int forecast_integer )
 {
+	double journal_balance;
 	int amount_integer;
+
+	journal_balance =
+		/* ---------------------------------------------- */
+		/* Returns account_journal_latest->balance or 0.0 */
+		/* ---------------------------------------------- */
+		budget_annualized_journal_balance(
+			account_journal_latest );
 
 	if ( forecast_integer )
 		amount_integer = forecast_integer;
 	else
 		amount_integer =
 			float_round_integer(
-				account_amount );
+				journal_balance );
 
-	if ( (double)amount_integer < account_amount )
+	if ( (double)amount_integer < journal_balance )
 	{
 		amount_integer =
 			float_round_integer(
-				account_amount );
+				journal_balance );
 	}
 
 	return amount_integer;
@@ -2890,7 +2889,8 @@ int budget_annualized_budget_integer(
 				statement_prior_year->
 					element_statement_list );
 
-		if ( prior_account )
+		if ( prior_account
+		&&   prior_account->account_journal_latest )
 		{
 			budget_integer =
 				float_round_integer(
@@ -2943,10 +2943,28 @@ double budget_amount_sum(
 			budget_annualized->element_name,
 			(char *)element_name ) == 0 )
 		{
-			sum += budget_annualized->
-				account->
-				account_journal_latest->
-				balance;
+			if ( !budget_annualized->account )
+			{
+				char message[ 128 ];
+
+				snprintf(
+					message,
+					sizeof ( message ),
+				"budget_annualized->account is empty." );
+
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
+			}
+
+			/* Returns account_journal_latest->balance or 0.0 */
+			/* ---------------------------------------------- */
+			sum += budget_annualized_journal_balance(
+				budget_annualized->
+					account->
+					account_journal_latest );
 		}
 
 	} while ( list_next( budget_annualized_list ) );
@@ -3001,3 +3019,12 @@ int budget_annualized_again_budget_integer(
 	else
 		return annualized_amount_integer;
 }
+
+double budget_annualized_journal_balance( ACCOUNT_JOURNAL *account_journal )
+{
+	if ( account_journal )
+		return account_journal->balance;
+	else
+		return 0.0;
+}
+
