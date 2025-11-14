@@ -139,6 +139,12 @@ ACCOUNT *account_statement_parse(
 				transaction_date_time_closing,
 				fetch_transaction,
 				latest_zero_balance_boolean );
+
+		if ( !account->account_journal_latest
+		&&   !latest_zero_balance_boolean )
+		{
+			account = NULL;
+		}
 	}
 
 	return account;
