@@ -22,7 +22,7 @@
 #define BUDGET_PLOT_RSCRIPT_FILENAME	"budget_plot.R"
 #define BUDGET_PLOT_DEFAULT_PDF		"Rplots.pdf"
 #define BUDGET_LINK_PROMPT		"Press to view plot for "
-#define BUDGET_CONFIDENCE_THRESHOLD	70
+#define BUDGET_CONFIDENCE_THRESHOLD	85
 
 typedef struct
 {
