@@ -152,22 +152,29 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 			budget_forecast_julian_string,
 			appaserver_link_working_directory );
 
+	budget_annualized->journal_balance =
+		/* ---------------------------------------------- */
+		/* Returns account_journal_latest->balance or 0.0 */
+		/* ---------------------------------------------- */
+		budget_annualized_journal_balance(
+			account->account_journal_latest );
+
+	budget_annualized->amount_integer =
+		budget_annualized_amount_integer(
+			BUDGET_CONFIDENCE_THRESHOLD,
+			budget_annualized->
+				budget_regression->
+				confidence_integer,
+			budget_annualized->
+				budget_regression->
+				forecast_integer,
+			budget_annualized->journal_balance );
+
 	budget_annualized->budget_integer =
 		budget_annualized_budget_integer(
 			statement_prior_year,
 			account->account_name,
-			account->annual_budget );
-
-	budget_annualized->amount_integer =
-		budget_annualized_amount_integer(
-			account->account_journal_latest,
-			budget_annualized->
-				budget_regression->
-				forecast_integer );
-
-	budget_annualized->budget_integer =
-		budget_annualized_again_budget_integer(
-			budget_annualized->budget_integer,
+			account->annual_budget,
 			budget_annualized->amount_integer );
 
 	if ( !budget_annualized->budget_integer
@@ -362,7 +369,9 @@ BUDGET *budget_fetch(
 		budget_element_name_list(
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
-			ELEMENT_EXPENDITURE );
+			ELEMENT_EXPENDITURE,
+			ELEMENT_GAIN,
+			ELEMENT_LOSS );
 
 	budget->transaction_date_close_boolean =
 		transaction_date_close_boolean(
@@ -578,13 +587,17 @@ DATE *budget_begin_date( char *transaction_date_begin_date_string )
 LIST *budget_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
-		const char *element_expenditure )
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss )
 {
 	LIST *name_list = list_new();
 
 	list_set( name_list, (char *)element_revenue );
 	list_set( name_list, (char *)element_expense );
 	list_set( name_list, (char *)element_expenditure );
+	list_set( name_list, (char *)element_gain );
+	list_set( name_list, (char *)element_loss );
 
 	return name_list;
 }
@@ -2839,19 +2852,20 @@ char *budget_link_begin_date_string( void )
 }
 
 int budget_annualized_amount_integer(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		int forecast_integer )
+		const int budget_confidence_threshold,
+		int confidence_integer,
+		int forecast_integer,
+		double journal_balance )
 {
-	double journal_balance;
 	int amount_integer;
 
-	journal_balance =
-		/* ---------------------------------------------- */
-		/* Returns account_journal_latest->balance or 0.0 */
-		/* ---------------------------------------------- */
-		budget_annualized_journal_balance(
-			account_journal_latest );
-
+	if ( confidence_integer < budget_confidence_threshold )
+	{
+		amount_integer =
+			float_round_integer(
+				journal_balance );
+	}
+	else
 	if ( forecast_integer )
 		amount_integer = forecast_integer;
 	else
@@ -2872,7 +2886,8 @@ int budget_annualized_amount_integer(
 int budget_annualized_budget_integer(
 		STATEMENT_PRIOR_YEAR *statement_prior_year,
 		char *account_name,
-		int account_annual_budget )
+		int account_annual_budget,
+		int amount_integer )
 {
 	int budget_integer = 0;
 
@@ -2899,6 +2914,8 @@ int budget_annualized_budget_integer(
 						balance );
 		}
 	}
+
+	if ( !budget_integer ) budget_integer = amount_integer;
 
 	return budget_integer;
 }

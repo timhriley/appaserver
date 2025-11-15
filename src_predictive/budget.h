@@ -22,6 +22,7 @@
 #define BUDGET_PLOT_RSCRIPT_FILENAME	"budget_plot.R"
 #define BUDGET_PLOT_DEFAULT_PDF		"Rplots.pdf"
 #define BUDGET_LINK_PROMPT		"Press to view plot for "
+#define BUDGET_CONFIDENCE_THRESHOLD	70
 
 typedef struct
 {
@@ -398,8 +399,9 @@ typedef struct
 	char *element_name;
 	ACCOUNT *account;
 	BUDGET_REGRESSION *budget_regression;
-	int budget_integer;
+	double journal_balance;
 	int amount_integer;
+	int budget_integer;
 	STATEMENT_DELTA *statement_delta;
 } BUDGET_ANNUALIZED;
 
@@ -437,9 +439,10 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 BUDGET_ANNUALIZED *budget_annualized_calloc(
 		void );
 
-int budget_annualized_again_budget_integer(
-		int budget_integer,
-		int annualized_amount_integer );
+/* Returns account_journal_latest->balance or 0.0 */
+/* ---------------------------------------------- */
+double budget_annualized_journal_balance(
+		ACCOUNT_JOURNAL *account_journal );
 
 /* Usage */
 /* ----- */
@@ -459,30 +462,25 @@ int budget_annualized_budget_net(
 
 /* Usage */
 /* ----- */
-int budget_annualized_budget_sum(
-		const char *element_name,
-		LIST *budget_annualized_list );
+int budget_annualized_amount_integer(
+		const int budget_confidence_threshold,
+		int budget_regression_confidence_integer,
+		int budget_regression_forecast_integer,
+		double budget_annualized_journal_balance );
 
 /* Usage */
 /* ----- */
 int budget_annualized_budget_integer(
 		STATEMENT_PRIOR_YEAR *statement_prior_year,
 		char *account_name,
-		int account_annual_budget );
+		int account_annual_budget,
+		int budget_annualized_amount_integer );
 
 /* Usage */
 /* ----- */
-int budget_annualized_amount_integer(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		int forecast_integer );
-
-/* Process */
-/* ------- */
-
-/* Returns account_journal_latest->balance or 0.0 */
-/* ---------------------------------------------- */
-double budget_annualized_journal_balance(
-		ACCOUNT_JOURNAL *account_journal );
+int budget_annualized_budget_sum(
+		const char *element_name,
+		LIST *budget_annualized_list );
 
 /* Usage */
 /* ----- */
@@ -549,7 +547,9 @@ double budget_year_ratio(
 LIST *budget_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
-		const char *element_expenditure );
+		const char *element_expenditure,
+		const char *element_gain,
+		const char *element_loss );
 
 /* Returns heap memory */
 /* ------------------- */
