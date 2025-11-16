@@ -479,7 +479,7 @@ EXCHANGE *exchange_fetch(
 
 	pclose( input_pipe );
 
-	/* list_display_stream( exchange->file_list, stderr); */
+	/* list_display_stream( exchange->file_list, stderr ); */
 
 	exchange->open_tag_boolean =
 		exchange_open_tag_boolean(
@@ -886,7 +886,9 @@ char *exchange_system_string( char *exchange_filespecification )
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"cat %s | exchange_separate_lines.sh",
+		"cat %s | "
+		"exchange_separate_lines.sh | "
+		"sed_remove_leading_spaces.sh",
 		exchange_filespecification );
 
 	return strdup( system_string );

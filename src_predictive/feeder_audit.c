@@ -521,7 +521,7 @@ LIST *feeder_audit_html_cell_list(
 		list_set(
 			list,
 			html_cell_new(
-				"permenant difference",
+				"Different",
 				1 /* large_boolean */,
 				1 /* bold_boolean */ ) );
 	}
