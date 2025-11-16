@@ -3866,7 +3866,7 @@ boolean feeder_latest_fetch_match_boolean(
 
 	if ( !list_length( feeder_row_list ) ) return 0;
 
-	feeder_row_list_raw_display( stderr, feeder_row_list );
+	/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
 
 	exist_sum = feeder_row_exist_sum( feeder_row_list );
 
