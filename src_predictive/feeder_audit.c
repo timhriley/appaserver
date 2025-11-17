@@ -61,7 +61,22 @@ FEEDER_AUDIT *feeder_audit_fetch(
 
 	if ( !feeder_audit->feeder_row_final_number )
 	{
-		return feeder_audit;
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_row_final_number(%s,%s) returned empty.",
+			feeder_account_name,
+			feeder_audit->
+				feeder_load_event->
+				feeder_load_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	if ( ! ( feeder_audit->feeder_row_fetch =
@@ -94,30 +109,72 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			message );
 	}
 
-	feeder_audit->end_transaction_date_time =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_audit_end_transaction_date_time(
-			TRANSACTION_DATE_CLOSE_TIME,
-			feeder_audit->feeder_row_fetch->feeder_date );
-
 	feeder_audit->journal_latest =
 		journal_latest(
 			JOURNAL_TABLE,
 			(char *)0 /* fund_name */,
 			feeder_account_name,
-			feeder_audit->end_transaction_date_time,
+			(char *)0 /* transaction_date_time */,
 			0 /* not fetch_transaction_boolean */,
 			1 /* latest_zero_balance_boolean */ );
 
-	if ( !feeder_audit->journal_latest ) return feeder_audit;
+	if ( !feeder_audit->journal_latest )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"journal_latest(%s) returned empty.",
+			feeder_account_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !feeder_audit->journal_latest->full_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"journal_latest(%s)->full_name is empty.",
+			feeder_account_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	feeder_audit->account_fetch =
 		account_fetch(
 			feeder_account_name,
 			1 /* fetch_subclassification */,
 			1 /* fetch_element */ );
+
+	if ( !feeder_audit->account_fetch )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_fetch(%s) returned empty.",
+			feeder_account_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	feeder_audit->credit_balance_negate =
 		feeder_audit_credit_balance_negate(
@@ -380,18 +437,54 @@ LIST *feeder_audit_html_cell_list(
 	LIST *list;
 	char cell_string[ 128 ];
 
-	if ( !feeder_row_number
-	||   !feeder_row_full_name
+	if ( !feeder_row_full_name
 	||   !file_row_description
 	||   !feeder_row_transaction_date_time
 	||   !feeder_date
-	||   !feeder_row_file_row_amount
-	||   !journal_full_name
-	||   !journal_transaction_date_time )
+	||   !feeder_row_file_row_amount )
 	{
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !journal_full_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "journal_full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !feeder_row_number )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "feeder_row_number is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !journal_transaction_date_time )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "journal_transaction_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -528,33 +621,3 @@ LIST *feeder_audit_html_cell_list(
 
 	return list;
 }
-
-char *feeder_audit_end_transaction_date_time(
-		const char *transaction_date_close_time,
-		char *feeder_date )
-{
-	static char end_transaction_date_time[ 32 ];
-
-	if ( !feeder_date )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "date_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		end_transaction_date_time,
-		sizeof ( end_transaction_date_time ),
-		"%s %s",
-		feeder_date,
-		transaction_date_close_time );
-
-	return end_transaction_date_time;
-}
-

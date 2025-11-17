@@ -186,23 +186,6 @@ int main( int argc, char **argv )
 			"<h3>Warning: no feeder load events.</h3>\n" );
 		}
 		else
-		if ( !feeder_audit->feeder_row_final_number )
-		{
-			printf(
-			"<h3>ERROR: feeder_row_final_number is empty.</h3>\n" );
-		}
-		else
-		if ( !feeder_audit->journal_latest )
-		{
-			printf(
-			"<h3>Warning: "
-			"no journal entries exist for account=%s"
-			"</h3>\n",
-			feeder_account_name );
-
-			okay_continue = 0;
-		}
-		else
 		if ( !feeder_audit->html_table )
 		{
 			printf(

@@ -515,6 +515,15 @@ char *journal_less_where(
 /* Usage */
 /* ----- */
 
+/* Returns static memory */
+/* --------------------- */
+char *journal_transaction_date_time_where(
+		const char *relation_operator,
+		char *transaction_date_time );
+
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *journal_min_transaction_system_string(

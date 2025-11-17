@@ -22,7 +22,6 @@ typedef struct
 	FEEDER_LOAD_EVENT *feeder_load_event;
 	int feeder_row_final_number;
 	FEEDER_ROW *feeder_row_fetch;
-	char *end_transaction_date_time;
 	JOURNAL *journal_latest;
 	ACCOUNT *account_fetch;
 	double credit_balance_negate;
@@ -45,12 +44,6 @@ FEEDER_AUDIT *feeder_audit_fetch(
 /* ------- */
 FEEDER_AUDIT *feeder_audit_calloc(
 		void );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_audit_end_transaction_date_time(
-		const char *transaction_date_close_time,
-		char *feeder_date );
 
 LIST *feeder_audit_html_column_list(
 		void );
