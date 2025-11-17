@@ -571,8 +571,7 @@ char *budget_display(
 /* --------------------- */
 char *budget_sub_title(
 		const int budget_confidence_threshold,
-		char *input_subt_itle,
-		double budget_year_ratio );
+		char *input_subt_itle );
 
 /* Usage */
 /* ----- */

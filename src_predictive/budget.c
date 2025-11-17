@@ -490,8 +490,7 @@ BUDGET *budget_fetch(
 				budget->
 					statement->
 					statement_caption->
-					combined,
-				budget->year_ratio );
+					combined );
 
 		budget->budget_latex =
 			budget_latex_new(
@@ -530,8 +529,7 @@ BUDGET *budget_fetch(
 				budget->
 					statement->
 					statement_caption->
-					sub_title,
-				budget->year_ratio );
+					sub_title );
 
 		budget->budget_html =
 			budget_html_new(
@@ -1702,8 +1700,7 @@ int budget_annualized_budget_sum(
 
 char *budget_sub_title(
 		const int budget_confidence_threshold,
-		char *input_sub_title,
-		double budget_year_ratio )
+		char *input_sub_title )
 {
 	static char sub_title[ 256 ];
 
@@ -1720,11 +1717,9 @@ char *budget_sub_title(
 	snprintf(
 		sub_title,
 		sizeof ( sub_title ),
-		"%s, Confidence Threshold: %d, Year Percent: %d",
+		"%s, Confidence Threshold: %d",
 		input_sub_title,
-		budget_confidence_threshold,
-		float_ratio_to_percent(
-			budget_year_ratio ) );
+		budget_confidence_threshold );
 
 	return sub_title;
 }
