@@ -9,6 +9,7 @@
 #include "float.h"
 #include "String.h"
 #include "list.h"
+#include "appaserver.h"
 #include "sql.h"
 #include "piece.h"
 #include "boolean.h"
@@ -25,9 +26,10 @@ LIST *subclassification_where_statement_list(
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean )
 {
+	LIST *list;
+	char *system_string;
 	FILE *pipe;
 	char input[ 256 ];
-	LIST *list;
 	SUBCLASSIFICATION *subclassification;
 
 	if ( !where
@@ -46,15 +48,21 @@ LIST *subclassification_where_statement_list(
 
 	list = list_new();
 
-	pipe =
-		subclassification_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			subclassification_system_string(
-				SUBCLASSIFICATION_SELECT,
-				SUBCLASSIFICATION_TABLE,
-				where ) );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		subclassification_system_string(
+			SUBCLASSIFICATION_SELECT,
+			SUBCLASSIFICATION_TABLE,
+			where );
+
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	pipe = subclassification_pipe( system_string );
+
+	free( system_string );
 
 	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
@@ -122,14 +130,17 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 
 	if ( fetch_account_list )
 	{
+		char *primary_where =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			subclassification_primary_where(
+				subclassification->
+					subclassification_name );
+
 		subclassification->account_statement_list =
 			account_statement_list(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				subclassification_primary_where(
-					subclassification->
-						subclassification_name ),
+				primary_where,
 				end_date_time_string,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */,
@@ -223,6 +234,9 @@ SUBCLASSIFICATION *subclassification_fetch(
 		char input[ 256 ];
 
 		pipe =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			subclassification_pipe(
 				/* ------------------- */
 				/* Returns heap memory */
@@ -413,7 +427,10 @@ double subclassification_list_sum_set(
 FILE *subclassification_pipe( char *system_string )
 {
 	return
-	popen( system_string, "r" );
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	appaserver_input_pipe( system_string );
 }
 
 void subclassification_list_delta_prior_percent_set(
@@ -756,6 +773,9 @@ LIST *subclassification_system_list(
 	char input[ 256 ];
 
 	pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		subclassification_pipe(
 			subclassification_system_string );
 

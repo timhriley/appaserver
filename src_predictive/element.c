@@ -364,6 +364,9 @@ ELEMENT *element_statement_fetch(
 
 	pipe =
 		element_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			element_system_string(
 				ELEMENT_SELECT,
 				ELEMENT_TABLE,

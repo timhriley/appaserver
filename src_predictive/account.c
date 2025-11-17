@@ -34,6 +34,7 @@ LIST *account_statement_list(
 {
 	boolean chart_account_boolean;
 	char *select_string;
+	char *system_string;
 	FILE *pipe;
 	char input[ 1024 ];
 	LIST *statement_list;
@@ -58,6 +59,7 @@ LIST *account_statement_list(
 			ACCOUNT_CHART_ACCOUNT_NUMBER );
 
 	select_string =
+		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		account_select_string(
@@ -65,15 +67,18 @@ LIST *account_statement_list(
 			ACCOUNT_CHART_ACCOUNT_NUMBER,
 			chart_account_boolean );
 
-	pipe =
-		account_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			account_system_string(
-				select_string,
-				ACCOUNT_TABLE,
-				subclassification_primary_where ) );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_system_string(
+			select_string,
+			ACCOUNT_TABLE,
+			subclassification_primary_where );
+
+	free( select_string );
+	pipe = account_pipe( system_string );
+	free( system_string );
 
 	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{

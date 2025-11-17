@@ -78,7 +78,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
 ACCOUNT_JOURNAL *account_journal_latest(
 		const char *journal_table,
 		char *account_name,

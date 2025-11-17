@@ -157,7 +157,8 @@ JOURNAL *journal_latest(
 				account_name );
 	}
 
-	if ( !latest_zero_balance_boolean
+	if ( journal_fetch
+	&&   !latest_zero_balance_boolean
 	&&   !journal_fetch->balance )
 	{
 		journal_fetch = NULL;

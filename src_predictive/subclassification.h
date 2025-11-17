@@ -74,6 +74,8 @@ char *subclassification_system_string(
 		char *subclassification_table,
 		char *where );
 
+/* Safely returns */
+/* -------------- */
 FILE *subclassification_pipe(
 		char *subclassification_system_string );
 
