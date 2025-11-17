@@ -1720,9 +1720,10 @@ char *budget_sub_title(
 	snprintf(
 		sub_title,
 		sizeof ( sub_title ),
-		"%s, Confidence Threshold: %d, Year Percent: %d%c",
+		"%s, Confidence Threshold: %d%c, Year Percent: %d%c",
 		input_sub_title,
 		budget_confidence_threshold,
+		'%',
 		float_ratio_to_percent(
 			budget_year_ratio ),
 		'%' );
