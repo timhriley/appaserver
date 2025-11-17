@@ -481,11 +481,12 @@ BUDGET *budget_fetch(
 
 	if ( budget->statement_output_medium == statement_output_PDF )
 	{
-		budget->year_percent_sub_title =
+		budget->sub_title =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			budget_year_percent_sub_title(
+			budget_sub_title(
+				BUDGET_CONFIDENCE_THRESHOLD,
 				budget->
 					statement->
 					statement_caption->
@@ -507,7 +508,7 @@ BUDGET *budget_fetch(
 					statement->
 					statement_caption->
 					logo_filename,
-				budget->year_percent_sub_title,
+				budget->sub_title,
 				budget->budget_annualized_list,
 				budget->amount_net,
 				budget->annualized_amount_net,
@@ -520,11 +521,12 @@ BUDGET *budget_fetch(
 	else
 	if ( budget->statement_output_medium == statement_output_table )
 	{
-		budget->year_percent_sub_title =
+		budget->sub_title =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			budget_year_percent_sub_title(
+			budget_sub_title(
+				BUDGET_CONFIDENCE_THRESHOLD,
 				budget->
 					statement->
 					statement_caption->
@@ -533,7 +535,7 @@ BUDGET *budget_fetch(
 
 		budget->budget_html =
 			budget_html_new(
-				budget->year_percent_sub_title,
+				budget->sub_title,
 				budget->budget_annualized_list,
 				budget->amount_net,
 				budget->annualized_amount_net,
@@ -944,7 +946,7 @@ LIST *budget_latex_column_list( void )
 }
 
 LATEX_TABLE *budget_latex_table(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int annualized_amount_net,
@@ -954,7 +956,7 @@ LATEX_TABLE *budget_latex_table(
 	LIST *latex_column_list;
 	LIST *latex_row_list;
 
-	if ( !budget_year_percent_sub_title
+	if ( !budget_sub_title
 	||   !list_length( budget_annualized_list ) )
 	{
 		return NULL;
@@ -978,7 +980,7 @@ LATEX_TABLE *budget_latex_table(
 
 	return
 	latex_table_new(
-		budget_year_percent_sub_title /* title */,
+		budget_sub_title /* title */,
 		latex_column_list,
 		latex_row_list );
 }
@@ -990,7 +992,7 @@ BUDGET_LATEX *budget_latex_new(
 		char *transaction_date_begin_date_string,
 		char *statement_end_date_time,
 		char *statement_caption_logo_filename,
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int annualized_amount_net,
@@ -1003,7 +1005,7 @@ BUDGET_LATEX *budget_latex_new(
 	if ( !application_name
 	||   !process_name
 	||   !data_directory
-	||   !budget_year_percent_sub_title )
+	||   !budget_sub_title )
 	{
 		char message[ 128 ];
 
@@ -1040,7 +1042,7 @@ BUDGET_LATEX *budget_latex_new(
 
 	budget_latex->latex_table =
 		budget_latex_table(
-			budget_year_percent_sub_title,
+			budget_sub_title,
 			budget_annualized_list,
 			budget_amount_net,
 			annualized_amount_net,
@@ -1068,7 +1070,7 @@ BUDGET_LATEX *budget_latex_calloc( void )
 }
 
 BUDGET_HTML *budget_html_new(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int annualized_amount_net,
@@ -1077,10 +1079,10 @@ BUDGET_HTML *budget_html_new(
 {
 	BUDGET_HTML *budget_html;
 
-	if ( !budget_year_percent_sub_title )
+	if ( !budget_sub_title )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: budget_year_percent_sub_title is empty.\n",
+	"ERROR in %s/%s()/%d: budget_sub_title is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1093,7 +1095,7 @@ BUDGET_HTML *budget_html_new(
 
 	budget_html->html_table =
 		budget_html_table(
-			budget_year_percent_sub_title,
+			budget_sub_title,
 			budget_annualized_list,
 			budget_amount_net,
 			annualized_amount_net,
@@ -1439,7 +1441,7 @@ HTML_ROW *budget_html_row(
 }
 
 HTML_TABLE *budget_html_table(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int annualized_amount_net,
@@ -1448,10 +1450,10 @@ HTML_TABLE *budget_html_table(
 {
 	HTML_TABLE *html_table;
 
-	if ( !budget_year_percent_sub_title )
+	if ( !budget_sub_title )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: budget_year_percent_sub_title is empty.\n",
+	"ERROR in %s/%s()/%d: budget_sub_title is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1463,7 +1465,7 @@ HTML_TABLE *budget_html_table(
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
-			budget_year_percent_sub_title,
+			budget_sub_title,
 			(char *)0 /* sub_sub_title */ );
 
 	html_table->column_list = budget_html_column_list();
@@ -1698,7 +1700,8 @@ int budget_annualized_budget_sum(
 	return sum;
 }
 
-char *budget_year_percent_sub_title(
+char *budget_sub_title(
+		const int budget_confidence_threshold,
 		char *input_sub_title,
 		double budget_year_ratio )
 {
@@ -1714,11 +1717,15 @@ char *budget_year_percent_sub_title(
 		exit( 1 );
 	}
 
-	sprintf(sub_title,
-		"%s, Year Percent: %d",
+	snprintf(
+		sub_title,
+		sizeof ( sub_title ),
+		"%s, Confidence Threshold: %d, Year Percent: %d%c",
 		input_sub_title,
+		budget_confidence_threshold,
 		float_ratio_to_percent(
-			budget_year_ratio ) );
+			budget_year_ratio ),
+		'%' );
 
 	return sub_title;
 }

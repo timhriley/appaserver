@@ -266,7 +266,7 @@ typedef struct
 /* Usage */
 /* ----- */
 BUDGET_HTML *budget_html_new(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int budget_annualized_amount_net,
@@ -281,7 +281,7 @@ BUDGET_HTML *budget_html_calloc(
 /* Usage */
 /* ----- */
 HTML_TABLE *budget_html_table(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int budget_annualized_amount_net,
@@ -339,7 +339,7 @@ BUDGET_LATEX *budget_latex_new(
 		char *transaction_date_begin_date_string,
 		char *statement_end_date_time,
 		char *statement_logo_filename,
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int annualized_amount_net,
@@ -355,7 +355,7 @@ BUDGET_LATEX *budget_latex_calloc(
 /* Usage */
 /* ----- */
 LATEX_TABLE *budget_latex_table(
-		char *budget_year_percent_sub_title,
+		char *budget_sub_title,
 		LIST *budget_annualized_list,
 		double budget_amount_net,
 		int budget_annualized_amount_net,
@@ -511,7 +511,7 @@ typedef struct
 	int annualized_amount_net;
 	int annualized_budget_net;
 	STATEMENT_DELTA *statement_delta;
-	char *year_percent_sub_title;
+	char *sub_title;
 	BUDGET_LATEX *budget_latex;
 	BUDGET_HTML *budget_html;
 } BUDGET;
@@ -569,7 +569,8 @@ char *budget_display(
 
 /* Returns static memory */
 /* --------------------- */
-char *budget_year_percent_sub_title(
+char *budget_sub_title(
+		const int budget_confidence_threshold,
 		char *input_subt_itle,
 		double budget_year_ratio );
 
