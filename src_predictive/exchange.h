@@ -41,7 +41,8 @@ EXCHANGE_JOURNAL *exchange_journal_extract(
 EXCHANGE_JOURNAL *exchange_journal_new(
 		char *date_posted,
 		char *amount_string,
-		char *description );
+		char *description,
+		double balance_double );
 
 /* Process */
 /* ------- */
@@ -71,7 +72,8 @@ LIST *exchange_journal_list(
 /* Usage */
 /* ----- */
 double exchange_journal_begin_amount(
-		LIST *exchange_journal_list /* in/out */,
+		LIST *exchange_journal_list
+			/* Sets journal->previous_balance and balance */,
 		double exchange_balance_amount );
 
 /* Process */

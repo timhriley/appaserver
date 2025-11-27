@@ -109,24 +109,27 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			message );
 	}
 
-	feeder_audit->journal_latest =
-		journal_latest(
-			JOURNAL_TABLE,
+	feeder_audit->journal_account_fetch =
+		journal_account_fetch(
 			(char *)0 /* fund_name */,
+			feeder_audit->feeder_row_fetch->transaction_date_time,
 			feeder_account_name,
-			(char *)0 /* transaction_date_time */,
-			0 /* not fetch_transaction_boolean */,
-			1 /* latest_zero_balance_boolean */ );
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_entity */,
+			0 /* not fetch_transaction */ );
 
-	if ( !feeder_audit->journal_latest )
+	if ( !feeder_audit->journal_account_fetch )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"journal_latest(%s) returned empty.",
-			feeder_account_name );
+			"journal_account_fetch(%s) returned empty.",
+			feeder_audit->
+				feeder_row_fetch->
+				transaction_date_time );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -135,15 +138,17 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			message );
 	}
 
-	if ( !feeder_audit->journal_latest->full_name )
+	if ( !feeder_audit->journal_account_fetch->full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"journal_latest(%s)->full_name is empty.",
-			feeder_account_name );
+			"journal_account_fetch(%s)->full_name is empty.",
+			feeder_audit->
+				feeder_row_fetch->
+				transaction_date_time );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -175,11 +180,10 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			message );
 	}
 
-
 	feeder_audit->credit_balance_negate =
 		feeder_audit_credit_balance_negate(
 			feeder_audit->
-				journal_latest->
+				journal_account_fetch->
 				balance
 				/* journal_balance */,
 			feeder_audit->
@@ -218,8 +222,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			login_name,
 			feeder_audit->feeder_row_fetch
 				/* feeder_row */,
-			feeder_audit->journal_latest
-				/* journal */,
+			feeder_audit->journal_account_fetch,
 			feeder_audit->credit_balance_negate
 				/* journal_balance */,
 			feeder_audit->balance_difference,
@@ -356,7 +359,7 @@ HTML_ROW *feeder_audit_html_row(
 		char *application_name,
 		char *login_name,
 		FEEDER_ROW *feeder_row,
-		JOURNAL *journal,
+		JOURNAL *journal_account_fetch,
 		double journal_balance,
 		double feeder_audit_balance_difference,
 		boolean feeder_audit_difference_zero )
@@ -366,11 +369,11 @@ HTML_ROW *feeder_audit_html_row(
 	if ( !application_name
 	||   !login_name
 	||   !feeder_row
-	||   !journal )
+	||   !journal_account_fetch )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty or incomplete." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -400,8 +403,9 @@ HTML_ROW *feeder_audit_html_row(
 				/* feeder_date */,
 			feeder_row->file_row_amount,
 			feeder_row->calculate_balance,
-			journal->full_name,
-			journal->transaction_date_time,
+			journal_account_fetch->full_name
+				/* journal_full_name */,
+			journal_account_fetch->transaction_date_time,
 			journal_balance,
 			feeder_audit_balance_difference,
 			feeder_audit_difference_zero );

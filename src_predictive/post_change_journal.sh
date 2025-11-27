@@ -54,6 +54,7 @@ then
 	do
 		ledger_propagate					\
 				"$transaction_date_time"		\
+				fund					\
 				"$preupdate_transaction_date_time"	\
 				"$local_account"
 	done
@@ -62,6 +63,7 @@ fi
 if [ "$account_name" != "" -a "$account_name" != "account" ]
 then
 	ledger_propagate	"$transaction_date_time"		\
+				fund					\
 				"$preupdate_transaction_date_time"	\
 				"$account_name"
 fi
@@ -70,6 +72,7 @@ if [ "$preupdate_account_name" != ""					\
 -a   "$preupdate_account_name" != "preupdate_account" ]
 then
 	ledger_propagate	"$transaction_date_time"		\
+				fund					\
 				"$preupdate_transaction_date_time"	\
 				"$preupdate_account_name"
 fi

@@ -547,8 +547,6 @@ FEEDER *feeder_fetch(
 			feeder->feeder_row_list,
 			feeder->feeder_load_event_latest_fetch );
 
-	if ( !feeder->latest_fetch_match_boolean ) return feeder;
-
 	feeder->feeder_row_insert_count =
 		feeder_row_insert_count(
 			feeder->feeder_row_list );
@@ -593,6 +591,10 @@ FEEDER *feeder_fetch(
 		/* Returns feeder_row->feeder_load_row->calculate_balance */
 		/* ------------------------------------------------------ */
 		feeder_row_account_end_balance(
+			feeder->feeder_row_list );
+
+	feeder->feeder_row_list_non_match_boolean =
+		feeder_row_list_non_match_boolean(
 			feeder->feeder_row_list );
 
 	if (	!feeder->feeder_row_list_status_out_of_balance_boolean
@@ -2408,8 +2410,7 @@ char *feeder_match_minimum_date(
 	date_display_yyyy_mm_dd( date );
 }
 
-void feeder_row_error_display(
-		LIST *feeder_row_list )
+void feeder_row_error_display( LIST *feeder_row_list )
 {
 	feeder_row_list_display(
 		feeder_row_error_extract_list(
@@ -3461,7 +3462,7 @@ void feeder_row_list_raw_display(
 
 		fprintf(
 			stream,
-			"%s\n",
+			"%s\n\n",
 			display );
 
 		free( display );
@@ -3866,32 +3867,34 @@ boolean feeder_latest_fetch_match_boolean(
 
 	if ( !list_length( feeder_row_list ) ) return 0;
 
-	/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
+/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
 
 	exist_sum = feeder_row_exist_sum( feeder_row_list );
 
-/*
+	match_difference =
+		feeder_latest_fetch_match_difference(
+			feeder_load_event_latest_fetch->
+				feeder_row_account_end_balance,
+			exist_sum );
+
+#ifdef DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; end_balance=%.2lf\n",
+	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; end_balance=%.2lf; match_difference=%.2lf\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	exchange_journal_begin_amount,
 	exist_sum,
 	feeder_load_event_latest_fetch->
-		feeder_row_account_end_balance );
+		feeder_row_account_end_balance,
+	match_difference );
 msg( (char *)0, message );
 }
-*/
-	match_difference =
-		feeder_latest_fetch_match_difference(
-			feeder_load_event_latest_fetch->
-				feeder_row_account_end_balance,
-			exist_sum );
+#endif
 
 	return
 	float_money_virtually_same(
@@ -3940,6 +3943,26 @@ boolean feeder_row_list_status_out_of_balance_boolean( LIST *feeder_row_list )
 
 		if (	feeder_row->feeder_row_status ==
 			feeder_row_status_out_of_balance )
+		{
+			return 1;
+		}
+
+	} while ( list_next( feeder_row_list ) );
+
+	return 0;
+}
+
+boolean feeder_row_list_non_match_boolean( LIST *feeder_row_list )
+{
+	FEEDER_ROW *feeder_row;
+
+	if ( list_rewind( feeder_row_list ) )
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if (	!feeder_row->feeder_exist_row_seek
+		&&	!feeder_row->feeder_matched_journal
+		&&	!feeder_row->feeder_phrase_seek )
 		{
 			return 1;
 		}

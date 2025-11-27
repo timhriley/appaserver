@@ -57,11 +57,15 @@ char *piece_quoted(
 		int offset,
 		char quote_character );
 
+/* Returns destination or NULL */
+/* --------------------------- */
 char *piece_quote(
 		char *destination,
 		char *source,
 		int offset );
 
+/* Returns destination or NULL */
+/* --------------------------- */
 char *piece_quote_comma(
 		char *destination,
 		char *source,

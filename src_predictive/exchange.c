@@ -135,7 +135,8 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 		exchange_journal_new(
 			date_posted,
 			amount_string,
-			description );			
+			description,
+			0.0 /* balance_double */ );			
 	}
 
 	/* Stub */
@@ -146,7 +147,8 @@ EXCHANGE_JOURNAL *exchange_journal_extract( LIST *exchange_file_list )
 EXCHANGE_JOURNAL *exchange_journal_new(
 		char *date_posted,
 		char *amount_string,
-		char *description )
+		char *description,
+		double balance_double )
 {
 	EXCHANGE_JOURNAL *exchange_journal;
 
@@ -189,6 +191,7 @@ EXCHANGE_JOURNAL *exchange_journal_new(
 			amount_string );
 
 	exchange_journal->description = description;
+	exchange_journal->journal->balance = balance_double;
 
 	return exchange_journal;
 }
@@ -513,7 +516,8 @@ EXCHANGE *exchange_fetch(
 
 	exchange->exchange_journal_begin_amount =
 		exchange_journal_begin_amount(
-			exchange->exchange_journal_list /* in/out */,
+			exchange->exchange_journal_list
+			/* Sets journal->previous_balance and balance */,
 			exchange->balance_amount );
 
 	exchange->minimum_date_string =

@@ -90,13 +90,13 @@ APPASERVER_USER *appaserver_user_login_fetch(
 
 	if ( !input )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
 			"string_pipe_fetch(%s) returned empty.",
-			login_name );
+			system_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

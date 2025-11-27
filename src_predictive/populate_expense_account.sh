@@ -20,7 +20,7 @@ fi
 
 echo $0 $* 1>&2
 
-populate_account.sh many_table subclassification expense
+populate_account.sh many_table related_column subclassification expense
 
 exit 0
 

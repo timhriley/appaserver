@@ -121,6 +121,7 @@ EXECUTABLES=	trial_balance_output					\
 		ledger_debit_credit_audit				\
 		ledger_propagate					\
 		feeder_upload						\
+		feeder_upload_csv					\
 		feeder_init_execute					\
 		journal_trigger						\
 		tax_form_report						\
@@ -449,11 +450,33 @@ feeder_upload: feeder_upload.c						\
 		${STANDARD_LIBRARY}					\
 		feeder_upload.c						\
 		exchange.o						\
+		exchange_csv.o						\
 		feeder.o						\
 		feeder_account.o					\
 		feeder_load_event.o					\
 		feeder_audit.o						\
 		-o feeder_upload
+
+feeder_upload_csv: feeder_upload_csv.c					\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+	exchange.o							\
+	exchange_csv.o							\
+	feeder.o							\
+	feeder_account.o						\
+	feeder_load_event.o						\
+	feeder_audit.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		feeder_upload_csv.c					\
+		exchange.o						\
+		exchange_csv.o						\
+		feeder.o						\
+		feeder_account.o					\
+		feeder_load_event.o					\
+		feeder_audit.o						\
+		-o feeder_upload_csv
 
 feeder_init_execute: feeder_init_execute.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
@@ -468,6 +491,7 @@ feeder_init_execute: feeder_init_execute.c				\
 		${STANDARD_LIBRARY}					\
 		feeder_init_execute.c					\
 		exchange.o						\
+		exchange_csv.o						\
 		feeder.o						\
 		feeder_account.o					\
 		feeder_load_event.o					\
@@ -987,6 +1011,10 @@ feeder_audit.o: feeder_audit.c feeder_audit.h
 exchange.o: exchange.c exchange.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c exchange.c
+
+exchange_csv.o: exchange_csv.c exchange_csv.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c exchange_csv.c
 
 recovery.o: recovery.c recovery.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

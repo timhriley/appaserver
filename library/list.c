@@ -96,11 +96,6 @@ void list_add_head( LIST *list, void *this_item )
 
 void list_set_head( LIST *list, void *this_item )
 {
-	list_prepend_pointer( list, this_item );
-}
-
-void list_prepend_pointer( LIST *list, void *this_item )
-{
 	struct LINKTYPE *newlink;
 
 	if ( !list ) return;
@@ -128,6 +123,11 @@ void list_prepend_pointer( LIST *list, void *this_item )
 	newlink->previous = list->head;
 	newlink->next->previous = newlink;
 	list->head->next = newlink;
+}
+
+void list_prepend_pointer( LIST *list, void *this_item )
+{
+	list_set_head( list, this_item );
 }
 
 void list_append_string_list( LIST *list, LIST *string_list )

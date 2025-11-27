@@ -22,7 +22,7 @@ typedef struct
 	FEEDER_LOAD_EVENT *feeder_load_event;
 	int feeder_row_final_number;
 	FEEDER_ROW *feeder_row_fetch;
-	JOURNAL *journal_latest;
+	JOURNAL *journal_account_fetch;
 	ACCOUNT *account_fetch;
 	double credit_balance_negate;
 	double balance_difference;
@@ -65,7 +65,7 @@ HTML_ROW *feeder_audit_html_row(
 		char *application_name,
 		char *login_name,
 		FEEDER_ROW *feeder_row,
-		JOURNAL *journal,
+		JOURNAL *journal_account_fetch,
 		double journal_balance,
 		double feeder_audit_balance_difference,
 		boolean feeder_audit_difference_zero );

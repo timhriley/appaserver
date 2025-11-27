@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_upload.c			*/
+/* $APPASERVER_HOME/src_predictive/feeder_upload_csv.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -15,22 +15,28 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
-#include "exchange.h"
-#include "feeder_load_event.h"
-#include "feeder_audit.h"
+#include "exchange_csv.h"
 #include "feeder.h"
+#include "feeder_audit.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	char *login_name;
-	char *fund_name;
 	char *feeder_account_name;
-	char *exchange_format_filename;
+	char *csv_format_filename;
+	int date_column;
+	int description_column;
+	int debit_column;
+	int credit_column;
+	int balance_column;
+	int reference_column;
+	boolean reverse_order_boolean;
+	double balance_amount = 0.0;
 	boolean execute_boolean;
 	boolean okay_continue = 1;
-	EXCHANGE *exchange = {0};
+	EXCHANGE_CSV *exchange_csv = {0};
 	FEEDER *feeder = {0};
 	FEEDER_AUDIT *feeder_audit;
 
@@ -38,21 +44,31 @@ int main( int argc, char **argv )
 		environment_exit_application_name(
 			argv[ 0 ] );
 
-	if ( argc != 7 )
+	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund feeder_account exchange_format_filename execute_yn\n",
+"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reference_column reverse_order_yn account_end_balance execute_yn\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"\nNotes: Column numbers are one based. Delimiters are either comma only, or quote-comma.\n" );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	feeder_account_name = argv[ 4 ];
-	exchange_format_filename = argv[ 5 ];
-	execute_boolean = (*argv[ 6 ] == 'y');
+	feeder_account_name = argv[ 3 ];
+	csv_format_filename = argv[ 4 ];
+	date_column = atoi( argv[ 5 ] );
+	description_column = atoi( argv[ 6 ] );
+	debit_column = atoi( argv[ 7 ] );
+	credit_column = atoi( argv[ 8 ] );
+	balance_column = atoi( argv[ 9 ] );
+	reference_column = atoi( argv[ 10 ] );
+	reverse_order_boolean = (*argv[ 11 ] == 'y');
+	balance_amount = atof( argv[ 12 ] );
+	execute_boolean = (*argv[ 13 ] == 'y');
 
 	appaserver_error_argv_file(
 		argc,
@@ -74,36 +90,36 @@ int main( int argc, char **argv )
 	}
 
 	if ( okay_continue
-	&&   *exchange_format_filename
+	&&   *csv_format_filename
 	&&   strcmp(
-		exchange_format_filename,
-		"exchange_format_filename" ) != 0 )
+		csv_format_filename,
+		"csv_format_filename" ) != 0 )
 	{
-		exchange =
+		exchange_csv =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
-			exchange_fetch(
+			exchange_csv_fetch(
 				application_name,
-				exchange_format_filename,
+				csv_format_filename,
+				date_column /* one based */,
+				description_column /* one based */,
+				debit_column /* one based */,
+				credit_column /* one based */,
+				balance_column /* one based */,
+				reference_column /* one based */,
+				reverse_order_boolean,
+				balance_amount /* optional */,
 				appaserver_parameter_upload_directory() );
 	}
 
-	if ( exchange )
+	if ( exchange_csv )
 	{
-		if ( !exchange->open_tag_boolean )
-		{
-			printf(
-		"<h3>Sorry, but this file is not in exchange format.</h3>\n" );
-
-			okay_continue = 0;
-		}
-
 		if ( okay_continue
-		&&   !list_length( exchange->exchange_journal_list ) )
+		&&   !list_length( exchange_csv->exchange_journal_list ) )
 		{
 			printf(
-"<h3>Sorry, but this exchange formatted file doesn't have any transactions.</h3>\n" );
+"<h3>Sorry, but this CSV formatted file doesn't have any transactions.</h3>\n" );
 
 			okay_continue = 0;
 		}
@@ -118,11 +134,13 @@ int main( int argc, char **argv )
 					application_name,
 					login_name,
 					feeder_account_name,
-					exchange_format_filename,
-					exchange->exchange_journal_list,
-					exchange->exchange_journal_begin_amount,
-					exchange->balance_amount,
-					exchange->minimum_date_string );
+					csv_format_filename,
+					exchange_csv->exchange_journal_list,
+					exchange_csv->
+						exchange_journal_begin_amount,
+					exchange_csv->balance_double,
+					exchange_csv->
+						exchange_minimum_date_string );
 		}
 	}
 
@@ -153,7 +171,7 @@ int main( int argc, char **argv )
 				feeder->
 					feeder_load_event_latest_fetch->
 					feeder_row_account_end_balance,
-				exchange->exchange_journal_begin_amount );
+				exchange_csv->exchange_journal_begin_amount );
 
 			printf( "%s\n", message );
 		}
@@ -161,7 +179,10 @@ int main( int argc, char **argv )
 		if ( execute_boolean
 		&&   feeder->feeder_row_insert_count )
 		{
-			feeder_execute( process_name, fund_name, feeder );
+			feeder_execute(
+				process_name,
+				(char *)0 /* fund_name */,
+				feeder );
 		}
 		else
 		{

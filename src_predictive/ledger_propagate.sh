@@ -34,7 +34,7 @@ process_title=`echo "$process_name" | string_initial_capital.e '|' 0`
 document_body.sh
 echo "<h1>$process_title</h1>"
 
-ledger_propagate ''
+ledger_propagate '' ''
 
 echo "<h3>Process complete.</h3>"
 echo "</body></html>"

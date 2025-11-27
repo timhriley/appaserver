@@ -18,6 +18,8 @@
 #include "feeder_account.h"
 #include "feeder_load_event.h"
 
+/* #define DEBUG_MODE 1 */
+
 #define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
 					"feeder_load_transaction_days_ago"
 
@@ -548,6 +550,11 @@ void feeder_row_calculate_balance_set(
 double feeder_row_calculate_balance(
 		FEEDER_ROW *feeder_row,
 		double feeder_load_event_prior_account_end_balance );
+
+/* Usage */
+/* ----- */
+boolean feeder_row_list_non_match_boolean(
+		LIST *feeder_row_list );
 
 /* Usage */
 /* ----- */

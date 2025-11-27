@@ -52,10 +52,14 @@ char *piece( char *destination, char delimiter, char *source, int offset )
 
 	if ( delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
 	{
-		return piece_quote_comma(
-				destination,
-				source,
-				offset );
+		return
+		/* --------------------------- */
+		/* Returns destination or NULL */
+		/* --------------------------- */
+		piece_quote_comma(
+			destination,
+			source,
+			offset );
 	}
 	else
 	if ( delimiter == PIECE_SPACES_DELIMITER_CODE
@@ -902,6 +906,7 @@ char *piece_quote(
 	char buffer[ 65536 ];
  
 	if ( !destination || !source ) return (char *)0;
+	if ( offset < 0 ) return (char *)0;
 
 	*destination = '\0';
 
@@ -1096,6 +1101,9 @@ char *piece_quote_comma_delimited(
 		int offset )
 {
 	return
+	/* --------------------------- */
+	/* Returns destination or NULL */
+	/* --------------------------- */
 	piece_quote_comma(
 		destination,
 		source,
@@ -1490,6 +1498,9 @@ char *piece_quote_comma(
 		int offset )
 {
 	return
+	/* --------------------------- */
+	/* Returns destination or NULL */
+	/* --------------------------- */
 	piece_quote(
 		destination,
 		source,
@@ -1504,6 +1515,9 @@ int piece_quote_comma_seek(
 	char destination[ 1024 ];
 
 	for(	p = 0;
+		/* --------------------------- */
+		/* Returns destination or NULL */
+		/* --------------------------- */
 		piece_quote_comma(
 			destination,
 			quote_comma_row,
