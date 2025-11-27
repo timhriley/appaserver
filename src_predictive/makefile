@@ -450,7 +450,6 @@ feeder_upload: feeder_upload.c						\
 		${STANDARD_LIBRARY}					\
 		feeder_upload.c						\
 		exchange.o						\
-		exchange_csv.o						\
 		feeder.o						\
 		feeder_account.o					\
 		feeder_load_event.o					\
@@ -491,7 +490,6 @@ feeder_init_execute: feeder_init_execute.c				\
 		${STANDARD_LIBRARY}					\
 		feeder_init_execute.c					\
 		exchange.o						\
-		exchange_csv.o						\
 		feeder.o						\
 		feeder_account.o					\
 		feeder_load_event.o					\
