@@ -11,10 +11,12 @@
 #include <ctype.h>
 #include "String.h"
 #include "piece.h"
+#include "float.h"
 #include "appaserver.h"
 #include "sql.h"
 #include "appaserver_error.h"
 #include "journal.h"
+#include "feeder.h"
 #include "feeder_load_event.h"
 
 FEEDER_LOAD_EVENT *feeder_load_event_new(
@@ -569,5 +571,65 @@ double feeder_load_event_prior_account_end_balance(
 	}
 
 	return prior_account_end_balance;
+}
+
+boolean feeder_load_event_match_boolean(
+		double exchange_journal_begin_amount,
+		LIST *feeder_row_list,
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch )
+{
+	double exist_sum;
+	double calculate_begin_amount;
+
+	/* If first time run, then this is the initial exchange file. */
+	/* ---------------------------------------------------------- */
+	if ( !feeder_load_event_latest_fetch ) return 1;
+
+	if ( !list_length( feeder_row_list ) ) return 0;
+
+
+	exist_sum = feeder_row_exist_sum( feeder_row_list );
+
+	calculate_begin_amount =
+		feeder_load_event_calculate_begin_amount(
+			feeder_load_event_latest_fetch->
+				feeder_row_account_end_balance,
+			exist_sum );
+
+#ifdef DEBUG_MODE
+{
+char message[ 65536 ];
+
+/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
+
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; feeder_load_event->end_balance=%.2lf; calculate_begin_amount=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	exchange_journal_begin_amount,
+	exist_sum,
+	feeder_load_event_latest_fetch->
+		feeder_row_account_end_balance,
+	calculate_begin_amount );
+msg( (char *)0, message );
+}
+#endif
+
+	return
+	float_money_virtually_same(
+		exchange_journal_begin_amount,
+		calculate_begin_amount );
+}
+
+double feeder_load_event_calculate_begin_amount(
+		double feeder_row_account_end_balance,
+		double feeder_row_exist_sum )
+{
+	return
+	feeder_row_account_end_balance -
+	feeder_row_exist_sum;
 }
 

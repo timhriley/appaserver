@@ -28,7 +28,7 @@
 #define FEEDER_DESCRIPTION_SIZE		140
 
 #define FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE				\
-"<h3>Mismatched input file. Either:</h3><ul><li>The bank's begin date is too recent or ... <li>The Application Constant of feeder_load_transaction_days_ago is too small or ...<li>A duplicate transaction exists.</ul><ul><li>Feeder Load Event->Account End Balance is: %.2lf<li>Exchange Format File yields an account end balance of: %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ul>"
+"<h3>Mismatched input file. Either:</h3><ul><li>The bank's begin date is too recent or ... <li>The Application Constant of feeder_load_transaction_days_ago is too small or ...<li>A duplicate transaction exists or ...<li>This file was loaded already.</ul><ul><li>Feeder Load Event->Account End Balance is: %.2lf<li>Input file yields a Feeder Load Event->Account End Balance of: %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ul>"
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\
@@ -872,13 +872,13 @@ typedef struct
 	LIST *feeder_matched_journal_list;
 	LIST *feeder_row_list;
 	int feeder_row_count;
-	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
-	boolean latest_fetch_match_boolean;
 	boolean feeder_row_list_non_match_boolean;
 	int feeder_row_insert_count;
 	boolean account_accumulate_debit_boolean;
 	double feeder_load_event_prior_account_end_balance;
 	boolean feeder_row_list_status_out_of_balance_boolean;
+	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
+	boolean feeder_load_event_match_boolean;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;
 	char *feeder_load_date_time;
@@ -919,19 +919,6 @@ char *feeder_match_minimum_date(
 
 /* Usage */
 /* ----- */
-boolean feeder_latest_fetch_match_boolean(
-		double exchange_journal_begin_amount,
-		LIST *feeder_row_list,
-		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch );
-
-/* Process */
-/* ------- */
-double feeder_latest_fetch_match_difference(
-		double feeder_row_account_end_balance,
-		double feeder_row_exist_sum );
-
-/* Usage */
-/* ----- */
 void feeder_execute(
 		char *process_name,
 		char *fund_name,
@@ -947,6 +934,18 @@ void feeder_display(
 boolean feeder_execute_boolean(
 		boolean execute_boolean,
 		boolean feeder_row_list_non_match_boolean,
-		boolean feeder_row_list_out_of_balance_boolean );
+		boolean feeder_row_list_out_of_balance_boolean,
+		boolean feeder_load_event_match_boolean );
+
+/* Usage */
+/* ----- */
+void feeder_process(
+		char *application_name,
+		char *process_name,
+		char *login_name,
+		char *feeder_account_name,
+		boolean execute_boolean,
+		double exchange_journal_begin_amount,
+		FEEDER *feeder );
 
 #endif

@@ -28,6 +28,7 @@
 #include "transaction_date.h"
 #include "journal_propagate.h"
 #include "feeder_load_event.h"
+#include "feeder_audit.h"
 #include "feeder.h"
 
 LIST *feeder_phrase_list(
@@ -536,17 +537,6 @@ FEEDER *feeder_fetch(
 
 	if ( !feeder->feeder_row_count ) return feeder;
 
-	feeder->feeder_load_event_latest_fetch =
-		feeder_load_event_latest_fetch(
-			FEEDER_LOAD_EVENT_TABLE,
-			feeder_account_name );
-
-	feeder->latest_fetch_match_boolean =
-		feeder_latest_fetch_match_boolean(
-			exchange_journal_begin_amount,
-			feeder->feeder_row_list,
-			feeder->feeder_load_event_latest_fetch );
-
 	feeder->feeder_row_insert_count =
 		feeder_row_insert_count(
 			feeder->feeder_row_list );
@@ -566,18 +556,26 @@ FEEDER *feeder_fetch(
 		feeder_row_calculate_balance_set(
 			feeder->feeder_row_list /* sets calculate_balance */,
 			feeder->feeder_load_event_prior_account_end_balance );
+
+		feeder->feeder_row_list_status_out_of_balance_boolean =
+			feeder_row_list_status_out_of_balance_boolean(
+				feeder->feeder_row_list );
 	}
 
 	feeder_row_list_status_set(
 		feeder->transaction_fund_column_boolean,
 		feeder->feeder_row_list /* sets feeder_row_status */ );
 
-	if ( !feeder->transaction_fund_column_boolean )
-	{
-		feeder->feeder_row_list_status_out_of_balance_boolean =
-			feeder_row_list_status_out_of_balance_boolean(
-				feeder->feeder_row_list );
-	}
+	feeder->feeder_load_event_latest_fetch =
+		feeder_load_event_latest_fetch(
+			FEEDER_LOAD_EVENT_TABLE,
+			feeder_account_name );
+
+	feeder->feeder_load_event_match_boolean =
+		feeder_load_event_match_boolean(
+			exchange_journal_begin_amount,
+			feeder->feeder_row_list,
+			feeder->feeder_load_event_latest_fetch );
 
 	feeder->feeder_row_account_end_date =
 		/* ------------------------------------------------------- */
@@ -598,7 +596,8 @@ FEEDER *feeder_fetch(
 			feeder->feeder_row_list );
 
 	if (	!feeder->feeder_row_list_status_out_of_balance_boolean
-	&&	!feeder->feeder_row_list_non_match_boolean )
+	&&	!feeder->feeder_row_list_non_match_boolean
+	&&	feeder->feeder_load_event_match_boolean )
 	{
 		feeder->feeder_load_event =
 			/* -------------- */
@@ -2554,8 +2553,6 @@ FEEDER_ROW *feeder_row_new(
 	feeder_row->feeder_load_row = feeder_load_row;
 	feeder_row->feeder_row_number = feeder_row_number;
 
-	feeder_row->feeder_row_status = feeder_row_status_out_of_balance;
-
 	if ( list_length( feeder_exist_row_list ) )
 	{
 		feeder_row->feeder_exist_row_seek =
@@ -3734,10 +3731,12 @@ char *feeder_load_row_raw_display( FEEDER_LOAD_ROW *feeder_load_row )
 boolean feeder_execute_boolean(
 		boolean execute_boolean,
 		boolean non_match_boolean,
-		boolean out_of_balance_boolean )
+		boolean out_of_balance_boolean,
+		boolean feeder_load_event_match_boolean )
 {
 	if ( non_match_boolean
-	||   out_of_balance_boolean )
+	||   out_of_balance_boolean
+	||   !feeder_load_event_match_boolean )
 	{
 		return 0;
 	}
@@ -3853,55 +3852,6 @@ double feeder_load_row_file_row_balance( double exchange_balance_amount )
 	return exchange_balance_amount;
 }
 
-boolean feeder_latest_fetch_match_boolean(
-		double exchange_journal_begin_amount,
-		LIST *feeder_row_list,
-		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch )
-{
-	double exist_sum;
-	double match_difference;
-
-	/* If first time run, then this is the initial exchange file. */
-	/* ---------------------------------------------------------- */
-	if ( !feeder_load_event_latest_fetch ) return 1;
-
-	if ( !list_length( feeder_row_list ) ) return 0;
-
-/* feeder_row_list_raw_display( stderr, feeder_row_list ); */
-
-	exist_sum = feeder_row_exist_sum( feeder_row_list );
-
-	match_difference =
-		feeder_latest_fetch_match_difference(
-			feeder_load_event_latest_fetch->
-				feeder_row_account_end_balance,
-			exist_sum );
-
-#ifdef DEBUG_MODE
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; end_balance=%.2lf; match_difference=%.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	exchange_journal_begin_amount,
-	exist_sum,
-	feeder_load_event_latest_fetch->
-		feeder_row_account_end_balance,
-	match_difference );
-msg( (char *)0, message );
-}
-#endif
-
-	return
-	float_money_virtually_same(
-		exchange_journal_begin_amount,
-		match_difference );
-}
-
 double feeder_row_exist_sum( LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
@@ -3922,15 +3872,6 @@ double feeder_row_exist_sum( LIST *feeder_row_list )
 	} while ( list_next( feeder_row_list ) );
 
 	return sum;
-}
-
-double feeder_latest_fetch_match_difference(
-		double feeder_row_account_end_balance,
-		double feeder_row_exist_sum )
-{
-	return
-	feeder_row_account_end_balance -
-	feeder_row_exist_sum;
 }
 
 boolean feeder_row_list_status_out_of_balance_boolean( LIST *feeder_row_list )
@@ -3972,3 +3913,91 @@ boolean feeder_row_list_non_match_boolean( LIST *feeder_row_list )
 	return 0;
 }
 
+void feeder_process(
+		char *application_name,
+		char *process_name,
+		char *login_name,
+		char *feeder_account_name,
+		boolean execute_boolean,
+		double exchange_journal_begin_amount,
+		FEEDER *feeder )
+{
+	if ( feeder )
+	{
+		execute_boolean =
+			feeder_execute_boolean(
+			    execute_boolean,
+			    feeder->feeder_row_list_non_match_boolean,
+			    feeder->
+				feeder_row_list_status_out_of_balance_boolean,
+			    feeder->feeder_load_event_match_boolean );
+
+		if ( !feeder->feeder_row_count )
+		{
+			printf( "<h3>No new feeder rows to process.</h3>\n" );
+		}
+		else
+		if ( !feeder->feeder_load_event_match_boolean )
+		{
+			char message[ 2048 ];
+
+			feeder_display( feeder );
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
+				feeder->
+					feeder_load_event_latest_fetch->
+					feeder_row_account_end_balance,
+				exchange_journal_begin_amount );
+
+			printf( "%s\n", message );
+		}
+		else
+		if ( execute_boolean
+		&&   feeder->feeder_row_insert_count )
+		{
+			feeder_execute(
+				process_name,
+				(char *)0 /* fund_name */,
+				feeder );
+		}
+		else
+		{
+			feeder_display( feeder );
+		}
+	}
+
+	if ( !feeder
+	||   !feeder->feeder_row_insert_count
+	||   execute_boolean )
+	{
+		FEEDER_AUDIT *feeder_audit =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			feeder_audit_fetch(
+				application_name,
+				login_name,
+				feeder_account_name );
+
+		if ( !feeder_audit->feeder_load_event )
+		{
+			printf(
+			"<h3>Warning: no feeder load events.</h3>\n" );
+		}
+		else
+		if ( !feeder_audit->html_table )
+		{
+			printf(
+			"<h3>ERROR: html_table is empty.</h3>\n" );
+		}
+		else
+		{
+			html_table_output(
+				feeder_audit->html_table,
+				HTML_TABLE_ROWS_BETWEEN_HEADING );
+		}
+	}
+}

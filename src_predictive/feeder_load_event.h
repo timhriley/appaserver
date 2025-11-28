@@ -153,4 +153,17 @@ double feeder_load_event_prior_account_end_balance(
 		char *feeder_account_name,
 		boolean account_accumulate_debit_boolean );
 
+/* Usage */
+/* ----- */
+boolean feeder_load_event_match_boolean(
+		double exchange_journal_begin_amount,
+		LIST *feeder_row_list,
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch );
+
+/* Process */
+/* ------- */
+double feeder_load_event_calculate_begin_amount(
+		double feeder_row_account_end_balance,
+		double feeder_row_exist_sum );
+
 #endif

@@ -481,6 +481,7 @@ feeder_init_execute: feeder_init_execute.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
 	exchange.o							\
 	feeder.o							\
+	feeder_audit.o							\
 	feeder_account.o						\
 	feeder_load_event.o						\
 	feeder_init.o
@@ -491,6 +492,7 @@ feeder_init_execute: feeder_init_execute.c				\
 		feeder_init_execute.c					\
 		exchange.o						\
 		feeder.o						\
+		feeder_audit.o						\
 		feeder_account.o					\
 		feeder_load_event.o					\
 		feeder_init.o						\

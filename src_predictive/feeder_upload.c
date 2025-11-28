@@ -16,8 +16,6 @@
 #include "process.h"
 #include "application.h"
 #include "exchange.h"
-#include "feeder_load_event.h"
-#include "feeder_audit.h"
 #include "feeder.h"
 
 int main( int argc, char **argv )
@@ -32,7 +30,6 @@ int main( int argc, char **argv )
 	boolean okay_continue = 1;
 	EXCHANGE *exchange = {0};
 	FEEDER *feeder = {0};
-	FEEDER_AUDIT *feeder_audit;
 
 	application_name =
 		environment_exit_application_name(
@@ -49,7 +46,7 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
+	if ( ( fund_name = argv[ 3 ] ) ){}
 	feeder_account_name = argv[ 4 ];
 	exchange_format_filename = argv[ 5 ];
 	execute_boolean = (*argv[ 6 ] == 'y');
@@ -126,80 +123,16 @@ int main( int argc, char **argv )
 		}
 	}
 
-	if ( feeder )
-	{
-		execute_boolean =
-			feeder_execute_boolean(
-			    execute_boolean,
-			    feeder->feeder_row_list_non_match_boolean,
-			    feeder->
-				feeder_row_list_status_out_of_balance_boolean );
-
-		if ( !feeder->feeder_row_count )
-		{
-			printf( "<h3>No new feeder rows to process.</h3>\n" );
-		}
-		else
-		if ( !feeder->latest_fetch_match_boolean )
-		{
-			char message[ 2048 ];
-
-			feeder_display( feeder );
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
-				feeder->
-					feeder_load_event_latest_fetch->
-					feeder_row_account_end_balance,
-				exchange->exchange_journal_begin_amount );
-
-			printf( "%s\n", message );
-		}
-		else
-		if ( execute_boolean
-		&&   feeder->feeder_row_insert_count )
-		{
-			feeder_execute( process_name, fund_name, feeder );
-		}
-		else
-		{
-			feeder_display( feeder );
-		}
-	}
-
-	if ( !feeder
-	||   !feeder->feeder_row_insert_count
-	||   execute_boolean )
-	{
-		feeder_audit =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_audit_fetch(
-				application_name,
-				login_name,
-				feeder_account_name );
-
-		if ( !feeder_audit->feeder_load_event )
-		{
-			printf(
-			"<h3>Warning: no feeder load events.</h3>\n" );
-		}
-		else
-		if ( !feeder_audit->html_table )
-		{
-			printf(
-			"<h3>ERROR: html_table is empty.</h3>\n" );
-		}
-		else
-		{
-			html_table_output(
-				feeder_audit->html_table,
-				HTML_TABLE_ROWS_BETWEEN_HEADING );
-		}
-	}
+	feeder_process(
+		application_name,
+		process_name,
+		login_name,
+		feeder_account_name,
+		execute_boolean,
+		(exchange)
+			? exchange->exchange_journal_begin_amount
+			: 0.0,
+		feeder );
 
 	document_close();
 

@@ -33,12 +33,12 @@ int main( int argc, char **argv )
 	int balance_column;
 	int reference_column;
 	boolean reverse_order_boolean;
+	char *account_end_balance_string;
 	double balance_amount = 0.0;
 	boolean execute_boolean;
 	boolean okay_continue = 1;
 	EXCHANGE_CSV *exchange_csv = {0};
 	FEEDER *feeder = {0};
-	FEEDER_AUDIT *feeder_audit;
 
 	application_name =
 		environment_exit_application_name(
@@ -67,7 +67,7 @@ int main( int argc, char **argv )
 	balance_column = atoi( argv[ 9 ] );
 	reference_column = atoi( argv[ 10 ] );
 	reverse_order_boolean = (*argv[ 11 ] == 'y');
-	balance_amount = atof( argv[ 12 ] );
+	account_end_balance_string = argv[ 12 ];
 	execute_boolean = (*argv[ 13 ] == 'y');
 
 	appaserver_error_argv_file(
@@ -85,15 +85,24 @@ int main( int argc, char **argv )
 	||   strcmp( feeder_account_name, "feeder_account" ) == 0 )
 	{
 		printf( "<h3>Please choose a feeder account.</h3>\n" );
-
 		okay_continue = 0;
+	}
+
+	if ( !*account_end_balance_string )
+	{
+		printf( "<h3>Please enter an Account End Balance.</h3>\n" );
+		okay_continue = 0;
+	}
+	else
+	{
+		balance_amount = atof( account_end_balance_string );
 	}
 
 	if ( okay_continue
 	&&   *csv_format_filename
 	&&   strcmp(
 		csv_format_filename,
-		"csv_format_filename" ) != 0 )
+		"filename" ) != 0 )
 	{
 		exchange_csv =
 			/* -------------- */
@@ -144,83 +153,16 @@ int main( int argc, char **argv )
 		}
 	}
 
-	if ( feeder )
-	{
-		execute_boolean =
-			feeder_execute_boolean(
-			    execute_boolean,
-			    feeder->feeder_row_list_non_match_boolean,
-			    feeder->
-				feeder_row_list_status_out_of_balance_boolean );
-
-		if ( !feeder->feeder_row_count )
-		{
-			printf( "<h3>No new feeder rows to process.</h3>\n" );
-		}
-		else
-		if ( !feeder->latest_fetch_match_boolean )
-		{
-			char message[ 2048 ];
-
-			feeder_display( feeder );
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
-				feeder->
-					feeder_load_event_latest_fetch->
-					feeder_row_account_end_balance,
-				exchange_csv->exchange_journal_begin_amount );
-
-			printf( "%s\n", message );
-		}
-		else
-		if ( execute_boolean
-		&&   feeder->feeder_row_insert_count )
-		{
-			feeder_execute(
-				process_name,
-				(char *)0 /* fund_name */,
-				feeder );
-		}
-		else
-		{
-			feeder_display( feeder );
-		}
-	}
-
-	if ( !feeder
-	||   !feeder->feeder_row_insert_count
-	||   execute_boolean )
-	{
-		feeder_audit =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_audit_fetch(
-				application_name,
-				login_name,
-				feeder_account_name );
-
-		if ( !feeder_audit->feeder_load_event )
-		{
-			printf(
-			"<h3>Warning: no feeder load events.</h3>\n" );
-		}
-		else
-		if ( !feeder_audit->html_table )
-		{
-			printf(
-			"<h3>ERROR: html_table is empty.</h3>\n" );
-		}
-		else
-		{
-			html_table_output(
-				feeder_audit->html_table,
-				HTML_TABLE_ROWS_BETWEEN_HEADING );
-		}
-	}
+	feeder_process(
+		application_name,
+		process_name,
+		login_name,
+		feeder_account_name,
+		execute_boolean,
+		(exchange_csv)
+			? exchange_csv->exchange_journal_begin_amount
+			: 0.0,
+		feeder );
 
 	document_close();
 
