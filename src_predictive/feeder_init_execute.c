@@ -150,8 +150,12 @@ int main( int argc, char **argv )
 		login_name,
 		execute_boolean,
 		checking_boolean,
-		exchange->exchange_journal_begin_amount,
-		exchange->minimum_date_string,
+		(exchange)
+			? exchange->exchange_journal_begin_amount
+			: 0.0,
+		(exchange)
+			? exchange->minimum_date_string
+			: NULL,
 		feeder_init );
 
 	document_close();

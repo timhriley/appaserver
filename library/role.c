@@ -517,6 +517,12 @@ LIST *role_process_set_member_list(
 			char *role_name,
 			boolean fetch_process_set )
 {
+	if ( role_name && fetch_process_set )
+		return NULL;
+	else
+		return NULL;
+
+#ifdef NOT_DEFINED
 	LIST *list = list_new();
 	char input[ 256 ];
 	FILE *input_pipe;
@@ -547,6 +553,7 @@ LIST *role_process_set_member_list(
 	pclose( input_pipe );
 
 	return list;
+#endif
 }
 
 char *role_process_set_member_system_string(

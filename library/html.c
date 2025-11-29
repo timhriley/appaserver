@@ -179,6 +179,17 @@ char *html_column_tag( char *heading )
 
 	if ( !heading ) heading = "";
 
+	if ( strlen( heading ) > 127 )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: heading of [%s] is larger than 127 characters.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			heading );
+		exit( 1 );
+	}
+
 	if ( string_character_exists( heading, '&' )
 	&&   string_character_exists( heading, ';' ) )
 	{
@@ -191,7 +202,11 @@ char *html_column_tag( char *heading )
 			heading );
 	}
 
-	sprintf( tag, "<th>%s", buffer );
+	snprintf(
+		tag,
+		sizeof ( tag ),
+		"<th>%s",
+		buffer );
 
 	return tag;
 }
@@ -310,10 +325,20 @@ char *html_cell_datum_tag(
 		boolean right_justify_boolean,
 		boolean background_shaded_boolean )
 {
-	char tag[ 1024 ];
+	char tag[ 65536 ];
 	char *ptr = tag;
 
 	if ( !datum ) datum = "";
+
+	if ( strlen( datum ) > 65500 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: datum too big.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	ptr += sprintf( ptr, "<td" );
 
@@ -539,7 +564,9 @@ char *html_table_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"queue_top_bottom_lines.e %d |"
 		"html_table.e '^^%s' '%s' '%c'",
 		html_table_queue_top_bottom,

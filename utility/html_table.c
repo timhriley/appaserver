@@ -85,7 +85,7 @@ int main( int argc, char **argv )
 
 	html_table->row_list = list_new();
 
-	while( string_input( buffer, stdin, 65536 ) )
+	while( string_input( buffer, stdin, sizeof ( buffer ) ) )
 	{
 		if ( !*buffer ) continue;
 
