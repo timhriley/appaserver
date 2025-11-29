@@ -535,4 +535,15 @@ char *feeder_init_feeder_account_insert_sql(
 		char *financial_institution_full_name,
 		char *financial_institution_street_address );
 
+/* Driver */
+/* ------ */
+void feeder_init_process(
+		char *application_name,
+		char *login_name,
+		boolean execute_boolean,
+		boolean checking_boolean,
+		double exchange_journal_begin_amount,
+		char *exchange_minimum_date_string,
+		FEEDER_INIT *feeder_init );
+
 #endif

@@ -13,7 +13,6 @@
 #include "sql.h"
 #include "security.h"
 #include "exchange.h"
-#include "import_predict.h"
 #include "feeder_init.h"
 
 int main( int argc, char **argv )
@@ -32,7 +31,6 @@ int main( int argc, char **argv )
 	boolean okay_continue = 1;
 	EXCHANGE *exchange = {0};
 	FEEDER_INIT *feeder_init = {0};
-	char *error_string;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -147,209 +145,14 @@ int main( int argc, char **argv )
 				exchange->minimum_date_string );
 	}
 
-	if ( feeder_init
-	&&   feeder_init->
-		feeder_init_input->
-		institution_missing_boolean )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_INSTITUTION_MISSING_MESSAGE );
-
-		feeder_init = NULL;
-	}
-
-	if ( feeder_init
-	&&   feeder_init->
-		feeder_init_input->
-		account_exist_boolean )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_ACCOUNT_EXIST_MESSAGE );
-
-		feeder_init = NULL;
-	}
-
-	if ( feeder_init
-	&&   !feeder_init->
-		feeder_init_input->
-		entity_self )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_ENTITY_SELF_MESSAGE );
-
-		feeder_init = NULL;
-	}
-
-	if ( feeder_init
-	&&   feeder_init->
-		feeder_init_passthru->
-		exist_boolean )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_PASSTHRU_EXIST_MESSAGE );
-	}
-
-	if ( !execute_boolean )
-	{
-		if ( feeder_init
-		&&   feeder_init->
-			feeder_init_input->
-			date_recent_boolean )
-		{
-			printf( "%s\n",
-				FEEDER_INIT_RECENT_MESSAGE );
-		}
-
-		printf( "%s\n",
-			FEEDER_INIT_OPENING_MESSAGE );
-
-		if ( feeder_init )
-		{
-			feeder_init_transaction_html_display(
-				feeder_init->feeder_init_checking,
-				feeder_init->feeder_init_credit );
-		}
-
-		printf( "%s\n",
-			IMPORT_PREDICT_SHORTCUT_MESSAGE );
-	}
-
-	if ( execute_boolean )
-	{
-		if ( !feeder_init ) goto feeder_init_display_continue;
-
-		error_string =
-			sql_execute(
-				SQL_EXECUTABLE,
-				feeder_init->
-					feeder_init_input->
-					appaserver_error_filespecification,
-				feeder_init->insert_sql_list,
-				(char *)0 /* sql_statement */ );
-
-		if ( error_string )
-		{
-			appaserver_error_message_file(
-				application_name,
-				login_name,
-				error_string );
-		}
-
-		if ( checking_boolean )
-		{
-			feeder_init->feeder_init_checking =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				feeder_init_checking_new(
-					1 /* execute_boolean */,
-					exchange->exchange_journal_begin_amount,
-					exchange->minimum_date_string,
-					feeder_init->
-						feeder_init_input->
-							account_name,
-					feeder_init->
-						feeder_init_input->
-						entity_self->
-						full_name,
-					feeder_init->
-						feeder_init_input->
-						entity_self->
-						street_address );
-		}
-		else
-		{
-			feeder_init->feeder_init_credit =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				feeder_init_credit_new(
-					1 /* execute_boolean */,
-					-exchange->exchange_journal_begin_amount
-					/* negate_exchange_journal_begin */,
-					exchange->minimum_date_string,
-					feeder_init->
-						feeder_init_input->
-						account_name,
-					feeder_init->
-						feeder_init_input->
-						entity_self->
-						full_name,
-					feeder_init->
-						feeder_init_input->
-						entity_self->
-						street_address );
-		}
-
-		if ( feeder_init->feeder_init_checking )
-		{
-			feeder_init_transaction_insert(
-				feeder_init->
-					feeder_init_checking->
-					feeder_init_transaction );
-		}
-		else
-		{
-			feeder_init_transaction_insert(
-				feeder_init->
-					feeder_init_credit->
-					feeder_init_transaction );
-		}
-
-feeder_init_display_continue:
-
-		printf( "%s\n",
-			FEEDER_INIT_OPENING_MESSAGE );
-
-		if ( feeder_init )
-		{
-			feeder_init_transaction_html_display(
-				feeder_init->feeder_init_checking,
-				feeder_init->feeder_init_credit );
-		}
-
-		printf( "%s\n",
-			FEEDER_INIT_TRIAL_BALANCE_MESSAGE );
-
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->trial_balance_system_string );
-		}
-
-		printf( "%s\n",
-			FEEDER_INIT_ACTIVITY_MESSAGE );
-
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->activity_system_string );
-		}
-
-		printf( "%s\n",
-			FEEDER_INIT_POSITION_MESSAGE );
-
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->position_system_string );
-		}
-
-		printf( "%s\n",
-			FEEDER_INIT_DEBIT_CREDIT_MESSAGE );
-
-		printf( "%s\n",
-			FEEDER_INIT_UPLOAD_MESSAGE );
-	}
-
-	printf( "%s\n",
-		FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE );
+	feeder_init_process(
+		application_name,
+		login_name,
+		execute_boolean,
+		checking_boolean,
+		exchange->exchange_journal_begin_amount,
+		exchange->minimum_date_string,
+		feeder_init );
 
 	document_close();
 
