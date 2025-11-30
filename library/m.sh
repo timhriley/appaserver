@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make html_table.e
+	cd ../src_appaserver
+	make post_prompt_insert
 fi
 

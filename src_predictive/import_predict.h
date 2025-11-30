@@ -77,18 +77,20 @@
 	"The next step is to execute Initialize Feeder Account. "	     \
 	"Feeder accounts are either checking or credit card accounts "	     \
 	"from financial institutions that feed transactions into "	     \
-	"PredictBooks.\n"						     \
+	"PredictBooks. Note: Bank of America does not support the standard " \
+	"feeder account format. Therefore, special processes are available " \
+	"for Bank of America's file format of Excel.\n"			     \
 	"<br />"							     \
 	"<br />"							     \
 	"Log into your bank's website and download all "		     \
 	"of your checking transactions that are available. "		     \
 	"The bank's download dialog box will probably give you choice "	     \
-	"of format options. PredictBooks only recognizes the most "	     \
-	"current format option. The most current format option is "	     \
+	"of format options. PredictBooks recognizes two "		     \
+	"format options. The most current format option is "	     	     \
 	"called "							     \
 	"<a href=\"https://en.wikipedia.org/wiki/Open_Financial_Exchange\""  \
 	"target=_new>"							     \
-	"Open Financial Exchange</a>. However, your bank may call it by "    \
+	"Open Financial eXchange</a>. However, your bank may call it by "    \
 	"the name of other bookkeeping software products. "		     \
 	"Nonetheless, the downloaded filename should end with either "	     \
 	"'FX' or 'fx'."							     \
