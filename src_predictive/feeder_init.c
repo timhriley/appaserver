@@ -1130,6 +1130,31 @@ FEEDER_INIT *feeder_init_new(
 			checking_boolean,
 			feeder_init->feeder_init_input->account_name );
 
+	financial_institution_street_address =
+		/* -------------------------------------------- */
+		/* Returns street_address, heap memory, or null */
+		/* -------------------------------------------- */
+		feeder_init_financial_institution_street_address(
+			financial_institution_full_name,
+			financial_institution_street_address );
+
+	if ( !financial_institution_street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+	"feeder_init_financial_institution_street_address(%s) retured empty.",
+			financial_institution_full_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	feeder_init->feeder_account_insert_sql =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1761,3 +1786,24 @@ feeder_init_display_continue:
 	printf( "%s\n",
 		FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE );
 }
+
+char *feeder_init_financial_institution_street_address(
+		char *financial_institution_full_name,
+		char *financial_institution_street_address )
+{
+	char *street_address = financial_institution_street_address;
+
+	if (	!financial_institution_street_address
+	||	!*financial_institution_street_address )
+	{
+		street_address =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			entity_street_address(
+				financial_institution_full_name );
+	}
+
+	return street_address;
+}
+

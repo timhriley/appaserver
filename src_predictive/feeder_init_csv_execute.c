@@ -27,12 +27,19 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *account_type;
 	char *csv_format_filename;
+	int date_column;
+	int description_column;
+	int debit_column;
+	int credit_column;
+	int balance_column;
+	int reference_column;
+	boolean reverse_order_boolean;
+	double balance_amount;
 	boolean execute_boolean;
 	boolean checking_boolean;
 	boolean okay_continue = 1;
 	EXCHANGE_CSV *exchange_csv = {0};
 	FEEDER_INIT *feeder_init = {0};
-	char *error_string;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -41,10 +48,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 18 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process full_name street_address account_type csv_format_filename execute_yn\n",
+"Usage: %s session login_name role process full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column reference_column balance_column reverse_order_yn balance_amount execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -58,7 +65,15 @@ int main( int argc, char **argv )
 	street_address = argv[ 6 ];
 	account_type = argv[ 7 ];
 	csv_format_filename = argv[ 8 ];
-	execute_boolean = (*argv[ 9 ] == 'y');
+	date_column = atoi( argv[ 9 ] );
+	description_column = atoi( argv[ 10 ] );
+	debit_column = atoi( argv[ 11 ] );
+	credit_column = atoi( argv[ 12 ] );
+	balance_column = atoi( argv[ 13 ] );
+	reference_column = atoi( argv[ 14 ] );
+	reverse_order_boolean = (*argv[ 15 ] == 'y');
+	balance_amount = atof( argv[ 16 ] );
+	execute_boolean = (*argv[ 17 ] == 'y');
 
 	document_process_output(
 		application_name,
@@ -144,8 +159,8 @@ int main( int argc, char **argv )
 				street_address
 				/* financial_institution_street_address */,
 				checking_boolean,
-				exchange->exchange_journal_begin_amount,
-				exchange->minimum_date_string );
+				exchange_csv->exchange_journal_begin_amount,
+				exchange_csv->exchange_minimum_date_string );
 	}
 
 	feeder_init_process(
@@ -153,11 +168,11 @@ int main( int argc, char **argv )
 		login_name,
 		execute_boolean,
 		checking_boolean,
-		(exchange)
-			? exchange->exchange_journal_begin_amount
+		(exchange_csv)
+			? exchange_csv->exchange_journal_begin_amount
 			: 0.0,
-		(exchange)
-			? exchange->minimum_date_string
+		(exchange_csv)
+			? exchange_csv->exchange_minimum_date_string
 			: NULL,
 		feeder_init );
 

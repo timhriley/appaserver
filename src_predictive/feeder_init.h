@@ -538,8 +538,8 @@ char *feeder_init_feeder_account_insert_sql(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns street_address, heap memory, or null */
+/* -------------------------------------------- */
 char *feeder_init_financial_institution_street_address(
 		char *financial_institution_full_name,
 		char *financial_institution_street_address );

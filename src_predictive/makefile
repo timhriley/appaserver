@@ -123,6 +123,7 @@ EXECUTABLES=	trial_balance_output					\
 		feeder_upload						\
 		feeder_upload_csv					\
 		feeder_init_execute					\
+		feeder_init_csv_execute					\
 		journal_trigger						\
 		tax_form_report						\
 		close_nominal_accounts					\
@@ -497,6 +498,29 @@ feeder_init_execute: feeder_init_execute.c				\
 		feeder_load_event.o					\
 		feeder_init.o						\
 		-o feeder_init_execute
+
+feeder_init_csv_execute: feeder_init_csv_execute.c			\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+	exchange.o							\
+	exchange_csv.o							\
+	feeder.o							\
+	feeder_audit.o							\
+	feeder_account.o						\
+	feeder_load_event.o						\
+	feeder_init.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		feeder_init_csv_execute.c				\
+		exchange.o						\
+		exchange_csv.o						\
+		feeder.o						\
+		feeder_audit.o						\
+		feeder_account.o					\
+		feeder_load_event.o					\
+		feeder_init.o						\
+		-o feeder_init_csv_execute
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
