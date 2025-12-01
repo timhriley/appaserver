@@ -8,6 +8,7 @@
 #define SED_H
 
 #include <regex.h>
+#include "boolean.h"
 
 #define SED_BUFFER_SIZE 65536
 
@@ -21,6 +22,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 SED *sed_new(	char *regular_expression,
 		char *replace );
 
@@ -43,12 +47,12 @@ void sed_free(	SED *sed );
 SED *new_sed(	char *regular_expression,
 		char *replace );
 
-int sed_search_replace(
+boolean sed_search_replace(
 		char *buffer,
 		SED *sed );
 
-int sed_will_replace(
-		char *buffer,
+boolean sed_will_replace(
+		char *string,
 		SED *sed );
 
 void sed_get_begin_end(
@@ -56,5 +60,9 @@ void sed_get_begin_end(
 		regoff_t *end,
 		regex_t *regex,
 		char *buffer );
+
+boolean sed_match_boolean(
+		char *string,
+		char *regular_expression );
 
 #endif

@@ -15,6 +15,7 @@
 #include <math.h>
 #include <time.h>
 #include "timlib.h"
+#include "float.h"
 #include "piece.h"
 #include "date.h"
 #include "array.h"
@@ -142,7 +143,7 @@ LIST *keys_match_sum_get_binary_reverse_array_index_list(
 		}
 	}
 
-	if ( !timlib_dollar_virtually_same( sum, match_sum ) )
+	if ( !float_dollar_virtually_same( sum, match_sum ) )
 		return (LIST *)0;
 
 	/* Found a match! */

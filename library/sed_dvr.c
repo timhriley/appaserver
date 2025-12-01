@@ -6,12 +6,14 @@
 void test1( void );
 void test2( void );
 void test3( void );
+void test4( void );
 
 int main( void )
 {
 	/* test1(); */
 	/* test2(); */
-	test3();
+	/* test3(); */
+	test4();
 	return 0;
 }
 
@@ -26,6 +28,7 @@ void test1( void )
 		"a this is a test $_SESSION['$dbuser'] for this string" );
 
 	sed = new_sed( search, replace );
+
 	if ( sed_will_replace( buffer, sed ) )
 	{
 		printf( "before: %s\n", buffer );
@@ -47,6 +50,7 @@ void test2( void )
 		"this is a test (1999-06-01) for this string" );
 
 	sed = new_sed( regular_expression, (char *)0 );
+
 	if ( sed_will_replace( buffer, sed ) )
 	{
 		sed->replace = replace;
@@ -98,4 +102,20 @@ sans_bank_date_description );
 	sed_free( sed );
 	printf( "Will return = [%s]\n",
 		timlib_rtrim( sans_bank_date_description ) );
+}
+
+void test4( void )
+{
+	char *string;
+	char *regular_expression;
+
+	string =
+"BKOFAMERICA ATM 11/23 #XXXXX5584 DEPOSIT SOUTH NATOMAS SACRAMENTO CA 1727.29";
+
+	regular_expression = "BKOFAMERICA.*DEPOSIT";
+
+	printf( "sed_match_boolean()=%d\n",
+		sed_match_boolean(
+			string,
+			regular_expression ) );
 }

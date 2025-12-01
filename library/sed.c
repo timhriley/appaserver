@@ -43,13 +43,13 @@ SED *sed_new( char *regular_expression, char *replace )
 	return sed;
 }
 
-int sed_will_replace( char *buffer, SED *sed )
+boolean sed_will_replace( char *string, SED *sed )
 {
 	sed_get_begin_end(
-			&sed->begin,
-			&sed->end,
-			&sed->regex,
-			buffer );
+		&sed->begin,
+		&sed->end,
+		&sed->regex,
+		string );
 
 	if ( sed->begin == -1 )
 		return 0;
@@ -81,7 +81,7 @@ void sed_get_begin_end(	regoff_t *begin,
 	}
 }
 
-int sed_search_replace( char *buffer, SED *sed )
+boolean sed_search_replace( char *buffer, SED *sed )
 {
 	regoff_t begin;
 	regoff_t end;
@@ -154,3 +154,34 @@ char *sed_trim_double_spaces( char *string )
 	return string_rtrim( return_string );
 }
 
+boolean sed_match_boolean(
+		char *string,
+		char *regular_expression )
+{
+	SED *sed;
+	boolean match_boolean;
+
+	if ( !string
+	||   !regular_expression )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	/* Safely returns */
+	/* -------------- */
+	sed = sed_new( regular_expression, (char *)0 /* replace */ );
+
+	match_boolean =
+		sed_will_replace(
+			string,
+			sed );
+
+	sed_free( sed );
+
+	return match_boolean;
+}

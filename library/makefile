@@ -192,6 +192,7 @@ APPASERVER_LIBRARY=						\
 		application_log.o				\
 		application_backup.o				\
 		application_create.o				\
+		application_login.o				\
 		application_delete.o				\
 		application_clone.o				\
 		spool.o						\
@@ -214,7 +215,8 @@ touch:
 	/usr/bin/touch *.c
 
 clean:
-	rm -f *.[oe]
+	rm -f *.[oe]						\
+	sed_dvr
 
 html.o: html.c html.h
 	${CC} ${CFLAGS} -c html.c
@@ -924,4 +926,9 @@ file.o: file.c file.h
 
 credit_provider.o: credit_provider.c credit_provider.h
 	${CC} ${CFLAGS} -c credit_provider.c
+
+sed_dvr: sed_dvr.c sed.o
+	$(CC)	${CFLAGS} sed_dvr.c 					\
+		${APPASERVER_LIBRARY}					\
+		-o sed_dvr -lm
 

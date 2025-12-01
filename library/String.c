@@ -672,7 +672,7 @@ char *string_mnemonic( char *string )
 	if ( string_strlen( string ) > 127 )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: string too big: [%s]\n",
+			"ERROR in %s/%s()/%d: string is too big: [%s]\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -736,7 +736,8 @@ char *string_format_mnemonic(
 			}
 		}
 		else
-		if ( isspace( *string ) )
+		if ( isspace( *string )
+		||   *string == '_' )
 		{
 			beginning = 1;
 			*mnemonic++ = '_';

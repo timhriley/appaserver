@@ -698,9 +698,9 @@ void feeder_phrase_set_match_length(
 				piece_number );
 			piece_number++ )
 		{
-			if ( string_exists_substring(
+			if ( sed_match_boolean(
 				description_space_trim /* string */,
-				feeder_component /* substring */ ) )
+				feeder_component /* regular_expression */ ) )
 			{
 				feeder_phrase->match_length =
 					strlen( feeder_component );
