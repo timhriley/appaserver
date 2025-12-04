@@ -256,9 +256,9 @@ boolean update_changed_list_boolean(
 char *update_changed_list_list_execute(
 		const char *sql_executable,
 		char *application_name,
+		boolean update_root_boolean,
 		LIST *update_changed_list_list,
-		char *appaserver_error_filename,
-		boolean update_root_boolean );
+		char *appaserver_error_filename );
 
 typedef struct
 {
@@ -746,6 +746,7 @@ UPDATE_ROW *update_row_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
+		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -840,6 +841,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
+		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point );
@@ -858,17 +860,17 @@ char *update_row_list_folder_name_list_string(
 		const char update_folder_name_delimiter,
 		LIST *update_row_list_folder_name_list );
 
-/* Usage */
-/* ----- */
+/* Driver */
+/* ------ */
 
 /* Returns error_row_list_error_string or null */
 /* ------------------------------------------- */
 char *update_row_list_execute(
 		const char *sql_executable,
 		char *application_name,
+		boolean update_root_boolean,
 		UPDATE_ROW_LIST *update_row_list,
-		char *appaserver_error_filename,
-		boolean update_root_boolean );
+		char *appaserver_error_filename );
 
 /* Usage */
 /* ----- */
@@ -882,8 +884,7 @@ void update_row_list_command_line_execute(
 /* ----- */
 void update_row_list_display(
 		UPDATE_ROW_LIST *update_row_list,
-		FILE *output_stream,
-		boolean update_root_boolean );
+		FILE *output_stream );
 
 /* Usage */
 /* ----- */
@@ -923,7 +924,8 @@ UPDATE *update_new(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
-		PROCESS *post_change_process );
+		PROCESS *post_change_process,
+		boolean update_root_boolean );
 
 /* Process */
 /* ------- */

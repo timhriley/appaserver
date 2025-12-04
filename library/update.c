@@ -78,7 +78,8 @@ UPDATE *update_new(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
-		PROCESS *post_change_process )
+		PROCESS *post_change_process,
+		boolean update_root_boolean )
 {
 	UPDATE *update;
 
@@ -168,6 +169,7 @@ UPDATE *update_new(
 			relation_mto1_isa_list,
 			folder_attribute_append_isa_list,
 			post_change_process,
+			update_root_boolean,
 			update->security_entity,
 			update->appaserver_error_filename,
 			update->appaserver_parameter_mount_point );
@@ -323,6 +325,7 @@ UPDATE_ROW *update_row_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
+		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -438,6 +441,8 @@ msg( (char *)0, message );
 				   : 0,
 				update_row->update_attribute_list );
 	}
+
+	if ( !update_root_boolean ) update_row->update_root = NULL;
 
 	if ( !update_row->update_root
 	&&   !update_row->update_one2m_list
@@ -790,6 +795,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
+		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point )
@@ -857,6 +863,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 				relation_mto1_isa_list,
 				folder_attribute_append_isa_list,
 				post_change_process,
+				update_root_boolean,
 				security_entity,
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
@@ -1227,9 +1234,9 @@ char *update_changed_list_sql_statement_string(
 char *update_row_list_execute(
 		const char *sql_executable,
 		char *application_name,
+		boolean update_root_boolean,
 		UPDATE_ROW_LIST *update_row_list,
-		char *appaserver_error_filename,
-		boolean update_root_boolean )
+		char *appaserver_error_filename )
 {
 	char error_string[ STRING_64K ];
 	char *ptr = error_string;
@@ -1258,9 +1265,9 @@ char *update_row_list_execute(
 			update_changed_list_list_execute(
 				sql_executable,
 				application_name,
+				update_root_boolean,
 				update_row->update_changed_list_list,
-				appaserver_error_filename,
-				update_root_boolean );
+				appaserver_error_filename );
 
 		if ( update_error_string )
 		{
@@ -5423,7 +5430,7 @@ void update_row_display(
 			char message[ 128 ];
 
 			sprintf(message,
-		"update_roow->update_changed_list is empty or incomplete." );
+		"update_root->update_changed_list is empty or incomplete." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -5556,8 +5563,7 @@ LIST *update_row_update_changed_list_list(
 
 void update_row_list_display(
 		UPDATE_ROW_LIST *update_row_list,
-		FILE *output_stream,
-		boolean update_root_boolean )
+		FILE *output_stream )
 {
 	UPDATE_ROW *update_row;
 
@@ -5596,9 +5602,7 @@ void update_row_list_display(
 		update_row = list_get( update_row_list->list );
 
 		update_row_display(
-			(update_root_boolean)
-				? update_row->update_root
-				: NULL,
+			update_row->update_root,
 			update_row->update_one2m_list,
 			update_row->update_mto1_isa_list,
 			output_stream );
@@ -5848,9 +5852,9 @@ boolean update_changed_list_boolean(
 char *update_changed_list_list_execute(
 		const char *sql_executable,
 		char *application_name,
+		boolean update_root_boolean,
 		LIST *update_changed_list_list,
-		char *appaserver_error_filename,
-		boolean update_root_boolean )
+		char *appaserver_error_filename )
 {
 	char *update_error_string;
 	char *system_string;
@@ -5896,10 +5900,9 @@ char *update_changed_list_list_execute(
 			list_get(
 				update_changed_list_list );
 
-		if ( list_first_boolean( update_changed_list_list ) )
+		if ( update_root_boolean
+		&&   list_first_boolean( update_changed_list_list ) )
 		{
-		     if ( update_root_boolean )
-		     {
 			update_error_string =
 				update_root_execute(
 					SQL_EXECUTABLE,
@@ -5917,7 +5920,6 @@ char *update_changed_list_list_execute(
 				pclose( output_pipe );
 				return update_error_string;
 			}
-		     }
 		}
 		else
 		{

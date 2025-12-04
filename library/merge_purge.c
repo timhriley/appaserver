@@ -620,7 +620,8 @@ MERGE_PURGE_UPDATE *merge_purge_update_new(
 			relation_mto1_isa_list,
 			folder_attribute_primary_list
 				/* folder_attribute_append_isa_list */,
-			(PROCESS *)0 /* post_change_process */ );
+			(PROCESS *)0 /* post_change_process */,
+			0 /* not update_root_boolean */ );
 
 	if ( !merge_purge_update->update
 	||   !merge_purge_update->update->update_row_list )
@@ -1119,13 +1120,13 @@ void merge_purge_process_execute(
 	update_row_list_execute(
 		sql_executable,
 		application_name,
+		0 /* not update_root_boolean */,
 		merge_purge_update->
 			update->
 			update_row_list,
 		merge_purge_update->
 			update->
-			appaserver_error_filename,
-		0 /* not update_root_boolean */ );
+			appaserver_error_filename );
 
 	update_row_list_command_line_execute(
 		merge_purge_update->
@@ -1619,8 +1620,7 @@ void merge_purge_process_html_display(
 
 	update_row_list_display(
 		update->update_row_list,
-		output_pipe,
-		0 /* not update_root_boolean */ );
+		output_pipe );
 
 	pclose( output_pipe );
 

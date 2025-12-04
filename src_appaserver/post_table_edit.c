@@ -122,11 +122,11 @@ int main( int argc, char **argv )
 			update_row_list_execute(
 				SQL_EXECUTABLE,
 				application_name,
+				1 /* update_root_boolean */,
 				post_table_edit->update->update_row_list,
 				post_table_edit->
 					post_table_edit_input->
-					appaserver_error_filename,
-				1 /* update_root_boolean */ );
+					appaserver_error_filename );
 
 		if ( !post_table_edit->update->error_string )
 		{
