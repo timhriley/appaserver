@@ -270,6 +270,7 @@ typedef struct
 DELETE_MTO1_ISA *delete_mto1_isa_new(
 		char *application_name,
 		char *role_name,
+		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
@@ -295,6 +296,7 @@ typedef struct
 DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 		char *application_name,
 		char *role_name,
+		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,

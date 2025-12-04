@@ -796,6 +796,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 {
 	UPDATE_ROW_LIST *update_row_list;
 	int row_number;
+	UPDATE_ROW *update_row;
 
 	if ( !application_name
 	||   !session_key
@@ -843,8 +844,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 			relation_mto1_list,
 			row_number );
 
-		list_set(
-			update_row_list->list,
+		update_row =
 			update_row_new(
 				application_name,
 				session_key,
@@ -860,7 +860,15 @@ UPDATE_ROW_LIST *update_row_list_new(
 				security_entity,
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
-				row_number ) );
+				row_number );
+
+
+		if ( update_row )
+		{
+			list_set(
+				update_row_list->list,
+				update_row );
+		}
 	}
 
 	if ( list_length( update_row_list->list ) )
@@ -969,7 +977,10 @@ msg( (char *)0, message );
 				update_changed_primary_key_boolean,
 				update_attribute_list );
 
-		if ( update_mto1_isa ) list_set( list, update_mto1_isa );
+		if ( update_mto1_isa )
+		{
+			list_set( list, update_mto1_isa );
+		}
 
 	} while ( list_next( relation_mto1_isa_list ) );
 
@@ -5110,9 +5121,9 @@ void update_mto1_isa_display(
 			message );
 	}
 
-	appaserver_error_message_file(
-		(char *)0 /* application_name */,
-		(char *)0 /* login_name */,
+	fprintf(
+		output_stream,
+		"%s\n",
 		update_mto1_isa->
 			update_changed_list->
 			sql_statement_string );
@@ -5584,10 +5595,10 @@ void update_row_list_display(
 	do {
 		update_row = list_get( update_row_list->list );
 
-		if ( !update_root_boolean ) update_row->update_root = NULL;
-
 		update_row_display(
-			update_row->update_root,
+			(update_root_boolean)
+				? update_row->update_root
+				: NULL,
 			update_row->update_one2m_list,
 			update_row->update_mto1_isa_list,
 			output_stream );

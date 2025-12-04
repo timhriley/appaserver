@@ -127,6 +127,7 @@ DELETE *delete_new(
 			delete_mto1_isa_list_new(
 				application_name,
 				role_name,
+				update_null_boolean,
 				delete->
 					delete_input->
 					appaserver_error_filename,
@@ -617,6 +618,7 @@ DELETE_ONE2M *delete_one2m_calloc( void )
 DELETE_MTO1_ISA *delete_mto1_isa_new(
 		char *application_name,
 		char *role_name,
+		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
@@ -743,7 +745,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 			delete_one2m_list_new(
 				application_name,
 				role_name,
-				1 /* update_null_boolean */,
+				update_null_boolean,
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
 				delete_mto1_isa->query_cell_list,
@@ -1848,6 +1850,7 @@ DELETE_ONE2M_LIST *delete_one2m_list_calloc( void )
 DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 		char *application_name,
 		char *role_name,
+		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
@@ -1906,6 +1909,7 @@ DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 			delete_mto1_isa_new(
 				application_name,
 				role_name,
+				update_null_boolean,
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
 				primary_query_cell_list,
