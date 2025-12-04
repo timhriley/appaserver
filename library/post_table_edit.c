@@ -458,7 +458,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 					folder_attribute_append_isa_list,
 				post_table_edit->
 					post_table_edit_input->
-					post_change_process );
+					post_change_process,
+				1 /* update_root_boolean */ );
 	}
 
 	if ( dictionary_length(
