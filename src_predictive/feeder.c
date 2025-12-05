@@ -460,6 +460,12 @@ FEEDER *feeder_fetch(
 		feeder_load_row_list(
 			exchange_journal_list );
 
+/*
+feeder_load_row_list_raw_display(
+	stderr,
+	feeder->feeder_load_row_list );
+*/
+
 	feeder->transaction_fund_column_boolean =
 		transaction_fund_column_boolean(
 			TRANSACTION_TABLE,

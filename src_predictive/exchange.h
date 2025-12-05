@@ -96,6 +96,19 @@ char *exchange_journal_description(
 		char *name,
 		char *memo );
 
+/* Usage */
+/* ----- */
+void exchange_journal_list_raw_display(
+		LIST *exchange_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *exchange_journal_raw_display(
+		EXCHANGE_JOURNAL *exchange_journal );
+
 typedef struct
 {
 	char *exchange_format_filename;

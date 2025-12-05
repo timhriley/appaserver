@@ -59,6 +59,13 @@ EXCHANGE_CSV *exchange_csv_fetch(
 
 	while ( string_input( input, input_file, sizeof ( input ) ) )
 	{
+		/* Why does the U.S. Govt. escape the quote? */
+		/* ----------------------------------------- */
+		(void)string_unescape_character(
+			input /* destination */,
+			input /* datum */,
+			'"' /* character_to_unescape */ );
+
 		exchange_csv_journal =
 			exchange_csv_journal_new(
 				date_column,
@@ -94,6 +101,10 @@ EXCHANGE_CSV *exchange_csv_fetch(
 	exchange_csv->exchange_journal_list =
 		exchange_csv_exchange_journal_list(
 			exchange_csv->exchange_csv_journal_list );
+
+/*
+exchange_journal_list_raw_display( exchange_csv->exchange_journal_list );
+*/
 
 	exchange_csv->balance_double =
 		exchange_csv_balance_double(
@@ -467,19 +478,22 @@ char *exchange_csv_journal_piece_string(
 		char *input )
 {
 	char buffer[ 1024 ];
+	char *strdup;
 
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	string_strdup(
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		piece_quote_comma(
-			buffer,
-			input,
-			column_one_based - 1 ) );
+	strdup =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_strdup(
+			/* ---------------------------- */
+			/* Returns destination or null */
+			/* ---------------------------- */
+			piece_quote_comma(
+				buffer /* destination */,
+				input,
+				column_one_based - 1 ) );
+
+	return strdup;
 }
 
 double exchange_csv_journal_amount_double(

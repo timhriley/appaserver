@@ -898,3 +898,78 @@ char *exchange_system_string( char *exchange_filespecification )
 	return strdup( system_string );
 }
 
+void exchange_journal_list_raw_display( LIST *exchange_journal_list )
+{
+	EXCHANGE_JOURNAL *exchange_journal;
+	char *raw_display;
+
+
+	if ( list_rewind( exchange_journal_list ) )
+	do {
+		exchange_journal = list_get( exchange_journal_list );
+
+		/* Returns heap memory */
+		/* ------------------- */
+		raw_display = exchange_journal_raw_display( exchange_journal );
+
+		fprintf( stderr, "%s\n\n", raw_display );
+
+		free( raw_display );
+
+	} while ( list_next( exchange_journal_list ) );
+}
+
+char *exchange_journal_raw_display( EXCHANGE_JOURNAL *exchange_journal )
+{
+	char raw_display[ 1024 ];
+	char *ptr = raw_display;
+
+	if ( !exchange_journal
+	||   !exchange_journal->journal )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: exchange_journal is empty or incomplete.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"transaction_date_time=%s;",
+		exchange_journal->journal->transaction_date_time );
+
+	ptr += sprintf(
+		ptr,
+		"description=%s;",
+		exchange_journal->description );
+
+	ptr += sprintf(
+		ptr,
+		"amount=%.2lf;",
+		exchange_journal->amount );
+
+	ptr += sprintf(
+		ptr,
+		"previous_balance=%.2lf;",
+		exchange_journal->journal->previous_balance );
+
+	ptr += sprintf(
+		ptr,
+		"debit_amount=%.2lf;",
+		exchange_journal->journal->debit_amount );
+
+	ptr += sprintf(
+		ptr,
+		"credit_amount=%.2lf;",
+		exchange_journal->journal->credit_amount );
+
+	ptr += sprintf(
+		ptr,
+		"balance=%.2lf;",
+		exchange_journal->journal->balance );
+
+	return strdup( raw_display );
+}
+
