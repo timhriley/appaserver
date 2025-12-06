@@ -419,6 +419,15 @@ SESSION *session_fetch(
 			session->current_ip_address );
 	}
 
+	if ( session_browser_key_changed_boolean(
+		session->http_user_agent ) )
+	{
+		session_access_failed_message_exit(
+			application_name,
+			login_name,
+			session->current_ip_address );
+	}
+
 	session->last_access_date =
 		/* --------------------*/
 		/* Returns heap memory */
@@ -1358,3 +1367,67 @@ char *session_folder_state2(
 
 	return folder_state2;
 }
+
+boolean session_browser_key_changed_boolean( char *http_user_agent )
+{
+	char *s_agent;
+	char *e_agent;
+	int cmp;
+	boolean changed_boolean;
+
+	if ( !http_user_agent )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: http_user_agent is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	e_agent =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		environment_http_user_agent(
+			ENVIRONMENT_HTTP_USER_AGENT_KEY );
+
+	if ( !e_agent )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: environment_http_user_agent(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			ENVIRONMENT_HTTP_USER_AGENT_KEY );
+		exit( 1 );
+	}
+
+	s_agent =
+		/* --------------------*/
+		/* Returns heap memory */
+		/* --------------------*/
+		session_http_user_agent(
+			SESSION_USER_AGENT_WIDTH,
+			e_agent );
+
+	cmp = strcmp(
+		http_user_agent,
+		s_agent );
+
+	if ( cmp != 0 )
+	{
+		changed_boolean = 1;
+	}
+	else
+	{
+
+		changed_boolean = 0;
+	}
+
+	free( e_agent );
+	free( s_agent );
+
+	return changed_boolean;
+}
+

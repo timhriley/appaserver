@@ -271,6 +271,11 @@ void session_folder_permission_message_exit(
 		char *state,
 		char *session_current_ip_address );
 
+/* Usage */
+/* ----- */
+boolean session_browser_key_changed_boolean(
+		char *http_user_agent );
+
 typedef struct
 {
 	char *application_name;
