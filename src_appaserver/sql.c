@@ -125,7 +125,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( appaserver_parameter->mysql_password_syntax )
+	if ( appaserver_parameter->mysql_password_syntax_boolean )
 	{
 		snprintf(
 		system_string,
