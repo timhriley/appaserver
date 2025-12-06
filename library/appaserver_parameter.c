@@ -163,17 +163,23 @@ FILE *appaserver_parameter_open_file( char *filename )
 
 APPASERVER_PARAMETER *appaserver_parameter_new( void )
 {
-	char *application;
+	char *application_name;
 
-	application =
-		environment_get(
-			"APPASERVER_DATABASE" );
+	application_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		environment_application_name();
 
-	if ( !application || !*application )
+
+	if ( !application_name )
 	{
-		application =
-			environment_get(
-				"DATABASE" );
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: environment_application_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	return
@@ -181,7 +187,7 @@ APPASERVER_PARAMETER *appaserver_parameter_new( void )
 	/* Safely returns */
 	/* -------------- */
 	appaserver_parameter_application(
-		application );
+		application_name );
 }
 
 APPASERVER_PARAMETER *appaserver_parameter_calloc( void )
@@ -209,6 +215,7 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	APPASERVER_PARAMETER *s = appaserver_parameter;
 	DICTIONARY *d = dictionary;
 	char *a;
+	char *fetch;
 
 	a = "mysql_user";
 	if ( ! ( s->mysql_user = dictionary_fetch( a, d ) ) )
@@ -248,7 +255,16 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 	a );
 			exit( 1 );
 		}
-		s->mysql_password_syntax = 1;
+		s->mysql_password_syntax_boolean = 1;
+	}
+
+	a = "bypass_ip_changed_check_yn";
+	if ( ( fetch = dictionary_fetch( a, d ) ) )
+	{
+		if ( *fetch == 'y' )
+		{
+			s->bypass_ip_changed_check_boolean = 1;
+		}
 	}
 
 	a = "mysql_host";
@@ -319,23 +335,23 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 
 DICTIONARY *appaserver_parameter_dictionary( FILE *file )
 {
-	char buffer[ 4096 ];
+	char input[ 4096 ];
 	char key[ 1024 ];
-	char data[ 3072 ];
+	char datum[ 3072 ];
 	DICTIONARY *dictionary = dictionary_new();
 
-	while( string_input( buffer, file, 1024 ) )
+	while( string_input( input, file, sizeof ( input ) ) )
 	{
-		if ( *buffer == '[' ) continue;
+		if ( *input == '[' ) continue;
 
-		piece( key, '=', buffer, 0 );
+		piece( key, '=', input, 0 );
 
-		if ( piece( data, '=', buffer, 1 ) )
+		if ( piece( datum, '=', input, 1 ) )
 		{
 			dictionary_set(
 				dictionary,
 				strdup( key ),
-				strdup( data ) );
+				strdup( datum ) );
 		}
 	}
 
@@ -346,6 +362,7 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 		char *application_name )
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
+	FILE *file;
 
 	appaserver_parameter = appaserver_parameter_calloc();
 	appaserver_parameter->application_name = application_name;
@@ -357,7 +374,7 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 		appaserver_parameter_filename(
 			application_name );
 
-	appaserver_parameter->file =
+	file =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
@@ -366,9 +383,9 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 
 	appaserver_parameter->dictionary =
 		appaserver_parameter_dictionary(
-			appaserver_parameter->file );
+			file );
 
-	fclose( appaserver_parameter->file );
+	fclose( file );
 
 	return
 	/* ---------------------------- */
@@ -405,3 +422,13 @@ char *appaserver_parameter_application_data_directory(
 
 	return strdup( application_data_directory );
 }
+
+boolean appaserver_parameter_bypass_ip_changed_check( void )
+{
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
+
+	return global_appaserver_parameter->bypass_ip_changed_check_boolean;
+}
+

@@ -87,8 +87,8 @@ APPASERVER_USER *appaserver_user_calloc(
 /* Usage */
 /* ----- */
 APPASERVER_USER *appaserver_user_fetch(
-		char *full_name /* stack memory */,
-		char *street_address /* stack memory */,
+		char *full_name,
+		char *street_address,
 		boolean fetch_role_name_list );
 
 /* Usage */

@@ -13,6 +13,7 @@
 #include "environ.h"
 #include "String.h"
 #include "appaserver_error.h"
+#include "appaserver_parameter.h"
 #include "folder.h"
 #include "document.h"
 #include "piece.h"
@@ -305,8 +306,8 @@ SESSION *session_parse(
 	{
 		if ( ! ( session->appaserver_user =
 				appaserver_user_fetch(
-					full_name /* stack memory */,
-					street_address /* stack memory */,
+					full_name,
+					street_address,
 					0 /* not fetch_role_name_list */ ) ) )
 		{
 			return NULL;
@@ -400,10 +401,13 @@ SESSION *session_fetch(
 
 	session->current_ip_address = current_ip_address;
 
-	session->remote_ip_address_changed_boolean =
-		session_remote_ip_address_changed_boolean(
-			session->remote_ip_address,
-			session->current_ip_address );
+	if ( !appaserver_parameter_bypass_ip_changed_check() )
+	{
+		session->remote_ip_address_changed_boolean =
+			session_remote_ip_address_changed_boolean(
+				session->remote_ip_address,
+				session->current_ip_address );
+	}
 
 	if ( session->remote_ip_address_changed_boolean )
 	{

@@ -17,7 +17,6 @@ typedef struct
 {
 	char *application_name;
 	char *filename;
-	FILE *file;
 	DICTIONARY *dictionary;
 	char *mysql_user;
 	char *password;
@@ -32,7 +31,8 @@ typedef struct
 	char *data_directory;
 	char *upload_directory;
 	char *backup_directory;
-	boolean mysql_password_syntax;
+	boolean mysql_password_syntax_boolean;
+	boolean bypass_ip_changed_check_boolean;
 } APPASERVER_PARAMETER;
 
 /* Usage */
@@ -117,6 +117,9 @@ char *appaserver_parameter_upload_directory(
 /* Returns component of global_appaserver_parameter */
 /* ------------------------------------------------ */
 char *appaserver_parameter_backup_directory(
+		void );
+
+boolean appaserver_parameter_bypass_ip_changed_check(
 		void );
 
 #endif
