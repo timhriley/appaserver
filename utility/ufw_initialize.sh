@@ -9,9 +9,7 @@
 ufw_disable.sh
 ufw_reset.sh
 
-sudo ufw disable
-sudo ufw logging low
-
+sudo ufw logging off
 sudo ufw allow from 127.0.0.1
 sudo ufw allow from 192.168.1.0/24
 sudo ufw allow from 10.0.0.0/24
@@ -35,6 +33,7 @@ sudo ufw limit ssh
 
 ufw_http_dos_rules.sh
 ufw_enable.sh
+
 ufw_blacklist_deny.sh
 
 exit 0
