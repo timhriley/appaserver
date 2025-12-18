@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
+#include "String.h"
+#include "column.h"
 #include "list.h"
 #include "fopen_path.h"
 
@@ -18,6 +20,7 @@
 int main( int argc, char **argv )
 {
 	FILE *input_file;
+	char input[ 1024 ];
 	char buffer[ 1024 ];
 	FILE *output_pipe;
 	char *input_filename;
@@ -35,10 +38,13 @@ int main( int argc, char **argv )
 
 	if ( ( input_file = fopen_path( input_filename, "r" ) ) )
 	{
-		while( get_line( buffer, input_file ) )
+		while( string_input( input, input_file, sizeof ( input ) ) )
 		{
-			fprintf( output_pipe, "%s\n", buffer );
+			if ( *input == '#' ) continue;
 
+			fprintf(output_pipe,
+				"%s\n",
+				column( buffer, 0, input ) );
 		}
 		pclose( output_pipe );
 	}
