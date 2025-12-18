@@ -272,6 +272,7 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		const char *transaction_begin_time,
+		char *fund_name,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *entity_self_full_name,
@@ -329,6 +330,7 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_CHECKING *feeder_init_checking_new(
 		boolean execute_boolean,
+		char *fund_name,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
@@ -355,6 +357,7 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
+		char *fund_name,
 		double negate_exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
@@ -453,6 +456,7 @@ FEEDER_INIT *feeder_init_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		boolean checking_boolean,
@@ -549,6 +553,7 @@ char *feeder_init_financial_institution_street_address(
 void feeder_init_process(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		boolean execute_boolean,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,

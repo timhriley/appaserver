@@ -943,6 +943,7 @@ void feeder_process(
 		char *application_name,
 		char *process_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name,
 		boolean execute_boolean,
 		double exchange_journal_begin_amount,

@@ -3923,6 +3923,7 @@ void feeder_process(
 		char *application_name,
 		char *process_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name,
 		boolean execute_boolean,
 		double exchange_journal_begin_amount,
@@ -3966,7 +3967,7 @@ void feeder_process(
 		{
 			feeder_execute(
 				process_name,
-				(char *)0 /* fund_name */,
+				fund_name,
 				feeder );
 		}
 		else

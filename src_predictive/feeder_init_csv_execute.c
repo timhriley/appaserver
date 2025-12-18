@@ -23,6 +23,7 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
+	char *fund_name;
 	char *full_name;
 	char *street_address;
 	char *account_type;
@@ -48,10 +49,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 18 )
+	if ( argc != 19 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column reference_column balance_column reverse_order_yn balance_amount execute_yn\n",
+"Usage: %s session login_name role process fund full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column reference_column balance_column reverse_order_yn balance_amount execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -61,19 +62,20 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-	full_name = argv[ 5 ];
-	street_address = argv[ 6 ];
-	account_type = argv[ 7 ];
-	csv_format_filename = argv[ 8 ];
-	date_column = atoi( argv[ 9 ] );
-	description_column = atoi( argv[ 10 ] );
-	debit_column = atoi( argv[ 11 ] );
-	credit_column = atoi( argv[ 12 ] );
-	balance_column = atoi( argv[ 13 ] );
-	reference_column = atoi( argv[ 14 ] );
-	reverse_order_boolean = (*argv[ 15 ] == 'y');
-	balance_amount = atof( argv[ 16 ] );
-	execute_boolean = (*argv[ 17 ] == 'y');
+	fund_name = argv[ 5 ];
+	full_name = argv[ 6 ];
+	street_address = argv[ 7 ];
+	account_type = argv[ 8 ];
+	csv_format_filename = argv[ 9 ];
+	date_column = atoi( argv[ 10 ] );
+	description_column = atoi( argv[ 11 ] );
+	debit_column = atoi( argv[ 12 ] );
+	credit_column = atoi( argv[ 13 ] );
+	balance_column = atoi( argv[ 14 ] );
+	reference_column = atoi( argv[ 15 ] );
+	reverse_order_boolean = (*argv[ 16 ] == 'y');
+	balance_amount = atof( argv[ 17 ] );
+	execute_boolean = (*argv[ 18 ] == 'y');
 
 	document_process_output(
 		application_name,
@@ -154,6 +156,7 @@ int main( int argc, char **argv )
 				session_key,
 				login_name,
 				role_name,
+				fund_name,
 				full_name
 				/* financial_institution_full_name */,
 				street_address
@@ -166,6 +169,7 @@ int main( int argc, char **argv )
 	feeder_init_process(
 		application_name,
 		login_name,
+		fund_name,
 		execute_boolean,
 		checking_boolean,
 		(exchange_csv)

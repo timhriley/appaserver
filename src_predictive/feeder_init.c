@@ -270,6 +270,7 @@ char *feeder_init_passthru_exist_system_string(
 
 FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		const char *transaction_begin_time,
+		char *fund_name,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *entity_self_full_name,
@@ -314,7 +315,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		/* Safely returns */
 		/* -------------- */
 		transaction_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			entity_self_full_name,
 			entity_self_street_address,
 			feeder_init_transaction->date_time );
@@ -527,6 +528,7 @@ void feeder_init_transaction_insert(
 
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
+		char *fund_name,
 		double negate_exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
@@ -590,6 +592,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* -------------- */
 		feeder_init_transaction_new(
 			TRANSACTION_BEGIN_TIME,
+			fund_name,
 			negate_exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
@@ -627,6 +630,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_calloc( void )
 
 FEEDER_INIT_CHECKING *feeder_init_checking_new(
 		boolean execute_boolean,
+		char *fund_name,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
@@ -690,6 +694,7 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 		/* -------------- */
 		feeder_init_transaction_new(
 			TRANSACTION_BEGIN_TIME,
+			fund_name,
 			exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
@@ -1006,6 +1011,7 @@ FEEDER_INIT *feeder_init_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		boolean checking_boolean,
@@ -1064,6 +1070,7 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_checking_new(
 				0 /* not execute_boolean */,
+				fund_name,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1086,6 +1093,7 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_credit_new(
 				0 /* not execute_boolean */,
+				fund_name,
 				-exchange_journal_begin_amount
 				/* negate_exchange_journal_begin_amount */,
 				exchange_minimum_date_string,
@@ -1574,6 +1582,7 @@ char *feeder_init_passthru_account_name( const char *account_passthru_key )
 void feeder_init_process(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		boolean execute_boolean,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
@@ -1678,6 +1687,7 @@ void feeder_init_process(
 				/* -------------- */
 				feeder_init_checking_new(
 					1 /* execute_boolean */,
+					fund_name,
 					exchange_journal_begin_amount,
 					exchange_minimum_date_string,
 					feeder_init->
@@ -1700,6 +1710,7 @@ void feeder_init_process(
 				/* -------------- */
 				feeder_init_credit_new(
 					1 /* execute_boolean */,
+					fund_name,
 					-exchange_journal_begin_amount
 					/* negate_exchange_journal_begin */,
 					exchange_minimum_date_string,

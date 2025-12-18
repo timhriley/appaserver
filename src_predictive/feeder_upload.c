@@ -46,7 +46,7 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	if ( ( fund_name = argv[ 3 ] ) ){}
+	fund_name = argv[ 3 ];
 	feeder_account_name = argv[ 4 ];
 	exchange_format_filename = argv[ 5 ];
 	execute_boolean = (*argv[ 6 ] == 'y');
@@ -127,6 +127,7 @@ int main( int argc, char **argv )
 		application_name,
 		process_name,
 		login_name,
+		fund_name,
 		feeder_account_name,
 		execute_boolean,
 		(exchange)
