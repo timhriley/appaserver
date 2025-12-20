@@ -522,6 +522,7 @@ BUDGET *budget_fetch(
 		char *application_name,
 		char *session_key,
 		char *process_name,
+		char *fund_name,
 		char *output_medium_string,
 		char *appaserver_parameter_data_directory );
 
@@ -547,9 +548,7 @@ double budget_year_ratio(
 LIST *budget_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
-		const char *element_expenditure,
-		const char *element_gain,
-		const char *element_loss );
+		const char *element_expenditure );
 
 /* Returns heap memory */
 /* ------------------- */

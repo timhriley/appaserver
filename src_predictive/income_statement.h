@@ -276,6 +276,7 @@ INCOME_STATEMENT *income_statement_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *appaserver_parameter_data_directory,
 		char *as_of_date_string,
 		int prior_year_count,
@@ -316,6 +317,7 @@ LIST *income_statement_prior_net_income_data_list(
 /* Usage */
 /* ----- */
 double income_statement_fetch_net_income(
+		char *fund_name,
 		char *end_date_time_string );
 
 #endif

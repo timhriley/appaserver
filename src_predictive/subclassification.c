@@ -18,6 +18,7 @@
 #include "subclassification.h"
 
 LIST *subclassification_where_statement_list(
+		char *fund_name,
 		char *where,
 		char *end_date_time_string,
 		boolean fetch_element,
@@ -68,13 +69,14 @@ LIST *subclassification_where_statement_list(
 	{
 		subclassification =
 			subclassification_statement_parse(
-				input,
+				fund_name,
 				end_date_time_string,
 				fetch_element,
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean );
+				latest_zero_balance_boolean,
+				input );
 
 		if ( !subclassification )
 		{
@@ -103,13 +105,14 @@ LIST *subclassification_where_statement_list(
 }
 
 SUBCLASSIFICATION *subclassification_statement_parse(
-		char *input,
+		char *fund_name,
 		char *end_date_time_string,
 		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		char *input )
 {
 	SUBCLASSIFICATION *subclassification;
 
@@ -122,8 +125,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 
 	if ( ! ( subclassification =
 			subclassification_parse(
-				input,
-				fetch_element ) ) )
+				fetch_element,
+				input ) ) )
 	{
 		return NULL;
 	}
@@ -140,6 +143,7 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 
 		subclassification->account_statement_list =
 			account_statement_list(
+				fund_name,
 				primary_where,
 				end_date_time_string,
 				1 /* fetch_subclassification */,
@@ -157,14 +161,14 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 }
 
 SUBCLASSIFICATION *subclassification_parse(
-		char *input,
-		boolean fetch_element )
+		boolean fetch_element,
+		char *input )
 {
 	char subclassification_name[ 128 ];
 	char piece_buffer[ 128 ];
 	SUBCLASSIFICATION *subclassification;
 
-	if ( !input || !*input ) return (SUBCLASSIFICATION *)0;
+	if ( !input || !*input ) return NULL;
 
 	/* See SUBCLASSIFICATION_SELECT */
 	/* ---------------------------- */
@@ -252,8 +256,8 @@ SUBCLASSIFICATION *subclassification_fetch(
 
 		subclassification =
 			subclassification_parse(
-				string_input( input, pipe, 256 ),
-				0 /* not fetch_element */ );
+				0 /* not fetch_element */,
+				string_input( input, pipe, sizeof ( input ) ) );
 
 		pclose( pipe );
 	}
@@ -784,8 +788,8 @@ LIST *subclassification_system_list(
 		list_set(
 			list,
 			subclassification_parse(
-				input,
-				fetch_element ) );
+				fetch_element,
+				input ) );
 	}
 
 	pclose( pipe );

@@ -165,6 +165,7 @@ char *statement_caption_sub_title(
 STATEMENT *statement_fetch(
 		char *application_name,
 		char *process_name,
+		char *fund_name,
 		int prior_year_count,
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string,
@@ -200,6 +201,7 @@ STATEMENT *statement_fetch(
 
 	statement->element_statement_list =
 		element_statement_list(
+			fund_name,
 			element_name_list,
 			end_date_time,
 			1 /* fetch_subclassification */,
@@ -778,8 +780,9 @@ void statement_html_output(
 }
 
 LIST *statement_prior_year_list(
+		char *fund_name,
 		LIST *element_name_list,
-		char *end_date_time,
+		char *end_date_time_string,
 		int prior_year_count,
 		STATEMENT *statement )
 {
@@ -787,14 +790,14 @@ LIST *statement_prior_year_list(
 	int years_ago;
 
 	if ( !list_length( element_name_list )
-	||   !end_date_time
+	||   !end_date_time_string
 	||   !prior_year_count
 	||   !statement
 	||   !list_length( statement->element_statement_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "parameter is empty or incomplete." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -812,8 +815,9 @@ LIST *statement_prior_year_list(
 		list_set(
 			prior_year_list,
 			statement_prior_year_fetch(
+				fund_name,
 				element_name_list,
-				end_date_time,
+				end_date_time_string,
 				years_ago,
 				statement ) );
 	}
@@ -822,8 +826,9 @@ LIST *statement_prior_year_list(
 }
 
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
+		char *fund_name,
 		LIST *element_name_list,
-		char *end_date_time,
+		char *end_date_time_string,
 		int years_ago,
 		STATEMENT *statement )
 {
@@ -832,7 +837,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 	ELEMENT *prior_element;
 
 	if ( !list_length( element_name_list )
-	||   !end_date_time
+	||   !end_date_time_string
 	||   !years_ago
 	||   !statement )
 	{
@@ -856,11 +861,12 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		statement_prior_year_date_time(
-			end_date_time,
+			end_date_time_string,
 			years_ago );
 
 	statement_prior_year->element_statement_list =
 		element_statement_list(
+			fund_name,
 			element_name_list,
 			statement_prior_year->date_time,
 			1 /* fetch_subclassification_list */,
@@ -922,12 +928,12 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc( void )
 }
 
 char *statement_prior_year_date_time(
-		char *end_date_time,
+		char *end_date_time_string,
 		int years_ago )
 {
 	DATE *prior_date;
 
-	if ( !end_date_time
+	if ( !end_date_time_string
 	||   !years_ago )
 	{
 		char message[ 128 ];
@@ -941,7 +947,7 @@ char *statement_prior_year_date_time(
 			message );
 	}
 
-	prior_date = date_19new( end_date_time );
+	prior_date = date_19new( end_date_time_string );
 
 	date_subtract_year( prior_date, years_ago );
 

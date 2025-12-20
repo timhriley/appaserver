@@ -102,7 +102,7 @@ JOURNAL *journal_latest(
 		const char *journal_table,
 		char *fund_name,
 		char *account_name,
-		char *transaction_date_time,
+		char *end_date_time_string,
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean )
 {
@@ -134,7 +134,7 @@ JOURNAL *journal_latest(
 				/* --------------------- */
 				journal_less_equal_where(
 					fund_name,
-					transaction_date_time,
+					end_date_time_string,
 					account_name ) ),
 			account_name,
 			0 /* not fetch_account */,
@@ -153,7 +153,8 @@ JOURNAL *journal_latest(
 				fund_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
-				transaction_date_time,
+				end_date_time_string
+					/* transaction_date_time */,
 				account_name );
 	}
 
@@ -169,7 +170,7 @@ JOURNAL *journal_latest(
 
 char *journal_less_equal_where(
 		char *fund_name,
-		char *transaction_date_time,
+		char *end_date_time_string,
 		char *account_name )
 {
 	char *transaction_date_time_where;
@@ -194,7 +195,7 @@ char *journal_less_equal_where(
 		/* --------------------- */
 		journal_transaction_date_time_where(
 			"<=" /* relation_operator */,
-			transaction_date_time );
+			end_date_time_string /* transaction_date_time */ );
 
 	snprintf(
 		where,

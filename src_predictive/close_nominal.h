@@ -35,6 +35,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 CLOSE_NOMINAL_DO *close_nominal_do_fetch(
+		char *fund_name,
 		char *as_of_date_string );
 
 /* Process */
@@ -114,6 +115,7 @@ typedef struct
 CLOSE_NOMINAL *close_nominal_fetch(
 		char *application_name,
 		char *process_name,
+		char *fund_name,
 		char *as_of_date_string,
 		boolean undo );
 

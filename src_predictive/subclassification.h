@@ -56,6 +56,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *subclassification_where_statement_list(
+		char *fund_name,
 		char *where,
 		char *end_date_time_string,
 		boolean fetch_element,
@@ -82,13 +83,14 @@ FILE *subclassification_pipe(
 /* Usage */
 /* ----- */
 SUBCLASSIFICATION *subclassification_statement_parse(
-		char *input,
+		char *fund_name,
 		char *end_date_time_string,
 		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -110,8 +112,8 @@ char *subclassification_primary_where(
 /* Usage */
 /* ----- */
 SUBCLASSIFICATION *subclassification_parse(
-		char *input,
-		boolean fetch_element );
+		boolean fetch_element,
+		char *input );
 
 /* Usage */
 /* ----- */

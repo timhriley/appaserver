@@ -72,6 +72,7 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			process_name,
+			(char *)0 /* fund_name */,
 			appaserver_parameter->data_directory,
 			as_of_date_string,
 			prior_year_count,

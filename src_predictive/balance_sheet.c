@@ -2800,6 +2800,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *data_directory,
 		char *as_of_date_string,
 		int prior_year_count,
@@ -2863,6 +2864,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 		statement_fetch(
 			application_name,
 			process_name,
+			fund_name,
 			prior_year_count,
 			balance_sheet->element_name_list,
 			balance_sheet->
@@ -2891,6 +2893,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 
 	balance_sheet->element_equity_current =
 		element_statement_fetch(
+			fund_name,
 			ELEMENT_EQUITY,
 			balance_sheet->
 				transaction_date_statement->
@@ -2924,6 +2927,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 
 	balance_sheet->element_equity_begin =
 		element_statement_fetch(
+			fund_name,
 			ELEMENT_EQUITY,
 			balance_sheet->
 				transaction_date_statement->
@@ -2950,6 +2954,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 
 	balance_sheet->income_statement_fetch_net_income =
 		income_statement_fetch_net_income(
+			fund_name,
 			balance_sheet->
 				transaction_date_statement->
 				end_date_time );
@@ -2958,6 +2963,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 		balance_sheet_drawing_amount(
 			JOURNAL_TABLE,
 			ACCOUNT_DRAWING_KEY,
+			fund_name,
 			balance_sheet->
 				transaction_date_statement->
 				end_date_time );
@@ -2977,6 +2983,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 	{
 		balance_sheet->statement_prior_year_list =
 			statement_prior_year_list(
+				fund_name,
 				balance_sheet->element_name_list,
 				balance_sheet->
 					transaction_date_statement->
@@ -3302,6 +3309,7 @@ LATEX_ROW *balance_sheet_latex_net_income_row(
 double balance_sheet_drawing_amount(
 		const char *journal_table,
 		const char *account_drawing_key,
+		char *fund_name,
 		char *transaction_end_date_time )
 {
 	char *drawing_string;
@@ -3333,6 +3341,7 @@ double balance_sheet_drawing_amount(
 	account_journal =
 		account_journal_latest(
 			journal_table,
+			fund_name,
 			drawing_string /* account_name */,
 			transaction_end_date_time,
 			0 /* not fetch_transaction */,

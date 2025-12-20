@@ -11,7 +11,6 @@ then
 	exit 1
 fi
 
-(
 cd $APPASERVER_HOME/library && pwd && make
 if [ "$?" -ne 0 ]
 then
@@ -39,13 +38,5 @@ then
 	echo "$0 exiting early"
 	exit 1
 fi
-
-) 2>&1						|
-grep -v "length character with"			|
-grep -v "subscript has"				|
-grep -v "set but not used"			|
-grep -v "cast from pointer to integer"		|
-grep -v "warning: ignoring return value"	|
-grep -v "int format,"
 
 exit 0

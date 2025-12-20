@@ -38,6 +38,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *element_statement_list(
+		char *fund_name,
 		LIST *element_name_list,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
@@ -83,6 +84,7 @@ ELEMENT *element_calloc(
 /* Usage */
 /* ----- */
 ELEMENT *element_statement_fetch(
+		char *fund_name,
 		char *element_name,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
@@ -109,13 +111,14 @@ char *element_system_string(
 /* Usage */
 /* ----- */
 ELEMENT *element_statement_parse(
-		char *input,
+		char *fund_name,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		char *input );
 
 /* Usage */
 /* ----- */

@@ -35,6 +35,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 INVESTMENT_TRANSACTION *investment_transaction_new(
+		char *fund_name,
 		double investment_account_sum );
 
 /* Process */

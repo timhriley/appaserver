@@ -16,6 +16,7 @@
 #include "investment_transaction.h"
 
 INVESTMENT_TRANSACTION *investment_transaction_new(
+		char *fund_name,
 		double investment_account_sum )
 {
 	INVESTMENT_TRANSACTION *investment_transaction;
@@ -39,6 +40,7 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 	investment_transaction->account_journal_latest =
 		account_journal_latest(
 			JOURNAL_TABLE,
+			fund_name,
 			investment_transaction->account_key_account_name,
 			investment_transaction->date_now19
 				/* end_date_time_string */,

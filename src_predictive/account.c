@@ -24,8 +24,9 @@
 #include "account.h"
 
 LIST *account_statement_list(
+		char *fund_name,
 		char *subclassification_primary_where,
-		char *transaction_date_time_closing,
+		char *end_date_time_string,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
@@ -41,7 +42,7 @@ LIST *account_statement_list(
 	ACCOUNT *account;
 
 	if ( !subclassification_primary_where
-	||   !transaction_date_time_closing )
+	||   !end_date_time_string )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -84,14 +85,15 @@ LIST *account_statement_list(
 	{
 		account =
 			account_statement_parse(
-				input,
-				transaction_date_time_closing,
+				fund_name,
+				end_date_time_string,
 				chart_account_boolean,
 				fetch_subclassification,
 				fetch_element,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean );
+				latest_zero_balance_boolean,
+				input );
 
 		if ( account )
 		{
@@ -107,30 +109,31 @@ LIST *account_statement_list(
 }
 
 ACCOUNT *account_statement_parse(
-		char *input,
-		char *transaction_date_time_closing,
+		char *fund_name,
+		char *end_date_time_string,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		char *input )
 {
 	ACCOUNT *account;
 
 	if ( !input
 	||   !*input
-	||   !transaction_date_time_closing )
+	||   !end_date_time_string )
 	{
 		return NULL;
 	}
 
 	if ( ! ( account =
 			account_parse(
-				input,
 				account_chart_account_boolean,
 				fetch_subclassification,
-				fetch_element ) ) )
+				fetch_element,
+				input ) ) )
 	{
 		return NULL;
 	}
@@ -140,8 +143,9 @@ ACCOUNT *account_statement_parse(
 		account->account_journal_latest =
 			account_journal_latest(
 				JOURNAL_TABLE,
+				fund_name,
 				account->account_name,
-				transaction_date_time_closing,
+				end_date_time_string,
 				fetch_transaction,
 				latest_zero_balance_boolean );
 
@@ -728,10 +732,10 @@ ACCOUNT *account_seek(
 }
 
 ACCOUNT *account_parse(
-		char *input,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
-		boolean fetch_element )
+		boolean fetch_element,
+		char *input )
 {
 	char account_name[ 128 ];
 	char piece_buffer[ 1024 ];
@@ -825,6 +829,9 @@ ACCOUNT *account_fetch(
 
 		account =
 			account_parse(
+				chart_account_boolean,
+				fetch_subclassification,
+				fetch_element,
 				string_pipe(
 					/* ------------------- */
 					/* Returns heap memory */
@@ -836,10 +843,7 @@ ACCOUNT *account_fetch(
 	 					/* Returns static memory */
 	 					/* --------------------- */
 	 					account_primary_where(
-							account_name ) ) ),
-				chart_account_boolean,
-				fetch_subclassification,
-				fetch_element );
+							account_name ) ) ) );
 	}
 
 	return account;
@@ -1367,10 +1371,10 @@ LIST *account_system_list(
 		list_set(
 			system_list,
 			account_parse(
-				input,
 				account_chart_account_boolean,
 				fetch_subclassification,
-				fetch_element ) );
+				fetch_element,
+				input ) );
 	}
 
 	pclose( pipe );
@@ -1515,6 +1519,7 @@ ACCOUNT *account_subclassification_list_seek(
 
 ACCOUNT_JOURNAL *account_journal_latest(
 		const char *journal_table,
+		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
 		boolean fetch_transaction,
@@ -1523,12 +1528,11 @@ ACCOUNT_JOURNAL *account_journal_latest(
 	ACCOUNT_JOURNAL *account_journal;
 	JOURNAL *journal;
 
-	if ( !account_name
-	||   !end_date_time_string )
+	if ( !account_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "account_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1540,7 +1544,7 @@ ACCOUNT_JOURNAL *account_journal_latest(
 	if ( ! ( journal =
 			journal_latest(
 				journal_table,
-				(char *)0 /* fund_name */,
+				fund_name,
 				account_name,
 				end_date_time_string,
 				fetch_transaction,

@@ -30,7 +30,9 @@ CLOSE_NOMINAL_DO *close_nominal_do_calloc( void )
 	return close_nominal_do;
 }
 
-CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
+CLOSE_NOMINAL_DO *close_nominal_do_fetch(
+		char *fund_name,
+		char *as_of_date_string )
 {
 	CLOSE_NOMINAL_DO *close_nominal_do;
 
@@ -74,6 +76,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 
 	close_nominal_do->element_statement_list =
 		element_statement_list(
+			fund_name,
 			close_nominal_do->element_name_list,
 			close_nominal_do->
 				transaction_date_close_nominal_do->
@@ -99,6 +102,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch( char *as_of_date_string )
 
 	close_nominal_do->equity_subclassification_statement_list =
 		subclassification_where_statement_list(
+			fund_name,
 			close_nominal_do->equity_subclassification_where,
 			close_nominal_do->
 				transaction_date_close_nominal_do->
@@ -183,6 +187,7 @@ LIST *close_nominal_do_element_name_list(
 CLOSE_NOMINAL *close_nominal_fetch(
 		char *application_name,
 		char *process_name,
+		char *fund_name,
 		char *as_of_date_string,
 		boolean undo )
 {
@@ -258,6 +263,7 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			/* Safely returns */
 			/* -------------- */
 			close_nominal_do_fetch(
+				fund_name,
 				as_of_date_string );
 
 		if ( close_nominal->

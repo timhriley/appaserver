@@ -40,7 +40,7 @@ do
 	email_address=`echo $record | piece.e '^' 0`
 	ip_address=`echo $record | piece.e '^' 1`
 
-	/usr2/ufw/ufw_whitelist.sh $ip_address
+	ufw_whitelist.sh $ip_address
 
 	if [ "$?" -ne 0 ]
 	then

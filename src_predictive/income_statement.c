@@ -446,6 +446,7 @@ INCOME_STATEMENT *income_statement_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *data_directory,
 		char *as_of_date_string,
 		int prior_year_count,
@@ -511,6 +512,7 @@ INCOME_STATEMENT *income_statement_fetch(
 		statement_fetch(
 			application_name,
 			process_name,
+			fund_name,
 			prior_year_count,
 			income_statement->element_name_list,
 			income_statement->
@@ -552,6 +554,7 @@ INCOME_STATEMENT *income_statement_fetch(
 	{
 		income_statement->statement_prior_year_list =
 			statement_prior_year_list(
+				fund_name,
 				income_statement->element_name_list,
 				income_statement->
 					transaction_date_statement->
@@ -1407,6 +1410,7 @@ LATEX_TABLE *income_statement_latex_table(
 }
 
 double income_statement_fetch_net_income(
+		char *fund_name,
 		char *end_date_time )
 {
 	LIST *element_name_list;
@@ -1437,6 +1441,7 @@ double income_statement_fetch_net_income(
 		statement_fetch(
 			(char *)0 /* application_name */,
 			(char *)0 /* process_name */,
+			fund_name,
 			0 /* prior_year_count */,
 			element_name_list,
 			(char *)0 /* transaction_begin_date_string */,

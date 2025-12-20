@@ -98,7 +98,7 @@ JOURNAL *journal_latest(
 		const char *journal_table,
 		char *fund_name,
 		char *account_name,
-		char *transaction_date_time,
+		char *end_date_time_string,
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean );
 
@@ -499,7 +499,7 @@ char *journal_transaction_account_where(
 /* --------------------- */
 char *journal_less_equal_where(
 		char *fund_name,
-		char *transaction_date_time,
+		char *end_date_time_string,
 		char *account_name );
 
 /* Usage */

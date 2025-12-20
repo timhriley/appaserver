@@ -524,6 +524,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *appaserver_parameter_data_directory,
 		char *as_of_date_string,
 		int prior_year_count,
@@ -542,6 +543,7 @@ LIST *balance_sheet_element_name_list(
 double balance_sheet_drawing_amount(
 		const char *journal_table,
 		const char *account_drawing_key,
+		char *fund_name,
 		char *transaction_end_date_time_string );
 
 /* Usage */

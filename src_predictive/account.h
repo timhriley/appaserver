@@ -80,6 +80,7 @@ typedef struct
 /* ----- */
 ACCOUNT_JOURNAL *account_journal_latest(
 		const char *journal_table,
+		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
 		boolean fetch_transaction,
@@ -114,6 +115,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *account_statement_list(
+		char *fund_name,
 		char *subclassification_primary_where,
 		char *end_date_time_string,
 		boolean fetch_subclassification,
@@ -130,14 +132,15 @@ FILE *account_pipe(
 /* Usage */
 /* ----- */
 ACCOUNT *account_statement_parse(
-		char *input,
+		char *fund_name,
 		char *end_date_time_string,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -250,10 +253,10 @@ ACCOUNT *account_key_seek(
 /* Usage */
 /* ----- */
 ACCOUNT *account_parse(
-		char *input,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
-		boolean fetch_element );
+		boolean fetch_element,
+		char *input );
 
 /* Usage */
 /* ----- */

@@ -58,6 +58,7 @@ int main( int argc, char **argv )
 		close_nominal_fetch(
 			application_name,
 			process_name,
+			(char *)0 /* fund_name */,
 			as_of_date,
 			undo );
 

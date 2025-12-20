@@ -264,6 +264,7 @@ BUDGET *budget_fetch(
 		char *application_name,
 		char *session_key,
 		char *process_name,
+		char *fund_name,
 		char *output_medium_string,
 		char *data_directory )
 {
@@ -369,9 +370,7 @@ BUDGET *budget_fetch(
 		budget_element_name_list(
 			ELEMENT_REVENUE,
 			ELEMENT_EXPENSE,
-			ELEMENT_EXPENDITURE,
-			ELEMENT_GAIN,
-			ELEMENT_LOSS );
+			ELEMENT_EXPENDITURE );
 
 	budget->transaction_date_close_boolean =
 		transaction_date_close_boolean(
@@ -393,6 +392,7 @@ BUDGET *budget_fetch(
 		statement_fetch(
 			application_name,
 			process_name,
+			fund_name,
 			0 /* prior_year_count */,
 			budget->element_name_list,
 			budget->transaction_date_begin_date_string,
@@ -413,10 +413,11 @@ BUDGET *budget_fetch(
 
 	budget->statement_prior_year_list =
 		statement_prior_year_list(
-				budget->element_name_list,
-				budget->end_date_time,
-				1 /* prior_year_count */,
-				budget->statement );
+			fund_name,
+			budget->element_name_list,
+			budget->end_date_time,
+			1 /* prior_year_count */,
+			budget->statement );
 
 	budget->forecast_date =
 		budget_forecast_date(
@@ -587,17 +588,13 @@ DATE *budget_begin_date( char *transaction_date_begin_date_string )
 LIST *budget_element_name_list(
 		const char *element_revenue,
 		const char *element_expense,
-		const char *element_expenditure,
-		const char *element_gain,
-		const char *element_loss )
+		const char *element_expenditure )
 {
 	LIST *name_list = list_new();
 
 	list_set( name_list, (char *)element_revenue );
 	list_set( name_list, (char *)element_expense );
 	list_set( name_list, (char *)element_expenditure );
-	list_set( name_list, (char *)element_gain );
-	list_set( name_list, (char *)element_loss );
 
 	return name_list;
 }

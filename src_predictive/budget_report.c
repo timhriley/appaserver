@@ -53,6 +53,7 @@ int main( int argc, char **argv )
 			application_name,
 			session_key,
 			process_name,
+			(char *)0 /* fund_name */,
 			output_medium_string,
 			appaserver_parameter->data_directory );
 

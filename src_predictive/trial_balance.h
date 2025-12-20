@@ -385,6 +385,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *appaserver_parameter_data_directory,
 		char *as_of_date_string,
 		int prior_year_count,

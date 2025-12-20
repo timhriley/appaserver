@@ -41,6 +41,7 @@ int main( int argc, char **argv )
 		/* Safely returns */
 		/* -------------- */
 		investment_transaction_new(
+			(char *)0 /* fund_name */,
 			investment_account_sum );
 
 	if ( !investment_transaction->transaction )

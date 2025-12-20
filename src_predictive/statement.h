@@ -669,6 +669,7 @@ typedef struct
 STATEMENT *statement_fetch(
 		char *application_name /* optional */,
 		char *process_name /* optional */,
+		char *fund_name /* optional */,
 		int prior_year_count,
 		LIST *element_name_list,
 		char *transaction_date_begin_date_string /* optional */,
@@ -765,16 +766,18 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *statement_prior_year_list(
+		char *fund_name,
 		LIST *filter_element_name_list,
-		char *end_date_time,
+		char *end_date_time_string,
 		int prior_year_count,
 		STATEMENT *statement );
 
 /* Usage */
 /* ----- */
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
+		char *fund_name,
 		LIST *filter_element_name_list,
-		char *end_date_time,
+		char *end_date_time_string,
 		int years_ago,
 		STATEMENT *statement );
 
@@ -789,7 +792,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *statement_prior_year_date_time(
-		char *end_date_time,
+		char *end_date_time_string,
 		int years_ago );
 
 /* Usage */

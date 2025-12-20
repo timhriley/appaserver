@@ -41,6 +41,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 		char *login_name,
 		char *role_name,
 		char *process_name,
+		char *fund_name,
 		char *data_directory,
 		char *as_of_date_string,
 		int prior_year_count,
@@ -118,6 +119,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				/* --------------------- */
 				trial_balance_preclose_process_name(
 					process_name ),
+				fund_name,
 				prior_year_count,
 				trial_balance->element_name_list,
 				trial_balance->
@@ -180,6 +182,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 		{
 			trial_balance->preclose_statement_prior_year_list =
 				statement_prior_year_list(
+					fund_name,
 					trial_balance->
 						element_name_list,
 					trial_balance->
@@ -195,6 +198,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 		statement_fetch(
 			application_name,
 			process_name,
+			fund_name,
 			prior_year_count,
 			trial_balance->element_name_list,
 			trial_balance->
@@ -253,6 +257,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 	{
 		trial_balance->statement_prior_year_list =
 			statement_prior_year_list(
+				fund_name,
 				trial_balance->
 					element_name_list,
 				trial_balance->

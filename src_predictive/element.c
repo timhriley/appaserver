@@ -130,27 +130,29 @@ char *element_system_string(
 }
 
 ELEMENT *element_statement_parse(
-		char *input,
+		char *fund_name,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		char *input )
 {
 	ELEMENT *element;
 
-	if ( !input || !*input ) return (ELEMENT *)0;
+	if ( !input || !*input ) return NULL;
 
 	if ( ! ( element = element_parse( input ) ) )
 	{
-		return (ELEMENT *)0;
+		return NULL;
 	}
 
 	if ( fetch_subclassification_list )
 	{
 		element->subclassification_statement_list =
 			subclassification_where_statement_list(
+				fund_name,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -221,6 +223,7 @@ boolean element_is_nominal( char *element_name )
 }
 
 LIST *element_statement_list(
+		char *fund_name,
 		LIST *element_name_list,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
@@ -241,6 +244,7 @@ LIST *element_statement_list(
 		list_set(
 			element_list,
 			element_statement_fetch(
+				fund_name,
 				element_name,
 				end_date_time_string,
 				fetch_subclassification_list,
@@ -336,6 +340,7 @@ LIST *element_account_statement_list(
 }
 
 ELEMENT *element_statement_fetch(
+		char *fund_name,
 		char *element_name,
 		char *end_date_time_string,
 		boolean fetch_subclassification_list,
@@ -377,13 +382,14 @@ ELEMENT *element_statement_fetch(
 
 	element =
 		element_statement_parse(
-			string_input( input, pipe, 128 ),
+			fund_name,
 			end_date_time_string,
 			fetch_subclassification_list,
 			fetch_account_list,
 			fetch_journal_latest,
 			fetch_transaction,
-			latest_zero_balance_boolean );
+			latest_zero_balance_boolean,
+			string_input( input, pipe, sizeof ( input ) ) );
 
 
 	pclose( pipe );
