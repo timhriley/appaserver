@@ -1812,6 +1812,7 @@ INSERT_MULTI *insert_multi_new(
 {
 	INSERT_MULTI *insert_multi;
 	int row_number;
+	boolean any_primary_null_boolean;
 	INSERT_ROW *insert_row;
 
 	if ( !application_name
@@ -1868,15 +1869,14 @@ INSERT_MULTI *insert_multi_new(
 			relation_mto1_list,
 			row_number );
 
-		if ( insert_multi_any_primary_null_boolean(
-			APPASERVER_NULL_STRING,
-			root_primary_key_list,
-			prompt_dictionary,
-			multi_row_dictionary,
-			row_number ) )
-		{
-			continue;
-		}
+		any_primary_null_boolean =
+			insert_multi_any_primary_null_boolean(
+				root_primary_key_list,
+				prompt_dictionary,
+				multi_row_dictionary,
+				row_number );
+
+		if ( any_primary_null_boolean ) continue;
 
 		insert_row =
 			insert_row_new(
@@ -2359,7 +2359,6 @@ char *insert_multi_key(
 }
 
 boolean insert_multi_any_primary_null_boolean(
-		const char *appaserver_null_string,
 		LIST *root_primary_key_list,
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
@@ -2410,13 +2409,6 @@ boolean insert_multi_any_primary_null_boolean(
 				multi_row_dictionary );
 
 		if ( !get || !*get )
-		{
-			return 1;
-		}
-
-		if ( string_strcmp(
-			get,
-			(char *)appaserver_null_string ) == 0 )
 		{
 			return 1;
 		}

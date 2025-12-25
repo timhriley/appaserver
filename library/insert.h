@@ -266,7 +266,6 @@ void insert_multi_attribute_default_value_set(
 /* Usage */
 /* ----- */
 boolean insert_multi_any_primary_null_boolean(
-		const char *appaserver_null_string,
 		LIST *root_primary_key_list,
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
