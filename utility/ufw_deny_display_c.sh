@@ -1,6 +1,6 @@
 :
 # ----------------------------------------------
-# $APPASERVER_HOME/utility/ufw_deny_display_b.sh
+# $APPASERVER_HOME/utility/ufw_deny_display_c.sh
 # ----------------------------------------------
 
 ufw_deny_display.sh	|
