@@ -406,3 +406,24 @@ char *waypoint_system_string(
 	return system_string;
 }
 
+LIST *waypoint_utm_canvass_street_list( LIST *distance_sort_list )
+{
+	WAYPOINT_UTM *waypoint_utm;
+	LIST *list = list_new();
+
+	if ( list_rewind( distance_sort_list ) )
+	do {
+		waypoint_utm = list_get( distance_sort_list );
+		list_set( list, waypoint_utm->record );
+
+	} while ( list_next( distance_sort_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+

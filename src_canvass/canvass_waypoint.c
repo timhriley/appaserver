@@ -63,6 +63,15 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 		waypoint_utm_distance_sort_list(
 			canvass_waypoint->radius_utm_list );
 
+	canvass_waypoint->waypoint_utm_canvass_street_list =
+		waypoint_utm_canvass_street_list(
+			canvass_waypoint->
+				waypoint_utm_distance_sort_list );
+
+	canvass_street_list_votes_per_address_set(
+		canvass_waypoint->
+			waypoint_utm_canvass_street_list );
+
 	return canvass_waypoint;
 }
 
@@ -183,4 +192,3 @@ LIST *canvass_waypoint_radius_utm_list(
 
 	return radius_utm_list;
 }
-

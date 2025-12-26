@@ -23,6 +23,10 @@ typedef struct
 	STREET *street;
 	boolean include_boolean;
 	boolean start_boolean;
+
+	/* Set externally */
+	/* -------------- */
+	double votes_per_address;
 } CANVASS_STREET;
 
 /* Usage */
@@ -49,6 +53,24 @@ CANVASS_STREET *canvass_street_calloc(
 /* --------------------- */
 char *canvass_street_where(
 		char *canvass_name );
+
+/* Usage */
+/* ----- */
+void canvass_street_list_votes_per_address_set(
+		LIST *canvass_street_list );
+
+/* Usage */
+/* ----- */
+double canvass_street_votes_per_address(
+		char *street_name );
+
+/* Process */
+/* ------- */
+int canvass_street_recent_vote_sum(
+		char *street_name );
+
+int canvass_street_address_count(
+		char *street_name );
 
 /* Usage */
 /* ----- */

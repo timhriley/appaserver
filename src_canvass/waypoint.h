@@ -103,6 +103,11 @@ int waypoint_utm_compare(
 		WAYPOINT_UTM *waypoint_utm_from_list,
 		WAYPOINT_UTM *waypoint_utm_to_set );
 
+/* Usage */
+/* ----- */
+LIST *waypoint_utm_canvass_street_list(
+		LIST *waypoint_utm_distance_sort_list );
+
 typedef struct
 {
 	/* Stub */

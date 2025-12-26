@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/apartment_address.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 echo "ApartmentAddress^UnitCount^UnitMinimum^UnitMaximum"
 

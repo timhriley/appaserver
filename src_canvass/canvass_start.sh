@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/canvass_start.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 street_address_start city" 1>&2

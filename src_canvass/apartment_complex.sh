@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/apartment_complex.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 (
 while read street_name

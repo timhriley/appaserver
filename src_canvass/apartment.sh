@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/apartment.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 piece.e '^' 0,1 			|
 grep -v '^Street'			|

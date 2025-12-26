@@ -1,4 +1,8 @@
 :
+# $APPASERVER_HOME/src_canvass/lookup.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
 first_time=1
 

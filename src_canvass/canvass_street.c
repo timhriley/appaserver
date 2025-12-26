@@ -185,7 +185,7 @@ void canvass_street_output(
 		exit( 1 );
 	}
 
-	printf(	"%s^%d^%d^%d^%d\n",
+	printf(	"%s^%d^%d^%d^%d^%.1lf\n",
 		canvass_street->
 			street->
 			street_name,
@@ -198,5 +198,102 @@ void canvass_street_output(
 		canvass_street->
 			street->
 			total_count,
-		distance_yards );
+		distance_yards,
+		canvass_street->
+			votes_per_address );
 }
+
+double canvass_street_votes_per_address( char *street_name )
+{
+	int recent_vote_sum;
+	int address_count;
+
+	if ( !street_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: street_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	recent_vote_sum =
+		canvass_street_recent_vote_sum(
+			street_name );
+
+	if ( ! ( address_count =
+			canvass_street_address_count(
+				street_name ) ) )
+	{
+		return 0.0;
+	}
+
+	return
+	(double)recent_vote_sum /
+	(double)address_count;
+}
+
+int canvass_street_recent_vote_sum( char *street_name )
+{
+	char system_string[ 128 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"recent_vote_sum.sh '%s'",
+		street_name );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	string_atoi(
+		string_pipe_fetch(
+			system_string ) );
+}
+
+int canvass_street_address_count( char *street_name )
+{
+	char system_string[ 128 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"address_count.sh '%s'",
+		street_name );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	string_atoi(
+		string_pipe_fetch(
+			system_string ) );
+}
+
+void canvass_street_list_votes_per_address_set( LIST *canvass_street_list )
+{
+	CANVASS_STREET *canvass_street;
+
+	if ( list_rewind( canvass_street_list ) )
+	do {
+		canvass_street = list_get( canvass_street_list );
+
+		if ( !canvass_street->street )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: canvass_street->street is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		canvass_street->votes_per_address =
+			canvass_street_votes_per_address(
+				canvass_street->street->street_name );
+
+	} while ( list_next( canvass_street_list ) );
+}
+
