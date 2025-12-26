@@ -121,6 +121,23 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 		exit( 1 );
 	}
 
+	if ( !data_list_string
+	||   !*data_list_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"data_list_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	query_drop_down_row = query_drop_down_row_calloc();
 
 	query_drop_down_row->data_list_string = data_list_string;
@@ -140,6 +157,23 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 				"piece(%s,%d) returned empty.\n",
 				data_list_string,
 				p - 1 );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !*datum )
+		{
+			char message[ 256 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"*datum is empty. data_list_string=[%s]",
+				data_list_string );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -3958,16 +3992,36 @@ QUERY_DROP_DOWN_DATUM *query_drop_down_datum_new(
 {
 	QUERY_DROP_DOWN_DATUM *query_drop_down_datum;
 
-	if ( !foreign_key
-	||   !datum
-	||   !*datum )
+	if ( !foreign_key )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"foreign_key is empty." );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
+	}
+
+	if ( !datum || !*datum )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"datum is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	query_drop_down_datum = query_drop_down_datum_calloc();
@@ -3988,9 +4042,9 @@ QUERY_DROP_DOWN_DATUM *query_drop_down_datum_calloc( void )
 {
 	QUERY_DROP_DOWN_DATUM *query_drop_down_datum;
 
-	if ( ! (
-		query_drop_down_datum =
-			calloc( 1, sizeof ( QUERY_DROP_DOWN_DATUM ) ) ) )
+	if ( ! ( query_drop_down_datum =
+			calloc( 1,
+				sizeof ( QUERY_DROP_DOWN_DATUM ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -4111,14 +4165,17 @@ QUERY_SINGLE_SELECT_DROP_DOWN *query_single_select_drop_down_new(
 			0 /* index */,
 			ATTRIBUTE_MULTI_KEY_DELIMITER );
 
-	if ( ( query_single_select_drop_down->
+	query_single_select_drop_down->
 		data_list_string =
 			/* --------------------------------------- */
 			/* Returns component of dictionary or null */
 			/* --------------------------------------- */
 			dictionary_get(
 				key,
-				dictionary ) ) )
+				dictionary );
+
+	if ( query_single_select_drop_down->data_list_string
+	&&   *query_single_select_drop_down->data_list_string )
 	{
 		query_single_select_drop_down->
 			query_drop_down_row =
@@ -7850,6 +7907,7 @@ DICTIONARY *query_fetch_dictionary(
 	char *where;
 	char *system_string;
 	DICTIONARY *dictionary;
+	char *primary_datum;
 
 	if ( !list_length( select_name_list )
 	||   !folder_table_name
@@ -7895,13 +7953,30 @@ DICTIONARY *query_fetch_dictionary(
 				/* folder_attribute_name_list */ );
 
 	do {
+		primary_datum = list_get( primary_data_list );
+
+		if ( !*primary_datum )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"*primary_datum is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		query_drop_down_datum =
 			query_drop_down_datum_new(
 				(char *)0 /* many_table_name */,
 				list_get( primary_key_list )
 					/* foreign_key */,
-				list_get( primary_data_list )
-					/* datum */ );
+				primary_datum );
 
 		list_set(
 			query_drop_down_datum_list,
@@ -8030,12 +8105,24 @@ QUERY_MULTI_DROP_DOWN_COLUMN *query_multi_drop_down_column_new(
 
 	if ( !many_folder_name
 	||   !one_folder_name
-	||   !foreign_key
-	||   !datum )
+	||   !foreign_key )
 	{
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !datum || !*datum )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "datum is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -8076,10 +8163,10 @@ QUERY_MULTI_DROP_DOWN_COLUMN *query_multi_drop_down_column_new(
 	list_set(
 		query_multi_drop_down_column->
 			query_drop_down_datum_list,
-			query_drop_down_datum_new(
-				many_table_name,
-				foreign_key,
-				datum ) );
+		query_drop_down_datum_new(
+			many_table_name,
+			foreign_key,
+			datum ) );
 
 	return query_multi_drop_down_column;
 }
@@ -8840,3 +8927,72 @@ boolean query_cell_list_set_attribute_name(
 
 	return return_boolean;
 }
+
+unsigned long query_row_count( char *folder_name )
+{
+	char *system_string;
+
+	if ( !folder_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		query_row_count_system_string(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_table_name(
+				folder_name ) );
+
+	return
+	strtoul(
+		string_pipe_fetch(
+			system_string ),
+		NULL /* endptr */,
+		10 /* base */ );
+}
+
+char *query_row_count_system_string( char *table_name )
+{
+	static char system_string[ 128 ];
+
+	if ( !table_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"table_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh 'count(1)' %s",
+		table_name );
+
+	return system_string;
+}
+

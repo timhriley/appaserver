@@ -14,6 +14,7 @@
 #include "foreign_attribute.h"
 #include "folder_attribute.h"
 #include "appaserver.h"
+#include "query.h"
 #include "relation_one2m.h"
 #include "relation_mto1.h"
 
@@ -548,6 +549,7 @@ RELATION_MTO1 *relation_mto1_seek(
 }
 
 LIST *relation_mto1_foreign_key_less_equal_list(
+		unsigned long query_drop_down_fetch_max_rows,
 		LIST *relation_mto1_list,
 		int max_foreign_key_list_length )
 {
@@ -568,9 +570,15 @@ LIST *relation_mto1_foreign_key_less_equal_list(
 				relation_foreign_key_list ) <=
 			max_foreign_key_list_length )
 		{
-			if ( !list ) list = list_new();
 
-			list_set( list, relation_mto1 );
+			if ( query_row_count(
+				relation_mto1->
+					one_folder_name ) <=
+			     query_drop_down_fetch_max_rows )
+			{
+				if ( !list ) list = list_new();
+				list_set( list, relation_mto1 );
+			}
 		}
 
 	} while ( list_next( relation_mto1_list ) );

@@ -506,6 +506,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 	{
 		prompt_lookup_input->relation_mto1_list =
 			relation_mto1_foreign_key_less_equal_list(
+				QUERY_DROP_DOWN_FETCH_MAX_ROWS,
 				prompt_lookup_input->relation_mto1_list,
 				1 /* max_foreign_key_list_length */ );
 	}

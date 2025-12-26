@@ -1766,6 +1766,7 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 	{
 		foreign_key_less_equal_list =
 			relation_mto1_foreign_key_less_equal_list(
+				QUERY_DROP_DOWN_FETCH_MAX_ROWS,
 				relation_mto1_list,
 				max_foreign_key_list_length );
 

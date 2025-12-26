@@ -1480,8 +1480,8 @@ DICTIONARY *query_fetch_dictionary(
 		LIST *primary_key_list,
 		LIST *primary_data_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -1489,6 +1489,9 @@ char *query_drop_down_key(
 		LIST *foreign_key_list,
 		int index,
 		char multi_attribute_key_delimiter );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -1501,6 +1504,9 @@ char *query_system_string(
 		char *order_string,
 		int max_rows );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory.				*/
 /* Note: folder_table_name() is not used here.	*/
 /* -------------------------------------------- */
@@ -1509,11 +1515,17 @@ char *query_from_string(
 		LIST *relation_mto1_isa_list,
 		char *row_security_role_update_list_from );
 
+/* Usage */
+/* ----- */
+
 LIST *query_primary_delimited_list(
 		char *folder_table_name,
 		LIST *primary_key_list,
 		LIST *foreign_key_list,
 		LIST *foreign_data_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -1523,17 +1535,36 @@ char *query_data_where(
 		LIST *where_attribute_data_list,
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *query_where_display(
 		char *where_string,
 		int max_length );
 
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* --------------------- */
 char *query_prompt_target_frame(
 		char *datatype_name,
 		pid_t process_id );
+
+/* Usage */
+/* ----- */
+unsigned long query_row_count(
+		char *folder_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *query_row_count_system_string(
+		char *appaserver_table_name );
 
 typedef struct
 {
