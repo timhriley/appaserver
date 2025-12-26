@@ -53,7 +53,7 @@ canvass_execute	"$start_street_address"		\
 		"$canvass_name"			\
 		"$radius_yards"			\
 		"$utm_zone"			|
-piece_sum.e '^' 1,2,3,4				|
+piece_sum.e '^' 1,2,3				|
 html_table.e '' "$heading" '^' "left,right"	|
 cat
 
@@ -67,7 +67,7 @@ canvass_execute	"$start_street_address"		\
 		"$canvass_name"			\
 		"$radius_yards"			\
 		"$utm_zone"			|
-piece_sum.e '^' 1,2,3,4				|
+piece_sum.e '^' 1,2,3				|
 double_quote_comma_delimited.e '^'		|
 cat
 ) | cat > $household_file
