@@ -185,7 +185,7 @@ void canvass_street_output(
 		exit( 1 );
 	}
 
-	printf(	"%s^%d^%d^%d^%d^%.1lf\n",
+	printf(	"%s^%d^%d^%d^%d^%.2lf\n",
 		canvass_street->
 			street->
 			street_name,
@@ -200,10 +200,10 @@ void canvass_street_output(
 			total_count,
 		distance_yards,
 		canvass_street->
-			votes_per_address );
+			votes_per_election );
 }
 
-double canvass_street_votes_per_address( char *street_name )
+double canvass_street_votes_per_election( char *street_name )
 {
 	int recent_vote_sum;
 	int address_count;
@@ -231,7 +231,7 @@ double canvass_street_votes_per_address( char *street_name )
 
 	return
 	(double)recent_vote_sum /
-	(double)address_count;
+	(double)( address_count * 5.0 );
 }
 
 int canvass_street_recent_vote_sum( char *street_name )
@@ -272,7 +272,7 @@ int canvass_street_address_count( char *street_name )
 			system_string ) );
 }
 
-void canvass_street_list_votes_per_address_set( LIST *canvass_street_list )
+void canvass_street_list_votes_per_election_set( LIST *canvass_street_list )
 {
 	CANVASS_STREET *canvass_street;
 
@@ -290,8 +290,8 @@ void canvass_street_list_votes_per_address_set( LIST *canvass_street_list )
 			exit( 1 );
 		}
 
-		canvass_street->votes_per_address =
-			canvass_street_votes_per_address(
+		canvass_street->votes_per_election =
+			canvass_street_votes_per_election(
 				canvass_street->street->street_name );
 
 	} while ( list_next( canvass_street_list ) );

@@ -26,7 +26,7 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
-	double votes_per_address;
+	double votes_per_election;
 } CANVASS_STREET;
 
 /* Usage */
@@ -56,12 +56,12 @@ char *canvass_street_where(
 
 /* Usage */
 /* ----- */
-void canvass_street_list_votes_per_address_set(
+void canvass_street_list_votes_per_election_set(
 		LIST *canvass_street_list );
 
 /* Usage */
 /* ----- */
-double canvass_street_votes_per_address(
+double canvass_street_votes_per_election(
 		char *street_name );
 
 /* Process */

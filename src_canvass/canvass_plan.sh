@@ -43,7 +43,7 @@ title_html="<h1>`echo "$process" | format_initial_capital.e`</h1>"
 echo "$title_html"
 echo "<h2> `now.sh 19` </h2>"
 
-heading="Street,Apartments,Houses,Total,Yards,VotesPerAddress"
+heading="Street,Apartments,Houses,Total,Yards,VotesPerElection"
 
 # Send to screen
 # --------------

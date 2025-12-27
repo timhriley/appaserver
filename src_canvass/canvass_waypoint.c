@@ -68,7 +68,7 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 			canvass_waypoint->
 				waypoint_utm_distance_sort_list );
 
-	canvass_street_list_votes_per_address_set(
+	canvass_street_list_votes_per_election_set(
 		canvass_waypoint->
 			waypoint_utm_canvass_street_list );
 
