@@ -18,8 +18,26 @@ gateway=$3
 # nmcli connection show
 # ip link show
 # ip addr
+# ip route
 
-# sudo nmcli connection modify "Wired connection 1" connection.id $device
+identity=`nmcli device status | grep "^$device" | cut -c 32-99 | trim.e`
+
+if [ "$identity" = "" ]
+then
+	echo "Cannot discern the identity name." 1>&2
+	exit 1
+fi
+
+if [ "$identity" != "$device" ]
+then
+	sudo nmcli connection modify "$identity" connection.id $device
+
+	if [ $? -ne 0 ]
+	then
+		echo "`basename.e $0 n`: connection modify failed" 1>&2
+		exit 1
+	fi
+fi
 
 sudo nmcli c mod $device connection.interface-name $device
 
@@ -29,19 +47,19 @@ then
 	exit 1
 fi
 
-sudo nmcli c mod $device ipv4.method manual
-
-if [ $? -ne 0 ]
-then
-	echo "`basename.e $0 n`: ipv4.method manual failed" 1>&2
-	exit 1
-fi
-
 sudo nmcli c mod $device ipv4.addresses ${ip_address}/24
 
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n` ipv4.addresses ${ip_address} failed" 1>&2
+	exit 1
+fi
+
+sudo nmcli c mod $device ipv4.method manual
+
+if [ $? -ne 0 ]
+then
+	echo "`basename.e $0 n`: ipv4.method manual failed" 1>&2
 	exit 1
 fi
 
@@ -61,15 +79,12 @@ then
 	exit 1
 fi
 
-sudo systemctl restart networking
+sudo systemctl restart systemd-networkd
 
 if [ $? -ne 0 ]
 then
-	echo "`basename.e $0 n` systemctl restart networking failed" 1>&2
+	echo "`basename.e $0 n` systemctl restart systemd-networkd failed" 1>&2
 	exit 1
 fi
-
-# Hint:
-# ip route
 
 exit 0
