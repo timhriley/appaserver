@@ -36,19 +36,19 @@ then
 	exit 1
 fi
 
-sudo nmcli c mod $device ipv4.method manual
-
-if [ $? -ne 0 ]
-then
-	echo "`basename.e $0 n`: ipv4.method manual failed" 1>&2
-	exit 1
-fi
-
 sudo nmcli c mod $device ipv4.gateway $gateway
 
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n` ipv4.gateway $gateway failed" 1>&2
+	exit 1
+fi
+
+sudo nmcli c mod $device ipv4.method manual
+
+if [ $? -ne 0 ]
+then
+	echo "`basename.e $0 n`: ipv4.method manual failed" 1>&2
 	exit 1
 fi
 
