@@ -20,6 +20,14 @@ gateway=$3
 # ip addr
 # ip route
 
+sudo ip link set $device down
+
+if [ $? -ne 0 ]
+then
+	echo "`basename.e $0 n` ip link set $device down failed" 1>&2
+	exit 1
+fi
+
 ip_identity.sh $device
 
 if [ $? -ne 0 ]
@@ -60,12 +68,20 @@ then
 	exit 1
 fi
 
-sudo systemctl restart systemd-networkd
+sudo ip link set $device up
 
 if [ $? -ne 0 ]
 then
-	echo "`basename.e $0 n` systemctl restart systemd-networkd failed" 1>&2
+	echo "`basename.e $0 n` ip link set $device up failed" 1>&2
 	exit 1
 fi
+
+#sudo systemctl restart systemd-networkd
+#
+#if [ $? -ne 0 ]
+#then
+#	echo "`basename.e $0 n` systemctl restart systemd-networkd failed" 1>&2
+#	exit 1
+#fi
 
 exit 0
