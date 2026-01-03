@@ -1,5 +1,8 @@
-/* highest_prime_number.c */
-/* ---------------------- */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/highest_prime_number.c			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

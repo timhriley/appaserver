@@ -2070,17 +2070,7 @@ double journal_first_account_balance(
 				fund_name,
 				account_name ) ) )
 	{
-		char message[ 128 ];
-
-		sprintf(message,
-		"journal_min_transaction_date_time(%s) returned empty.",
-			(account_name) ? account_name : "" );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return 0.0;
 	}
 
 	journal =
@@ -2093,7 +2083,10 @@ double journal_first_account_balance(
 			0 /* not fetch_element */,
 			0 /* not fetch_transaction */ );
 
-	return journal->balance;
+	if ( journal )
+		return journal->balance;
+	else
+		return 0.0;
 }
 
 double journal_balance_sum( LIST *journal_list )

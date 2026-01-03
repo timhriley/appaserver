@@ -1,7 +1,8 @@
-/* utility/horizontal_menu_yn.c				*/
-/* ---------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------	*/
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/horizontal_menu_yn.c			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

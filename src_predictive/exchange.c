@@ -891,7 +891,7 @@ char *exchange_system_string( char *exchange_filespecification )
 		system_string,
 		sizeof ( system_string ),
 		"cat %s | "
-		"exchange_separate_lines.sh | "
+		"xml_separate.e | "
 		"sed_remove_leading_spaces.sh",
 		exchange_filespecification );
 

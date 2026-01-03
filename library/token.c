@@ -1,8 +1,13 @@
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/token.c					*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "String.h"
 #include "token.h"
-#include "timlib.h"
 
 char *token_get( char **s )
 {
@@ -51,7 +56,7 @@ __FUNCTION__, __LINE__, buffer );
 	        return buffer;
 	}
 
-        if ( ( **s == CR ) || ( **s == LF ) )
+        if ( ( **s == STRING_CR ) || ( **s == STRING_LF ) )
         {
                 *buf_ptr = '\0';
 /*
@@ -93,8 +98,8 @@ char *token_skip_space( char *s )
         while ( *s
 		&& ( isspace( *s )
 		||   *s < 32  
-        	||   *s == CR  
-		||   *s == LF ) )
+        	||   *s == STRING_CR  
+		||   *s == STRING_LF ) )
 	{
 		s++;
 	}

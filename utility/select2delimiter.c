@@ -1,9 +1,12 @@
-/* utility/select_to_delimiter.c				 */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/select2delimiter.c				*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
+
 /* ------------------------------------------------------------- */
 /* This program converts a standard ORACLE select statement to	 */
 /* one that will separate each field with a delimiter.		 */
-/*								 */
-/* Freely available software: see Appaserver.org		 */
 /* ------------------------------------------------------------- */
 /* Note: need to enhance to use "set colsep '^'"		 */
 /* ------------------------------------------------------------- */
@@ -43,7 +46,7 @@ int main( int argc, char **argv )
 
 		/* Returns static memory or null */
 		/* ----------------------------- */
-        	while ( token_ptr = token_get( &buf_ptr ) )
+        	while ( ( token_ptr = token_get( &buf_ptr ) ) )
         	{
 			if ( strcasecmp( token_ptr, "rem" ) == 0 ) break;
 

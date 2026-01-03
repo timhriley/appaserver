@@ -124,6 +124,7 @@ all: 	insert_statement.e						\
 	format_stamp_undo.e						\
 	menu.e								\
 	queue_top_bottom_lines.e					\
+	xml_separate.e							\
 	join_multi_line_delimited.e					\
 	pad_leading_numbers.e						\
 	queue_file.e							\
@@ -993,8 +994,9 @@ join_multi_line_delimited.e: join_multi_line_delimited.c		\
 	rm join_multi_line_delimited
 	ln join_multi_line_delimited.e join_multi_line_delimited
 
-select2delimiter.e: select2delimiter.c
-	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+select2delimiter.e: select2delimiter.c					\
+		${LIBRARY}/token.o
+	$(CC)   ${CFLAGS} -I${LIBRARY} 					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		select2delimiter.c 					\
 		${STANDARD_LIBRARY}					\
@@ -1842,6 +1844,15 @@ payroll_period.e: payroll_period.c					\
 
 bracket_line.e: bracket_line.c
 	$(CC)	${CFLAGS} bracket_line.c -o bracket_line.e
+
+xml_separate.e: xml_separate.c						\
+		${LIBRARY}/token.o
+	$(CC)   ${CFLAGS} -I${LIBRARY} 					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		xml_separate.c 						\
+		${STANDARD_LIBRARY}					\
+		${LIBRARY}/token.o 					\
+		-o xml_separate.e
 
 sort_delimited_numbers.e: sort_delimited_numbers.c
 	$(CC)	${CFLAGS} -I${LIBRARY} sort_delimited_numbers.c		\

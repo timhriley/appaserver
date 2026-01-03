@@ -500,30 +500,35 @@ void feeder_init_transaction_insert(
 			message );
 	}
 
-	transaction_insert(
-		feeder_init_transaction->
-			transaction->
-			fund_name,
-		feeder_init_transaction->
-			transaction->
-			full_name,
-		feeder_init_transaction->
-			transaction->
-			street_address,
-		feeder_init_transaction->
-			transaction->
-			transaction_date_time,
-		feeder_init_transaction->
-			transaction->
-			transaction_amount,
-		0 /* check_number */,
-		feeder_init_transaction->
-			transaction->
-			memo,
-		feeder_init_transaction->
-			transaction->
-			journal_list,
-		1 /* insert_journal_list_boolean */ );
+	if ( feeder_init_transaction->
+		transaction->
+		transaction_amount )
+	{
+		transaction_insert(
+			feeder_init_transaction->
+				transaction->
+				fund_name,
+			feeder_init_transaction->
+				transaction->
+				full_name,
+			feeder_init_transaction->
+				transaction->
+				street_address,
+			feeder_init_transaction->
+				transaction->
+				transaction_date_time,
+			feeder_init_transaction->
+				transaction->
+				transaction_amount,
+			0 /* check_number */,
+			feeder_init_transaction->
+				transaction->
+				memo,
+			feeder_init_transaction->
+				transaction->
+				journal_list,
+			1 /* insert_journal_list_boolean */ );
+	}
 }
 
 FEEDER_INIT_CREDIT *feeder_init_credit_new(

@@ -1,5 +1,8 @@
-/* utility/group_sum.c */
-/* ------------------- */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/group_sum.c					*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

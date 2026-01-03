@@ -1,16 +1,19 @@
-/* utility/queue_top_bottom_lines.c				 */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/queue_top_bottom_lines.c			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
+
 /* ------------------------------------------------------------- */
 /* This program allows you to see the top and bottom portions	 */
 /* of the output to a process, while skipping the volumous	 */
 /* middle portion.						 */
-/*								 */
-/* Freely available software: see Appaserver.org		 */
 /* ------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
+#include "String.h"
 #include "queue.h"
 
 int main( int argc, char **argv )
@@ -39,7 +42,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	while( timlib_get_line( input_buffer, stdin, 8192 ) )
+	while( string_input( input_buffer, stdin, 8192 ) )
 	{
 		if ( ++item_number <= number_to_queue )
 		{
@@ -74,5 +77,5 @@ int main( int argc, char **argv )
 	queue_free( queue );
 */
 	return 0;
-} /* main() */
+}
 
