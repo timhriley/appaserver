@@ -528,11 +528,10 @@ char *feeder_load_event_latest_date_time(
 
 double feeder_load_event_prior_account_end_balance(
 		const char *feeder_load_event_table,
-		char *feeder_account_name,
-		boolean accumulate_debit_boolean )
+		char *feeder_account_name )
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
-	double prior_account_end_balance = {0};
+	double prior_account_end_balance = 0.0;
 
 	if ( !feeder_account_name )
 	{
@@ -554,20 +553,6 @@ double feeder_load_event_prior_account_end_balance(
 	{
 		prior_account_end_balance =
 			feeder_load_event->feeder_row_account_end_balance;
-	}
-	else
-	{
-		prior_account_end_balance =
-			journal_first_account_balance(
-				JOURNAL_TABLE,
-				(char *)0 /* fund_name */,
-				feeder_account_name /* account_name */ );
-
-		if ( !accumulate_debit_boolean )
-		{
-			prior_account_end_balance =
-				-prior_account_end_balance;
-		}
 	}
 
 	return prior_account_end_balance;

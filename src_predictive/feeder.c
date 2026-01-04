@@ -547,15 +547,10 @@ feeder_load_row_list_raw_display(
 		feeder_row_insert_count(
 			feeder->feeder_row_list );
 
-	feeder->account_accumulate_debit_boolean =
-		account_accumulate_debit_boolean(
-			feeder_account_name );
-
 	feeder->feeder_load_event_prior_account_end_balance =
 		feeder_load_event_prior_account_end_balance(
 			FEEDER_LOAD_EVENT_TABLE,
-			feeder_account_name,
-			feeder->account_accumulate_debit_boolean );
+			feeder_account_name );
 
 	if ( !feeder->transaction_fund_column_boolean )
 	{

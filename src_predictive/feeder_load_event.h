@@ -150,8 +150,7 @@ void feeder_load_event_insert_pipe(
 /* ----- */
 double feeder_load_event_prior_account_end_balance(
 		const char *feeder_load_event_table,
-		char *feeder_account_name,
-		boolean account_accumulate_debit_boolean );
+		char *feeder_account_name );
 
 /* Usage */
 /* ----- */
