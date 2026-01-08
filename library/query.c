@@ -102,10 +102,10 @@ char *query_data_list_string(
 }
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
+		const char multi_attribute_key_delimiter,
 		char *many_table_name,
 		LIST *foreign_key_list,
-		char *data_list_string,
-		char multi_attribute_key_delimiter )
+		char *data_list_string )
 {
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
 	char datum[ 1024 ];
@@ -145,7 +145,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 
 	do {
 		if ( !piece(	datum,
-				multi_attribute_key_delimiter,
+				(char)multi_attribute_key_delimiter,
 				data_list_string,
 				p++ ) )
 		{
@@ -4153,6 +4153,13 @@ QUERY_SINGLE_SELECT_DROP_DOWN *query_single_select_drop_down_new(
 		exit( 1 );
 	}
 
+	if ( !query_single_select_drop_down_boolean(
+		dictionary,
+		foreign_key_list ) )
+	{
+		return NULL;
+	}
+
 	query_single_select_drop_down = query_single_select_drop_down_calloc();
 	query_single_select_drop_down->foreign_key_list = foreign_key_list;
 
@@ -4183,11 +4190,11 @@ QUERY_SINGLE_SELECT_DROP_DOWN *query_single_select_drop_down_new(
 				/* Safely returns */
 				/* -------------- */
 				query_drop_down_row_new(
+					ATTRIBUTE_MULTI_KEY_DELIMITER,
 					many_table_name,
 					foreign_key_list,
 					query_single_select_drop_down->
-						data_list_string,
-					ATTRIBUTE_MULTI_KEY_DELIMITER );
+						data_list_string );
 	}
 	else
 	{
@@ -8996,3 +9003,39 @@ char *query_row_count_system_string( char *table_name )
 	return system_string;
 }
 
+boolean query_single_select_drop_down_boolean(
+		DICTIONARY *dictionary,
+		LIST *foreign_key_list )
+{
+	char *delimited_string;
+	char *relation_key;
+	char *get;
+	boolean drop_down_boolean;
+
+	delimited_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		list_delimited_string(
+			foreign_key_list,
+			ATTRIBUTE_MULTI_KEY_DELIMITER );
+
+	relation_key =
+		query_relation_key(
+			QUERY_RELATION_OPERATOR_PREFIX,
+			delimited_string );
+
+	free( delimited_string );
+
+	get =
+		dictionary_get(
+			relation_key,
+			dictionary );
+
+	if ( get )
+		drop_down_boolean = 0;
+	else
+		drop_down_boolean = 1;
+
+	return drop_down_boolean;
+}

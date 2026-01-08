@@ -628,10 +628,10 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
+		const char multi_attribute_key_delimiter,
 		char *many_table_name,
 		LIST *foreign_key_list,
-		char *data_list_string,
-		char multi_attribute_key_delimiter );
+		char *data_list_string );
 
 /* Process */
 /* ------- */
@@ -666,6 +666,12 @@ QUERY_SINGLE_SELECT_DROP_DOWN *query_single_select_drop_down_calloc(
 char *query_single_select_drop_down_where(
 		QUERY_SINGLE_SELECT_DROP_DOWN *
 			query_single_select_drop_down );
+
+/* Usage */
+/* ----- */
+boolean query_single_select_drop_down_boolean(
+		DICTIONARY *dictionary,
+		LIST *foreign_key_list );
 
 typedef struct
 {
