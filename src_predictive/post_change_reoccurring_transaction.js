@@ -12,7 +12,7 @@ function post_change_reoccurring_transaction( row )
 	var accrued_monthly_amount_is_slash = false;
 	var nothing_is_populated = true;
 
-	if ( row == 0 )
+	if ( row <= 0 )
 	{
 		post_change_reoccurring_transaction_each_row();
 		// return true; <-- Need to pass through for insert screen.

@@ -7,7 +7,7 @@ function post_change_fixed_asset_purchase( row )
 	var element_name;
 	var element;
 
-	if ( row == 0 )
+	if ( row <= 0 )
 	{
 		post_change_fixed_asset_purchase_each_row();
 		// return true; <-- Need to pass through for insert screen.

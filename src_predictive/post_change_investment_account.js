@@ -8,7 +8,7 @@ function post_change_investment_account( row )
 	var element;
 	var element_value;
 
-	if ( row == 0 )
+	if ( row <= 0 )
 	{
 		post_change_investment_account_each_row();
 		// return true; <-- Need to pass through for insert screen.
@@ -26,6 +26,10 @@ function post_change_investment_account( row )
 	element.disabled = false;
 
 	element_name = 'certificate_maturity_date_' + row;
+	element = timlib_get_element( element_name );
+	element.disabled = false;
+
+	element_name = 'interest_rate_' + row;
 	element = timlib_get_element( element_name );
 	element.disabled = false;
 
@@ -55,6 +59,10 @@ function post_change_investment_account( row )
 		element.disabled = true;
 
 		element_name = 'certificate_maturity_date_' + row;
+		element = timlib_get_element( element_name );
+		element.disabled = true;
+
+		element_name = 'interest_rate_' + row;
 		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
