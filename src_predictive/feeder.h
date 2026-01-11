@@ -231,6 +231,12 @@ char *feeder_phrase_street_address(
 		char *financial_institution_street_address,
 		char *feeder_phrase_street_address );
 
+/* Usage */
+/* ----- */
+boolean feeder_phrase_match_boolean(
+		char *description_space_trim,
+		char *feeder_component );
+
 typedef struct
 {
 	char *full_name;

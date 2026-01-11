@@ -699,7 +699,7 @@ void feeder_phrase_set_match_length(
 				piece_number );
 			piece_number++ )
 		{
-			if ( sed_match_boolean(
+			if ( feeder_phrase_match_boolean(
 				description_space_trim /* string */,
 				feeder_component /* regular_expression */ ) )
 			{
@@ -4002,4 +4002,21 @@ void feeder_process(
 				HTML_TABLE_ROWS_BETWEEN_HEADING );
 		}
 	}
+}
+
+boolean feeder_phrase_match_boolean(
+		char *description_space_trim,
+		char *feeder_component )
+{
+	if ( string_exists(
+		description_space_trim /* string */,
+		feeder_component /* substr */ ) )
+	{
+		return 1;
+	}
+
+	return
+	sed_match_boolean(
+		description_space_trim /* string */,
+		feeder_component /* regular_expression */ );
 }
