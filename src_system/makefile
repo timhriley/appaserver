@@ -47,55 +47,50 @@ EXECUTABLES=								\
 		google_map_operation					\
 		appaserver_folder_list
 
-STANDARD_LIBRARY=							\
-		${LIBRARY}/date.o 					\
-		${LIBRARY}/julian.o 					\
-		${LIBRARY}/dictionary.o 				\
-		${LIBRARY}/list.o 					\
-		${LIBRARY}/sed.o 					\
-		${LIBRARY}/timlib.o 					\
-		${LIBRARY}/float.o 					\
-		${LIBRARY}/piece.o 					\
-		${LIBRARY}/column.o 					\
-		${LIBRARY}/String.o 					\
-		${LIBRARY}/date_convert.o 				\
+CORE_LIBRARY=								\
+		${LIBRARY}/appaserver_error.o				\
+		${LIBRARY}/application.o				\
+		${LIBRARY}/String.o					\
+		${LIBRARY}/sed.o					\
+		${LIBRARY}/piece.o					\
+		${LIBRARY}/float.o					\
+		${LIBRARY}/dictionary.o					\
+		${LIBRARY}/column.o					\
 		${LIBRARY}/hash_table.o					\
-		${LIBRARY}/dollar.o
+		${LIBRARY}/security.o					\
+		${LIBRARY}/spool.o					\
+		${LIBRARY}/appaserver.o					\
+		${LIBRARY}/application_log.o				\
+		${LIBRARY}/application_constant.o			\
+		${LIBRARY}/appaserver_parameter.o			\
+		${LIBRARY}/environ.o					\
+		${LIBRARY}/date.o					\
+		${LIBRARY}/document.o					\
+		${LIBRARY}/julian.o					\
+		${LIBRARY}/javascript.o					\
+		${LIBRARY}/list.o
 
 APPASERVER_LIBRARY=							\
-		${LIBRARY}/date.o 					\
-		${LIBRARY}/julian.o 					\
-		${LIBRARY}/dictionary.o 				\
-		${LIBRARY}/list.o 					\
-		${LIBRARY}/sed.o					\
+		${CORE_LIBRARY}						\
 		${LIBRARY}/timlib.o 					\
-		${LIBRARY}/String.o 					\
-		${LIBRARY}/float.o 					\
-		${LIBRARY}/piece.o 					\
-		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hash_table.o					\
 		${LIBRARY}/appaserver_user.o				\
-		${LIBRARY}/security.o					\
 		${LIBRARY}/security_entity.o				\
 		${LIBRARY}/entity.o					\
 		${LIBRARY}/process_generic.o				\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\
-		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/basename.o					\
 		${LIBRARY}/session.o					\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/folder_attribute.o				\
-		${LIBRARY}/environ.o					\
 		${LIBRARY}/process_parameter.o				\
 		${LIBRARY}/appaserver_link.o				\
 		${LIBRARY}/widget.o					\
 		${LIBRARY}/file.o					\
 		${LIBRARY}/button.o					\
-		${LIBRARY}/javascript.o					\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
@@ -105,7 +100,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/form.o					\
 		${LIBRARY}/dictionary_separate.o			\
-		${LIBRARY}/document.o					\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/query_isa.o					\
 		${LIBRARY}/insert.o					\
@@ -116,13 +110,8 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/relation_one2m.o				\
 		${LIBRARY}/relation_join.o				\
 		${LIBRARY}/relation_copy.o				\
-		${LIBRARY}/appaserver_parameter.o			\
 		${LIBRARY}/aggregate_level.o				\
-		${LIBRARY}/appaserver_error.o				\
-		${LIBRARY}/application_constant.o			\
 		${LIBRARY}/aggregate_statistic.o			\
-		${LIBRARY}/application.o				\
-		${LIBRARY}/application_log.o				\
 		${LIBRARY}/choose_role.o				\
 		${LIBRARY}/prompt_lookup.o				\
 		${LIBRARY}/form_prompt_lookup.o				\
@@ -137,12 +126,11 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/radio.o					\
 		${LIBRARY}/pair_one2m.o					\
 		${LIBRARY}/row_security.o				\
-		${LIBRARY}/ajax.o					\
-		${LIBRARY}/spool.o					\
 		${LIBRARY}/row_security_role_update.o			\
 		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/folder_menu.o				\
 		${LIBRARY}/menu.o					\
+		${LIBRARY}/ajax.o					\
 		${LIBRARY}/sql.o					\
 		${LIBRARY}/execute_system_string.o			\
 		${LIBRARY}/post_choose_folder.o				\

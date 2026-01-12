@@ -16,6 +16,7 @@
 #include "spool.h"
 #include "sql.h"
 #include "piece.h"
+#include "drillthru.h"
 #include "date_convert.h"
 #include "chart.h"
 
@@ -157,6 +158,15 @@ CHART_INPUT *chart_input_new(
 				folder_attribute_date_name_list,
 			chart_input->
 				folder_attribute_append_isa_list );
+
+	chart_input->relation_mto1_list =
+		relation_mto1_status_skipped_list(
+			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
+			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
+			chart_input->relation_mto1_list,
+			chart_input->
+				dictionary_separate->
+				drillthru_dictionary );
 
 	chart_input->query_chart =
 		query_chart_new(

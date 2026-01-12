@@ -18,7 +18,6 @@
 #include "folder_row_level_restriction.h"
 #include "html.h"
 #include "statistic.h"
-#include "drillthru.h"
 #include "query_statistic.h"
 
 #define LOOKUP_STATISTIC_EXECUTABLE	"lookup_statistic"
@@ -137,7 +136,6 @@ typedef struct
 	LIST *folder_attribute_number_name_list;
 	LIST *folder_attribute_date_name_list;
 	DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP *dictionary_separate;
-	DRILLTHRU_STATUS *drillthru_status;
 	LIST *attribute_number_name_list;
 	int attribute_number_count;
 	LIST *attribute_date_name_list;

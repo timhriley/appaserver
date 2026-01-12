@@ -14,6 +14,7 @@
 #include "foreign_attribute.h"
 #include "folder_attribute.h"
 #include "appaserver.h"
+#include "drillthru.h"
 #include "query.h"
 #include "relation_one2m.h"
 #include "relation_mto1.h"
@@ -1021,9 +1022,18 @@ LIST *relation_mto1_status_skipped_list(
 		int query_drop_down_fetch_max_rows,
 		int drillthru_skipped_max_foreign_length,
 		LIST *relation_mto1_list,
-		boolean drillthru_status_skipped_boolean )
+		DICTIONARY *drillthru_dictionary )
 {
-	if (	drillthru_status_skipped_boolean
+	DRILLTHRU_STATUS *drillthru_status;
+
+	drillthru_status =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		drillthru_status_new(
+			drillthru_dictionary );
+
+	if (	drillthru_status->skipped_boolean
 	&&	list_length( relation_mto1_list ) )
 	{
 		relation_mto1_list =

@@ -30,47 +30,76 @@ CORE_LIBRARY=								\
 		${LIBRARY}/javascript.o					\
 		${LIBRARY}/list.o
 
-STANDARD_LIBRARY=							\
-		${CORE_LIBRARY}						\
-		${LIBRARY}/basename.o					\
-		${LIBRARY}/aggregate_level.o				\
-		${LIBRARY}/aggregate_statistic.o
-
 APPASERVER_LIBRARY=							\
+		${CORE_LIBRARY}						\
+		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/appaserver_user.o				\
-		${LIBRARY}/date_convert.o				\
-		${LIBRARY}/folder_attribute.o				\
-		${LIBRARY}/insert.o					\
-		${LIBRARY}/widget.o					\
-		${LIBRARY}/sql.o					\
-		${LIBRARY}/button.o					\
-		${LIBRARY}/query.o					\
 		${LIBRARY}/security_entity.o				\
 		${LIBRARY}/entity.o					\
-		${LIBRARY}/query_isa.o					\
+		${LIBRARY}/process_generic.o				\
+		${LIBRARY}/output_medium.o				\
+		${LIBRARY}/units.o					\
+		${LIBRARY}/accumulate_boolean.o				\
+		${LIBRARY}/basename.o					\
+		${LIBRARY}/session.o					\
+		${LIBRARY}/foreign_attribute.o				\
+		${LIBRARY}/attribute.o					\
+		${LIBRARY}/folder_attribute.o				\
+		${LIBRARY}/process_parameter.o				\
 		${LIBRARY}/appaserver_link.o				\
+		${LIBRARY}/widget.o					\
+		${LIBRARY}/file.o					\
+		${LIBRARY}/button.o					\
+		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
+		${LIBRARY}/role.o					\
+		${LIBRARY}/role_appaserver_user.o			\
+		${LIBRARY}/operation.o					\
+		${LIBRARY}/role_folder.o				\
+		${LIBRARY}/folder_operation.o				\
+		${LIBRARY}/form.o					\
+		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/query.o					\
+		${LIBRARY}/query_isa.o					\
+		${LIBRARY}/insert.o					\
+		${LIBRARY}/update.o					\
+		${LIBRARY}/folder_row_level_restriction.o		\
 		${LIBRARY}/relation.o					\
 		${LIBRARY}/relation_mto1.o				\
 		${LIBRARY}/relation_one2m.o				\
 		${LIBRARY}/relation_join.o				\
 		${LIBRARY}/relation_copy.o				\
-		${LIBRARY}/process.o					\
-		${LIBRARY}/foreign_attribute.o				\
-		${LIBRARY}/attribute.o					\
-		${LIBRARY}/role.o					\
-		${LIBRARY}/role_appaserver_user.o			\
-		${LIBRARY}/role_folder.o				\
-		${LIBRARY}/folder_operation.o				\
+		${LIBRARY}/aggregate_level.o				\
+		${LIBRARY}/aggregate_statistic.o			\
+		${LIBRARY}/choose_role.o				\
+		${LIBRARY}/prompt_lookup.o				\
+		${LIBRARY}/form_prompt_lookup.o				\
+		${LIBRARY}/prompt_process.o				\
+		${LIBRARY}/form_prompt_process.o			\
+		${LIBRARY}/post_prompt_process.o			\
+		${LIBRARY}/post_choose_process.o			\
+		${LIBRARY}/form_choose_role.o				\
+		${LIBRARY}/form_prompt_attribute.o			\
+		${LIBRARY}/post_choose_role.o				\
+		${LIBRARY}/recall.o					\
+		${LIBRARY}/radio.o					\
+		${LIBRARY}/pair_one2m.o					\
+		${LIBRARY}/row_security.o				\
+		${LIBRARY}/row_security_role_update.o			\
 		${LIBRARY}/post_dictionary.o				\
-		${LIBRARY}/session.o					\
-		${LIBRARY}/file.o					\
-		${LIBRARY}/timlib.o					\
-		${LIBRARY}/post_login.o					\
+		${LIBRARY}/folder_menu.o				\
+		${LIBRARY}/menu.o					\
+		${LIBRARY}/ajax.o					\
+		${LIBRARY}/sql.o					\
 		${LIBRARY}/execute_system_string.o			\
-		${LIBRARY}/operation.o
+		${LIBRARY}/post_choose_folder.o				\
+		${LIBRARY}/drillthru.o					\
+		${LIBRARY}/form_drillthru.o
+
 
 ADMIN_LIBRARY=								\
+		${LIBRARY}/post_login.o					\
 		email_address.o						\
 		post_signup.o						\
 		post_contact.o						\
@@ -100,11 +129,9 @@ clean:
 
 post_contact_submit_execute: post_contact_submit_execute.c		\
 	${ADMIN_LIBRARY}						\
-	${STANDARD_LIBRARY}						\
 	${APPASERVER_LIBRARY}
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		${ADMIN_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		post_contact_submit_execute.c				\
 		-o post_contact_submit_execute
@@ -116,11 +143,9 @@ post_contact_submit_execute: post_contact_submit_execute.c		\
 
 post_signup_submit_execute: post_signup_submit_execute.c		\
 	${ADMIN_LIBRARY}						\
-	${STANDARD_LIBRARY}						\
 	${APPASERVER_LIBRARY}
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		${ADMIN_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		post_signup_submit_execute.c				\
 		-o post_signup_submit_execute
@@ -132,11 +157,9 @@ post_signup_submit_execute: post_signup_submit_execute.c		\
 
 post_contact_receive_execute: post_contact_receive_execute.c		\
 	${ADMIN_LIBRARY}						\
-	${STANDARD_LIBRARY}						\
 	${APPASERVER_LIBRARY}
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		${ADMIN_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		post_contact_receive_execute.c				\
 		-o post_contact_receive_execute
@@ -148,11 +171,9 @@ post_contact_receive_execute: post_contact_receive_execute.c		\
 
 post_signup_receive_execute: post_signup_receive_execute.c		\
 	${ADMIN_LIBRARY}						\
-	${STANDARD_LIBRARY}						\
 	${APPASERVER_LIBRARY}
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		${ADMIN_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		post_signup_receive_execute.c				\
 		-o post_signup_receive_execute

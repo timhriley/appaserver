@@ -72,7 +72,7 @@ LIST *relation_mto1_status_skipped_list(
 		int query_drop_down_fetch_max_rows,
 		int drillthru_skipped_max_foreign_length,
 		LIST *relation_mto1_list,
-		boolean drillthru_status_skipped_boolean );
+		DICTIONARY *drillthru_dictionary );
 
 /* Usage */
 /* ----- */

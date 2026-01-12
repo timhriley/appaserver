@@ -16,6 +16,7 @@
 #include "appaserver.h"
 #include "relation_mto1.h"
 #include "document.h"
+#include "drillthru.h"
 #include "query_statistic.h"
 #include "lookup_statistic.h"
 
@@ -952,23 +953,14 @@ LOOKUP_STATISTIC_INPUT *lookup_statistic_input_new(
 			lookup_statistic_input->
 				folder_attribute_append_isa_list );
 
-	lookup_statistic_input->drillthru_status =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drillthru_status_new(
-			lookup_statistic_input->
-				dictionary_separate->
-				drillthru_dictionary );
-
 	lookup_statistic_input->relation_mto1_list =
 		relation_mto1_status_skipped_list(
 			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
 			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
 			lookup_statistic_input->relation_mto1_list,
 			lookup_statistic_input->
-				drillthru_status->
-				skipped_boolean );
+				dictionary_separate->
+				drillthru_dictionary );
 
 	lookup_statistic_input->attribute_number_name_list =
 		lookup_statistic_input_attribute_number_name_list(

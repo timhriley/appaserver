@@ -27,6 +27,7 @@
 #include "sql.h"
 #include "javascript.h"
 #include "frameset.h"
+#include "drillthru.h"
 #include "post_table_edit.h"
 #include "table_edit.h"
 
@@ -295,6 +296,15 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			login_name,
 			table_edit_input->folder_attribute_date_name_list,
 			table_edit_input->folder_attribute_append_isa_list );
+
+	table_edit_input->relation_mto1_list =
+		relation_mto1_status_skipped_list(
+			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
+			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
+			table_edit_input->relation_mto1_list,
+			table_edit_input->
+				dictionary_separate->
+				drillthru_dictionary );
 
 	table_edit_input->onload_javascript_string =
 		/* --------------------------- */
@@ -1767,8 +1777,8 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 		foreign_key_less_equal_list =
 			relation_mto1_foreign_key_less_equal_list(
 				QUERY_DROP_DOWN_FETCH_MAX_ROWS,
-				relation_mto1_list,
-				max_foreign_key_list_length );
+				max_foreign_key_list_length,
+				relation_mto1_list );
 
 		list_rewind( relation_mto1_list );
 

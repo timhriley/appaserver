@@ -2583,6 +2583,9 @@ DICTIONARY_SEPARATE_LOOKUP_DELETE *
 	dictionary_separate_lookup_delete->non_prefixed_dictionary =
 		sql_injection_escape->non_prefixed_dictionary;
 
+	dictionary_separate_lookup_delete->drillthru_dictionary =
+		sql_injection_escape->drillthru_dictionary;
+
 	return dictionary_separate_lookup_delete;
 }
 

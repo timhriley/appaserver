@@ -5,6 +5,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make output_spreadsheet
+	make output_table_edit
 fi
 

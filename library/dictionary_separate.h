@@ -668,6 +668,7 @@ typedef struct
 {
 	DICTIONARY *query_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
+	DICTIONARY *drillthru_dictionary;
 } DICTIONARY_SEPARATE_LOOKUP_DELETE;
 
 /* Usage */
