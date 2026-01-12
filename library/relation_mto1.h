@@ -68,6 +68,14 @@ RELATION_MTO1 *relation_mto1_attribute_consumes(
 
 /* Usage */
 /* ----- */
+LIST *relation_mto1_status_skipped_list(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list,
+		boolean drillthru_status_skipped_boolean );
+
+/* Usage */
+/* ----- */
 RELATION_MTO1 *relation_mto1_seek(
 		char *one_folder_name,
 		LIST *relation_mto1_list );
@@ -101,8 +109,8 @@ void relation_mto1_list_set_one_to_many_list(
 /* ----- */
 LIST *relation_mto1_foreign_key_less_equal_list(
 		unsigned long query_drop_down_fetch_max_rows,
-		LIST *relation_mto1_list,
-		int max_foreign_key_list_length );
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list );
 
 /* Usage */
 /* ----- */

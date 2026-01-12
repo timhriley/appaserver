@@ -20,6 +20,7 @@
 #include "post_drillthru.h"
 #include "post_choose_folder.h"
 #include "form_drillthru.h"
+#include "drillthru.h"
 #include "prompt_lookup.h"
 
 PROMPT_LOOKUP_INPUT *prompt_lookup_input_calloc( void )
@@ -501,15 +502,14 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 				dictionary_separate_drillthru->
 				drillthru_dictionary );
 
-	if ( prompt_lookup_input->drillthru_status->skipped_boolean
-	&&   list_length( prompt_lookup_input->relation_mto1_list ) )
-	{
-		prompt_lookup_input->relation_mto1_list =
-			relation_mto1_foreign_key_less_equal_list(
-				QUERY_DROP_DOWN_FETCH_MAX_ROWS,
-				prompt_lookup_input->relation_mto1_list,
-				1 /* max_foreign_key_list_length */ );
-	}
+	prompt_lookup_input->relation_mto1_list =
+		relation_mto1_status_skipped_list(
+			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
+			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
+			prompt_lookup_input->relation_mto1_list,
+			prompt_lookup_input->
+				drillthru_status->
+				skipped_boolean );
 
 	if ( !prompt_lookup_input->drillthru_status->participating_boolean
 	||   !prompt_lookup_input->drillthru_status->skipped_boolean )

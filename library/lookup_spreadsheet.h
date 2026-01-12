@@ -16,6 +16,7 @@
 #include "folder_row_level_restriction.h"
 #include "dictionary_separate.h"
 #include "query.h"
+#include "drillthru.h"
 #include "appaserver_link.h"
 
 #define LOOKUP_SPREADSHEET_EXECUTABLE		"output_spreadsheet"
@@ -39,6 +40,7 @@ typedef struct
 	char *prompt_filename;
 	DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP *
 		dictionary_separate;
+	DRILLTHRU_STATUS *drillthru_status;
 } LOOKUP_SPREADSHEET_INPUT;
 
 /* Usage */

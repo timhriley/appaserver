@@ -24,6 +24,8 @@
 #define DRILLTHRU_SKIPPED_KEY		"skipped"
 #define DRILLTHRU_KEY_DELIMITER		','
 
+#define DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH 1
+
 typedef struct
 {
 	char *base_folder_name;
