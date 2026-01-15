@@ -28,7 +28,7 @@
 #define QUERY_GREATER_THAN_EQUAL_TO	"greater_than_equal_to"
 #define QUERY_BETWEEN			"between"
 #define QUERY_BEGINS			"begins"
-#define QUERY_CONTAINS			"contains"
+#define QUERY_CONTAINS			"seems"
 #define QUERY_NOT_CONTAINS		"not_contains"
 #define QUERY_OR			"or_,"
 #define QUERY_IS_NULL			"is_empty"
@@ -968,45 +968,31 @@ char *query_attribute_is_null_where(
 char *query_attribute_not_null_where(
 		char *attribute_full_attribute_name );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_attribute_begins_where(
 		DICTIONARY *dictionary,
 		char *table_name,
 		char *attribute_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_attribute_contains_where(
-		DICTIONARY *dictionary,
-		char *table_name,
-		char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_attribute_not_contains_where(
-		DICTIONARY *dictionary,
-		char *table_name,
-		char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_attribute_equal_where(
 		DICTIONARY *dictionary,
 		char *table_name,
 		char *attribute_name,
 		boolean attribute_is_number );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_attribute_not_equal_where(
 		DICTIONARY *dictionary,
 		char *table_name,
 		char *attribute_name,
 		boolean attribute_is_number );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_attribute_generic_where(
 		DICTIONARY *dictionary,
 		char *table_name,
@@ -1047,6 +1033,34 @@ char *query_attribute_between_where(
 		boolean attribute_is_number,
 		boolean attribute_is_date_time,
 		boolean attribute_is_current_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_attribute_seems_where(
+		DICTIONARY *dictionary,
+		char *table_name,
+		char *attribute_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_attribute_not_contains_where(
+		DICTIONARY *dictionary,
+		char *table_name,
+		char *attribute_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_attribute_like_where(
+		char *query_dictionary_extract );
 
 /* Usage */
 /* ----- */

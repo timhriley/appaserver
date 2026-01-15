@@ -1628,9 +1628,9 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		query_begins )
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			query_attribute_begins_where(
 				dictionary,
 				table_name,
@@ -1641,10 +1641,10 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		query_contains )
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			query_attribute_contains_where(
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			query_attribute_seems_where(
 				dictionary,
 				table_name,
 				attribute_name );
@@ -1654,9 +1654,9 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		query_not_contains )
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			query_attribute_not_contains_where(
 				dictionary,
 				table_name,
@@ -1667,9 +1667,9 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		query_equal )
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			query_attribute_equal_where(
 				dictionary,
 				table_name,
@@ -1681,9 +1681,9 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		query_not_equal )
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			query_attribute_not_equal_where(
 				dictionary,
 				table_name,
@@ -1693,9 +1693,9 @@ QUERY_ATTRIBUTE *query_attribute_new(
 	else
 	{
 		query_attribute->where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			query_attribute_generic_where(
 				dictionary,
 				table_name,
@@ -1776,10 +1776,12 @@ char *query_attribute_begins_where(
 			(char *)0 /* PROMPT_LOOKUP_TO_PREFIX */,
 			0 /* not attribute_is_number */ ) ) )
 	{
-		return (char *)0;
+		return NULL;
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"%s like '%s%c'",
 		attribute_full_attribute_name(
 			table_name,
@@ -1790,15 +1792,15 @@ char *query_attribute_begins_where(
 	return strdup( where );
 }
 
-char *query_attribute_contains_where(
+char *query_attribute_seems_where(
 		DICTIONARY *dictionary,
 		char *table_name,
 		char *attribute_name )
 {
 	char where[ 1024 ];
-	char *ptr = where;
 	char *extract;
 	char *full_attribute_name;
+	char *like_where;
 
 	if ( !dictionary
 	||   !attribute_name )
@@ -1822,7 +1824,7 @@ char *query_attribute_contains_where(
 			(char *)0 /* PROMPT_LOOKUP_TO_PREFIX */,
 			0 /* not attribute_is_number */ ) ) )
 	{
-		return (char *)0;
+		return NULL;
 	}
 
 	full_attribute_name =
@@ -1833,19 +1835,23 @@ char *query_attribute_contains_where(
 			table_name,
 			attribute_name );
 
-	ptr += sprintf(
-		ptr,
-		"(%s like '%c%s%c' or ",
-		full_attribute_name,
-		'%',
-		extract,
-		'%' );
+	like_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		query_attribute_like_where(
+			extract );
 
-	ptr += sprintf(
-		ptr,
-		"%s sounds like '%s')",
+	snprintf(
+		where,
+		sizeof ( where ),
+		"(%s %s or %s sounds like '%s')",
+		full_attribute_name,
+		like_where,
 		full_attribute_name,
 		extract );
+
+	free( like_where );
 
 	return strdup( where );
 }
@@ -1855,7 +1861,7 @@ char *query_attribute_not_contains_where(
 		char *table_name,
 		char *attribute_name )
 {
-	char where[ 256 ];
+	char where[ 1024 ];
 	char *extract;
 
 	if ( !dictionary
@@ -1880,11 +1886,16 @@ char *query_attribute_not_contains_where(
 			(char *)0 /* PROMPT_LOOKUP_TO_PREFIX */,
 			0 /* not attribute_is_number */ ) ) )
 	{
-		return (char *)0;
+		return NULL;
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"%s not like '%c%s%c'",
+		/* ------------------------------------- */
+		/* Returns attribute_name or heap memory */
+		/* ------------------------------------- */
 		attribute_full_attribute_name(
 			table_name,
 			attribute_name ),
@@ -1933,25 +1944,32 @@ char *query_attribute_equal_where(
 					attribute_name,
 					dictionary ) ) )
 		{
-			return (char *)0;
+			return NULL;
 		}
 	}
 
 	full_attribute_name =
+		/* ------------------------------------- */
+		/* Returns attribute_name or heap memory */
+		/* ------------------------------------- */
 		attribute_full_attribute_name(
 			table_name,
 			attribute_name );
 
 	if ( attribute_is_number )
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"%s = %s",
 			full_attribute_name,
 			extract );
 	}
 	else
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"%s = '%s'",
 			full_attribute_name,
 			extract );
@@ -1966,7 +1984,7 @@ char *query_attribute_not_equal_where(
 		char *attribute_name,
 		boolean attribute_is_number )
 {
-	char where[ 256 ];
+	char where[ 1024 ];
 	char *extract;
 	char *full_attribute_name;
 
@@ -1992,17 +2010,22 @@ char *query_attribute_not_equal_where(
 			(char *)0 /* PROMPT_LOOKUP_TO_PREFIX */,
 			attribute_is_number ) ) )
 	{
-		return (char *)0;
+		return NULL;
 	}
 
 	full_attribute_name =
+		/* ------------------------------------- */
+		/* Returns attribute_name or heap memory */
+		/* ------------------------------------- */
 		attribute_full_attribute_name(
 			table_name,
 			attribute_name );
 
 	if ( attribute_is_number )
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"(%s <> %s or %s is null)",
 			full_attribute_name,
 			extract,
@@ -2010,7 +2033,9 @@ char *query_attribute_not_equal_where(
 	}
 	else
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"(%s <> '%s' or %s is null)",
 			full_attribute_name,
 			extract,
@@ -2027,7 +2052,7 @@ char *query_attribute_generic_where(
 		char *query_relation_character_string,
 		boolean attribute_is_number )
 {
-	char where[ 256 ];
+	char where[ 1024 ];
 	char *extract;
 	char *full_attribute_name;
 
@@ -2054,7 +2079,7 @@ char *query_attribute_generic_where(
 			(char *)0 /* PROMPT_LOOKUP_TO_PREFIX */,
 			attribute_is_number ) ) )
 	{
-		return (char *)0;
+		return NULL;
 	}
 
 	full_attribute_name =
@@ -2067,7 +2092,9 @@ char *query_attribute_generic_where(
 
 	if ( attribute_is_number )
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"%s %s %s",
 			full_attribute_name,
 			query_relation_character_string,
@@ -2075,7 +2102,9 @@ char *query_attribute_generic_where(
 	}
 	else
 	{
-		sprintf(where,
+		snprintf(
+			where,
+			sizeof ( where ),
 			"%s %s '%s'",
 			full_attribute_name,
 			query_relation_character_string,
@@ -9039,3 +9068,44 @@ boolean query_single_select_drop_down_boolean(
 
 	return drop_down_boolean;
 }
+
+char *query_attribute_like_where( char *extract )
+{
+	char source_destination[ 1024 ];
+	char where[ 1024 ];
+
+	if ( !extract )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"extract is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	string_strcpy(
+		source_destination,
+		extract,
+		sizeof ( source_destination ) );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"like '%c%s%c'",
+		'%',
+		string_search_replace_character(
+			source_destination,
+			' ' /* search_character */,
+			'%' /* destination_character */ ),
+		'%' );
+
+	return strdup( where );
+}
+
