@@ -203,15 +203,18 @@ void canvass_street_output(
 			votes_per_election );
 }
 
-double canvass_street_votes_per_election( char *street_name )
+double canvass_street_votes_per_election(
+		char *street_name,
+		char *city )
 {
 	int recent_vote_sum;
 	int address_count;
 
-	if ( !street_name )
+	if ( !street_name
+	||   !city )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: street_name is empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -220,11 +223,13 @@ double canvass_street_votes_per_election( char *street_name )
 
 	recent_vote_sum =
 		canvass_street_recent_vote_sum(
-			street_name );
+			street_name,
+			city );
 
 	if ( ! ( address_count =
 			canvass_street_address_count(
-				street_name ) ) )
+				street_name,
+				city ) ) )
 	{
 		return 0.0;
 	}
@@ -234,15 +239,18 @@ double canvass_street_votes_per_election( char *street_name )
 	(double)( address_count * 5.0 );
 }
 
-int canvass_street_recent_vote_sum( char *street_name )
+int canvass_street_recent_vote_sum(
+		char *street_name,
+		char *city )
 {
 	char system_string[ 128 ];
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"recent_vote_sum.sh '%s'",
-		street_name );
+		"recent_vote_sum.sh '%s' '%s'",
+		street_name,
+		city );
 
 	return
 	/* -------------- */
@@ -253,15 +261,18 @@ int canvass_street_recent_vote_sum( char *street_name )
 			system_string ) );
 }
 
-int canvass_street_address_count( char *street_name )
+int canvass_street_address_count(
+		char *street_name,
+		char *city )
 {
 	char system_string[ 128 ];
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"address_count.sh '%s'",
-		street_name );
+		"address_count.sh '%s' '%s'",
+		street_name,
+		city );
 
 	return
 	/* -------------- */
@@ -292,7 +303,8 @@ void canvass_street_list_votes_per_election_set( LIST *canvass_street_list )
 
 		canvass_street->votes_per_election =
 			canvass_street_votes_per_election(
-				canvass_street->street->street_name );
+				canvass_street->street->street_name,
+				canvass_street->street->city );
 
 	} while ( list_next( canvass_street_list ) );
 }

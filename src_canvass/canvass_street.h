@@ -62,15 +62,18 @@ void canvass_street_list_votes_per_election_set(
 /* Usage */
 /* ----- */
 double canvass_street_votes_per_election(
-		char *street_name );
+		char *street_name,
+		char *city );
 
 /* Process */
 /* ------- */
 int canvass_street_recent_vote_sum(
-		char *street_name );
+		char *street_name,
+		char *city );
 
 int canvass_street_address_count(
-		char *street_name );
+		char *street_name,
+		char *city );
 
 /* Usage */
 /* ----- */

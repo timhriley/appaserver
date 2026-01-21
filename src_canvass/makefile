@@ -66,7 +66,15 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/operation.o
 
-EXECUTABLES=	canvass_execute
+CANVASS_LIBRARY=							\
+	street.o							\
+	canvass_street.o						\
+	waypoint.o							\
+	canvass_waypoint.o						\
+	canvass.o
+
+EXECUTABLES=	canvass_execute						\
+		canvass_votes_per_election
 
 all: 	${EXECUTABLES}
 
@@ -77,23 +85,26 @@ touch:
 	/usr/bin/touch *.c
 
 canvass_execute: canvass_execute.c					\
-	street.o							\
-	canvass_street.o						\
-	waypoint.o							\
-	canvass_waypoint.o						\
-	canvass.o							\
+	${CANVASS_LIBRARY}						\
 	${LIBRARY}/distance.o
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		canvass_execute.c 					\
-		street.o						\
-		canvass_street.o					\
-		waypoint.o						\
-		canvass_waypoint.o					\
-		canvass.o						\
+		${CANVASS_LIBRARY}					\
 		${LIBRARY}/distance.o					\
 		-o canvass_execute -lm
+
+canvass_votes_per_election: canvass_votes_per_election.c		\
+	${CANVASS_LIBRARY}						\
+	${LIBRARY}/distance.o
+	$(CC)    ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		canvass_votes_per_election.c				\
+		${CANVASS_LIBRARY}					\
+		${LIBRARY}/distance.o					\
+		-o canvass_votes_per_election -lm
 
 street.o: street.c street.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
