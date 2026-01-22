@@ -182,12 +182,15 @@ STREET *street_parse(
 	if ( *buffer ) street->apartment_count = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer ) street->longitude_string = strdup( buffer );
+	if ( *buffer ) street->votes_per_election = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
-	if ( *buffer ) street->latitude_string = strdup( buffer );
+	if ( *buffer ) street->longitude_string = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 8 );
+	if ( *buffer ) street->latitude_string = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 9 );
 	if ( *buffer ) street->county_district = atoi( buffer );
 
 	street->total_count =
@@ -342,3 +345,84 @@ int street_total_count(
 {
 	return house_count + apartment_count;
 }
+
+double street_votes_per_election(
+		char *street_name,
+		char *city )
+{
+	int recent_vote_sum;
+	int address_count;
+
+	if ( !street_name
+	||   !city )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	recent_vote_sum =
+		street_recent_vote_sum(
+			street_name,
+			city );
+
+	if ( ! ( address_count =
+			street_address_count(
+				street_name,
+				city ) ) )
+	{
+		return 0.0;
+	}
+
+	return
+	(double)recent_vote_sum /
+	(double)( address_count * 5.0 );
+}
+
+int street_recent_vote_sum(
+		char *street_name,
+		char *city )
+{
+	char system_string[ 128 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"recent_vote_sum.sh '%s' '%s'",
+		street_name,
+		city );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	string_atoi(
+		string_pipe_fetch(
+			system_string ) );
+}
+
+int street_address_count(
+		char *street_name,
+		char *city )
+{
+	char system_string[ 128 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"address_count.sh '%s' '%s'",
+		street_name,
+		city );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	string_atoi(
+		string_pipe_fetch(
+			system_string ) );
+}
+

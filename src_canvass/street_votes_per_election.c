@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_canvass/canvass_votes_per_election.c		*/
+/* $APPASERVER_HOME/src_canvass/street_votes_per_election.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -13,10 +13,10 @@
 #include "sql.h"
 #include "canvass_street.h"
 
-void canvass_votes_per_election(
+void street_votes_per_election_output(
 		int county_district );
 
-FILE *canvass_votes_per_election_file(
+FILE *street_votes_per_election_file(
 		int county_district );
 
 int main( int argc, char **argv )
@@ -29,19 +29,21 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	canvass_votes_per_election( atoi( argv[ 1 ] ) /* county_district */ );
+	street_votes_per_election_output(
+		atoi( argv[ 1 ] )
+			/* county_district */ );
 
 	return 0;
 }
 
-void canvass_votes_per_election( int county_district )
+void street_votes_per_election_output( int county_district )
 {
 	FILE *file;
 	char input[ 1024 ];
 	char street_name[ 128 ];
 	char city[ 128 ];
 
-	file = canvass_votes_per_election_file( county_district );
+	file = street_votes_per_election_file( county_district );
 
 	while( string_input( input, file, sizeof ( input ) ) )
 	{
@@ -50,7 +52,7 @@ void canvass_votes_per_election( int county_district )
 
 		printf( "%s^%.2lf\n",
 			input,
-			canvass_street_votes_per_election(
+			street_votes_per_election(
 				street_name,
 				city ) );
 	}
@@ -58,7 +60,7 @@ void canvass_votes_per_election( int county_district )
 	pclose( file );
 }
 
-FILE *canvass_votes_per_election_file( int county_district )
+FILE *street_votes_per_election_file( int county_district )
 {
 	char system_string[ 1024 ];
        

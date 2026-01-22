@@ -16,6 +16,7 @@
 					"zip_code,"		\
 					"house_count,"		\
 					"apartment_count,"	\
+					"votes_per_election,"	\
 					"longitude,"		\
 					"latitude,"		\
 					"county_district"
@@ -30,6 +31,7 @@ typedef struct
 	char *zip_code;
 	int house_count;
 	int apartment_count;
+	double votes_per_election;
 	char *longitude_string;
 	char *latitude_string;
 	int county_district;
@@ -105,5 +107,21 @@ char *street_primary_where(
 		char *street_name,
 		char *city,
 		char *state_code );
+
+/* Driver */
+/* ------ */
+double street_votes_per_election(
+		char *street_name,
+		char *city );
+
+/* Process */
+/* ------- */
+int street_recent_vote_sum(
+		char *street_name,
+		char *city );
+
+int street_address_count(
+		char *street_name,
+		char *city );
 
 #endif

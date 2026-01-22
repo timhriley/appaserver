@@ -74,7 +74,7 @@ CANVASS_LIBRARY=							\
 	canvass.o
 
 EXECUTABLES=	canvass_execute						\
-		canvass_votes_per_election
+		street_votes_per_election
 
 all: 	${EXECUTABLES}
 
@@ -95,16 +95,16 @@ canvass_execute: canvass_execute.c					\
 		${LIBRARY}/distance.o					\
 		-o canvass_execute -lm
 
-canvass_votes_per_election: canvass_votes_per_election.c		\
+street_votes_per_election: street_votes_per_election.c		\
 	${CANVASS_LIBRARY}						\
 	${LIBRARY}/distance.o
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		canvass_votes_per_election.c				\
+		street_votes_per_election.c				\
 		${CANVASS_LIBRARY}					\
 		${LIBRARY}/distance.o					\
-		-o canvass_votes_per_election -lm
+		-o street_votes_per_election -lm
 
 street.o: street.c street.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
