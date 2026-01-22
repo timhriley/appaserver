@@ -4,13 +4,14 @@
 # No warranty and freely available software. Visit appaserver.org
 # -------------------------------------------------------------------
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage `basename.e $0 n` minimum_votes_per_election" 1>&2
+	echo "Usage `basename.e $0 n` canvass minimum_votes_per_election" 1>&2
 	exit 1
 fi
 
-minimum_votes_per_election=$1
+canvass="$1"
+minimum_votes_per_election=$2
 
 join="	canvass_street.street_name = street.street_name and	\
 	canvass_street.city = street.city and			\
@@ -22,7 +23,9 @@ subquery="	select 1				\
 			ifnull(votes_per_election,0) <	\
 			$minimum_votes_per_election"
 
-where="exists ($subquery)"
+where="	canvass = '$canvass' and	\
+	canvass_date is null and	\
+	exists ($subquery)"
 
 echo "update canvass_street set action = 'bypass' where $where;"
 
