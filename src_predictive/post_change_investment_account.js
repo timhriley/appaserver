@@ -29,10 +29,6 @@ function post_change_investment_account( row )
 	element = timlib_get_element( element_name );
 	element.disabled = false;
 
-	element_name = 'interest_rate_' + row;
-	element = timlib_get_element( element_name );
-	element.disabled = false;
-
 	// Turn off if not certificate
 	// ---------------------------
 	element_name = 'investment_classification_' + row;
@@ -59,10 +55,6 @@ function post_change_investment_account( row )
 		element.disabled = true;
 
 		element_name = 'certificate_maturity_date_' + row;
-		element = timlib_get_element( element_name );
-		element.disabled = true;
-
-		element_name = 'interest_rate_' + row;
 		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
