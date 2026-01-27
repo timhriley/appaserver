@@ -854,10 +854,44 @@ char *account_primary_where( char *account_name )
 	static char where[ 128 ];
 	char escape_account[ 128 ];
 
+	if ( !account_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( strlen( account_name ) > ( sizeof ( where - 10 ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_name is too big: [%s]",
+			account_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	snprintf(
 		where,
 		sizeof ( where ),
-		"account = '%s'",
+		"account='%s'",
 		string_escape_quote(
 			escape_account,
 			account_name ) );
