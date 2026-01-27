@@ -174,7 +174,7 @@ char *journal_less_equal_where(
 		char *account_name )
 {
 	char *transaction_date_time_where;
-	static char where[ 256 ];
+	static char where[ 384 ];
 
 	if ( !account_name )
 	{
@@ -218,7 +218,7 @@ char *journal_less_where(
 		char *account_name )
 {
 	char *transaction_date_time_where;
-	static char where[ 256 ];
+	static char where[ 384 ];
 
 	if ( !account_name )
 	{
@@ -262,7 +262,7 @@ char *journal_transaction_account_where(
 		char *account_name )
 {
 	char *transaction_date_time_where;
-	static char where[ 256 ];
+	static char where[ 384 ];
 
 	if ( !transaction_date_time
 	||   !account_name )
@@ -305,7 +305,7 @@ char *journal_account_where(
 		char *fund_name,
 		char *account_name )
 {
-	static char where[ 160 ];
+	static char where[ 256 ];
 
 	if ( !account_name )
 	{
@@ -1614,7 +1614,7 @@ char *journal_year_where(
 		char *account_name,
 		const char *transaction_date_preclose_time )
 {
-	static char where[ 256 ];
+	static char where[ 384 ];
 	char begin_date_time[ 32 ];
 	char end_date_time[ 32 ];
 	char escape_account[ 64 ];
@@ -2160,7 +2160,7 @@ char *journal_tax_form_where(
 		const char *transaction_date_preclose_time,
 		char *account_name )
 {
-	static char where[ 256 ];
+	static char where[ 384 ];
 
 	if ( !tax_form_fiscal_begin_date
 	||   !tax_form_fiscal_end_date
@@ -2396,7 +2396,7 @@ char *journal_entity_where(
 		char *street_address,
 		char *account_name )
 {
-	static char where[ 256 ];
+	static char where[ 384 ];
 	char *primary_where;
 	char *account_where;
 
