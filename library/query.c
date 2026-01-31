@@ -1912,7 +1912,7 @@ char *query_attribute_equal_where(
 		char *attribute_name,
 		boolean attribute_is_number )
 {
-	char where[ 256 ];
+	char where[ STRING_64K ];
 	char *extract;
 	char *full_attribute_name;
 
@@ -2052,7 +2052,7 @@ char *query_attribute_generic_where(
 		char *query_relation_character_string,
 		boolean attribute_is_number )
 {
-	char where[ 1024 ];
+	char where[ STRING_64K ];
 	char *extract;
 	char *full_attribute_name;
 
@@ -2594,7 +2594,7 @@ char *query_attribute_between_where(
 		boolean attribute_is_date_time,
 		boolean attribute_is_current_date_time )
 {
-	char where[ 1024 ];
+	char where[ STRING_64K ];
 	char *from_data;
 	char *to_data;
 
@@ -2696,7 +2696,9 @@ char *query_attribute_or_where(
 
 		if ( attribute_is_number )
 		{
-			sprintf(expression,
+			snprintf(
+				expression,
+				sizeof ( expression ),
 				"%s = %s",
 				/* ------------------------------------- */
 				/* Returns attribute_name or heap memory */
@@ -2708,7 +2710,9 @@ char *query_attribute_or_where(
 		}
 		else
 		{
-			sprintf(expression,
+			snprintf(
+				expression,
+				sizeof ( expression ),
 				"%s = '%s'",
 				/* ------------------------------------- */
 				/* Returns attribute_name or heap memory */
@@ -4091,9 +4095,11 @@ char *query_drop_down_datum_where(
 		char *foreign_key,
 		char *datum )
 {
-	char where[ 2048 ];
+	char where[ STRING_64K ];
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"%s = '%s'",
 		/* ------------------------------------- */
 		/* Returns attribute_name or heap memory */
@@ -4111,7 +4117,7 @@ char *query_drop_down_datum_list_where(
 		char *conjunction )
 {
 	QUERY_DROP_DOWN_DATUM *query_drop_down_datum;
-	char where[ 2048 ];
+	char where[ STRING_64K ];
 	char *ptr = where;
 	boolean first_time = 1;
 
@@ -5170,10 +5176,10 @@ char *query_data_where(
 		LIST *where_attribute_data_list,
 		LIST *folder_attribute_list )
 {
-	char where[ 1024 ];
+	char where[ STRING_64K ];
 	char *ptr = where;
 	char *attribute_name;
-	char escaped_data[ 1024 ];
+	char escaped_data[ STRING_64K ];
 	FOLDER_ATTRIBUTE *folder_attribute = {0};
 
 	if ( !list_length( where_attribute_name_list ) ) return (char *)0;
@@ -5229,7 +5235,7 @@ char *query_data_where(
 		timlib_strcpy(
 			escaped_data,
 			list_get( where_attribute_data_list ),
-			1024 );
+			sizeof ( escaped_data ) );
 
 		escape_single_quotes( escaped_data );
 
