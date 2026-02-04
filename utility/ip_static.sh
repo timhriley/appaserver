@@ -3,15 +3,16 @@
 # $APPASERVER_HOME/utility/ip_static.sh
 # ----------------------------------------------
 
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
 then
-	echo "`basename.e $0 n` device ip_address gateway" 1>&2
+	echo "`basename.e $0 n` device ip_address gateway dns1[,dns2...]" 1>&2
 	exit 1
 fi
 
 device=$1
 ip_address=$2
 gateway=$3
+dns_list=$4
 
 # Hints:
 # nmcli device status
@@ -65,6 +66,22 @@ sudo nmcli c mod $device connection.autoconnect yes
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n` connection.autoconnect yes failed" 1>&2
+	exit 1
+fi
+
+sudo nmcli c mod $device ipv4.dns $dns_list
+
+if [ $? -ne 0 ]
+then
+	echo "`basename.e $0 n` ipv4.dns $dns_list failed" 1>&2
+	exit 1
+fi
+
+sudo nmcli c mod $device ipv4.ignore-auto-dns yes
+
+if [ $? -ne 0 ]
+then
+	echo "`basename.e $0 n` ipv4.ignore-auto-dns yes failed" 1>&2
 	exit 1
 fi
 
