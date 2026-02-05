@@ -623,13 +623,18 @@ MERGE_PURGE_UPDATE *merge_purge_update_new(
 			(PROCESS *)0 /* post_change_process */,
 			0 /* not update_root_boolean */ );
 
-	if ( !merge_purge_update->update
-	||   !merge_purge_update->update->update_row_list )
+	if ( !merge_purge_update->update )
+	{
+		free( merge_purge_update );
+		return NULL;
+	}
+
+	if ( !merge_purge_update->update->update_row_list )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
-			"update_new(%s) returned empty or incomplete.",
+		"update_new(%s) returned empty update->update_row_list.",
 			folder_name );
 
 		appaserver_error_stderr_exit(
@@ -894,9 +899,6 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 			merge_purge_process->non_prefixed_dictionary );
 
 	merge_purge_process->merge_purge_update =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		merge_purge_update_new(
 			application_name,
 			session_key,
@@ -908,6 +910,12 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 			merge_purge_process->relation_one2m_list,
 			merge_purge_process->relation_mto1_isa_list,
 			merge_purge_process->folder_attribute_primary_list );
+
+	if ( !merge_purge_process->merge_purge_update )
+	{
+		free( merge_purge_process );
+		return merge_purge_process;
+	}
 
 	merge_purge_process->merge_purge_delete =
 		merge_purge_delete_new(

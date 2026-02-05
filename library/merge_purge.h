@@ -31,14 +31,17 @@
 
 #define MERGE_PURGE_FOLDER_POST_EXECUTABLE	"post_merge_purge_folder"
 
-#define MERGE_PURGE_PROCESS_SAME_MESSAGE		\
-		"<h3>Warning: please select different values.</h3>\n"
+#define MERGE_PURGE_NO_UPDATE_TEMPLATE				\
+	"<h3>Warning: nothing to merge in %s. Just delete the row.</h3>\n"
 
-#define MERGE_PURGE_NO_DELETE_PERMISSION_TEMPLATE	\
-		"<h3>ERROR: delete permission not set for %s.</h3>\n"
+#define MERGE_PURGE_PROCESS_SAME_MESSAGE			\
+	"<h3>Warning: please select different values.</h3>\n"
 
-#define MERGE_PURGE_ALREADY_OCCURRED_TEMPLATE		\
-		"<h3>Warning: purge already occurred for this %s.</h3>\n"
+#define MERGE_PURGE_NO_DELETE_PERMISSION_TEMPLATE		\
+	"<h3>ERROR: delete permission not set for %s.</h3>\n"
+
+#define MERGE_PURGE_ALREADY_OCCURRED_TEMPLATE			\
+	"<h3>Warning: purge already occurred for this %s.</h3>\n"
 
 typedef struct
 {
@@ -122,9 +125,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 MERGE_PURGE_UPDATE *merge_purge_update_new(
 		char *application_name,
 		char *session_key,

@@ -73,6 +73,12 @@ int main( int argc, char **argv )
 			process_name,
 			folder_name );
 
+	if ( !merge_purge_process->merge_purge_update )
+	{
+		printf(	MERGE_PURGE_NO_UPDATE_TEMPLATE,
+			folder_name );
+	}
+	else
 	if ( merge_purge_process->same_boolean )
 	{
 		printf( MERGE_PURGE_PROCESS_SAME_MESSAGE );
