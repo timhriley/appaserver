@@ -776,7 +776,9 @@ char *widget_drop_down_option_tag(
 	if ( !display_string || !*display_string )
 		display_string = value_string;
 
-	sprintf(tag,
+	snprintf(
+		tag,
+		sizeof ( tag ),
 		"\t<option value=\"%s\">%s",
 		value_string,
 		display_string );
@@ -5560,6 +5562,8 @@ char *widget_drop_down_option_list_html(
 					widget_drop_down_value,
 					widget_drop_down_option_list ) ) )
 		{
+			char *option_tag;
+
 			if ( !widget_drop_down_option_existing->tag )
 			{
 				char message[ 128 ];
@@ -5574,10 +5578,22 @@ char *widget_drop_down_option_list_html(
 					message );
 			}
 
+			/* Build a new tag. Relations are case insensitive. */
+			/* ------------------------------------------------ */
+			option_tag =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				widget_drop_down_option_tag(
+					widget_drop_down_value
+						/* value_string */,
+					widget_drop_down_option_existing->
+						display_string );
+
 			ptr += sprintf(
 				ptr,
 				"%s",
-				widget_drop_down_option_existing->tag );
+				option_tag );
 		}
 		else
 		{
@@ -5599,6 +5615,9 @@ char *widget_drop_down_option_list_html(
 					widget_drop_down_value );
 
 			option_tag =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				widget_drop_down_option_tag(
 					widget_drop_down_value,
 					display_string );
@@ -5667,15 +5686,15 @@ char *widget_drop_down_option_list_html(
 }
 
 WIDGET_DROP_DOWN_OPTION *widget_drop_down_option_seek(
-			char *widget_drop_down_value,
-			LIST *widget_drop_down_option_list )
+		char *widget_drop_down_value,
+		LIST *widget_drop_down_option_list )
 {
 	WIDGET_DROP_DOWN_OPTION *widget_drop_down_option;
 
 	if ( !widget_drop_down_value
 	||   !list_rewind( widget_drop_down_option_list ) )
 	{
-		return (WIDGET_DROP_DOWN_OPTION *)0;
+		return NULL;
 	}
 
 	do {
