@@ -871,7 +871,7 @@ char *account_primary_where( char *account_name )
 	}
 
 
-	if ( strlen( account_name ) > ( sizeof ( where - 10 ) ) )
+	if ( strlen( account_name ) > ( sizeof ( where ) - 10 ) )
 	{
 		char message[ 1024 ];
 
