@@ -13,7 +13,7 @@
 
 int main( void )
 {
-	char buffer[ 2048 ];
+	char buffer[ STRING_770K ];
 	char *buf_ptr;
 	char *token_ptr;	/* Note: token_ptr is the 4K static buffer */
 				/*       inside of token_get().		 */

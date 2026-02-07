@@ -154,19 +154,13 @@ char *string_input(
 
 		if ( buffer_size && ( size++ >= buffer_size ) )
 		{
-			char message[ 1024 ];
-
-			sprintf(message,
-				"Exceeded max line length of %d:<br>\n"
+			fprintf(stderr,
+				"Exceeded max line length of %d\n"
 				"%.75s[more follows]\n",
 				 buffer_size - 1,
 				 anchor );
 
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			exit( 1 );
 		}
 
 		*input_buffer++ = in_char;
