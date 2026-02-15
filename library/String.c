@@ -1205,7 +1205,7 @@ char *string_unescape_character_array(
 {
 	char local_source[ STRING_64K ];
 
-	string_strcpy( local_source, source, STRING_64K );
+	string_strcpy( local_source, source, sizeof ( local_source ) );
 
 	while ( *character_array )
 	{
@@ -1220,7 +1220,7 @@ char *string_unescape_character_array(
 		string_strcpy(
 			local_source,
 			destination,
-			STRING_64K );
+			sizeof ( local_source ) );
 	}
 	return destination;
 }

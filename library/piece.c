@@ -16,10 +16,6 @@
 static char piece_buffer[ MAX_NUM_FIELDS ][ MAX_FIELD_LEN ];
 static int num_piece_buffer;
 
-/* Default to trim each field */
-/* -------------------------- */
-static int piece_do_trim = 1;
-
 char *piece( char *destination, char delimiter, char *source, int offset )
 {
         int mark = 0;
@@ -115,7 +111,7 @@ char *piece( char *destination, char delimiter, char *source, int offset )
  
         *buf_ptr = '\0';
  
-	if ( piece_do_trim ) string_trim_right_spaces( destination );
+	string_trim( destination );
 
 	return destination;
 }
@@ -276,7 +272,7 @@ char *piece_quoted(
  
         *buf_ptr = '\0';
 
-	if ( piece_do_trim ) string_trim( destination );
+	string_trim( destination );
 
 	return destination;
 }
@@ -322,7 +318,7 @@ char *piece_multiple(
  
         *buf_ptr = '\0';
  
-	if ( piece_do_trim ) string_trim( destination );
+	string_trim( destination );
 
 	return destination;
 }
@@ -408,16 +404,6 @@ char *replace_piece(
 		piece_offset );
 }
 
-
-void piece_set_notrim()
-{
-	piece_do_trim = 0;
-}
-
-void piece_set_trim()
-{
-	piece_do_trim = 1;
-}
 
 char *piece_insert(
 		char *source_destination, 
@@ -625,10 +611,7 @@ char *piece_split_in_two(
  
 	strcpy( destination, source + 1 );
 
-	if ( piece_do_trim )
-        	return string_trim( destination );
-	else
-		return destination;
+        return string_trim( destination );
 }
 
 
@@ -1085,7 +1068,7 @@ char *piece_quote(
  
         *buf_ptr = '\0';
 
-	if ( piece_do_trim ) string_trim_right_spaces( destination );
+	string_trim( destination );
 
 	strcpy( buffer, destination );
 

@@ -100,9 +100,6 @@ char *piece_replace(
 		char *new_data, 
 		int piece_offset );
 
-void piece_set_notrim(	void );
-void piece_set_trim(	void );
-
 char *piece_inverse(
 		char *source_destination,
 		char delimiter,
