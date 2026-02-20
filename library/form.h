@@ -191,7 +191,7 @@ char *form_html(
 /* Usage */
 /* ----- */
 int form_increment_number(
-		void );
+		pid_t process_id );
 
 /* Usage */
 /* ----- */

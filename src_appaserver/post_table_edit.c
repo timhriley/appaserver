@@ -203,7 +203,9 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_table_edit->
 					post_table_edit_input->
-					appaserver_error_filename );
+					appaserver_error_filename,
+				getpid() /* parent_process_id */,
+				1 /* operation_row_checked_count */ );
 		}
 		else
 		{

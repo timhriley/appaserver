@@ -49,6 +49,7 @@ FORM_TABLE_EDIT *form_table_edit_calloc( void )
 FORM_TABLE_EDIT *form_table_edit_new(
 		char *folder_name,
 		char *target_frame,
+		pid_t process_id,
 		char *post_change_javascript,
 		DICTIONARY *query_dictionary,
 		DICTIONARY *drillthru_dictionary,
@@ -79,7 +80,8 @@ FORM_TABLE_EDIT *form_table_edit_new(
 	form_table_edit = form_table_edit_calloc();
 
 	form_table_edit->form_increment_number =
-		form_increment_number();
+		form_increment_number(
+			process_id );
 
 	form_table_edit->form_name =
 		/* ------------------- */
@@ -167,6 +169,9 @@ FORM_TABLE_EDIT *form_table_edit_new(
 			form_table_edit->heading_container_list );
 
 	form_table_edit->open_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		form_table_edit_open_html(
 			form_table_edit->form_tag,
 			form_table_edit->top_button_widget_container_list,

@@ -367,6 +367,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 
 	post_table_edit = post_table_edit_calloc();
 
+	post_table_edit->process_id = process_id;
+
 	post_table_edit->session_folder =
 		/* --------------------------------------------- */
 		/* Sets appaserver environment and outputs argv. */

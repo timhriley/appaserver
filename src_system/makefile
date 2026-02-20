@@ -96,6 +96,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/role_appaserver_user.o			\
 		${LIBRARY}/operation.o					\
+		${LIBRARY}/operation_semaphore.o			\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/form.o					\

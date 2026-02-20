@@ -29,6 +29,9 @@ int main( int argc, char **argv )
 	char *primary_data_list_string;
 	char *update_results_string;
 	char *update_error_string;
+	pid_t parent_process_id;
+	int operation_row_checked_count;
+	char *dictionary_string;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	POST_DICTIONARY *post_dictionary;
 	DRILLDOWN *drilldown;
@@ -38,10 +41,10 @@ int main( int argc, char **argv )
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	if ( argc != 10 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role target_frame base_folder primary_data_list_string update_results update_error dictionary\n",
+"Usage: %s session login_name role target_frame base_folder primary_data_list_string update_results update_error parent_process_id operation_row_checked_count dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -54,6 +57,9 @@ int main( int argc, char **argv )
 	primary_data_list_string = argv[ 6 ];
 	update_results_string = argv[ 7 ];
 	update_error_string = argv[ 8 ];
+	parent_process_id = (pid_t)atoi( argv[ 9 ] );
+	operation_row_checked_count = atoi( argv[ 10 ] );
+	dictionary_string = argv[ 11 ];
 
 	post_dictionary =
 		/* -------------- */
@@ -62,7 +68,7 @@ int main( int argc, char **argv )
 		post_dictionary_string_new(
 			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
 			DICTIONARY_ELEMENT_DELIMITER,
-			argv[ 9 ] );
+			dictionary_string );
 
 	/* -------------- */
 	/* Safely returns */
@@ -85,18 +91,36 @@ int main( int argc, char **argv )
 			primary_data_list_string,
 			update_results_string,
 			update_error_string,
+			parent_process_id,
+			operation_row_checked_count,
 			post_dictionary->original_post_dictionary,
 			appaserver_parameter->data_directory );
 
-	printf( "%s\n%s\n%s\n%s\n%s\n",
-		drilldown->drilldown_document->document->html,
-		drilldown->drilldown_document->document->document_head->html,
-		drilldown->drilldown_document->ajax_client_list_javascript,
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_head_close_tag(),
-		drilldown->drilldown_document->document->document_body->html );
+	if ( drilldown->operation_semaphore->group_first_time )
+	{
+		printf( "%s\n%s\n%s\n%s\n%s\n",
+			drilldown->
+				drilldown_document->
+				document->
+				html,
+			drilldown->
+				drilldown_document->
+				document->
+				document_head->
+				html,
+			drilldown->
+				drilldown_document->
+				ajax_client_list_javascript,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_head_close_tag(),
+			drilldown->
+				drilldown_document->
+				document->
+				document_body->
+				html );
+	}
 
 	if ( drilldown->drilldown_primary )
 	{
@@ -156,7 +180,10 @@ int main( int argc, char **argv )
 			drilldown->
 				drilldown_many_to_one_list ) );
 
-	document_close();
+	if ( drilldown->operation_semaphore->group_last_time )
+	{
+		document_close();
+	}
 
 	return 0;
 }

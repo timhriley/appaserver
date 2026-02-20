@@ -169,7 +169,9 @@ char *execute_system_string_drilldown(
 		char *update_results_string,
 		char *update_row_list_error_string,
 		char *dictionary_separate_send_string,
-		char *appaserver_error_filename );
+		char *appaserver_error_filename,
+		pid_t parent_process_id,
+		int operation_row_checked_count );
 
 /* Returns heap memory */
 /* ------------------- */

@@ -647,6 +647,7 @@ TABLE_EDIT *table_edit_new(
 		form_table_edit_new(
 			folder_name,
 			target_frame,
+			process_id,
 			table_edit->
 				table_edit_input->
 				folder->

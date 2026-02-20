@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "operation.h"
+#include "operation_semaphore.h"
 #include "folder_menu.h"
 #include "menu.h"
 #include "document.h"

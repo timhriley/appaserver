@@ -84,6 +84,7 @@ APPASERVER_LIBRARY=						\
 		relation_one2m.o				\
 		relation_join.o					\
 		operation.o					\
+		operation_semaphore.o				\
 		document.o					\
 		insert.o					\
 		relation_copy.o					\
@@ -401,6 +402,9 @@ pipe.o: pipe.c pipe.h
 
 operation.o: operation.c operation.h process.h
 	${CC} ${CFLAGS} -c operation.c
+
+operation_semaphore.o: operation_semaphore.c operation_semaphore.h
+	${CC} ${CFLAGS} -c operation_semaphore.c
 
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c

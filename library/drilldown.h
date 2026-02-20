@@ -19,8 +19,11 @@
 #include "menu.h"
 #include "document.h"
 #include "dictionary.h"
+#include "operation_semaphore.h"
 #include "dictionary_separate.h"
 #include "table_edit.h"
+
+#define DRILLDOWN_OPERATION_NAME	"drilldown"
 
 typedef struct
 {
@@ -268,6 +271,7 @@ typedef struct
 {
 	SESSION_FOLDER *session_folder;
 	DRILLDOWN_INPUT *drilldown_input;
+	OPERATION_SEMAPHORE *operation_semaphore;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *original_post_dictionary;
 	DRILLDOWN_PRIMARY *drilldown_primary;
@@ -293,6 +297,8 @@ DRILLDOWN *drilldown_new(
 		char *drilldown_primary_data_list_string,
 		char *update_results_string,
 		char *update_error_string,
+		pid_t parent_process_id,
+		int operation_row_checked_count,
 		DICTIONARY *original_post_dictionary,
 		char *data_directory );
 

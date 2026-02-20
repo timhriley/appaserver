@@ -47,6 +47,7 @@ typedef struct
 FORM_TABLE_EDIT *form_table_edit_new(
 		char *folder_name,
 		char *target_frame,
+		pid_t process_id,
 		char *post_change_javascript,
 		DICTIONARY *query_dictionary,
 		DICTIONARY *drillthru_dictionary,

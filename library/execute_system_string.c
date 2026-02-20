@@ -563,7 +563,9 @@ char *execute_system_string_drilldown(
 		char *update_results_string,
 		char *update_row_list_error_string,
 		char *dictionary_separate_send_string,
-		char *appaserver_error_filename )
+		char *appaserver_error_filename,
+		pid_t parent_process_id,
+		int operation_row_checked_count )
 {
 	char system_string[ 4096 ];
 
@@ -574,7 +576,9 @@ char *execute_system_string_drilldown(
 	||   !drilldown_base_folder_name
 	||   !drilldown_primary_data_list_string
 	||   !dictionary_separate_send_string
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filename
+	||   !parent_process_id
+	||   !operation_row_checked_count )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -587,7 +591,7 @@ char *execute_system_string_drilldown(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"%s %s %s %s %s %s \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s",
+		"%s %s %s %s %s %s \"%s\" \"%s\" \"%s\" %d %d \"%s\" 2>>%s",
 		drilldown_executable,
 		session_key,
 		login_name,
@@ -601,6 +605,8 @@ char *execute_system_string_drilldown(
 		(update_row_list_error_string)
 			? update_row_list_error_string
 			: "",
+		parent_process_id,
+		operation_row_checked_count,
 		dictionary_separate_send_string,
 		appaserver_error_filename );
 

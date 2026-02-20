@@ -383,6 +383,8 @@ DRILLDOWN *drilldown_new(
 		char *drilldown_primary_data_list_string,
 		char *update_results_string,
 		char *update_error_string,
+		pid_t parent_process_id,
+		int operation_row_checked_count,
 		DICTIONARY *original_post_dictionary,
 		char *data_directory )
 {
@@ -443,6 +445,17 @@ DRILLDOWN *drilldown_new(
 			drilldown_primary_data_list_string,
 			data_directory,
 			original_post_dictionary );
+
+	drilldown->operation_semaphore =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		operation_semaphore_new(
+			application_name,
+			DRILLDOWN_OPERATION_NAME,
+			data_directory,
+			parent_process_id,
+			operation_row_checked_count );
 
 	drilldown->query_dictionary =
 		/* ---------------------------------------------- */

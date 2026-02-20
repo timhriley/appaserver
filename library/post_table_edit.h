@@ -78,6 +78,7 @@ void post_table_edit_input_dictionary_time_set(
 
 typedef struct
 {
+	pid_t process_id;
 	SESSION_FOLDER *session_folder;
 	POST_TABLE_EDIT_INPUT *post_table_edit_input;
 	UPDATE *update;

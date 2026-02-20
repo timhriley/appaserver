@@ -188,68 +188,13 @@ DICTIONARY *operation_row_list_dictionary(
 boolean operation_row_list_output_boolean(
 		LIST *operation_row_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+
 /* Returns operation_error_message_list_string or null */
 /* --------------------------------------------------- */
 char *operation_row_list_execute(
-			OPERATION_ROW_LIST *operation_row_list );
-
-typedef struct
-{
-	char *filename;
-	boolean group_first_time;
-	int row_current;
-	boolean group_last_time;
-} OPERATION_SEMAPHORE;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-OPERATION_SEMAPHORE *operation_semaphore_new(
-		char *application_name,
-		char *operation_name,
-		char *data_directory,
-		pid_t parent_process_id,
-		int operation_row_checked_count );
-
-/* Process */
-/* ------- */
-OPERATION_SEMAPHORE *operation_semaphore_calloc(
-		void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *operation_semaphore_filename(
-		char *application_name,
-		char *operation_name,
-		char *data_directory,
-		pid_t parent_process_id );
-
-boolean operation_semaphore_group_last_time(
-		int row_current,
-		int operation_row_checked_count );
-
-void operation_semaphore_remove_file(
-		char *filename );
-
-/* Usage */
-/* ----- */
-boolean operation_semaphore_group_first_time(
-		char *operation_semaphore_filename );
-
-/* Usage */
-/* ----- */
-int operation_semaphore_row_current(
-			char *filename );
-
-/* Usage */
-/* ----- */
-void operation_semaphore_write(
-		char *filename,
-		int row_current );
+		OPERATION_ROW_LIST *operation_row_list );
 
 typedef struct
 {

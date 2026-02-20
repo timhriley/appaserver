@@ -623,11 +623,11 @@ char *form_html(char *form_tag,
 	return strdup( html );
 }
 
-int form_increment_number( void )
+int form_increment_number( pid_t process_id )
 {
 	static int increment_number;
 
-	return ++increment_number;
+	return ++increment_number + process_id;
 }
 
 char *form_name(
