@@ -10,7 +10,7 @@ then
 fi
 
 find . -empty				|
-piece.e '_' 1				|
+sed 's|\./appaserver_||'		|
 piece.e '.' 0				|
 xargs.e 'delete_application "" {} y'
 
