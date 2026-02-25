@@ -13,10 +13,9 @@ device=$1
 
 identity=`nmcli device status | grep "^$device" | cut -c 32-99 | trim.e`
 
-if [ "$identity" = "" ]
+if [ "$identity" = "" -o "$identity" = "--" ]
 then
-	echo "Cannot discern the identity name." 1>&2
-	exit 1
+	exit 0
 fi
 
 if [ "$identity" != "$device" ]

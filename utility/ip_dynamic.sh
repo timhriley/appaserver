@@ -24,6 +24,8 @@ ip_identity.sh $device
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n` ip_identity.sh $device failed" 1>&2
+	sudo ip link set $device up
+
 	exit 1
 fi
 
@@ -32,6 +34,7 @@ sudo nmcli c mod $device ipv4.method auto
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n`: ipv4.method auto failed" 1>&2
+	sudo ip link set $device up
 	exit 1
 fi
 
@@ -40,6 +43,7 @@ sudo nmcli c mod $device connection.autoconnect yes
 if [ $? -ne 0 ]
 then
 	echo "`basename.e $0 n` connection.autoconnect yes failed" 1>&2
+	sudo ip link set $device up
 	exit 1
 fi
 
