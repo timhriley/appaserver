@@ -1,4 +1,8 @@
 :
+# --------------------------------------
+# $APPASERVER_HOME/utility/ip_address.sh
+# --------------------------------------
+
 if [ "$HTTP_HOST" != "" ]
 then
 	echo $HTTP_HOST
