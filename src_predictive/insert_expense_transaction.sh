@@ -60,10 +60,10 @@ then
 	transaction_amount=""
 fi
 
-if [ "$transaction_amount" -lt 0 ]
-then
-	let transaction_amount=0-transaction_amount
-fi
+#if [ "$transaction_amount" -lt 0 ]
+#then
+	#let transaction_amount=0-transaction_amount
+#fi
 
 # Build check_number
 # ------------------
