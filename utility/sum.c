@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
+#include "String.h"
 #include "piece.h"
 
 #define DEFAULT_DELIMITER	'^'
@@ -33,7 +33,7 @@ int main( int argc, char **argv )
 		}
 	}
 
-	while( get_line( input_buffer, stdin ) )
+	while( string_input( input_buffer, stdin, sizeof( input_buffer ) ) )
 	{
 		*piece_buffer = '\0';
 
@@ -56,5 +56,5 @@ int main( int argc, char **argv )
 	}
 	printf( "%.3lf\n", sum );
 	return 0;
-} /* main() */
+}
 

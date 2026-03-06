@@ -84,10 +84,19 @@ table_title=`echo "$feeder_account $minimum_transaction_date" | format_initial_c
 document_body.sh $application
 echo "$title_html"
 
-echo "$select from journal,transaction $where $order;"	|
-sql								|
-html_table.e "$table_title" "$heading" "^" "$justification"	|
-cat
+# Sum.e outputs 3 decimal places.
+# -------------------------------
+sum=`	echo "$select from journal,transaction $where $order;"		|
+	sql								|
+	sum.e 4								|
+	sed 's/0$//'`
+
+(
+echo "$select from journal,transaction $where $order;"		|
+sql
+echo "Sum^^^^$sum"
+) |
+html_table.e "$table_title" "$heading" "^" "$justification"
 
 echo "</body></html>"
 
