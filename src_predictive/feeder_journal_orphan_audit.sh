@@ -39,10 +39,12 @@ then
 	echo "$title_html"
 
 	echo "<h3>Please select a Feeder Account</h3>"
-	echo "</body></html>"
+	document_close.sh
 	exit 0
 fi
 
+# Don't need to start at the beginning.
+# -------------------------------------
 if [	"$minimum_transaction_date" = "" -o				\
 	"$minimum_transaction_date" = "minimum_transaction_date" ]
 then
@@ -59,10 +61,20 @@ then
 	echo "$title_html"
 
 	echo "<h3>There are no transactions to audit.</h3>"
-	echo "</body></html>"
+	document_close.sh
 	exit 0
 fi
 
+# Skip the opening entry.
+# -----------------------
+sql_statement="	select min( transaction_date_time )		\
+		from journal					\
+		where account = '$feeder_account';"
+
+first_transaction_date_time=`echo $sql_statement | sql.e`
+
+# Only include posted transactions.
+# ---------------------------------
 sql_statement="	select max( transaction_date_time )		\
 		from feeder_row					\
 		where feeder_account = '$feeder_account';"
@@ -81,7 +93,7 @@ transaction_subquery="not exists ( select 1 from transaction where journal.full_
 
 join="journal.full_name = transaction.full_name and journal.street_address = transaction.street_address and journal.transaction_date_time = transaction.transaction_date_time"
 
-where="where account = '$feeder_account' and journal.transaction_date_time >= '$minimum_transaction_date' and journal.transaction_date_time < '$maximum_transaction_date_time' and $join and $journal_subquery and $transaction_subquery"
+where="where account = '$feeder_account' and journal.transaction_date_time <> '$first_transaction_date_time' and journal.transaction_date_time >= '$minimum_transaction_date' and journal.transaction_date_time < '$maximum_transaction_date_time' and $join and $journal_subquery and $transaction_subquery"
 
 order="order by journal.transaction_date_time"
 
@@ -104,7 +116,7 @@ echo "Sum^^^^$sum"
 ) |
 html_table.e "$table_title" "$heading" "^" "$justification"
 
-echo "</body></html>"
+document_close.sh
 
 exit 0
 
