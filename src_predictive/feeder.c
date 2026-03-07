@@ -4000,6 +4000,12 @@ void feeder_process(
 			html_table_output(
 				feeder_audit->html_table,
 				HTML_TABLE_ROWS_BETWEEN_HEADING );
+
+			if ( !feeder_audit->difference_zero )
+			{
+				printf( "<h3>%s</h3>\n",
+					FEEDER_AUDIT_DIFFERENCE_MESSAGE );
+			}
 		}
 	}
 }

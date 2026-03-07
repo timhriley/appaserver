@@ -17,6 +17,9 @@
 
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"
 
+#define FEEDER_AUDIT_DIFFERENCE_MESSAGE	\
+	"Warning: Execute the Audit process \"Feeder Journal Orphan Audit\""
+
 typedef struct
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
