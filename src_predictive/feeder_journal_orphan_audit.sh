@@ -63,6 +63,12 @@ then
 	exit 0
 fi
 
+sql_statement="	select max( transaction_date_time )		\
+		from feeder_row					\
+		where feeder_account = '$feeder_account';"
+
+maximum_transaction_date_time=`echo $sql_statement | sql.e`
+
 heading="transaction_date_time,full_name,check_number,debit_amount,credit_amount,balance"
 
 justification="left,left,right,right"
@@ -75,7 +81,7 @@ transaction_subquery="not exists ( select 1 from transaction where journal.full_
 
 join="journal.full_name = transaction.full_name and journal.street_address = transaction.street_address and journal.transaction_date_time = transaction.transaction_date_time"
 
-where="where account = '$feeder_account' and journal.transaction_date_time >= '$minimum_transaction_date' and $join and $journal_subquery and $transaction_subquery"
+where="where account = '$feeder_account' and journal.transaction_date_time >= '$minimum_transaction_date' and journal.transaction_date_time < '$maximum_transaction_date_time' and $join and $journal_subquery and $transaction_subquery"
 
 order="order by journal.transaction_date_time"
 
