@@ -139,8 +139,7 @@ LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 			exit( 1 );
 		}
 
-		if ( !canvass_street->street->total_count
-		||   !canvass_street->street->longitude_string
+		if ( !canvass_street->street->longitude_string
 		||   !canvass_street->street->latitude_string )
 		{
 			continue;
