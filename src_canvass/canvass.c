@@ -176,3 +176,14 @@ LIST *canvass_waypoint_utm_list(
 		utm_zone,
 		canvass_waypoint_lonlat_list );
 }
+
+double canvass_votes_per_election(
+		int recent_vote_sum,
+		int address_count )
+{
+	if ( !address_count ) return 0.0;
+
+	return
+	(double)recent_vote_sum /
+	( (double)address_count * 5.0 );
+}

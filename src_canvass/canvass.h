@@ -51,6 +51,12 @@ LIST *canvass_waypoint_utm_list(
 		int utm_zone,
 		LIST *canvass_waypoint_lonlat_list );
 
+/* Usage */
+/* ----- */
+double canvass_votes_per_election(
+		int recent_vote_sum,
+		int address_count );
+
 /* Driver */
 /* ------ */
 void canvass_output(

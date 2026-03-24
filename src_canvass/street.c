@@ -12,6 +12,7 @@
 #include "sql.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "canvass.h"
 #include "street.h"
 
 STREET *street_fetch(
@@ -378,8 +379,9 @@ double street_votes_per_election(
 	}
 
 	return
-	(double)recent_vote_sum /
-	(double)( address_count * 5.0 );
+	canvass_votes_per_election(
+		recent_vote_sum,
+		address_count );
 }
 
 int street_recent_vote_sum(

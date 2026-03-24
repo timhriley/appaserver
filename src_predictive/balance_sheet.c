@@ -1571,7 +1571,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 	list_next( latex_column_list );
 
 	for (	i = 0;
-		i < statement_prior_year_list_length + 2;
+		i < 2;
 		i++ )
 	{
 		list_set(
