@@ -2889,6 +2889,11 @@ int budget_annualized_budget_integer(
 {
 	int budget_integer = 0;
 
+	if ( account_annual_budget < 0 )
+	{
+		budget_integer = 0;
+	}
+	else
 	if ( account_annual_budget )
 	{
 		budget_integer = account_annual_budget;
