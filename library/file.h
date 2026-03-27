@@ -36,4 +36,12 @@ char *file_temp_filespecification(
 void file_remove(
 		char *filespecification );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *file_last_line(
+		char *filespecification );
+
 #endif

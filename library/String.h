@@ -781,10 +781,10 @@ char *string_file_fetch(
 
 /* Usage */
 /* ----- */
-
 boolean string_file_write(
 		char *filename,
-		char *string );
+		char *string,
+		char *mode );
 
 /* Usage */
 /* ----- */

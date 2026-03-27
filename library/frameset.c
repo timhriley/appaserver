@@ -437,7 +437,8 @@ FRAMESET_FRAME *frameset_frame_new(
 	{
 		if ( !string_file_write(
 			frameset_frame->output_filename,
-			document_form_html /* string */ ) )
+			document_form_html /* string */,
+			"w" /* mode */ ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: string_write_file(%s) returned empty.\n",

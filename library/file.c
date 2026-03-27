@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include "String.h"
 #include "file.h"
 
 boolean file_exists_boolean( char *filespecification )
@@ -76,5 +77,43 @@ void file_remove( char *filespecification )
 		filespecification );
 
 	if ( system( system_string ) ){}
+}
+
+char *file_last_line( char *filespecification )
+{
+	char system_string[ 1024 ];
+
+	if ( !filespecification )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: filespecification is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !file_exists_boolean( filespecification ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: file (%s) doesn't exist.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filespecification );
+		exit( 1 );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"tail -1 %s",
+		filespecification );
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	string_pipe( system_string );
 }
 

@@ -12,6 +12,7 @@
 #include "appaserver_error.h"
 #include "application.h"
 #include "date.h"
+#include "file.h"
 #include "float.h"
 #include "piece.h"
 #include "element.h"
@@ -2289,8 +2290,19 @@ BUDGET_REGRESSION *budget_regression_fetch(
 {
 	BUDGET_REGRESSION *budget_regression;
 	char *fetch;
+	static char *now_yyyy_mm_dd;
 
 	budget_regression = budget_regression_calloc();
+
+	if ( !now_yyyy_mm_dd )
+	{
+		now_yyyy_mm_dd =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			date_now_yyyy_mm_dd(
+				date_utc_offset() );
+	}
 
 	budget_regression->budget_link =
 		/* -------------- */
@@ -2325,6 +2337,7 @@ BUDGET_REGRESSION *budget_regression_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		budget_regression_text_system_string(
+			BUDGET_REGRESSION_DELIMITER,
 			budget_regression->budget_file->text_specification,
 			budget_regression->sql );
 
@@ -2340,6 +2353,28 @@ BUDGET_REGRESSION *budget_regression_fetch(
 
 	if ( budget_regression->row_count < 3 )
 		return budget_regression;
+
+	budget_regression->latest_zero_record =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		budget_regression_latest_zero_record(
+			BUDGET_REGRESSION_DAYS_AGO,
+			BUDGET_REGRESSION_DELIMITER,
+			budget_regression->
+				budget_file->
+				text_specification,
+			now_yyyy_mm_dd );
+
+	if ( budget_regression->latest_zero_record )
+	{
+		string_file_write(
+			budget_regression->
+				budget_file->
+				text_specification,
+			budget_regression->latest_zero_record,
+			"a" /* mode */ );
+	}
 
 	budget_regression->julian_system_string =
 		/* ------------------- */
@@ -2631,6 +2666,7 @@ char *budget_regression_where(
 }
 
 char *budget_regression_text_system_string(
+		const char budget_regression_delimiter,
 		char *text_specification,
 		char *budget_regression_sql )
 {
@@ -2656,8 +2692,9 @@ char *budget_regression_text_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"echo \"%s;\" | sql.e ',' > %s",
+		"echo \"%s;\" | sql.e '%c' > %s",
 		budget_regression_sql,
+		budget_regression_delimiter,
 		text_specification );
 
 	return strdup( system_string );
@@ -3046,5 +3083,94 @@ double budget_annualized_journal_balance( ACCOUNT_JOURNAL *account_journal )
 		return account_journal->balance;
 	else
 		return 0.0;
+}
+
+char *budget_regression_latest_zero_record(
+		const int budget_regression_days_ago,
+		const char budget_regression_delimiter,
+		char *text_specification,
+		char *date_now_yyyy_mm_dd )
+{
+	static char latest_zero_record[ 128 ];
+	char *last_record;
+	char *date_piece;
+	int days_between;
+
+	if ( !text_specification
+	||   !date_now_yyyy_mm_dd )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	last_record =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		budget_regression_last_record(
+			text_specification );
+
+	if ( !last_record ) return NULL;
+
+	date_piece =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		budget_regression_date_piece(
+			BUDGET_REGRESSION_DELIMITER,
+			last_record );
+
+	days_between =
+		date_days_between(
+			date_piece /* start_date */,
+			date_now_yyyy_mm_dd /* end_date */ );
+
+	if ( days_between > budget_regression_days_ago )
+	{
+		snprintf(
+			latest_zero_record,
+			sizeof ( latest_zero_record ),
+			"%s%c0.0",
+			date_now_yyyy_mm_dd,
+			budget_regression_delimiter );
+
+		return latest_zero_record;
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
+char *budget_regression_last_record( char *text_specification )
+{
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	file_last_line( text_specification );
+}
+
+char *budget_regression_date_piece(
+		const char delimiter,
+		char *last_record )
+{
+	static char date_piece[ 16 ];
+
+	return
+	piece(	date_piece,
+		delimiter,
+		last_record,
+		0 );
 }
 

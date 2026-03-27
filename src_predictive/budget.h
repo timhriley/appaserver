@@ -23,6 +23,8 @@
 #define BUDGET_PLOT_DEFAULT_PDF		"Rplots.pdf"
 #define BUDGET_LINK_PROMPT		"Press to view plot for "
 #define BUDGET_CONFIDENCE_THRESHOLD	85
+#define BUDGET_REGRESSION_DELIMITER	','
+#define BUDGET_REGRESSION_DAYS_AGO	40
 
 typedef struct
 {
@@ -174,6 +176,7 @@ typedef struct
 	BUDGET_FILE *budget_file;
 	char *sql;
 	char *text_system_string;
+	char *latest_zero_record;
 	int row_count;
 	char *julian_system_string;
 	char *forecast_system_string;
@@ -207,6 +210,7 @@ BUDGET_REGRESSION *budget_regression_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *budget_regression_text_system_string(
+		const char budget_regression_delimiter,
 		char *text_specification,
 		char *budget_regression_sql );
 
@@ -257,6 +261,31 @@ char *budget_regression_forecast_system_string(
 		char *budget_forecast_julian_string,
 		char *julian_specification,
 		char *regression_specification );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *budget_regression_latest_zero_record(
+		const int budget_regression_days_ago,
+		const char budget_regression_delimiter,
+		char *text_specification,
+		char *date_now_yyyy_mm_dd );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *budget_regression_last_record(
+		char *text_specification );
+
+/* Returns static memory */
+/* --------------------- */
+char *budget_regression_date_piece(
+		const char budget_regression_delimiter,
+		char *budget_regression_last_record );
 
 typedef struct
 {

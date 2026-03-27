@@ -2004,13 +2004,14 @@ char *string_double_quote_comma(
 
 boolean string_file_write(
 		char *filename,
-		char *string )
+		char *string,
+		char *mode )
 {
 	FILE *file;
 
-	if ( !filename || !string ) return 0;
+	if ( !filename || !string || !mode ) return 0;
 
-	if ( ! ( file = fopen( filename, "w" ) ) ) return 0;
+	if ( ! ( file = fopen( filename, mode ) ) ) return 0;
 
 	fprintf( file, "%s\n", string );
 	fclose( file );
