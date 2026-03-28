@@ -287,6 +287,12 @@ char *budget_regression_date_piece(
 		const char budget_regression_delimiter,
 		char *budget_regression_last_record );
 
+/* Returns static memory */
+/* --------------------- */
+char *budget_regression_value_piece(
+		const char budget_regression_delimiter,
+		char *budget_regression_last_record );
+
 typedef struct
 {
 	HTML_TABLE *html_table;

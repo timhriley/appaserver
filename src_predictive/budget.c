@@ -3091,9 +3091,9 @@ char *budget_regression_latest_zero_record(
 		char *text_specification,
 		char *date_now_yyyy_mm_dd )
 {
-	static char latest_zero_record[ 128 ];
 	char *last_record;
 	char *date_piece;
+	char *value_piece;
 	int days_between;
 
 	if ( !text_specification
@@ -3130,6 +3130,16 @@ char *budget_regression_latest_zero_record(
 			BUDGET_REGRESSION_DELIMITER,
 			last_record );
 
+	value_piece =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		budget_regression_value_piece(
+			BUDGET_REGRESSION_DELIMITER,
+			last_record );
+
+	free( last_record );
+
 	days_between =
 		date_days_between(
 			date_piece /* start_date */,
@@ -3137,12 +3147,15 @@ char *budget_regression_latest_zero_record(
 
 	if ( days_between > budget_regression_days_ago )
 	{
+		static char latest_zero_record[ 128 ];
+
 		snprintf(
 			latest_zero_record,
 			sizeof ( latest_zero_record ),
-			"%s%c0.0",
+			"%s%c%s",
 			date_now_yyyy_mm_dd,
-			budget_regression_delimiter );
+			budget_regression_delimiter,
+			value_piece );
 
 		return latest_zero_record;
 	}
@@ -3169,6 +3182,19 @@ char *budget_regression_date_piece(
 
 	return
 	piece(	date_piece,
+		delimiter,
+		last_record,
+		0 );
+}
+
+char *budget_regression_value_piece(
+		const char delimiter,
+		char *last_record )
+{
+	static char value_piece[ 16 ];
+
+	return
+	piece(	value_piece,
 		delimiter,
 		last_record,
 		0 );

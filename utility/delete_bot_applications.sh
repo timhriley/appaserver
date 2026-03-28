@@ -9,9 +9,9 @@ then
 	exit 1
 fi
 
-find . -empty				|
-sed 's|\./appaserver_||'		|
-piece.e '.' 0				|
-xargs.e 'delete_application "" {} y'
+find . -empty					|
+sed 's|\./appaserver_||'			|
+piece.e '.' 0					|
+xargs.e 'delete_application "" {} y' >/dev/null
 
 exit 0
