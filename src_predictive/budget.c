@@ -3197,6 +3197,6 @@ char *budget_regression_value_piece(
 	piece(	value_piece,
 		delimiter,
 		last_record,
-		0 );
+		1 );
 }
 
