@@ -2351,8 +2351,9 @@ BUDGET_REGRESSION *budget_regression_fetch(
 				budget_file->
 					text_specification );
 
-	if ( budget_regression->row_count < 3 )
-		return budget_regression;
+	if (	budget_regression->row_count <=
+		BUDGET_REGRESSION_ROW_COUNT_CEILING )
+			return budget_regression;
 
 	budget_regression->latest_zero_record =
 		/* ----------------------------- */
@@ -3050,14 +3051,14 @@ int budget_annualized_compare_function(
 			message );
 	}
 
-	if (	compare_budget_annualized->amount_integer ==
-		from_list_budget_annualized->amount_integer )
+	if (	compare_budget_annualized->budget_integer ==
+		from_list_budget_annualized->budget_integer )
 	{
 		return 0;
 	}
 	else
-	if (	compare_budget_annualized->amount_integer >
-		from_list_budget_annualized->amount_integer )
+	if (	compare_budget_annualized->budget_integer >
+		from_list_budget_annualized->budget_integer )
 	{
 		return 1;
 	}
