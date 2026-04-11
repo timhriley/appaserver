@@ -89,7 +89,6 @@ FORM_DRILLTHRU *form_drillthru_new(
 			login_name,
 			role_name,
 			folder_name /* many_folder_name */,
-			(char *)0 /* post_change_javascript */,
 			relation_mto1_list,
 			(LIST *)0 /* relation_mto1_isa_list */,
 			(LIST *)0 /* relation_one2m_join_list */,

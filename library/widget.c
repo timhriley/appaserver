@@ -56,8 +56,7 @@ WIDGET_CONTAINER *widget_container_new(
 		enum widget_type widget_type,
 		char *widget_name )
 {
-	WIDGET_CONTAINER *widget_container =
-		widget_container_calloc();
+	WIDGET_CONTAINER *widget_container = widget_container_calloc();
 
 	widget_container->widget_type = widget_type;
 	widget_container->widget_name = widget_name;
@@ -3111,7 +3110,8 @@ char *widget_container_date_html(
 		date->datatype_name,
 		date->attribute_width_max_length,
 		date->display_size,
-		date->null_to_slash,
+		date->null_to_slash_boolean,
+		date->validate_date_boolean,
 		date->post_change_javascript,
 		date->tab_order,
 		date->application_name,
@@ -4605,7 +4605,8 @@ char *widget_date_html(
 		char *datatype_name,
 		int attribute_width_max_length,
 		int display_size,
-		boolean null_to_slash,
+		boolean null_to_slash_boolean,
+		boolean validate_date_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *application_name,
@@ -4618,8 +4619,8 @@ char *widget_date_html(
 	char *container_key;
 	char *container_value = {0};
 	char *javascript_replace_on_change = {0};
-	static char *user_date_format_string = {0};
-	static char *date_format_template = {0};
+	static char *user_date_format_string;
+	static char *date_format_template;
 	char *calendar_image_tag = {0};
 
 	if ( !widget_name
@@ -4671,7 +4672,7 @@ char *widget_date_html(
 				widget_name );
 	}
 
-	if ( post_change_javascript || null_to_slash )
+	if ( post_change_javascript || null_to_slash_boolean )
 	{
 		javascript_replace_on_change =
 			/* --------------------------- */
@@ -4681,7 +4682,7 @@ char *widget_date_html(
 				post_change_javascript,
 				row_number,
 				state,
-				null_to_slash );
+				null_to_slash_boolean );
 	}
 
 	if ( widget_date_calendar_boolean(
@@ -4725,6 +4726,7 @@ char *widget_date_html(
 		display_size,
 		container_key,
 		container_value,
+		validate_date_boolean,
 		javascript_replace_on_change,
 		calendar_image_tag,
 		tab_order,
@@ -4736,6 +4738,7 @@ char *widget_date_html_string(
 		int display_size,
 		char *container_key,
 		char *container_value,
+		boolean validate_date_boolean,
 		char *on_change,
 		char *calendar_image_tag,
 		int tab_order,
@@ -4785,19 +4788,36 @@ char *widget_date_html_string(
 				tab_order ) );
 	}
 
-	ptr += sprintf(
-		ptr,
-		" onChange=\"validate_date(this)" );
-
-	if ( on_change && *on_change )
+	if ( validate_date_boolean || on_change )
 	{
 		ptr += sprintf(
 			ptr,
-			" && %s",
-			on_change );
-	}
+			" onChange=\"" );
 
-	ptr += sprintf( ptr, "\"" );
+		if ( validate_date_boolean )
+		{
+			ptr += sprintf(
+				ptr,
+				"validate_date(this)" );
+		}
+
+		if ( on_change )
+		{
+			if ( validate_date_boolean )
+			{
+				ptr += sprintf(
+					ptr,
+					" &&" );
+			}
+
+			ptr += sprintf(
+				ptr,
+				" %s",
+				on_change );
+		}
+
+		ptr += sprintf( ptr, "\"" );
+	}
 
 	if ( background_color && *background_color )
 	{
@@ -4842,7 +4862,9 @@ WIDGET_DATE *widget_date_new( char *widget_name )
 	}
 
 	widget_date = widget_date_calloc();
+
 	widget_date->widget_name = widget_name;
+	widget_date->validate_date_boolean = 1;
 
 	return widget_date;
 }
@@ -7912,5 +7934,21 @@ char *widget_container_list_display( LIST *widget_container_list )
 	*ptr = '\0';
 
 	return strdup( display );
+}
+
+void widget_container_list_validate_date_unset( LIST *widget_container_list )
+{
+	WIDGET_CONTAINER *widget_container;
+
+	if ( list_rewind( widget_container_list ) )
+	do {
+		widget_container = list_get( widget_container_list );
+
+		if ( widget_container->widget_type == widget_date )
+		{
+			widget_container->date->validate_date_boolean = 0;
+		}
+
+	} while ( list_next( widget_container_list ) );
 }
 

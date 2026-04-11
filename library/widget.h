@@ -941,7 +941,8 @@ typedef struct
 	char *login_name;
 	int attribute_width_max_length;
 	int display_size;
-	boolean null_to_slash;
+	boolean null_to_slash_boolean;
+	boolean validate_date_boolean;
 	char *post_change_javascript;
 	int tab_order;
 } WIDGET_DATE;
@@ -973,7 +974,8 @@ char *widget_date_html(
 		char *datatype_name,
 		int attribute_width_max_length,
 		int display_size,
-		boolean null_to_slash,
+		boolean null_to_slash_boolean,
+		boolean validate_date_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *application_name,
@@ -1004,6 +1006,7 @@ char *widget_date_html_string(
 		int display_size,
 		char *widget_container_key,
 		char *widget_container_value,
+		boolean validate_date_boolean,
 		char *widget_text_replace_javascript,
 		char *widget_date_calendar_image_tag,
 		int tab_order,
@@ -1738,6 +1741,11 @@ LIST *widget_container_heading_name_list(
 WIDGET_CONTAINER *widget_container_ajax_new(
 		char *widget_name,
 		LIST *ajax_client_widget_container_list );
+
+/* Usage */
+/* ----- */
+void widget_container_list_validate_date_unset(
+		LIST *widget_container_list );
 
 /* Public */
 /* ------ */

@@ -195,10 +195,6 @@ PROMPT_LOOKUP *prompt_lookup_new(
 			prompt_lookup->include_sort_button,
 			prompt_lookup->
 				prompt_lookup_input->
-				folder->
-				post_change_javascript,
-			prompt_lookup->
-				prompt_lookup_input->
 				relation_mto1_list,
 			prompt_lookup->
 				prompt_lookup_input->

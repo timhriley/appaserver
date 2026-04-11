@@ -38,7 +38,6 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 		boolean omit_delete_button,
 		boolean include_chart_buttons,
 		boolean include_sort_button,
-		char *post_change_javascript,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *relation_one2m_join_list,
@@ -118,7 +117,6 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 			login_name,
 			role_name,
 			folder_name,
-			post_change_javascript,
 			relation_mto1_list,
 			relation_mto1_isa_list,
 			relation_one2m_join_list,
@@ -517,7 +515,6 @@ FORM_PROMPT_LOOKUP_WIDGET_LIST *
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		char *post_change_javascript,
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list,
 		LIST *relation_one2m_join_list,
@@ -613,7 +610,7 @@ FORM_PROMPT_LOOKUP_WIDGET_LIST *
 				folder_attribute->attribute_name,
 				folder_attribute->prompt,
 				folder_attribute->attribute->hint_message,
-				post_change_javascript,
+				(char *)0 /* post_change_javascript */,
 				no_display_boolean,
 				form_prompt_lookup_widget_list->
 					form_prompt_lookup_relation_list ) ) )
@@ -670,6 +667,10 @@ FORM_PROMPT_LOOKUP_WIDGET_LIST *
 			form_prompt_lookup_widget_list->
 				join_widget_container_list );
 	}
+
+	widget_container_list_validate_date_unset(
+		form_prompt_lookup_widget_list->
+			widget_container_list );
 
 	return form_prompt_lookup_widget_list;
 }

@@ -549,20 +549,17 @@ RELATION_MTO1 *relation_mto1_seek(
 	return NULL;
 }
 
-LIST *relation_mto1_foreign_key_less_equal_list(
+void relation_mto1_list_foreign_key_less_equal_update_set(
 		unsigned long query_drop_down_fetch_max_rows,
 		int drillthru_skipped_max_foreign_length,
 		LIST *relation_mto1_list )
 {
 	RELATION_MTO1 *relation_mto1;
-	LIST *list = {0};
 
-	if ( !drillthru_skipped_max_foreign_length
-	||   !list_rewind( relation_mto1_list ) )
-	{
-		return NULL;
-	}
+	relation_mto1_list_omit_update_set(
+		relation_mto1_list /* in/out */ );
 
+	if ( list_rewind( relation_mto1_list ) )
 	do {
 		relation_mto1 = list_get( relation_mto1_list );
 
@@ -574,16 +571,13 @@ LIST *relation_mto1_foreign_key_less_equal_list(
 			if ( query_row_count(
 				relation_mto1->
 					one_folder_name ) <=
-			     query_drop_down_fetch_max_rows )
+			     (unsigned long)query_drop_down_fetch_max_rows )
 			{
-				if ( !list ) list = list_new();
-				list_set( list, relation_mto1 );
+				relation_mto1->relation->omit_update = 0;
 			}
 		}
 
 	} while ( list_next( relation_mto1_list ) );
-
-	return list;
 }
 
 RELATION_MTO1 *relation_mto1_new(
@@ -1016,6 +1010,98 @@ void relation_mto1_list_set_one_to_many_list(
 				0 /* not include_isa_boolean */ );
 
 	} while ( list_next( relation_mto1_list ) );
+}
+
+void relation_mto1_list_status_skipped_omit_update_set(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list,
+		DICTIONARY *drillthru_dictionary )
+{
+	DRILLTHRU_STATUS *drillthru_status;
+
+	drillthru_status =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		drillthru_status_new(
+			drillthru_dictionary );
+
+	if (	drillthru_status->skipped_boolean
+	&&	list_length( relation_mto1_list ) )
+	{
+		relation_mto1_list_foreign_key_less_equal_update_set(
+			query_drop_down_fetch_max_rows,
+			drillthru_skipped_max_foreign_length,
+			relation_mto1_list /* in/out */ );
+	}
+}
+
+void relation_mto1_list_omit_update_set( LIST *relation_mto1_list )
+{
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( !relation_mto1->relation )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"relation_mto1->relation is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		relation_mto1->relation->omit_update = 1;
+
+	} while ( list_next( relation_mto1_list ) );
+}
+
+LIST *relation_mto1_foreign_key_less_equal_list(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list )
+{
+	RELATION_MTO1 *relation_mto1;
+	LIST *list = list_new();
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( list_length(
+			relation_mto1->
+				relation_foreign_key_list ) <=
+			drillthru_skipped_max_foreign_length )
+		{
+			if ( query_row_count(
+				relation_mto1->
+					one_folder_name ) <=
+			     (unsigned int)query_drop_down_fetch_max_rows )
+			{
+				if ( !list ) list = list_new();
+				list_set( list, relation_mto1 );
+			}
+		}
+
+	} while ( list_next( relation_mto1_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 
 LIST *relation_mto1_status_skipped_list(

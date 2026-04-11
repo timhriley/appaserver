@@ -68,14 +68,6 @@ RELATION_MTO1 *relation_mto1_attribute_consumes(
 
 /* Usage */
 /* ----- */
-LIST *relation_mto1_status_skipped_list(
-		int query_drop_down_fetch_max_rows,
-		int drillthru_skipped_max_foreign_length,
-		LIST *relation_mto1_list,
-		DICTIONARY *drillthru_dictionary );
-
-/* Usage */
-/* ----- */
 RELATION_MTO1 *relation_mto1_seek(
 		char *one_folder_name,
 		LIST *relation_mto1_list );
@@ -107,9 +99,14 @@ void relation_mto1_list_set_one_to_many_list(
 
 /* Usage */
 /* ----- */
-LIST *relation_mto1_foreign_key_less_equal_list(
+void relation_mto1_list_foreign_key_less_equal_update_set(
 		unsigned long query_drop_down_fetch_max_rows,
 		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list /* in/out */ );
+
+/* Process */
+/* ------- */
+void relation_mto1_list_omit_update_set(
 		LIST *relation_mto1_list );
 
 /* Usage */
@@ -182,5 +179,29 @@ LIST *relation_mto1_common_name_list(
 		LIST *folder_attribute_non_primary_name_list,
 		boolean copy_common_columns,
 		LIST *one_folder_attribute_name_list );
+
+/* Usage */
+/* ----- */
+LIST *relation_mto1_status_skipped_list(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list,
+		DICTIONARY *drillthru_dictionary );
+
+/* Usage */
+/* ----- */
+LIST *relation_mto1_foreign_key_less_equal_list(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
+void relation_mto1_list_status_skipped_omit_update_set(
+		int query_drop_down_fetch_max_rows,
+		int drillthru_skipped_max_foreign_length,
+		LIST *relation_mto1_list /* in/out */,
+		DICTIONARY *drillthru_dictionary );
+
 #endif
 

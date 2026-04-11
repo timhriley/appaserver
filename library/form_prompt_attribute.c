@@ -233,9 +233,7 @@ FORM_PROMPT_ATTRIBUTE *form_prompt_attribute_new(
 	return form_prompt_attribute;
 }
 
-FORM_PROMPT_ATTRIBUTE *
-	form_prompt_attribute_calloc(
-		void )
+FORM_PROMPT_ATTRIBUTE *form_prompt_attribute_calloc( void )
 {
 	FORM_PROMPT_ATTRIBUTE *form_prompt_attribute;
 
