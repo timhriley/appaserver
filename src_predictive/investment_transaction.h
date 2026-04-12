@@ -16,7 +16,7 @@
 #define INVESTMENT_TRANSACTION_MEMO		"Mark to market"
 
 #define INVESTMENT_TRANSACTION_NO_CHANGE	\
-	"<p>No change from current balance."
+	"<p>No change in investment account balance."
 
 typedef struct
 {

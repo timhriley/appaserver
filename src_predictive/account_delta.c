@@ -98,7 +98,6 @@ ACCOUNT_DELTA *account_delta_new(
 		account_delta_debit_account_name(
 			debit_account_name,
 			credit_account_name,
-			accumulate_debit_boolean,
 			account_delta->negative_boolean );
 
 	account_delta->credit_account_name =
@@ -108,7 +107,6 @@ ACCOUNT_DELTA *account_delta_new(
 		account_delta_credit_account_name(
 			debit_account_name,
 			credit_account_name,
-			accumulate_debit_boolean,
 			account_delta->negative_boolean );
 
 	account_delta->transaction_amount =
@@ -183,7 +181,7 @@ double account_delta_amount(
 		double ending_balance,
 		double current_balance )
 {
-	return current_balance - ending_balance;
+	return ending_balance - current_balance;
 }
 
 double account_delta_negative_boolean( double account_delta_amount )
@@ -194,25 +192,14 @@ double account_delta_negative_boolean( double account_delta_amount )
 char *account_delta_debit_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
-		boolean accumulate_debit_boolean,
 		boolean account_delta_negative_boolean )
 {
 	char *account_name;
 
-	if ( accumulate_debit_boolean )
-	{
-		if ( !account_delta_negative_boolean )
-			account_name = credit_account_name;
-		else
-			account_name = debit_account_name;
-	}
+	if ( !account_delta_negative_boolean )
+		account_name = debit_account_name;
 	else
-	{
-		if ( !account_delta_negative_boolean )
-			account_name = debit_account_name;
-		else
-			account_name = credit_account_name;
-	}
+		account_name = credit_account_name;
 
 	return account_name;
 }
@@ -220,25 +207,14 @@ char *account_delta_debit_account_name(
 char *account_delta_credit_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
-		boolean accumulate_debit_boolean,
 		boolean account_delta_negative_boolean )
 {
 	char *account_name;
 
-	if ( accumulate_debit_boolean )
-	{
-		if ( !account_delta_negative_boolean )
-			account_name = debit_account_name;
-		else
-			account_name = credit_account_name;
-	}
+	if ( !account_delta_negative_boolean )
+		account_name = credit_account_name;
 	else
-	{
-		if ( !account_delta_negative_boolean )
-			account_name = credit_account_name;
-		else
-			account_name = debit_account_name;
-	}
+		account_name = debit_account_name;
 
 	return account_name;
 }

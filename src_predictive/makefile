@@ -177,8 +177,7 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_customer_payment				\
 		post_change_hourly_service_work				\
 		post_change_fixed_service_sale				\
-		post_change_fixed_service_work				\
-		account_delta_dvr
+		post_change_fixed_service_work
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -219,16 +218,6 @@ clean:
 		statement_of_activities					\
 		generate_workorder					\
 		update_sale_not_completed
-
-account_delta_dvr: account_delta_dvr.c					\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	account_delta.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		account_delta_dvr.c					\
-		account_delta.o						\
-		-o account_delta_dvr
 
 post_accrual: post_accrual.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
@@ -723,11 +712,13 @@ post_change_account_balance: post_change_account_balance.c		\
 
 investment_transaction_driver: investment_transaction_driver.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		investment_transaction.o
+		investment_transaction.o				\
+		account_delta.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		investment_transaction.o				\
+		account_delta.o						\
 		investment_transaction_driver.c				\
 		-o investment_transaction_driver
 

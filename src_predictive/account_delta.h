@@ -89,7 +89,6 @@ double account_delta_negative_boolean(
 char *account_delta_debit_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
-		boolean accumulate_debit_boolean,
 		boolean account_delta_negative_boolean );
 
 /* Usage */
@@ -100,7 +99,6 @@ char *account_delta_debit_account_name(
 char *account_delta_credit_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
-		boolean accumulate_debit_boolean,
 		boolean account_delta_negative_boolean );
 
 /* Usage */

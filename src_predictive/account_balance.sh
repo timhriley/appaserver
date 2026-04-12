@@ -121,7 +121,7 @@ if [	"$input_as_of_date" != "$as_of_date" -a				\
 	"$institution_where" = "1 = 1" -a				\
 	"$investment_purpose_where" = "1 = 1"				]
 then
-	sum=`								\
+	investment_sum=`						\
 	(
 	eval "$account_process"						|
 	while read investment_account_record
@@ -132,7 +132,22 @@ then
 	piece_sum.e '^' 3 y						|
 	piece.e '^' 3`
 
-	investment_transaction_driver $sum $execute_yn
+	liability_sum=`							\
+	(
+	eval "$account_process"						|
+	grep "\^taxable_retirement$"					|
+	while read investment_account_record
+	do
+		account_balance_record "$investment_account_record"
+	done
+	)								|
+	piece_sum.e '^' 3 y						|
+	piece.e '^' 3`
+
+	investment_transaction_driver	\
+		$investment_sum		\
+		$liability_sum		\
+		$execute_yn
 
 	if [ "$execute_yn" = "y" ]
 	then
