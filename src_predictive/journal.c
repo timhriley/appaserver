@@ -1095,11 +1095,20 @@ LIST *journal_binary_list(
 	LIST *journal_list;
 	JOURNAL *journal;
 
-	if ( !debit_account
-	||   !credit_account )
+	if ( !debit_account )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account name(s).\n",
+			 "ERROR in %s/%s()/%d: empty debit_account name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !credit_account )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty credit_account name.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

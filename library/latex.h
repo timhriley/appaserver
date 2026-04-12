@@ -10,7 +10,7 @@
 #include "boolean.h"
 #include "list.h"
 
-#define LATEX_PBJ	"PredictBooks"
+#define LATEX_PBJ	"PredictBooks.com"
 
 enum latex_column_enum {
 	latex_column_text,
