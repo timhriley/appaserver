@@ -112,8 +112,9 @@ char *canvass_street_where( char *canvass_name )
 		sizeof ( where ),
 		"canvass = '%s' and "
 		"canvass_date is null and "
-		"ifnull( action,'' ) not in ( 'bypass', 'taken' )",
-		canvass_name );
+		"ifnull( action,'' ) not in (%s)",
+		canvass_name,
+		CANVASS_STREET_ACTION_NOT_IN );
 
 	return where;
 }

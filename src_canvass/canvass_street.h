@@ -17,6 +17,7 @@
 					"action"
 
 #define CANVASS_STREET_TABLE		"canvass_street"
+#define CANVASS_STREET_ACTION_NOT_IN	"'bypass', 'taken', 'tmpskip'"
 
 typedef struct
 {
