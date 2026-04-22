@@ -13,7 +13,7 @@
 #include "investment_transaction.h"
 #include "account_delta.h"
 
-#define IRS_RETIREMENT_PERCENT		0.08
+#define IRS_RETIREMENT_PERCENT		0.10
 #define LIABILITY_MEMO			"Liability mark to market"
 #define TAXABLE_INVESTMENT_PURPOSE	"taxable_retirement"
 #define IRA_TAX_PAYABLE_KEY		"IRA_tax_payable"
