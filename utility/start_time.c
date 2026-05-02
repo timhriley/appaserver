@@ -52,10 +52,10 @@ void display_start_time_to_stderr( char *key, time_t now )
 
 	struct_tm = localtime( &now );
 	fprintf( stderr, 
-		 "Start time (%s):\t%d:%.2d\n",
+		 "Start time (%s):\t%d:%.2d:%.2d\n",
 		 key,
 		 struct_tm->tm_hour,
-		 struct_tm->tm_min );
-
-} /* display_start_time_to_stderr() */
+		 struct_tm->tm_min,
+		 struct_tm->tm_sec );
+}
 

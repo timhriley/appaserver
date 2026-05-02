@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make mysql_remove_null.e
+	make start_time.e stop_time.e
 fi

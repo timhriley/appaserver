@@ -1085,13 +1085,13 @@ each_week.e: each_week.c
 		${APPASERVER_LIBRARY}					\
 		-o each_week.e
 
-start_time.e: start_time.c
+start_time.e: start_time.c ${LIBRARY}
 	$(CC) 	${CFLAGS} -I${LIBRARY} start_time.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		-o start_time.e
 
-stop_time.e: stop_time.c
+stop_time.e: stop_time.c ${LIBRARY}
 	$(CC) 	${CFLAGS} -I${LIBRARY} stop_time.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\

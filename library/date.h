@@ -907,4 +907,10 @@ char *date_set_now_hhmmss(
 		char *date_string,
 		int utc_offset );
 
+int date_minute_integer(
+		long total_seconds );
+
+int date_second_integer(
+		long total_seconds );
+
 #endif

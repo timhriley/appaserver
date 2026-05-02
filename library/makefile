@@ -92,7 +92,6 @@ APPASERVER_LIBRARY=						\
 		update.o					\
 		delete.o					\
 		delete_primary.o				\
-		start_stop_time.o				\
 		appaserver_parameter.o				\
 		appaserver_link.o				\
 		process.o					\
@@ -245,9 +244,6 @@ julian.o: julian.c julian.h
 
 parse_insert_statement.o: parse_insert_statement.c parse_insert_statement.h
 	${CC} ${CFLAGS} -c parse_insert_statement.c
-
-start_stop_time.o: start_stop_time.c start_stop_time.h
-	${CC} ${CFLAGS} -c start_stop_time.c
 
 token.o: token.c token.h
 	${CC} ${CFLAGS} -c token.c

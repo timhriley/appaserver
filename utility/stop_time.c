@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <time.h>
 #include "timlib.h"
+#include "String.h"
+#include "date.h"
 
 void remove_tmp_file( char *tmp_file_name );
 void display_stop_time_to_stderr( char *key, long start_time, time_t now );
@@ -40,7 +42,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !get_line( input_buffer, tmp_file ) )
+	if ( !string_input( input_buffer, tmp_file, sizeof ( input_buffer ) ) )
 	{
 		fprintf( stderr, 
 	"%s: %s is empty. Did \"start_time.e\" complete successfully?\n",
@@ -67,21 +69,23 @@ void remove_tmp_file( char *tmp_file_name )
 
 void display_stop_time_to_stderr( char *key, long start_time, time_t now )
 {
-	double minutes_taken;
 	long seconds_taken;
 	struct tm *struct_tm;
 
 	struct_tm = localtime( &now );
 
 	fprintf( stderr, 
-		 "Stop time  (%s):\t%d:%.2d",
+		 "Stop time  (%s):\t%d:%.2d:%.2d\n",
 		 key,
 		 struct_tm->tm_hour,
-		 struct_tm->tm_min );
+		 struct_tm->tm_min,
+		 struct_tm->tm_sec );
 
 	seconds_taken = now - start_time;
-	minutes_taken = (double)( (double)seconds_taken / 60.0 );
 
-	fprintf( stderr, "   Minutes: %.2lf\n", minutes_taken );
+	fprintf(stderr,
+		"\t\t\tMinute: %.02d Second: %.02d\n",
+		date_minute_integer( seconds_taken /* total_seconds */ ),
+		date_second_integer( seconds_taken ) );
 }
 
