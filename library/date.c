@@ -3284,13 +3284,13 @@ int date_minute_integer( long total_seconds )
 	(int)( (double)total_seconds / 60.0 );
 }
 
-int date_second_integer( long total_seconds )
+int date_second_integer(
+		long total_seconds,
+		int minute_integer )
 {
-	int minute_integer;
 	long minute_times_60;
 	int second_integer;
 
-	minute_integer = date_minute_integer( total_seconds );
 	minute_times_60 = minute_integer * 60;
 	second_integer = total_seconds - minute_times_60;
 

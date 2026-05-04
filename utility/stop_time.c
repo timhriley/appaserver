@@ -71,6 +71,7 @@ void display_stop_time_to_stderr( char *key, long start_time, time_t now )
 {
 	long seconds_taken;
 	struct tm *struct_tm;
+	int minute_integer;
 
 	struct_tm = localtime( &now );
 
@@ -83,9 +84,15 @@ void display_stop_time_to_stderr( char *key, long start_time, time_t now )
 
 	seconds_taken = now - start_time;
 
+	minute_integer =
+	 	date_minute_integer(
+			seconds_taken /* total_seconds */ );
+
 	fprintf(stderr,
 		"\t\t\tMinute: %.02d Second: %.02d\n",
-		date_minute_integer( seconds_taken /* total_seconds */ ),
-		date_second_integer( seconds_taken ) );
+		minute_integer,
+		date_second_integer(
+			seconds_taken,
+			minute_integer ) );
 }
 

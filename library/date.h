@@ -911,6 +911,7 @@ int date_minute_integer(
 		long total_seconds );
 
 int date_second_integer(
-		long total_seconds );
+		long total_seconds,
+		int date_minute_integer );
 
 #endif
