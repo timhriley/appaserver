@@ -498,19 +498,6 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			attribute_name,
 			many_folder_relation_mto1_list );
 
-if ( row_security_relation->relation_mto1 )
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: consumes=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	row_security_relation->relation_mto1->one_folder_name );
-msg( (char *)0, message );
-}
 	if ( !row_security_relation->relation_mto1 )
 	{
 		row_security_relation->relation_mto1 =
