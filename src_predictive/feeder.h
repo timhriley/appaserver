@@ -27,8 +27,14 @@
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
-#define FEEDER_MATCH_ERROR_TEMPLATE					\
-"<h3>Mismatched input file. Either:</h3><ol><li>The bank's begin date is too recent or<li>A check written a long time ago cleared or<li>A duplicate transaction exists</ol><ol><li>The error amount is %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ol>"
+#define FEEDER_MATCH_ERROR_TEMPLATE \
+"<h3>Mismatched input file. Either:</h3><ol> " \
+"<li>An existing transaction exists, but the File Row Description changed or " \
+"<li>The bank's begin date is too recent or " \
+"<li>A check written a long time ago cleared" \
+"</ol><ol><li>The error amount is %.2lf" \
+"<li>Execute the Audit process called Feeder Row Journal Audit. " \
+"Check the File Row Amount column for a clue.</ol>"
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\
