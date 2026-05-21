@@ -79,13 +79,13 @@ else
 	journal_balance="journal.balance"
 fi
 
-heading="transaction_date_time,feeder_row_number,feeder_date,feeder_load_date_time,full_name,file_row_amount,file_row_balance,calculate_balance,ledger_balance,difference"
+heading="transaction_date_time,feeder_row_number,feeder_date,feeder_load_date_time,full_name,file_row_description,file_row_amount,file_row_balance,calculate_balance,ledger_balance,difference"
 
-justification="left,right,left,left,left,right"
+justification="left,right,left,left,left,left,right"
 
 table_title=`echo "$feeder_account $minimum_transaction_date" | format_initial_capital.e`
 
-select="select feeder_row.transaction_date_time,feeder_row.feeder_row_number,feeder_row.feeder_date,feeder_row.feeder_load_date_time,feeder_row.full_name,file_row_amount,file_row_balance,calculate_balance,$journal_balance,calculate_balance - $journal_balance"
+select="select feeder_row.transaction_date_time,feeder_row.feeder_row_number,feeder_row.feeder_date,feeder_row.feeder_load_date_time,feeder_row.full_name,file_row_description,file_row_amount,file_row_balance,calculate_balance,$journal_balance,calculate_balance - $journal_balance"
 
 from="from feeder_row,journal"
 
