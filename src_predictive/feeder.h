@@ -27,8 +27,8 @@
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
-#define FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE				\
-"<h3>Mismatched input file. Either:</h3><ul><li>The bank's begin date is too recent or ... <li>The Application Constant of feeder_load_transaction_days_ago is too small or ...<li>A duplicate transaction exists or ...<li>This file was loaded already.</ul><ul><li>Feeder Load Event->Account End Balance is: %.2lf<li>Input file yields a Feeder Load Event->Account End Balance of: %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ul>"
+#define FEEDER_MATCH_ERROR_TEMPLATE					\
+"<h3>Mismatched input file. Either:</h3><ol><li>The bank's begin date is too recent or<li>A check written a long time ago cleared or<li>A duplicate transaction exists</ol><ol><li>The error amount is %.2lf<li>Execute the Audit process called Feeder Row Journal Audit for a clue.</ol>"
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\
@@ -883,7 +883,7 @@ typedef struct
 	double feeder_load_event_prior_account_end_balance;
 	boolean feeder_row_list_status_out_of_balance_boolean;
 	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
-	boolean feeder_load_event_match_boolean;
+	double feeder_load_event_error_double;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;
 	char *feeder_load_date_time;
@@ -940,7 +940,7 @@ boolean feeder_execute_boolean(
 		boolean execute_boolean,
 		boolean feeder_row_list_non_match_boolean,
 		boolean feeder_row_list_out_of_balance_boolean,
-		boolean feeder_load_event_match_boolean );
+		double feeder_load_event_error_double );
 
 /* Usage */
 /* ----- */
@@ -951,7 +951,6 @@ void feeder_process(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean execute_boolean,
-		double exchange_journal_begin_amount,
 		FEEDER *feeder );
 
 #endif

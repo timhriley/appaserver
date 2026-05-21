@@ -572,8 +572,8 @@ feeder_load_row_list_raw_display(
 			FEEDER_LOAD_EVENT_TABLE,
 			feeder_account_name );
 
-	feeder->feeder_load_event_match_boolean =
-		feeder_load_event_match_boolean(
+	feeder->feeder_load_event_error_double =
+		feeder_load_event_error_double(
 			exchange_journal_begin_amount,
 			feeder->feeder_row_list,
 			feeder->feeder_load_event_latest_fetch );
@@ -598,7 +598,7 @@ feeder_load_row_list_raw_display(
 
 	if (	!feeder->feeder_row_list_status_out_of_balance_boolean
 	&&	!feeder->feeder_row_list_non_match_boolean
-	&&	feeder->feeder_load_event_match_boolean )
+	&&	!feeder->feeder_load_event_error_double )
 	{
 		feeder->feeder_load_event =
 			/* -------------- */
@@ -1066,8 +1066,23 @@ int feeder_load_row_pound_colon_number( char *description_space_trim )
 
 int feeder_load_row_pound_number( char *description_space_trim )
 {
-	char *substr = "#";
+	char *substr;
 	int position;
+
+	substr = "Confirmation#";
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	if ( position > -1 ) return 0;
+
+	substr = "#";
 
 	position =
 		/* ------------------------ */
@@ -3733,11 +3748,11 @@ boolean feeder_execute_boolean(
 		boolean execute_boolean,
 		boolean non_match_boolean,
 		boolean out_of_balance_boolean,
-		boolean feeder_load_event_match_boolean )
+		double feeder_load_event_error_double )
 {
 	if ( non_match_boolean
 	||   out_of_balance_boolean
-	||   !feeder_load_event_match_boolean )
+	||   feeder_load_event_error_double )
 	{
 		return 0;
 	}
@@ -3921,7 +3936,6 @@ void feeder_process(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean execute_boolean,
-		double exchange_journal_begin_amount,
 		FEEDER *feeder )
 {
 	if ( feeder )
@@ -3932,14 +3946,14 @@ void feeder_process(
 			    feeder->feeder_row_list_non_match_boolean,
 			    feeder->
 				feeder_row_list_status_out_of_balance_boolean,
-			    feeder->feeder_load_event_match_boolean );
+			    feeder->feeder_load_event_error_double );
 
 		if ( !feeder->feeder_row_count )
 		{
 			printf( "<h3>No new feeder rows to process.</h3>\n" );
 		}
 		else
-		if ( !feeder->feeder_load_event_match_boolean )
+		if ( feeder->feeder_load_event_error_double )
 		{
 			char message[ 2048 ];
 
@@ -3948,11 +3962,8 @@ void feeder_process(
 			snprintf(
 				message,
 				sizeof ( message ),
-				FEEDER_INVALID_BEGIN_AMOUNT_TEMPLATE,
-				feeder->
-					feeder_load_event_latest_fetch->
-					feeder_row_account_end_balance,
-				exchange_journal_begin_amount );
+				FEEDER_MATCH_ERROR_TEMPLATE,
+				feeder->feeder_load_event_error_double );
 
 			printf( "%s\n", message );
 		}

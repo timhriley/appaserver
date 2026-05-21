@@ -558,19 +558,20 @@ double feeder_load_event_prior_account_end_balance(
 	return prior_account_end_balance;
 }
 
-boolean feeder_load_event_match_boolean(
+double feeder_load_event_error_double(
 		double exchange_journal_begin_amount,
 		LIST *feeder_row_list,
 		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch )
 {
 	double exist_sum;
 	double calculate_begin_amount;
+	double error_double;
 
 	/* If first time run, then this is the initial exchange file. */
 	/* ---------------------------------------------------------- */
-	if ( !feeder_load_event_latest_fetch ) return 1;
+	if ( !feeder_load_event_latest_fetch ) return 0.0;
 
-	if ( !list_length( feeder_row_list ) ) return 0;
+	if ( !list_length( feeder_row_list ) ) return 0.0;
 
 
 	exist_sum = feeder_row_exist_sum( feeder_row_list );
@@ -581,6 +582,17 @@ boolean feeder_load_event_match_boolean(
 				feeder_row_account_end_balance,
 			exist_sum );
 
+	if ( float_money_virtually_same(
+		exchange_journal_begin_amount,
+		calculate_begin_amount ) )
+	{
+		return 0.0;
+	}
+
+	error_double =
+		calculate_begin_amount -
+		exchange_journal_begin_amount;
+
 #ifdef DEBUG_MODE
 {
 char message[ 65536 ];
@@ -590,7 +602,7 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; feeder_load_event->end_balance=%.2lf; calculate_begin_amount=%.2lf\n",
+	"%s/%s()/%d: exchange_journal_begin_amount=%.2lf; exist_sum=%.2lf; feeder_load_event->end_balance=%.2lf; calculate_begin_amount=%.2lf; error_double=%.2lf\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
@@ -598,15 +610,13 @@ snprintf(
 	exist_sum,
 	feeder_load_event_latest_fetch->
 		feeder_row_account_end_balance,
-	calculate_begin_amount );
+	calculate_begin_amount,
+	error_double );
 msg( (char *)0, message );
 }
 #endif
 
-	return
-	float_money_virtually_same(
-		exchange_journal_begin_amount,
-		calculate_begin_amount );
+	return error_double;
 }
 
 double feeder_load_event_calculate_begin_amount(

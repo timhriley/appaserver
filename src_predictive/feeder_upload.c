@@ -130,9 +130,6 @@ int main( int argc, char **argv )
 		fund_name,
 		feeder_account_name,
 		execute_boolean,
-		(exchange)
-			? exchange->exchange_journal_begin_amount
-			: 0.0,
 		feeder );
 
 	document_close();

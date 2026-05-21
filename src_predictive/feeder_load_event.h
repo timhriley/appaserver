@@ -154,7 +154,7 @@ double feeder_load_event_prior_account_end_balance(
 
 /* Usage */
 /* ----- */
-boolean feeder_load_event_match_boolean(
+double feeder_load_event_error_double(
 		double exchange_journal_begin_amount,
 		LIST *feeder_row_list,
 		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch );
