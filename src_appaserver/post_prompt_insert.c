@@ -166,10 +166,6 @@ int main( int argc, char **argv )
 						post_prompt_insert_input->
 						folder->
 						folder_name ),
-				post_prompt_insert->
-					post_prompt_insert_input->
-					folder->
-					folder_attribute_primary_key_list,
 				insert_statement_error_string );
 
 		if ( fatal_duplicate_boolean )

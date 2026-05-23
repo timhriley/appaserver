@@ -24,7 +24,7 @@ typedef struct
 	char *drop_statement;
 	char *statement;
 	char *unique_index_statement;
-	LIST *additional_unique_index_list;
+	char *additional_unique_statement;
 	LIST *additional_index_list;
 	char *shell_script_filespecification;
 	LIST *sql_statement_list;
@@ -51,7 +51,7 @@ LIST *create_table_sql_statement_list(
 		char *create_table_drop_statement,
 		char *create_table_statement,
 		char *create_table_unique_index_statement,
-		LIST *create_table_additional_unique_list,
+		char *create_table_additional_unique_statement,
 		LIST *create_table_additional_index_list );
 
 /* Usage */
@@ -97,7 +97,10 @@ char *create_table_unique_index_statement(
 
 /* Usage */
 /* ----- */
-LIST *create_table_additional_unique_index_list(
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *create_table_additional_unique_statement(
 		const char *create_table_additional_suffix,
 		LIST *folder_attribute_list,
 		char *appaserver_table_name );
@@ -111,7 +114,7 @@ LIST *create_table_additional_unique_name_list(
 /* --------------------- */
 char *create_table_additional_unique_name(
 		const char *create_table_additional_suffix,
-		char *attribute_name );
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */

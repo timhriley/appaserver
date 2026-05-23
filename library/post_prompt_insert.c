@@ -659,20 +659,16 @@ boolean post_prompt_insert_fatal_duplicate_boolean(
 		const char *create_table_unique_suffix,
 		const char *create_table_additional_suffix,
 		char *appaserver_table_name,
-		LIST *primary_key_list,
 		char *insert_statement_error_string )
 {
-	char *primary_key;
-
-	if ( !appaserver_table_name
-	||   !list_length( primary_key_list ) )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -707,23 +703,17 @@ boolean post_prompt_insert_fatal_duplicate_boolean(
 		return 0;
 	}
 
-	if ( list_rewind( primary_key_list ) )
-	do {
-		primary_key = list_get( primary_key_list );
-
-		if ( string_exists(
-			insert_statement_error_string,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			create_table_additional_unique_name(
-				create_table_additional_suffix,
-				primary_key /* attribute_name */ ) ) )
-		{
-			return 0;
-		}
-
-	} while ( list_next( primary_key_list ) );
+	if ( string_exists(
+		insert_statement_error_string,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_additional_unique_name(
+			create_table_additional_suffix,
+			appaserver_table_name ) ) )
+	{
+		return 0;
+	}
 
 	return 1;
 }

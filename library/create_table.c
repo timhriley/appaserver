@@ -92,8 +92,11 @@ CREATE_TABLE *create_table_new(
 				folder_attribute_primary_key_list,
 			create_table->appaserver_table_name );
 
-	create_table->additional_unique_index_list =
-		create_table_additional_unique_index_list(
+	create_table->additional_unique_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		create_table_additional_unique_statement(
 			CREATE_TABLE_ADDITIONAL_SUFFIX,
 			create_table->folder->folder_attribute_list,
 			create_table->appaserver_table_name );
@@ -118,7 +121,7 @@ CREATE_TABLE *create_table_new(
 			create_table->drop_statement,
 			create_table->statement,
 			create_table->unique_index_statement,
-			create_table->additional_unique_index_list,
+			create_table->additional_unique_statement,
 			create_table->additional_index_list );
 
 	create_table->shell_script =
@@ -273,15 +276,15 @@ char *create_table_statement(
 	return strdup( statement );
 }
 
-LIST *create_table_additional_unique_index_list(
+char *create_table_additional_unique_statement(
 		const char *create_table_additional_suffix,
 		LIST *folder_attribute_list,
 		char *appaserver_table_name )
 {
 	LIST *attribute_name_list;
 	char *attribute_name;
-	LIST *list = list_new();
-	char statement[ 256 ];
+	char statement[ STRING_4K ];
+	char *ptr = statement;
 
 	if ( !list_length( folder_attribute_list )
 	||   !appaserver_table_name )
@@ -305,39 +308,39 @@ LIST *create_table_additional_unique_index_list(
 		create_table_additional_unique_name_list(
 			folder_attribute_list );
 
-	if ( list_rewind( attribute_name_list ) )
+	if ( !list_rewind( attribute_name_list ) ) return NULL;
+
+	ptr += sprintf( ptr,
+		"create unique index %s on %s (",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_additional_unique_name(
+			create_table_additional_suffix,
+			appaserver_table_name ),
+		appaserver_table_name );
+
 	do {
 		attribute_name =
 			list_get(
 				attribute_name_list );
 
-		snprintf(
-			statement,
-			sizeof ( statement ),
-			"create unique index %s on %s (%s);",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			create_table_additional_unique_name(
-				create_table_additional_suffix,
-				attribute_name ),
-			appaserver_table_name,
+		if ( !list_at_first( attribute_name_list ) )
+			ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
 			/* ------------------------ */
 			/* Prevent compiler warning */
 			/* ------------------------ */
 			(attribute_name) ? attribute_name : "" );
 
-		list_set( list, strdup( statement ) );
-
 	} while ( list_next( attribute_name_list ) );
 
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
+	ptr += sprintf( ptr, ");" );
 
-	return list;
+	return strdup( statement );
 }
 
 LIST *create_table_additional_index_list(
@@ -448,7 +451,7 @@ LIST *create_table_sql_statement_list(
 		char *drop_statement,
 		char *statement,
 		char *unique_index_statement,
-		LIST *additional_unique_index_list,
+		char *additional_unique_statement,
 		LIST *additional_index_list )
 {
 	LIST *list = list_new();
@@ -456,10 +459,7 @@ LIST *create_table_sql_statement_list(
 	list_set( list, drop_statement );
 	list_set( list, statement );
 	list_set( list, unique_index_statement );
-
-	list_set_list(
-		list,
-		additional_unique_index_list );
+	list_set( list, additional_unique_statement );
 
 	list_set_list(
 		list,
@@ -649,18 +649,18 @@ char *create_table_storage_engine(
 
 char *create_table_additional_unique_name(
 		const char *create_table_additional_suffix,
-		char *attribute_name )
+		char *appaserver_table_name )
 {
 	static char additional_unique_name[ 128 ];
 
-	if ( !attribute_name )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"attribute_name is empty." );
+			"appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -677,7 +677,7 @@ char *create_table_additional_unique_name(
 		additional_unique_name,
 		sizeof ( additional_unique_name ),
 		"%s_%s",
-		attribute_name,
+		appaserver_table_name,
 		create_table_additional_suffix );
 
 	return additional_unique_name;
