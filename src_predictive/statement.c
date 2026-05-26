@@ -1670,7 +1670,6 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 	/* For trial_balance report */
 	/* ------------------------ */
-/*
 	if ( statement_account->balance < 0.0 )
 	{
 		statement_account->balance =
@@ -1678,7 +1677,6 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 		element_accumulate_debit = 1 - element_accumulate_debit;
 	}
-*/
 
 	statement_account->balance_string =
 		/* ------------------- */

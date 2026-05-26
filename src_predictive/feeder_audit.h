@@ -29,7 +29,7 @@ typedef struct
 	FEEDER_ROW *feeder_row_fetch;
 	JOURNAL *journal_account_fetch;
 	ACCOUNT *account_fetch;
-	double credit_balance_negate;
+	double journal_balance;
 	double balance_difference;
 	boolean difference_zero_boolean;
 	HTML_TABLE *html_table;
@@ -54,13 +54,13 @@ FEEDER_AUDIT *feeder_audit_calloc(
 LIST *feeder_audit_html_column_list(
 		void );
 
-double feeder_audit_credit_balance_negate(
-		double journal_balance,
+double feeder_audit_journal_balance(
+		double journal_fetch_balance,
 		boolean element_accumulate_debit );
 
 double feeder_audit_balance_difference(
-		double calculate_balance,
-		double journal_balance );
+		double file_row_balance,
+		double feeder_audit_journal_balance );
 
 boolean feeder_audit_difference_zero_boolean(
 		double feeder_audit_balance_difference );
@@ -85,7 +85,7 @@ LIST *feeder_audit_html_cell_list(
 		char *feeder_row_transaction_date_time,
 		char *feeder_date,
 		double feeder_row_file_row_amount,
-		double feeder_row_calculate_balance,
+		double feeder_row_file_row_balance,
 		char *journal_full_name,
 		char *journal_transaction_date_time,
 		double journal_balance,

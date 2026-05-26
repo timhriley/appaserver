@@ -110,10 +110,12 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"journal_account_fetch(%s) returned empty.",
+			"journal_account_fetch(%s,%s,%s) returned empty.",
+			fund_name,
 			feeder_audit->
 				feeder_row_fetch->
-				transaction_date_time );
+				transaction_date_time,
+			feeder_account_name );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -164,12 +166,12 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			message );
 	}
 
-	feeder_audit->credit_balance_negate =
-		feeder_audit_credit_balance_negate(
+	feeder_audit->journal_balance =
+		feeder_audit_journal_balance(
 			feeder_audit->
 				journal_account_fetch->
 				balance
-				/* journal_balance */,
+				/* journal_fetch_balance */,
 			feeder_audit->
 				account_fetch->
 				subclassification->
@@ -180,9 +182,8 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		feeder_audit_balance_difference(
 			feeder_audit->
 				feeder_row_fetch->
-				calculate_balance,
-		feeder_audit->credit_balance_negate
-			/* journal_balance */ );
+				file_row_balance,
+		feeder_audit->journal_balance );
 
 	feeder_audit->difference_zero_boolean =
 		feeder_audit_difference_zero_boolean(
@@ -207,29 +208,28 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			feeder_audit->feeder_row_fetch
 				/* feeder_row */,
 			feeder_audit->journal_account_fetch,
-			feeder_audit->credit_balance_negate
-				/* journal_balance */,
+			feeder_audit->journal_balance,
 			feeder_audit->balance_difference,
 			feeder_audit->difference_zero_boolean ) );
 
 	return feeder_audit;
 }
 
-double feeder_audit_credit_balance_negate(
-		double journal_balance,
+double feeder_audit_journal_balance(
+		double journal_fetch_balance,
 		boolean element_accumulate_debit )
 {
 	if ( element_accumulate_debit )
-		return journal_balance;
+		return journal_fetch_balance;
 	else
-		return -journal_balance;
+		return -journal_fetch_balance;
 }
 
 double feeder_audit_balance_different(
-		double calculate_balance,
+		double file_row_balance,
 		double journal_balance )
 {
-	return calculate_balance - journal_balance;
+	return file_row_balance - journal_balance;
 }
 
 boolean feeder_audit_difference_zero_boolean( double balance_difference )
@@ -315,7 +315,7 @@ LIST *feeder_audit_html_column_list( void )
 	list_set(
 		list,
 		html_column_new(
-			"calculate_balance",
+			"feeder_row_balance",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
@@ -386,7 +386,7 @@ HTML_ROW *feeder_audit_html_row(
 					/* source_date_string */)
 				/* feeder_date */,
 			feeder_row->file_row_amount,
-			feeder_row->calculate_balance,
+			feeder_row->file_row_balance,
 			journal_account_fetch->full_name
 				/* journal_full_name */,
 			journal_account_fetch->transaction_date_time,
@@ -402,10 +402,10 @@ HTML_ROW *feeder_audit_html_row(
 }
 
 double feeder_audit_balance_difference(
-		double calculate_balance,
+		double file_row_balance,
 		double journal_balance )
 {
-	return calculate_balance - journal_balance;
+	return file_row_balance - journal_balance;
 }
 
 LIST *feeder_audit_html_cell_list(
@@ -415,7 +415,7 @@ LIST *feeder_audit_html_cell_list(
 		char *feeder_row_transaction_date_time,
 		char *feeder_date,
 		double feeder_row_file_row_amount,
-		double feeder_row_calculate_balance,
+		double feeder_row_file_row_balance,
 		char *journal_full_name,
 		char *journal_transaction_date_time,
 		double journal_balance,
@@ -558,7 +558,7 @@ LIST *feeder_audit_html_cell_list(
 				/* Doesn't trim pennies.  */
 				/* ---------------------- */
 				string_commas_money(
-					feeder_row_calculate_balance ) ),
+					feeder_row_file_row_balance ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
