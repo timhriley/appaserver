@@ -152,7 +152,9 @@ RELATION_ONE2M *relation_one2m_new(
 	relation_one2m->relation_translate_list =
 		relation_translate_list(
 			one_folder_primary_key_list,
-			relation_one2m->relation_foreign_key_list );
+			relation_one2m->relation_foreign_key_list,
+			relation->many_folder_name,
+			one_folder_name );
 
 	relation_one2m->relation_name =
 		/* ------------------- */

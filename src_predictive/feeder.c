@@ -417,6 +417,7 @@ FILE *feeder_load_file_input_open( char *feeder_load_file_filename )
 FEEDER *feeder_fetch(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
@@ -471,14 +472,18 @@ feeder_load_row_list_raw_display(
 			TRANSACTION_TABLE,
 			TRANSACTION_FUND_COLUMN );
 
+/*
 	if ( !feeder->transaction_fund_column_boolean )
 	{
+*/
 		feeder_load_row_file_row_balance_set(
 			exchange_balance_amount,
 			feeder->feeder_load_row_list
 				/* reads exchange_journal_amount */
 				/* sets file_row_balance */ );
+/*
 	}
+*/
 
 	feeder->feeder_phrase_list =
 		feeder_phrase_list(
@@ -518,12 +523,14 @@ feeder_load_row_list_raw_display(
 	feeder->feeder_matched_journal_list =
 		feeder_matched_journal_list(
 			FEEDER_ROW_TABLE,
+			fund_name,
 			feeder_account_name,
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
 
 	feeder->feeder_row_list =
 		feeder_row_list(
+			fund_name,
 			feeder_account_name,
 			feeder->
 				feeder_account->
@@ -552,19 +559,15 @@ feeder_load_row_list_raw_display(
 			FEEDER_LOAD_EVENT_TABLE,
 			feeder_account_name );
 
-	if ( !feeder->transaction_fund_column_boolean )
-	{
-		feeder_row_calculate_balance_set(
-			feeder->feeder_row_list /* sets calculate_balance */,
-			feeder->feeder_load_event_prior_account_end_balance );
+	feeder_row_calculate_balance_set(
+		feeder->feeder_row_list /* sets calculate_balance */,
+		feeder->feeder_load_event_prior_account_end_balance );
 
-		feeder->feeder_row_list_status_out_of_balance_boolean =
-			feeder_row_list_status_out_of_balance_boolean(
-				feeder->feeder_row_list );
-	}
+	feeder->feeder_row_list_status_out_of_balance_boolean =
+		feeder_row_list_status_out_of_balance_boolean(
+			feeder->feeder_row_list );
 
 	feeder_row_list_status_set(
-		feeder->transaction_fund_column_boolean,
 		feeder->feeder_row_list /* sets feeder_row_status */ );
 
 	feeder->feeder_load_event_latest_fetch =
@@ -855,6 +858,7 @@ FEEDER_TRANSACTION *feeder_transaction_calloc( void )
 
 LIST *feeder_matched_journal_list(
 		const char *feeder_row_table,
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks_string )
@@ -902,7 +906,7 @@ LIST *feeder_matched_journal_list(
 
 	system_list =
 		journal_system_list(
-			(char *)0 /* fund_name */,
+			fund_name,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -1205,10 +1209,22 @@ void feeder_row_list_insert(
 			( tmp = feeder_row_list_insert_system_string(
 				SQL_DELIMITER,
 				FEEDER_ROW_INSERT_COLUMNS,
-				FEEDER_ROW_FUND_INSERT_COLUMNS,
 				FEEDER_ROW_TABLE,
+				FEEDER_FUND_COLUMN_NAME,
 				transaction_fund_column_boolean ) ) );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: tmp=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	tmp );
+msg( (char *)0, message );
+}
 	do {
 		feeder_row = list_get( feeder_row_list );
 
@@ -1280,17 +1296,29 @@ void feeder_row_list_insert(
 char *feeder_row_list_insert_system_string(
 		const char sql_delimiter,
 		const char *feeder_row_insert_columns,
-		const char *feeder_row_fund_insert_columns,
 		const char *feeder_row_table,
+		const char *feeder_fund_column_name,
 		boolean transaction_fund_column_boolean )
 {
+	char field[ 512 ];
 	char system_string[ 1024 ];
-	const char *insert_columns;
 
-	if ( !transaction_fund_column_boolean )
-		insert_columns = feeder_row_insert_columns;
+	if ( transaction_fund_column_boolean )
+	{
+		snprintf(
+			field,
+			sizeof ( field ),
+			"%s,%s",
+			feeder_fund_column_name,
+			feeder_row_insert_columns );
+	}
 	else
-		insert_columns = feeder_row_fund_insert_columns;
+	{
+		string_strcpy(
+			field,
+			(char *)feeder_row_insert_columns,
+			sizeof ( field ) );
+	}
 
 	snprintf(
 		system_string,
@@ -1300,7 +1328,7 @@ char *feeder_row_list_insert_system_string(
 	 	"sql.e 2>&1					|"
 	 	"html_paragraph_wrapper.e			 ",
 	 	feeder_row_table,
-	 	insert_columns,
+	 	field,
 	 	sql_delimiter );
 
 	return strdup( system_string );
@@ -1357,9 +1385,67 @@ void feeder_row_insert(
 	else
 		*check_number_string = '\0';
 
-	if ( !transaction_fund_column_boolean )
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: full_name=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	full_name );
+msg( (char *)0, message );
+}
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: street_address=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	street_address );
+msg( (char *)0, message );
+}
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: transaction_date_time=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	transaction_date_time );
+msg( (char *)0, message );
+}
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: phrase=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	phrase );
+msg( (char *)0, message );
+}
+
+	if ( transaction_fund_column_boolean )
 	{
 		fprintf(
+		output_pipe,
+		"%s%c",
+		fund_name,
+		sql_delimiter );
+	}
+
+	/* See FEEDER_ROW_INSERT_COLUMNS */
+	/* ----------------------------- */
+	fprintf(
 		output_pipe,
 		"%s%c%s%c%s%c%d%c%s%c%.2lf%c%.2lf%c%.2lf%c%s%c%s%c%s%c%s%c%s\n",
 		feeder_account_name,
@@ -1387,36 +1473,6 @@ void feeder_row_insert(
 		transaction_date_time,
 		sql_delimiter,
 		phrase );
-	}
-	else
-	{
-		fprintf(
-		output_pipe,
-		"%s%c%s%c%s%c%s%c%d%c%s%c%.2lf%c%s%c%s%c%s%c%s%c%s\n",
-		fund_name,
-		sql_delimiter,
-		feeder_account_name,
-		sql_delimiter,
-		feeder_load_date_time,
-		sql_delimiter,
-		feeder_date,
-		sql_delimiter,
-		feeder_row_number,
-		sql_delimiter,
-		file_row_description,
-		sql_delimiter,
-		file_row_amount,
-		sql_delimiter,
-		check_number_string,
-		sql_delimiter,
-	 	full_name,
-		sql_delimiter,
-	 	street_address,
-		sql_delimiter,
-		transaction_date_time,
-		sql_delimiter,
-		phrase );
-	}
 }
 
 char *feeder_row_transaction_date_time(
@@ -1871,7 +1927,11 @@ FILE *feeder_row_display_output(
 				feeder_transaction->
 				transaction->
 				memo,
-			(char *)0 /* transaction_full_name */ );
+			(char *)0 /* transaction_full_name */,
+			feeder_row->
+				feeder_transaction->
+				transaction->
+				fund_name );
 	}
 
 	return display_pipe;
@@ -2058,6 +2118,7 @@ FEEDER_MATCHED_JOURNAL *
 }
 
 FEEDER_TRANSACTION *feeder_transaction_new(
+		char *fund_name,
 		char *feeder_account_name,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		double amount,
@@ -2161,6 +2222,8 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 			__LINE__,
 			message );
 	}
+
+	feeder_transaction->transaction->fund_name = fund_name;
 
 	return feeder_transaction;
 }
@@ -2457,6 +2520,7 @@ LIST *feeder_row_error_extract_list( LIST *feeder_row_list )
 }
 
 LIST *feeder_row_list(
+		char *fund_name,
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
@@ -2496,6 +2560,7 @@ LIST *feeder_row_list(
 			/* Safely returns */
 			/* -------------- */
 			feeder_row_new(
+				fund_name,
 				feeder_account_name,
 				financial_institution_full_name,
 				financial_institution_street_address,
@@ -2530,6 +2595,7 @@ LIST *feeder_row_list(
 }
 
 FEEDER_ROW *feeder_row_new(
+		char *fund_name,
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
@@ -2641,6 +2707,7 @@ FEEDER_ROW *feeder_row_new(
 
 		feeder_row->feeder_transaction =
 			feeder_transaction_new(
+				fund_name,
 				feeder_account_name,
 				feeder_row->feeder_phrase_seek,
 				feeder_load_row->exchange_journal_amount,
@@ -3242,9 +3309,7 @@ void feeder_load_row_file_row_balance_set(
 	} while ( list_previous( feeder_load_row_list ) );
 }
 
-void feeder_row_list_status_set(
-		boolean transaction_fund_column_boolean,
-		LIST *feeder_row_list )
+void feeder_row_list_status_set( LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
 
@@ -3271,24 +3336,17 @@ void feeder_row_list_status_set(
 				feeder_row->
 					feeder_load_row->
 					file_row_balance,
-				feeder_row->calculate_balance,
-				transaction_fund_column_boolean );
+				feeder_row->calculate_balance );
 
 	} while ( list_next( feeder_row_list ) );
 }
 
 enum feeder_row_status feeder_row_status_evaluate(
 		double feeder_load_row_file_row_balance,
-		double feeder_row_calculate_balance,
-		boolean transaction_fund_column_boolean )
+		double feeder_row_calculate_balance )
 {
 	enum feeder_row_status status;
 
-	if ( transaction_fund_column_boolean )
-	{
-		status = feeder_row_status_cannot_determine;
-	}
-	else
 	if ( float_money_virtually_same(
 		feeder_load_row_file_row_balance,
 		feeder_row_calculate_balance ) )
@@ -3986,19 +4044,28 @@ void feeder_process(
 	||   !feeder->feeder_row_insert_count
 	||   execute_boolean )
 	{
-		FEEDER_AUDIT *feeder_audit =
+		FEEDER_AUDIT *feeder_audit;
+
+		feeder_audit =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
 			feeder_audit_fetch(
 				application_name,
 				login_name,
+				fund_name,
 				feeder_account_name );
 
 		if ( !feeder_audit->feeder_load_event )
 		{
 			printf(
 			"<h3>Warning: no feeder load events.</h3>\n" );
+		}
+		else
+		if ( !feeder_audit->feeder_row_final_number )
+		{
+			printf(
+			"<h3>Warning: no feeder rows to audit.</h3>\n" );
 		}
 		else
 		if ( !feeder_audit->html_table )
@@ -4012,7 +4079,7 @@ void feeder_process(
 				feeder_audit->html_table,
 				HTML_TABLE_ROWS_BETWEEN_HEADING );
 
-			if ( !feeder_audit->difference_zero )
+			if ( !feeder_audit->difference_zero_boolean )
 			{
 				printf( "<h3>%s</h3>\n",
 					FEEDER_AUDIT_DIFFERENCE_MESSAGE );

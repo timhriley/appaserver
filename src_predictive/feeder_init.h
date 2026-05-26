@@ -12,6 +12,7 @@
 #include "entity_self.h"
 #include "journal.h"
 #include "transaction.h"
+#include "feeder_load_event.h"
 
 #define FEEDER_INIT_CASH_FEEDER_PHRASE	\
 	"card bill payment|credit card|card online payment"
@@ -122,7 +123,7 @@
 	"The elements of revenue, expense, gain, and loss are known "	\
 	"as nominal elements. Therefore, the accounts assigned to "	\
 	"these elements are known as nominal accounts. "		\
-	"Nominal accounts have the property that they are closed "	\
+	"Nominal accounts are closed "					\
 	"(reset to zero) at year-end.\n"				\
 	"<br />See: Alter --> Close Nominal Accounts"
 
@@ -219,6 +220,7 @@ typedef struct
 	boolean date_recent_boolean;
 	ENTITY_SELF *entity_self;
 	char *appaserver_error_filespecification;
+	char *date_now19;
 } FEEDER_INIT_INPUT;
 
 /* Usage */
@@ -262,6 +264,7 @@ char *feeder_init_input_account_name(
 typedef struct
 {
 	char *date_time;
+	char *memo;
 	TRANSACTION *transaction;
 } FEEDER_INIT_TRANSACTION;
 
@@ -438,6 +441,7 @@ typedef struct
 	FEEDER_INIT_CHECKING *feeder_init_checking;
 	FEEDER_INIT_CREDIT *feeder_init_credit;
 	FEEDER_INIT_PASSTHRU *feeder_init_passthru;
+	FEEDER_LOAD_EVENT *feeder_load_event;
 	char *account_insert_sql;
 	char *feeder_account_insert_sql;
 	LIST *insert_sql_list;
@@ -459,6 +463,7 @@ FEEDER_INIT *feeder_init_new(
 		char *fund_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
+		char *format_filename,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string );
@@ -479,7 +484,8 @@ char *feeder_init_trial_balance_system_string(
 		const char *feeder_init_trial_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name );
+		char *role_name,
+		char *fund_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -487,7 +493,8 @@ char *feeder_init_activity_system_string(
 		const char *feeder_init_activity_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name );
+		char *role_name,
+		char *fund_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -495,7 +502,8 @@ char *feeder_init_position_system_string(
 		const char *feeder_init_position_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name );
+		char *role_name,
+		char *fund_name );
 
 /* Usage */
 /* ----- */

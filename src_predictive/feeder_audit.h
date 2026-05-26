@@ -31,7 +31,7 @@ typedef struct
 	ACCOUNT *account_fetch;
 	double credit_balance_negate;
 	double balance_difference;
-	boolean difference_zero;
+	boolean difference_zero_boolean;
 	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
 
@@ -43,6 +43,7 @@ typedef struct
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name );
 
 /* Process */
@@ -61,7 +62,7 @@ double feeder_audit_balance_difference(
 		double calculate_balance,
 		double journal_balance );
 
-boolean feeder_audit_difference_zero(
+boolean feeder_audit_difference_zero_boolean(
 		double feeder_audit_balance_difference );
 
 /* Usage */
@@ -73,7 +74,7 @@ HTML_ROW *feeder_audit_html_row(
 		JOURNAL *journal_account_fetch,
 		double journal_balance,
 		double feeder_audit_balance_difference,
-		boolean feeder_audit_difference_zero );
+		boolean feeder_audit_difference_zero_boolean );
 
 /* Process */
 /* ------- */
@@ -89,6 +90,6 @@ LIST *feeder_audit_html_cell_list(
 		char *journal_transaction_date_time,
 		double journal_balance,
 		double feeder_audit_balance_difference,
-		boolean feeder_audit_difference_zero );
+		boolean feeder_audit_difference_zero_boolean );
 
 #endif

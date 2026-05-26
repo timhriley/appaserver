@@ -668,7 +668,9 @@ RELATION_MTO1 *relation_mto1_new(
 			relation_mto1->
 				one_folder->
 				folder_attribute_primary_key_list,
-			relation_mto1->relation_foreign_key_list );
+			relation_mto1->relation_foreign_key_list,
+			many_folder_name,
+			relation->one_folder_name );
 
 	relation_mto1->relation_name =
 		/* ------------------- */

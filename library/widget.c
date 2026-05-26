@@ -5101,6 +5101,9 @@ LIST *widget_drop_down_option_list(
 
 		list_set(
 			list,
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			widget_drop_down_option_delimited_new(
 				widget_drop_down_label_delimiter,
 				widget_drop_down_extra_delimiter,
@@ -6059,6 +6062,9 @@ WIDGET_DROP_DOWN_OPTION *widget_drop_down_option_new( char *string )
 	}
 
 	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
 	widget_drop_down_option_delimited_new(
 		0 /* widget_drop_down_label_delimiter */,
 		0 /* widget_drop_down_extra_delimiter */,

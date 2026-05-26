@@ -44,14 +44,14 @@
 #define WIDGET_MULTI_DROP_DOWN_LEFT_MESSAGE	\
 "Remove the selected item from lookup."
 
-#define WIDGET_DATE_DISPLAY_SIZE 	11
-#define WIDGET_DATE_TIME_DISPLAY_SIZE 	19
-#define WIDGET_DATE_DATATYPE_NAME	"date"
+#define WIDGET_DATE_DISPLAY_SIZE 		11
+#define WIDGET_DATE_TIME_DISPLAY_SIZE 		19
+#define WIDGET_DATE_DATATYPE_NAME		"date"
 
 #define WIDGET_NOTEPAD_COLUMNS			30
 #define WIDGET_NOTEPAD_ROWS			4
 
-#define WIDGET_ENCRYPT_COMPARE_LABEL	"compare"
+#define WIDGET_ENCRYPT_COMPARE_LABEL		"compare"
 
 enum widget_type {	table_open,
 			table_heading,
@@ -313,6 +313,9 @@ LIST *widget_drop_down_option_list(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 WIDGET_DROP_DOWN_OPTION *widget_drop_down_option_delimited_new(
 		const char widget_drop_down_label_delimiter /* '|' */,
 		const char widget_drop_down_extra_delimiter /* '[' */,
@@ -356,6 +359,9 @@ char *widget_drop_down_option_display_string(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 WIDGET_DROP_DOWN_OPTION *widget_drop_down_option_new(
 		char *string );
 

@@ -323,8 +323,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 	feeder_init_transaction->transaction->transaction_amount =
 		float_abs( exchange_journal_begin_amount );
 
-	feeder_init_transaction->transaction->memo =
-		TRANSACTION_OPEN_MEMO;
+	feeder_init_transaction->transaction->memo = TRANSACTION_OPEN_MEMO;
 
 	feeder_init_transaction->transaction->journal_list = list_new();
 
@@ -811,6 +810,12 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 		appaserver_error_filespecification(
 			application_name );
 
+	feeder_init_input->date_now19 =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		date_now19( date_utc_offset() );
+
 	return feeder_init_input;
 }
 
@@ -1019,6 +1024,7 @@ FEEDER_INIT *feeder_init_new(
 		char *fund_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
+		char *format_filename,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string )
@@ -1130,6 +1136,22 @@ FEEDER_INIT *feeder_init_new(
 				entity_self->
 				street_address );
 
+	feeder_init->feeder_load_event =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		feeder_load_event_new(
+			login_name,
+			feeder_init->feeder_init_input->account_name
+				/* feeder_account_name */,
+			format_filename,
+			exchange_minimum_date_string
+				/* feeder_row_account_end_date */,
+			exchange_journal_begin_amount
+				/* feeder_row_account_end_balance */,
+			feeder_init->feeder_init_input->date_now19
+				/* feeder_load_date_time */ );
+
 	feeder_init->account_insert_sql =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1193,7 +1215,8 @@ FEEDER_INIT *feeder_init_new(
 			FEEDER_INIT_TRIAL_EXECUTABLE,
 			session_key,
 			login_name,
-			role_name );
+			role_name,
+			fund_name );
 
 	feeder_init->activity_system_string =
 		/* --------------------- */
@@ -1203,7 +1226,8 @@ FEEDER_INIT *feeder_init_new(
 			FEEDER_INIT_ACTIVITY_EXECUTABLE,
 			session_key,
 			login_name,
-			role_name );
+			role_name,
+			fund_name );
 
 	feeder_init->position_system_string =
 		/* --------------------- */
@@ -1213,7 +1237,8 @@ FEEDER_INIT *feeder_init_new(
 			FEEDER_INIT_POSITION_EXECUTABLE,
 			session_key,
 			login_name,
-			role_name );
+			role_name,
+			fund_name );
 
 	return feeder_init;
 }
@@ -1338,7 +1363,8 @@ char *feeder_init_trial_balance_system_string(
 		const char *feeder_init_trial_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name )
+		char *role_name,
+		char *fund_name )
 {
 	static char system_string[ 256 ];
 
@@ -1363,11 +1389,12 @@ char *feeder_init_trial_balance_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"%s %s %s %s trial_balance as_of_date 0 omit table",
+		"%s %s %s %s trial_balance as_of_date 0 omit table %s",
 		feeder_init_trial_executable,
 		session_key,
 		login_name,
-		role_name );
+		role_name,
+		(fund_name) ? fund_name : "" );
 
 	return system_string;
 }
@@ -1376,7 +1403,8 @@ char *feeder_init_activity_system_string(
 		const char *feeder_init_activity_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name )
+		char *role_name,
+		char *fund_name )
 {
 	static char system_string[ 256 ];
 
@@ -1401,11 +1429,12 @@ char *feeder_init_activity_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"%s %s %s %s statement_of_activitites as_of_date 0 omit table",
+	"%s %s %s %s statement_of_activitites as_of_date 0 omit table %s",
 		feeder_init_activity_executable,
 		session_key,
 		login_name,
-		role_name );
+		role_name,
+		(fund_name) ? fund_name : "" );
 
 	return system_string;
 }
@@ -1414,7 +1443,8 @@ char *feeder_init_position_system_string(
 		const char *feeder_init_position_executable,
 		char *session_key,
 		char *login_name,
-		char *role_name )
+		char *role_name,
+		char *fund_name )
 {
 	static char system_string[ 256 ];
 
@@ -1439,11 +1469,12 @@ char *feeder_init_position_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"%s %s %s %s financial_position as_of_date 0 omit table",
+		"%s %s %s %s financial_position as_of_date 0 omit table %s",
 		feeder_init_position_executable,
 		session_key,
 		login_name,
-		role_name );
+		role_name,
+		(fund_name) ? fund_name : "" );
 
 	return system_string;
 }
@@ -1746,6 +1777,34 @@ void feeder_init_process(
 					feeder_init_credit->
 					feeder_init_transaction );
 		}
+
+		feeder_load_event_insert(
+			FEEDER_LOAD_EVENT_TABLE,
+			FEEDER_LOAD_EVENT_INSERT,
+			feeder_init->
+				feeder_load_event->
+				feeder_account_name,
+			feeder_init->
+				feeder_load_event->
+				exchange_format_filename
+				/* feeder_load_filename */,
+			feeder_init->
+				feeder_load_event->
+				feeder_row_account_end_date,
+			feeder_init->
+				feeder_load_event->
+				feeder_row_account_end_balance,
+			feeder_init->
+				feeder_load_event->
+				feeder_load_date_time,
+			feeder_init->
+				feeder_load_event->
+				appaserver_user->
+				full_name,
+			feeder_init->
+				feeder_load_event->
+				appaserver_user->
+				street_address );
 
 feeder_init_display_continue:
 

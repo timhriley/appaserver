@@ -22,6 +22,7 @@
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name )
 {
 	FEEDER_AUDIT *feeder_audit;
@@ -60,24 +61,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 				feeder_load_date_time );
 
 	if ( !feeder_audit->feeder_row_final_number )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"feeder_row_final_number(%s,%s) returned empty.",
-			feeder_account_name,
-			feeder_audit->
-				feeder_load_event->
-				feeder_load_date_time );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+		return feeder_audit;
 
 	if ( ! ( feeder_audit->feeder_row_fetch =
 			feeder_row_fetch(
@@ -111,7 +95,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 
 	feeder_audit->journal_account_fetch =
 		journal_account_fetch(
-			(char *)0 /* fund_name */,
+			fund_name,
 			feeder_audit->feeder_row_fetch->transaction_date_time,
 			feeder_account_name,
 			0 /* not fetch_account */,
@@ -200,8 +184,8 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		feeder_audit->credit_balance_negate
 			/* journal_balance */ );
 
-	feeder_audit->difference_zero =
-		feeder_audit_difference_zero(
+	feeder_audit->difference_zero_boolean =
+		feeder_audit_difference_zero_boolean(
 			feeder_audit->balance_difference );
 
 	feeder_audit->html_table =
@@ -226,7 +210,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			feeder_audit->credit_balance_negate
 				/* journal_balance */,
 			feeder_audit->balance_difference,
-			feeder_audit->difference_zero ) );
+			feeder_audit->difference_zero_boolean ) );
 
 	return feeder_audit;
 }
@@ -248,7 +232,7 @@ double feeder_audit_balance_different(
 	return calculate_balance - journal_balance;
 }
 
-boolean feeder_audit_difference_zero( double balance_difference )
+boolean feeder_audit_difference_zero_boolean( double balance_difference )
 {
 	return
 	float_money_virtually_same(
@@ -362,7 +346,7 @@ HTML_ROW *feeder_audit_html_row(
 		JOURNAL *journal_account_fetch,
 		double journal_balance,
 		double feeder_audit_balance_difference,
-		boolean feeder_audit_difference_zero )
+		boolean feeder_audit_difference_zero_boolean )
 {
 	LIST *cell_list;
 
@@ -408,7 +392,7 @@ HTML_ROW *feeder_audit_html_row(
 			journal_account_fetch->transaction_date_time,
 			journal_balance,
 			feeder_audit_balance_difference,
-			feeder_audit_difference_zero );
+			feeder_audit_difference_zero_boolean );
 
 	return
 	/* -------------- */
@@ -436,7 +420,7 @@ LIST *feeder_audit_html_cell_list(
 		char *journal_transaction_date_time,
 		double journal_balance,
 		double balance_difference,
-		boolean difference_zero )
+		boolean difference_zero_boolean )
 {
 	LIST *list;
 	char cell_string[ 128 ];
@@ -604,7 +588,7 @@ LIST *feeder_audit_html_cell_list(
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
-	if ( difference_zero )
+	if ( difference_zero_boolean )
 	{
 		list_set(
 			list,

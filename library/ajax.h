@@ -131,6 +131,18 @@ AJAX_CLIENT *ajax_client_relation_mto1_new(
 		LIST *relation_mto1_to_one_list,
 		boolean top_select_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+WIDGET_CONTAINER *ajax_client_drop_down_widget_container(
+		char *many_folder_name,
+		char *form_folder_name,
+		LIST *form_foreign_key_list,
+		boolean top_select_boolean,
+		char *ajax_client_form_widget_name );
+
 typedef struct
 {
 	FOLDER *form_folder;

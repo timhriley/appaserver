@@ -64,32 +64,12 @@ AJAX_CLIENT *ajax_client_new(
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-	  	widget_container_new(
-			drop_down,
+		ajax_client_drop_down_widget_container(
+			many_folder_name,
+			form_folder_name,
+			form_foreign_key_list,
+			top_select_boolean,
 			ajax_client->form_widget_name );
-
-	ajax_client->
-		drop_down_widget_container->
-		drop_down->
-		foreign_key_list =
-			form_foreign_key_list;
-
-	ajax_client->
-		drop_down_widget_container->
-		drop_down->
-		top_select_boolean =
-			top_select_boolean;
-
-	ajax_client->
-		drop_down_widget_container->
-		drop_down->
-		many_folder_name =
-			many_folder_name;
-
-	ajax_client->
-		drop_down_widget_container->
-		heading_string =
-			form_folder_name;
 
 	ajax_client->fill_button_widget_container =
 		widget_container_new(
@@ -1425,5 +1405,92 @@ AJAX_CLIENT *ajax_client_relation_mto1_new(
 			relation_foreign_key_list
 			/* ajax_foreign_key_list */,
 		top_select_boolean );
+}
+
+WIDGET_CONTAINER *ajax_client_drop_down_widget_container(
+		char *many_folder_name,
+		char *form_folder_name,
+		LIST *form_foreign_key_list,
+		boolean top_select_boolean,
+		char *form_widget_name )
+{
+	WIDGET_CONTAINER *widget_container;
+	WIDGET_DROP_DOWN_OPTION *widget_drop_down_option;
+
+	if ( !many_folder_name
+	||   !form_folder_name
+	||   !list_length( form_foreign_key_list )
+	||   !form_widget_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	widget_container =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+	  	widget_container_new(
+			drop_down,
+			form_widget_name );
+
+	widget_container->
+		drop_down->
+		foreign_key_list =
+			form_foreign_key_list;
+
+	widget_container->
+		drop_down->
+		top_select_boolean =
+			top_select_boolean;
+
+	widget_container->
+		drop_down->
+		many_folder_name =
+			many_folder_name;
+
+	widget_container->
+		heading_string =
+			form_folder_name;
+
+	widget_container->
+		drop_down->
+		widget_drop_down_option_list =
+			list_new();
+
+	widget_drop_down_option =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		widget_drop_down_option_new(
+			QUERY_IS_NULL );
+
+	list_set(
+		widget_container->
+			drop_down->
+			widget_drop_down_option_list,
+		widget_drop_down_option );
+
+	widget_drop_down_option =
+		widget_drop_down_option_new(
+			QUERY_NOT_NULL );
+
+	list_set(
+		widget_container->
+			drop_down->
+			widget_drop_down_option_list,
+		widget_drop_down_option );
+
+	return widget_container;
 }
 

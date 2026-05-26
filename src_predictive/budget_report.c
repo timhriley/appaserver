@@ -19,6 +19,7 @@ int main( int argc, char **argv )
 	char *session_key;
 	char *process_name;
 	char *output_medium_string;
+	char *fund_name;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	BUDGET *budget;
 	BUDGET_ANNUALIZED *budget_annualized;
@@ -30,7 +31,7 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc < 4 )
 	{
 		fprintf(stderr,
 			"Usage: %s session process output_medium\n",
@@ -46,6 +47,11 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	output_medium_string = argv[ 3 ];
 
+	if ( argc == 5 )
+		fund_name = argv[ 4 ];
+	else
+		fund_name = NULL;
+
 	appaserver_parameter = appaserver_parameter_new();
 
 	budget =
@@ -53,7 +59,7 @@ int main( int argc, char **argv )
 			application_name,
 			session_key,
 			process_name,
-			(char *)0 /* fund_name */,
+			fund_name,
 			output_medium_string,
 			appaserver_parameter->data_directory );
 

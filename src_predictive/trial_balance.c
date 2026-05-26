@@ -170,6 +170,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				session_key,
 				login_name,
 				role_name,
+				fund_name,
 				trial_balance->
 					transaction_date_trial_balance->
 					transaction_date_begin_date_string,
@@ -245,6 +246,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			session_key,
 			login_name,
 			role_name,
+			fund_name,
 			trial_balance->
 				transaction_date_trial_balance->
 				transaction_date_begin_date_string,

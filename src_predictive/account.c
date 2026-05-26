@@ -988,11 +988,12 @@ char *account_action_string(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string,
 		char *account_name )
 {
-	char action_string[ 1024 ];
+	char action_string[ STRING_4K ];
 	char *ptr = action_string;
 
 	if ( !application_name
@@ -1036,6 +1037,16 @@ char *account_action_string(
 		account_name,
 		dictionary_element_delimiter );
 
+	if ( fund_name )
+	{
+		ptr += sprintf(
+			ptr,
+			"fund_name%s%s%s",
+			dictionary_attribute_datum_delimiter,
+			fund_name,
+			dictionary_element_delimiter );
+	}
+
 	ptr += sprintf(
 		ptr,
 		"relation_operator_transaction_date_time%sbetween%s",
@@ -1074,6 +1085,7 @@ void account_list_action_string_set(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string )
 {
@@ -1101,6 +1113,7 @@ void account_list_action_string_set(
 					session_key,
 					login_name,
 					role_name,
+					fund_name,
 					transaction_begin_date_string,
 					end_date_time_string,
 					account->account_name );

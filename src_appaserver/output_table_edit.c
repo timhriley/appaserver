@@ -74,7 +74,7 @@ int main( int argc, char **argv )
 	table_edit =
 		/* -------------------------------------------- */
 		/* Returns null if lookup permission isn't set. */
-		/* Drilldown many to one is affected.		*/
+		/* Drilldown many-to-one is affected.		*/
 		/* -------------------------------------------- */
 		table_edit_new(
 			application_name,

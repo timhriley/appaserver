@@ -3,5 +3,5 @@
 #cd ../library
 #make
 #cd -
-make feeder_upload_csv
+make journal_trigger
 

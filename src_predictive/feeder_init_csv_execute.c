@@ -139,7 +139,7 @@ int main( int argc, char **argv )
 	&&   !list_length( exchange_csv->exchange_journal_list ) )
 	{
 		printf(
-"<h3>Sorry, but this exchange formatted file doesn't have any transactions.</h3>\n" );
+"<h3>Sorry, but this CSV formatted file doesn't have any transactions.</h3>\n" );
 		okay_continue = 0;
 	}
 
@@ -161,6 +161,7 @@ int main( int argc, char **argv )
 				/* financial_institution_full_name */,
 				street_address
 				/* financial_institution_street_address */,
+				csv_format_filename,
 				checking_boolean,
 				exchange_csv->exchange_journal_begin_amount,
 				exchange_csv->exchange_minimum_date_string );

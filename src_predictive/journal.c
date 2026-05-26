@@ -1161,7 +1161,8 @@ void journal_list_html_display(
 		LIST *journal_list,
 		char *transaction_date_time,
 		char *transaction_memo,
-		char *transaction_full_name )
+		char *transaction_full_name,
+		char *fund_name )
 {
 	char *heading;
 	char *justify;
@@ -1191,6 +1192,7 @@ void journal_list_html_display(
 			transaction_date_time,
 			transaction_memo,
 			transaction_full_name,
+			fund_name,
 			journal_list );
 	}
 
@@ -1290,9 +1292,9 @@ void journal_list_pipe_display(
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name,
+		char *fund_name,
 		LIST *journal_list )
 {
-	char buffer[ 128 ];
 	char memo_buffer[ 256 ];
 	JOURNAL *journal;
 	int i;
@@ -1365,8 +1367,11 @@ void journal_list_pipe_display(
 
 				fprintf(output_pipe,
 			 		"%s^%s^\n",
-					string_initial_capital(
-						buffer,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					journal_account_display(
+						fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1399,8 +1404,11 @@ void journal_list_pipe_display(
 
 				fprintf(output_pipe,
 			 		"%s^^%s\n",
-					string_initial_capital(
-						buffer,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					journal_account_display(
+						fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1451,6 +1459,7 @@ void journal_list_sum_html_display(
 		transaction_date_time,
 		transaction_memo,
 		(char *)0 /* transaction_full_name */,
+		(char *)0 /* fund_name */,
 		journal_list );
 
 	strcpy(	debit_buffer,
@@ -2712,4 +2721,38 @@ char *journal_transaction_date_time_where(
 	}
 
 	return transaction_where;
+}
+
+char *journal_account_display(
+		char *fund_name,
+		char *account_name )
+{
+	static char display[ 256 ];
+
+	if ( !account_name )
+	{
+		strcpy( display, "ERROR" );
+	}
+	else
+	{
+		if ( fund_name )
+		{
+			snprintf(
+				display,
+				sizeof ( display ),
+				"%s.%s",
+				fund_name,
+				account_name );
+		}
+		else
+		{
+			strcpy( display, account_name );
+		}
+
+		string_initial_capital(
+			display,
+			display );
+	}
+
+	return display;
 }

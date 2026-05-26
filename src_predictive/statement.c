@@ -102,12 +102,14 @@ char *statement_caption_logo_filename(
 }
 
 char *statement_caption_sub_title(
+		char *fund_name,
 		char *begin_date_string,
 		char *end_date_time )
 {
-	static char sub_title[ 128 ];
+	static char sub_title[ 256 ];
 	char *begin_date_american = {0};
 	char *end_date_american = {0};
+	char buffer[ 128 ];
 
 	if ( begin_date_string )
 	{
@@ -159,6 +161,15 @@ char *statement_caption_sub_title(
 			end_date_american );
 	}
 
+	if ( fund_name )
+	{
+		sprintf(sub_title + strlen( sub_title ),
+			", Fund: %s",
+			string_initial_capital(
+				buffer,
+				fund_name ) );
+	}
+
 	return sub_title;
 }
 
@@ -192,6 +203,7 @@ STATEMENT *statement_fetch(
 	statement = statement_calloc();
 
 	statement->process_name = process_name;
+	statement->fund_name = fund_name;
 
 	statement->transaction_date_begin_date_string =
 		transaction_date_begin_date_string;
@@ -235,6 +247,7 @@ STATEMENT *statement_fetch(
 			statement_caption_new(
 				application_name,
 				process_name,
+				fund_name,
 				transaction_date_begin_date_string,
 				end_date_time );
 	}
@@ -706,7 +719,9 @@ char *statement_caption_title(
 	{
 		char buffer[ 128 ];
 
-		sprintf(title,
+		snprintf(
+			title,
+			sizeof ( title ),
 			"%s %s",
 			application_title_string(
 				application_name ),
@@ -4634,6 +4649,7 @@ STATEMENT_CAPTION *statement_caption_calloc( void )
 STATEMENT_CAPTION *statement_caption_new(
 		char *application_name,
 		char *process_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time )
 {
@@ -4677,6 +4693,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		/* Returns static memory or null */
 		/* ----------------------------- */
 		statement_caption_sub_title(
+			fund_name,
 			transaction_begin_date_string,
 			end_date_time );
 

@@ -179,7 +179,9 @@ typedef struct
 /* ----- */
 LIST *relation_translate_list(
 		LIST *primary_key_list,
-		LIST *relation_foreign_key_list );
+		LIST *relation_foreign_key_list,
+		char *many_folder_name,
+		char *one_folder_name );
 
 /* Usage */
 /* ----- */

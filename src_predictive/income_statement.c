@@ -542,6 +542,7 @@ INCOME_STATEMENT *income_statement_fetch(
 			session_key,
 			login_name,
 			role_name,
+			fund_name,
 			income_statement->
 				transaction_date_statement->
 				transaction_date_begin_date_string,

@@ -292,6 +292,7 @@ void account_list_action_string_set(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string );
 
@@ -301,8 +302,10 @@ void account_list_action_string_set(
 /* Returns heap memory */
 /* ------------------- */
 char *account_action_string(
-		const char *dictionary_attribute_datum_delimiter,
-		const char *dictionary_element_delimiter,
+		const char *dictionary_attribute_datum_delimiter
+			/* probably @= */,
+		const char *dictionary_element_delimiter
+			/* probably @& */,
 		const char *journal_table,
 		const char *dictionary_separate_drillthru_prefix,
 		const char *drillthru_skipped_key,
@@ -312,6 +315,7 @@ char *account_action_string(
 		char *session,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string,
 		char *account_name );

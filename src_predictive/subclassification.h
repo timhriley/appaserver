@@ -178,6 +178,7 @@ void subclassification_account_action_string_set(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string );
 

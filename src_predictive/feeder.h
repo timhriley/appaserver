@@ -36,6 +36,8 @@
 "<li>Execute the Audit process called Feeder Row Journal Audit. " \
 "Check the File Row Amount column for a clue.</ol>"
 
+#define FEEDER_FUND_COLUMN_NAME		"fund_name"
+
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
 					"file_row_description,"		\
 					"transaction_date_time,"	\
@@ -67,19 +69,6 @@
 					"file_row_amount,"		\
 					"file_row_balance,"		\
 					"calculate_balance,"		\
-					"check_number,"			\
-					"full_name,"			\
-					"street_address,"		\
-					"transaction_date_time,"	\
-					"feeder_phrase"
-
-#define FEEDER_ROW_FUND_INSERT_COLUMNS	"fund_name,"			\
-					"feeder_account,"		\
-					"feeder_load_date_time,"	\
-					"feeder_date,"			\
-					"feeder_row_number,"		\
-					"file_row_description,"		\
-					"file_row_amount,"		\
 					"check_number,"			\
 					"full_name,"			\
 					"street_address,"		\
@@ -264,6 +253,7 @@ typedef struct
 /* ----- */
 LIST *feeder_matched_journal_list(
 		const char *feeder_row_table,
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks_string );
@@ -341,6 +331,7 @@ typedef struct
 /* Usage */
 /* ----- */
 FEEDER_TRANSACTION *feeder_transaction_new(
+		char *fund_name,
 		char *feeder_account_name,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		double exchange_journal_amount,
@@ -520,6 +511,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *feeder_row_list(
+		char *fund_name,
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
@@ -535,6 +527,7 @@ LIST *feeder_row_list(
 /* Safely returns */
 /* -------------- */
 FEEDER_ROW *feeder_row_new(
+		char *fund_name,
 		char *feeder_account_name,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
@@ -571,15 +564,13 @@ boolean feeder_row_list_non_match_boolean(
 /* Usage */
 /* ----- */
 void feeder_row_list_status_set(
-		boolean transaction_fund_column_boolean,
 		LIST *feeder_row_list /* sets feeder_row_status */ );
 
 /* Usage */
 /* ----- */
 enum feeder_row_status feeder_row_status_evaluate(
 		double feeder_load_row_file_row_balance,
-		double feeder_row_calculate_balance,
-		boolean transaction_fund_column_boolean );
+		double feeder_row_calculate_balance );
 
 /* Usage */
 /* ----- */
@@ -765,8 +756,8 @@ void feeder_row_list_insert(
 char *feeder_row_list_insert_system_string(
 		const char sql_delimiter,
 		const char *feeder_row_insert_columns,
-		const char *feeder_row_fund_insert_columns,
 		const char *feeder_row_table,
+		const char *feeder_fund_column_name,
 		boolean transaction_fund_column_boolean );
 
 /* Safely returns */
@@ -904,6 +895,7 @@ typedef struct
 FEEDER *feeder_fetch(
 		char *application_name,
 		char *login_name,
+		char *fund_name,
 		char *feeder_account_name,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,

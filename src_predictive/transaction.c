@@ -929,7 +929,8 @@ void transaction_html_display( TRANSACTION *transaction )
 		transaction->journal_list,
 		transaction->transaction_date_time,
 		transaction->memo,
-		transaction->full_name );
+		transaction->full_name,
+		transaction->fund_name );
 }
 
 char *transaction_display( TRANSACTION *transaction )
@@ -1436,8 +1437,6 @@ char *transaction_fund_where(
 		char *fund_name )
 {
 	static char where[ 128 ];
-
-	if ( *where ) return where;
 
 	if ( transaction_fund_column_boolean(
 		transaction_table,

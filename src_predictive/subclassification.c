@@ -631,6 +631,7 @@ void subclassification_account_action_string_set(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time_string )
 {
@@ -650,6 +651,7 @@ void subclassification_account_action_string_set(
 				session_key,
 				login_name,
 				role_name,
+				fund_name,
 				transaction_begin_date_string,
 				end_date_time_string );
 		}

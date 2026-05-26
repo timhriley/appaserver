@@ -144,6 +144,7 @@ int main( int argc, char **argv )
 				feeder_fetch(
 					application_name,
 					login_name,
+					fund_name,
 					feeder_account_name,
 					csv_format_filename,
 					exchange_csv->exchange_journal_list,

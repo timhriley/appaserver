@@ -143,6 +143,7 @@ int main( int argc, char **argv )
 				/* financial_institution_full_name */,
 				street_address
 				/* financial_institution_street_address */,
+				exchange_format_filename,
 				checking_boolean,
 				exchange->exchange_journal_begin_amount,
 				exchange->minimum_date_string );

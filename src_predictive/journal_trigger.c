@@ -262,9 +262,13 @@ void journal_trigger_update(
 			preupdate_transaction_date_time,
 			transaction_no_change_boolean );
 
+	/* If the fund changed or the account changed */
+	/* ------------------------------------------ */
 	if ( !fund_no_change_boolean
 	||   !account_no_change_boolean )
 	{
+		/* Propagate the old value(s) */
+		/* -------------------------- */
 		journal_propagate =
 			journal_propagate_new(
 				/* ------------------------ */
@@ -306,6 +310,8 @@ void journal_trigger_update(
 				update_statement_list );
 	}
 
+	/* Propagate the new value(s) */
+	/* -------------------------- */
 	journal_propagate =
 		journal_propagate_new(
 			fund_name,

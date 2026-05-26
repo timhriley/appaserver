@@ -176,6 +176,7 @@ LIST *journal_propagate_journal_list(
 		char *prior_transaction_date_time,
 		double prior_previous_balance )
 {
+	char *system_string;
 	LIST *journal_list;
 
 	if ( !account_name )
@@ -191,26 +192,31 @@ LIST *journal_propagate_journal_list(
 			message );
 	}
 
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_propagate_greater_equal_where(
+				fund_name,
+				account_name,
+				prior_transaction_date_time ) );
+
 	journal_list =
 		journal_system_list(
 			fund_name,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			journal_system_string(
-				JOURNAL_SELECT,
-				JOURNAL_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				journal_propagate_greater_equal_where(
-					fund_name,
-					account_name,
-					prior_transaction_date_time ) ),
+			system_string,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
 			0 /* not fetch_transaction */ );
+
+	free( system_string );
 
 	if ( list_length( journal_list ) )
 	{

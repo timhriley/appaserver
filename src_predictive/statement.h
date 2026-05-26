@@ -612,6 +612,7 @@ typedef struct
 STATEMENT_CAPTION *statement_caption_new(
 		char *application_name,
 		char *process_name,
+		char *fund_name,
 		char *transaction_begin_date_string,
 		char *end_date_time );
 
@@ -638,6 +639,7 @@ char *statement_caption_title(
 /* Returns static memory */
 /* --------------------- */
 char *statement_caption_sub_title(
+		char *fund_name,
 		char *begin_date_string,
 		char *end_date_time );
 
@@ -656,6 +658,7 @@ char *statement_caption_frame_title(
 typedef struct
 {
 	char *process_name;
+	char *fund_name;
 	char *transaction_date_begin_date_string;
 	char *end_date_time;
 	LIST *element_statement_list;

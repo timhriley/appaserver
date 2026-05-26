@@ -494,12 +494,16 @@ char *relation_mnemonic( LIST *foreign_key_list )
 
 LIST *relation_translate_list(
 		LIST *primary_key_list,
-		LIST *relation_foreign_key_list )
+		LIST *relation_foreign_key_list,
+		char *many_folder_name,
+		char *one_folder_name )
 {
 	LIST *translate_list;
 
 	if ( !list_length( primary_key_list )
-	||   !list_length( relation_foreign_key_list ) )
+	||   !list_length( relation_foreign_key_list )
+	||   !many_folder_name
+	||   !one_folder_name )
 	{
 		char message[ 128 ];
 
@@ -515,11 +519,21 @@ LIST *relation_translate_list(
 	if (	list_length( primary_key_list ) !=
 		list_length( relation_foreign_key_list ) )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message,
-			"list_length()=%d != list_length()=%d.",
+		snprintf(
+			message,
+			sizeof ( message ),
+			"many->one( %s, %s )\n"
+			"primary list_length(%s)=%d != "
+			"foreign list_length(%s)=%d.",
+			many_folder_name,
+			one_folder_name,
+			list_display_delimited( primary_key_list, ',' ),
 			list_length( primary_key_list ),
+			list_display_delimited(
+				relation_foreign_key_list,
+				',' ),
 			list_length( relation_foreign_key_list ) );
 
 		appaserver_error_stderr_exit(

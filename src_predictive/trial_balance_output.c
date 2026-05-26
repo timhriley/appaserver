@@ -25,10 +25,11 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
-	char *subclassification_option_string;
-	char *output_medium_string;
 	char *as_of_date_string;
 	int prior_year_count;
+	char *subclassification_option_string;
+	char *output_medium_string;
+	char *fund_name;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	TRIAL_BALANCE *trial_balance;
 
@@ -39,10 +40,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc < 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium\n",
+"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium [fund]\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -63,6 +64,11 @@ int main( int argc, char **argv )
 	subclassification_option_string = argv[ 7 ];
 	output_medium_string = argv[ 8 ];
 
+	if ( argc == 10 )
+		fund_name = argv[ 9 ];
+	else
+		fund_name = NULL;
+
 	appaserver_parameter = appaserver_parameter_new();
 
 	trial_balance =
@@ -72,7 +78,7 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			process_name,
-			(char *)0 /* fund_name */,
+			fund_name,
 			appaserver_parameter->data_directory,
 			as_of_date_string,
 			prior_year_count,

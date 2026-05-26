@@ -218,16 +218,8 @@ void journal_list_html_display(
 		LIST *journal_list,
 		char *transaction_date_time,
 		char *transaction_memo,
-		char *transaction_full_name );
-
-/* Process */
-/* ------- */
-void journal_list_pipe_display(
-		FILE *output_pipe,
-		char *transaction_date_time,
-		char *transaction_memo,
-		char *heading,
-		LIST *journal_list );
+		char *transaction_full_name,
+		char *fund_name );
 
 /* Usage */
 /* ----- */
@@ -266,6 +258,25 @@ double journal_first_account_balance(
 /* ----- */
 double journal_balance_sum(
 		LIST *journal_list );
+
+/* Usage */
+/* ----- */
+void journal_list_pipe_display(
+		FILE *output_pipe,
+		char *transaction_date_time,
+		char *transaction_memo,
+		char *transaction_full_name,
+		char *fund_name,
+		LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_account_display(
+		char *fund_name,
+		char *account_name );
 
 /* Usage */
 /* ----- */

@@ -681,6 +681,7 @@ TAX_FORM *tax_form_fetch(
 		statement_caption_new(
 			application_name,
 			process_name,
+			(char *)0 /* fund_name Need to set */,
 			tax_form->fiscal_begin_date,
 			tax_form->fiscal_end_date );
 

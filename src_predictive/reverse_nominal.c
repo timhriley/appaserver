@@ -236,6 +236,7 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 		statement_caption_new(
 			application_name,
 			process_name,
+			(char *)0 /* fund_name Need to set */,
 			(char *)0 /* begin_date_string */,
 			reverse_date_string /* end_date_string */ );
 
