@@ -194,7 +194,7 @@ LIST *feeder_audit_html_column_list( void )
 	list_set(
 		list,
 		html_column_new(
-			"feeder_row_balance",
+			"feeder_load_event_balance",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
