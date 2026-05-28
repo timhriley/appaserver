@@ -414,7 +414,6 @@ JOURNAL *journal_account_fetch(
 
 	journal =
 		journal_parse(
-			fund_name,
 			string_pipe( system_string ),
 			fetch_account,
 			fetch_subclassification,
@@ -427,7 +426,6 @@ JOURNAL *journal_account_fetch(
 }
 
 JOURNAL *journal_parse(
-		char *fund_name,
 		char *input,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -438,17 +436,26 @@ JOURNAL *journal_parse(
 	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
 	char account_name[ 128 ];
+	char *fund_name = {0};
 	char piece_buffer[ 1024 ];
 	JOURNAL *journal;
 
 	if ( !input || !*input ) return NULL;
 
-	/* See JOURNAL_SELECT */
-	/* ------------------ */
+	/* See journal_fund_select() */
+	/* ------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
 	piece( account_name, SQL_DELIMITER, input, 3 );
+
+	if ( predictive_fund_boolean(
+		PREDICTIVE_FUND_TABLE_NAME,
+		PREDICTIVE_FUND_COLUMN_NAME ) )
+	{
+		piece( piece_buffer, SQL_DELIMITER, input, 8 );
+		fund_name = strdup( piece_buffer );
+	}
 
 	journal =
 		/* -------------- */
@@ -497,7 +504,6 @@ JOURNAL *journal_parse(
 }
 
 LIST *journal_system_list(
-		char *fund_name,
 		char *system_string,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -529,7 +535,6 @@ LIST *journal_system_list(
 		list_set(
 			system_list,
 			journal_parse(
-				fund_name,
 				input,
 				fetch_account,
 				fetch_subclassification,
@@ -547,15 +552,27 @@ char *journal_system_string(
 		const char *journal_table,
 		char *where )
 {
-	char system_string[ STRING_16K ];
+	char *fund_select;
+	char system_string[ 1024 ];
 
 	if ( !where ) where = "1 = 1";
+
+	fund_select =
+		/* ---------------------------------- */
+		/* Returns parameter or static memory */
+		/* ---------------------------------- */
+		journal_fund_select(
+			journal_select,
+			PREDICTIVE_FUND_COLUMN_NAME,
+			predictive_fund_boolean(
+				PREDICTIVE_FUND_TABLE_NAME,
+				PREDICTIVE_FUND_COLUMN_NAME ) );
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
 	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
-		journal_select,
+		fund_select,
 		journal_table,
 		where );
 
@@ -1161,20 +1178,19 @@ void journal_list_html_display(
 		LIST *journal_list,
 		char *transaction_date_time,
 		char *transaction_memo,
-		char *transaction_full_name,
-		char *fund_name )
+		char *transaction_full_name )
 {
 	char *heading;
 	char *justify;
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	FILE *output_pipe;
 
 	heading = "Transaction,Account,Debit,Credit";
 	justify = "left,left,right,right";
 
 	snprintf(
-		sys_string,
-		sizeof ( sys_string ),
+		system_string,
+		sizeof ( system_string ),
 		"html_table.e '' %s '^' %s",
 		heading,
 		justify );
@@ -1183,7 +1199,7 @@ void journal_list_html_display(
 	printf( "<div style=\"margin: 3%c\">\n", '%' );
 	fflush( stdout );
 
-	output_pipe = popen( sys_string, "w" );
+	output_pipe = popen( system_string, "w" );
 
 	if ( list_length( journal_list ) )
 	{
@@ -1192,7 +1208,6 @@ void journal_list_html_display(
 			transaction_date_time,
 			transaction_memo,
 			transaction_full_name,
-			fund_name,
 			journal_list );
 	}
 
@@ -1292,7 +1307,6 @@ void journal_list_pipe_display(
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name,
-		char *fund_name,
 		LIST *journal_list )
 {
 	char memo_buffer[ 256 ];
@@ -1371,7 +1385,7 @@ void journal_list_pipe_display(
 					/* Returns static memory */
 					/* --------------------- */
 					journal_account_display(
-						fund_name,
+						journal->fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1408,7 +1422,7 @@ void journal_list_pipe_display(
 					/* Returns static memory */
 					/* --------------------- */
 					journal_account_display(
-						fund_name,
+						journal->fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1459,7 +1473,6 @@ void journal_list_sum_html_display(
 		transaction_date_time,
 		transaction_memo,
 		(char *)0 /* transaction_full_name */,
-		(char *)0 /* fund_name */,
 		journal_list );
 
 	strcpy(	debit_buffer,
@@ -1607,7 +1620,6 @@ LIST *journal_year_list(
 {
 	return
 	journal_system_list(
-		(char *)0 /* fund_name */,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -2158,7 +2170,6 @@ LIST *journal_tax_form_list(
 
 	return
 	journal_system_list(
-		(char *)0 /* fund_name */,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -2347,7 +2358,6 @@ LIST *journal_entity_list(
 
 	return
 	journal_system_list(
-		fund_name,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -2384,7 +2394,6 @@ LIST *journal_transaction_list(
 	{
 		list =
 			journal_system_list(
-				fund_name,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
@@ -2756,3 +2765,23 @@ char *journal_account_display(
 
 	return display;
 }
+
+char *journal_fund_select(
+		const char *journal_select,
+		const char *predictive_fund_column_name,
+		boolean predictive_fund_boolean )
+{
+	static char select[ 128 ];
+
+	if ( !predictive_fund_boolean ) return (char *)journal_select;
+
+	snprintf(
+		select,
+		sizeof ( select ),
+		"%s,%s",
+		journal_select,
+		predictive_fund_column_name );
+
+	return select;
+}
+

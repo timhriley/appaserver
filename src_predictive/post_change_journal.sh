@@ -21,19 +21,24 @@ fi
 
 JOURNAL_TABLE="journal"
 
-if [ "$#" -ne 7 ]
+if [ "$#" -lt 7 ]
 then
 	echo "Usage: $0 state full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
 	exit 1
 fi
 
-state="$(echo $1 | escape_security.e)"
-full_name="$(echo $2 | escape_security.e)"
-street_address="$(echo $3 | escape_security.e)"
-transaction_date_time="$(echo $4 | escape_security.e)"
-account_name="$(echo $5 | escape_security.e)"
-preupdate_transaction_date_time="$(echo $6 | escape_security.e)"
-preupdate_account_name="$(echo $7 | escape_security.e)"
+state="$1"
+full_name="$2"
+street_address="$3"
+transaction_date_time="$4"
+account_name="$5"
+preupdate_transaction_date_time="$6"
+preupdate_account_name="$7"
+
+if [ "$#" -eq 8 ]
+then
+	fund_name="$8"
+fi
 
 if [ "$transaction_date_time" = ""				\
 -o   "$transaction_date_time" = "transaction_date_time" ]
@@ -53,8 +58,8 @@ then
 	while read local_account
 	do
 		ledger_propagate					\
+				"$fund_name"				\
 				"$transaction_date_time"		\
-				fund					\
 				"$preupdate_transaction_date_time"	\
 				"$local_account"
 	done
@@ -62,8 +67,9 @@ fi
 
 if [ "$account_name" != "" -a "$account_name" != "account" ]
 then
-	ledger_propagate	"$transaction_date_time"		\
-				fund					\
+	ledger_propagate						\
+				"$fund_name"				\
+				"$transaction_date_time"		\
 				"$preupdate_transaction_date_time"	\
 				"$account_name"
 fi
@@ -71,8 +77,9 @@ fi
 if [ "$preupdate_account_name" != ""					\
 -a   "$preupdate_account_name" != "preupdate_account" ]
 then
-	ledger_propagate	"$transaction_date_time"		\
-				fund					\
+	ledger_propagate						\
+				"$fund_name"				\
+				"$transaction_date_time"		\
 				"$preupdate_transaction_date_time"	\
 				"$preupdate_account_name"
 fi

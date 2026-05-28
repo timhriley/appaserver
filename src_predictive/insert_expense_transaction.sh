@@ -18,9 +18,9 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 9 ]
+if [ "$#" -lt 9 ]
 then
-	echo "Usage: `basename.e $0 n` process feeder_account full_name street_address transaction_date account transaction_amount check_number memo" 1>&2
+	echo "Usage: `basename.e $0 n` process feeder_account full_name street_address transaction_date account transaction_amount check_number memo [fund]" 1>&2
 	exit 1
 fi
 
@@ -33,6 +33,11 @@ debit_account="$6"
 transaction_amount="$7"
 check_number="$8"
 memo="$9"
+
+if [ "$#" -eq 10 ]
+then
+	fund_name="${10}"
+fi
 
 # Build the entity
 # ----------------
@@ -83,6 +88,24 @@ document_body.sh
 
 echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
+# Integrity check fund_name
+# -------------------------
+table_column_exists.sh fund fund_name
+
+if [ $? -eq 0 ]
+then
+	if [	"$fund_name" = "" -o	\
+		"$fund_name" = "fund_name" ]
+	then
+		echo "<h2> `now.sh 19` </h2>"
+		echo "<h3>Please choose a fund .</h3>"
+		document_close.sh
+		exit 0
+	fi
+fi
+
+# Integrity check feeder_account
+# ------------------------------
 if [	"$feeder_account" = "" -o	\
 	"$feeder_account" = "feeder_account" ]
 then
@@ -94,6 +117,8 @@ fi
 
 credit_account="$feeder_account"
 
+# Integrity check full_name
+# -------------------------
 if [ "$full_name" = "" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
@@ -102,6 +127,8 @@ then
 	exit 0
 fi
 
+# Integrity check debit_account
+# -----------------------------
 if [	"$debit_account" = "" -o			\
 	"$debit_account" = "account" -o			\
 	"$debit_account" = "null" ]
@@ -112,6 +139,8 @@ then
 	exit 0
 fi
 
+# Integrity check transaction_amount
+# ----------------------------------
 if [ "$transaction_amount" = "" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
@@ -120,6 +149,8 @@ then
 	exit 0
 fi
 
+# Integrity check check_number
+# ----------------------------
 if [ "$check_number" != "" ]
 then
 	where="check_number = '$check_number' and transaction_amount = $transaction_amount"
@@ -185,15 +216,15 @@ insert_expense_transaction_process.sh	"$full_name"			\
 					"$credit_account"		\
 					"$transaction_amount"		\
 					"$check_number"			\
-					"$memo"
+					"$memo"				\
+					"$fund_name"
 
 echo "<h2> `now.sh 19` </h2>"
 echo "<h3>Process complete for transaction:"
 
 transaction_html_display "$transaction_date_time"
 
-echo "</body>"
-echo "</html>"
+document_close.sh
 
 exit 0
 

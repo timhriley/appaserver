@@ -60,7 +60,6 @@ LIABILITY *liability_entity_fetch(
 
 	liability->journal_system_list =
 		journal_system_list(
-			(char *)0 /* fund_name */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -164,7 +163,6 @@ LIABILITY *liability_account_fetch( char *liability_account_name )
 
 	liability->journal_system_list =
 		journal_system_list(
-			(char *)0 /* fund_name */,
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,

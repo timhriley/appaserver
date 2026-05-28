@@ -209,7 +209,6 @@ LIST *journal_propagate_journal_list(
 
 	journal_list =
 		journal_system_list(
-			fund_name,
 			system_string,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,

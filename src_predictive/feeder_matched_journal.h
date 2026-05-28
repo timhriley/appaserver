@@ -37,7 +37,6 @@ typedef struct
 /* ----- */
 LIST *feeder_matched_journal_list(
 		const char *feeder_row_table,
-		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks_string );

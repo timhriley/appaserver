@@ -48,7 +48,6 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *journal_system_list(
-		char *fund_name,
 		char *journal_system_string,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -58,7 +57,6 @@ LIST *journal_system_list(
 /* Usage */
 /* ----- */
 JOURNAL	*journal_parse(
-		char *fund_name,
 		char *input,
 		boolean fetch_account,
 		boolean fetch_subclassification,
@@ -218,7 +216,6 @@ void journal_list_html_display(
 		LIST *journal_list,
 		char *transaction_date_time,
 		char *transaction_memo,
-		char *transaction_full_name,
 		char *fund_name );
 
 /* Usage */
@@ -266,7 +263,6 @@ void journal_list_pipe_display(
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name,
-		char *fund_name,
 		LIST *journal_list );
 
 /* Process */
@@ -364,6 +360,16 @@ char *journal_system_string(
 		const char *journal_select,
 		const char *journal_table,
 		char *where );
+
+/* Process */
+/* ------- */
+
+/* Returns parameter or static memory */
+/* ---------------------------------- */
+char *journal_fund_select(
+		const char *journal_select,
+		const char *predictive_fund_column_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */

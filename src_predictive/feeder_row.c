@@ -834,11 +834,7 @@ FILE *feeder_row_display_output(
 				feeder_transaction->
 				transaction->
 				memo,
-			(char *)0 /* transaction_full_name */,
-			feeder_row->
-				feeder_transaction->
-				transaction->
-				fund_name );
+			(char *)0 /* transaction_full_name */ );
 	}
 
 	return display_pipe;

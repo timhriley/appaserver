@@ -154,7 +154,6 @@ TRANSACTION *transaction_parse(
 	{
 		transaction->journal_list =
 			journal_system_list(
-				fund_name,
 				journal_system_string(
 					JOURNAL_SELECT,
 					JOURNAL_TABLE,
@@ -929,8 +928,7 @@ void transaction_html_display( TRANSACTION *transaction )
 		transaction->journal_list,
 		transaction->transaction_date_time,
 		transaction->memo,
-		transaction->full_name,
-		transaction->fund_name );
+		transaction->full_name );
 }
 
 char *transaction_display( TRANSACTION *transaction )
@@ -1438,26 +1436,13 @@ char *transaction_fund_where(
 {
 	static char where[ 128 ];
 
+	*where = '\0';
+
 	if ( predictive_fund_boolean(
 		fund_table_name,
-		fund_column_name ) )
+		fund_column_name )
+	&&   fund_name )
 	{
-		if ( !fund_name )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"fund_name is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		snprintf(
 			where,
 			sizeof ( where ),

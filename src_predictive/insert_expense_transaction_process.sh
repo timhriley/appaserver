@@ -20,7 +20,7 @@ fi
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 8 ]
+if [ "$#" -lt 8 ]
 then
 	echo "Usage: `basename.e $0 n` full_name street_address transaction_date_time debit_account credit_account transaction_amount check_number memo" 1>&2
 	exit 1
@@ -35,11 +35,26 @@ transaction_amount="$6"
 check_number="$7"
 memo="$8"
 
+# Integrity check fund_name
+# -------------------------
+if [ "$#" -eq 9 ]
+then
+	fund_name="$9"
+fi
+
+table_column_exists.sh fund fund_name
+
+if [ $? -eq 0 ]
+then
+	fund_field=",fund_name"
+	fund_datum="^$fund_name"
+fi
+
 table="transaction"
 
-field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
+field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo${fund_field}"
 
-result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
+result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo${fund_datum}"				|\
 	insert_statement.e table=$table field=$field del='^'	|\
 	sql.e 2>&1`
 
@@ -54,18 +69,18 @@ table="journal"
 
 # Insert debit journal
 # --------------------
-field="full_name,street_address,transaction_date_time,account,debit_amount"
+field="full_name,street_address,transaction_date_time,account,debit_amount${fund_field}"
 
-echo "$full_name^$street_address^$transaction_date_time^$debit_account^$transaction_amount"							|
+echo "$full_name^$street_address^$transaction_date_time^$debit_account^$transaction_amount${fund_datum}"					|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
 
 # Insert credit journal
 # ---------------------
-field="full_name,street_address,transaction_date_time,account,credit_amount"
+field="full_name,street_address,transaction_date_time,account,credit_amount${fund_field}"
 
-echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount"							|
+echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount${fund_datum}"					|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
@@ -88,7 +103,8 @@ post_change_journal.sh		insert				\
 				"$transaction_date_time"	\
 				"$debit_account"		\
 				preupdate_transaction_date_time	\
-				preupdate_account
+				preupdate_account		\
+				"$fund_name"
 
 post_change_journal.sh		insert				\
 				"$full_name"			\
@@ -96,7 +112,8 @@ post_change_journal.sh		insert				\
 				"$transaction_date_time"	\
 				"$credit_account"		\
 				preupdate_transaction_date_time	\
-				preupdate_account
+				preupdate_account		\
+				"$fund_name"
 
 exit 0
 

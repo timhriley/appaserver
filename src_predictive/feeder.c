@@ -130,7 +130,6 @@ feeder_load_row_list_raw_display(
 	feeder->feeder_matched_journal_list =
 		feeder_matched_journal_list(
 			FEEDER_ROW_TABLE,
-			fund_name,
 			feeder_account_name,
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
