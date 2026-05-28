@@ -9,7 +9,7 @@
 	}
 */
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
 		snprintf(
 			message,

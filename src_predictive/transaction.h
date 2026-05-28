@@ -24,7 +24,6 @@
 #define TRANSACTION_DATE_TIME_COLUMN		"transaction_date_time"
 #define TRANSACTION_AMOUNT_COLUMN		"transaction_amount"
 
-#define TRANSACTION_FUND_COLUMN			"fund_name"
 #define TRANSACTION_LOCK_COLUMN			"transaction_lock_yn"
 
 #define TRANSACTION_SELECT	"full_name,"			\
@@ -202,12 +201,6 @@ char *transaction_stamp_insert(
 boolean transaction_lock_column_boolean(
 		const char *transaction_table,
 		const char *transaction_lock_column );
-
-/* Usage */
-/* ----- */
-boolean transaction_fund_column_boolean(
-		const char *transaction_table,
-		const char *transaction_fund_column );
 
 /* Usage */
 /* ----- */
@@ -416,13 +409,13 @@ char *transaction_fetch_memo(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns static memory    */
+/* ------------------------ */
 /* If set, appends an "and" */
 /* ------------------------ */
 char *transaction_fund_where(
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
 		char *fund_name );
 
 /* Usage */
@@ -435,8 +428,8 @@ char *transaction_column_list_string(
 		/* TRANSACTION_SELECT or TRANSACTION_INSERT */
 		/* ---------------------------------------- */
 		const char *input_column_list_string,
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
 		const char *transaction_lock_column );
 
 /* Usage */
@@ -445,8 +438,8 @@ char *transaction_column_list_string(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_fund_datum(
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
 		char *fund_name );
 
 /* Usage */

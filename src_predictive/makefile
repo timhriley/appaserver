@@ -113,6 +113,20 @@ SOURCE_LIBRARY= 							\
 		journal.o						\
 		journal_propagate.o
 
+FEEDER_LIBRARY=								\
+		exchange.o						\
+		exchange_csv.o						\
+		feeder.o						\
+		feeder_row.o						\
+		feeder_load_row.o					\
+		feeder_matched_journal.o				\
+		feeder_account.o					\
+		feeder_phrase.o						\
+		feeder_load_event.o					\
+		feeder_transaction.o					\
+		feeder_audit.o						\
+		feeder_audit_journal.o
+
 PAYPAL_LIBRARY= 							\
 		paypal.o						\
 		paypal_dataset.o					\
@@ -451,81 +465,45 @@ ledger_propagate: ledger_propagate.c					\
 
 feeder_upload: feeder_upload.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	exchange.o							\
-	feeder.o							\
-	feeder_account.o						\
-	feeder_load_event.o						\
-	feeder_audit.o
+	${FEEDER_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		feeder_upload.c						\
-		exchange.o						\
-		feeder.o						\
-		feeder_account.o					\
-		feeder_load_event.o					\
-		feeder_audit.o						\
+		${FEEDER_LIBRARY}					\
 		-o feeder_upload
 
 feeder_upload_csv: feeder_upload_csv.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	exchange.o							\
-	exchange_csv.o							\
-	feeder.o							\
-	feeder_account.o						\
-	feeder_load_event.o						\
-	feeder_audit.o
+	${FEEDER_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		feeder_upload_csv.c					\
-		exchange.o						\
-		exchange_csv.o						\
-		feeder.o						\
-		feeder_account.o					\
-		feeder_load_event.o					\
-		feeder_audit.o						\
+		${FEEDER_LIBRARY}					\
 		-o feeder_upload_csv
 
 feeder_init_execute: feeder_init_execute.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	exchange.o							\
-	feeder.o							\
-	feeder_audit.o							\
-	feeder_account.o						\
-	feeder_load_event.o						\
+	${FEEDER_LIBRARY}						\
 	feeder_init.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		feeder_init_execute.c					\
-		exchange.o						\
-		feeder.o						\
-		feeder_audit.o						\
-		feeder_account.o					\
-		feeder_load_event.o					\
+		${FEEDER_LIBRARY}					\
 		feeder_init.o						\
 		-o feeder_init_execute
 
 feeder_init_csv_execute: feeder_init_csv_execute.c			\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	exchange.o							\
-	exchange_csv.o							\
-	feeder.o							\
-	feeder_audit.o							\
-	feeder_account.o						\
-	feeder_load_event.o						\
+	${FEEDER_LIBRARY}						\
 	feeder_init.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		feeder_init_csv_execute.c				\
-		exchange.o						\
-		exchange_csv.o						\
-		feeder.o						\
-		feeder_audit.o						\
-		feeder_account.o					\
-		feeder_load_event.o					\
+		${FEEDER_LIBRARY}					\
 		feeder_init.o						\
 		-o feeder_init_csv_execute
 
@@ -990,6 +968,22 @@ feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder.c
 
+feeder_row.o: feeder_row.c feeder_row.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_row.c
+
+feeder_transaction.o: feeder_transaction.c feeder_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_transaction.c
+
+feeder_audit_journal.o: feeder_audit_journal.c feeder_audit_journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_audit_journal.c
+
+feeder_load_row.o: feeder_load_row.c feeder_load_row.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_load_row.c
+
 feeder_init.o: feeder_init.c feeder_init.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_init.c
@@ -1001,6 +995,16 @@ feeder_account.o: feeder_account.c feeder_account.h
 feeder_load_event.o: feeder_load_event.c feeder_load_event.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_load_event.c
+
+feeder_matched_journal.o:						\
+	feeder_matched_journal.c					\
+	feeder_matched_journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_matched_journal.c
+
+feeder_phrase.o: feeder_phrase.c feeder_phrase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_phrase.c
 
 feeder_audit.o: feeder_audit.c feeder_audit.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

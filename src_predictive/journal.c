@@ -331,8 +331,8 @@ char *journal_account_where(
 		/* If set, appends an "and" */
 		/* ------------------------ */
 		transaction_fund_where(
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name ),
 		/* --------------------- */
 		/* Returns static memory */
@@ -762,8 +762,8 @@ void journal_list_insert(
 		/* --------------------- */
 		journal_column_list_string(
 			JOURNAL_INSERT,
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN );
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME );
 
 	pipe =
 		/* -------------- */
@@ -895,8 +895,8 @@ void journal_insert(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_datum(
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name );
 
 	insert_data_string =
@@ -1910,8 +1910,8 @@ char *journal_minimum_where(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_where(
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name ),
 		primary_where );
 
@@ -2676,8 +2676,8 @@ char *journal_list_last_memo( LIST *journal_list )
 
 char *journal_column_list_string(
 		const char *journal_insert,
-		const char *transaction_table,
-		const char *transaction_fund_column )
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name )
 {
 	static char column_list_string[ 128 ];
 	char *ptr = column_list_string;
@@ -2687,14 +2687,14 @@ char *journal_column_list_string(
 		"%s",
 		journal_insert );
 
-	if ( transaction_fund_column_boolean(
-		transaction_table,
-		transaction_fund_column ) )
+	if ( predictive_fund_boolean(
+		predictive_fund_table_name,
+		predictive_fund_column_name ) )
 	{
 		ptr += sprintf(
 			ptr,
 			",%s",
-			transaction_fund_column );
+			predictive_fund_column_name );
 	}
 
 	return column_list_string;

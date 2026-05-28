@@ -7,53 +7,60 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "piece.h"
-#include "column.h"
-#include "date.h"
-#include "sql.h"
 #include "list.h"
-#include "environ.h"
 #include "predictive.h"
 
-char *predictive_fund_where( char *fund_name )
+char *predictive_fund_where(
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
+		char *fund_name )
 {
 	char where[ 128 ];
 
 	if ( !fund_name
 	||   !*fund_name
-	||   strcmp( fund_name, "fund" ) == 0 )
+	||   strcmp( fund_name, "fund" ) == 0
+	||   strcmp( fund_name, "fund_name" ) == 0
+	||   !predictive_fund_boolean(
+		predictive_fund_table_name,
+		predictive_fund_column_name ) )
 	{
 		strcpy( where, "1 = 1" );
 	}
 	else
-	if ( predictive_fund_attribute_exists() )
 	{
-		sprintf(where,
-		 	"fund = '%s'",
+		snprintf(
+			where,
+			sizeof ( where ),
+		 	"%s = '%s'",
+			predictive_fund_column_name,
 		 	fund_name );
-	}
-	else
-	{
-		strcpy( where, "1 = 1" );
 	}
 
 	return strdup( where );
 }
 
-boolean predictive_fund_attribute_exists( void )
+boolean predictive_fund_boolean(
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name )
 {
-	return predictive_fund_exists();
-}
+	static boolean fund_boolean = -1;
 
-boolean predictive_fund_exists( void )
-{
-	char sys_string[ 1024 ];
+	if ( fund_boolean == -1 )
+	{
+		char system_string[ 1024 ];
 
-	sprintf(sys_string,
-	 	"folder_attribute_exists.sh %s account fund",
-	 	environment_application() );
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+	 		"table_column_exists.sh %s %s",
+			predictive_fund_table_name,
+			predictive_fund_column_name );
 
-	return ( system( sys_string ) == 0 );
+		fund_boolean = ( system( system_string ) == 0 );
+	}
+
+	return fund_boolean;
 }
 
 char *predictive_title_passage_rule_string(
@@ -99,3 +106,18 @@ enum predictive_title_passage_rule predictive_resolve_title_passage_rule(
 	}
 }
 
+LIST *predictive_fund_name_list(
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name )
+{
+	char system_string[ 1024 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh %s %s",
+		predictive_fund_column_name,
+		predictive_fund_table_name );
+
+	return list_pipe( system_string );
+}

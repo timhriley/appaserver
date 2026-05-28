@@ -188,14 +188,14 @@ char *transaction_primary_where(
 	char *escape_transaction_date_time;
 
 	fund_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------------ */
+		/* Returns static memory    */
+		/* ------------------------ */
 		/* If set, appends an "and" */
 		/* ------------------------ */
 		transaction_fund_where(
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name );
 
 	escape_full_name =
@@ -295,8 +295,8 @@ char *transaction_insert(
 		/* --------------------- */
 		transaction_column_list_string(
 			TRANSACTION_INSERT /* input_column_list_string */,
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			TRANSACTION_LOCK_COLUMN );
 
 	race_free_date_time =
@@ -375,8 +375,8 @@ void transaction_insert_pipe(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_datum(
-			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN,
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name );
 
 	insert_data_string =
@@ -1049,7 +1049,7 @@ void transaction_journal_list_insert(
 		journal_column_list_string(
 			JOURNAL_INSERT,
 			TRANSACTION_TABLE,
-			TRANSACTION_FUND_COLUMN );
+			PREDICTIVE_FUND_COLUMN_NAME );
 
 	insert_pipe =
 		/* -------------- */
@@ -1432,15 +1432,15 @@ char *transaction_fetch_memo( char *transaction_date_time )
 }
 
 char *transaction_fund_where(
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *fund_table_name,
+		const char *fund_column_name,
 		char *fund_name )
 {
 	static char where[ 128 ];
 
-	if ( transaction_fund_column_boolean(
-		transaction_table,
-		transaction_fund_column ) )
+	if ( predictive_fund_boolean(
+		fund_table_name,
+		fund_column_name ) )
 	{
 		if ( !fund_name )
 		{
@@ -1462,7 +1462,7 @@ char *transaction_fund_where(
 			where,
 			sizeof ( where ),
 			"%s = '%s' and ",
-			transaction_fund_column,
+			fund_column_name,
 			fund_name );
 	}
 
@@ -1471,8 +1471,8 @@ char *transaction_fund_where(
 
 char *transaction_column_list_string(
 		const char *input_column_list_string,
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
 		const char *transaction_lock_column )
 {
 	static char column_list_string[ 128 ];
@@ -1483,18 +1483,18 @@ char *transaction_column_list_string(
 		"%s",
 		input_column_list_string );
 
-	if ( transaction_fund_column_boolean(
-		transaction_table,
-		transaction_fund_column ) )
+	if ( predictive_fund_boolean(
+		predictive_fund_table_name,
+		predictive_fund_column_name ) )
 	{
 		ptr += sprintf(
 			ptr,
 			",%s",
-			transaction_fund_column );
+			predictive_fund_column_name );
 	}
 
 	if ( transaction_lock_column_boolean(
-		transaction_table,
+		TRANSACTION_TABLE,
 		transaction_lock_column ) )
 	{
 		ptr += sprintf(
@@ -1507,17 +1507,17 @@ char *transaction_column_list_string(
 }
 
 char *transaction_fund_datum(
-		const char *transaction_table,
-		const char *transaction_fund_column,
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
 		char *fund_name )
 {
 	static char datum[ 32 ];
 
 	if ( *datum ) return datum;
 
-	if ( transaction_fund_column_boolean(
-		transaction_table,
-		transaction_fund_column ) )
+	if ( predictive_fund_boolean(
+		predictive_fund_table_name,
+		predictive_fund_column_name ) )
 	{
 		if ( !fund_name )
 		{

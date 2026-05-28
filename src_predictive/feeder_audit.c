@@ -22,7 +22,6 @@
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
-		char *fund_name,
 		char *feeder_account_name )
 {
 	FEEDER_AUDIT *feeder_audit;
@@ -52,96 +51,15 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		return feeder_audit;
 	}
 
-	feeder_audit->feeder_row_final_number =
-		feeder_row_final_number(
-			FEEDER_ROW_TABLE,
+	feeder_audit->feeder_audit_journal =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		feeder_audit_journal_fetch(
 			feeder_account_name,
 			feeder_audit->
 				feeder_load_event->
 				feeder_load_date_time );
-
-	if ( !feeder_audit->feeder_row_final_number )
-		return feeder_audit;
-
-	if ( ! ( feeder_audit->feeder_row_fetch =
-			feeder_row_fetch(
-				feeder_account_name,
-				feeder_audit->
-					feeder_load_event->
-					feeder_load_date_time,
-				feeder_audit->
-					feeder_row_final_number
-					/* feeder_row_number */ ) ) )
-	{
-		char message[ 256 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"feeder_row_fetch(%s,%s,%d) returned empty.",
-				feeder_account_name,
-				feeder_audit->
-					feeder_load_event->
-					feeder_load_date_time,
-				feeder_audit->
-					feeder_row_final_number );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	feeder_audit->journal_account_fetch =
-		journal_account_fetch(
-			fund_name,
-			feeder_audit->feeder_row_fetch->transaction_date_time,
-			feeder_account_name,
-			0 /* not fetch_account */,
-			0 /* not fetch_subclassification */,
-			0 /* not fetch_entity */,
-			0 /* not fetch_transaction */ );
-
-	if ( !feeder_audit->journal_account_fetch )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"journal_account_fetch(%s,%s,%s) returned empty.",
-			fund_name,
-			feeder_audit->
-				feeder_row_fetch->
-				transaction_date_time,
-			feeder_account_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !feeder_audit->journal_account_fetch->full_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"journal_account_fetch(%s)->full_name is empty.",
-			feeder_audit->
-				feeder_row_fetch->
-				transaction_date_time );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
 
 	feeder_audit->account_fetch =
 		account_fetch(
@@ -167,9 +85,9 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	}
 
 	feeder_audit->journal_balance =
-		feeder_audit_journal_balance(
+		feeder_audit_accumulate_debit_journal_balance(
 			feeder_audit->
-				journal_account_fetch->
+				feeder_audit_journal->
 				balance
 				/* journal_fetch_balance */,
 			feeder_audit->
@@ -181,8 +99,8 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	feeder_audit->balance_difference =
 		feeder_audit_balance_difference(
 			feeder_audit->
-				feeder_row_fetch->
-				file_row_balance,
+				feeder_load_event->
+				feeder_row_account_end_balance,
 		feeder_audit->journal_balance );
 
 	feeder_audit->difference_zero_boolean =
@@ -205,9 +123,12 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		feeder_audit_html_row(
 			application_name,
 			login_name,
-			feeder_audit->feeder_row_fetch
-				/* feeder_row */,
-			feeder_audit->journal_account_fetch,
+			feeder_audit->
+				feeder_load_event->
+				feeder_row_account_end_balance,
+			feeder_audit->
+				feeder_load_event->
+				feeder_row_account_end_date,
 			feeder_audit->journal_balance,
 			feeder_audit->balance_difference,
 			feeder_audit->difference_zero_boolean ) );
@@ -215,7 +136,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	return feeder_audit;
 }
 
-double feeder_audit_journal_balance(
+double feeder_audit_accumulate_debit_journal_balance(
 		double journal_fetch_balance,
 		boolean element_accumulate_debit )
 {
@@ -267,50 +188,8 @@ LIST *feeder_audit_html_column_list( void )
 	list_set(
 		list,
 		html_column_new(
-			"final_row_number",
-			1 /* right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
 			"final_feeder_date",
 			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"feeder_row_full_name",
-			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"journal_full_name",
-			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"feeder_description",
-			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"feeder_row_transaction_date_time",
-			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"journal_transaction_date_time",
-			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_column_new(
-			"feeder_row_amount",
-			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
@@ -342,18 +221,18 @@ LIST *feeder_audit_html_column_list( void )
 HTML_ROW *feeder_audit_html_row(
 		char *application_name,
 		char *login_name,
-		FEEDER_ROW *feeder_row,
-		JOURNAL *journal_account_fetch,
+		double account_end_balance,
+		char *account_end_date,
 		double journal_balance,
-		double feeder_audit_balance_difference,
-		boolean feeder_audit_difference_zero_boolean )
+		double balance_difference,
+		boolean difference_zero_boolean )
 {
 	LIST *cell_list;
+	char *date_string;
 
 	if ( !application_name
 	||   !login_name
-	||   !feeder_row
-	||   !journal_account_fetch )
+	||   !account_end_date )
 	{
 		char message[ 128 ];
 
@@ -366,33 +245,27 @@ HTML_ROW *feeder_audit_html_row(
 			message );
 	}
 
+	date_string =
+		/* ----------------------------------------------- */
+		/* Returns heap memory, source_date_string or null */
+		/* ----------------------------------------------- */
+		date_convert_return_date_string(
+			date_convert_international
+				/* source_enum */,
+			date_convert_login_name_enum(
+				application_name,
+				login_name )
+				/* destination_enum */,
+			account_end_date
+				/* source_date_string */ );
+
 	cell_list =
 		feeder_audit_html_cell_list(
-			feeder_row->feeder_row_number,
-			feeder_row->full_name,
-			feeder_row->file_row_description,
-			feeder_row->transaction_date_time,
-			/* ----------------------------------------------- */
-			/* Returns heap memory, source_date_string or null */
-			/* ----------------------------------------------- */
-			date_convert_return_date_string(
-				date_convert_international
-					/* source_enum */,
-				date_convert_login_name_enum(
-					application_name,
-					login_name )
-					/* destination_enum */,
-				feeder_row->feeder_date
-					/* source_date_string */)
-				/* feeder_date */,
-			feeder_row->file_row_amount,
-			feeder_row->file_row_balance,
-			journal_account_fetch->full_name
-				/* journal_full_name */,
-			journal_account_fetch->transaction_date_time,
+			date_string /* feeder_date */,
+			account_end_balance,
 			journal_balance,
-			feeder_audit_balance_difference,
-			feeder_audit_difference_zero_boolean );
+			balance_difference,
+			difference_zero_boolean );
 
 	return
 	/* -------------- */
@@ -409,31 +282,19 @@ double feeder_audit_balance_difference(
 }
 
 LIST *feeder_audit_html_cell_list(
-		int feeder_row_number,
-		char *feeder_row_full_name,
-		char *file_row_description,
-		char *feeder_row_transaction_date_time,
 		char *feeder_date,
-		double feeder_row_file_row_amount,
-		double feeder_row_file_row_balance,
-		char *journal_full_name,
-		char *journal_transaction_date_time,
+		double event_account_end_balance,
 		double journal_balance,
 		double balance_difference,
 		boolean difference_zero_boolean )
 {
-	LIST *list;
-	char cell_string[ 128 ];
+	LIST *list = list_new();
 
-	if ( !feeder_row_full_name
-	||   !file_row_description
-	||   !feeder_row_transaction_date_time
-	||   !feeder_date
-	||   !feeder_row_file_row_amount )
+	if ( !feeder_date )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "feeder_date is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -441,58 +302,6 @@ LIST *feeder_audit_html_cell_list(
 			__LINE__,
 			message );
 	}
-
-	if ( !journal_full_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "journal_full_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !feeder_row_number )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "feeder_row_number is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !journal_transaction_date_time )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "journal_transaction_date_time is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list = list_new();
-
-	sprintf(cell_string,
-		"%d",
-		feeder_row_number );
-
-	list_set(
-		list,
-		html_cell_new(
-			strdup( cell_string ),
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
 
 	list_set(
 		list,
@@ -504,61 +313,13 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			feeder_row_full_name,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
-			journal_full_name,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
-			file_row_description,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
-			feeder_row_transaction_date_time,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
-			journal_transaction_date_time,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
 			strdup(
 				/* ---------------------- */
 				/* Returns static memory. */
 				/* Doesn't trim pennies.  */
 				/* ---------------------- */
 				string_commas_money(
-					feeder_row_file_row_amount ) ),
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	list_set(
-		list,
-		html_cell_new(
-			strdup(
-				/* ---------------------- */
-				/* Returns static memory. */
-				/* Doesn't trim pennies.  */
-				/* ---------------------- */
-				string_commas_money(
-					feeder_row_file_row_balance ) ),
+					event_account_end_balance ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 

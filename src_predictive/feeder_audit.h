@@ -12,7 +12,8 @@
 #include "html.h"
 #include "journal.h"
 #include "account.h"
-#include "feeder.h"
+#include "feeder_audit_journal.h"
+#include "feeder_row.h"
 #include "feeder_load_event.h"
 
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"
@@ -25,9 +26,7 @@
 typedef struct
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
-	int feeder_row_final_number;
-	FEEDER_ROW *feeder_row_fetch;
-	JOURNAL *journal_account_fetch;
+	FEEDER_AUDIT_JOURNAL *feeder_audit_journal;
 	ACCOUNT *account_fetch;
 	double journal_balance;
 	double balance_difference;
@@ -43,7 +42,6 @@ typedef struct
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
-		char *fund_name,
 		char *feeder_account_name );
 
 /* Process */
@@ -54,7 +52,7 @@ FEEDER_AUDIT *feeder_audit_calloc(
 LIST *feeder_audit_html_column_list(
 		void );
 
-double feeder_audit_journal_balance(
+double feeder_audit_accumulate_debit_journal_balance(
 		double journal_fetch_balance,
 		boolean element_accumulate_debit );
 
@@ -70,8 +68,8 @@ boolean feeder_audit_difference_zero_boolean(
 HTML_ROW *feeder_audit_html_row(
 		char *application_name,
 		char *login_name,
-		FEEDER_ROW *feeder_row,
-		JOURNAL *journal_account_fetch,
+		double event_account_end_balance,
+		char *event_account_end_date,
 		double journal_balance,
 		double feeder_audit_balance_difference,
 		boolean feeder_audit_difference_zero_boolean );
@@ -79,15 +77,8 @@ HTML_ROW *feeder_audit_html_row(
 /* Process */
 /* ------- */
 LIST *feeder_audit_html_cell_list(
-		int feeder_row_number,
-		char *feeder_row_full_name,
-		char *file_row_description,
-		char *feeder_row_transaction_date_time,
 		char *feeder_date,
-		double feeder_row_file_row_amount,
-		double feeder_row_file_row_balance,
-		char *journal_full_name,
-		char *journal_transaction_date_time,
+		double event_account_end_balance,
 		double journal_balance,
 		double feeder_audit_balance_difference,
 		boolean feeder_audit_difference_zero_boolean );
