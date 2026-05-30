@@ -82,11 +82,6 @@ feeder_load_row_list_raw_display(
 	feeder->feeder_load_row_list );
 */
 
-	feeder->predictive_fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME );
-
 	feeder_load_row_file_row_balance_set(
 		exchange_balance_amount,
 		feeder->feeder_load_row_list
@@ -135,9 +130,18 @@ feeder_load_row_list_raw_display(
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
 
+	feeder->predictive_fund_name =
+		/* ------------------------- */
+		/* Returns parameter or null */
+		/* ------------------------- */
+		predictive_fund_name(
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
+			fund_name );
+
 	feeder->feeder_row_list =
 		feeder_row_list(
-			fund_name,
+			feeder->predictive_fund_name,
 			feeder_account_name,
 			reverse_order_boolean,
 			feeder->
@@ -326,7 +330,9 @@ void feeder_execute(
 			feeder_load_event->
 			feeder_load_date_time,
 		feeder->feeder_row_list,
-		feeder->predictive_fund_boolean );
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME ) );
 
 	printf( "<h3>Execute feeder row count: %d</h3>\n",
 		feeder->feeder_row_count );

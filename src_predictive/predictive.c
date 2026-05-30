@@ -20,8 +20,10 @@ char *predictive_fund_where(
 
 	if ( !fund_name
 	||   !*fund_name
-	||   strcmp( fund_name, "fund" ) == 0
-	||   strcmp( fund_name, "fund_name" ) == 0
+	||   strcmp(	fund_name,
+			predictive_fund_table_name ) == 0
+	||   strcmp(	fund_name,
+			predictive_fund_column_name ) == 0
 	||   !predictive_fund_boolean(
 		predictive_fund_table_name,
 		predictive_fund_column_name ) )
@@ -134,8 +136,10 @@ char *predictive_fund_name(
 	{
 		if ( !fund_name
 		||   !*fund_name
-		||   strcmp( fund_name, "fund" ) == 0
-		||   strcmp( fund_name, "fund_name" ) == 0 )
+		||   strcmp(	fund_name,
+				PREDICTIVE_FUND_TABLE_NAME ) == 0
+		||   strcmp(	fund_name,
+				PREDICTIVE_FUND_COLUMN_NAME ) == 0 )
 		{
 			char message[ 1024 ];
 

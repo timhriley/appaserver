@@ -42,13 +42,13 @@ typedef struct
 	char *feeder_account_name;
 	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
-	boolean predictive_fund_boolean;
 	char *account_uncleared_checks_string;
 	LIST *feeder_phrase_list;
 	LIST *feeder_row_exist_list;
 	int match_days_ago;
 	char *match_minimum_date;
 	LIST *feeder_matched_journal_list;
+	char *predictive_fund_name;
 	LIST *feeder_row_list;
 	int feeder_row_count;
 	boolean feeder_row_list_non_match_boolean;
