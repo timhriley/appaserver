@@ -16,6 +16,7 @@
 
 FEEDER_AUDIT_JOURNAL *feeder_audit_journal_fetch(
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *feeder_load_date_time )
 {
 	FEEDER_AUDIT_JOURNAL *feeder_audit_journal;
@@ -42,6 +43,7 @@ FEEDER_AUDIT_JOURNAL *feeder_audit_journal_fetch(
 	feeder_audit_journal->row_list =
 		feeder_audit_journal_row_list(
 			feeder_account_name,
+			reverse_order_boolean,
 			feeder_load_date_time );
 
 	feeder_audit_journal->balance =
@@ -78,6 +80,7 @@ FEEDER_AUDIT_JOURNAL *feeder_audit_journal_calloc( void )
 
 LIST *feeder_audit_journal_row_list(
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *feeder_load_date_time )
 {
 	LIST *row_list;
@@ -89,6 +92,7 @@ LIST *feeder_audit_journal_row_list(
 		row_list =
 			feeder_audit_journal_non_fund_row_list(
 				feeder_account_name,
+				reverse_order_boolean,
 				feeder_load_date_time );
 	}
 	else
@@ -96,6 +100,7 @@ LIST *feeder_audit_journal_row_list(
 		row_list =
 			feeder_audit_journal_fund_row_list(
 				feeder_account_name,
+				reverse_order_boolean,
 				feeder_load_date_time );
 	}
 
@@ -104,42 +109,33 @@ LIST *feeder_audit_journal_row_list(
 
 LIST *feeder_audit_journal_non_fund_row_list(
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *feeder_load_date_time )
 {
 	LIST *row_list = list_new();
 	FEEDER_ROW *feeder_row;
 
 	feeder_row =
-		feeder_audit_feeder_row_fetch(
-			(char *)0 /* fund_name */,
+		feeder_audit_journal_feeder_row_fetch(
 			feeder_account_name,
-			feeder_load_date_time );
-
-	if ( !feeder_row )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"feeder_audit_feeder_row_fetch(%s,%s) returned empty.",
-			feeder_account_name,
-			feeder_load_date_time );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+			reverse_order_boolean,
+			feeder_load_date_time,
+			(char *)0 /* fund_name */ );
 
 	list_set( row_list, feeder_row );
+
+	if ( !list_length( row_list ) )
+	{
+		list_free( row_list );
+		row_list = NULL;
+	}
 
 	return row_list;
 }
 
 LIST *feeder_audit_journal_fund_row_list(
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *feeder_load_date_time )
 {
 	LIST *row_list = list_new();
@@ -157,10 +153,11 @@ LIST *feeder_audit_journal_fund_row_list(
 		fund_name = list_get( fund_name_list );
 
 		feeder_row =
-			feeder_audit_feeder_row_fetch(
-				fund_name,
+			feeder_audit_journal_feeder_row_fetch(
 				feeder_account_name,
-				feeder_load_date_time );
+				reverse_order_boolean,
+				feeder_load_date_time,
+				fund_name );
 
 		list_set( row_list, feeder_row );
 
@@ -175,47 +172,31 @@ LIST *feeder_audit_journal_fund_row_list(
 	return row_list;
 }
 
-FEEDER_ROW *feeder_audit_feeder_row_fetch(
-		char *fund_name,
+FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 		char *feeder_account_name,
-		char *feeder_load_date_time )
+		boolean reverse_order_boolean,
+		char *feeder_load_date_time,
+		char *fund_name )
 {
-	int final_number;
+	int latest_date_number;
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
 
-	final_number =
-		feeder_row_final_number(
+	latest_date_number =
+		feeder_row_latest_date_number(
 			FEEDER_ROW_TABLE,
-			fund_name,
 			feeder_account_name,
-			feeder_load_date_time );
+			reverse_order_boolean,
+			feeder_load_date_time,
+			fund_name );
 
-	if ( !final_number )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"feeder_row_final_number(%s,%s,%s) returned empty.",
-			(fund_name) ? fund_name : "fund",
-			feeder_account_name,
-			feeder_load_date_time );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	if ( !latest_date_number ) return NULL;
 
 	feeder_row =
 		feeder_row_fetch(
 			feeder_account_name,
 			feeder_load_date_time,
-			final_number /* feeder_row_number */ );
+			latest_date_number /* feeder_row_number */ );
 
 	if ( !feeder_row )
 	{
@@ -227,7 +208,7 @@ FEEDER_ROW *feeder_audit_feeder_row_fetch(
 			"feeder_row_fetch(%s,%s,%d) returned empty.",
 			feeder_account_name,
 			feeder_load_date_time,
-			final_number );
+			latest_date_number );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

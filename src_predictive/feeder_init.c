@@ -13,6 +13,7 @@
 #include "date.h"
 #include "sql.h"
 #include "security.h"
+#include "predictive.h"
 #include "import_predict.h"
 #include "feeder.h"
 #include "feeder_init.h"
@@ -533,7 +534,7 @@ void feeder_init_transaction_insert(
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
 		char *fund_name,
-		double negate_exchange_journal_begin_amount,
+		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,
@@ -574,7 +575,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* Safely returns */
 		/* -------------- */
 		feeder_init_transaction_journal(
-			negate_exchange_journal_begin_amount,
+			-exchange_journal_begin_amount,
 			feeder_init_credit->
 				feeder_init_transaction_equity_account_name,
 			1 /* debit_boolean */,
@@ -585,7 +586,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* Safely returns */
 		/* -------------- */
 		feeder_init_transaction_journal(
-			negate_exchange_journal_begin_amount,
+			-exchange_journal_begin_amount,
 			account_name,
 			0 /* not debit_boolean */,
 			execute_boolean /* fetch_account_boolean */ );
@@ -597,7 +598,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		feeder_init_transaction_new(
 			TRANSACTION_BEGIN_TIME,
 			fund_name,
-			negate_exchange_journal_begin_amount,
+			-exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
 			entity_self_street_address,
@@ -736,6 +737,7 @@ FEEDER_INIT_CHECKING *feeder_init_checking_calloc( void )
 
 FEEDER_INIT_INPUT *feeder_init_input_new(
 		char *application_name,
+		char *fund_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
 		char *exchange_minimum_date_string )
@@ -761,6 +763,15 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 	}
 
 	feeder_init_input = feeder_init_input_calloc();
+
+	feeder_init_input->predictive_fund_name =
+		/* ------------------------- */
+		/* Returns parameter or null */
+		/* ------------------------- */
+		predictive_fund_name(
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
+			fund_name );
 
 	feeder_init_input->institution_missing_boolean =
 		feeder_init_input_institution_missing_boolean(
@@ -988,7 +999,7 @@ char *feeder_init_input_account_name(
 		snprintf(
 			account_name,
 			sizeof ( account_name ),
-			"%s_creditcard",
+			"%s_credit_card",
 			mnemonic );
 	}
 
@@ -1060,6 +1071,7 @@ FEEDER_INIT *feeder_init_new(
 		/* -------------- */
 		feeder_init_input_new(
 			application_name,
+			fund_name,
 			financial_institution_full_name,
 			checking_boolean,
 			exchange_minimum_date_string );
@@ -1081,7 +1093,9 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_checking_new(
 				0 /* not execute_boolean */,
-				fund_name,
+				feeder_init->
+					feeder_init_input->
+					predictive_fund_name,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1104,9 +1118,10 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_credit_new(
 				0 /* not execute_boolean */,
-				fund_name,
-				-exchange_journal_begin_amount
-				/* negate_exchange_journal_begin_amount */,
+				feeder_init->
+					feeder_init_input->
+					predictive_fund_name,
+				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
 					feeder_init_input->
@@ -1216,7 +1231,9 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			fund_name );
+			feeder_init->
+				feeder_init_input->
+				predictive_fund_name );
 
 	feeder_init->activity_system_string =
 		/* --------------------- */
@@ -1227,7 +1244,9 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			fund_name );
+			feeder_init->
+				feeder_init_input->
+				predictive_fund_name );
 
 	feeder_init->position_system_string =
 		/* --------------------- */
@@ -1238,7 +1257,9 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			fund_name );
+			feeder_init->
+				feeder_init_input->
+				predictive_fund_name );
 
 	return feeder_init;
 }
@@ -1746,9 +1767,10 @@ void feeder_init_process(
 				/* -------------- */
 				feeder_init_credit_new(
 					1 /* execute_boolean */,
-					fund_name,
-					-exchange_journal_begin_amount
-					/* negate_exchange_journal_begin */,
+					feeder_init->
+						feeder_init_input->
+						predictive_fund_name,
+					exchange_journal_begin_amount,
 					exchange_minimum_date_string,
 					feeder_init->
 						feeder_init_input->

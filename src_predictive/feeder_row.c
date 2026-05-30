@@ -600,6 +600,7 @@ char *feeder_row_list_display_system_string( void )
 }
 
 void feeder_row_list_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
@@ -625,29 +626,58 @@ void feeder_row_list_display(
 		return;
 	}
 
-	if ( list_rewind( feeder_row_list ) )
-	do {
-		feeder_row = list_get( feeder_row_list );
-
-		if ( !display_pipe )
-		{
+	if ( reverse_order_boolean )
+	{
+		if ( list_go_last( feeder_row_list ) )
+		do {
+			feeder_row = list_get( feeder_row_list );
+	
+			if ( !display_pipe )
+			{
+				display_pipe =
+					/* -------------- */
+					/* Safely returns */
+					/* -------------- */
+					feeder_row_list_display_pipe(
+						system_string );
+			}
+	
 			display_pipe =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				feeder_row_list_display_pipe(
-					system_string );
-		}
-
-		display_pipe =
-			/* ---------------------------- */
-			/* Returns display_pipe or null */
-			/* ---------------------------- */
-			feeder_row_display_output(
-				display_pipe,
-				feeder_row );
-
-	} while ( list_next( feeder_row_list ) );
+				/* ---------------------------- */
+				/* Returns display_pipe or null */
+				/* ---------------------------- */
+				feeder_row_display_output(
+					display_pipe,
+					feeder_row );
+	
+		} while ( list_previous( feeder_row_list ) );
+	}
+	else
+	{
+		if ( list_rewind( feeder_row_list ) )
+		do {
+			feeder_row = list_get( feeder_row_list );
+	
+			if ( !display_pipe )
+			{
+				display_pipe =
+					/* -------------- */
+					/* Safely returns */
+					/* -------------- */
+					feeder_row_list_display_pipe(
+						system_string );
+			}
+	
+			display_pipe =
+				/* ---------------------------- */
+				/* Returns display_pipe or null */
+				/* ---------------------------- */
+				feeder_row_display_output(
+					display_pipe,
+					feeder_row );
+	
+		} while ( list_next( feeder_row_list ) );
+	}
 
 	if ( display_pipe ) pclose( display_pipe );
 
@@ -826,6 +856,10 @@ FILE *feeder_row_display_output(
 				feeder_transaction->
 				transaction->
 				journal_list,
+			feeder_row->
+				feeder_transaction->
+				transaction->
+				fund_name,
 			feeder_row->
 				feeder_transaction->
 				transaction->
@@ -1040,9 +1074,12 @@ double feeder_row_account_end_balance( LIST *feeder_row_list )
 	return account_end_balance;
 }
 
-void feeder_row_error_display( LIST *feeder_row_list )
+void feeder_row_error_display(
+		boolean reverse_order_boolean,
+		LIST *feeder_row_list )
 {
 	feeder_row_list_display(
+		reverse_order_boolean,
 		feeder_row_error_extract_list(
 			feeder_row_list )
 			/* feeder_row_list */ );
@@ -1074,6 +1111,7 @@ LIST *feeder_row_error_extract_list( LIST *feeder_row_list )
 LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		char *account_uncleared_checks_string,
@@ -1086,7 +1124,6 @@ LIST *feeder_row_list(
 	FEEDER_LOAD_ROW *feeder_load_row;
 	FEEDER_ROW *feeder_row;
 	char *minimum_transaction_date_time = {0};
-	int feeder_row_number = 0;
 
 	if ( !feeder_account_name
 	||   !financial_institution_full_name
@@ -1122,7 +1159,9 @@ LIST *feeder_row_list(
 				feeder_matched_journal_list,
 				feeder_load_row,
 				minimum_transaction_date_time,
-				++feeder_row_number );
+				feeder_row_feeder_row_number(
+					reverse_order_boolean,
+					list_length( feeder_load_row_list ) ) );
 
 		if ( feeder_row->transaction_date_time )
 		{
@@ -1562,16 +1601,20 @@ char *feeder_row_minimum_transaction_date_time(
 	string_pipe_fetch( system_string );
 }
 
-char *feeder_row_final_number_select( void )
+char *feeder_row_latest_date_number_select( boolean reverse_order_boolean )
 {
-	return "max( feeder_row_number )";
+	if ( reverse_order_boolean )
+		return "min( feeder_row_number )";
+	else
+		return "max( feeder_row_number )";
 }
 
-int feeder_row_final_number(
+int feeder_row_latest_date_number(
 		const char *feeder_row_table,
-		char *fund_name,
 		char *feeder_account_name,
-		char *feeder_load_date_time )
+		boolean reverse_order_boolean,
+		char *feeder_load_date_time,
+		char *fund_name )
 {
 	char *primary_where;
 	char *where;
@@ -1604,7 +1647,7 @@ int feeder_row_final_number(
 		/* ---------------------------------- */
 		/* Returns parameter or static memory */
 		/* ---------------------------------- */
-		feeder_row_final_number_where(
+		feeder_row_latest_date_number_where(
 			PREDICTIVE_FUND_COLUMN_NAME,
 			fund_name,
 			primary_where );
@@ -1616,7 +1659,7 @@ int feeder_row_final_number(
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		feeder_row_final_number_select(),
+		feeder_row_latest_date_number_select( reverse_order_boolean),
 		feeder_row_table,
 		where );
 
@@ -2006,7 +2049,7 @@ boolean feeder_row_list_non_match_boolean( LIST *feeder_row_list )
 	return 0;
 }
 
-char *feeder_row_final_number_where(
+char *feeder_row_latest_date_number_where(
 		const char *feeder_fund_column_name,
 		char *fund_name,
 		char *primary_where )
@@ -2029,4 +2072,28 @@ char *feeder_row_final_number_where(
 
 		return where;
 	}
+}
+
+int feeder_row_feeder_row_number(
+		boolean reverse_order_boolean,
+		int feeder_load_row_list_length )
+{
+	static int row_number;
+	int return_row_number;
+
+	row_number++;
+
+	if ( reverse_order_boolean )
+	{
+		return_row_number =
+			feeder_load_row_list_length -
+			row_number +
+			1;
+	}
+	else
+	{
+		return_row_number = row_number;
+	}
+
+	return return_row_number;
 }

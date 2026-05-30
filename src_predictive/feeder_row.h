@@ -145,6 +145,7 @@ typedef struct
 LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		char *account_uncleared_checks_string,
@@ -152,6 +153,12 @@ LIST *feeder_row_list(
 		LIST *feeder_exist_row_list,
 		LIST *feeder_matched_journal_list,
 		LIST *feeder_load_row_list );
+
+/* Process */
+/* ------- */
+int feeder_row_feeder_row_number(
+		boolean reverse_order_boolean,
+		int feeder_load_row_list_length );
 
 /* Usage */
 /* ----- */
@@ -231,23 +238,24 @@ FEEDER_ROW *feeder_row_parse(
 
 /* Usage */
 /* ----- */
-int feeder_row_final_number(
+int feeder_row_latest_date_number(
 		const char *feeder_row_table,
-		char *fund_name,
 		char *feeder_account_name,
-		char *feeder_load_date_time );
+		boolean reverse_order_boolean,
+		char *feeder_load_date_time,
+		char *fund_name );
 
 /* Process */
 /* ------- */
 
 /* Returns program memory */
 /* ---------------------- */
-char *feeder_row_final_number_select(
-		void );
+char *feeder_row_latest_date_number_select(
+		boolean reverse_order_boolean );
 
 /* Returns parameter or static memory */
 /* ---------------------------------- */
-char *feeder_row_final_number_where(
+char *feeder_row_latest_date_number_where(
 		const char *feeder_fund_column_name,
 		char *fund_name,
 		char *feeder_load_event_primary_where );
@@ -327,6 +335,7 @@ int feeder_row_insert_count(
 /* Usage */
 /* ----- */
 void feeder_row_error_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list );
 
 /* Process */
@@ -337,6 +346,7 @@ LIST *feeder_row_error_extract_list(
 /* Usage */
 /* ----- */
 void feeder_row_list_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list );
 
 /* Process */

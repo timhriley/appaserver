@@ -22,7 +22,8 @@
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
-		char *feeder_account_name )
+		char *feeder_account_name,
+		boolean reverse_order_boolean )
 {
 	FEEDER_AUDIT *feeder_audit;
 
@@ -57,6 +58,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		/* -------------- */
 		feeder_audit_journal_fetch(
 			feeder_account_name,
+			reverse_order_boolean,
 			feeder_audit->
 				feeder_load_event->
 				feeder_load_date_time );

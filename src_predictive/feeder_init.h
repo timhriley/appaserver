@@ -213,6 +213,7 @@
 
 typedef struct
 {
+	char *predictive_fund_name;
 	boolean institution_missing_boolean;
 	char *account_name;
 	boolean account_exist_boolean;
@@ -230,6 +231,7 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_INPUT *feeder_init_input_new(
 		char *application_name,
+		char *fund_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
 		char *exchange_minimum_date_string );
@@ -361,7 +363,7 @@ typedef struct
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
 		char *fund_name,
-		double negate_exchange_journal_begin_amount,
+		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,

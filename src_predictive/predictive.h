@@ -59,4 +59,14 @@ LIST *predictive_fund_name_list(
 		const char *predictive_fund_table_name,
 		const char *predictive_fund_column_name );
 
+/* Usage */
+/* ----- */
+
+/* Returns parameter or null */
+/* ------------------------- */
+char *predictive_fund_name(
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
+		char *fund_name );
+
 #endif

@@ -42,7 +42,8 @@ typedef struct
 FEEDER_AUDIT *feeder_audit_fetch(
 		char *application_name,
 		char *login_name,
-		char *feeder_account_name );
+		char *feeder_account_name,
+		boolean reverse_order_boolean );
 
 /* Process */
 /* ------- */

@@ -348,11 +348,20 @@ int feeder_load_row_pound_number( char *description_space_trim )
 			description_space_trim /* string */,
 			1 /* occurrence */ );
 
+	if ( position < 0 ) return 0;
+
+	if ( !feeder_load_row_check_number_boolean(
+		description_space_trim + position + 1
+			/* check_number_string */ ) )
+	{
+		return 0;
+	}
+
 	return
 	feeder_load_row_position_check_number(
 		description_space_trim,
 		position,
-		strlen( substr ) );
+		strlen( substr ) /* strlen_substr */ );
 }
 
 int feeder_load_row_check_text_number( char *description_space_trim )
@@ -642,5 +651,44 @@ char *feeder_load_row_description_space_trim(
 		/* --------------------- */
 		sed_trim_double_spaces(
 			exchange_journal_description ) );
+}
+
+boolean feeder_load_row_check_number_boolean( char *check_number_string )
+{
+	char *ptr = check_number_string;
+	boolean got_check_boolean = 0;
+
+	while ( *ptr )
+	{
+		if ( *ptr >= '1' && *ptr <= '9' )
+		{
+			got_check_boolean = 1;
+			ptr++;
+			continue;
+		}
+
+		if ( !got_check_boolean )
+		{
+			if ( *ptr == '0'
+			||   !isdigit( *ptr ) )
+			{
+				return 0;
+			}
+		}
+
+		if ( *ptr == ' ' ) return got_check_boolean;
+
+		if ( got_check_boolean )
+		{
+			if ( !isdigit( *ptr ) )
+			{
+				return 0;
+			}
+		}
+
+		ptr++;
+	}
+
+	return got_check_boolean;
 }
 

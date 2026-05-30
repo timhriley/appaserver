@@ -1176,6 +1176,7 @@ LIST *journal_binary_list(
 
 void journal_list_html_display(
 		LIST *journal_list,
+		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name )
@@ -1205,6 +1206,7 @@ void journal_list_html_display(
 	{
 		journal_list_pipe_display(
 			output_pipe,
+			transaction_fund_name,
 			transaction_date_time,
 			transaction_memo,
 			transaction_full_name,
@@ -1304,6 +1306,7 @@ char *journal_display( JOURNAL *journal )
 
 void journal_list_pipe_display(
 		FILE *output_pipe,
+		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name,
@@ -1314,6 +1317,7 @@ void journal_list_pipe_display(
 	int i;
 	boolean displayed_memo = 0;
 	char *full_name = {0};
+	char *fund_name;
 
 	if ( !list_length( journal_list ) ) return;
 
@@ -1379,13 +1383,21 @@ void journal_list_pipe_display(
 					}
 				}
 
+				fund_name =
+					/* ------------------------ */
+					/* Returns either parameter */
+					/* ------------------------ */
+					journal_fund_name(
+						transaction_fund_name,
+						journal->fund_name );
+
 				fprintf(output_pipe,
 			 		"%s^%s^\n",
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
 					journal_account_display(
-						journal->fund_name,
+						fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1416,13 +1428,21 @@ void journal_list_pipe_display(
 					}
 				}
 
+				fund_name =
+					/* ------------------------ */
+					/* Returns either parameter */
+					/* ------------------------ */
+					journal_fund_name(
+						transaction_fund_name,
+						journal->fund_name );
+
 				fprintf(output_pipe,
 			 		"%s^^%s\n",
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
 					journal_account_display(
-						journal->fund_name,
+						fund_name,
 						journal->account_name ),
 					/* ----------------------*/
 					/* Returns static memory */
@@ -1470,6 +1490,7 @@ void journal_list_sum_html_display(
 
 	journal_list_pipe_display(
 		output_pipe,
+		(char *)0 /* transaction_fund_name */,
 		transaction_date_time,
 		transaction_memo,
 		(char *)0 /* transaction_full_name */,
@@ -2744,7 +2765,7 @@ char *journal_account_display(
 	}
 	else
 	{
-		if ( fund_name )
+		if ( fund_name && *fund_name )
 		{
 			snprintf(
 				display,
@@ -2785,3 +2806,17 @@ char *journal_fund_select(
 	return select;
 }
 
+char *journal_fund_name(
+		char *transaction_fund_name,
+		char *input_journal_fund_name )
+{
+	if ( transaction_fund_name
+	&&   *transaction_fund_name )
+	{
+		return transaction_fund_name;
+	}
+	else
+	{
+		return input_journal_fund_name;
+	}
+}

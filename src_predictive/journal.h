@@ -214,6 +214,7 @@ char *journal_insert_data_string(
 /* ----- */
 void journal_list_html_display(
 		LIST *journal_list,
+		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *fund_name );
@@ -260,6 +261,7 @@ double journal_balance_sum(
 /* ----- */
 void journal_list_pipe_display(
 		FILE *output_pipe,
+		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
 		char *transaction_full_name,
@@ -267,6 +269,12 @@ void journal_list_pipe_display(
 
 /* Process */
 /* ------- */
+
+/* Returns either parameter */
+/* ------------------------ */
+char *journal_fund_name(
+		char *transaction_fund_name,
+		char *journal_fund_name );
 
 /* Returns static memory */
 /* --------------------- */

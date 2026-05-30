@@ -73,6 +73,7 @@ FEEDER *feeder_fetch(
 		char *login_name,
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
 		double exchange_journal_begin_amount,
@@ -106,6 +107,7 @@ void feeder_execute(
 /* Usage */
 /* ----- */
 void feeder_display(
+		boolean reverse_order_boolean,
 		FEEDER *feeder );
 
 /* Usage */
@@ -124,6 +126,7 @@ void feeder_process(
 		char *login_name,
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		boolean execute_boolean,
 		FEEDER *feeder );
 

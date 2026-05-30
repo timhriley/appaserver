@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "String.h"
 #include "list.h"
+#include "appaserver_error.h"
 #include "predictive.h"
 
 char *predictive_fund_where(
@@ -120,4 +121,41 @@ LIST *predictive_fund_name_list(
 		predictive_fund_table_name );
 
 	return list_pipe( system_string );
+}
+
+char *predictive_fund_name(
+		const char *predictive_fund_table_name,
+		const char *predictive_fund_column_name,
+		char *fund_name )
+{
+	if ( predictive_fund_boolean(
+		predictive_fund_table_name,
+		predictive_fund_column_name ) )
+	{
+		if ( !fund_name
+		||   !*fund_name
+		||   strcmp( fund_name, "fund" ) == 0
+		||   strcmp( fund_name, "fund_name" ) == 0 )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"Invalid fund_name=[%s]",
+				fund_name );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		return fund_name;
+	}
+	else
+	{
+		return NULL;
+	}
 }

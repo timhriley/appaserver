@@ -116,6 +116,7 @@ int main( int argc, char **argv )
 					login_name,
 					fund_name,
 					feeder_account_name,
+					0 /* not reverse_order_boolean */,
 					exchange_format_filename,
 					exchange->exchange_journal_list,
 					exchange->exchange_journal_begin_amount,
@@ -130,6 +131,7 @@ int main( int argc, char **argv )
 		login_name,
 		fund_name,
 		feeder_account_name,
+		0 /* not reverse_order_boolean */,
 		execute_boolean,
 		feeder );
 

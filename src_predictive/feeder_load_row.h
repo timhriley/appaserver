@@ -132,15 +132,30 @@ int feeder_load_row_check_number(
 int feeder_load_row_pound_colon_number(
 		char *feeder_load_row_description_space_trim );
 
+/* If like "check 1827" or "CHECK 1827" */
+/* ------------------------------------ */
+int feeder_load_row_check_text_number(
+		char *feeder_load_row_description_space_trim );
+
+/* Usage */
+/* ----- */
+
 /* If like "#1827" */
 /* --------------- */
 int feeder_load_row_pound_number(
 		char *feeder_load_row_description_space_trim );
 
-/* If like "check 1827" or "CHECK 1827" */
-/* ------------------------------------ */
-int feeder_load_row_check_text_number(
-		char *feeder_load_row_description_space_trim );
+/* Usage */
+/* ----- */
+int feeder_load_row_position_check_number(
+		char *description_space_trim,
+		int position,
+		int strlen_substr );
+
+/* Usage */
+/* ----- */
+boolean feeder_load_row_check_number_boolean(
+		char *check_number_string );
 
 /* Usage */
 /* ----- */

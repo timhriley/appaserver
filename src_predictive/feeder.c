@@ -33,6 +33,7 @@ FEEDER *feeder_fetch(
 		char *login_name,
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		char *exchange_format_filename,
 		LIST *exchange_journal_list,
 		double exchange_journal_begin_amount,
@@ -138,6 +139,7 @@ feeder_load_row_list_raw_display(
 		feeder_row_list(
 			fund_name,
 			feeder_account_name,
+			reverse_order_boolean,
 			feeder->
 				feeder_account->
 				financial_institution_full_name,
@@ -333,7 +335,9 @@ void feeder_execute(
 		process_name );
 }
 
-void feeder_display( FEEDER *feeder )
+void feeder_display(
+		boolean reverse_order_boolean,
+		FEEDER *feeder )
 {
 	if ( !feeder )
 	{
@@ -353,12 +357,14 @@ void feeder_display( FEEDER *feeder )
 		printf( "<h1>Feeder Error Table</h1>\n" );
 
 		feeder_row_error_display(
+			reverse_order_boolean,
 			feeder->feeder_row_list );
 	}
 
 	printf( "<h1>Transaction Table</h1>\n" );
 
 	feeder_row_list_display(
+		reverse_order_boolean,
 		feeder->feeder_row_list );
 
 	printf( "<h3>Non-execute feeder row count: %d</h3>\n",
@@ -387,6 +393,7 @@ void feeder_process(
 		char *login_name,
 		char *fund_name,
 		char *feeder_account_name,
+		boolean reverse_order_boolean,
 		boolean execute_boolean,
 		FEEDER *feeder )
 {
@@ -409,7 +416,9 @@ void feeder_process(
 		{
 			char message[ 2048 ];
 
-			feeder_display( feeder );
+			feeder_display(
+				reverse_order_boolean,
+				feeder );
 
 			snprintf(
 				message,
@@ -430,7 +439,9 @@ void feeder_process(
 		}
 		else
 		{
-			feeder_display( feeder );
+			feeder_display(
+				reverse_order_boolean,
+				feeder );
 		}
 	}
 
@@ -447,7 +458,8 @@ void feeder_process(
 			feeder_audit_fetch(
 				application_name,
 				login_name,
-				feeder_account_name );
+				feeder_account_name,
+				reverse_order_boolean );
 
 		if ( !feeder_audit->feeder_load_event )
 		{

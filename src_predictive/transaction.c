@@ -926,6 +926,7 @@ void transaction_html_display( TRANSACTION *transaction )
 
 	journal_list_html_display(
 		transaction->journal_list,
+		transaction->fund_name,
 		transaction->transaction_date_time,
 		transaction->memo,
 		transaction->full_name );

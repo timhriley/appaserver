@@ -32,10 +32,11 @@ int main( int argc, char **argv )
 	int description_column;
 	int debit_column;
 	int credit_column;
-	int balance_column;
 	int reference_column;
+	int balance_column;
 	boolean reverse_order_boolean;
-	double balance_amount;
+	char *account_end_balance_string;
+	double account_end_balance = 0.0;
 	boolean execute_boolean;
 	boolean checking_boolean;
 	boolean okay_continue = 1;
@@ -52,7 +53,7 @@ int main( int argc, char **argv )
 	if ( argc != 19 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process fund full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column reference_column balance_column reverse_order_yn balance_amount execute_yn\n",
+"Usage: %s session login_name role process fund full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column balance_column reference_column reverse_order_yn account_end_balance execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -74,7 +75,7 @@ int main( int argc, char **argv )
 	balance_column = atoi( argv[ 14 ] );
 	reference_column = atoi( argv[ 15 ] );
 	reverse_order_boolean = (*argv[ 16 ] == 'y');
-	balance_amount = atof( argv[ 17 ] );
+	account_end_balance_string = argv[ 17 ];
 	execute_boolean = (*argv[ 18 ] == 'y');
 
 	document_process_output(
@@ -115,6 +116,17 @@ int main( int argc, char **argv )
 		okay_continue = 0;
 	}
 
+	if ( balance_column == 0
+	&&   !atof( account_end_balance_string ) )
+	{
+		printf( "<h3>Please enter an Account End Balance.</h3>\n" );
+		okay_continue = 0;
+	}
+	else
+	{
+		account_end_balance = atof( account_end_balance_string );
+	}
+
 	if ( okay_continue )
 	{
 		exchange_csv =
@@ -131,7 +143,7 @@ int main( int argc, char **argv )
 				balance_column /* one based */,
 				reference_column /* one based */,
 				reverse_order_boolean,
-				balance_amount /* optional */,
+				account_end_balance /* optional */,
 				appaserver_parameter_upload_directory() );
 	}
 
