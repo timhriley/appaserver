@@ -21,6 +21,7 @@
 #include "dictionary.h"
 #include "subclassification.h"
 #include "journal.h"
+#include "contra_account.h"
 #include "account.h"
 
 LIST *account_statement_list(
@@ -39,6 +40,7 @@ LIST *account_statement_list(
 	FILE *pipe;
 	char input[ 1024 ];
 	LIST *statement_list;
+	LIST *contra_list = {0};
 	ACCOUNT *account;
 
 	if ( !subclassification_primary_where
@@ -53,6 +55,16 @@ LIST *account_statement_list(
 	}
 
 	statement_list = list_new();
+
+	if ( /* fetch_contra_account_boolean */ 1 == 2 )
+	{
+		contra_list =
+			contra_account_list(
+				CONTRA_ACCOUNT_SELECT,
+				CONTRA_ACCOUNT_TABLE,
+				fund_name,
+				end_date_time_string );
+	}
 
 	chart_account_boolean =
 		account_chart_account_boolean(
@@ -93,6 +105,7 @@ LIST *account_statement_list(
 				fetch_journal_latest,
 				fetch_transaction,
 				latest_zero_balance_boolean,
+				contra_list /* contra_account_list */,
 				input );
 
 		if ( account )
@@ -117,6 +130,7 @@ ACCOUNT *account_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		LIST *contra_account_list,
 		char *input )
 {
 	ACCOUNT *account;
@@ -138,6 +152,27 @@ ACCOUNT *account_statement_parse(
 		return NULL;
 	}
 
+	if ( list_length( contra_account_list ) )
+	{
+		if ( contra_account_boolean(
+			contra_account_list,
+			account->account_name) )
+		{
+			free( account );
+			return NULL;
+		}
+
+		account->contra_account_seek =
+			contra_account_seek(
+				contra_account_list,
+				account->account_name
+				   /* contra_to_account mutually exclusive */,
+				(char *)0
+				   /* account_name mutually exclusive */ );
+
+		if ( account->contra_account_seek ) return account;
+	}
+
 	if ( fetch_journal_latest )
 	{
 		account->account_journal_latest =
@@ -152,7 +187,8 @@ ACCOUNT *account_statement_parse(
 		if ( !account->account_journal_latest
 		&&   !latest_zero_balance_boolean )
 		{
-			account = NULL;
+			free( account );
+			return NULL;
 		}
 	}
 
@@ -1562,74 +1598,6 @@ ACCOUNT *account_subclassification_list_seek(
 	} while ( list_next( subclassification_statement_list ) );
 
 	return NULL;
-}
-
-ACCOUNT_JOURNAL *account_journal_latest(
-		const char *journal_table,
-		char *fund_name,
-		char *account_name,
-		char *end_date_time_string,
-		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
-{
-	ACCOUNT_JOURNAL *account_journal;
-	JOURNAL *journal;
-
-	if ( !account_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ! ( journal =
-			journal_latest(
-				journal_table,
-				fund_name,
-				account_name,
-				end_date_time_string,
-				fetch_transaction,
-				latest_zero_balance_boolean ) ) )
-	{
-		return NULL;
-	}
-
-	account_journal = account_journal_calloc();
-
-	account_journal->full_name = journal->full_name;
-	account_journal->street_address = journal->street_address;
-	account_journal->transaction_date_time = journal->transaction_date_time;
-	account_journal->account_name = journal->account_name;
-	account_journal->previous_balance = journal->previous_balance;
-	account_journal->debit_amount = journal->debit_amount;
-	account_journal->credit_amount = journal->credit_amount;
-	account_journal->balance = journal->balance;
-	account_journal->transaction = journal->transaction;
-
-	return account_journal;
-}
-
-ACCOUNT_JOURNAL *account_journal_calloc( void )
-{
-	ACCOUNT_JOURNAL *account_journal;
-
-	if ( ! ( account_journal = calloc( 1, sizeof ( ACCOUNT_JOURNAL ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return account_journal;
 }
 
 boolean account_accumulate_debit( char *account_name )

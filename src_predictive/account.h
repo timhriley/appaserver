@@ -11,6 +11,8 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "subclassification.h"
+#include "contra_account.h"
+#include "account_journal.h"
 
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
@@ -65,34 +67,6 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *transaction_date_time;
-	char *account_name;
-	double previous_balance;
-	double debit_amount;
-	double credit_amount;
-	double balance;
-	TRANSACTION *transaction;
-} ACCOUNT_JOURNAL;
-
-/* Usage */
-/* ----- */
-ACCOUNT_JOURNAL *account_journal_latest(
-		const char *journal_table,
-		char *fund_name,
-		char *account_name,
-		char *end_date_time_string,
-		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
-
-/* Process */
-/* ------- */
-ACCOUNT_JOURNAL *account_journal_calloc(
-		void );
-
-typedef struct
-{
 	char *account_name;
 	char *subclassification_name;
 	char *hard_coded_account_key;
@@ -103,6 +77,7 @@ typedef struct
 	/* Set externally */
 	/* -------------- */
 	ACCOUNT_JOURNAL *account_journal_latest;
+	CONTRA_ACCOUNT *contra_account_seek;
 	int percent_of_asset;
 	int percent_of_income;
 	int delta_prior_percent;
@@ -140,6 +115,7 @@ ACCOUNT *account_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		LIST *contra_account_list,
 		char *input );
 
 /* Usage */

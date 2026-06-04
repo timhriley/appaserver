@@ -108,6 +108,7 @@ SOURCE_LIBRARY= 							\
 		transaction.o						\
 		transaction_date.o					\
 		account.o						\
+		account_journal.o					\
 		contra_account.o					\
 		statement.o						\
 		element.o						\
@@ -1042,6 +1043,10 @@ journal_propagate.o: journal_propagate.c journal_propagate.h
 account.o: account.c account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account.c
+
+account_journal.o: account_journal.c account_journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c account_journal.c
 
 contra_account.o: contra_account.c contra_account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

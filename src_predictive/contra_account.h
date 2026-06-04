@@ -9,7 +9,6 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "account.h"
 
 #define CONTRA_ACCOUNT_TABLE	"contra_account"
 
@@ -20,8 +19,6 @@ typedef struct
 {
 	char *contra_to_account;
 	char *account_name;
-	ACCOUNT_JOURNAL *contra_to_account_journal;
-	ACCOUNT_JOURNAL *account_journal;
 	double net_amount;
 	char *label;
 } CONTRA_ACCOUNT;
@@ -70,7 +67,13 @@ CONTRA_ACCOUNT *contra_account_calloc(
 /* ----- */
 CONTRA_ACCOUNT *contra_account_seek(
 		LIST *contra_account_list,
-		char *contra_to_account /* mutually exclusing */,
+		char *contra_to_account /* mutually exclusive */,
 		char *account_name /* mutually exclusive */ );
+
+/* Usage */
+/* ----- */
+boolean contra_account_boolean(
+		LIST *contra_account_list,
+		char *account_name );
 
 #endif

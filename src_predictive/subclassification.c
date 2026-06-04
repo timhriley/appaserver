@@ -286,8 +286,8 @@ char *subclassification_primary_where(
 }
 
 char *subclassification_system_string(
-		char *subclassification_select,
-		char *subclassification_table,
+		const char *subclassification_select,
+		const char *subclassification_table,
 		char *where )
 {
 	char system_string[ 1024 ];

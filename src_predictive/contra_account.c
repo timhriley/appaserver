@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "folder.h"
 #include "journal.h"
+#include "account_journal.h"
 #include "contra_account.h"
 
 LIST *contra_account_list(
@@ -27,6 +28,8 @@ LIST *contra_account_list(
 	char *system_string;
 	char input[ 1024 ];
 	CONTRA_ACCOUNT *contra_account;
+	ACCOUNT_JOURNAL *contra_to_account_journal;
+	ACCOUNT_JOURNAL *account_journal;
 
 	if ( !folder_column_boolean(
 		(char *)contra_account_table,
@@ -73,7 +76,7 @@ LIST *contra_account_list(
 			continue;
 		}
 
-		contra_account->contra_to_account_journal =
+		contra_to_account_journal =
 			account_journal_latest(
 				JOURNAL_TABLE,
 				fund_name,
@@ -83,13 +86,13 @@ LIST *contra_account_list(
 				0 /* not fetch_transaction */,
 				0 /* not latest_zero_balance_boolean */ );
 
-		if ( !contra_account->contra_to_account_journal )
+		if ( !contra_to_account_journal )
 		{
 			free( contra_account );
 			continue;
 		}
 
-		contra_account->account_journal =
+		account_journal =
 			account_journal_latest(
 				JOURNAL_TABLE,
 				fund_name,
@@ -98,7 +101,7 @@ LIST *contra_account_list(
 				0 /* not fetch_transaction */,
 				0 /* not latest_zero_balance_boolean */ );
 
-		if ( !contra_account->account_journal )
+		if ( !account_journal )
 		{
 			free( contra_account );
 			continue;
@@ -106,12 +109,10 @@ LIST *contra_account_list(
 
 		contra_account->net_amount =
 			contra_account_net_amount(
-				contra_account->
-					contra_to_account_journal->
+				contra_to_account_journal->
 					balance
 					/* contra_to_balance */,
-				contra_account->
-					account_journal->
+				account_journal->
 					balance
 					/* account_balance */ );
 
@@ -120,12 +121,10 @@ LIST *contra_account_list(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			contra_account_label(
-				contra_account->
-					contra_to_account_journal->
+				contra_to_account_journal->
 					account_name
 					/* contra_to_name */,
-				contra_account->
-					account_journal->
+				account_journal->
 					account_name );
 
 		if ( !contra_account->label )
@@ -305,4 +304,37 @@ CONTRA_ACCOUNT *contra_account_seek(
 	} while ( list_next( contra_account_list ) );
 
 	return NULL;
+}
+
+boolean contra_account_boolean(
+		LIST *contra_account_list,
+		char *account_name )
+{
+	if ( !account_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( contra_account_seek(
+		contra_account_list,
+		(char *)0 /* contra_to_account */,
+		account_name ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }

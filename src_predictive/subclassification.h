@@ -71,8 +71,8 @@ LIST *subclassification_where_statement_list(
 /* Returns heap memory */
 /* ------------------- */
 char *subclassification_system_string(
-		char *subclassification_select,
-		char *subclassification_table,
+		const char *subclassification_select,
+		const char *subclassification_table,
 		char *where );
 
 /* Safely returns */
