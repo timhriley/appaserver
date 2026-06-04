@@ -1392,33 +1392,15 @@ LIST *statement_subclass_display_latex_account_row_list(
 		LIST *statement_prior_year_list,
 		LIST *latex_column_list )
 {
-	LIST *row_list;
+	LIST *row_list = list_new();
 	STATEMENT_ACCOUNT *statement_account;
 	ACCOUNT *account;
 
-	if ( !list_rewind( account_statement_list ) ) return (LIST *)0;
-
-	row_list = list_new();
-
+	if ( list_rewind( account_statement_list ) )
 	do {
 		account =
 			list_get(
 				account_statement_list );
-
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"for account = [%s], account_journal_latest is empty.",
-				account->account_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
 
 		statement_account =
 			/* -------------- */
@@ -1428,6 +1410,7 @@ LIST *statement_subclass_display_latex_account_row_list(
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -1440,6 +1423,12 @@ LIST *statement_subclass_display_latex_account_row_list(
 				latex_column_list ) );
 
 	} while ( list_next( account_statement_list ) );
+
+	if ( !list_length( row_list ) )
+	{
+		list_free( row_list );
+		row_list = NULL;
+	}
 
 	return row_list;
 }
@@ -1539,11 +1528,11 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		LIST *latex_column_list )
 {
 	LIST *cell_list;
-	char *cell_label_datum;
 	LATEX_COLUMN *latex_column;
 
 	if ( !statement_account
 	||   !statement_account->account
+	||   !statement_account->label
 	||   !list_rewind( latex_column_list ) )
 	{
 		char message[ 128 ];
@@ -1562,21 +1551,12 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
 
-	cell_label_datum =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		statement_cell_label_datum(
-			statement_account->
-				account->
-				account_name );
-
 	list_set(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
 			0 /* not first_row_boolean */,
-			cell_label_datum ) );
+			statement_account->label ) );
 
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
@@ -1644,18 +1624,18 @@ STATEMENT_ACCOUNT *statement_account_new(
 		char *end_date_time,
 		boolean element_accumulate_debit,
 		ACCOUNT_JOURNAL *account_journal_latest,
+		CONTRA_ACCOUNT *contra_account_seek,
 		char *account_action_string,
 		boolean round_dollar_boolean,
 		ACCOUNT *account )
 {
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !account_journal_latest
-	||   !account )
+	if ( !account )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "account is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1666,7 +1646,21 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 	statement_account = statement_account_calloc();
 
-	statement_account->balance = account_journal_latest->balance;
+	statement_account->balance =
+		/* ----------------------------- */
+		/* Returns a component of either */
+		/* ----------------------------- */
+		statement_account_balance(
+			account_journal_latest,
+			contra_account_seek );
+
+	statement_account->label =
+		/* --------------------------------------------------------- */
+		/* Returns heap memory or a component of contra_account_seek */
+		/* --------------------------------------------------------- */
+		statement_account_label(
+			account_journal_latest,
+			contra_account_seek );
 
 	/* For trial_balance report */
 	/* ------------------------ */
@@ -2123,21 +2117,6 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 	do {
 		account = list_get( element->account_statement_list );
 
-		if ( !account->account_journal_latest )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"for account = [%s], account_journal_latest is empty.",
-				account->account_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		statement_account =
 			/* -------------- */
 			/* Safely returns */
@@ -2146,6 +2125,7 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -2635,6 +2615,7 @@ STATEMENT_SUBCLASS_OMIT_HTML *
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -4017,7 +3998,7 @@ HTML_ROW *statement_subclass_display_html_account_row(
 	LIST *cell_list;
 
 	if ( !statement_account
-	||   !statement_account->account )
+	||   !statement_account->label )
 	{
 		char message[ 128 ];
 
@@ -4035,13 +4016,7 @@ HTML_ROW *statement_subclass_display_html_account_row(
 	list_set(
 		cell_list,
 		html_cell_new(
-			/* ------------------------- */
-			/* Returns heap memory or "" */
-			/* ------------------------- */
-			statement_cell_label_datum(
-				statement_account->
-					account->
-					account_name ),
+			statement_account->label,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -4093,27 +4068,13 @@ LIST *statement_subclass_display_html_account_row_list(
 		LIST *account_statement_list,
 		LIST *statement_prior_year_list )
 {
-	LIST *row_list;
+	LIST *row_list = list_new();
 	ACCOUNT *account;
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !list_rewind( account_statement_list ) )
-		return (LIST *)0;
-
-	row_list = list_new();
-
+	if ( list_rewind( account_statement_list ) )
 	do {
 		account = list_get( account_statement_list );
-
-		if ( !account->account_journal_latest )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
 
 		statement_account =
 			/* -------------- */
@@ -4123,6 +4084,7 @@ LIST *statement_subclass_display_html_account_row_list(
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -4134,6 +4096,12 @@ LIST *statement_subclass_display_html_account_row_list(
 				statement_prior_year_list ) );
 
 	} while ( list_next( account_statement_list ) );
+
+	if ( !list_length( row_list ) )
+	{
+		list_free( row_list );
+		row_list = NULL;
+	}
 
 	return row_list;
 }
@@ -4869,10 +4837,10 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 {
 	LIST *cell_list;
 	LATEX_COLUMN *latex_column;
-	char *cell_label_datum;
 
 	if ( !statement_account
 	||   !statement_account->account
+	||   !statement_account->label
 	||   !list_rewind( latex_column_list ) )
 	{
 		char message[ 128 ];
@@ -4891,19 +4859,12 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
 
-	cell_label_datum =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		statement_cell_label_datum(
-			statement_account->account->account_name );
-
 	list_set(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
 			0 /* not first_row_boolean */,
-			cell_label_datum ) );
+			statement_account->label ) );
 
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
@@ -5075,3 +5036,49 @@ char *statement_greater_year_message(
 		return NULL;
 	}
 }
+
+double statement_account_balance(
+		ACCOUNT_JOURNAL *account_journal_latest,
+		CONTRA_ACCOUNT *contra_account_seek )
+{
+	double balance;
+
+	if ( account_journal_latest )
+		balance = account_journal_latest->balance;
+	else
+	if ( contra_account_seek )
+		balance = contra_account_seek->net_amount;
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both account_journal_latest and contra_account_seek are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance;
+}
+
+char *statement_account_label(
+		ACCOUNT_JOURNAL *account_journal_latest,
+		CONTRA_ACCOUNT *contra_account_seek )
+{
+	if ( account_journal_latest )
+	{
+		char label[ 1024 ];
+
+		(void)string_initial_capital(
+			label,
+			account_journal_latest->
+				account_name );
+
+		return strdup( label );
+	}
+	else
+	{
+		return contra_account_seek->label;
+	}
+}
+
