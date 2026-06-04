@@ -57,7 +57,7 @@ LIST *account_statement_list(
 	chart_account_boolean =
 		account_chart_account_boolean(
 			ACCOUNT_TABLE,
-			ACCOUNT_CHART_ACCOUNT_NUMBER );
+			ACCOUNT_CHART_ACCOUNT );
 
 	select_string =
 		/* ------------------- */
@@ -65,7 +65,7 @@ LIST *account_statement_list(
 		/* ------------------- */
 		account_select_string(
 			ACCOUNT_SELECT,
-			ACCOUNT_CHART_ACCOUNT_NUMBER,
+			ACCOUNT_CHART_ACCOUNT,
 			chart_account_boolean );
 
 	system_string =
@@ -770,7 +770,7 @@ ACCOUNT *account_parse(
 	{
 		piece( piece_buffer, SQL_DELIMITER, input, 4 );
 		if ( *piece_buffer )
-			account->chart_account_number =
+			account->chart_account =
 				strdup( piece_buffer );
 	}
 
@@ -816,7 +816,7 @@ ACCOUNT *account_fetch(
 		chart_account_boolean =
 			account_chart_account_boolean(
 				ACCOUNT_TABLE,
-				ACCOUNT_CHART_ACCOUNT_NUMBER );
+				ACCOUNT_CHART_ACCOUNT );
 
 		select_string =
 			/* ------------------- */
@@ -824,7 +824,7 @@ ACCOUNT *account_fetch(
 			/* ------------------- */
 			account_select_string(
 				ACCOUNT_SELECT,
-				ACCOUNT_CHART_ACCOUNT_NUMBER,
+				ACCOUNT_CHART_ACCOUNT,
 				chart_account_boolean );
 
 		account =
@@ -1375,7 +1375,7 @@ LIST *account_list(
 	chart_account_boolean =
 		account_chart_account_boolean(
 			ACCOUNT_TABLE,
-			ACCOUNT_CHART_ACCOUNT_NUMBER );
+			ACCOUNT_CHART_ACCOUNT );
 
 	select_string =
 		/* ------------------- */
@@ -1383,7 +1383,7 @@ LIST *account_list(
 		/* ------------------- */
 		account_select_string(
 			ACCOUNT_SELECT,
-			ACCOUNT_CHART_ACCOUNT_NUMBER,
+			ACCOUNT_CHART_ACCOUNT,
 			chart_account_boolean );
 
 	return
@@ -1737,17 +1737,17 @@ ACCOUNT *account_key_fetch(
 
 boolean account_chart_account_boolean(
 		const char *account_table,
-		const char *account_chart_account_number )
+		const char *account_chart_account )
 {
 	return
 	folder_attribute_exists(
 		(char *)account_table,
-		(char *)account_chart_account_number );
+		(char *)account_chart_account );
 }
 
 char *account_select_string(
 		const char *account_select,
-		const char *account_chart_account_number,
+		const char *account_chart_account,
 		boolean account_chart_account_boolean )
 {
 	char select_string[ 1024 ];
@@ -1758,7 +1758,7 @@ char *account_select_string(
 			sizeof ( select_string ),
 			"%s,%s",
 			account_select,
-			account_chart_account_number );
+			account_chart_account );
 	else
 		strcpy( select_string, account_select );
 

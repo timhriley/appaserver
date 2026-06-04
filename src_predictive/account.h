@@ -17,7 +17,7 @@
 					"hard_coded_account_key,"	\
 					"annual_budget"
 
-#define ACCOUNT_CHART_ACCOUNT_NUMBER		"chart_account_number"
+#define ACCOUNT_CHART_ACCOUNT			"chart_account"
 #define ACCOUNT_TABLE				"account"
 #define ACCOUNT_PRIMARY_KEY			"account"
 
@@ -97,7 +97,7 @@ typedef struct
 	char *subclassification_name;
 	char *hard_coded_account_key;
 	int annual_budget;
-	char *chart_account_number;
+	char *chart_account;
 	SUBCLASSIFICATION *subclassification;
 
 	/* Set externally */
@@ -359,7 +359,7 @@ char *account_key_account_name(
 /* ----- */
 boolean account_chart_account_boolean(
 		const char *account_table,
-		const char *account_chart_account_number );
+		const char *account_chart_account );
 
 /* Usage */
 /* ----- */
@@ -368,7 +368,7 @@ boolean account_chart_account_boolean(
 /* ------------------- */
 char *account_select_string(
 		const char *account_select,
-		const char *account_chart_account_number,
+		const char *account_chart_account,
 		boolean account_chart_account_boolean );
 
 /* Usage */
