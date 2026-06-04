@@ -967,6 +967,7 @@ LIST *trial_balance_subclass_display_latex_row_list(
 				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				1 /* round_dollar_boolean */,
 				account );
@@ -1045,6 +1046,7 @@ LIST *trial_balance_subclass_display_html_row_list(
 				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -1817,6 +1819,7 @@ LIST *trial_balance_subclass_omit_html_row_list(
 				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -2533,6 +2536,7 @@ LIST *trial_balance_subclass_omit_latex_row_list(
 				end_date_time,
 				element_accumulate_debit,
 				account->account_journal_latest,
+				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				1 /* round_dollar_boolean */,
 				account );
