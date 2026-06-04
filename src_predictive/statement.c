@@ -1410,7 +1410,6 @@ LIST *statement_subclass_display_latex_account_row_list(
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -1624,18 +1623,18 @@ STATEMENT_ACCOUNT *statement_account_new(
 		char *end_date_time,
 		boolean element_accumulate_debit,
 		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek,
 		char *account_action_string,
 		boolean round_dollar_boolean,
 		ACCOUNT *account )
 {
 	STATEMENT_ACCOUNT *statement_account;
 
-	if ( !account )
+	if ( !account
+	||   !account_journal_latest )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "account is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1647,20 +1646,14 @@ STATEMENT_ACCOUNT *statement_account_new(
 	statement_account = statement_account_calloc();
 
 	statement_account->balance =
-		/* ----------------------------- */
-		/* Returns a component of either */
-		/* ----------------------------- */
-		statement_account_balance(
-			account_journal_latest,
-			contra_account_seek );
+		account_journal_latest->balance;
 
 	statement_account->label =
-		/* --------------------------------------------------------- */
-		/* Returns heap memory or a component of contra_account_seek */
-		/* --------------------------------------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		statement_account_label(
-			account_journal_latest,
-			contra_account_seek );
+			account_journal_latest );
 
 	/* For trial_balance report */
 	/* ------------------------ */
@@ -2125,7 +2118,6 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				account->contra_account_seek,
 				(char *)0 /* account_action_string */,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -2615,7 +2607,6 @@ STATEMENT_SUBCLASS_OMIT_HTML *
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -4084,7 +4075,6 @@ LIST *statement_subclass_display_html_account_row_list(
 				(char *)0 /* end_date_time */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				account->contra_account_seek,
 				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
@@ -5037,48 +5027,32 @@ char *statement_greater_year_message(
 	}
 }
 
-double statement_account_balance(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek )
+char *statement_account_label( ACCOUNT_JOURNAL *account_journal_latest )
 {
-	double balance;
+	char label[ 1024 ];
 
-	if ( account_journal_latest )
-		balance = account_journal_latest->balance;
-	else
-	if ( contra_account_seek )
-		balance = contra_account_seek->net_amount;
-	else
+	if ( !account_journal_latest )
 	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: both account_journal_latest and contra_account_seek are empty.\n",
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_journal_latest is empty." );
+
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			message );
 	}
 
-	return balance;
-}
 
-char *statement_account_label(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek )
-{
-	if ( account_journal_latest )
-	{
-		char label[ 1024 ];
-
-		(void)string_initial_capital(
+	return
+	strdup(
+		string_initial_capital(
 			label,
 			account_journal_latest->
-				account_name );
-
-		return strdup( label );
-	}
-	else
-	{
-		return contra_account_seek->label;
-	}
+				account_name ) );
 }
 

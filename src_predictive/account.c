@@ -154,6 +154,8 @@ ACCOUNT *account_statement_parse(
 
 	if ( list_length( contra_account_list ) )
 	{
+		CONTRA_ACCOUNT *contra_account;
+
 		if ( contra_account_boolean(
 			contra_account_list,
 			account->account_name) )
@@ -162,7 +164,7 @@ ACCOUNT *account_statement_parse(
 			return NULL;
 		}
 
-		account->contra_account_seek =
+		contra_account =
 			contra_account_seek(
 				contra_account_list,
 				account->account_name
@@ -170,7 +172,19 @@ ACCOUNT *account_statement_parse(
 				(char *)0
 				   /* account_name mutually exclusive */ );
 
-		if ( account->contra_account_seek ) return account;
+		if ( contra_account )
+		{
+			account->account_journal_latest =
+				account_journal_calloc();
+
+			account->account_journal_latest->account_name =
+				contra_account->label;
+
+			account->account_journal_latest->balance =
+				contra_account->net_amount;
+
+			fetch_journal_latest = 0;
+		}
 	}
 
 	if ( fetch_journal_latest )

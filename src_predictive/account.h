@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "subclassification.h"
-#include "contra_account.h"
 #include "account_journal.h"
 
 #define ACCOUNT_SELECT			"account,"			\
@@ -77,7 +76,6 @@ typedef struct
 	/* Set externally */
 	/* -------------- */
 	ACCOUNT_JOURNAL *account_journal_latest;
-	CONTRA_ACCOUNT *contra_account_seek;
 	int percent_of_asset;
 	int percent_of_income;
 	int delta_prior_percent;

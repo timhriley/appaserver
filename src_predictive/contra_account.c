@@ -175,14 +175,7 @@ char *contra_account_label(
 		contra_to_name,
 		account_name );
 
-	return
-	strdup(
-		/* ------------------- */
-		/* Returns destination */
-		/* ------------------- */
-		string_initial_capital(
-			label /* destination */,
-			label /* source */ ) );
+	return strdup( label );
 }
 
 CONTRA_ACCOUNT *contra_account_parse( char *input )
@@ -195,7 +188,7 @@ CONTRA_ACCOUNT *contra_account_parse( char *input )
 	/* See CONTRA_ACCOUNT_SELECT */
 	/* -------------------------- */
 	piece( contra_to_account, SQL_DELIMITER, input, 0 );
-	piece( account_name, SQL_DELIMITER, input, 0 );
+	piece( account_name, SQL_DELIMITER, input, 1 );
 
 	return
 	contra_account_new(

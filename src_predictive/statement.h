@@ -15,7 +15,6 @@
 #include "latex.h"
 #include "html.h"
 #include "element.h"
-#include "contra_account.h"
 #include "account.h"
 
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
@@ -82,7 +81,6 @@ STATEMENT_ACCOUNT *statement_account_new(
 		char *end_date_time,
 		boolean element_accumulate_debit,
 		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek,
 		char *account_action_string,
 		boolean round_dollar_boolean,
 		ACCOUNT *account );
@@ -130,20 +128,10 @@ char *statement_account_money_string(
 /* Usage */
 /* ----- */
 
-/* Returns a component of either */
-/* ----------------------------- */
-double statement_account_balance(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or a component of contra_account_seek */
-/* --------------------------------------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *statement_account_label(
-		ACCOUNT_JOURNAL *account_journal_latest,
-		CONTRA_ACCOUNT *contra_account_seek );
+		ACCOUNT_JOURNAL *account_journal_latest );
 
 typedef struct
 {
