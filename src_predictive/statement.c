@@ -206,7 +206,7 @@ STATEMENT *statement_fetch(
 
 	statement->process_name = process_name;
 
-	statement->fund_name =
+	statement->predictive_fund_name =
 		/* ------------------------- */
 		/* Returns parameter or null */
 		/* ------------------------- */
@@ -223,7 +223,7 @@ STATEMENT *statement_fetch(
 
 	statement->element_statement_list =
 		element_statement_list(
-			statement->fund_name,
+			statement->predictive_fund_name,
 			element_name_list,
 			end_date_time,
 			1 /* fetch_subclassification */,
@@ -258,7 +258,7 @@ STATEMENT *statement_fetch(
 			statement_caption_new(
 				application_name,
 				process_name,
-				statement->fund_name,
+				statement->predictive_fund_name,
 				transaction_date_begin_date_string,
 				end_date_time );
 	}

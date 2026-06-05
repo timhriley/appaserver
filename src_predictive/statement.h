@@ -667,9 +667,9 @@ char *statement_caption_frame_title(
 typedef struct
 {
 	char *process_name;
-	char *fund_name;
 	char *transaction_date_begin_date_string;
 	char *end_date_time;
+	char *predictive_fund_name;
 	LIST *element_statement_list;
 	boolean pdf_landscape_boolean;
 	STATEMENT_CAPTION *statement_caption;
