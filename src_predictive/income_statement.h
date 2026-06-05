@@ -281,7 +281,8 @@ INCOME_STATEMENT *income_statement_fetch(
 		char *as_of_date_string,
 		int prior_year_count,
 		char *subclassifiction_option_string,
-		char *output_medium_string );
+		char *output_medium_string,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */

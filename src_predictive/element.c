@@ -137,6 +137,7 @@ ELEMENT *element_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean,
 		char *input )
 {
 	ELEMENT *element;
@@ -162,7 +163,8 @@ ELEMENT *element_statement_parse(
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean );
+				latest_zero_balance_boolean,
+				fetch_contra_account_boolean );
 	}
 
 	return element;
@@ -230,7 +232,8 @@ LIST *element_statement_list(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean )
 {
 	LIST *element_list;
 	char *element_name;
@@ -251,7 +254,8 @@ LIST *element_statement_list(
 				fetch_account_list,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean ) );
+				latest_zero_balance_boolean,
+				fetch_contra_account_boolean ) );
 
 	} while ( list_next( element_name_list ) );
 
@@ -347,7 +351,8 @@ ELEMENT *element_statement_fetch(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean )
 {
 	FILE *pipe;
 	ELEMENT *element;
@@ -389,6 +394,7 @@ ELEMENT *element_statement_fetch(
 			fetch_journal_latest,
 			fetch_transaction,
 			latest_zero_balance_boolean,
+			fetch_contra_account_boolean,
 			string_input( input, pipe, sizeof ( input ) ) );
 
 

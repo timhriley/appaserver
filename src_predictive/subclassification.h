@@ -63,7 +63,8 @@ LIST *subclassification_where_statement_list(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */
@@ -90,6 +91,7 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean,
 		char *input );
 
 /* Usage */

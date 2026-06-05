@@ -141,19 +141,7 @@ char *predictive_fund_name(
 		||   strcmp(	fund_name,
 				PREDICTIVE_FUND_COLUMN_NAME ) == 0 )
 		{
-			char message[ 1024 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"Invalid fund_name=[%s]",
-				fund_name );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			return NULL;
 		}
 
 		return fund_name;

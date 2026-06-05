@@ -451,7 +451,8 @@ INCOME_STATEMENT *income_statement_fetch(
 		char *as_of_date_string,
 		int prior_year_count,
 		char *subclassification_option_string,
-		char *output_medium_string )
+		char *output_medium_string,
+		boolean fetch_contra_account_boolean )
 {
 	INCOME_STATEMENT *income_statement;
 
@@ -522,7 +523,8 @@ INCOME_STATEMENT *income_statement_fetch(
 				transaction_date_statement->
 				end_date_time,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			fetch_contra_account_boolean );
 
 	if ( income_statement->statement_output_medium ==
 		statement_output_table )
@@ -561,7 +563,8 @@ INCOME_STATEMENT *income_statement_fetch(
 					transaction_date_statement->
 					end_date_time,
 				prior_year_count,
-				income_statement->statement );
+				income_statement->statement,
+				fetch_contra_account_boolean );
 	}
 
 	if (	income_statement->statement_subclassification_option ==
@@ -1448,7 +1451,8 @@ double income_statement_fetch_net_income(
 			(char *)0 /* transaction_begin_date_string */,
 			end_date_time,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			0 /* not fetch_contra_account_boolean */ );
 
 	if ( !statement ) return 0.0;
 

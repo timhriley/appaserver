@@ -2805,7 +2805,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 		char *as_of_date_string,
 		int prior_year_count,
 		char *subclassification_option_string,
-		char *output_medium_string )
+		char *output_medium_string,
+		boolean fetch_contra_account_boolean )
 {
 	BALANCE_SHEET *balance_sheet;
 
@@ -2867,14 +2868,13 @@ BALANCE_SHEET *balance_sheet_fetch(
 			fund_name,
 			prior_year_count,
 			balance_sheet->element_name_list,
-			balance_sheet->
-				transaction_date_statement->
-				transaction_date_begin_date_string,
+			(char *)0 /* transaction_date_begin_date_string */,
 			balance_sheet->
 				transaction_date_statement->
 				end_date_time,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			fetch_contra_account_boolean );
 
 	if ( !balance_sheet->statement )
 	{
@@ -2902,7 +2902,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			0 /* not fetch_contra_account_boolean */ );
 
 	if ( !balance_sheet->element_equity_current )
 	{
@@ -2936,7 +2937,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			0 /* not fetch_contra_account_boolean */ );
 
 	if ( balance_sheet->element_equity_begin )
 	{
@@ -2989,7 +2991,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 					transaction_date_statement->
 					end_date_time,
 				prior_year_count,
-				balance_sheet->statement );
+				balance_sheet->statement,
+				fetch_contra_account_boolean );
 	}
 
 	balance_sheet->income_statement_net_income_label =

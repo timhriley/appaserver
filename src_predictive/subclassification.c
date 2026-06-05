@@ -25,7 +25,8 @@ LIST *subclassification_where_statement_list(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean )
 {
 	LIST *list;
 	char *system_string;
@@ -76,6 +77,7 @@ LIST *subclassification_where_statement_list(
 				fetch_journal_latest,
 				fetch_transaction,
 				latest_zero_balance_boolean,
+				fetch_contra_account_boolean,
 				input );
 
 		if ( !subclassification )
@@ -112,6 +114,7 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean,
 		char *input )
 {
 	SUBCLASSIFICATION *subclassification;
@@ -150,7 +153,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 				1 /* fetch_element */,
 				fetch_journal_latest,
 				fetch_transaction,
-				latest_zero_balance_boolean );
+				latest_zero_balance_boolean,
+				fetch_contra_account_boolean );
 
 		subclassification->account_statement_list =
 			account_balance_sort_list(

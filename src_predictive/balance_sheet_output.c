@@ -23,6 +23,7 @@ int main( int argc, char **argv )
 	int prior_year_count;
 	char *subclassification_option_string;
 	char *output_medium_string;
+	boolean contra_account_boolean;
 	char *fund_name;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	BALANCE_SHEET *balance_sheet;
@@ -34,10 +35,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 9 )
+	if ( argc < 10 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium [fund]\n",
+"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium contra_account_yn [fund]\n",
 			argv[ 0 ] );
 
 		fprintf(stderr,
@@ -57,9 +58,10 @@ int main( int argc, char **argv )
 	prior_year_count = atoi( argv[ 6 ] );
 	subclassification_option_string = argv[ 7 ];
 	output_medium_string = argv[ 8 ];
+	contra_account_boolean = ( *argv[ 9 ] == 'y' );
 
-	if ( argc == 10 )
-		fund_name = argv[ 9 ];
+	if ( argc == 11 )
+		fund_name = argv[ 10 ];
 	else
 		fund_name = NULL;
 
@@ -82,7 +84,8 @@ int main( int argc, char **argv )
 			as_of_date_string,
 			prior_year_count,
 			subclassification_option_string,
-			output_medium_string );
+			output_medium_string,
+			contra_account_boolean );
 
 	if ( !balance_sheet )
 	{

@@ -129,7 +129,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 					transaction_date_trial_balance->
 					preclose_end_date_time,
 				1 /* fetch_transaction */,
-				0 /* not latest_zero_balance_boolean */ );
+				0 /* not latest_zero_balance_boolean */,
+				0 /* not fetch_contra_account_boolean */ );
 
 		if ( !trial_balance->preclose_statement )
 		{
@@ -191,7 +192,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 						preclose_end_date_time,
 					prior_year_count,
 					trial_balance->preclose_statement
-						/* statement */ );
+						/* statement */,
+					0 /* not fetch_contra_account */ );
 		}
 	}
 
@@ -209,7 +211,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 				transaction_date_trial_balance->
 				end_date_time,
 			1 /* fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			0 /* not fetch_contra_account_boolean */ );
 
 	if ( !trial_balance->statement )
 	{
@@ -266,7 +269,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 					transaction_date_trial_balance->
 					end_date_time,
 				prior_year_count,
-				trial_balance->statement );
+				trial_balance->statement,
+				0 /* not fetch_contra_account_boolean */ );
 	}
 
 	if ( trial_balance->

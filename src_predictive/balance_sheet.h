@@ -529,7 +529,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 		char *as_of_date_string,
 		int prior_year_count,
 		char *subclassification_option_string,
-		char *output_medium_string );
+		char *output_medium_string,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */

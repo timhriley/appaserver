@@ -95,7 +95,8 @@ LIST *account_statement_list(
 		boolean fetch_element,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */

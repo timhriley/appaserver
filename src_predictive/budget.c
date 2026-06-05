@@ -400,7 +400,8 @@ BUDGET *budget_fetch(
 			budget->transaction_date_close_date_time
 				/* end_date_time */,
 			0 /* not fetch_transaction */,
-			1 /* latest_zero_balance_boolean */ );
+			1 /* latest_zero_balance_boolean */,
+			0 /* not fetch_contra_account_boolean */ );
 
 	element_list_account_statement_list_set(
 		budget->statement->element_statement_list );
@@ -418,7 +419,8 @@ BUDGET *budget_fetch(
 			budget->element_name_list,
 			budget->end_date_time,
 			1 /* prior_year_count */,
-			budget->statement );
+			budget->statement,
+			0 /* not fetch_contra_account_boolean */ );
 
 	budget->forecast_date =
 		budget_forecast_date(

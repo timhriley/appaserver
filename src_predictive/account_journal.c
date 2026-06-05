@@ -49,16 +49,20 @@ ACCOUNT_JOURNAL *account_journal_latest(
 		return NULL;
 	}
 
-	account_journal = account_journal_calloc();
+	account_journal =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		account_journal_new(
+			journal->account_name,
+			journal->balance );
 
 	account_journal->full_name = journal->full_name;
 	account_journal->street_address = journal->street_address;
 	account_journal->transaction_date_time = journal->transaction_date_time;
-	account_journal->account_name = journal->account_name;
 	account_journal->previous_balance = journal->previous_balance;
 	account_journal->debit_amount = journal->debit_amount;
 	account_journal->credit_amount = journal->credit_amount;
-	account_journal->balance = journal->balance;
 	account_journal->transaction = journal->transaction;
 
 	return account_journal;
@@ -81,3 +85,32 @@ ACCOUNT_JOURNAL *account_journal_calloc( void )
 	return account_journal;
 }
 
+ACCOUNT_JOURNAL *account_journal_new(
+		char *account_name,
+		double balance )
+{
+	ACCOUNT_JOURNAL *account_journal;
+
+	if ( !account_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	account_journal = account_journal_calloc();
+
+	account_journal->account_name = account_name;
+	account_journal->balance = balance;
+
+	return account_journal;
+}

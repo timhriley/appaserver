@@ -13,6 +13,7 @@
 #include "application_constant.h"
 #include "appaserver_error.h"
 #include "element.h"
+#include "predictive.h"
 #include "column.h"
 #include "account.h"
 #include "latex.h"
@@ -150,7 +151,7 @@ char *statement_caption_sub_title(
 	if ( !begin_date_american )
 	{
 		sprintf(sub_title,
-			"End: %s",
+			"As of: %s",
 			end_date_american );
 	}
 	else
@@ -182,7 +183,8 @@ STATEMENT *statement_fetch(
 		char *transaction_date_begin_date_string,
 		char *end_date_time,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean )
 {
 	STATEMENT *statement;
 
@@ -203,7 +205,15 @@ STATEMENT *statement_fetch(
 	statement = statement_calloc();
 
 	statement->process_name = process_name;
-	statement->fund_name = fund_name;
+
+	statement->fund_name =
+		/* ------------------------- */
+		/* Returns parameter or null */
+		/* ------------------------- */
+		predictive_fund_name(
+			PREDICTIVE_FUND_TABLE_NAME,
+			PREDICTIVE_FUND_COLUMN_NAME,
+			fund_name );
 
 	statement->transaction_date_begin_date_string =
 		transaction_date_begin_date_string;
@@ -213,14 +223,15 @@ STATEMENT *statement_fetch(
 
 	statement->element_statement_list =
 		element_statement_list(
-			fund_name,
+			statement->fund_name,
 			element_name_list,
 			end_date_time,
 			1 /* fetch_subclassification */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			fetch_transaction,
-			latest_zero_balance_boolean );
+			latest_zero_balance_boolean,
+			fetch_contra_account_boolean );
 
 	if ( !list_length( statement->element_statement_list ) )
 	{
@@ -247,7 +258,7 @@ STATEMENT *statement_fetch(
 			statement_caption_new(
 				application_name,
 				process_name,
-				fund_name,
+				statement->fund_name,
 				transaction_date_begin_date_string,
 				end_date_time );
 	}
@@ -799,7 +810,8 @@ LIST *statement_prior_year_list(
 		LIST *element_name_list,
 		char *end_date_time_string,
 		int prior_year_count,
-		STATEMENT *statement )
+		STATEMENT *statement,
+		boolean fetch_contra_account_boolean )
 {
 	LIST *prior_year_list;
 	int years_ago;
@@ -834,7 +846,8 @@ LIST *statement_prior_year_list(
 				element_name_list,
 				end_date_time_string,
 				years_ago,
-				statement ) );
+				statement,
+				fetch_contra_account_boolean ) );
 	}
 
 	return prior_year_list;
@@ -845,7 +858,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *element_name_list,
 		char *end_date_time_string,
 		int years_ago,
-		STATEMENT *statement )
+		STATEMENT *statement,
+		boolean fetch_contra_account_boolean )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
 	ELEMENT *current_element;
@@ -888,7 +902,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			0 /* not fetch_transaction */,
-			0 /* not latest_zero_balance_boolean */ );
+			0 /* not latest_zero_balance_boolean */,
+			fetch_contra_account_boolean );
 
 	if ( !list_length( statement_prior_year->element_statement_list ) )
 	{
@@ -2808,13 +2823,7 @@ HTML_ROW *statement_subclass_omit_html_row(
 	list_set(
 		cell_list,
 		html_cell_new(
-			/* ------------------------- */
-			/* Returns heap memory or "" */
-			/* ------------------------- */
-			statement_cell_label_datum(
-				statement_account->
-					account->
-					account_name ),
+			statement_account->label,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 

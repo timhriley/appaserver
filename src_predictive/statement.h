@@ -687,7 +687,8 @@ STATEMENT *statement_fetch(
 		char *transaction_date_begin_date_string /* optional */,
 		char *end_date_time,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */
@@ -782,7 +783,8 @@ LIST *statement_prior_year_list(
 		LIST *filter_element_name_list,
 		char *end_date_time_string,
 		int prior_year_count,
-		STATEMENT *statement );
+		STATEMENT *statement,
+		boolean fetch_contra_account_boolean );
 
 /* Usage */
 /* ----- */
@@ -791,7 +793,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *filter_element_name_list,
 		char *end_date_time_string,
 		int years_ago,
-		STATEMENT *statement );
+		STATEMENT *statement,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */

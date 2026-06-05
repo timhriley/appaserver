@@ -34,6 +34,15 @@ ACCOUNT_JOURNAL *account_journal_latest(
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT_JOURNAL *account_journal_new(
+		char *account_name,
+		double balance );
+
 /* Process */
 /* ------- */
 ACCOUNT_JOURNAL *account_journal_calloc(

@@ -32,7 +32,8 @@ LIST *account_statement_list(
 		boolean fetch_element,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean )
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean )
 {
 	boolean chart_account_boolean;
 	char *select_string;
@@ -56,7 +57,7 @@ LIST *account_statement_list(
 
 	statement_list = list_new();
 
-	if ( /* fetch_contra_account_boolean */ 1 == 2 )
+	if ( fetch_contra_account_boolean )
 	{
 		contra_list =
 			contra_account_list(
@@ -175,13 +176,11 @@ ACCOUNT *account_statement_parse(
 		if ( contra_account )
 		{
 			account->account_journal_latest =
-				account_journal_calloc();
-
-			account->account_journal_latest->account_name =
-				contra_account->label;
-
-			account->account_journal_latest->balance =
-				contra_account->net_amount;
+				account_journal_new(
+					contra_account->label
+						/* account_name */,
+					contra_account->net_amount
+						/* balance */ );
 
 			fetch_journal_latest = 0;
 		}

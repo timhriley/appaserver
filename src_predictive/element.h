@@ -45,7 +45,8 @@ LIST *element_statement_list(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean );
 
 /* Usage */
 /* ----- */
@@ -91,7 +92,8 @@ ELEMENT *element_statement_fetch(
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
-		boolean latest_zero_balance_boolean );
+		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean );
 
 /* Process */
 /* ------- */
@@ -118,6 +120,7 @@ ELEMENT *element_statement_parse(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
+		boolean fetch_contra_account_boolean,
 		char *input );
 
 /* Usage */
