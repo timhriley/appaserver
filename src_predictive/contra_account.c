@@ -28,8 +28,8 @@ LIST *contra_account_list(
 	char *system_string;
 	char input[ 1024 ];
 	CONTRA_ACCOUNT *contra_account;
-	ACCOUNT_JOURNAL *contra_to_account_journal;
 	ACCOUNT_JOURNAL *account_journal;
+	ACCOUNT_JOURNAL *contra_to_account_journal;
 
 	if ( !folder_column_boolean(
 		(char *)contra_account_table,
@@ -76,6 +76,21 @@ LIST *contra_account_list(
 			continue;
 		}
 
+		account_journal =
+			account_journal_latest(
+				JOURNAL_TABLE,
+				fund_name,
+				contra_account->account_name,
+				end_date_time_string,
+				0 /* not fetch_transaction */,
+				0 /* not latest_zero_balance_boolean */ );
+
+		if ( !account_journal )
+		{
+			free( contra_account );
+			continue;
+		}
+
 		contra_to_account_journal =
 			account_journal_latest(
 				JOURNAL_TABLE,
@@ -92,40 +107,25 @@ LIST *contra_account_list(
 			continue;
 		}
 
-		account_journal =
-			account_journal_latest(
-				JOURNAL_TABLE,
-				fund_name,
-				contra_account->account_name,
-				end_date_time_string,
-				0 /* not fetch_transaction */,
-				0 /* not latest_zero_balance_boolean */ );
-
-		if ( !account_journal )
-		{
-			free( contra_account );
-			continue;
-		}
-
 		contra_account->net_amount =
 			contra_account_net_amount(
-				contra_to_account_journal->
-					balance
-					/* contra_to_balance */,
 				account_journal->
 					balance
-					/* account_balance */ );
+					/* account_balance */,
+				contra_to_account_journal->
+					balance
+					/* contra_to_balance */ );
 
 		contra_account->label =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			contra_account_label(
+				account_journal->
+					account_name,
 				contra_to_account_journal->
 					account_name
-					/* contra_to_name */,
-				account_journal->
-					account_name );
+					/* contra_to_name */ );
 
 		if ( !contra_account->label )
 		{
@@ -153,8 +153,8 @@ LIST *contra_account_list(
 }
 
 double contra_account_net_amount(
-		double contra_to_balance,
-		double account_balance )
+		double account_balance,
+		double contra_to_balance )
 {
 	return
 	contra_to_balance -
@@ -162,12 +162,12 @@ double contra_account_net_amount(
 }
 
 char *contra_account_label(
-		char *contra_to_name,
-		char *account_name )
+		char *account_name,
+		char *contra_to_name )
 {
 	char label[ 1024 ];
 
-	if ( !contra_to_name || !account_name ) return NULL;
+	if ( !account_name || !contra_to_name ) return NULL;
 
 	snprintf(label,
 		sizeof ( label ),
@@ -180,30 +180,30 @@ char *contra_account_label(
 
 CONTRA_ACCOUNT *contra_account_parse( char *input )
 {
-	char contra_to_account[ 128 ];
 	char account_name[ 128 ];
+	char contra_to_account[ 128 ];
 
 	if ( !input || !*input ) return NULL;
 
 	/* See CONTRA_ACCOUNT_SELECT */
 	/* -------------------------- */
-	piece( contra_to_account, SQL_DELIMITER, input, 0 );
-	piece( account_name, SQL_DELIMITER, input, 1 );
+	piece( account_name, SQL_DELIMITER, input, 0 );
+	piece( contra_to_account, SQL_DELIMITER, input, 1 );
 
 	return
 	contra_account_new(
-		strdup( contra_to_account ),
-		strdup( account_name ) );
+		strdup( account_name ),
+		strdup( contra_to_account ) );
 }
 
 CONTRA_ACCOUNT *contra_account_new(
-		char *contra_to_account,
-		char *account_name )
+		char *account_name,
+		char *contra_to_account )
 {
 	CONTRA_ACCOUNT *contra_account;
 
-	if ( !contra_to_account
-	||   !account_name )
+	if ( !account_name
+	||   !contra_to_account )
 	{
 		char message[ 1024 ];
 
@@ -221,8 +221,8 @@ CONTRA_ACCOUNT *contra_account_new(
 
 	contra_account = contra_account_calloc();
 
-	contra_account->contra_to_account = contra_to_account;
 	contra_account->account_name = account_name;
+	contra_account->contra_to_account = contra_to_account;
 
 	return contra_account;
 }
@@ -252,20 +252,20 @@ CONTRA_ACCOUNT *contra_account_calloc( void )
 
 CONTRA_ACCOUNT *contra_account_seek(
 		LIST *contra_account_list,
-		char *contra_to_account,
-		char *account_name )
+		char *account_name,
+		char *contra_to_account )
 {
 	CONTRA_ACCOUNT *contra_account;
 
-	if ( contra_to_account
-	&&   account_name )
+	if ( account_name
+	&&   contra_to_account )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-		"both contra_to_account and account_name are populated." );
+		"both account_name and contra_to_account are populated." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -278,18 +278,18 @@ CONTRA_ACCOUNT *contra_account_seek(
 	do {
 		contra_account = list_get( contra_account_list );
 
-		if ( contra_to_account
-		&&   string_strcmp(
-			contra_account->contra_to_account,
-			contra_to_account ) == 0 )
-		{
-			return contra_account;
-		}
-
 		if ( account_name
 		&&   string_strcmp(
 			contra_account->account_name,
 			account_name ) == 0 )
+		{
+			return contra_account;
+		}
+
+		if ( contra_to_account
+		&&   string_strcmp(
+			contra_account->contra_to_account,
+			contra_to_account ) == 0 )
 		{
 			return contra_account;
 		}
@@ -321,8 +321,8 @@ boolean contra_account_boolean(
 
 	if ( contra_account_seek(
 		contra_account_list,
-		(char *)0 /* contra_to_account */,
-		account_name ) )
+		account_name,
+		(char *)0 /* contra_to_account */ ) )
 	{
 		return 1;
 	}

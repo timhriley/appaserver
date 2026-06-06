@@ -168,10 +168,10 @@ ACCOUNT *account_statement_parse(
 		contra_account =
 			contra_account_seek(
 				contra_account_list,
-				account->account_name
-				   /* contra_to_account mutually exclusive */,
 				(char *)0
-				   /* account_name mutually exclusive */ );
+				   /* account_name mutually exclusive */,
+				account->account_name
+				   /* contra_to_account mutually exclusive */ );
 
 		if ( contra_account )
 		{

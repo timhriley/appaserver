@@ -12,13 +12,13 @@
 
 #define CONTRA_ACCOUNT_TABLE	"contra_account"
 
-#define CONTRA_ACCOUNT_SELECT	"contra_to_account,"	\
-				"account"
+#define CONTRA_ACCOUNT_SELECT	"account,"		\
+				"contra_to_account"
 
 typedef struct
 {
-	char *contra_to_account;
 	char *account_name;
+	char *contra_to_account;
 	double net_amount;
 	char *label;
 } CONTRA_ACCOUNT;
@@ -34,14 +34,14 @@ LIST *contra_account_list(
 /* Process */
 /* ------- */
 double contra_account_net_amount(
-		double contra_to_balance,
-		double account_balance );
+		double account_balance,
+		double contra_to_balance );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *contra_account_label(
-		char *contra_to_name,
-		char *account_name );
+		char *account_name,
+		char *contra_to_name );
 
 /* Usage */
 /* ----- */
@@ -54,8 +54,8 @@ CONTRA_ACCOUNT *contra_account_parse(
 /* Safely returns */
 /* -------------- */
 CONTRA_ACCOUNT *contra_account_new(
-		char *contra_to_account,
-		char *account_name );
+		char *account_name,
+		char *contra_to_account );
 
 /* Process */
 /* ------- */
@@ -67,13 +67,13 @@ CONTRA_ACCOUNT *contra_account_calloc(
 /* ----- */
 CONTRA_ACCOUNT *contra_account_seek(
 		LIST *contra_account_list,
-		char *contra_to_account /* mutually exclusive */,
-		char *account_name /* mutually exclusive */ );
+		char *account_name /* mutually exclusive */,
+		char *contra_to_account /* mutually exclusive */ );
 
 /* Usage */
 /* ----- */
 boolean contra_account_boolean(
 		LIST *contra_account_list,
-		char *account_name );
+		char *account_account );
 
 #endif
