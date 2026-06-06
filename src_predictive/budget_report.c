@@ -34,7 +34,7 @@ int main( int argc, char **argv )
 	if ( argc < 4 )
 	{
 		fprintf(stderr,
-			"Usage: %s session process output_medium\n",
+			"Usage: %s session process output_medium [fund_name]\n",
 			argv[ 0 ] );
 
 		fprintf(stderr,

@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 	if ( argc < 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium [fund]\n",
+"Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium [fund_name]\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
