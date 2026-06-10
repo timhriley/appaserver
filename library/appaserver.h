@@ -164,5 +164,11 @@ boolean appaserver_executable_exists_boolean(
 char *appaserver_foreign_key_file_component(
 		LIST *relation_foreign_key_list );
 
+/* Usage */
+/* ----- */
+boolean appaserver_table_column_boolean(
+		const char *table_name,
+		const char *column_name );
+
 #endif
 

@@ -427,3 +427,19 @@ char *appaserver_foreign_key_file_component( LIST *relation_foreign_key_list )
 	return foreign_key_file_component;
 }
 
+boolean appaserver_table_column_boolean(
+		const char *table_name,
+		const char *column_name )
+{
+	char system_string[ 1024 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+ 		"table_column_exists.sh %s %s",
+		table_name,
+		column_name );
+
+	return
+	( system( system_string ) == 0 );
+}

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "String.h"
 #include "list.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "predictive.h"
 
@@ -51,16 +52,10 @@ boolean predictive_fund_boolean(
 
 	if ( fund_boolean == -1 )
 	{
-		char system_string[ 1024 ];
-
-		snprintf(
-			system_string,
-			sizeof ( system_string ),
-	 		"table_column_exists.sh %s %s",
-			predictive_fund_table_name,
-			predictive_fund_column_name );
-
-		fund_boolean = ( system( system_string ) == 0 );
+		fund_boolean =
+			appaserver_table_column_boolean(
+				predictive_fund_table_name,
+				predictive_fund_column_name );
 	}
 
 	return fund_boolean;

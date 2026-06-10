@@ -11,6 +11,7 @@
 #include "list.h"
 
 #define ENTITY_TABLE			"entity"
+#define ENTITY_CONTACT_KEY_COLUMN	"contact_key"
 
 #define ENTITY_FINANCIAL_INSTITUTION_TABLE \
 					"financial_institution"
