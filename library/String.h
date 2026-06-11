@@ -175,17 +175,26 @@ char *string_unescape_character_array(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 int string_strlen(
 		char *string );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 int string_strcmp(
 		char *s1,
 		char *s2 );
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 int string_strcasecmp(
 		char *s1,
 		char *s2 );
@@ -211,14 +220,12 @@ char *string_strcat(
 
 /* Usage */
 /* ----- */
-
 int string_strncmp(
 		char *large_string,
 		char *small_string );
 
 /* Usage */
 /* ----- */
-
 boolean string_loose_strcmp(
 		char *s1,
 		char *s2 );
@@ -503,6 +510,14 @@ char *string_fetch(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *string_pipe_input(
+		char *system_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *string_system_string_input(
 		char *system_string );
 
 /* Usage */

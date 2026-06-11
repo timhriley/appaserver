@@ -291,9 +291,7 @@ char *security_sql_injection_escape(
 	char destination[ STRING_64K ];
 	char *return_value;
 
-	if ( !datum || !*datum ) return strdup( "" );
-
-	if ( strlen( datum ) >= STRING_64K )
+	if ( string_strlen( datum ) >= STRING_64K )
 	{
 		char message[ 128 ];
 
@@ -308,15 +306,22 @@ char *security_sql_injection_escape(
 			message );
 	}
 
-	return_value =
-	strdup(
-		/* -------------------------- */
-		/* Safely returns destination */
-		/* -------------------------- */
-		string_escape_character_array(
-			destination,
-			datum,
-			(char *)security_escape_character_string ) );
+	if ( !datum || !*datum )
+	{
+		return_value = strdup( "" );
+	}
+	else
+	{
+		return_value =
+		strdup(
+			/* -------------------------- */
+			/* Safely returns destination */
+			/* -------------------------- */
+			string_escape_character_array(
+				destination,
+				datum,
+				(char *)security_escape_character_string ) );
+	}
 
 	return return_value;
 }

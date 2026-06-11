@@ -12,6 +12,7 @@
 #include "sql.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "entity.h"
 #include "entity_self.h"
 
 ENTITY_SELF *entity_self_calloc( void )
@@ -31,9 +32,7 @@ ENTITY_SELF *entity_self_calloc( void )
 	return entity_self;
 }
 
-ENTITY_SELF *entity_self_new(
-		char *full_name,
-		char *street_address )
+ENTITY_SELF *entity_self_new( char *full_name )
 {
 	ENTITY_SELF *entity_self;
 
@@ -50,78 +49,148 @@ ENTITY_SELF *entity_self_new(
 	entity_self = entity_self_calloc();
 
 	entity_self->full_name = full_name;
-	entity_self->street_address = street_address;
 
 	return entity_self;
 }
 
 ENTITY_SELF *entity_self_fetch(
+		boolean contact_key_boolean,
 		boolean fetch_entity_boolean )
 {
-	FILE *input_pipe;
-	char input[ 1024 ];
+	char *select;
+	char *system_string;
+	char *input;
 	ENTITY_SELF *entity_self;
 
-	input_pipe =
-		appaserver_input_pipe(
-			entity_self_system_string(
-				ENTITY_SELF_SELECT,
-				ENTITY_SELF_TABLE ) );
+	select =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_self_select(
+			ENTITY_SELF_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
-	entity_self =
-		entity_self_parse(
-			/* ----------------------------------------- */
-			/* Returns input_buffer or null if all done. */
-			/* ----------------------------------------- */
-			string_input(
-				input, input_pipe, 1024 ),
-			fetch_entity_boolean );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			select,
+			ENTITY_SELF_TABLE,
+			(char *)0 /* where */ );
 
-	pclose( input_pipe );
+	free( select );
+
+	input =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_system_string_input(
+			system_string );
+
+	if ( ! ( entity_self =
+			entity_self_parse(
+				contact_key_boolean,
+				fetch_entity_boolean,
+				input ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"entity_self_parse() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	free( input );
 
 	return entity_self;
 }
 
 ENTITY_SELF *entity_self_parse(
-		char *input,
-		boolean fetch_entity_boolean )
+		boolean contact_key_boolean,
+		boolean fetch_entity_boolean,
+		char *input )
 {
 	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char buffer[ 128 ];
 	ENTITY_SELF *entity_self;
 
 	if ( !input || !*input ) return NULL;
 
+	/* See entity_self_select() */
+	/* ------------------------ */
 	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
 
 	entity_self =
 		entity_self_new(
-			strdup( full_name ),
-			strdup( street_address ) );
+			strdup( full_name ) );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	entity_self->credit_card_number = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	entity_self->credit_card_expiration_month_year = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	entity_self->credit_card_security_code = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	entity_self->credit_provider = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	entity_self->invoice_amount_due = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	entity_self->invoice_statement_current = strdup( buffer );
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 7 );
+		entity_self->contact_key = strdup( buffer );
+	}
 
 	if ( fetch_entity_boolean )
 	{
 		entity_self->entity =
 			entity_fetch(
 				entity_self->full_name,
-				entity_self->street_address );
+				entity_self->contact_key );
 	}
 
 	return entity_self;
 }
 
-char *entity_self_system_string(
-		char *select,
-		char *table )
+char *entity_self_select(
+		const char *entity_self_select,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean )
 {
-	char system_string[ 1024 ];
+	char select[ 1024 ];
 
-	sprintf( system_string,
-		 "select.sh '%s' %s '' select",
-		 select,
-		 table );
+	if ( contact_key_boolean )
+	{
+		snprintf(
+			select,
+			sizeof ( select ),
+			"%s,%s",
+			entity_self_select,
+			entity_contact_key_column );
+	}
+	else
+	{
+		string_strcpy(
+			select,
+			entity_self_select,
+			sizeof ( select ) /* buffer_size */ );
+	}
 
-	return strdup( system_string );
+	return strdup( select );
 }
-

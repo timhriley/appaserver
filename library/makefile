@@ -204,6 +204,7 @@ APPASERVER_LIBRARY=						\
 		vertical_new_post.o				\
 		entity.o					\
 		entity_self.o					\
+		entity_key.o					\
 		upload_purge.o					\
 		preupdate_change.o				\
 		file.o						\
@@ -914,6 +915,9 @@ entity.o: entity.c entity.h
 
 entity_self.o: entity_self.c entity_self.h
 	${CC} ${CFLAGS} -c entity_self.c
+
+entity_key.o: entity_key.c entity_key.h
+	${CC} ${CFLAGS} -c entity_key.c
 
 upload_purge.o: upload_purge.c upload_purge.h
 	${CC} ${CFLAGS} -c upload_purge.c

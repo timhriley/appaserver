@@ -18,7 +18,7 @@ char *appaserver_system_string(
 		char *table,
 		char *where )
 {
-	char system_string[ 65536 ];
+	char system_string[ STRING_2K ];
 
 	if ( !select
 	||   !table )

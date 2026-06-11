@@ -13,8 +13,13 @@
 
 #define ENTITY_SELF_TABLE		"self"
 
-#define ENTITY_SELF_SELECT		"full_name,"		\
-					"street_address"
+#define ENTITY_SELF_SELECT		"full_name,"			    \
+					"credit_card_number,"		    \
+					"credit_card_expiration_month_year,"\
+					"credit_card_security_code,"	    \
+					"credit_provider,"		    \
+					"invoice_amount_due,"		    \
+					"invoice_statement_current"
 
 typedef struct
 {
@@ -26,6 +31,7 @@ typedef struct
 /* Usage */
 /* ----- */
 ENTITY_SELF *entity_self_fetch(
+		boolean contact_key_boolean,
 		boolean fetch_entity_boolean );
 
 /* Process */
@@ -33,22 +39,23 @@ ENTITY_SELF *entity_self_fetch(
 
 /* Returns heap memory */
 /* ------------------- */
-char *entity_self_system_string(
-		char *entity_self_select,
-		char *entity_self_table );
+char *entity_self_select(
+		const char *entity_self_select,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean );
 
 /* Usage */
 /* ----- */
 ENTITY_SELF *entity_self_parse(
-		char *string_input,
-		boolean fetch_entity_boolean );
+		boolean contact_key_boolean,
+		boolean fetch_entity_boolean,
+		char *string_system_string_input );
 
 
 /* Usage */
 /* ----- */
 ENTITY_SELF *entity_self_new(
-		char *full_name,
-		char *street_address );
+		char *full_name );
 
 /* Process */
 /* ------- */

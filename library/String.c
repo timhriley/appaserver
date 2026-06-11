@@ -971,14 +971,36 @@ int string_instr(
         return -1;
 }
 
+char *string_system_string_input( char *system_string )
+{
+	char buffer[ STRING_64K ];
+	FILE *pipe;
+	int null_input = 0;
+
+	if ( !system_string ) return (char *)0;
+
+	*buffer = '\0';
+
+	pipe = security_read_pipe( system_string );
+
+	if ( !string_input( buffer, pipe, sizeof ( buffer ) ) ) null_input = 1;
+
+	pclose( pipe );
+
+	if ( null_input )
+		return (char *)0;
+	else
+		return strdup( buffer );
+}
+
 char *string_pipe_input( char *system_string )
 {
-	return string_pipe( system_string );
+	return string_system_string_input( system_string );
 }
 
 char *string_fetch_pipe( char *system_string )
 {
-	return string_pipe( system_string );
+	return string_system_string_input( system_string );
 }
 
 char *string_fetch( char *system_string )
@@ -993,24 +1015,7 @@ char *string_pipe_fetch( char *system_string )
 
 char *string_pipe( char *system_string )
 {
-	char buffer[ STRING_64K ];
-	FILE *pipe;
-	int null_input = 0;
-
-	if ( !system_string ) return (char *)0;
-
-	*buffer = '\0';
-
-	pipe = security_read_pipe( system_string );
-
-	if ( !string_input( buffer, pipe, STRING_64K ) ) null_input = 1;
-
-	pclose( pipe );
-
-	if ( null_input )
-		return (char *)0;
-	else
-		return strdup( buffer );
+	return string_system_string_input( system_string );
 }
 
 LIST *string_pipe_list(	char *system_string )

@@ -245,7 +245,7 @@ char *entity_escape_name( char *full_name )
 
 char *entity_escape_full_name( char *full_name )
 {
-	static char escape_full_name[ 64 ];
+	static char escape_full_name[ 128 ];
 
 	*escape_full_name = '\0';
 
@@ -257,18 +257,18 @@ char *entity_escape_full_name( char *full_name )
 		full_name );
 }
 
-char *entity_escape_street_address( char *street_address )
+char *entity_escape_contact_key( char *contact_key )
 {
-	static char escape_street_address[ 64 ];
+	static char escape_contact_key[ 128 ];
 
-	*escape_street_address = '\0';
+	*escape_contact_key = '\0';
 
-	if ( !street_address ) return escape_street_address;
+	if ( !contact_key ) return escape_contact_key;
 
 	return
 	string_escape_quote(
-		escape_street_address,
-		street_address );
+		escape_contact_key,
+		contact_key );
 }
 
 char *entity_primary_where(
@@ -510,107 +510,5 @@ ENTITY *entity_full_name_entity(
 				ENTITY_STREET_ADDRESS_ANY );
 	}
 	return entity;
-}
-
-boolean entity_login_name_boolean(
-		const char *entity_table,
-		const char *appaserver_user_login_name )
-{
-	return
-	folder_attribute_exists(
-		(char *)entity_table
-			/* folder_name */,
-		(char *)appaserver_user_login_name
-			/* attribute_name */ );
-}
-
-ENTITY *entity_login_name_fetch(
-		const char *entity_table,
-		const char *appaserver_user_login_name,
-		char *login_name )
-{
-	char *where;
-	char *system_string;
-	FILE *input_pipe;
-	char input_buffer[ 1024 ];
-	ENTITY *entity;
-
-	if ( !login_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "login_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_login_name_where(
-			appaserver_user_login_name,
-			login_name );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		entity_system_string(
-			ENTITY_SELECT,
-			entity_table,
-			where );
-
-	input_pipe =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		entity_input_pipe(
-			system_string );
-
-	entity =
-		entity_parse(
-			/* ----------------------------------------- */
-			/* Returns input_buffer or null if all done. */
-			/* ----------------------------------------- */
-			string_input(
-				input_buffer,
-				input_pipe,
-				1024 ) );
-
-	pclose( input_pipe );
-
-	return entity;
-}
-
-char *entity_login_name_where(
-		const char *appaserver_user_login_name,
-		char *login_name )
-{
-	static char where[ 128 ];
-
-	if ( !login_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "login_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(where,
-		"%s = '%s'",
-		appaserver_user_login_name,
-		login_name );
-
-	return where;
 }
 
