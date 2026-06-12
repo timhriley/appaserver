@@ -27,6 +27,7 @@
 					"email_address"
 
 #define ENTITY_CONTACT_KEY_UNKNOWN	"unknown"
+#define ENTITY_CONTACT_KEY_NULL		"null"
 
 typedef struct
 {
@@ -43,55 +44,58 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *entity_system_list(
-		char *system_string );
-
-/* Process */
-/* ------- */
-
-/* Safely returns */
-/* -------------- */
-FILE *entity_input_pipe(
-		char *system_string );
-
-/* Usage */
-/* ----- */
 ENTITY *entity_fetch(
+		boolean entity_key_contact_key_boolean,
 		char *full_name,
-		char *street_address );
-
+		char *contact_key );
 /* Process */
 /* ------- */
 
 /* Returns static memory */
 /* --------------------- */
-char *entity_primary_where(
-		char *full_name,
-		char *street_address );
-
-/* Returns heap memory */
-/* ------------------- */
-char *entity_system_string(
+char *entity_select_string(
 		const char *entity_select,
-		const char *entity_table,
-		char *entity_primary_where );
+		const char *entity_contact_key_column,
+		boolean entity_key_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *entity_primary_where(
+		boolean entity_key_contact_key_boolean,
+		char *full_name,
+		char *contact_key );
 
 /* Usage */
 /* ----- */
 ENTITY *entity_parse(
+		boolean entity_key_contact_key_boolean,
 		char *input );
 
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 ENTITY *entity_new(
-		char *full_name,
-		char *street_address );
+		char *full_name );
 
 /* Process */
 /* ------- */
 ENTITY *entity_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *entity_contact_key_where(
+		boolean entity_key_contact_key_boolean,
+		char *contact_key );
 
 /* Usage */
 /* ----- */
@@ -117,47 +121,99 @@ char *entity_escape_contact_key(
 char *entity_fetch_contact_key(
 		char *full_name );
 
-/* Public */
-/* ------ */
-LIST *entity_full_street_list(
+/* Usage */
+/* ----- */
+LIST *entity_full_contact_list(
 		LIST *full_name_list,
-		LIST *street_address_list );
+		LIST *contact_key_list );
 
+/* Usage */
+/* ----- */
 ENTITY *entity_full_name_seek(
 		char *full_name,
 		LIST *entity_list );
 
+/* Usage */
+/* ----- */
 ENTITY *entity_getset(
 		LIST *entity_list,
 		char *full_name,
-		char *street_address,
-		boolean with_strdup );
+		char *contact_key,
+		boolean strdup_boolean );
 
+/* Usage */
+/* ----- */
 ENTITY *entity_seek(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *entity_list );
 
-boolean entity_list_exists(
+/* Usage */
+/* ----- */
+boolean entity_list_exist_boolean(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *entity_list );
 
-FILE *entity_insert_open(
-		char *error_filename );
+/* Usage */
+/* ----- */
 
-void entity_insert_pipe(
-		FILE *entity_insert_open,
+/* Returns error message (heap memory) or null */
+/* ------------------------------------------- */
+char *entity_insert(
+		const char *entity_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_key_contact_key_boolean,
 		char *full_name,
-		char *street_address,
-		char *email_address );
+		char *contact_key );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *entity_insert_system_string(
+		const char *entity_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean entity_key_contact_key_boolean );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *entity_insert_field_string(
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_key_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *entity_insert_data_string(
+		const char sql_delimiter,
+		boolean entity_key_contact_key_boolean,
+		char *full_name,
+		char *contact_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
 char *entity_name_display(
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
+/* Usage */
+/* ----- */
 ENTITY *entity_full_name_entity(
-		char *full_name );
+		char *full_name /* stack memory */ );
 
 #endif
 

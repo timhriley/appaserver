@@ -10,8 +10,10 @@
 #include "String.h"
 #include "piece.h"
 #include "sql.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
-#include "folder_attribute.h"
+#include "security.h"
+#include "entity_key.h"
 #include "entity.h"
 
 ENTITY *entity_calloc( void )
@@ -31,13 +33,13 @@ ENTITY *entity_calloc( void )
 	return entity;
 }
 
-ENTITY *entity_new(
-		char *full_name,
-		char *street_address )
+ENTITY *entity_new( char *full_name )
 {
 	ENTITY *entity;
 
-	if ( !full_name )
+	if ( !full_name
+	||   !*full_name
+	||   strcmp( full_name, "full_name" ) == 0 )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: full_name is empty.\n",
@@ -49,9 +51,7 @@ ENTITY *entity_new(
 
 
 	entity = entity_calloc();
-
 	entity->full_name = full_name;
-	entity->street_address = street_address;
 
 	return entity;
 }
@@ -66,8 +66,9 @@ ENTITY *entity_full_name_seek(
 	do {
 		entity = list_get( entity_list );
 
-		if ( string_strcmp(	entity->full_name,
-					full_name ) == 0 )
+		if ( string_strcmp(
+			entity->full_name,
+			full_name ) == 0 )
 		{
 			return entity;
 		}
@@ -79,7 +80,7 @@ ENTITY *entity_full_name_seek(
 
 ENTITY *entity_seek(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *entity_list )
 {
 	ENTITY *entity;
@@ -88,10 +89,19 @@ ENTITY *entity_seek(
 	do {
 		entity = list_get( entity_list );
 
-		if ( string_strcmp(	entity->full_name,
-					full_name ) == 0
-		&&   string_strcmp(	entity->street_address,
-					street_address ) == 0 )
+		if ( contact_key )
+		{
+			if ( string_strcmp(
+				entity->contact_key,
+				contact_key ) != 0 )
+			{
+				continue;
+			}
+		}
+
+		if ( string_strcmp(
+			entity->full_name,
+			full_name ) == 0 )
 		{
 			return entity;
 		}
@@ -104,116 +114,130 @@ ENTITY *entity_seek(
 ENTITY *entity_getset(
 		LIST *entity_list,
 		char *full_name,
-		char *street_address,
-		boolean with_strdup )
+		char *contact_key,
+		boolean strdup_boolean )
 {
 	ENTITY *entity;
 
 	if ( ! ( entity =
 			entity_seek(
 				full_name,
-				street_address,
+				contact_key,
 				entity_list ) ) )
 	{
-		if ( with_strdup )
+		if ( strdup_boolean )
 		{
 			entity =
 				entity_new(
-					strdup( full_name ),
-					strdup( street_address ) );
+					strdup( full_name ) );
+
+			if ( contact_key )
+			{
+				entity->contact_key = strdup( contact_key );
+			}
 		}
 		else
 		{
-			entity = entity_new( full_name, street_address );
+			entity = entity_new( full_name );
+			entity->contact_key = contact_key;
 		}
 
 		list_set( entity_list, entity );
 	}
+
 	return entity;
 }
 
-boolean entity_list_exists(
+boolean entity_list_exist_boolean(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *entity_list )
 {
-	if ( !entity_list )
-		return 0;
-	else
+	boolean exist_boolean = 0;
+
 	if ( entity_seek(
-		full_name,
-		street_address,
-		entity_list ) )
+			full_name,
+			contact_key,
+			entity_list ) )
 	{
-		return 1;
+		exist_boolean = 1;
 	}
-	else
-	{
-		return 0;
-	}
+
+	return exist_boolean;
 }
 
 ENTITY *entity_fetch(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
-	FILE *input_pipe;
-	char input[ 1024 ];
-	ENTITY *entity;
+	char *primary_where;
+	char *select_string;
+	char *system_string;
+	char *input;
 
-	if ( !full_name || !street_address ) return NULL;
+	if ( !full_name || !*full_name ) return NULL;
 
-	input_pipe =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		entity_input_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			entity_system_string(
-				ENTITY_SELECT,
-				ENTITY_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				entity_primary_where(
-					full_name,
-					street_address ) ) );
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			contact_key_boolean,
+			full_name,
+			contact_key );
 
-	entity =
-		entity_parse(
-			/* ----------------------------------------- */
-			/* Returns input_buffer or null if all done. */
-			/* ----------------------------------------- */
-			string_input(
-				input,
-				input_pipe,
-				1024 ) );
+	select_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_select_string(
+			ENTITY_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
-	pclose( input_pipe );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			select_string,
+			ENTITY_TABLE,
+			primary_where );
 
-	return entity;
+	input =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_system_string_input(
+			system_string );
+
+	return
+	entity_parse(
+		contact_key_boolean,
+		input );
 }
 
-ENTITY *entity_parse( char *input )
+ENTITY *entity_parse(
+		boolean contact_key_boolean,
+		char *input )
 {
 	char full_name[ 128 ];
-	char street_address[ 128 ];
 	char piece_buffer[ 128 ];
 	ENTITY *entity;
 
 	if ( !input || !*input ) return NULL;
 
-	/* See ENTITY_SELECT */
-	/* ----------------- */
+	/* See entity_select_string() */
+	/* -------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
 
-	entity =
-		entity_new(
-			strdup( full_name ),
-			strdup( street_address ) );
+	/* Safely returns */
+	/* -------------- */
+	entity = entity_new( strdup( full_name ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	if ( *piece_buffer ) entity->street_address = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
 	if ( *piece_buffer ) entity->city = strdup( piece_buffer );
@@ -228,150 +252,268 @@ ENTITY *entity_parse( char *input )
 	if ( *piece_buffer ) entity->land_phone_number = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	if ( *piece_buffer ) entity->cell_phone_number = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	if ( *piece_buffer ) entity->email_address = strdup( piece_buffer );
+
+	if ( contact_key_boolean )
+	{
+		piece( piece_buffer, SQL_DELIMITER, input, 8 );
+		if ( *piece_buffer )
+			entity->contact_key =
+				strdup( piece_buffer );
+	}
 
 	return entity;
 }
 
-char *entity_name_escape( char *full_name )
-{
-	return entity_escape_full_name( full_name );
-}
-
-char *entity_escape_name( char *full_name )
-{
-	return entity_escape_full_name( full_name );
-}
-
 char *entity_escape_full_name( char *full_name )
 {
-	static char escape_full_name[ 128 ];
+	if ( !full_name || !*full_name )
+	{
+		char message[ 1024 ];
 
-	*escape_full_name = '\0';
+		snprintf(
+			message,
+			sizeof ( message ),
+			"full_name is empty." );
 
-	if ( !full_name ) return escape_full_name;
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	return
-	string_escape_quote(
-		escape_full_name,
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	security_sql_injection_escape(
+		SECURITY_ESCAPE_CHARACTER_STRING,
 		full_name );
 }
 
 char *entity_escape_contact_key( char *contact_key )
 {
-	static char escape_contact_key[ 128 ];
+	if ( !contact_key || !*contact_key )
+	{
+		char message[ 1024 ];
 
-	*escape_contact_key = '\0';
+		snprintf(
+			message,
+			sizeof ( message ),
+			"contact_key is empty." );
 
-	if ( !contact_key ) return escape_contact_key;
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	return
-	string_escape_quote(
-		escape_contact_key,
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	security_sql_injection_escape(
+		SECURITY_ESCAPE_CHARACTER_STRING,
 		contact_key );
 }
 
 char *entity_primary_where(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
-	static char where[ 128 ];
+	static char where[ 256 ];
+	char *escape_full_name;
+	char *contact_key_where;
+
+	escape_full_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_escape_full_name(
+			full_name );
+
+	contact_key_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_contact_key_where(
+			contact_key_boolean,
+			contact_key );
 
 	snprintf(
 		where,
 		sizeof ( where ),
-		"full_name = '%s' and	"
-		"street_address = '%s'	",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_escape_full_name( full_name ),
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_escape_street_address( street_address ) );
+		"full_name = '%s' and "
+		"%s",
+		escape_full_name,
+		contact_key_where );
+
+	free( escape_full_name );
+	free( contact_key_where );
 
 	return where;
 }
 
-char *entity_street_address( char *full_name )
+char *entity_fetch_contact_key( char *full_name )
 {
-	static LIST *entity_list = {0};
-	ENTITY *entity;
+	char *primary_where;
+	char *system_string;
+	char *contact_key;
 
-	if ( !entity_list )
+	if ( !full_name || !*full_name )
 	{
-		entity_list =
-			entity_system_list(
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				entity_system_string(
-					ENTITY_SELECT,
-					ENTITY_TABLE,
-					"1 = 1" ) );
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	if ( ( entity = entity_full_name_seek( full_name, entity_list ) ) )
-	{
-		return entity->street_address;
-	}
-	else
-	{
-		return (char *)0;
-	}
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			entity_key_contact_key_boolean(
+				ENTITY_TABLE /* table_name */,
+				ENTITY_CONTACT_KEY_COLUMN /* column_name */ ),
+			full_name,
+			(char *)0 /* contact_key */ );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			ENTITY_CONTACT_KEY_COLUMN /* select */,
+			ENTITY_TABLE,
+			primary_where );
+
+	contact_key =
+		string_system_string_input(
+			system_string );
+
+	free( system_string );
+
+	return contact_key;
 }
 
-FILE *entity_insert_open( char *error_filename )
+char *entity_insert_system_string(
+		const char *entity_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean entity_key_contact_key_boolean )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
+	char *field_string;
 
-	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
-		"sql 2>&1						|"
-		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
-		ENTITY_TABLE,
-		ENTITY_INSERT_COLUMNS,
-		SQL_DELIMITER,
-		error_filename );
+	field_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_field_string(
+			entity_full_name_column,
+			entity_contact_key_column,
+			entity_key_contact_key_boolean );
 
-	return popen( sys_string, "w" );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"insert_statement table=%s field=%s delimiter='%c' | "
+		"sql",
+		entity_table,
+		field_string,
+		sql_delimiter );
+
+	free( field_string );
+
+	return strdup( system_string );
 }
 
-void entity_insert_pipe(
-		FILE *insert_pipe,
+char *entity_insert_data_string(
+		const char sql_delimiter,
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
-		char *email_address )
+		char *contact_key )
 {
-	fprintf(insert_pipe,
-		"%s^%s^%s\n",
-		entity_escape_name( full_name ),
-		street_address,
-		(email_address)
-			? email_address
-			: "" );
+	char data_string[ 1024 ];
+	char *ptr = data_string;
+	char *tmp;
+
+	ptr += sprintf( ptr,
+		"%s",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = entity_escape_full_name( full_name ) ) );
+
+	free( tmp );
+
+	if ( contact_key_boolean )
+	{
+		ptr += sprintf( ptr,
+			"%c%s",
+			sql_delimiter,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			( tmp = entity_escape_contact_key( contact_key ) ) );
+	
+		free( tmp );
+	}
+
+	ptr += sprintf( ptr, "\n" );
+
+	return strdup( data_string );
 }
 
 char *entity_name_display(
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
 	static char display[ 256 ];
 
-	if ( !full_name || !*full_name ) return "";
+	*display = '\0';
 
-	if ( !street_address
-	||   !*street_address
-	||   string_strcmp( street_address, "unknown" ) == 0
-	||   string_strcmp( street_address, "null" ) == 0 )
+	if ( full_name )
 	{
-		strcpy( display, full_name );
-	}
-	else
-	{
-		sprintf( display, "%s/%s", full_name, street_address );
+		if ( !contact_key
+		||   !*contact_key
+		||   strcmp(
+			contact_key,
+			ENTITY_CONTACT_KEY_UNKNOWN ) == 0
+		||   strcmp(
+			contact_key,
+			ENTITY_CONTACT_KEY_NULL ) == 0 )
+		{
+			string_strcpy(
+				display,
+				full_name,
+				sizeof ( display ) );
+		}
+		else
+		{
+			snprintf(
+				display,
+				sizeof ( display ),
+				"%s/%s",
+				full_name,
+				contact_key );
+		}
 	}
 
 	return display;
@@ -386,70 +528,17 @@ FILE *entity_input_pipe( char *system_string )
 	popen( system_string, "r" );
 }
 
-LIST *entity_system_list( char *system_string )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *entity_list;
-
-	if ( !system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: system_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	entity_list = list_new();
-
-	/* -------------- */
-	/* Safely returns */
-	/* -------------- */
-	input_pipe = entity_input_pipe( system_string );
-
-	/* ----------------------------------------- */
-	/* Returns input_buffer or null if all done. */
-	/* ----------------------------------------- */
-	while ( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set( entity_list, entity_parse( input ) );
-	}
-
-	pclose( input_pipe );
-
-	return entity_list;
-}
-
-char *entity_system_string(
-		const char *select,
-		const char *table,
-		char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !where ) where = "1 = 1";
-
-	sprintf( system_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 select,
-		 table,
-		 where );
-
-	return strdup( system_string );
-}
-
-LIST *entity_full_street_list(
+LIST *entity_full_contact_list(
 		LIST *full_name_list,
-		LIST *street_address_list )
+		LIST *contact_key_list )
 {
 	LIST *entity_list;
+	ENTITY *entity;
 
-	if ( !list_length( full_name_list ) ) return (LIST *)0;
+	if ( !list_length( full_name_list ) ) return NULL;
 
 	if (	list_length( full_name_list ) !=
-		list_length( street_address_list ) )
+		list_length( contact_key_list ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: list_lengths not same [%d vs. %d]\n",
@@ -457,58 +546,127 @@ LIST *entity_full_street_list(
 			__FUNCTION__,
 			__LINE__,
 			list_length( full_name_list ),
-			list_length( street_address_list ) );
+			list_length( contact_key_list ) );
 		exit( 1 );
 	}
 
 	list_rewind( full_name_list );
-	list_rewind( street_address_list );
+	list_rewind( contact_key_list );
+
 	entity_list = list_new();
 
 	do {
-		list_set(
-			entity_list,
+		entity =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			entity_new(
-				list_get( full_name_list ),
-				list_get( street_address_list ) ) );
+				list_get( full_name_list ) );
 
-		list_next( street_address_list );
+		entity->contact_key = list_get( contact_key_list );
+
+		list_set( entity_list, entity );
+		list_next( contact_key_list );
 
 	} while( list_next( full_name_list ) );
 
 	return entity_list;
 }
 
-ENTITY *entity_full_name_entity(
-		/* ------------------- */
-		/* Expect stack memory */
-		/* ------------------- */
-		char *full_name )
+ENTITY *entity_full_name_entity( char *full_name /* stack memory */ )
 {
 	ENTITY *entity;
-	char *street_address;
 
-	if ( !full_name ) return (ENTITY *)0;
+	if ( !full_name ) return NULL;
 
-	if ( ( street_address =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			entity_street_address(
-				full_name ) ) )
-	{
-		entity =
-			entity_new(
-				strdup( full_name ),
-				street_address );
-	}
-	else
-	{
-		entity =
-			entity_new(
-				strdup( full_name ),
-				ENTITY_STREET_ADDRESS_ANY );
-	}
+	/* Safely returns */
+	/* -------------- */
+	entity = entity_new( strdup( full_name ) );
+
+	entity->contact_key =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		entity_fetch_contact_key(
+			full_name );
+
 	return entity;
 }
 
+char *entity_insert_field_string(
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_key_contact_key_boolean )
+{
+	char field_string[ 128 ];
+	char *ptr = field_string;
+
+	ptr += sprintf( ptr,
+		"%s",
+		entity_full_name_column );
+
+	if ( entity_key_contact_key_boolean )
+	{
+		ptr += sprintf( ptr,
+			",%s",
+			entity_contact_key_column );
+	}
+
+	return strdup( field_string );
+}
+
+char *entity_select_string(
+		const char *entity_select,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean )
+{
+	static char select_string[ 256 ];
+
+	string_strcpy(
+		select_string,
+		(char *)entity_select,
+		sizeof ( select_string ) );
+
+	if ( contact_key_boolean )
+	{
+		sprintf(select_string + strlen( select_string ),
+			",%s",
+			entity_contact_key_column );
+	}
+
+	return select_string;
+}
+
+char *entity_contact_key_where(
+		boolean entity_key_contact_key_boolean,
+		char *contact_key )
+{
+	char where[ 1024 ];
+
+	if ( !entity_key_contact_key_boolean
+	||   !contact_key )
+	{
+		strcpy( where, "1 = 1" );
+	}
+	else
+	{
+		char *escape_contact_key;
+
+		escape_contact_key =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			entity_escape_contact_key(
+				contact_key );
+
+		snprintf(
+			where,
+			sizeof ( where ),
+			"contact_key = '%s'",
+			escape_contact_key );
+
+		free( escape_contact_key );
+	}
+
+	return strdup( where );
+}

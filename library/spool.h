@@ -20,6 +20,9 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
+
+/* Output in spool_list( spool_new()->output_filename ) */
+/* ---------------------------------------------------- */
 SPOOL *spool_new(
 		char *system_string,
 		boolean capture_stderr_boolean );
@@ -84,5 +87,14 @@ char *spool_pipe(
 char *spool_fetch(
 		char *system_string,
 		boolean capture_stderr_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *spool_data_string(
+		char *system_string,
+		char *data_string );
 
 #endif

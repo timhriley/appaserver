@@ -225,3 +225,49 @@ char *spool_pipe(
 	return (char *)list_first( list );
 }
 
+char *spool_data_string(
+		char *system_string,
+		char *data_string )
+{
+	SPOOL *spool;
+	LIST *list;
+
+	if ( !system_string
+	||   !data_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	spool =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		spool_new(
+			system_string,
+			1 /* capture_stderr_boolean */ );
+
+	fprintf(
+		spool->output_pipe,
+		"%s\n",
+		data_string );
+
+	pclose( spool->output_pipe );
+
+	list = spool_list( spool->output_filename );
+
+	if ( !list_length( list ) ) return NULL;
+
+	return (char *)list_first( list );
+}
+
