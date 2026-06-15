@@ -13,6 +13,7 @@
 #define ENTITY_TABLE			"entity"
 #define ENTITY_FULL_NAME_COLUMN		"full_name"
 #define ENTITY_CONTACT_KEY_COLUMN	"contact_key"
+#define ENTITY_CONTACT_KEY_DEFAULT	"unknown"
 
 #define ENTITY_FINANCIAL_INSTITUTION_TABLE \
 					"financial_institution"
@@ -33,6 +34,7 @@ typedef struct
 {
 	char *full_name;
 	char *contact_key /* optional */;
+	boolean contact_key_boolean;
 	char *street_address;
 	char *city;
 	char *state_code;
@@ -45,7 +47,6 @@ typedef struct
 /* Usage */
 /* ----- */
 ENTITY *entity_fetch(
-		boolean entity_key_contact_key_boolean,
 		char *full_name,
 		char *contact_key );
 /* Process */
@@ -56,7 +57,7 @@ ENTITY *entity_fetch(
 char *entity_select_string(
 		const char *entity_select,
 		const char *entity_contact_key_column,
-		boolean entity_key_contact_key_boolean );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -64,14 +65,14 @@ char *entity_select_string(
 /* Returns static memory */
 /* --------------------- */
 char *entity_primary_where(
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key );
 
 /* Usage */
 /* ----- */
 ENTITY *entity_parse(
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *input );
 
 
@@ -94,7 +95,7 @@ ENTITY *entity_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *entity_contact_key_where(
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *contact_key );
 
 /* Usage */
@@ -164,7 +165,7 @@ char *entity_insert(
 		const char *entity_table,
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key );
 
@@ -178,7 +179,7 @@ char *entity_insert_system_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		boolean entity_key_contact_key_boolean );
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -188,7 +189,7 @@ char *entity_insert_system_string(
 char *entity_insert_field_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
-		boolean entity_key_contact_key_boolean );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -197,7 +198,7 @@ char *entity_insert_field_string(
 /* ------------------- */
 char *entity_insert_data_string(
 		const char sql_delimiter,
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key );
 
@@ -214,6 +215,36 @@ char *entity_name_display(
 /* ----- */
 ENTITY *entity_full_name_entity(
 		char *full_name /* stack memory */ );
+
+/* Usage */
+/* ----- */
+boolean entity_contact_key_boolean(
+		const char *entity_table,
+		const char *entity_contact_key_column );
+
+/* Usage */
+/* ----- */
+
+/* Returns parameter heap memory or null */
+/* ------------------------------------- */
+char *entity_contact_key(
+		const char *entity_contact_key_column,
+		const char *entity_contact_key_default,
+		char *contact_key,
+		boolean entity_contact_key_boolean,
+		boolean stack_memory_boolean );
+
+/* Usage */
+/* ----- */
+
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
+char *entity_contact_key_datum(
+		const char *entity_table,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		char *contact_key );
 
 #endif
 

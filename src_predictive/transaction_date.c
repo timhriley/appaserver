@@ -56,6 +56,7 @@ char *transaction_date_where_string(
 
 boolean transaction_date_time_boolean(
 		const char *transaction_table,
+		const char *transaction_date_time_column,
 		char *transaction_date_time )
 {
 	char *system_string;
@@ -81,6 +82,7 @@ boolean transaction_date_time_boolean(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_date_time_where_string(
+			transaction_date_time_column,
 			transaction_date_time );
 
 	system_string =
@@ -939,7 +941,9 @@ char *transaction_date_count_system_string(
 	return strdup( system_string );
 }
 
-char *transaction_date_time_where_string( char *transaction_date_time )
+char *transaction_date_time_where_string(
+		const char *transaction_date_time_column,
+		char *transaction_date_time )
 {
 	static char where_string[ 128 ];
 
@@ -959,7 +963,8 @@ char *transaction_date_time_where_string( char *transaction_date_time )
 	snprintf(
 		where_string,
 		sizeof ( where_string ),
-		"transaction_date_time = '%s'",
+		"%s = '%s'",
+		transaction_date_time_column,
 		transaction_date_time );
 
 	return where_string;

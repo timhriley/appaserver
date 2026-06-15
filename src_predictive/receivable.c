@@ -10,6 +10,8 @@
 #include "timlib.h"
 #include "String.h"
 #include "appaserver_error.h"
+#include "entity.h"
+#include "predictive.h"
 #include "journal.h"
 #include "receivable.h"
 
@@ -31,8 +33,9 @@ RECEIVABLE *receivable_calloc( void )
 }
 
 RECEIVABLE *receivable_fetch(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *account_receivable_name_list )
 {
 	RECEIVABLE *receivable;
@@ -41,7 +44,6 @@ RECEIVABLE *receivable_fetch(
 	char *system_string;
 
 	if ( !full_name
-	||   !street_address
 	||   !list_length( account_receivable_name_list ) )
 	{
 		fprintf(stderr,
@@ -67,8 +69,9 @@ RECEIVABLE *receivable_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		receivable_where(
+			contact_key_boolean,
 			full_name,
-			street_address,
+			contact_key,
 			in_clause );
 
 	system_string =
@@ -78,6 +81,8 @@ RECEIVABLE *receivable_fetch(
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			where );
 
 	receivable->journal_system_list =
@@ -117,14 +122,15 @@ RECEIVABLE *receivable_fetch(
 }
 
 char *receivable_where(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *string_in_clause )
 {
-	char where[ 65536 ];
+	char *primary_where;
+	char where[ 1024 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !string_in_clause )
 	{
 		char message[ 128 ];
@@ -138,15 +144,20 @@ char *receivable_where(
 			message );
 	}
 
-	sprintf(where,
-		"full_name = '%s' and "
-		"street_address = '%s' and "
-		"account in (%s)",
+	primary_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name( full_name ),
-		street_address,
+		entity_primary_where(
+			contact_key_boolean,
+			full_name,
+			contact_key );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and account in (%s)",
+		primary_where,
 		string_in_clause );
 
 	return strdup( where );

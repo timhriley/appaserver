@@ -15,7 +15,6 @@
 #define JOURNAL_TABLE			"journal"
 
 #define JOURNAL_SELECT			"full_name,"		\
-					"street_address,"	\
 					"transaction_date_time,"\
 					"account,"		\
 					"previous_balance,"	\
@@ -24,7 +23,6 @@
 					"balance"
 
 #define JOURNAL_INSERT			"full_name,"		\
-					"street_address,"	\
 					"transaction_date_time,"\
 					"account,"		\
 					"debit_amount,"		\
@@ -361,26 +359,6 @@ LIST *journal_binary_list(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *journal_system_string(
-		const char *journal_select,
-		const char *journal_table,
-		char *where );
-
-/* Process */
-/* ------- */
-
-/* Returns parameter or static memory */
-/* ---------------------------------- */
-char *journal_fund_select(
-		const char *journal_select,
-		const char *predictive_fund_column_name,
-		boolean predictive_fund_boolean );
-
-/* Usage */
-/* ----- */
 JOURNAL *journal_seek(
 		char *fund_name,
 		char *transaction_date_time,
@@ -478,6 +456,30 @@ int journal_transaction_count(
 LIST *journal_date_time_account_name_list(
 		char *journal_table,
 		char *transaction_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_system_string(
+		const char *journal_select,
+		const char *journal_table,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		char *where );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_select_string(
+		const char *journal_select,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

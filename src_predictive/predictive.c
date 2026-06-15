@@ -13,21 +13,18 @@
 #include "predictive.h"
 
 char *predictive_fund_where(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name,
-		char *fund_name )
+		char *fund_name,
+		boolean predictive_fund_boolean )
 {
 	char where[ 128 ];
 
 	if ( !fund_name
 	||   !*fund_name
 	||   strcmp(	fund_name,
-			predictive_fund_table_name ) == 0
+			PREDICTIVE_FUND_TABLE_NAME ) == 0
 	||   strcmp(	fund_name,
-			predictive_fund_column_name ) == 0
-	||   !predictive_fund_boolean(
-		predictive_fund_table_name,
-		predictive_fund_column_name ) )
+			PREDICTIVE_FUND_COLUMN_NAME ) == 0
+	||   !predictive_fund_boolean )
 	{
 		strcpy( where, "1 = 1" );
 	}
@@ -37,7 +34,7 @@ char *predictive_fund_where(
 			where,
 			sizeof ( where ),
 		 	"%s = '%s'",
-			predictive_fund_column_name,
+			PREDICTIVE_FUND_COLUMN,
 		 	fund_name );
 	}
 
@@ -45,8 +42,8 @@ char *predictive_fund_where(
 }
 
 boolean predictive_fund_boolean(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name )
+		const char *predictive_fund_table,
+		const char *predictive_fund_column )
 {
 	static boolean fund_boolean = -1;
 
@@ -54,8 +51,8 @@ boolean predictive_fund_boolean(
 	{
 		fund_boolean =
 			appaserver_table_column_boolean(
-				predictive_fund_table_name,
-				predictive_fund_column_name );
+				predictive_fund_table,
+				predictive_fund_column );
 	}
 
 	return fund_boolean;

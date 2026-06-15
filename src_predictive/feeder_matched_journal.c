@@ -22,6 +22,8 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "date_convert.h"
+#include "entity.h"
+#include "predictive.h"
 #include "account.h"
 #include "exchange.h"
 #include "transaction.h"
@@ -86,6 +88,8 @@ LIST *feeder_matched_journal_list(
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
+				PREDICTIVE_FUND_COLUMN,
+				ENTITY_CONTACT_KEY_COLUMN,
 				where ),
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,

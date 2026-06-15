@@ -167,16 +167,21 @@ boolean entity_list_exist_boolean(
 }
 
 ENTITY *entity_fetch(
-		boolean contact_key_boolean,
 		char *full_name,
 		char *contact_key )
 {
+	boolean contact_key_boolean;
 	char *primary_where;
 	char *select_string;
 	char *system_string;
 	char *input;
 
 	if ( !full_name || !*full_name ) return NULL;
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	primary_where =
 		/* --------------------- */
@@ -263,6 +268,9 @@ ENTITY *entity_parse(
 		if ( *piece_buffer )
 			entity->contact_key =
 				strdup( piece_buffer );
+
+		entity->contact_key_boolean = contact_key_boolean;
+
 	}
 
 	return entity;
@@ -387,7 +395,7 @@ char *entity_fetch_contact_key( char *full_name )
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			entity_key_contact_key_boolean(
+			entity_contact_key_boolean(
 				ENTITY_TABLE /* table_name */,
 				ENTITY_CONTACT_KEY_COLUMN /* column_name */ ),
 			full_name,
@@ -416,7 +424,7 @@ char *entity_insert_system_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		boolean entity_key_contact_key_boolean )
+		boolean entity_contact_key_boolean )
 {
 	char system_string[ 1024 ];
 	char *field_string;
@@ -428,7 +436,7 @@ char *entity_insert_system_string(
 		entity_insert_field_string(
 			entity_full_name_column,
 			entity_contact_key_column,
-			entity_key_contact_key_boolean );
+			entity_contact_key_boolean );
 
 	snprintf(
 		system_string,
@@ -596,7 +604,7 @@ ENTITY *entity_full_name_entity( char *full_name /* stack memory */ )
 char *entity_insert_field_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
-		boolean entity_key_contact_key_boolean )
+		boolean entity_contact_key_boolean )
 {
 	char field_string[ 128 ];
 	char *ptr = field_string;
@@ -605,7 +613,7 @@ char *entity_insert_field_string(
 		"%s",
 		entity_full_name_column );
 
-	if ( entity_key_contact_key_boolean )
+	if ( entity_contact_key_boolean )
 	{
 		ptr += sprintf( ptr,
 			",%s",
@@ -638,12 +646,12 @@ char *entity_select_string(
 }
 
 char *entity_contact_key_where(
-		boolean entity_key_contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		char *contact_key )
 {
 	char where[ 1024 ];
 
-	if ( !entity_key_contact_key_boolean
+	if ( !entity_contact_key_boolean
 	||   !contact_key )
 	{
 		strcpy( where, "1 = 1" );
@@ -670,3 +678,91 @@ char *entity_contact_key_where(
 
 	return strdup( where );
 }
+
+boolean entity_contact_key_boolean(
+		const char *entity_table,
+		const char *entity_contact_key_column )
+{
+	static boolean contact_key_boolean = -1;
+
+	if ( contact_key_boolean == -1 )
+	{
+		contact_key_boolean =
+			appaserver_table_column_boolean(
+				entity_table /* table_name */,
+				entity_contact_key_column /* column_name */ );
+	}
+
+	return contact_key_boolean;
+}
+
+char *entity_contact_key(
+		const char *entity_contact_key_column,
+		const char *entity_contact_key_default,
+		char *contact_key,
+		boolean entity_contact_key_boolean,
+		boolean stack_memory_boolean )
+{
+	char *key = {0};
+
+	if ( entity_contact_key_boolean )
+	{
+		if (	!contact_key
+		||	!*contact_key
+		||	strcmp(
+				contact_key,
+				entity_contact_key_column ) == 0 )
+		{
+			key = (char *)entity_contact_key_default;
+		}
+		else
+		{
+			if ( stack_memory_boolean )
+				key = strdup( contact_key );
+			else
+				key = contact_key;
+		}
+	}
+
+	return key;
+}
+
+char *entity_contact_key_datum(
+		const char *entity_table,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		char *contact_key )
+{
+	static char datum[ 32 ];
+
+	if ( entity_contact_key_boolean(
+		entity_table,
+		entity_contact_key_column ) )
+	{
+		if ( !contact_key || !*contact_key )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"contact_key is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		snprintf(
+			datum,
+			sizeof ( datum ),
+			"%c%s",
+			sql_delimiter,
+			contact_key );
+	}
+
+	return datum;
+}
+

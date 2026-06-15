@@ -24,7 +24,13 @@
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key /* optional */;
+	char *credit_card_number;
+	char *credit_card_expiration_month_year;
+	char *credit_card_security_code;
+	char *credit_provider;
+	double invoice_amount_due;
+	char *invoice_statement_current;
 	ENTITY *entity;
 } ENTITY_SELF;
 

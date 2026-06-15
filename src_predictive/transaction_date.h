@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/transaction_date.h			*/
 /* -------------------------------------------------------------------- */
-/* No warranty and  available software. Visit appaserver.org		*/
+/* No warranty and available software. Visit appaserver.org		*/
 /* -------------------------------------------------------------------- */
 
 #ifndef TRANSACTION_DATE_H
@@ -131,6 +131,7 @@ char *transaction_date_earlier_date_time(
 /* ----- */
 boolean transaction_date_time_boolean(
 		const char *transaction_table,
+		const char *transaction_date_time_column,
 		char *transaction_date_time );
 
 /* Process */
@@ -139,6 +140,7 @@ boolean transaction_date_time_boolean(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_date_time_where_string(
+		const char *transaction_date_time_column,
 		char *transaction_date_time );
 
 /* Usage */

@@ -188,7 +188,7 @@ char *entity_self_select(
 	{
 		string_strcpy(
 			select,
-			entity_self_select,
+			(char *)entity_self_select,
 			sizeof ( select ) /* buffer_size */ );
 	}
 

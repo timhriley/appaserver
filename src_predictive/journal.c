@@ -404,6 +404,8 @@ JOURNAL *journal_account_fetch(
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -550,29 +552,45 @@ LIST *journal_system_list(
 char *journal_system_string(
 		const char *journal_select,
 		const char *journal_table,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
 		char *where )
 {
-	char *fund_select;
+	char *select_string;
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 	char system_string[ 1024 ];
 
 	if ( !where ) where = "1 = 1";
 
-	fund_select =
-		/* ---------------------------------- */
-		/* Returns parameter or static memory */
-		/* ---------------------------------- */
-		journal_fund_select(
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			predictive_fund_column );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			entity_contact_key_column );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_select_string(
 			journal_select,
-			PREDICTIVE_FUND_COLUMN_NAME,
-			predictive_fund_boolean(
-				PREDICTIVE_FUND_TABLE_NAME,
-				PREDICTIVE_FUND_COLUMN_NAME ) );
+			predictive_fund_column,
+			entity_contact_key_column,
+			fund_boolean,
+			contact_key_boolean );
+
+	free( select_string );
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
 	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
-		fund_select,
+		select_string,
 		journal_table,
 		where );
 
@@ -1647,6 +1665,8 @@ LIST *journal_year_list(
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -2197,6 +2217,8 @@ LIST *journal_tax_form_list(
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			where ),
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
@@ -2385,6 +2407,8 @@ LIST *journal_entity_list(
 		journal_system_string(
 			journal_select,
 			journal_table,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -2421,6 +2445,8 @@ LIST *journal_transaction_list(
 				journal_system_string(
 					journal_select,
 					journal_table,
+					PREDICTIVE_FUND_COLUMN,
+					ENTITY_CONTACT_KEY_COLUMN,
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -2787,23 +2813,38 @@ char *journal_account_display(
 	return display;
 }
 
-char *journal_fund_select(
+char *journal_select_string(
 		const char *journal_select,
-		const char *predictive_fund_column_name,
-		boolean predictive_fund_boolean )
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_column )
 {
-	static char select[ 128 ];
+	char string[ 1024 ];
+	char *ptr = string;
 
-	if ( !predictive_fund_boolean ) return (char *)journal_select;
+	ptr += sprintf(
+		ptr,
+		"%s",
+		journal_select );
 
-	snprintf(
-		select,
-		sizeof ( select ),
-		"%s,%s",
-		journal_select,
-		predictive_fund_column_name );
+	if ( predictive_fund_boolean )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			predictive_fund_column );
+	}
 
-	return select;
+	if ( entity_contact_key )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			entity_contact_key_column );
+	}
+
+	return strdup( string );
 }
 
 char *journal_fund_name(
