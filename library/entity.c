@@ -766,3 +766,17 @@ char *entity_contact_key_datum(
 	return datum;
 }
 
+LIST *entity_primary_key_list(
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean )
+{
+	LIST *list = list_new();
+
+	list_set( list, (char *)entity_full_name_column );
+
+	if ( entity_contact_key_boolean )
+		list_set( list, (char *)entity_contact_key_column );
+
+	return list;
+}

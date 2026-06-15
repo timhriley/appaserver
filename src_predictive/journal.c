@@ -206,6 +206,8 @@ char *journal_less_equal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name ) );
 
@@ -250,6 +252,8 @@ char *journal_less_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name ) );
 
@@ -295,6 +299,8 @@ char *journal_transaction_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name ) );
 
@@ -302,6 +308,8 @@ char *journal_transaction_account_where(
 }
 
 char *journal_account_where(
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
 		char *fund_name,
 		char *account_name )
 {
@@ -330,9 +338,9 @@ char *journal_account_where(
 		/* --------------------- */
 		/* If set, appends an "and" */
 		/* ------------------------ */
-		transaction_fund_where(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+		predictive_fund_where(
+			predictive_fund_table,
+			predictive_fund_column,
 			fund_name ),
 		/* --------------------- */
 		/* Returns static memory */
@@ -629,36 +637,64 @@ LIST *journal_account_distinct_entity_list(
 		char *journal_table,
 		LIST *account_name_list )
 {
+	boolean contact_key_boolean;
+	LIST *primary_key_list;
 	char system_string[ 1024 ];
 	char input[ 256 ];
 	FILE *pipe;
 	ENTITY *entity;
 	LIST *list = {0};
 	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char contact_key[ 128 ];
 
-	if ( !list_length( account_name_list ) ) return (LIST *)0;
+	if ( !list_length( account_name_list ) ) return NULL;
 
-	sprintf(system_string,
-	 	"select.sh \"%s\" %s \"account in (%s)\" | sort -u",
-		"full_name,street_address",
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	primary_key_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		entity_primary_key_list(
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	delimited_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		list_delimited_string(
+			primary_key_list,
+			',' /* delimiter */ );
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+	 	"select.sh '%s' %s \"account in (%s)\" | sort -u",
+		delimited_string,
 		journal_table,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		string_in_clause( account_name_list /* data_list */ ) );
 
-	pipe = popen( system_string, "r" );
+	pipe = appaserver_input_pipe( system_string );
 
-	while( string_input( input, pipe, 256 ) )
+	while( string_input( input, pipe, sizeof ( input ) ) )
 	{
 		piece( full_name, SQL_DELIMITER, input, 0 );
-		piece( street_address, SQL_DELIMITER, input, 1 );
 
-		entity =
-			entity_new(
-				strdup( full_name ),
-				strdup( street_address ) );
+		entity = entity_new( strdup( full_name ) );
+
+		if ( contact_key_boolean )
+		{
+			piece( contact_key, SQL_DELIMITER, input, 1 );
+			entity->contact_key = strdup( contact_key );
+		}
 
 		if ( !list ) list = list_new();
 
@@ -770,7 +806,7 @@ JOURNAL *journal_credit_new(
 void journal_list_insert(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		LIST *journal_list )
 {
@@ -779,7 +815,6 @@ void journal_list_insert(
 	JOURNAL *journal;
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !list_rewind( journal_list ) )
 	{
@@ -812,14 +847,14 @@ void journal_list_insert(
 		journal = list_get( journal_list );
 
 		journal_insert(
-			pipe,
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			journal->account_name,
 			journal->debit_amount,
-			journal->credit_amount );
+			journal->credit_amount,
+			pipe );
 
 	} while( list_next( journal_list ) );
 
@@ -855,6 +890,7 @@ FILE *journal_insert_pipe(
 		/* ------------------- */
 		journal_insert_system_string(
 			journal_table,
+			SQL_DELIMITER,
 			column_list_string );
 
 	insert_pipe =
@@ -871,6 +907,7 @@ FILE *journal_insert_pipe(
 
 char *journal_insert_system_string(
 		const char *journal_table,
+		const char sql_delimiter,
 		char *column_list_string )
 {
 	char system_string[ 1024 ];
@@ -894,31 +931,32 @@ char *journal_insert_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"insert_statement t=%s f=%s delimiter='^' |"
+		"insert_statement table=%s field=%s delimiter='%c' |"
 		"tee_appaserver.sh |"
 		"sql.e 2>&1 |"
 		"html_paragraph_wrapper.e",
 		journal_table,
-		column_list_string );
+		column_list_string,
+		sql_delimiter );
 
 	return strdup( system_string );
 }
 
 void journal_insert(
-		FILE *pipe,
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,
-		double credit_amount )
+		double credit_amount,
+		FILE *pipe )
 {
 	char *fund_datum;
+	char *contact_key_datum;
 	char *insert_data_string;
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name )
 	{
@@ -930,9 +968,20 @@ void journal_insert(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_datum(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			SQL_DELIMITER,
 			fund_name );
+
+	contact_key_datum =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_contact_key_datum(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN,
+			SQL_DELIMITER,
+			contact_key );
 
 	insert_data_string =
 		/* --------------------------- */
@@ -945,7 +994,8 @@ void journal_insert(
 			account_name,
 			debit_amount,
 			credit_amount,
-			fund_datum );
+			fund_datum,
+			contact_key_datum );
 
 	if ( insert_data_string )
 	{
@@ -959,22 +1009,23 @@ void journal_insert(
 
 char *journal_insert_data_string(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,
 		double credit_amount,
-		char *transaction_fund_datum )
+		char *fund_datum,
+		char *contact_key_datum )
 {
 	char debit_amount_string[ 32 ];
 	char credit_amount_string[ 32 ];
 	char insert_data_string[ 1024 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name
-	||   !transaction_fund_datum )
+	||   !fund_datum
+	||   !contact_key_datum )
 	{
 		return NULL;
 	}
@@ -1006,14 +1057,15 @@ char *journal_insert_data_string(
 	snprintf(
 		insert_data_string,
 		sizeof ( insert_data_string ),
-		"%s^%s^%s^%s^%s^%s%s",
+		"%s^%s^%s^%s^%s^%s%s%s",
 		full_name,
 		street_address,
 		transaction_date_time,
 		account_name,
 		debit_amount_string,
 		credit_amount_string,
-		transaction_fund_datum );
+		transaction_fund_datum,
+		entity_contact_key_datum );
 
 	return strdup( insert_data_string );
 }
@@ -1798,20 +1850,19 @@ LIST *journal_date_time_account_name_list(
 	return pipe2list( system_string );
 }
 
-void journal_list_transaction_insert(
-		FILE *pipe,
+void journal_list_pipe_insert(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
-		LIST *journal_list )
+		LIST *journal_list,
+		FILE *pipe )
 {
 	JOURNAL *journal;
 
-	if ( !pipe
-	||   !full_name
-	||   !street_address
-	||   !transaction_date_time )
+	if ( !full_name
+	||   !transaction_date_time
+	||   !pipe )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1829,14 +1880,14 @@ void journal_list_transaction_insert(
 		journal = list_get( journal_list );
 
 		journal_insert(
-			pipe,
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			journal->account_name,
 			journal->debit_amount,
-			journal->credit_amount );
+			journal->credit_amount,
+			pipe );
 
 	} while ( list_next( journal_list ) );
 }
@@ -2045,6 +2096,8 @@ char *journal_min_transaction_date_time(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name );
 
@@ -2079,39 +2132,45 @@ double journal_signed_balance(
 
 LIST *journal_account_name_list(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time )
 {
+	char *primary_where;
 	char system_string[ 2048 ];
-	char *select;
 	char where[ 1024 ];
 
-	select = "account";
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
+			full_name,
+			contact_key );
 
 	snprintf(
 		where,
 		sizeof ( where ),
-		"full_name = '%s' and		"
-		"street_address = '%s' and	"
-		"transaction_date_time = '%s'	",
+		"%s and	"
+		"transaction_date_time = '%s'",
+		primary_where,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name( full_name ),
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_escape_street_address( street_address ),
-		transaction_date_time );
+		transaction_escape_date_time(
+			transaction_date_time ) );
 
-	sprintf(system_string,
-		"echo \"select %s from %s where %s order by %s;\" | sql.e",
-		select,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh account %s \"%s\" select",
 		JOURNAL_TABLE,
-		where,
-		select );
+		where );
 
-	return pipe2list( system_string );
+	return
+	list_pipe( system_string );
 }
 
 double journal_first_account_balance(
@@ -2301,14 +2360,13 @@ double journal_amount(
 char *journal_primary_where(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name )
 {
 	char where[ 1024 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name )
 	{
@@ -2336,7 +2394,7 @@ char *journal_primary_where(
 		transaction_primary_where(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time ),
 		/* --------------------- */
 		/* Returns static memory */
@@ -2415,7 +2473,7 @@ LIST *journal_entity_list(
 			journal_entity_where(
 				fund_name,
 				full_name,
-				street_address,
+				contact_key,
 				account_name ) ),
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
@@ -2428,13 +2486,12 @@ LIST *journal_transaction_list(
 		const char *journal_table,
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time )
 {
 	LIST *list = {0};
 
 	if ( full_name
-	&&   street_address
 	&&   transaction_date_time )
 	{
 		list =
@@ -2453,7 +2510,7 @@ LIST *journal_transaction_list(
 					transaction_primary_where(
 						fund_name,
 						full_name,
-						street_address,
+						contact_key,
 						transaction_date_time ) ),
 				1 /* fetch_account */,
 				1 /* fetch_subclassification */,
@@ -2467,15 +2524,14 @@ LIST *journal_transaction_list(
 char *journal_entity_where(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_name )
 {
-	static char where[ 384 ];
 	char *primary_where;
 	char *account_where;
+	static char where[ 384 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !account_name )
 	{
 		char message[ 128 ];
@@ -2497,14 +2553,19 @@ char *journal_entity_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			full_name,
-			street_address );
+			contact_key );
 
 	account_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name );
 
@@ -2732,10 +2793,12 @@ char *journal_list_last_memo( LIST *journal_list )
 
 char *journal_column_list_string(
 		const char *journal_insert,
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name )
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
+		const char *entity_table,
+		const char *entity_contact_key_column )
 {
-	static char column_list_string[ 128 ];
+	static char column_list_string[ 256 ];
 	char *ptr = column_list_string;
 
 	ptr += sprintf(
@@ -2744,13 +2807,23 @@ char *journal_column_list_string(
 		journal_insert );
 
 	if ( predictive_fund_boolean(
-		predictive_fund_table_name,
-		predictive_fund_column_name ) )
+		predictive_fund_table,
+		predictive_fund_column ) )
 	{
 		ptr += sprintf(
 			ptr,
 			",%s",
-			predictive_fund_column_name );
+			predictive_fund_column );
+	}
+
+	if ( entity_contact_key_boolean(
+		entity_table,
+		entity_contact_key_column ) )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			entity_contact_key_column );
 	}
 
 	return column_list_string;

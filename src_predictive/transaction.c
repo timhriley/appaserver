@@ -1596,23 +1596,6 @@ boolean transaction_lock_column_boolean(
 	return lock_column_boolean;
 }
 
-boolean transaction_fund_column_boolean(
-		const char *transaction_table,
-		const char *transaction_fund_column )
-{
-	static boolean fund_column_boolean = -1;
-
-	if ( fund_column_boolean == -1 )
-	{
-		fund_column_boolean =
-			folder_attribute_exists(
-				(char *)transaction_table,
-				(char *)transaction_fund_column );
-	}
-
-	return fund_column_boolean;
-}
-
 char *transaction_insert_data_string(
 		char *full_name,
 		char *transaction_race_free_date_time,

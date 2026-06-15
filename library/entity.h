@@ -246,5 +246,15 @@ char *entity_contact_key_datum(
 		const char sql_delimiter,
 		char *contact_key );
 
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+LIST *entity_primary_key_list(
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean );
+
 #endif
 
