@@ -49,7 +49,7 @@ TRANSACTION *transaction_calloc( void )
 TRANSACTION *transaction_new(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time )
 {
 	TRANSACTION *transaction;
@@ -58,26 +58,44 @@ TRANSACTION *transaction_new(
 
 	transaction->fund_name = fund_name;
 	transaction->full_name = full_name;
-	transaction->street_address = street_address;
+	transaction->contact_key = contact_key;
 	transaction->transaction_date_time = transaction_date_time;
 
 	return transaction;
 }
 
 char *transaction_system_string(
-		const char *transaction_select,
 		const char *transaction_table,
-		char *transaction_primary_where )
+		char *select_string,
+		char *where )
 {
 	char system_string[ 1024 ];
+
+	if ( !select_string
+	||   !where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\" transaction_date_time",
-		transaction_select,
+		select_string,
 		transaction_table,
-		transaction_primary_where );
+		where );
 
 	return strdup( system_string );
 }
@@ -90,6 +108,7 @@ TRANSACTION *transaction_fetch(
 		boolean fetch_journal_list )
 {
 	boolean contact_key_boolean;
+	char *select_string;
 
 	if ( !transaction_date_time ) return NULL;
 
@@ -97,6 +116,15 @@ TRANSACTION *transaction_fetch(
 		entity_contact_key_boolean(
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_select_string(
+			TRANSACTION_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	return
 	transaction_parse(
@@ -106,13 +134,13 @@ TRANSACTION *transaction_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_pipe_fetch(
+		string_system_string_input(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			transaction_system_string(
-				TRANSACTION_SELECT,
 				TRANSACTION_TABLE,
+				select_string,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -131,8 +159,8 @@ TRANSACTION *transaction_parse(
 {
 	char full_name[ 128 ];
 	char transaction_date_time[ 128 ];
-	char piece_buffer[ 1024 ];
-	char contact_key[ 128 ];
+	char buffer[ 1024 ];
+	char *contact_key = {0};
 	TRANSACTION *transaction;
 
 	if ( !input || !*input ) return NULL;
@@ -142,22 +170,27 @@ TRANSACTION *transaction_parse(
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 1 );
 
-	if ( 
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 5 );
+		contact_key = strdup( buffer );
+	}
+
 	transaction =
 		transaction_new(
 			fund_name,
 			strdup( full_name ),
-			strdup( street_address ),
+			contact_key,
 			strdup( transaction_date_time ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	transaction->transaction_amount = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	transaction->transaction_amount = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	transaction->check_number = atoi( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	transaction->check_number = atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	if ( *piece_buffer ) transaction->memo = strdup( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) transaction->memo = strdup( buffer );
 
 	if ( fetch_journal_list )
 	{
@@ -193,7 +226,6 @@ char *transaction_primary_where(
 {
 	static char where[ 512 ];
 	char *fund_where;
-	boolean contact_key_boolean;
 	char *escape_transaction_date_time;
 
 	fund_where =
@@ -203,14 +235,9 @@ char *transaction_primary_where(
 		/* If set, appends an "and" */
 		/* ------------------------ */
 		transaction_fund_where(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name );
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	escape_transaction_date_time =
 		/* --------------------- */
@@ -230,7 +257,9 @@ char *transaction_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			full_name,
 			contact_key ),
 		escape_transaction_date_time );
@@ -291,8 +320,8 @@ char *transaction_insert(
 		/* --------------------- */
 		transaction_column_list_string(
 			TRANSACTION_INSERT /* input_column_list_string */,
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN,
 			TRANSACTION_LOCK_COLUMN );
@@ -332,7 +361,7 @@ char *transaction_insert(
 		journal_list_insert(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			race_free_date_time,
 			journal_list );
 
@@ -389,7 +418,7 @@ void transaction_insert_pipe(
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN,
 			SQL_DELIMITER,
-			fund_name );
+			contact_key );
 
 	lock_datum =
 		/* --------------------- */
@@ -462,7 +491,7 @@ char *transaction_memo( char *memo )
 char *transaction_race_free_date_time(
 		const char *transaction_table,
 		const char *transaction_date_time_column,
-		const char *transaction_semaphore_key,
+		const int transaction_semaphore_key,
 	       	char *transaction_date_time )
 {
 	SEMAPHORE *semaphore;
@@ -663,7 +692,7 @@ char *transaction_update_statement_system_string(
 void transaction_delete(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time )
 {
 	TRANSACTION *transaction;
@@ -671,7 +700,6 @@ void transaction_delete(
 	char *system_string;
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time )
 	{
 		char message[ 128 ];
@@ -692,7 +720,7 @@ void transaction_delete(
 			transaction_fetch(
 				fund_name,
 				full_name,
-				street_address,
+				contact_key,
 				transaction_date_time,
 				1 /* fetch_journal_list */ ) ) )
 	{
@@ -706,7 +734,7 @@ void transaction_delete(
 		transaction_primary_where(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time );
 
 	system_string =
@@ -785,7 +813,9 @@ LIST *transaction_list(
 		char *where,
 		boolean fetch_journal_list )
 {
-	LIST *list;
+	boolean contact_key_boolean;
+	char *select_string;
+	LIST *list = list_new();
 	char input[ 1024 ];
 	char *system_string;
 	FILE *input_pipe;
@@ -800,20 +830,32 @@ LIST *transaction_list(
 		exit( 1 );
 	}
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_select_string(
+			TRANSACTION_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		transaction_system_string(
-			TRANSACTION_SELECT,
 			TRANSACTION_TABLE,
+			select_string,
 			where );
 
 	input_pipe =
 		transaction_input_pipe(
 			system_string );
-
-	list = list_new();
 
 	while( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
@@ -827,6 +869,12 @@ LIST *transaction_list(
 	}
 
 	pclose( input_pipe );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
@@ -849,9 +897,8 @@ void transaction_list_insert(
 
 			sprintf(message,
 				"transaction_amount is zero or negative:\n"
-				"%s, %s, %s, %.2lf\n",
+				"%s, %s, %.2lf\n",
 				transaction->full_name,
-				transaction->street_address,
 				transaction->transaction_date_time,
 				transaction->transaction_amount );
 
@@ -916,7 +963,7 @@ TRANSACTION *transaction_entity_new(
 	transaction = transaction_calloc();
 
 	transaction->full_name = entity->full_name;
-	transaction->street_address = entity->street_address;
+	transaction->contact_key = entity->contact_key;
 	transaction->transaction_date_time = transaction_date_time;
 	transaction->transaction_amount = transaction_amount;
 	transaction->check_number = check_number;
@@ -993,8 +1040,9 @@ char *transaction_display( TRANSACTION *transaction )
 }
 
 TRANSACTION *transaction_binary(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		char *memo,
@@ -1007,9 +1055,9 @@ TRANSACTION *transaction_binary(
 
 	transaction =
 		transaction_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time );
 
 	transaction->memo = memo;
@@ -1017,10 +1065,11 @@ TRANSACTION *transaction_binary(
 
 	transaction->journal_list =
 		journal_binary_list(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			float_abs( transaction->transaction_amount ),
+			fund_name,
+			full_name,
+			contact_key,
+			transaction_date_time,
+			float_abs( transaction_amount ),
 			account_fetch(
 				debit_account_name,
 				1 /* fetch_subclassification */,
@@ -1075,8 +1124,10 @@ void transaction_journal_list_insert(
 		/* --------------------- */
 		journal_column_list_string(
 			JOURNAL_INSERT,
-			TRANSACTION_TABLE,
-			PREDICTIVE_FUND_COLUMN_NAME );
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	insert_pipe =
 		/* -------------- */
@@ -1097,13 +1148,13 @@ void transaction_journal_list_insert(
 
 		if ( list_length( transaction->journal_list ) )
 		{
-			journal_list_transaction_insert(
-				insert_pipe,
+			journal_list_pipe_insert(
 				fund_name,
 				transaction->full_name,
 				transaction->contact_key,
 				transaction->transaction_date_time,
-				transaction->journal_list );
+				transaction->journal_list,
+				insert_pipe );
 		}
 
 	} while ( list_next( transaction_list ) );
@@ -1288,6 +1339,7 @@ TRANSACTION *transaction_date_time_fetch(
 		boolean fetch_journal_list )
 {
 	boolean contact_key_boolean;
+	char *select_string;
 
 	if ( !transaction_date_time )
 	{
@@ -1304,6 +1356,15 @@ TRANSACTION *transaction_date_time_fetch(
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN );
 
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_select_string(
+			TRANSACTION_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
 	return
 	transaction_parse(
 		(char *)0 /* fund_name */,
@@ -1317,21 +1378,38 @@ TRANSACTION *transaction_date_time_fetch(
 			/* Returns heap memory */
 			/* ------------------- */
 			transaction_system_string(
-				TRANSACTION_SELECT,
 				TRANSACTION_TABLE,
+				select_string,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
 				transaction_fetch_where(
 					(char *)0 /* fund_name */,
 					(char *)0 /* full_name */,
-					(char *)0 /* street_address */,
+					(char *)0 /* contact_key */,
 					transaction_date_time ) ) ) );
 }
 
 char *transaction_date_time_fetch_where( char *transaction_date_time )
 {
 	static char where[ 64 ];
+
+	if ( !transaction_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"transaction_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	snprintf(
 		where,
@@ -1345,8 +1423,9 @@ char *transaction_date_time_fetch_where( char *transaction_date_time )
 TRANSACTION *transaction_binary_account_key(
 		const char *debit_account_key,
 		const char *credit_account_key,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		char *memo )
@@ -1354,15 +1433,14 @@ TRANSACTION *transaction_binary_account_key(
 	char *debit_account_name;
 	char *credit_account_name;
 
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1393,8 +1471,9 @@ TRANSACTION *transaction_binary_account_key(
 
 	return
 	transaction_binary(
+		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		transaction_date_time,
 		transaction_amount,
 		memo,
@@ -1628,9 +1707,8 @@ char *transaction_insert_data_string(
 
 	ptr += sprintf(
 		ptr,
-		"%s^%s^%s^%.2lf^%s^%s%s%s%s",
+		"%s^%s^%.2lf^%s^%s%s%s%s",
 	 	entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
 		transaction_race_free_date_time,
 		transaction_amount,
 		transaction_check_number,
@@ -1682,7 +1760,7 @@ char *transaction_escape_date_time( char *transaction_date_time )
 char *transaction_select_string(
 		const char *transaction_select,
 		const char *entity_contact_key_column,
-		boolean entity_contact_key_column )
+		boolean contact_key_boolean )
 {
 	char string[ 1024 ];
 	char *ptr = string;
@@ -1692,7 +1770,7 @@ char *transaction_select_string(
 		"%s",
 		transaction_select );
 
-	if ( entity_contact_key )
+	if ( contact_key_boolean )
 	{
 		ptr += sprintf(
 			ptr,

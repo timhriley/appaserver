@@ -32,7 +32,7 @@ typedef struct
 {
 	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key /* optional */;
 	char *transaction_date_time;
 	char *account_name;
 	double previous_balance;
@@ -55,11 +55,13 @@ LIST *journal_system_list(
 /* Usage */
 /* ----- */
 JOURNAL	*journal_parse(
-		char *input,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
-		boolean fetch_transaction );
+		boolean fetch_transaction,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -69,7 +71,7 @@ JOURNAL	*journal_parse(
 JOURNAL *journal_new(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name );
 
@@ -354,8 +356,9 @@ JOURNAL *journal_credit_new(
 /* Usage */
 /* ----- */
 LIST *journal_binary_list(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		ACCOUNT *debit_account,
@@ -460,6 +463,23 @@ int journal_transaction_count(
 LIST *journal_date_time_account_name_list(
 		char *journal_table,
 		char *transaction_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+JOURNAL *journal_insert_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *transaction_date_time,
+		JOURNAL *journal );
+
+/* Usage */
+/* ----- */
+void journal_free(
+		JOURNAL *journal );
 
 /* Usage */
 /* ----- */

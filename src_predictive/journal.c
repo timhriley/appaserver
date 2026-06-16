@@ -27,7 +27,7 @@
 JOURNAL *journal_new(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name )
 {
@@ -35,7 +35,7 @@ JOURNAL *journal_new(
 
 	journal->fund_name = fund_name;
 	journal->full_name = full_name;
-	journal->street_address = street_address;
+	journal->contact_key = contact_key;
 	journal->transaction_date_time = transaction_date_time;
 	journal->account_name = account_name;
 
@@ -152,7 +152,7 @@ JOURNAL *journal_latest(
 			journal_new(
 				fund_name,
 				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
+				(char *)0 /* contact_key */,
 				end_date_time_string
 					/* transaction_date_time */,
 				account_name );
@@ -313,7 +313,8 @@ char *journal_account_where(
 		char *fund_name,
 		char *account_name )
 {
-	static char where[ 256 ];
+	boolean fund_boolean;
+	static char where[ 128 ];
 
 	if ( !account_name )
 	{
@@ -328,6 +329,11 @@ char *journal_account_where(
 			message );
 	}
 
+	fund_boolean =
+		predictive_fund_boolean(
+			predictive_fund_table,
+			predictive_fund_column );
+
 	snprintf(
 		where,
 		sizeof ( where ),
@@ -339,9 +345,8 @@ char *journal_account_where(
 		/* If set, appends an "and" */
 		/* ------------------------ */
 		predictive_fund_where(
-			predictive_fund_table,
-			predictive_fund_column,
-			fund_name ),
+			fund_name,
+			fund_boolean ),
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -424,11 +429,13 @@ JOURNAL *journal_account_fetch(
 
 	journal =
 		journal_parse(
-			string_pipe( system_string ),
 			fetch_account,
 			fetch_subclassification,
 			fetch_element,
-			fetch_transaction );
+			fetch_transaction,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			string_pipe( system_string ) /* input */ );
 
 	free( system_string );
 
@@ -436,35 +443,41 @@ JOURNAL *journal_account_fetch(
 }
 
 JOURNAL *journal_parse(
-		char *input,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
-		boolean fetch_transaction )
+		boolean fetch_transaction,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *input )
 {
 	char full_name[ 128 ];
-	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
 	char account_name[ 128 ];
+	int additional_piece = 7;
+	char buffer[ 1024 ];
 	char *fund_name = {0};
-	char piece_buffer[ 1024 ];
+	char *contact_key = {0};
 	JOURNAL *journal;
 
 	if ( !input || !*input ) return NULL;
 
-	/* See journal_fund_select() */
-	/* ------------------------- */
+	/* See journal_select_string() */
+	/* --------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
-	piece( account_name, SQL_DELIMITER, input, 3 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 1 );
+	piece( account_name, SQL_DELIMITER, input, 2 );
 
-	if ( predictive_fund_boolean(
-		PREDICTIVE_FUND_TABLE_NAME,
-		PREDICTIVE_FUND_COLUMN_NAME ) )
+	if ( predictive_fund_boolean )
 	{
-		piece( piece_buffer, SQL_DELIMITER, input, 8 );
-		fund_name = strdup( piece_buffer );
+		piece( buffer, SQL_DELIMITER, input, additional_piece++ );
+		fund_name = strdup( buffer );
+	}
+
+	if ( entity_contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, additional_piece++ );
+		contact_key = strdup( buffer );
 	}
 
 	journal =
@@ -474,29 +487,31 @@ JOURNAL *journal_parse(
 		journal_new(
 			fund_name,
 			strdup( full_name ),
-			strdup( street_address ),
+			contact_key,
 			strdup( transaction_date_time ),
 			strdup( account_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	if ( *piece_buffer ) journal->previous_balance = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) journal->previous_balance = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	if ( *piece_buffer ) journal->debit_amount = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) journal->debit_amount = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	if ( *piece_buffer ) journal->credit_amount = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) journal->credit_amount = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	if ( *piece_buffer ) journal->balance = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) journal->balance = atof( buffer );
 
 	if ( fetch_transaction )
 	{
 		journal->transaction =
 			transaction_fetch(
-				fund_name,
+				predictive_fund_boolean,
+				entity_contact_key_boolean,
+				journal->fund_name,
 				journal->full_name,
-				journal->street_address,
+				journal->contact_key,
 				journal->transaction_date_time,
 				0 /* not fetch_journal_list */ );
 	}
@@ -520,9 +535,11 @@ LIST *journal_system_list(
 		boolean fetch_element,
 		boolean fetch_transaction )
 {
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 	FILE *pipe;
 	char input[ 1024 ];
-	LIST *system_list;
+	LIST *system_list = list_new();
 
 	if ( !system_string )
 	{
@@ -534,7 +551,15 @@ LIST *journal_system_list(
 		exit( 1 );
 	}
 
-	system_list = list_new();
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	/* Safely returns */
 	/* -------------- */
@@ -545,11 +570,13 @@ LIST *journal_system_list(
 		list_set(
 			system_list,
 			journal_parse(
-				input,
 				fetch_account,
 				fetch_subclassification,
 				fetch_element,
-				fetch_transaction ) );
+				fetch_transaction,
+				fund_boolean,
+				contact_key_boolean,
+				input ) );
 	}
 
 	pclose( pipe );
@@ -967,7 +994,7 @@ void journal_insert(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_fund_datum(
+		predictive_fund_datum(
 			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			SQL_DELIMITER,
@@ -989,7 +1016,7 @@ void journal_insert(
 		/* --------------------------- */
 		journal_insert_data_string(
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			account_name,
 			debit_amount,
@@ -1057,14 +1084,13 @@ char *journal_insert_data_string(
 	snprintf(
 		insert_data_string,
 		sizeof ( insert_data_string ),
-		"%s^%s^%s^%s^%s^%s%s%s",
+		"%s^%s^%s^%s^%s%s%s",
 		full_name,
-		street_address,
 		transaction_date_time,
 		account_name,
 		debit_amount_string,
 		credit_amount_string,
-		transaction_fund_datum,
+		predictive_fund_datum,
 		entity_contact_key_datum );
 
 	return strdup( insert_data_string );
@@ -1172,8 +1198,9 @@ LIST *journal_extract_account_list( LIST *journal_list )
 }
 
 LIST *journal_binary_list(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		ACCOUNT *debit_account,
@@ -1205,7 +1232,7 @@ LIST *journal_binary_list(
 	if ( float_virtually_same(
 		transaction_amount, 0.0 ) )
 	{
-		return (LIST *)0;
+		return NULL;
 	}
 
 	journal_list = list_new();
@@ -1215,29 +1242,27 @@ LIST *journal_binary_list(
 		/* Safely returns */
 		/* -------------- */
 		journal_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			debit_account->account_name );
 
 	journal->account = debit_account;
 	journal->debit_amount = transaction_amount;
-	journal->transaction_date_time = transaction_date_time;
 
 	list_set( journal_list, journal );
 
 	journal =
 		journal_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			credit_account->account_name );
 
 	journal->account = credit_account;
 	journal->credit_amount = transaction_amount;
-	journal->transaction_date_time = transaction_date_time;
 
 	list_set( journal_list, journal );
 
@@ -1836,18 +1861,22 @@ LIST *journal_date_time_account_name_list(
 		transaction_date_time = "1960-01-01 00:00:00";
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"transaction_date_time >= '%s'",
 		transaction_date_time );
 
-	sprintf( system_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql.e",
-		 "distinct account",
-		 journal_table,
-		 where,
-		 "account" );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"echo \"select %s from %s where %s order by %s;\" | sql.e",
+		"distinct account",
+		journal_table,
+		where,
+		"account" );
 
-	return pipe2list( system_string );
+	return list_pipe( system_string );
 }
 
 void journal_list_pipe_insert(
@@ -1859,6 +1888,7 @@ void journal_list_pipe_insert(
 		FILE *pipe )
 {
 	JOURNAL *journal;
+	JOURNAL *new_journal;
 
 	if ( !full_name
 	||   !transaction_date_time
@@ -1879,15 +1909,28 @@ void journal_list_pipe_insert(
 	do {
 		journal = list_get( journal_list );
 
+		new_journal =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			journal_insert_new(
+				fund_name,
+				full_name,
+				contact_key,
+				transaction_date_time,
+				journal );
+
 		journal_insert(
-			fund_name,
-			full_name,
-			contact_key,
-			transaction_date_time,
+			new_journal->fund_name,
+			new_journal->full_name,
+			new_journal->contact_key,
+			new_journal->transaction_date_time,
 			journal->account_name,
 			journal->debit_amount,
 			journal->credit_amount,
 			pipe );
+
+		journal_free( new_journal );
 
 	} while ( list_next( journal_list ) );
 }
@@ -2436,11 +2479,10 @@ LIST *journal_entity_list(
 		const char *journal_table,
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_name )
 {
 	if ( !full_name
-	||   !street_address
 	||   !account_name )
 	{
 		char message[ 128 ];
@@ -2933,4 +2975,69 @@ char *journal_fund_name(
 	{
 		return input_journal_fund_name;
 	}
+}
+
+JOURNAL *journal_insert_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *transaction_date_time,
+		JOURNAL *journal )
+{
+	JOURNAL *calloc;
+
+	if ( !journal )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"journal is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	journal = journal_calloc();
+
+	calloc->fund_name =
+		(fund_name) ? fund_name : journal->fund_name;
+
+	calloc->fund_name =
+		(full_name) ? full_name : journal->full_name;
+
+	calloc->fund_name =
+		(contact_key) ? contact_key : journal->contact_key;
+
+	calloc->transaction_date_time =
+		(transaction_date_time)
+			? transaction_date_time
+			: journal->transaction_date_time;
+
+	return calloc;
+}
+
+void journal_free( JOURNAL *journal )
+{
+	if ( !journal )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"journal is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	free( journal );
 }

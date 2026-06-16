@@ -71,7 +71,7 @@ FILE *transaction_input_pipe(
 TRANSACTION *transaction_fetch(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		boolean fetch_journal_list );
 
@@ -112,8 +112,9 @@ TRANSACTION *transaction_entity_new(
 /* Usage */
 /* ----- */
 TRANSACTION *transaction_binary(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		char *memo,
@@ -205,7 +206,7 @@ boolean transaction_lock_column_boolean(
 void transaction_fetch_update(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time );
 
 /* Usage */
@@ -303,8 +304,9 @@ char *transaction_display(
 TRANSACTION *transaction_binary_account_key(
 		const char *debit_account_key,
 		const char *credit_account_key,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		char *memo );
@@ -314,7 +316,7 @@ TRANSACTION *transaction_binary_account_key(
 char *transaction_refresh(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		double transaction_amount,
 		int check_number,
@@ -339,7 +341,7 @@ char *transaction_increment_date_time(
 char *transaction_fetch_where(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time );
 
 /* Usage */
@@ -347,7 +349,7 @@ char *transaction_fetch_where(
 void transaction_delete(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time );
 
 /* Process */
@@ -367,7 +369,7 @@ char *transaction_delete_system_string(
 char *transaction_race_free_date_time(
 		const char *transaction_table,
 		const char *transaction_date_time_column,
-		const char *transaction_semaphore_key,
+		const int transaction_semaphore_key,
 		char *transaction_date_time );
 
 /* Usage */
