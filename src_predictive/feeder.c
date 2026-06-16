@@ -135,8 +135,8 @@ feeder_load_row_list_raw_display(
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name );
 
 	feeder->feeder_row_list =
@@ -331,8 +331,8 @@ void feeder_execute(
 			feeder_load_date_time,
 		feeder->feeder_row_list,
 		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME ) );
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN ) );
 
 	printf( "<h3>Execute feeder row count: %d</h3>\n",
 		feeder->feeder_row_count );

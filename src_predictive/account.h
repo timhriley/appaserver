@@ -130,6 +130,7 @@ ACCOUNT *account_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *account_primary_where(
+		const char *account_primary_key,
 		char *account_name );
 
 /* Usage */

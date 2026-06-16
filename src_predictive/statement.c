@@ -211,8 +211,8 @@ STATEMENT *statement_fetch(
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name );
 
 	statement->transaction_date_begin_date_string =

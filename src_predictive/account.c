@@ -892,13 +892,16 @@ ACCOUNT *account_fetch(
 	 					/* Returns static memory */
 	 					/* --------------------- */
 	 					account_primary_where(
+							ACCOUNT_PRIMARY_KEY,
 							account_name ) ) ) );
 	}
 
 	return account;
 }
 
-char *account_primary_where( char *account_name )
+char *account_primary_where(
+		const char *account_primary_key,
+		char *account_name )
 {
 	static char where[ 128 ];
 	char escape_account[ 128 ];
@@ -918,7 +921,6 @@ char *account_primary_where( char *account_name )
 			__LINE__,
 			message );
 	}
-
 
 	if ( strlen( account_name ) > ( sizeof ( where ) - 10 ) )
 	{
@@ -940,7 +942,8 @@ char *account_primary_where( char *account_name )
 	snprintf(
 		where,
 		sizeof ( where ),
-		"account='%s'",
+		"%s = '%s'",
+		account_primary_key,
 		string_escape_quote(
 			escape_account,
 			account_name ) );

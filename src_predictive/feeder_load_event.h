@@ -17,7 +17,6 @@
 #define FEEDER_LOAD_EVENT_SELECT	"feeder_account,"	\
 					"feeder_load_date_time,"\
 					"full_name,"		\
-					"street_address,"	\
 					"feeder_load_filename,"	\
 					"account_end_date,"	\
 					"account_end_balance"
@@ -27,8 +26,7 @@
 					"account_end_date,"	\
 					"account_end_balance,"	\
 					"feeder_load_date_time,"\
-					"full_name,"		\
-					"street_address"
+					"full_name"
 
 typedef struct
 {

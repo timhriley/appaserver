@@ -4,7 +4,7 @@
 /* 									*/
 /* This process outputs:						*/
 /* 	full_name^							*/
-/*	street_address^							*/
+/*	contact_key^							*/
 /*	transaction_date_time^						*/
 /*	check_number^							*/
 /*	transaction_difference^						*/
@@ -138,7 +138,9 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 		{
 			printf( "%s^%s^%s^%s^%.2lf^%s\n",
 				transaction->full_name,
-				transaction->street_address,
+				(transaction->contact_key)
+					? transaction->contact_key
+					: "",
 				transaction->transaction_date_time,
 				/* --------------------- */
 				/* Returns static memory */

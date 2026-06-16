@@ -351,7 +351,7 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 			journal->credit_amount );
 
 	feeder_matched_journal->full_name = journal->full_name;
-	feeder_matched_journal->street_address = journal->street_address;
+	feeder_matched_journal->contact_key = journal->contact_key;
 
 	feeder_matched_journal->transaction_date_time =
 		journal->transaction_date_time;
@@ -381,7 +381,7 @@ char *feeder_matched_journal_check_update_statement(
 		char *feeder_account,
 		char *account_uncleared_checks_string,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time )
 {
 	char update_statement[ 1024 ];
@@ -389,7 +389,6 @@ char *feeder_matched_journal_check_update_statement(
 	if ( !feeder_account
 	||   !account_uncleared_checks_string
 	||   !full_name
-	||   !street_address
 	||   !transaction_date_time )
 	{
 		char message[ 128 ];
@@ -415,7 +414,7 @@ char *feeder_matched_journal_check_update_statement(
 		journal_primary_where(
 			(char *)0 /* fund_name */,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			account_uncleared_checks_string ) );
 

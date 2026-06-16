@@ -232,8 +232,6 @@ char *transaction_primary_where(
 		/* ------------------------ */
 		/* Returns static memory    */
 		/* ------------------------ */
-		/* If set, appends an "and" */
-		/* ------------------------ */
 		transaction_fund_where(
 			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
@@ -249,7 +247,7 @@ char *transaction_primary_where(
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s "
+		"%s and "
 		"%s and "
 		"transaction_date_time = '%s'",
 		fund_where,
@@ -405,20 +403,18 @@ void transaction_insert_pipe(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_fund_datum(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN,
 			SQL_DELIMITER,
-			fund_name );
+			fund_name,
+			fund_boolean );
 
 	contact_key_datum =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_contact_key_datum(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN,
 			SQL_DELIMITER,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	lock_datum =
 		/* --------------------- */
@@ -1550,7 +1546,7 @@ char *transaction_fund_where(
 {
 	static char where[ 128 ];
 
-	*where = '\0';
+	if ( *where ) return where;
 
 	if ( predictive_fund_boolean(
 		fund_table_name,
@@ -1563,6 +1559,10 @@ char *transaction_fund_where(
 			"%s = '%s' and ",
 			fund_column_name,
 			fund_name );
+	}
+	else
+	{
+		strcpy( where, "1 = 1" );
 	}
 
 	return where;
@@ -1618,18 +1618,15 @@ char *transaction_column_list_string(
 }
 
 char *transaction_fund_datum(
-		const char *predictive_fund_table,
-		const char *predictive_fund_column,
 		const char sql_delimiter,
-		char *fund_name )
+		char *fund_name,
+		boolean fund_boolean )
 {
 	static char datum[ 32 ];
 
 	if ( *datum ) return datum;
 
-	if ( predictive_fund_boolean(
-		predictive_fund_table,
-		predictive_fund_column ) )
+	if ( fund_boolean )
 	{
 		if ( !fund_name || !*fund_name )
 		{

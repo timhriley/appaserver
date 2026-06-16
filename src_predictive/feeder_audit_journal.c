@@ -145,8 +145,8 @@ LIST *feeder_audit_journal_fund_row_list(
 
 	fund_name_list =
 		predictive_fund_name_list(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME );
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
 
 	if ( list_rewind( fund_name_list ) )
 	do {

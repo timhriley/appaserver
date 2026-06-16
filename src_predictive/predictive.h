@@ -25,8 +25,8 @@ enum predictive_title_passage_rule{
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *predictive_fund_where(
 		char *fund_name,
 		boolean predictive_fund_boolean );
@@ -55,8 +55,8 @@ char *predictive_title_passage_rule_string(
 /* Usage */
 /* ----- */
 LIST *predictive_fund_name_list(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name );
+		const char *predictive_fund_table,
+		const char *predictive_fund_column );
 
 /* Usage */
 /* ----- */
@@ -64,8 +64,8 @@ LIST *predictive_fund_name_list(
 /* Returns parameter or null */
 /* ------------------------- */
 char *predictive_fund_name(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name,
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
 		char *fund_name );
 
 #endif

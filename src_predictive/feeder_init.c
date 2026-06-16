@@ -884,6 +884,7 @@ boolean feeder_init_input_account_exist_boolean(
 		/* Returns static memory */
 		/* --------------------- */
 		account_primary_where(
+			ACCOUNT_PRIMARY_KEY,
 			account_name );
 
 	snprintf(

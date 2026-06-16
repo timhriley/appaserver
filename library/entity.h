@@ -241,10 +241,9 @@ char *entity_contact_key(
 /* Returns static memory */
 /* --------------------- */
 char *entity_contact_key_datum(
-		const char *entity_table,
-		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		char *contact_key );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

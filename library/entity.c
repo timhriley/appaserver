@@ -728,16 +728,13 @@ char *entity_contact_key(
 }
 
 char *entity_contact_key_datum(
-		const char *entity_table,
-		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	static char datum[ 32 ];
 
-	if ( entity_contact_key_boolean(
-		entity_table,
-		entity_contact_key_column ) )
+	if ( contact_key_boolean )
 	{
 		if ( !contact_key || !*contact_key )
 		{

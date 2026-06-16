@@ -19,7 +19,7 @@
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *transaction_date_time;
 	char *account_name;
 	double debit_amount;
@@ -94,7 +94,7 @@ char *feeder_matched_journal_check_update_statement(
 		char *feeder_account_name,
 		char *account_uncleared_checks_string,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time );
 
 /* Usage */

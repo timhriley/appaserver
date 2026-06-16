@@ -337,13 +337,10 @@ char *journal_account_where(
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s"
-		"%s",
+		"%s and %s",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		/* If set, appends an "and" */
-		/* ------------------------ */
 		predictive_fund_where(
 			fund_name,
 			fund_boolean ),
@@ -351,6 +348,7 @@ char *journal_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		account_primary_where(
+			ACCOUNT_PRIMARY_KEY,
 			account_name ) );
 
 	return where;
@@ -433,8 +431,12 @@ JOURNAL *journal_account_fetch(
 			fetch_subclassification,
 			fetch_element,
 			fetch_transaction,
-			predictive_fund_boolean,
-			entity_contact_key_boolean,
+			predictive_fund_boolean(
+				PREDICTIVE_FUND_TABLE,
+				PREDICTIVE_FUND_COLUMN ),
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			string_pipe( system_string ) /* input */ );
 
 	free( system_string );
@@ -447,8 +449,8 @@ JOURNAL *journal_parse(
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_transaction,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *input )
 {
 	char full_name[ 128 ];
@@ -468,13 +470,13 @@ JOURNAL *journal_parse(
 	piece( transaction_date_time, SQL_DELIMITER, input, 1 );
 	piece( account_name, SQL_DELIMITER, input, 2 );
 
-	if ( predictive_fund_boolean )
+	if ( fund_boolean )
 	{
 		piece( buffer, SQL_DELIMITER, input, additional_piece++ );
 		fund_name = strdup( buffer );
 	}
 
-	if ( entity_contact_key_boolean )
+	if ( contact_key_boolean )
 	{
 		piece( buffer, SQL_DELIMITER, input, additional_piece++ );
 		contact_key = strdup( buffer );
@@ -507,8 +509,6 @@ JOURNAL *journal_parse(
 	{
 		journal->transaction =
 			transaction_fetch(
-				predictive_fund_boolean,
-				entity_contact_key_boolean,
 				journal->fund_name,
 				journal->full_name,
 				journal->contact_key,
@@ -666,6 +666,7 @@ LIST *journal_account_distinct_entity_list(
 {
 	boolean contact_key_boolean;
 	LIST *primary_key_list;
+	char *delimited_string;
 	char system_string[ 1024 ];
 	char input[ 256 ];
 	FILE *pipe;
@@ -859,8 +860,10 @@ void journal_list_insert(
 		/* --------------------- */
 		journal_column_list_string(
 			JOURNAL_INSERT,
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME );
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	pipe =
 		/* -------------- */
@@ -994,7 +997,7 @@ void journal_insert(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		predictive_fund_datum(
+		transaction_fund_datum(
 			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			SQL_DELIMITER,
@@ -1016,7 +1019,6 @@ void journal_insert(
 		/* --------------------------- */
 		journal_insert_data_string(
 			full_name,
-			contact_key,
 			transaction_date_time,
 			account_name,
 			debit_amount,
@@ -1036,7 +1038,6 @@ void journal_insert(
 
 char *journal_insert_data_string(
 		char *full_name,
-		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,
@@ -1090,8 +1091,8 @@ char *journal_insert_data_string(
 		account_name,
 		debit_amount_string,
 		credit_amount_string,
-		predictive_fund_datum,
-		entity_contact_key_datum );
+		fund_datum,
+		contact_key_datum );
 
 	return strdup( insert_data_string );
 }
@@ -2019,65 +2020,6 @@ JOURNAL *journal_seek(
 	return NULL;
 }
 
-char *journal_minimum_where(
-		char *fund_name,
-		char *account_name )
-{
-	char system_string[ 1024 ];
-	char *primary_where;
-	char where[ 256 ];
-	char *transaction_date_time;
-
-	if ( !account_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	primary_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		account_primary_where(
-			account_name );
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"%s"
-		"%s",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_fund_where(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
-			fund_name ),
-		primary_where );
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\"",
-		"min( transaction_date_time )",
-		JOURNAL_TABLE,
-		where );
-
-	transaction_date_time = string_pipe( system_string );
-
-	if ( transaction_date_time && !*transaction_date_time )
-	{
-		transaction_date_time = (char *)0;
-	}
-
-	return transaction_date_time;
-}
-
 char *journal_max_transaction_system_string(
 		const char *journal_table,
 		char *where )
@@ -2443,6 +2385,7 @@ char *journal_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		account_primary_where(
+			ACCOUNT_PRIMARY_KEY,
 			account_name ) );
 
 	return strdup( where );
@@ -2932,8 +2875,8 @@ char *journal_select_string(
 		const char *journal_select,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_column )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char string[ 1024 ];
 	char *ptr = string;
@@ -2943,7 +2886,7 @@ char *journal_select_string(
 		"%s",
 		journal_select );
 
-	if ( predictive_fund_boolean )
+	if ( fund_boolean )
 	{
 		ptr += sprintf(
 			ptr,
@@ -2951,7 +2894,7 @@ char *journal_select_string(
 			predictive_fund_column );
 	}
 
-	if ( entity_contact_key )
+	if ( contact_key_boolean )
 	{
 		ptr += sprintf(
 			ptr,
@@ -3002,7 +2945,7 @@ JOURNAL *journal_insert_new(
 			message );
 	}
 
-	journal = journal_calloc();
+	calloc = journal_calloc();
 
 	calloc->fund_name =
 		(fund_name) ? fund_name : journal->fund_name;

@@ -14,17 +14,17 @@
 
 char *predictive_fund_where(
 		char *fund_name,
-		boolean predictive_fund_boolean )
+		boolean fund_boolean )
 {
-	char where[ 128 ];
+	static char where[ 128 ];
 
 	if ( !fund_name
 	||   !*fund_name
 	||   strcmp(	fund_name,
-			PREDICTIVE_FUND_TABLE_NAME ) == 0
+			PREDICTIVE_FUND_TABLE ) == 0
 	||   strcmp(	fund_name,
-			PREDICTIVE_FUND_COLUMN_NAME ) == 0
-	||   !predictive_fund_boolean )
+			PREDICTIVE_FUND_COLUMN ) == 0
+	||   !fund_boolean )
 	{
 		strcpy( where, "1 = 1" );
 	}
@@ -38,7 +38,7 @@ char *predictive_fund_where(
 		 	fund_name );
 	}
 
-	return strdup( where );
+	return where;
 }
 
 boolean predictive_fund_boolean(
@@ -102,8 +102,8 @@ enum predictive_title_passage_rule predictive_resolve_title_passage_rule(
 }
 
 LIST *predictive_fund_name_list(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name )
+		const char *predictive_fund_table,
+		const char *predictive_fund_column )
 {
 	char system_string[ 1024 ];
 
@@ -111,27 +111,27 @@ LIST *predictive_fund_name_list(
 		system_string,
 		sizeof ( system_string ),
 		"select.sh %s %s",
-		predictive_fund_column_name,
-		predictive_fund_table_name );
+		predictive_fund_column,
+		predictive_fund_table );
 
 	return list_pipe( system_string );
 }
 
 char *predictive_fund_name(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name,
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
 		char *fund_name )
 {
 	if ( predictive_fund_boolean(
-		predictive_fund_table_name,
-		predictive_fund_column_name ) )
+		predictive_fund_table,
+		predictive_fund_column ) )
 	{
 		if ( !fund_name
 		||   !*fund_name
 		||   strcmp(	fund_name,
-				PREDICTIVE_FUND_TABLE_NAME ) == 0
+				predictive_fund_table ) == 0
 		||   strcmp(	fund_name,
-				PREDICTIVE_FUND_COLUMN_NAME ) == 0 )
+				predictive_fund_column ) == 0 )
 		{
 			return NULL;
 		}

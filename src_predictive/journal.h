@@ -206,7 +206,6 @@ void journal_insert(
 /* --------------------------- */
 char *journal_insert_data_string(
 		char *full_name,
-		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,

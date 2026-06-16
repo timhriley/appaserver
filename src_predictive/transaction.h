@@ -422,13 +422,11 @@ char *transaction_select_string(
 /* Usage */
 /* ----- */
 
-/* Returns static memory    */
-/* ------------------------ */
-/* If set, appends an "and" */
-/* ------------------------ */
+/* Returns static memory */
+/* --------------------- */
 char *transaction_fund_where(
-		const char *predictive_fund_table_name,
-		const char *predictive_fund_column_name,
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
 		char *fund_name );
 
 /* Usage */
@@ -453,10 +451,9 @@ char *transaction_column_list_string(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_fund_datum(
-		const char *predictive_fund_table,
-		const char *predictive_fund_column,
 		const char sql_delimiter,
-		char *fund_name );
+		char *fund_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */
