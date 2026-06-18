@@ -175,7 +175,9 @@ void journal_list_insert(
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time,
-		LIST *journal_list );
+		LIST *journal_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -185,6 +187,8 @@ void journal_list_pipe_insert(
 		char *contact_key,
 		char *transaction_date_time,
 		LIST *journal_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		FILE *journal_insert_pipe );
 
 /* Usage */
@@ -197,21 +201,26 @@ void journal_insert(
 		char *account_name,
 		double debit_amount,
 		double credit_amount,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		FILE *journal_insert_pipe );
 
-/* Process */
-/* ------- */
-
+/* Usage */
+/* ----- */
+/* --------------------------- */
 /* Returns heap memory or null */
 /* --------------------------- */
 char *journal_insert_data_string(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,
 		double credit_amount,
-		char *transaction_fund_datum,
-		char *entity_contact_key_datum );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -626,7 +635,7 @@ char *journal_list_last_memo(
 /* -------------- */
 FILE *journal_insert_pipe(
 		const char *journal_table,
-		char *journal_column_list_string );
+		char *journal_insert_column_string );
 
 /* Usage */
 /* ----- */
@@ -641,14 +650,14 @@ char *journal_insert_system_string(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
-char *journal_column_list_string(
+/* Returns heap memory */
+/* ------------------- */
+char *journal_insert_column_string(
 		const char *journal_insert,
-		const char *predictive_fund_table,
 		const char *predictive_fund_column,
-		const char *entity_table,
-		const char *entity_contact_key_column );
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

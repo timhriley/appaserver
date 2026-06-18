@@ -21,12 +21,12 @@
 FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		boolean checking_boolean,
 		char *entity_self_full_name,
-		char *entity_self_street_address )
+		char *entity_self_contact_key )
 {
 	FEEDER_INIT_PASSTHRU *feeder_init_passthru;
 
 	if ( !entity_self_full_name
-	||   !entity_self_street_address )
+	||   !entity_self_contact_key )
 	{
 		char message[ 128 ];
 
@@ -83,7 +83,7 @@ FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 			FEEDER_PHRASE_TABLE,
 			feeder_init_passthru->account_name,
 			entity_self_full_name,
-			entity_self_street_address,
+			entity_self_contact_key,
 			feeder_init_passthru->feeder_phrase );
 
 	return feeder_init_passthru;
@@ -162,7 +162,7 @@ char *feeder_init_passthru_insert_sql(
 		const char *feeder_phrase_table,
 		char *account_name,
 		char *entity_self_full_name,
-		char *entity_self_street_address,
+		char *entity_self_contact_key,
 		char *passthru_feeder_phrase )
 {
 	char *attribute_name_list_string;
@@ -172,7 +172,7 @@ char *feeder_init_passthru_insert_sql(
 
 	if ( !account_name
 	||   !entity_self_full_name
-	||   !entity_self_street_address
+	||   !entity_self_contact_key
 	||   !passthru_feeder_phrase )
 	{
 		char message[ 128 ];
@@ -218,8 +218,8 @@ char *feeder_init_passthru_insert_sql(
 	list_set(
 		insert_datum_list,
 		insert_datum_new(
-			"street_address" /* attribute_name */,
-			entity_self_street_address /* datum */,
+			"contact_key" /* attribute_name */,
+			entity_self_contact_key /* datum */,
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
 
@@ -275,7 +275,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *entity_self_full_name,
-		char *entity_self_street_address,
+		char *entity_self_contact_key,
 		JOURNAL *debit_journal,
 		JOURNAL *credit_journal )
 {
@@ -283,7 +283,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 
 	if ( !exchange_minimum_date_string
 	||   !entity_self_full_name
-	||   !entity_self_street_address
+	||   !entity_self_contact_key
 	||   !debit_journal
 	||   !credit_journal )
 	{
@@ -318,7 +318,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 		transaction_new(
 			fund_name,
 			entity_self_full_name,
-			entity_self_street_address,
+			entity_self_contact_key,
 			feeder_init_transaction->date_time );
 
 	feeder_init_transaction->transaction->transaction_amount =
@@ -438,7 +438,7 @@ JOURNAL *feeder_init_transaction_journal(
 		journal_new(
 			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
+			(char *)0 /* contact_key */,
 			(char *)0 /* transaction_date_time */,
 			account_name );
 
@@ -513,7 +513,7 @@ void feeder_init_transaction_insert(
 				full_name,
 			feeder_init_transaction->
 				transaction->
-				street_address,
+				contact_key,
 			feeder_init_transaction->
 				transaction->
 				transaction_date_time,
@@ -538,14 +538,14 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,
-		char *entity_self_street_address )
+		char *entity_self_contact_key )
 {
 	FEEDER_INIT_CREDIT *feeder_init_credit;
 
 	if ( !exchange_minimum_date_string
 	||   !account_name
 	||   !entity_self_full_name
-	||   !entity_self_street_address )
+	||   !entity_self_contact_key )
 	{
 		char message[ 128 ];
 
@@ -601,7 +601,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 			-exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
-			entity_self_street_address,
+			entity_self_contact_key,
 			feeder_init_credit->debit_journal,
 			feeder_init_credit->credit_journal );
 
@@ -640,14 +640,14 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,
-		char *entity_self_street_address )
+		char *entity_self_contact_key )
 {
 	FEEDER_INIT_CHECKING *feeder_init_checking;
 
 	if ( !exchange_minimum_date_string
 	||   !account_name
 	||   !entity_self_full_name
-	||   !entity_self_street_address )
+	||   !entity_self_contact_key )
 	{
 		char message[ 128 ];
 
@@ -703,7 +703,7 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 			exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
-			entity_self_street_address,
+			entity_self_contact_key,
 			feeder_init_checking->debit_journal,
 			feeder_init_checking->credit_journal );
 
@@ -769,8 +769,8 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE_NAME,
-			PREDICTIVE_FUND_COLUMN_NAME,
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name );
 
 	feeder_init_input->institution_missing_boolean =
@@ -1035,7 +1035,7 @@ FEEDER_INIT *feeder_init_new(
 		char *role_name,
 		char *fund_name,
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *format_filename,
 		boolean checking_boolean,
 		double exchange_journal_begin_amount,
@@ -1047,7 +1047,7 @@ FEEDER_INIT *feeder_init_new(
 	||   !login_name
 	||   !role_name
 	||   !financial_institution_full_name
-	||   !financial_institution_street_address
+	||   !financial_institution_contact_key
 	||   !exchange_minimum_date_string )
 	{
 		char message[ 128 ];
@@ -1109,7 +1109,7 @@ FEEDER_INIT *feeder_init_new(
 				feeder_init->
 					feeder_init_input->
 					entity_self->
-					street_address );
+					contact_key );
 	}
 	else
 	{
@@ -1134,7 +1134,7 @@ FEEDER_INIT *feeder_init_new(
 				feeder_init->
 					feeder_init_input->
 					entity_self->
-					street_address );
+					contact_key );
 	}
 
 	feeder_init->feeder_init_passthru =
@@ -1150,7 +1150,7 @@ FEEDER_INIT *feeder_init_new(
 			feeder_init->
 				feeder_init_input->
 				entity_self->
-				street_address );
+				contact_key );
 
 	feeder_init->feeder_load_event =
 		/* -------------- */
@@ -1181,22 +1181,22 @@ FEEDER_INIT *feeder_init_new(
 			checking_boolean,
 			feeder_init->feeder_init_input->account_name );
 
-	financial_institution_street_address =
-		/* -------------------------------------------- */
-		/* Returns street_address, heap memory, or null */
-		/* -------------------------------------------- */
-		feeder_init_financial_institution_street_address(
+	financial_institution_contact_key =
+		/* ----------------------------------------- */
+		/* Returns contact_key, heap memory, or null */
+		/* ----------------------------------------- */
+		feeder_init_financial_institution_contact_key(
 			financial_institution_full_name,
-			financial_institution_street_address );
+			financial_institution_contact_key );
 
-	if ( !financial_institution_street_address )
+	if ( !financial_institution_contact_key )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-	"feeder_init_financial_institution_street_address(%s) retured empty.",
+	"feeder_init_financial_institution_contact_key(%s) retured empty.",
 			financial_institution_full_name );
 
 		appaserver_error_stderr_exit(
@@ -1215,7 +1215,7 @@ FEEDER_INIT *feeder_init_new(
 			FEEDER_ACCOUNT_PRIMARY_KEY,
 			feeder_init->feeder_init_input->account_name,
 			financial_institution_full_name,
-			financial_institution_street_address );
+			financial_institution_contact_key );
 
 	feeder_init->insert_sql_list =
 		feeder_init_insert_sql_list(
@@ -1293,7 +1293,7 @@ char *feeder_init_feeder_account_insert_sql(
 		const char *feeder_account_primary_key,
 		char *account_name,
 		char *financial_institution_full_name,
-		char *financial_institution_street_address )
+		char *financial_institution_contact_key )
 {
 	char *attribute_name_list_string;
 	char *value_list_string;
@@ -1301,7 +1301,7 @@ char *feeder_init_feeder_account_insert_sql(
 
 	if ( !account_name
 	||   !financial_institution_full_name
-	||   !financial_institution_street_address )
+	||   !financial_institution_contact_key )
 	{
 		char message[ 128 ];
 
@@ -1338,8 +1338,8 @@ char *feeder_init_feeder_account_insert_sql(
 	list_set(
 		insert_datum_list,
 		insert_datum_new(
-			"street_address" /* attribute_name */,
-			financial_institution_street_address /* datum */,
+			"contact_key" /* attribute_name */,
+			financial_institution_contact_key /* datum */,
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
 
@@ -1758,7 +1758,7 @@ void feeder_init_process(
 					feeder_init->
 						feeder_init_input->
 						entity_self->
-						street_address );
+						contact_key );
 		}
 		else
 		{
@@ -1783,7 +1783,7 @@ void feeder_init_process(
 					feeder_init->
 						feeder_init_input->
 						entity_self->
-						street_address );
+						contact_key );
 		}
 
 		if ( feeder_init->feeder_init_checking )
@@ -1827,7 +1827,7 @@ void feeder_init_process(
 			feeder_init->
 				feeder_load_event->
 				appaserver_user->
-				street_address );
+				contact_key );
 
 feeder_init_display_continue:
 
@@ -1885,23 +1885,23 @@ feeder_init_display_continue:
 		FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE );
 }
 
-char *feeder_init_financial_institution_street_address(
+char *feeder_init_financial_institution_contact_key(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address )
+		char *financial_institution_contact_key )
 {
-	char *street_address = financial_institution_street_address;
+	char *contact_key = financial_institution_contact_key;
 
-	if (	!financial_institution_street_address
-	||	!*financial_institution_street_address )
+	if (	!financial_institution_contact_key
+	||	!*financial_institution_contact_key )
 	{
-		street_address =
+		contact_key =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			entity_street_address(
+			entity_contact_key(
 				financial_institution_full_name );
 	}
 
-	return street_address;
+	return contact_key;
 }
 

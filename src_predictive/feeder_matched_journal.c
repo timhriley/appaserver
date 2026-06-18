@@ -258,7 +258,7 @@ FEEDER_MATCHED_JOURNAL *
 					feeder_matched_journal->
 						full_name,
 					feeder_matched_journal->
-						street_address,
+						contact_key,
 					feeder_matched_journal->
 						transaction_date_time );
 

@@ -13,6 +13,7 @@
 #include "list.h"
 #include "date.h"
 #include "sql.h"
+#include "insert.h"
 #include "piece.h"
 #include "environ.h"
 #include "boolean.h"
@@ -22,6 +23,7 @@
 #include "transaction.h"
 #include "transaction_date.h"
 #include "journal_propagate.h"
+#include "optional_column.h"
 #include "journal.h"
 
 JOURNAL *journal_new(
@@ -836,9 +838,11 @@ void journal_list_insert(
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time,
-		LIST *journal_list )
+		LIST *journal_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	char *column_list_string;
+	char *insert_column_string;
 	FILE *pipe;
 	JOURNAL *journal;
 
@@ -854,16 +858,16 @@ void journal_list_insert(
 		exit( 1 );
 	}
 
-	column_list_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		journal_column_list_string(
+	insert_column_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_insert_column_string(
 			JOURNAL_INSERT,
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
+			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
 
 	pipe =
 		/* -------------- */
@@ -871,7 +875,7 @@ void journal_list_insert(
 		/* -------------- */
 		journal_insert_pipe(
 			JOURNAL_TABLE,
-			column_list_string );
+			insert_column_string );
 
 	do {
 		journal = list_get( journal_list );
@@ -884,6 +888,8 @@ void journal_list_insert(
 			journal->account_name,
 			journal->debit_amount,
 			journal->credit_amount,
+			fund_boolean,
+			contact_key_boolean,
 			pipe );
 
 	} while( list_next( journal_list ) );
@@ -893,19 +899,19 @@ void journal_list_insert(
 
 FILE *journal_insert_pipe(
 		const char *journal_table,
-		char *column_list_string )
+		char *insert_column_string )
 {
 	FILE *insert_pipe;
 	char *system_string;
 
-	if ( !column_list_string )
+	if ( !insert_column_string )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"column_list_string is empty." );
+			"insert_column_string is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -921,7 +927,7 @@ FILE *journal_insert_pipe(
 		journal_insert_system_string(
 			journal_table,
 			SQL_DELIMITER,
-			column_list_string );
+			insert_column_string );
 
 	insert_pipe =
 		/* -------------- */
@@ -938,18 +944,18 @@ FILE *journal_insert_pipe(
 char *journal_insert_system_string(
 		const char *journal_table,
 		const char sql_delimiter,
-		char *column_list_string )
+		char *insert_column_string )
 {
 	char system_string[ 1024 ];
 
-	if ( !column_list_string )
+	if ( !insert_column_string )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"transaction_column_list_string is empty." );
+			"insert_column_string is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -966,7 +972,7 @@ char *journal_insert_system_string(
 		"sql.e 2>&1 |"
 		"html_paragraph_wrapper.e",
 		journal_table,
-		column_list_string,
+		insert_column_string,
 		sql_delimiter );
 
 	return strdup( system_string );
@@ -980,51 +986,31 @@ void journal_insert(
 		char *account_name,
 		double debit_amount,
 		double credit_amount,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		FILE *pipe )
 {
-	char *fund_datum;
-	char *contact_key_datum;
 	char *insert_data_string;
 
-	if ( !full_name
-	||   !transaction_date_time
-	||   !account_name )
-	{
-		return;
-	}
-
-	fund_datum =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_fund_datum(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN,
-			SQL_DELIMITER,
-			fund_name );
-
-	contact_key_datum =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_contact_key_datum(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN,
-			SQL_DELIMITER,
-			contact_key );
+	/* -------------------------------------------------- */
+	/* Integrity provided by journal_insert_data_string() */
+	/* -------------------------------------------------- */
 
 	insert_data_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		journal_insert_data_string(
+			SQL_DELIMITER,
+			fund_name,
 			full_name,
+			contact_key,
 			transaction_date_time,
 			account_name,
 			debit_amount,
 			credit_amount,
-			fund_datum,
-			contact_key_datum );
+			fund_boolean,
+			contact_key_boolean );
 
 	if ( insert_data_string )
 	{
@@ -1037,23 +1023,25 @@ void journal_insert(
 }
 
 char *journal_insert_data_string(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double debit_amount,
 		double credit_amount,
-		char *fund_datum,
-		char *contact_key_datum )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
+	char insert_data_string[ 1024 ];
 	char debit_amount_string[ 32 ];
 	char credit_amount_string[ 32 ];
-	char insert_data_string[ 1024 ];
+	OPTIONAL_COLUMN *optional_column;
 
 	if ( !full_name
 	||   !transaction_date_time
-	||   !account_name
-	||   !fund_datum
-	||   !contact_key_datum )
+	||   !account_name )
 	{
 		return NULL;
 	}
@@ -1071,30 +1059,47 @@ char *journal_insert_data_string(
 	*debit_amount_string = '\0';
 	*credit_amount_string = '\0';
 
-	if ( !float_dollar_virtually_same(
+	if ( float_dollar_virtually_same(
 		debit_amount,
 		0.0 ) )
 	{
-		sprintf( debit_amount_string, "%.2lf", debit_amount );
+		sprintf( credit_amount_string, "%.2lf", credit_amount );
 	}
 	else
 	{
-		sprintf( credit_amount_string, "%.2lf", credit_amount );
+		sprintf( debit_amount_string, "%.2lf", debit_amount );
 	}
 
 	snprintf(
 		insert_data_string,
 		sizeof ( insert_data_string ),
-		"%s^%s^%s^%s^%s%s%s",
+		"%s^%s^%s^%s^%s",
 		full_name,
 		transaction_date_time,
 		account_name,
 		debit_amount_string,
-		credit_amount_string,
-		fund_datum,
-		contact_key_datum );
+		credit_amount_string );
 
-	return strdup( insert_data_string );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			sql_delimiter,
+			insert_data_string /* base_string */,
+			fund_name /* component */,
+			1 /* escape_boolean */,
+			fund_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			contact_key /* component */,
+			1 /* escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string;
 }
 
 double journal_debit_credit_difference_sum( LIST *journal_list )
@@ -1886,6 +1891,8 @@ void journal_list_pipe_insert(
 		char *contact_key,
 		char *transaction_date_time,
 		LIST *journal_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		FILE *pipe )
 {
 	JOURNAL *journal;
@@ -1929,6 +1936,8 @@ void journal_list_pipe_insert(
 			journal->account_name,
 			journal->debit_amount,
 			journal->credit_amount,
+			fund_boolean,
+			contact_key_boolean,
 			pipe );
 
 		journal_free( new_journal );
@@ -2776,42 +2785,35 @@ char *journal_list_last_memo( LIST *journal_list )
 		journal->transaction_date_time );
 }
 
-char *journal_column_list_string(
+char *journal_insert_column_string(
 		const char *journal_insert,
-		const char *predictive_fund_table,
 		const char *predictive_fund_column,
-		const char *entity_table,
-		const char *entity_contact_key_column )
+		const char *entity_contact_key_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	static char column_list_string[ 256 ];
-	char *ptr = column_list_string;
+	OPTIONAL_COLUMN *optional_column;
 
-	ptr += sprintf(
-		ptr,
-		"%s",
-		journal_insert );
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)journal_insert /* base_string */,
+			(char *)predictive_fund_column /* component */,
+			0 /* not escape_boolean */,
+			fund_boolean /* set_boolean */ );
 
-	if ( predictive_fund_boolean(
-		predictive_fund_table,
-		predictive_fund_column ) )
-	{
-		ptr += sprintf(
-			ptr,
-			",%s",
-			predictive_fund_column );
-	}
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			(char *)entity_contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
 
-	if ( entity_contact_key_boolean(
-		entity_table,
-		entity_contact_key_column ) )
-	{
-		ptr += sprintf(
-			ptr,
-			",%s",
-			entity_contact_key_column );
-	}
-
-	return column_list_string;
+	return optional_column->return_string;
 }
 
 char *journal_transaction_date_time_where(

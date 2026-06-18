@@ -86,8 +86,8 @@ LIST *feeder_audit_journal_row_list(
 	LIST *row_list;
 
 	if ( !predictive_fund_boolean(
-		PREDICTIVE_FUND_TABLE_NAME,
-		PREDICTIVE_FUND_COLUMN_NAME ) )
+		PREDICTIVE_FUND_TABLE,
+		PREDICTIVE_FUND_COLUMN ) )
 	{
 		row_list =
 			feeder_audit_journal_non_fund_row_list(

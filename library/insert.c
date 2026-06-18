@@ -13,6 +13,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "process.h"
+#include "security.h"
 #include "widget.h"
 #include "sql.h"
 #include "role.h"

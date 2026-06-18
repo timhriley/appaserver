@@ -2571,3 +2571,4 @@ boolean string_populated_boolean(
 		return 0;
 	}
 }
+

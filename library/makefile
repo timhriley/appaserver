@@ -87,6 +87,7 @@ APPASERVER_LIBRARY=						\
 		operation_semaphore.o				\
 		document.o					\
 		insert.o					\
+		optional_column.o				\
 		relation_copy.o					\
 		expected_count.o				\
 		update.o					\
@@ -544,6 +545,9 @@ frameset.o: frameset.c frameset.h
 
 insert.o: insert.c insert.h
 	${CC} ${CFLAGS} -c insert.c
+
+optional_column.o: optional_column.c optional_column.h
+	${CC} ${CFLAGS} -c optional_column.c
 
 update.o: update.c update.h
 	${CC} ${CFLAGS} -c update.c

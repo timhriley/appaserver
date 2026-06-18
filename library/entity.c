@@ -14,6 +14,7 @@
 #include "appaserver_error.h"
 #include "security.h"
 #include "entity_key.h"
+#include "optional_column.h"
 #include "entity.h"
 
 ENTITY *entity_calloc( void )
@@ -426,17 +427,19 @@ char *entity_insert_system_string(
 		const char sql_delimiter,
 		boolean entity_contact_key_boolean )
 {
+	OPTIONAL_COLUMN *optional_column;
 	char system_string[ 1024 ];
-	char *field_string;
 
-	field_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		entity_insert_field_string(
-			entity_full_name_column,
-			entity_contact_key_column,
-			entity_contact_key_boolean );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)entity_full_name_column /* base_string */,
+			(char *)entity_contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			entity_contact_key_boolean /* set_boolean */ );
 
 	snprintf(
 		system_string,
@@ -444,10 +447,8 @@ char *entity_insert_system_string(
 		"insert_statement table=%s field=%s delimiter='%c' | "
 		"sql",
 		entity_table,
-		field_string,
+		optional_column->return_string,
 		sql_delimiter );
-
-	free( field_string );
 
 	return strdup( system_string );
 }
@@ -458,35 +459,37 @@ char *entity_insert_data_string(
 		char *full_name,
 		char *contact_key )
 {
-	char data_string[ 1024 ];
-	char *ptr = data_string;
-	char *tmp;
+	OPTIONAL_COLUMN *optional_column;
 
-	ptr += sprintf( ptr,
-		"%s",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		( tmp = entity_escape_full_name( full_name ) ) );
-
-	free( tmp );
-
-	if ( contact_key_boolean )
+	if ( !full_name
+	||   !contact_key )
 	{
-		ptr += sprintf( ptr,
-			"%c%s",
-			sql_delimiter,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			( tmp = entity_escape_contact_key( contact_key ) ) );
-	
-		free( tmp );
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	ptr += sprintf( ptr, "\n" );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			sql_delimiter,
+			full_name /* base_string */,
+			contact_key /* component */,
+			1 /* escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
 
-	return strdup( data_string );
+	return optional_column->return_string;
 }
 
 char *entity_name_display(

@@ -149,8 +149,8 @@ char *transaction_insert(
 /* Process */
 /* ------- */
 FILE *transaction_insert_pipe_open(
-		char *transaction_column_list_string,
-		const char *transaction_table );
+		const char *transaction_table,
+		char *insert_column_string );
 
 /* Returns static memory */
 /* --------------------- */
@@ -172,6 +172,9 @@ void transaction_insert_pipe(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean transaction_lock_boolean,
 		FILE *pipe_open );
 
 /* Process */
@@ -180,14 +183,17 @@ void transaction_insert_pipe(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *transaction_insert_data_string(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
+		char *contact_key,
 		char *transaction_race_free_date_time,
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		char *transaction_fund_datum,
-		char *entity_contact_key_datum,
-		char *transaction_lock_datum );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean transaction_lock_boolean );
 
 /* Usage */
 /* ----- */
@@ -197,7 +203,7 @@ char *transaction_stamp_insert(
 
 /* Usage */
 /* ----- */
-boolean transaction_lock_column_boolean(
+boolean transaction_lock_boolean(
 		const char *transaction_table,
 		const char *transaction_lock_column );
 
@@ -274,6 +280,8 @@ char *transaction_date_time_fetch_where(
 void transaction_journal_list_insert(
 		char *fund_name,
 		LIST *transaction_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean with_propagate );
 
 /* Usage */
@@ -434,35 +442,13 @@ char *transaction_fund_where(
 
 /* Returns static memory */
 /* --------------------- */
-char *transaction_column_list_string(
-		/* ---------------------------------------- */
-		/* TRANSACTION_SELECT or TRANSACTION_INSERT */
-		/* ---------------------------------------- */
-		const char *input_column_list_string,
-		const char *predictive_fund_table,
+char *transaction_insert_column_string(
+		const char *transaction_insert,
 		const char *predictive_fund_column,
-		const char *entity_table,
 		const char *entity_contact_key_column,
-		const char *transaction_lock_column );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_fund_datum(
-		const char sql_delimiter,
-		char *fund_name,
-		boolean predictive_fund_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_lock_datum(
-		const char *transaction_table,
 		const char *transaction_lock_column,
-		const char sql_delimiter );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean transaction_lock_boolean );
 
 #endif

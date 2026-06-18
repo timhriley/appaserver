@@ -64,6 +64,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/query_isa.o					\
 		${LIBRARY}/insert.o					\
 		${LIBRARY}/update.o					\
+		${LIBRARY}/optional_column.o				\
 		${LIBRARY}/folder_row_level_restriction.o		\
 		${LIBRARY}/relation.o					\
 		${LIBRARY}/relation_mto1.o				\
