@@ -20,7 +20,6 @@
 
 #define SESSION_SELECT				"session,"		\
 						"full_name,"		\
-						"street_address,"	\
 						"login_date,"		\
 						"login_time,"		\
 						"last_access_date,"	\
@@ -30,7 +29,6 @@
 
 #define SESSION_INSERT				"session,"		\
 						"full_name,"		\
-						"street_address,"	\
 						"login_date,"		\
 						"login_time,"		\
 						"last_access_date,"	\

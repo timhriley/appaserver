@@ -194,9 +194,9 @@ ENTITY *entity_fetch(
 			contact_key );
 
 	select_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		entity_select_string(
 			ENTITY_SELECT,
 			ENTITY_CONTACT_KEY_COLUMN,
@@ -210,6 +210,8 @@ ENTITY *entity_fetch(
 			select_string,
 			ENTITY_TABLE,
 			primary_where );
+
+	free( select_string );
 
 	input =
 		/* --------------------------- */
@@ -270,8 +272,7 @@ ENTITY *entity_parse(
 			entity->contact_key =
 				strdup( piece_buffer );
 
-		entity->contact_key_boolean = contact_key_boolean;
-
+		entity->contact_key_boolean = 1;
 	}
 
 	return entity;
@@ -631,21 +632,21 @@ char *entity_select_string(
 		const char *entity_contact_key_column,
 		boolean contact_key_boolean )
 {
-	static char select_string[ 256 ];
+	OPTIONAL_COLUMN *optional_column;
 
-	string_strcpy(
-		select_string,
-		(char *)entity_select,
-		sizeof ( select_string ) );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)entity_select /* base_string */,
+			(char *)entity_contact_key_column
+				/* component column or datum */,
+			0 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
 
-	if ( contact_key_boolean )
-	{
-		sprintf(select_string + strlen( select_string ),
-			",%s",
-			entity_contact_key_column );
-	}
-
-	return select_string;
+	return optional_column->return_string;
 }
 
 char *entity_contact_key_where(
@@ -776,7 +777,9 @@ LIST *entity_primary_key_list(
 	list_set( list, (char *)entity_full_name_column );
 
 	if ( entity_contact_key_boolean )
+	{
 		list_set( list, (char *)entity_contact_key_column );
+	}
 
 	return list;
 }

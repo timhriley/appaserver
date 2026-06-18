@@ -243,6 +243,9 @@ LIST *list_pipe(
 LIST *list_pipe_fetch(
 		char *system_string );
 
+LIST *list_system_string_fetch(
+		char *system_string );
+
 LIST *list_stream_fetch(
 		FILE *stream );
 

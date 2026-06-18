@@ -14,7 +14,6 @@
 #define APPASERVER_USER_TABLE		"appaserver_user"
 
 #define APPASERVER_USER_SELECT		"full_name,"		\
-					"street_address,"	\
 					"login_name,"		\
 					"password,"		\
 					"user_date_format,"	\
@@ -27,7 +26,7 @@
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key /* optional */;
 	char *login_name;
 	char *password;
 	char *user_date_format;
@@ -59,6 +58,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 /* ----- */
 APPASERVER_USER *appaserver_user_parse(
 		boolean fetch_role_name_list,
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -76,8 +76,7 @@ char *appaserver_user_login_where(
 /* Safely returns */
 /* -------------- */
 APPASERVER_USER *appaserver_user_new(
-		char *full_name,
-		char *street_address );
+		char *full_name );
 
 /* Process */
 /* ------- */
@@ -88,7 +87,7 @@ APPASERVER_USER *appaserver_user_calloc(
 /* ----- */
 APPASERVER_USER *appaserver_user_fetch(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		boolean fetch_role_name_list );
 
 /* Usage */

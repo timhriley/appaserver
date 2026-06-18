@@ -19,6 +19,7 @@
 #include "execute_system_string.h"
 #include "appaserver_user.h"
 #include "login_default_role.h"
+#include "entity.h"
 #include "frameset.h"
 
 FRAMESET *frameset_calloc( void )
@@ -107,8 +108,11 @@ FRAMESET *frameset_new(
 	frameset->login_default_role_name =
 		login_default_role_name(
 			LOGIN_DEFAULT_ROLE_TABLE,
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			frameset->appaserver_user->full_name,
-			frameset->appaserver_user->street_address );
+			frameset->appaserver_user->contact_key );
 
 	frameset->role_name =
 		frameset_role_name(

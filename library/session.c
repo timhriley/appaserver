@@ -267,14 +267,13 @@ SESSION *session_parse(
 	SESSION *session;
 	char buffer[ 128 ];
 	char full_name[ 128 ];
-	char street_address[ 128 ];
 
 	if ( !string_fetch ) return NULL;
 
 	session = session_calloc();
 
-	/* See SESSION_SELECT */
-	/* ------------------ */
+	/* See entity_select_string() */
+	/* -------------------------- */
 	piece( buffer, SQL_DELIMITER, string_fetch, 0 );
 	session->session_key = strdup( buffer );
 

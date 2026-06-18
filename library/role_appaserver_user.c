@@ -15,18 +15,18 @@
 
 LIST *role_appaserver_user_name_list(
 		const char *role_appaserver_user_table,
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -36,7 +36,7 @@ LIST *role_appaserver_user_name_list(
 	}
 
 	return
-	list_pipe_fetch(
+	list_system_string_fetch(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -47,6 +47,7 @@ LIST *role_appaserver_user_name_list(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
+				contact_key_boolean,
 				full_name,
-				street_address ) ) );
+				contact_key ) ) );
 }

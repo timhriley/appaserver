@@ -21,7 +21,8 @@ typedef struct
 /* ----- */
 LIST *role_appaserver_user_name_list(
 		const char *role_appaserver_user_table,
+		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 #endif

@@ -42,6 +42,6 @@ SECURITY_ENTITY *security_entity_calloc(
 /* --------------------- */
 char *security_entity_where(
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 #endif

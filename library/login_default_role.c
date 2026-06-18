@@ -16,18 +16,18 @@
 
 char *login_default_role_name(
 		const char *login_default_role_table,
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"login_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -37,7 +37,7 @@ char *login_default_role_name(
 	}
 
 	return
-	string_pipe_fetch(
+	string_system_string_input(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -48,6 +48,7 @@ char *login_default_role_name(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
+				contact_key_boolean,
 				full_name,
-				street_address ) ) );
+				contact_key ) ) );
 }

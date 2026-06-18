@@ -2891,7 +2891,7 @@ char *timlib_integer2binary( unsigned integer )
 {
 	static char binary[ NUMBER_BINARY_DIGITS + 1 ] = {0};
 	char *pointer;
-	int i;
+	unsigned int i;
 
 	pointer = binary;
 	for ( i = 0; i < NUMBER_BINARY_DIGITS; i++, pointer++ )

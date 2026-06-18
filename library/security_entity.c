@@ -79,20 +79,24 @@ SECURITY_ENTITY *security_entity_new(
 		/* --------------------- */
 		security_entity_where(
 			security_entity->appaserver_user->full_name,
-			security_entity->appaserver_user->street_address );
+			security_entity->appaserver_user->contact_key );
 
 	return security_entity;
 }
 
 char *security_entity_where(
 		char *full_name,
-		char *street_address )
+		char *contact_key )
 {
 	return
 	/* --------------------- */
 	/* Returns static memory */
 	/* --------------------- */
 	entity_primary_where(
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN ),
 		full_name,
-		street_address );
+		contact_key );
 }
+

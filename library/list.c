@@ -975,6 +975,11 @@ LIST *list_pipe_fetch( char *system_string )
 	return list_pipe( system_string );
 }
 
+LIST *list_system_string_fetch( char *system_string )
+{
+	return list_pipe( system_string );
+}
+
 LIST *list_pipe( char *system_string )
 {
 	FILE *stream;

@@ -44,6 +44,8 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		char *login_name,
 		boolean fetch_role_name_list )
 {
+	boolean contact_key_boolean;
+	char *select_string;
 	char *where;
 	char *system_string;
 	char *input;
@@ -64,6 +66,20 @@ APPASERVER_USER *appaserver_user_login_fetch(
 			message );
 	}
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			APPASERVER_USER_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
 	where =
 		/* --------------------- */
 		/* Returns static memory */
@@ -77,7 +93,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			APPASERVER_USER_SELECT,
+			select_string,
 			APPASERVER_USER_TABLE,
 			where );
 
@@ -85,7 +101,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_pipe_input(
+		string_system_string_input(
 			system_string );
 
 	if ( !input )
@@ -95,7 +111,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"string_pipe_fetch(%s) returned empty.",
+			"string_system_string_fetch(%s) returned empty.",
 			system_string );
 
 		appaserver_error_stderr_exit(
@@ -105,21 +121,23 @@ APPASERVER_USER *appaserver_user_login_fetch(
 			message );
 	}
 
+	free( select_string );
 	free( system_string );
 
 	return
 	appaserver_user_parse(
 		fetch_role_name_list,
+		contact_key_boolean,
 		input );
 }
 
 APPASERVER_USER *appaserver_user_parse(
 		boolean fetch_role_name_list,
+		boolean contact_key_boolean,
 		char *input )
 {
 	APPASERVER_USER *appaserver_user;
 	char full_name[ 128 ];
-	char street_address[ 128 ];
 	char buffer[ 128 ];
 
 	if ( !input )
@@ -138,38 +156,41 @@ APPASERVER_USER *appaserver_user_parse(
 			message );
 	}
 
-	/* See APPASERVER_USER_SELECT */
+	/* See entity_select_string() */
 	/* -------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
 
-	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_user_new(
-			strdup( full_name ),
-			strdup( street_address ) );
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	appaserver_user = appaserver_user_new( strdup( full_name ) );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
+	piece( buffer, SQL_DELIMITER, input, 1 );
 	if ( *buffer ) appaserver_user->login_name = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer ) appaserver_user->password = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer ) appaserver_user->user_date_format = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
+	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer ) appaserver_user->deactivated_boolean = (*buffer == 'y');
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 5 );
+		appaserver_user->contact_key = strdup( buffer );
+	}
 
 	if ( fetch_role_name_list )
 	{
 		appaserver_user->role_appaserver_user_name_list =
 			role_appaserver_user_name_list(
 				ROLE_APPASERVER_USER_TABLE,
+				contact_key_boolean,
 				appaserver_user->full_name,
-				appaserver_user->street_address );
+				appaserver_user->contact_key );
 	}
 
 	return appaserver_user;
@@ -339,20 +360,18 @@ char *appaserver_user_date_convert_string(
 }
 
 APPASERVER_USER *appaserver_user_new(
-		char *full_name,
-		char *street_address )
+		char *full_name )
 {
 	APPASERVER_USER *appaserver_user;
 
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -362,9 +381,7 @@ APPASERVER_USER *appaserver_user_new(
 	}
 
 	appaserver_user = appaserver_user_calloc();
-
 	appaserver_user->full_name = full_name;
-	appaserver_user->street_address = street_address;
 
 	return appaserver_user;
 }
@@ -402,20 +419,21 @@ LIST *appaserver_user_role_name_list( char *login_name )
 
 APPASERVER_USER *appaserver_user_fetch(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		boolean fetch_role_name_list )
 {
+	boolean contact_key_boolean;
+	char *select_string;
 	char *input;
 
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -424,29 +442,45 @@ APPASERVER_USER *appaserver_user_fetch(
 			message );
 	}
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			APPASERVER_USER_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
 	input =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_pipe_input(
+		string_system_string_input(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				APPASERVER_USER_SELECT,
+				select_string,
 				APPASERVER_USER_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
 				entity_primary_where(
+					contact_key_boolean,
 					full_name,
-					street_address ) ) );
+					contact_key ) ) );
 
 	if ( !input ) return NULL;
 
 	return
 	appaserver_user_parse(
 		fetch_role_name_list,
+		contact_key_boolean,
 		input );
 }
 

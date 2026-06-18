@@ -21,7 +21,8 @@ typedef struct
 /* ----- */
 char *login_default_role_name(
 		const char *login_default_role_table,
+		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 #endif

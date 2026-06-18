@@ -52,8 +52,8 @@ ENTITY *entity_fetch(
 /* Process */
 /* ------- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *entity_select_string(
 		const char *entity_select,
 		const char *entity_contact_key_column,
