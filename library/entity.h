@@ -181,13 +181,13 @@ char *entity_insert_system_string(
 		const char sql_delimiter,
 		boolean entity_contact_key_boolean );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *entity_insert_field_string(
-		const char *entity_full_name_column,
+char *entity_insert_column_string(
+		const char *entity_insert,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
 

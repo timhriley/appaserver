@@ -71,16 +71,32 @@ char *feeder_load_event_primary_where(
 		char *feeder_account_name,
 		char *feeder_load_date_time );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_load_event_system_string(
 		const char *feeder_load_event_select,
 		const char *feeder_load_event_table,
-		char *feeder_load_event_primary_where );
+		const char *entity_contact_key_column,
+		char *feeder_load_event_primary_where,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_event_select_string(
+		const char *feeder_load_event_select,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_parse(
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */

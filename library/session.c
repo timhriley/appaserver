@@ -23,10 +23,12 @@
 #include "sql.h"
 #include "appaserver_user.h"
 #include "appaserver.h"
+#include "entity.h"
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
 #include "environ.h"
+#include "optional_column.h"
 #include "session.h"
 
 void session_message_ip_address_changed_exit(
@@ -262,6 +264,7 @@ char *session_system_string(
 
 SESSION *session_parse(
 		boolean appaserver_user_boolean,
+		boolean contact_key_boolean,
 		char *string_fetch )
 {
 	SESSION *session;
@@ -277,36 +280,39 @@ SESSION *session_parse(
 	piece( buffer, SQL_DELIMITER, string_fetch, 0 );
 	session->session_key = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 1 );
-	if ( *buffer ) strcpy( full_name, buffer );
+	piece( full_name, SQL_DELIMITER, string_fetch, 1 );
 
 	piece( buffer, SQL_DELIMITER, string_fetch, 2 );
-	if ( *buffer ) strcpy( street_address, buffer );
-
-	piece( buffer, SQL_DELIMITER, string_fetch, 3 );
 	if ( *buffer ) session->login_date = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 4 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 3 );
 	if ( *buffer ) session->login_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 5 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 4 );
 	if ( *buffer ) session->last_access_date = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 6 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 5 );
 	if ( *buffer ) session->last_access_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 7 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 6 );
 	if ( *buffer ) session->http_user_agent = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, string_fetch, 8 );
+	piece( buffer, SQL_DELIMITER, string_fetch, 7 );
 	if ( *buffer ) session->remote_ip_address = strdup( buffer );
 
 	if ( appaserver_user_boolean )
 	{
+		char contact_key[ 128 ];
+
+		if ( contact_key_boolean )
+		{
+		}
+
 		if ( ! ( session->appaserver_user =
 				appaserver_user_fetch(
-					full_name,
-					street_address,
+					contact_key_boolean,
+					full_name /* stack memory */,
+					contact_key /* stack_memory */,
 					0 /* not fetch_role_name_list */ ) ) )
 		{
 			return NULL;
@@ -363,12 +369,29 @@ SESSION *session_fetch(
 		char *login_name,
 		boolean appaserver_user_boolean )
 {
+	boolean contact_key_boolean;
+	char *select_string;
 	SESSION *session;
 	char *current_ip_address;
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			SESSION_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	session =
 		session_parse(
 			appaserver_user_boolean,
+			contact_key_boolean,
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -377,13 +400,15 @@ SESSION *session_fetch(
 				/* Returns heap memory */
 				/* ------------------- */
 				appaserver_system_string(
-					SESSION_SELECT,
+					select_string,
 					SESSION_TABLE,
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
 					session_primary_where(
 					      	session_key ) ) ) );
+
+	free( select_string );
 
 	current_ip_address =
 		session_current_ip_address(
@@ -984,13 +1009,16 @@ char *session_delete_sql(
 }
 
 char *session_insert_string(
+		const char sql_delimiter,
 		char *session_key,
 		char *login_date,
 		char *login_time,
 		char *remote_ip_address,
 		char *http_user_agent,
-		APPASERVER_USER *appaserver_user )
+		APPASERVER_USER *appaserver_user,
+		boolean contact_key_boolean )
 {
+	char *appaserver_user_string;
 	char insert_string[ 1024 ];
 
 	if ( !session_key
@@ -1013,19 +1041,27 @@ char *session_insert_string(
 			message );
 	}
 
+	appaserver_user_string =
+		/* ------------------------------ */
+		/* Returns program or heap memory */
+		/* ------------------------------ */
+		session_insert_appaserver_user_string(
+			sql_delimiter,
+			appaserver_user,
+			contact_key_boolean );
+
 	snprintf(
 		insert_string,
 		sizeof ( insert_string ),
-		"%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+		"%s^%s^%s^%s^%s^%s^%s^%s\n",
 		session_key,
-		(appaserver_user) ? appaserver_user->full_name : "",
-		(appaserver_user) ? appaserver_user->street_address : "",
 		login_date,
 		login_time,
 		login_date,
 		login_time,
 		remote_ip_address,
-		http_user_agent );
+		http_user_agent,
+		appaserver_user_string );
 
 	return strdup( insert_string );
 }
@@ -1188,19 +1224,32 @@ char *session_last_access_time( void )
 }
 
 char *session_insert_system_string(
+		const char sql_delimiter,
 		const char *session_table,
-		const char *session_insert_columns )
+		const char *session_insert,
+		boolean contact_key_boolean )
 {
+	char *insert_column_string;
 	char system_string[ 1024 ];
+
+	insert_column_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_column_string(
+			session_insert /* ENTITY_INSERT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"insert_statement.e table=%s field=\"%s\" |"
+		"insert_statement.e table=%s field=\"%s\" delimiter='%c' |"
 		"tee_appaserver.sh |"
 		"sql.e",
 		session_table,
-		session_insert_columns );
+		insert_column_string,
+		sql_delimiter );
 
 	return strdup( system_string );
 }
@@ -1210,6 +1259,7 @@ SESSION *session_new(
 		char *login_name,
 		boolean appaserver_user_boolean )
 {
+	boolean contact_key_boolean;
 	SESSION *session;
 
 	if ( !application_name
@@ -1285,16 +1335,14 @@ SESSION *session_new(
 		}
 
 		if ( !session->appaserver_user->full_name
-		||   !*session->appaserver_user->full_name
-		||   !session->appaserver_user->street_address
-		||   !*session->appaserver_user->street_address )
+		||   !*session->appaserver_user->full_name )
 		{
 			char message[ 128 ];
 	
 			snprintf(
 				message,
 				sizeof ( message ),
-				"appaserver_user is incomplete." );
+				"appaserver_user->full_name is empty." );
 	
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -1304,25 +1352,34 @@ SESSION *session_new(
 		}
 	}
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	session->insert_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		session_insert_string(
+			SQL_DELIMITER,
 			session->session_key,
 			session->login_date,
 			session->login_time,
 			session->http_user_agent,
 			session->remote_ip_address,
-			session->appaserver_user );
+			session->appaserver_user,
+			contact_key_boolean );
 
 	session->insert_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		session_insert_system_string(
+			SQL_DELIMITER,
 			SESSION_TABLE,
-			SESSION_INSERT );
+			SESSION_INSERT,
+			contact_key_boolean );
 
 	return session;
 }
@@ -1430,3 +1487,38 @@ boolean session_browser_key_changed_boolean( char *http_user_agent )
 	return changed_boolean;
 }
 
+char *session_insert_appaserver_user_string(
+		const char sql_delimiter,
+		APPASERVER_USER *appaserver_user,
+		boolean entity_contact_key_boolean )
+{
+	char *appaserver_user_string;
+
+	if ( !appaserver_user )
+	{
+		if ( entity_contact_key_boolean )
+			appaserver_user_string = "^";
+		else
+			appaserver_user_string = "";
+	}
+	else
+	{
+		OPTIONAL_COLUMN *optional_column;
+
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_new(
+				sql_delimiter,
+				appaserver_user->full_name /* base_string */,
+				appaserver_user->contact_key /* component */,
+				0 /* not escape_boolean */,
+				entity_contact_key_boolean /* set_boolean */ );
+	
+		appaserver_user_string =
+			optional_column->return_string;
+	}
+
+	return appaserver_user_string;
+}

@@ -40,6 +40,7 @@
 typedef struct
 {
 	char *feeder_account_name;
+	boolean entity_contact_key_boolean;
 	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
 	char *account_uncleared_checks_string;

@@ -428,19 +428,17 @@ char *entity_insert_system_string(
 		const char sql_delimiter,
 		boolean entity_contact_key_boolean )
 {
-	OPTIONAL_COLUMN *optional_column;
+	char *insert_column_string;
 	char system_string[ 1024 ];
 
-	optional_column =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		optional_column_new(
-			',' /* delimiter */,
-			(char *)entity_full_name_column /* base_string */,
-			(char *)entity_contact_key_column /* component */,
-			0 /* not escape_boolean */,
-			entity_contact_key_boolean /* set_boolean */ );
+	insert_column_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_column_string(
+			entity_full_name_column /* entity_insert */,
+			entity_contact_key_column,
+			entity_contact_key_boolean );
 
 	snprintf(
 		system_string,
@@ -448,8 +446,10 @@ char *entity_insert_system_string(
 		"insert_statement table=%s field=%s delimiter='%c' | "
 		"sql",
 		entity_table,
-		optional_column->return_string,
+		insert_column_string,
 		sql_delimiter );
+
+	free( insert_column_string );
 
 	return strdup( system_string );
 }
@@ -605,26 +605,25 @@ ENTITY *entity_full_name_entity( char *full_name /* stack memory */ )
 	return entity;
 }
 
-char *entity_insert_field_string(
-		const char *entity_full_name_column,
+char *entity_insert_column_string(
+		const char *entity_insert,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean )
 {
-	char field_string[ 128 ];
-	char *ptr = field_string;
+	OPTIONAL_COLUMN *optional_column;
 
-	ptr += sprintf( ptr,
-		"%s",
-		entity_full_name_column );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)entity_insert /* base_string */,
+			(char *)entity_contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			entity_contact_key_boolean /* set_boolean */ );
 
-	if ( entity_contact_key_boolean )
-	{
-		ptr += sprintf( ptr,
-			",%s",
-			entity_contact_key_column );
-	}
-
-	return strdup( field_string );
+	return optional_column->return_string /* heap memory */;
 }
 
 char *entity_select_string(

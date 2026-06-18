@@ -28,13 +28,14 @@
 						"remote_ip_address"
 
 #define SESSION_INSERT				"session,"		\
-						"full_name,"		\
 						"login_date,"		\
 						"login_time,"		\
 						"last_access_date,"	\
 						"last_access_time,"	\
 						"http_user_agent,"	\
-						"remote_ip_address"
+						"remote_ip_address,"	\
+						"full_name"
+
 typedef struct
 {
 	char *session_key;
@@ -99,6 +100,7 @@ char *session_primary_where(
 /* ----- */
 SESSION *session_parse(
 		boolean appaserver_user_boolean,
+		boolean entity_contact_key_boolean,
 		char *string_fetch );
 
 /* Usage */
@@ -148,12 +150,14 @@ char *session_last_access_time(
 /* Returns heap memory */
 /* ------------------- */
 char *session_insert_string(
+		const char sql_delimiter,
 		char *session_key,
 		char *login_date,
 		char *login_time,
 		char *http_user_agent,
 		char *remote_ip_address,
-		APPASERVER_USER *appaserver_user );
+		APPASERVER_USER *appaserver_user,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -161,8 +165,20 @@ char *session_insert_string(
 /* Returns heap memory */
 /* ------------------- */
 char *session_insert_system_string(
+		const char sql_delimiter,
 		const char *session_table,
-		const char *session_insert );
+		const char *session_insert,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns program or heap memory */
+/* ------------------------------ */
+char *session_insert_appaserver_user_string(
+		const char sql_delimiter,
+		APPASERVER_USER *appaserver_user,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

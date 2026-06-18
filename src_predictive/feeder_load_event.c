@@ -17,6 +17,7 @@
 #include "appaserver_error.h"
 #include "journal.h"
 #include "feeder.h"
+#include "optional_column.h"
 #include "feeder_load_event.h"
 
 FEEDER_LOAD_EVENT *feeder_load_event_new(
@@ -237,9 +238,9 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 		char *feeder_load_date_time )
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
-	FILE *input_open;
-	char *tmp;
-	char input[ 1024 ];
+	boolean contact_key_boolean;
+	char *system_string;
+	char *input;
 
 	if ( !feeder_account_name
 	||   !feeder_load_date_time )
@@ -258,34 +259,39 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 			message );
 	}
 
-	input_open =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_input_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			( tmp = feeder_load_event_system_string(
-				FEEDER_LOAD_EVENT_SELECT,
-				FEEDER_LOAD_EVENT_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				feeder_load_event_primary_where(
-					feeder_account_name,
-					feeder_load_date_time ) ) ) );
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_event_system_string(
+			FEEDER_LOAD_EVENT_SELECT,
+			FEEDER_LOAD_EVENT_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			feeder_load_event_primary_where(
+				feeder_account_name,
+				feeder_load_date_time ),
+			contact_key_boolean );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	input = string_system_string_input( system_string );
+
+	free( system_string );
 
 	feeder_load_event =
 		feeder_load_event_parse(
-			string_input(
-				input,
-				input_open,
-				1024 ) );
+			contact_key_boolean,
+			input );
 
-	pclose( input_open );
-
-	free( tmp );
+	free( input );
 
 	if ( feeder_load_event && !feeder_load_event->appaserver_user )
 	{
@@ -332,8 +338,11 @@ char *feeder_load_event_primary_where(
 char *feeder_load_event_system_string(
 		const char *feeder_load_event_select,
 		const char *feeder_load_event_table,
-		char *feeder_load_event_primary_where )
+		const char *entity_contact_key_column,
+		char *feeder_load_event_primary_where,
+		boolean contact_key_boolean )
 {
+	char *select_string;
 	char system_string[ 1024 ];
 
 	if ( !feeder_load_event_primary_where )
@@ -352,30 +361,43 @@ char *feeder_load_event_system_string(
 			message );
 	}
 
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_event_select_string(
+			feeder_load_event_select,
+			entity_contact_key_column,
+			contact_key_boolean );
+
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\"",
-		feeder_load_event_select,
+		select_string,
 		feeder_load_event_table,
 		feeder_load_event_primary_where );
+
+	free( select_string );
 
 	return strdup( system_string );
 }
 
-FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
+FEEDER_LOAD_EVENT *feeder_load_event_parse(
+		boolean contact_key_boolean,
+		char *input )
 {
 	char buffer[ 128 ];
 	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char *contact_key = {0};
 	FEEDER_LOAD_EVENT *feeder_load_event;
 
 	if ( !input || !*input ) return NULL;
 
 	feeder_load_event = feeder_load_event_calloc();
 
-	/* See FEEDER_LOAD_EVENT_SELECT */
-	/* ---------------------------- */
+	/* See feeder_load_event_select_string() */
+	/* ------------------------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );
 	feeder_load_event->feeder_account_name = strdup( buffer );
 
@@ -383,33 +405,39 @@ FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
 	feeder_load_event->feeder_load_date_time = strdup( buffer );
 
 	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
 
-	if ( *full_name && *street_address )
-	{
-		feeder_load_event->appaserver_user =
-			appaserver_user_new(
-				strdup( full_name ),
-				strdup( street_address ) );
-	}
-
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
 		feeder_load_event->exchange_format_filename =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
+	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
 	{
 		feeder_load_event->feeder_row_account_end_date =
 			strdup( buffer );
 	}
 
-	piece( buffer, SQL_DELIMITER, input, 6 );
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer )
 	{
 		feeder_load_event->feeder_row_account_end_balance =
 			atof( buffer );
+	}
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 6 );
+		contact_key = strdup( buffer );
+	}
+
+	if ( *full_name )
+	{
+		feeder_load_event->appaserver_user =
+			appaserver_user_new(
+				strdup( full_name ) );
+
+		feeder_load_event->appaserver_user->contact_key = contact_key;
 	}
 
 	return feeder_load_event;
@@ -628,3 +656,24 @@ double feeder_load_event_calculate_begin_amount(
 	feeder_row_exist_sum;
 }
 
+char *feeder_load_event_select_string(
+		const char *feeder_load_event_select,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)feeder_load_event_select /* base_string */,
+			(char *)entity_contact_key_column
+				/* component column or datum */,
+			0 /* not escape_boolean */,
+			entity_contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
+}

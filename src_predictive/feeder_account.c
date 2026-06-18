@@ -13,22 +13,34 @@
 #include "appaserver_error.h"
 #include "appaserver.h"
 #include "sql.h"
+#include "entity.h"
 #include "feeder_account.h"
 
 FEEDER_ACCOUNT *feeder_account_fetch(
+		const char *feeder_account_select,
 		const char *feeder_account_table,
-		char *feeder_account_name )
+		char *feeder_account_name,
+		boolean contact_key_boolean )
 {
+	char *select_string;
 	char *system_string;
 	char *pipe_fetch;
 
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			feeder_account_select /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			FEEDER_ACCOUNT_SELECT,
+			select_string,
 			(char *)feeder_account_table,
 			/* --------------------- */
 			/* Returns static memory */
@@ -65,6 +77,7 @@ FEEDER_ACCOUNT *feeder_account_fetch(
 	/* -------------- */
 	feeder_account_parse(
 		feeder_account_name,
+		contact_key_boolean,
 		pipe_fetch );
 }
 
@@ -111,13 +124,14 @@ char *feeder_account_primary_where(
 
 FEEDER_ACCOUNT *feeder_account_parse(
 		char *feeder_account_name,
-		char *string_pipe_fetch )
+		boolean contact_key_boolean,
+		char *pipe_fetch )
 {
 	FEEDER_ACCOUNT *feeder_account;
 	char buffer[ 128 ];
 
 	if ( !feeder_account_name
-	||   !string_pipe_fetch )
+	||   !pipe_fetch )
 	{
 		char message[ 128 ];
 
@@ -141,16 +155,11 @@ FEEDER_ACCOUNT *feeder_account_parse(
 			feeder_account_name );
 
 
-	/* See FEEDER_ACCOUNT_SELECT */
-	/* ------------------------- */
-	piece( buffer, SQL_DELIMITER, string_pipe_fetch, 0 );
+	/* See entity_select_string() */
+	/* -------------------------- */
+	piece( buffer, SQL_DELIMITER, pipe_fetch, 0 );
 
-	if ( *buffer )
-	{
-		feeder_account->financial_institution_full_name =
-			strdup( buffer );
-	}
-	else
+	if ( !*buffer )
 	{
 		char message[ 128 ];
 
@@ -166,10 +175,16 @@ FEEDER_ACCOUNT *feeder_account_parse(
 			message );
 	}
 
-	piece( buffer, SQL_DELIMITER, string_pipe_fetch, 1 );
-	if ( *buffer )
-		feeder_account->financial_institution_street_address =
-			strdup( buffer );
+	feeder_account->financial_institution_full_name = strdup( buffer );
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, pipe_fetch, 1 );
+
+		if ( *buffer )
+			feeder_account->financial_institution_contact_key =
+				strdup( buffer );
+	}
 
 	return feeder_account;
 }

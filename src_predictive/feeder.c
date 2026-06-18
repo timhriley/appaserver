@@ -23,6 +23,7 @@
 #include "appaserver_parameter.h"
 #include "predictive.h"
 #include "account.h"
+#include "entity.h"
 #include "feeder_row.h"
 #include "feeder_matched_journal.h"
 #include "feeder_load_event.h"
@@ -64,13 +65,20 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_account_name = feeder_account_name;
 
+	feeder->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	feeder->feeder_account =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		feeder_account_fetch(
+			FEEDER_ACCOUNT_SELECT,
 			FEEDER_ACCOUNT_TABLE,
-			feeder_account_name );
+			feeder_account_name,
+			feeder->entity_contact_key_boolean );
 
 	feeder->feeder_load_row_list =
 		feeder_load_row_list(
@@ -149,7 +157,7 @@ feeder_load_row_list_raw_display(
 				financial_institution_full_name,
 			feeder->
 				feeder_account->
-				financial_institution_street_address,
+				financial_institution_contact_key,
 			feeder->account_uncleared_checks_string,
 			feeder->feeder_phrase_list,
 			feeder->feeder_row_exist_list,

@@ -418,11 +418,11 @@ LIST *appaserver_user_role_name_list( char *login_name )
 }
 
 APPASERVER_USER *appaserver_user_fetch(
-		char *full_name,
-		char *contact_key,
+		boolean contact_key_boolean,
+		char *full_name /* stack memory */,
+		char *contact_key /* stack memory */,
 		boolean fetch_role_name_list )
 {
-	boolean contact_key_boolean;
 	char *select_string;
 	char *input;
 
@@ -441,11 +441,6 @@ APPASERVER_USER *appaserver_user_fetch(
 			__LINE__,
 			message );
 	}
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	select_string =
 		/* ------------------- */
