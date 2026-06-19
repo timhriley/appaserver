@@ -199,6 +199,8 @@ LIST *journal_propagate_journal_list(
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -373,6 +375,8 @@ char *journal_propagate_greater_equal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			account_name );
 
@@ -415,7 +419,7 @@ LIST *journal_propagate_update_statement_list(
 				journal_table,
 				journal->fund_name,
 				journal->full_name,
-				journal->street_address,
+				journal->contact_key,
 				journal->transaction_date_time,
 				journal->account_name,
 				journal->previous_balance,
@@ -440,7 +444,7 @@ char *journal_propagate_update_statement(
 		const char *journal_table,
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double previous_balance,
@@ -450,7 +454,6 @@ char *journal_propagate_update_statement(
 	char update_statement[ 2048 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name )
 	{
@@ -475,7 +478,7 @@ char *journal_propagate_update_statement(
 		journal_primary_where(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			account_name );
 

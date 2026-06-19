@@ -11,6 +11,7 @@
 #include "file.h"
 #include "application.h"
 #include "role.h"
+#include "entity.h"
 #include "entity_self.h"
 #include "login_default_role.h"
 #include "application_clone.h"
@@ -118,13 +119,19 @@ APPLICATION_CLONE *application_clone_new(
 			application_title,
 			application_clone->application->ssl_support_boolean );
 
+	application_clone->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	application_clone->appaserver_user =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		application_clone_appaserver_user(
 			login_name,
-			post_signup_boolean );
+			post_signup_boolean,
+			application_clone->entity_contact_key_boolean );
 
 	if ( !application_clone->appaserver_user->password )
 	{
@@ -154,7 +161,7 @@ APPLICATION_CLONE *application_clone_new(
 				full_name,
 			application_clone->
 				appaserver_user->
-				street_address,
+				contact_key,
 			application_clone->
 				appaserver_user->
 				login_name,
@@ -163,7 +170,9 @@ APPLICATION_CLONE *application_clone_new(
 				password,
 			application_clone->
 				appaserver_user->
-				user_date_format );
+				user_date_format,
+			application_clone->
+				entity_contact_key_boolean );
 
 	application_clone->insert_role_system_string =
 		/* ------------------- */
@@ -178,7 +187,9 @@ APPLICATION_CLONE *application_clone_new(
 				full_name,
 			application_clone->
 				appaserver_user->
-				street_address );
+				contact_key,
+			application_clone->
+				entity_contact_key_boolean );
 
 	application_clone->insert_default_system_string =
 		/* ------------------- */
@@ -193,7 +204,9 @@ APPLICATION_CLONE *application_clone_new(
 				full_name,
 			application_clone->
 				appaserver_user->
-				street_address );
+				contact_key,
+			application_clone->
+				entity_contact_key_boolean );
 
 	application_clone->insert_entity_system_string =
 		/* ------------------- */
@@ -207,7 +220,9 @@ APPLICATION_CLONE *application_clone_new(
 				full_name,
 			application_clone->
 				appaserver_user->
-				street_address );
+				contact_key,
+			application_clone->
+				entity_contact_key_boolean );
 
 	application_clone->insert_self_system_string =
 		/* ------------------- */
@@ -221,7 +236,9 @@ APPLICATION_CLONE *application_clone_new(
 				full_name,
 			application_clone->
 				appaserver_user->
-				street_address );
+				contact_key,
+			application_clone->
+				entity_contact_key_boolean );
 
 	return application_clone;
 }
@@ -402,14 +419,14 @@ char *application_clone_insert_default_system_string(
 		const char *role_supervisor,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	char system_string[ 1024 ];
 	char *field;
 
 	if ( !destination_application_name
-	||   !full_name
-	||   !street_address )
+	||   !full_name )
 	{
 		char message[ 128 ];
 
@@ -425,23 +442,45 @@ char *application_clone_insert_default_system_string(
 			message );
 	}
 
-	field = "full_name,street_address,role";
+	if ( contact_key_boolean )
+	{
+		field = "full_name,contact_key,role";
 
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"echo \"%s^%s^%s\" | "
-		"insert_statement.e "
-		"table=%s "
-		"field=%s "
-		"delimiter='^' | "
-		"sql.e %s",
-		full_name,
-		street_address,
-		role_supervisor,
-		login_default_role_table,
-		field,
-		destination_application_name );
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s^%s^%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			contact_key,
+			role_supervisor,
+			login_default_role_table,
+			field,
+			destination_application_name );
+	}
+	else
+	{
+		field = "full_name,role";
+
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s^%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			role_supervisor,
+			login_default_role_table,
+			field,
+			destination_application_name );
+	}
 
 	return strdup( system_string );
 }
@@ -450,14 +489,14 @@ char *application_clone_insert_entity_system_string(
 		const char *table_name,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	char system_string[ 1024 ];
 	char *field;
 
 	if ( !destination_application_name
-	||   !full_name
-	||   !street_address )
+	||   !full_name )
 	{
 		char message[ 128 ];
 
@@ -473,22 +512,43 @@ char *application_clone_insert_entity_system_string(
 			message );
 	}
 
-	field = "full_name,street_address";
+	if ( contact_key_boolean )
+	{
+		field = "full_name,contact_key";
 
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"echo \"%s^%s\" | "
-		"insert_statement.e "
-		"table=%s "
-		"field=%s "
-		"delimiter='^' | "
-		"sql.e %s",
-		full_name,
-		street_address,
-		table_name,
-		field,
-		destination_application_name );
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s^%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			contact_key,
+			table_name,
+			field,
+			destination_application_name );
+	}
+	else
+	{
+		field = "full_name";
+
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			table_name,
+			field,
+			destination_application_name );
+	}
 
 	return strdup( system_string );
 }
@@ -498,15 +558,15 @@ char *application_clone_insert_role_system_string(
 		const char *role_supervisor,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	char system_string[ 1024 ];
 	char *ptr = system_string;
 	char *field;
 
 	if ( !destination_application_name
-	||   !full_name
-	||   !street_address )
+	||   !full_name )
 	{
 		char message[ 128 ];
 
@@ -523,33 +583,64 @@ char *application_clone_insert_role_system_string(
 	}
 
 
-	field = "full_name,street_address,role";
+	if ( contact_key_boolean )
+	{
+		field = "full_name,contact_key,role";
 
-	ptr += sprintf( ptr,
-		"echo \"%s^%s^%s\" | "
-		"insert_statement.e "
-		"table=role_appaserver_user "
-		"field=%s "
-		"delimiter='^' | "
-		"sql.e %s && ",
-		full_name,
-		street_address,
-		role_system,
-		field,
-		destination_application_name );
+		ptr += sprintf( ptr,
+			"echo \"%s^%s^%s\" | "
+			"insert_statement.e "
+			"table=role_appaserver_user "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s && ",
+			full_name,
+			contact_key,
+			role_system,
+			field,
+			destination_application_name );
 
-	ptr += sprintf( ptr,
-		"echo \"%s^%s^%s\" | "
-		"insert_statement.e "
-		"table=role_appaserver_user "
-		"field=%s "
-		"delimiter='^' | "
-		"sql.e %s",
-		full_name,
-		street_address,
-		role_supervisor,
-		field,
-		destination_application_name );
+		ptr += sprintf( ptr,
+			"echo \"%s^%s^%s\" | "
+			"insert_statement.e "
+			"table=role_appaserver_user "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			contact_key,
+			role_supervisor,
+			field,
+			destination_application_name );
+	}
+	else
+	{
+		field = "full_name,role";
+
+		ptr += sprintf( ptr,
+			"echo \"%s^%s\" | "
+			"insert_statement.e "
+			"table=role_appaserver_user "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s && ",
+			full_name,
+			role_system,
+			field,
+			destination_application_name );
+
+		ptr += sprintf( ptr,
+			"echo \"%s^%s\" | "
+			"insert_statement.e "
+			"table=role_appaserver_user "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			role_supervisor,
+			field,
+			destination_application_name );
+	}
 
 	return strdup( system_string );
 }
@@ -558,17 +649,17 @@ char *application_clone_insert_user_system_string(
 		const char *appaserver_user_table,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *login_name,
 		char *password,
-		char *user_date_format )
+		char *user_date_format,
+		boolean contact_key_boolean )
 {
 	char system_string[ 1024 ];
 	char *field;
 
 	if ( !destination_application_name
 	||   !full_name
-	||   !street_address
 	||   !login_name
 	||   !password
 	||   !user_date_format )
@@ -587,29 +678,56 @@ char *application_clone_insert_user_system_string(
 			message );
 	}
 
-	field =	"full_name,"
-		"street_address,"
-		"login_name,"
-		"password,"
-		"user_date_format";
+	if ( contact_key_boolean )
+	{
+		field =	"full_name,"
+			"contact_key,"
+			"login_name,"
+			"password,"
+			"user_date_format";
 
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"echo \"%s^%s^%s^%s^%s\" | "
-		"insert_statement.e "
-		"table=%s "
-		"field=%s "
-		"delimiter='^' | "
-		"sql.e %s",
-		full_name,
-		street_address,
-		login_name,
-		password,
-		user_date_format,
-		appaserver_user_table,
-		field,
-		destination_application_name );
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s^%s^%s^%s^%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			contact_key,
+			login_name,
+			password,
+			user_date_format,
+			appaserver_user_table,
+			field,
+			destination_application_name );
+	}
+	else
+	{
+		field =	"full_name,"
+			"login_name,"
+			"password,"
+			"user_date_format";
+
+		snprintf(
+			system_string,
+			sizeof ( system_string ),
+			"echo \"%s^%s^%s^%s\" | "
+			"insert_statement.e "
+			"table=%s "
+			"field=%s "
+			"delimiter='^' | "
+			"sql.e %s",
+			full_name,
+			login_name,
+			password,
+			user_date_format,
+			appaserver_user_table,
+			field,
+			destination_application_name );
+	}
 
 	return strdup( system_string );
 }
@@ -657,7 +775,8 @@ void application_clone_system(
 
 APPASERVER_USER *application_clone_appaserver_user(
 		char *login_name,
-		boolean post_signup_boolean )
+		boolean post_signup_boolean,
+		boolean contact_key_boolean )
 {
 	APPASERVER_USER *appaserver_user;
 
@@ -709,8 +828,12 @@ APPASERVER_USER *application_clone_appaserver_user(
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_new(
-			"Fullname Placeholder" /* full_name */,
-			"1234 Set Me" /* street_address */ );
+			"Fullname Placeholder" /* full_name */ );
+
+	if ( contact_key_boolean )
+	{
+		appaserver_user->contact_key = "1234 Set Me";
+	}
 
 	appaserver_user->login_name = login_name;
 

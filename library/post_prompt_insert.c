@@ -534,7 +534,7 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 				APPASERVER_USER_STREET_ADDRESS,
 				post_prompt_insert_input->
 					insert_appaserver_user->
-					street_address );
+					contact_key );
 		}
 	}
 

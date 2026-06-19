@@ -19,6 +19,7 @@
 #include "environ.h"
 #include "process.h"
 #include "application_constant.h"
+#include "optional_column.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "date_convert.h"
@@ -158,29 +159,34 @@ void feeder_row_list_insert(
 		char *feeder_account_name,
 		char *feeder_load_date_time,
 		LIST *feeder_row_list,
-		boolean predictive_fund_boolean )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	FILE *output_pipe;
-	char *tmp;
+	char *system_string;
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
 
 	if ( !list_rewind( feeder_row_list ) ) return;
 
-	output_pipe =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_output_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			( tmp = feeder_row_list_insert_system_string(
-				SQL_DELIMITER,
-				FEEDER_ROW_INSERT_COLUMNS,
-				FEEDER_ROW_TABLE,
-				PREDICTIVE_FUND_COLUMN_NAME,
-				predictive_fund_boolean ) ) );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_row_list_insert_system_string(
+			SQL_DELIMITER,
+			FEEDER_ROW_INSERT,
+			FEEDER_ROW_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	output_pipe = appaserver_output_pipe( system_string );
+
+	free( system_string );
 
 	do {
 		feeder_row = list_get( feeder_row_list );
@@ -208,54 +214,65 @@ void feeder_row_list_insert(
 			/* ------------------------------------------ */
 			feeder_row->transaction_date_time );
 
-		feeder_row_insert(
-			SQL_DELIMITER,
-			fund_name,
-			feeder_account_name,
-			feeder_load_date_time,
-			feeder_row->
-				feeder_load_row->
-				international_date
-				/* feeder_date */,
-			feeder_row->feeder_row_number,
-			feeder_row->
-				feeder_load_row->
-				description_embedded
-				/* file_row_description */,
-			feeder_row->
-				feeder_load_row->
-				exchange_journal_amount
-				/* file_row_amount */,
-			feeder_row->
-				feeder_load_row->
-				file_row_balance,
-			feeder_row->calculate_balance,
-			feeder_row->
-				feeder_load_row->
-				check_number,
-			predictive_fund_boolean,
-			output_pipe,
-			journal->full_name,
-			journal->street_address,
-			journal->transaction_date_time,
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_row_phrase(
-				feeder_row->feeder_phrase_seek ) );
+		insert_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_row_insert_string(
+				SQL_DELIMITER,
+				fund_name,
+				feeder_account_name,
+				feeder_load_date_time,
+				feeder_row->
+					feeder_load_row->
+					international_date
+					/* feeder_date */,
+				feeder_row->feeder_row_number,
+				feeder_row->
+					feeder_load_row->
+					description_embedded
+					/* file_row_description */,
+				feeder_row->
+					feeder_load_row->
+					exchange_journal_amount
+					/* file_row_amount */,
+				feeder_row->
+					feeder_load_row->
+					file_row_balance,
+				feeder_row->calculate_balance,
+				feeder_row->
+					feeder_load_row->
+					check_number,
+				fund_boolean,
+				contact_key_boolean,
+				journal->full_name,
+				journal->contact_key,
+				journal->transaction_date_time,
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				feeder_row_phrase(
+					feeder_row->feeder_phrase_seek ) );
+
+		fprintf(output_pipe,
+			"%s\n",
+			insert_string );
+
+		free( insert_string );
 
 	} while ( list_next( feeder_row_list ) );
 
 	pclose( output_pipe );
-	free( tmp );
 }
 
 char *feeder_row_list_insert_system_string(
 		const char sql_delimiter,
-		const char *feeder_row_insert_columns,
+		const char *feeder_row_insert,
 		const char *feeder_row_table,
-		const char *feeder_fund_column_name,
-		boolean predictive_fund_boolean )
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char field[ 512 ];
 	char system_string[ 1024 ];
@@ -291,7 +308,7 @@ char *feeder_row_list_insert_system_string(
 	return strdup( system_string );
 }
 
-void feeder_row_insert(
+char *feeder_row_insert_string(
 		const char sql_delimiter,
 		char *fund_name,
 		char *feeder_account_name,
@@ -303,14 +320,16 @@ void feeder_row_insert(
 		double file_row_balance,
 		double feeder_row_calculate_balance,
 		int check_number,
-		boolean predictive_fund_boolean,
-		FILE *output_pipe,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *phrase )
 {
+	char insert_string[ 1024 ];
 	char check_number_string[ 16 ];
+	OPTIONAL_COLUMN *optional_column;
 
 	if ( !feeder_account_name
 	||   !feeder_load_date_time
@@ -318,9 +337,7 @@ void feeder_row_insert(
 	||   !feeder_row_number
 	||   !file_row_description
 	||   !file_row_amount
-	||   !output_pipe
 	||   !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !phrase )
 	{
@@ -342,44 +359,42 @@ void feeder_row_insert(
 	else
 		*check_number_string = '\0';
 
-	if ( predictive_fund_boolean )
-	{
-		fprintf(output_pipe,
-			"%s%c",
-			fund_name,
-			sql_delimiter );
-	}
-
-	/* See FEEDER_ROW_INSERT_COLUMNS */
-	/* ----------------------------- */
-	fprintf(
-		output_pipe,
-		"%s%c%s%c%s%c%d%c%s%c%.2lf%c%.2lf%c%.2lf%c%s%c%s%c%s%c%s%c%s\n",
+	/* See FEEDER_ROW_INSERT */
+	/* --------------------- */
+	snprintf(
+		insert_string,
+		sizeof ( insert_string ),
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s^%s^%s^%s^%s\n",
 		feeder_account_name,
-		sql_delimiter,
 		feeder_load_date_time,
-		sql_delimiter,
 		feeder_date,
-		sql_delimiter,
 		feeder_row_number,
-		sql_delimiter,
 		file_row_description,
-		sql_delimiter,
 		file_row_amount,
-		sql_delimiter,
 		file_row_balance,
-		sql_delimiter,
 		feeder_row_calculate_balance,
-		sql_delimiter,
 		check_number_string,
-		sql_delimiter,
 	 	full_name,
-		sql_delimiter,
-	 	street_address,
-		sql_delimiter,
 		transaction_date_time,
-		sql_delimiter,
 		phrase );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			insert_string /* base_string */,
+			fund_name /* component */,
+			0 /* not escape_boolean */,
+			fund_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			contact_key /* component */,
+			0 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
 }
 
 char *feeder_row_transaction_date_time(

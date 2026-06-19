@@ -184,13 +184,12 @@ char *credit_provider_name( int array_offset )
 
 CREDIT_PROVIDER *credit_provider_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *credit_card_number )
 {
 	CREDIT_PROVIDER *credit_provider;
 
 	if ( !full_name
-	||   !street_address
 	||   !credit_card_number )
 	{
 		char message[ 128 ];
@@ -241,7 +240,7 @@ CREDIT_PROVIDER *credit_provider_new(
 		credit_provider_sql_statement(
 			ENTITY_SELF_TABLE,
 			full_name,
-			street_address,
+			contact_key,
 			credit_provider->name );
 
 	return credit_provider;
@@ -273,14 +272,13 @@ CREDIT_PROVIDER *credit_provider_calloc( void )
 char *credit_provider_sql_statement(
 		const char *entity_self_table,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *credit_provider_name )
 {
 	char set_clause[ 128 ];
 	char sql_statement[ 1024 ];
 
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
@@ -319,8 +317,11 @@ char *credit_provider_sql_statement(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			full_name,
-			street_address ) );
+			contact_key ) );
 
 	return strdup( sql_statement );
 }

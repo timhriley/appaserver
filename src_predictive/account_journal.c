@@ -58,7 +58,7 @@ ACCOUNT_JOURNAL *account_journal_latest(
 			journal->balance );
 
 	account_journal->full_name = journal->full_name;
-	account_journal->street_address = journal->street_address;
+	account_journal->contact_key = journal->contact_key;
 	account_journal->transaction_date_time = journal->transaction_date_time;
 	account_journal->previous_balance = journal->previous_balance;
 	account_journal->debit_amount = journal->debit_amount;

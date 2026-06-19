@@ -14,7 +14,7 @@
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *transaction_date_time;
 	char *account_name;
 	double previous_balance;

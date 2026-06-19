@@ -106,7 +106,7 @@ POST_TABLE_INSERT *post_table_insert_new(
 			post_table_insert->
 				post_table_insert_input->
 				insert_appaserver_user->
-				street_address );
+				contact_key );
 	}
 
 	post_table_insert->vertical_new_post =

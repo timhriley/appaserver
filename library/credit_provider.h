@@ -36,7 +36,7 @@ typedef struct
 /* -------------- */
 CREDIT_PROVIDER *credit_provider_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *credit_card_number );
 
 /* Process */
@@ -65,7 +65,7 @@ char *credit_provider_name(
 char *credit_provider_sql_statement(
 		const char *entity_self_table,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *credit_provider_name );
 
 #endif

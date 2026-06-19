@@ -114,7 +114,7 @@ char *journal_propagate_update_statement(
 		const char *journal_table,
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		double previous_balance,

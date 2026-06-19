@@ -29,6 +29,7 @@ typedef struct
 	char *table_name;
 	APPLICATION *application;
 	char *application_system_string;
+	boolean entity_contact_key_boolean;
 	APPASERVER_USER *appaserver_user;
 	char *insert_user_system_string;
 	char *insert_role_system_string;
@@ -111,10 +112,11 @@ char *application_clone_insert_user_system_string(
 		const char *appaserver_user_table,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *login_name,
 		char *password,
-		char *user_date_format );
+		char *user_date_format,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -126,7 +128,8 @@ char *application_clone_insert_role_system_string(
 		const char *role_supervisor,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -138,7 +141,8 @@ char *application_clone_insert_default_system_string(
 		const char *role_supervisor,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -149,7 +153,8 @@ char *application_clone_insert_entity_system_string(
 		const char *table_name,
 		char *destination_application_name,
 		char *full_name,
-		char *street_address );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -158,7 +163,8 @@ char *application_clone_insert_entity_system_string(
 /* -------------- */
 APPASERVER_USER *application_clone_appaserver_user(
 		char *login_name,
-		boolean application_clone_post_signup_boolean );
+		boolean application_clone_post_signup_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

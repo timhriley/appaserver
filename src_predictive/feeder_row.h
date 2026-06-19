@@ -46,7 +46,7 @@
 					"feeder_phrase"
 
 
-#define FEEDER_ROW_INSERT_COLUMNS	"feeder_account,"		\
+#define FEEDER_ROW_INSERT		"feeder_account,"		\
 					"feeder_load_date_time,"	\
 					"feeder_date,"			\
 					"feeder_row_number,"		\
@@ -56,7 +56,6 @@
 					"calculate_balance,"		\
 					"check_number,"			\
 					"full_name,"			\
-					"street_address,"		\
 					"transaction_date_time,"	\
 					"feeder_phrase"
 
@@ -396,7 +395,8 @@ void feeder_row_list_insert(
 		char *feeder_account_name,
 		char *feeder_load_date_time,
 		LIST *feeder_row_list,
-		boolean predictive_fund_boolean );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -405,10 +405,12 @@ void feeder_row_list_insert(
 /* ------------------- */
 char *feeder_row_list_insert_system_string(
 		const char sql_delimiter,
-		const char *feeder_row_insert_columns,
+		const char *feeder_row_insert,
 		const char *feeder_row_table,
-		const char *feeder_fund_column_name,
-		boolean predictive_fund_boolean );
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Safely returns */
 /* -------------- */
