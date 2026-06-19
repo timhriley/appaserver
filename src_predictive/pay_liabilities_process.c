@@ -23,14 +23,14 @@ int main( int argc, char **argv )
 	char *session_key;
 	char *cash_account_name;
 	char *full_name_list_string;
-	char *street_address_list_string;
+	char *contact_key_list_string;
 	int starting_check_number;
 	char *memo;
 	double dialog_box_payment_amount;
 	boolean execute;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	LIST *full_name_list;
-	LIST *street_address_list;
+	LIST *contact_key_list;
 	LIABILITY_PAYMENT *liability_payment;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -52,7 +52,7 @@ int main( int argc, char **argv )
 	session_key = argv[ 2 ];
 	cash_account_name = argv[ 3 ];
 	full_name_list_string = argv[ 4 ];
-	street_address_list_string = argv[ 5 ];
+	contact_key_list_string = argv[ 5 ];
 	starting_check_number = atoi( argv[ 6 ] );
 	memo = argv[ 7 ];
 	dialog_box_payment_amount = atof( argv[ 8 ] );
@@ -68,9 +68,9 @@ int main( int argc, char **argv )
 			full_name_list_string,
 			SQL_DELIMITER );
 
-	street_address_list =
+	contact_key_list =
 		list_string_to_list(
-			street_address_list_string,
+			contact_key_list_string,
 			SQL_DELIMITER );
 
 	if ( ( !list_length( full_name_list ) )
@@ -88,12 +88,12 @@ int main( int argc, char **argv )
 	}
 
 	if ( list_length( full_name_list ) !=
-	     list_length( street_address_list ) )
+	     list_length( contact_key_list ) )
 	{
 		printf(
 "<h3>An internal error occurred. The list lengths don't match: %d vs. %d.</h3>\n",
 		list_length( full_name_list ),
-		list_length( street_address_list ) );
+		list_length( contact_key_list ) );
 		document_close();
 		exit( 0 );
 	}
@@ -110,9 +110,9 @@ int main( int argc, char **argv )
 			appaserver_parameter->data_directory,
 			process_name,
 			session_key,
-			entity_full_street_list(
+			entity_full_contact_list(
 				full_name_list,
-				street_address_list ) );
+				contact_key_list ) );
 
 	if ( liability_payment->error_message )
 	{

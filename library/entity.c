@@ -370,11 +370,13 @@ char *entity_primary_where(
 	return where;
 }
 
-char *entity_fetch_contact_key( char *full_name )
+char *entity_fetch_contact_key(
+		boolean contact_key_boolean,
+		char *full_name )
 {
 	char *primary_where;
 	char *system_string;
-	char *contact_key;
+	char *contact_key = {0};
 
 	if ( !full_name || !*full_name )
 	{
@@ -392,31 +394,32 @@ char *entity_fetch_contact_key( char *full_name )
 			message );
 	}
 
-	primary_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		entity_primary_where(
-			entity_contact_key_boolean(
-				ENTITY_TABLE /* table_name */,
-				ENTITY_CONTACT_KEY_COLUMN /* column_name */ ),
-			full_name,
-			(char *)0 /* contact_key */ );
+	if ( contact_key_boolean )
+	{
+		primary_where =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_primary_where(
+				contact_key_boolean,
+				full_name,
+				(char *)0 /* contact_key */ );
 
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			ENTITY_CONTACT_KEY_COLUMN /* select */,
-			ENTITY_TABLE,
-			primary_where );
+		system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_system_string(
+				ENTITY_CONTACT_KEY_COLUMN /* select */,
+				ENTITY_TABLE,
+				primary_where );
 
-	contact_key =
-		string_system_string_input(
-			system_string );
+		contact_key =
+			string_system_string_input(
+				system_string );
 
-	free( system_string );
+		free( system_string );
+	}
 
 	return contact_key;
 }
@@ -585,7 +588,9 @@ LIST *entity_full_contact_list(
 	return entity_list;
 }
 
-ENTITY *entity_full_name_entity( char *full_name /* stack memory */ )
+ENTITY *entity_full_name_entity(
+		boolean contact_key_boolean,
+		char *full_name /* stack memory */ )
 {
 	ENTITY *entity;
 
@@ -600,6 +605,7 @@ ENTITY *entity_full_name_entity( char *full_name /* stack memory */ )
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		entity_fetch_contact_key(
+			contact_key_boolean,
 			full_name );
 
 	return entity;

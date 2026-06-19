@@ -37,7 +37,7 @@ typedef struct
 /* Usage */
 /* ----- */
 ENTITY_SELF *entity_self_fetch(
-		boolean contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean );
 
 /* Process */

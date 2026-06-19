@@ -329,7 +329,8 @@ void feeder_execute(
 		feeder->
 			feeder_load_event->
 			appaserver_user->
-			street_address );
+			contact_key,
+		feeder->entity_contact_key_boolean );
 
 	feeder_row_list_insert(
 		fund_name,

@@ -219,6 +219,7 @@ typedef struct
 	boolean account_exist_boolean;
 	char *date_now_yyyy_mm_dd;
 	boolean date_recent_boolean;
+	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	char *appaserver_error_filespecification;
 	char *date_now19;
@@ -552,11 +553,12 @@ char *feeder_init_feeder_account_insert_sql(
 /* Usage */
 /* ----- */
 
-/* Returns street_address, heap memory, or null */
+/* Returns contact_key, heap memory, or null */
 /* -------------------------------------------- */
-char *feeder_init_financial_institution_street_address(
+char *feeder_init_financial_institution_contact_key(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address );
+		char *financial_institution_contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Driver */
 /* ------ */

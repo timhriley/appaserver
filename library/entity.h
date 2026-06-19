@@ -120,6 +120,7 @@ char *entity_escape_contact_key(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *entity_fetch_contact_key(
+		boolean entity_contact_key_boolean,
 		char *full_name );
 
 /* Usage */
@@ -214,6 +215,7 @@ char *entity_name_display(
 /* Usage */
 /* ----- */
 ENTITY *entity_full_name_entity(
+		boolean entity_contact_key_boolean,
 		char *full_name /* stack memory */ );
 
 /* Usage */

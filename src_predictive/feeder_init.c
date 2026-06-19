@@ -810,8 +810,14 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 			exchange_minimum_date_string,
 			feeder_init_input->date_now_yyyy_mm_dd );
 
+	feeder_init_input->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	feeder_init_input->entity_self =
 		entity_self_fetch(
+			feeder_init_input->entity_contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	feeder_init_input->appaserver_error_filespecification =
@@ -1187,24 +1193,10 @@ FEEDER_INIT *feeder_init_new(
 		/* ----------------------------------------- */
 		feeder_init_financial_institution_contact_key(
 			financial_institution_full_name,
-			financial_institution_contact_key );
-
-	if ( !financial_institution_contact_key )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-	"feeder_init_financial_institution_contact_key(%s) retured empty.",
-			financial_institution_full_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+			financial_institution_contact_key,
+			feeder_init->
+				feeder_init_input->
+				entity_contact_key_boolean );
 
 	feeder_init->feeder_account_insert_sql =
 		/* ------------------- */
@@ -1300,8 +1292,7 @@ char *feeder_init_feeder_account_insert_sql(
 	LIST *insert_datum_list;
 
 	if ( !account_name
-	||   !financial_institution_full_name
-	||   !financial_institution_contact_key )
+	||   !financial_institution_full_name )
 	{
 		char message[ 128 ];
 
@@ -1335,13 +1326,16 @@ char *feeder_init_feeder_account_insert_sql(
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
 
-	list_set(
-		insert_datum_list,
-		insert_datum_new(
-			"contact_key" /* attribute_name */,
-			financial_institution_contact_key /* datum */,
-			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+	if ( financial_institution_contact_key )
+	{
+		list_set(
+			insert_datum_list,
+			insert_datum_new(
+				"contact_key" /* attribute_name */,
+				financial_institution_contact_key /* datum */,
+				0 /* primary_key_index */,
+				0 /* not attribute_is_number */ ) );
+	}
 
 	attribute_name_list_string =
 		/* --------------------------- */
@@ -1802,8 +1796,8 @@ void feeder_init_process(
 		}
 
 		feeder_load_event_insert(
-			FEEDER_LOAD_EVENT_TABLE,
 			FEEDER_LOAD_EVENT_INSERT,
+			FEEDER_LOAD_EVENT_TABLE,
 			feeder_init->
 				feeder_load_event->
 				feeder_account_name,
@@ -1827,7 +1821,10 @@ void feeder_init_process(
 			feeder_init->
 				feeder_load_event->
 				appaserver_user->
-				contact_key );
+				contact_key,
+			feeder_init->
+				feeder_init_input->
+				entity_contact_key_boolean );
 
 feeder_init_display_continue:
 
@@ -1887,19 +1884,31 @@ feeder_init_display_continue:
 
 char *feeder_init_financial_institution_contact_key(
 		char *financial_institution_full_name,
-		char *financial_institution_contact_key )
+		char *financial_institution_contact_key,
+		boolean contact_key_boolean )
 {
-	char *contact_key = financial_institution_contact_key;
+	char *contact_key = {0};
 
-	if (	!financial_institution_contact_key
-	||	!*financial_institution_contact_key )
+	if ( contact_key_boolean )
 	{
-		contact_key =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			entity_contact_key(
-				financial_institution_full_name );
+		if (	financial_institution_contact_key
+		&&	*financial_institution_contact_key
+		&&	strcmp(
+				financial_institution_contact_key,
+				"contact_key" ) != 0 )
+		{
+			contact_key = financial_institution_contact_key;
+		}
+		else
+		{
+			contact_key =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				entity_fetch_contact_key(
+					1 /* entity_contact_key_boolean */,
+					financial_institution_full_name );
+		}
 	}
 
 	return contact_key;

@@ -251,7 +251,7 @@ void reverse_nominal_accounts_do(
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->
-				street_address,
+				contact_key,
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->

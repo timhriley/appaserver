@@ -107,25 +107,26 @@ FEEDER_LOAD_EVENT *feeder_load_event_calloc( void )
 }
 
 void feeder_load_event_insert(
-		const char *feeder_load_event_table,
 		const char *feeder_load_event_insert,
+		const char *feeder_load_event_table,
 		char *feeder_account_name,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance,
 		char *feeder_load_date_time,
 		char *full_name,
-		char *street_address )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
+	char *system_string;
+	char *insert_string;
 	FILE *output_pipe;
-	char *tmp;
 
 	if ( !feeder_account_name
 	||   !feeder_load_filename
 	||   !feeder_row_account_end_date
 	||   !feeder_load_date_time
-	||   !full_name
-	||   !street_address )
+	||   !full_name )
 	{
 		char message[ 128 ];
 
@@ -138,51 +139,80 @@ void feeder_load_event_insert(
 			message );
 	}
 
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_event_insert_system_string(
+			feeder_load_event_insert,
+			feeder_load_event_table,
+			ENTITY_CONTACT_KEY_COLUMN,
+			SQL_DELIMITER,
+			contact_key_boolean );
+
 	output_pipe =
 		appaserver_output_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			( tmp = feeder_load_event_insert_system_string(
-				feeder_load_event_table,
-				feeder_load_event_insert,
-				SQL_DELIMITER ) ) );
+			system_string );
 
-	feeder_load_event_insert_pipe(
-		SQL_DELIMITER,
-		feeder_account_name,
-		feeder_load_filename,
-		feeder_row_account_end_date,
-		feeder_row_account_end_balance,
-		feeder_load_date_time,
-		full_name,
-		street_address,
-		output_pipe );
+	free( system_string );
 
+	insert_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_event_insert_string(
+			SQL_DELIMITER,
+			feeder_account_name,
+			feeder_load_filename,
+			feeder_row_account_end_date,
+			feeder_row_account_end_balance,
+			feeder_load_date_time,
+			full_name,
+			contact_key,
+			contact_key_boolean );
+
+	fprintf(output_pipe,
+		"%s\n",
+		insert_string );
+
+	free( insert_string );
 	pclose( output_pipe );
-	free( tmp );
 }
 
 char *feeder_load_event_insert_system_string(
-		const char *feeder_load_event_table,
 		const char *feeder_load_event_insert,
-		const char sql_delimiter )
+		const char *feeder_load_event_table,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean contact_key_boolean )
 {
+	char *column_string;
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	column_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_column_string(
+			feeder_load_event_insert /* ENTITY_INSERT */,
+			entity_contact_key_column,
+			contact_key_boolean );
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 	 	"insert_statement table=%s field=%s del='%c' 		  |"
 	 	"sql 2>&1						  |"
 		"grep -vi duplicate					  |"
 	 	"html_paragraph_wrapper.e				   ",
 	 	feeder_load_event_table,
-	 	feeder_load_event_insert,
+	 	column_string,
 	 	sql_delimiter );
 
 	return strdup( system_string );
 }
 
-void feeder_load_event_insert_pipe(
+char *feeder_load_event_insert_string(
 		const char sql_delimiter,
 		char *feeder_account_name,
 		char *feeder_load_filename,
@@ -190,22 +220,21 @@ void feeder_load_event_insert_pipe(
 		double feeder_row_account_end_balance,
 		char *feeder_load_date_time,
 		char *full_name,
-		char *street_address,
-		FILE *output_pipe )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
+	char insert_string[ 1024 ];
+	OPTIONAL_COLUMN *optional_column;
+
 	if ( !feeder_account_name
 	||   !feeder_load_filename
 	||   !feeder_row_account_end_date
 	||   !feeder_load_date_time
-	||   !full_name
-	||   !street_address
-	||   !output_pipe )
+	||   !full_name )
 	{
 		char message[ 128 ];
 
 		sprintf(message, "parameter is empty." );
-
-		if ( output_pipe ) pclose( output_pipe );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -216,8 +245,10 @@ void feeder_load_event_insert_pipe(
 
 	/* See FEEDER_LOAD_EVENT_INSERT */
 	/* ---------------------------- */
-	fprintf(output_pipe,
-		"%s%c%s%c%s%c%.2lf%c%s%c%s%c%s\n",
+	snprintf(
+		insert_string,
+		sizeof ( insert_string ),
+		"%s%c%s%c%s%c%.2lf%c%s%c%s\n",
 		feeder_account_name,
 		sql_delimiter,
 		feeder_load_filename,
@@ -228,9 +259,20 @@ void feeder_load_event_insert_pipe(
 		sql_delimiter,
 	 	feeder_load_date_time,
 		sql_delimiter,
-		full_name,
-		sql_delimiter,
-		street_address );
+		full_name );
+
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			SQL_DELIMITER,
+			insert_string /* base_string */,
+			contact_key /* component column or datum */,
+			1 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
 }
 
 FEEDER_LOAD_EVENT *feeder_load_event_fetch(

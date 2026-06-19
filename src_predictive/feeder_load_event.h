@@ -129,27 +129,23 @@ char *feeder_load_event_latest_date_time(
 /* Usage */
 /* ----- */
 void feeder_load_event_insert(
-		const char *feeder_load_event_table,
 		const char *feeder_load_event_insert,
+		const char *feeder_load_event_table,
 		char *feeder_account_name,
 		char *feeder_load_filename,
 		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance,
 		char *feeder_load_date_time,
 		char *full_name,
-		char *street_address );
+		char *contact_key,
+		boolean event_contact_key_boolean );
 
 /* Process */
 /* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_load_event_insert_system_string(
-		const char *feeder_load_event_table,
-		const char *feeder_load_event_insert,
-		const char sql_delimiter );
-
-void feeder_load_event_insert_pipe(
+char *feeder_load_event_insert_string(
 		const char sql_delimiter,
 		char *feeder_account_name,
 		char *feeder_load_filename,
@@ -157,8 +153,20 @@ void feeder_load_event_insert_pipe(
 		double feeder_row_account_end_balance,
 		char *feeder_load_date_time,
 		char *full_name,
-		char *street_address,
-		FILE *appaserver_output_pipe );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_event_insert_system_string(
+		const char *feeder_load_event_insert,
+		const char *feeder_load_event_table,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

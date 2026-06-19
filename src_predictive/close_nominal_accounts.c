@@ -218,7 +218,7 @@ void close_nominal_accounts_do(
 			close_nominal_do->
 				close_transaction->
 				transaction->
-				street_address,
+				contact_key,
 			close_nominal_do->
 				close_transaction->
 				transaction->
