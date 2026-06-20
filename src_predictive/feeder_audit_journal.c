@@ -84,16 +84,27 @@ LIST *feeder_audit_journal_row_list(
 		char *feeder_load_date_time )
 {
 	LIST *row_list;
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 
-	if ( !predictive_fund_boolean(
-		PREDICTIVE_FUND_TABLE,
-		PREDICTIVE_FUND_COLUMN ) )
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	if ( fund_boolean )
 	{
 		row_list =
 			feeder_audit_journal_non_fund_row_list(
 				feeder_account_name,
 				reverse_order_boolean,
-				feeder_load_date_time );
+				feeder_load_date_time,
+				contact_key_boolean );
 	}
 	else
 	{
@@ -101,7 +112,8 @@ LIST *feeder_audit_journal_row_list(
 			feeder_audit_journal_fund_row_list(
 				feeder_account_name,
 				reverse_order_boolean,
-				feeder_load_date_time );
+				feeder_load_date_time,
+				contact_key_boolean );
 	}
 
 	return row_list;
@@ -110,17 +122,19 @@ LIST *feeder_audit_journal_row_list(
 LIST *feeder_audit_journal_non_fund_row_list(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time )
+		char *feeder_load_date_time,
+		boolean contact_key_boolean )
 {
 	LIST *row_list = list_new();
 	FEEDER_ROW *feeder_row;
 
 	feeder_row =
 		feeder_audit_journal_feeder_row_fetch(
+			(char *)0 /* fund_name */,
 			feeder_account_name,
 			reverse_order_boolean,
 			feeder_load_date_time,
-			(char *)0 /* fund_name */ );
+			contact_key_boolean );
 
 	list_set( row_list, feeder_row );
 
@@ -136,7 +150,8 @@ LIST *feeder_audit_journal_non_fund_row_list(
 LIST *feeder_audit_journal_fund_row_list(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time )
+		char *feeder_load_date_time,
+		boolean contact_key_boolean )
 {
 	LIST *row_list = list_new();
 	LIST *fund_name_list;
@@ -154,10 +169,11 @@ LIST *feeder_audit_journal_fund_row_list(
 
 		feeder_row =
 			feeder_audit_journal_feeder_row_fetch(
+				fund_name,
 				feeder_account_name,
 				reverse_order_boolean,
 				feeder_load_date_time,
-				fund_name );
+				contact_key_boolean );
 
 		list_set( row_list, feeder_row );
 
@@ -173,10 +189,11 @@ LIST *feeder_audit_journal_fund_row_list(
 }
 
 FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
+		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
 		char *feeder_load_date_time,
-		char *fund_name )
+		boolean contact_key_boolean )
 {
 	int latest_date_number;
 	FEEDER_ROW *feeder_row;
@@ -187,15 +204,16 @@ FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 			FEEDER_ROW_TABLE,
 			feeder_account_name,
 			reverse_order_boolean,
-			feeder_load_date_time,
-			fund_name );
+			feeder_load_date_time );
 
 	if ( !latest_date_number ) return NULL;
 
 	feeder_row =
 		feeder_row_fetch(
+			fund_name,
 			feeder_account_name,
 			feeder_load_date_time,
+			contact_key_boolean,
 			latest_date_number /* feeder_row_number */ );
 
 	if ( !feeder_row )
@@ -235,7 +253,7 @@ FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 			message,
 			sizeof ( message ),
 			"journal_account_fetch(%s,%s,%s) returned empty.",
-			(fund_name) ? fund_name : "fund",
+			(fund_name) ? fund_name : "no fund",
 			feeder_row->transaction_date_time,
 			feeder_account_name );
 

@@ -64,8 +64,7 @@ LIST *predictive_fund_name_list(
 /* Returns parameter or null */
 /* ------------------------- */
 char *predictive_fund_name(
-		const char *predictive_fund_table,
-		const char *predictive_fund_column,
-		char *fund_name );
+		char *fund_name,
+		boolean predictive_fund_boolean );
 
 #endif

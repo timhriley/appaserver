@@ -138,14 +138,18 @@ feeder_load_row_list_raw_display(
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
 
+	feeder->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
 	feeder->predictive_fund_name =
 		/* ------------------------- */
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN,
-			fund_name );
+			fund_name,
+			feeder->predictive_fund_boolean );
 
 	feeder->feeder_row_list =
 		feeder_row_list(
@@ -339,9 +343,8 @@ void feeder_execute(
 			feeder_load_event->
 			feeder_load_date_time,
 		feeder->feeder_row_list,
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN ) );
+		feeder->predictive_fund_boolean,
+		feeder->entity_contact_key_boolean );
 
 	printf( "<h3>Execute feeder row count: %d</h3>\n",
 		feeder->feeder_row_count );

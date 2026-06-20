@@ -36,7 +36,6 @@
 					"feeder_row_number,"		\
 					"feeder_date,"			\
 					"full_name,"			\
-					"street_address,"		\
 					"transaction_date_time,"	\
 					"file_row_description,"		\
 					"file_row_amount,"		\
@@ -111,6 +110,7 @@ FEEDER_ROW_EXIST *feeder_row_exist_seek(
 
 typedef struct
 {
+	char *fund_name;
 	char *feeder_account_name;
 	FEEDER_LOAD_ROW *feeder_load_row;
 	int feeder_row_number;
@@ -125,7 +125,7 @@ typedef struct
 	char *feeder_load_date_time;
 	char *feeder_date;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *file_row_description;
 	double file_row_amount;
 	double file_row_balance;
@@ -221,18 +221,15 @@ boolean feeder_row_list_status_out_of_balance_boolean(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_row_system_string(
-		const char *feeder_row_select,
 		const char *feeder_row_table,
+		char *entity_select_string,
 		char *where );
 
 /* Usage */
 /* ----- */
-LIST *feeder_row_system_list(
-		char *feeder_row_system_string );
-
-/* Usage */
-/* ----- */
 FEEDER_ROW *feeder_row_parse(
+		char *fund_name,
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -241,8 +238,7 @@ int feeder_row_latest_date_number(
 		const char *feeder_row_table,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time,
-		char *fund_name );
+		char *feeder_load_date_time );
 
 /* Process */
 /* ------- */
@@ -251,13 +247,6 @@ int feeder_row_latest_date_number(
 /* ---------------------- */
 char *feeder_row_latest_date_number_select(
 		boolean reverse_order_boolean );
-
-/* Returns parameter or static memory */
-/* ---------------------------------- */
-char *feeder_row_latest_date_number_where(
-		const char *feeder_fund_column_name,
-		char *fund_name,
-		char *feeder_load_event_primary_where );
 
 /* Usage */
 /* ----- */
@@ -282,8 +271,10 @@ char *feeder_row_minimum_transaction_date_time(
 /* Usage */
 /* ----- */
 FEEDER_ROW *feeder_row_fetch(
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
+		boolean entity_contact_key_boolean,
 		int feeder_row_number );
 
 /* Process */
@@ -388,8 +379,8 @@ char *feeder_row_display_results(
 char *feeder_row_status_string(
 		enum feeder_row_status feeder_row_status );
 
-/* Driver */
-/* ------ */
+/* Usage */
+/* ----- */
 void feeder_row_list_insert(
 		char *fund_name,
 		char *feeder_account_name,
@@ -398,8 +389,8 @@ void feeder_row_list_insert(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -412,9 +403,26 @@ char *feeder_row_list_insert_system_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_row_list_insert_field(
+		char sql_delimiter,
+		const char *feeder_row_insert,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
 /* Safely returns */
 /* -------------- */
 JOURNAL *feeder_row_journal(
+		char *fund_name,
 		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		/* ------------------------------------------ */
@@ -422,12 +430,18 @@ JOURNAL *feeder_row_journal(
 		/* ------------------------------------------ */
 		char *transaction_date_time );
 
+/* Usage */
+/* ----- */
+
 /* Safely returns */
 /* -------------- */
 char *feeder_row_phrase(
 		FEEDER_PHRASE *feeder_phrase_seek );
 
-void feeder_row_insert(
+/* Usage */
+/* ----- */
+
+char *feeder_row_insert_string(
 		const char sql_delimiter,
 		char *fund_name,
 		char *feeder_account_name,
@@ -439,10 +453,10 @@ void feeder_row_insert(
 		double feeder_load_row_file_row_balance,
 		double feeder_row_calculate_balance,
 		int check_number,
-		boolean transaction_fund_column_boolean,
-		FILE *appaserver_output_pipe,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *feeder_row_phrase );
 
@@ -451,8 +465,8 @@ void feeder_row_insert(
 double feeder_row_exist_sum(
 		LIST *feeder_row_list );
 
-/* Driver */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* ---------------------------- */
 /* May reset			*/

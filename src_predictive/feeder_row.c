@@ -166,6 +166,7 @@ void feeder_row_list_insert(
 	char *system_string;
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
+	char *insert_string;
 
 	if ( !list_rewind( feeder_row_list ) ) return;
 
@@ -178,6 +179,7 @@ void feeder_row_list_insert(
 			FEEDER_ROW_INSERT,
 			FEEDER_ROW_TABLE,
 			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -207,6 +209,7 @@ void feeder_row_list_insert(
 		   /* Safely returns */
 		   /* -------------- */
 		   feeder_row_journal(
+			fund_name,
 			feeder_row->feeder_matched_journal,
 			feeder_row->feeder_phrase_seek,
 			/* ------------------------------------------ */
@@ -274,25 +277,20 @@ char *feeder_row_list_insert_system_string(
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
-	char field[ 512 ];
+	char *field;
 	char system_string[ 1024 ];
 
-	if ( predictive_fund_boolean )
-	{
-		snprintf(
-			field,
-			sizeof ( field ),
-			"%s,%s",
-			feeder_fund_column_name,
-			feeder_row_insert_columns );
-	}
-	else
-	{
-		string_strcpy(
-			field,
-			(char *)feeder_row_insert_columns,
-			sizeof ( field ) );
-	}
+	field = 
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_row_list_insert_field(
+			sql_delimiter,
+			feeder_row_insert,
+			predictive_fund_column,
+			entity_contact_key_column,
+			fund_boolean,
+			contact_key_boolean );
 
 	snprintf(
 		system_string,
@@ -305,7 +303,38 @@ char *feeder_row_list_insert_system_string(
 	 	field,
 	 	sql_delimiter );
 
+	free( field );
+
 	return strdup( system_string );
+}
+
+char *feeder_row_list_insert_field(
+		char sql_delimiter,
+		const char *feeder_row_insert,
+		const char *fund_column,
+		const char *contact_key_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			(char *)feeder_row_insert /* base_string */,
+			(char *)fund_column /* component */,
+			0 /* not escape_boolean */,
+			fund_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			(char *)contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
 }
 
 char *feeder_row_insert_string(
@@ -345,8 +374,6 @@ char *feeder_row_insert_string(
 
 		sprintf(message, "parameter is empty." );
 
-		if ( output_pipe ) pclose( output_pipe );
-
 		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
@@ -364,7 +391,7 @@ char *feeder_row_insert_string(
 	snprintf(
 		insert_string,
 		sizeof ( insert_string ),
-		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s^%s^%s^%s^%s\n",
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s^%s^%s^%s\n",
 		feeder_account_name,
 		feeder_load_date_time,
 		feeder_date,
@@ -538,6 +565,7 @@ char *feeder_row_exist_system_string(
 }
 
 JOURNAL *feeder_row_journal(
+		char *fund_name,
 		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		char *transaction_date_time )
@@ -559,9 +587,9 @@ JOURNAL *feeder_row_journal(
 	{
 		return
 		journal_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			feeder_phrase_seek->full_name,
-			feeder_phrase_seek->street_address,
+			feeder_phrase_seek->contact_key,
 			transaction_date_time,
 			(char *)0 /* account_name */ );
 	}
@@ -569,9 +597,9 @@ JOURNAL *feeder_row_journal(
 	{
 		return
 		journal_new(
-			(char *)0 /* fund_name */,
+			fund_name,
 			feeder_matched_journal->full_name,
-			feeder_matched_journal->street_address,
+			feeder_matched_journal->contact_key,
 			transaction_date_time,
 			(char *)0 /* account_name */ );
 	}
@@ -708,19 +736,34 @@ void feeder_row_transaction_insert(
 	if ( !list_length( feeder_row_list ) ) return;
 
 	if ( ( transaction_list =
-			feeder_row_extract_transaction_list(
-				fund_name,
-				feeder_row_list ) ) )
+		feeder_row_extract_transaction_list(
+			fund_name,
+			feeder_row_list ) ) )
 	{
+		boolean fund_boolean;
+		boolean contact_key_boolean;
+
 		/* May reset transaction->transaction_date_time */
 		/* -------------------------------------------- */
 		transaction_list_insert(
 			transaction_list,
 			0 /* not insert_journal_list_boolean */ );
 
+		fund_boolean =
+			predictive_fund_boolean(
+				PREDICTIVE_FUND_TABLE,
+				PREDICTIVE_FUND_COLUMN );
+
+		contact_key_boolean =
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN );
+
 		transaction_journal_list_insert(
 			fund_name,
 			transaction_list,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* with_propagate */ );
 
 		/* Set each feeder_row->transaction_date_time */
@@ -1237,6 +1280,7 @@ FEEDER_ROW *feeder_row_new(
 
 	feeder_row = feeder_row_calloc();
 
+	feeder_row->fund_name = fund_name;
 	feeder_row->feeder_account_name = feeder_account_name;
 	feeder_row->feeder_load_row = feeder_load_row;
 	feeder_row->feeder_row_number = feeder_row_number;
@@ -1375,17 +1419,18 @@ int feeder_row_insert_count( LIST *feeder_row_list )
 }
 
 char *feeder_row_system_string(
-		const char *select,
 		const char *table,
+		char *select_string,
 		char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !where )
+	if ( !select_string
+	||   !where )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "where is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1398,53 +1443,18 @@ char *feeder_row_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\" feeder_row_number",
-		select,
+		select_string,
 		table,
 		where );
 
 	return strdup( system_string );
 }
 
-LIST *feeder_row_system_list( char *system_string )
-{
-	FILE *input_pipe;
-	char input[ 2048 ];
-	LIST *list;
-	FEEDER_ROW *feeder_row;
 
-	if ( !system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: system_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	list = list_new();
-
-	/* Safely returns */
-	/* -------------- */
-	input_pipe = appaserver_input_pipe( system_string );
-
-	while ( string_input( input, input_pipe, sizeof ( input ) ) )
-	{
-		if ( !*input ) continue;
-
-		feeder_row =
-			feeder_row_parse(
-				input );
-
-		if ( feeder_row ) list_set( list, feeder_row );
-	}
-
-	pclose( input_pipe );
-
-	return list;
-}
-
-FEEDER_ROW *feeder_row_parse( char *input )
+FEEDER_ROW *feeder_row_parse(
+		char *fund_name,
+		boolean contact_key_boolean,
+		char *input )
 {
 	char buffer[ 512 ];
 	FEEDER_ROW *feeder_row;
@@ -1453,8 +1463,10 @@ FEEDER_ROW *feeder_row_parse( char *input )
 
 	feeder_row = feeder_row_calloc();
 
-	/* See FEEDER_ROW_SELECT */
-	/* --------------------- */
+	feeder_row->fund_name = fund_name;
+
+	/* See entity_select_string() */
+	/* -------------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );
 	feeder_row->feeder_account_name = strdup( buffer );
 
@@ -1471,28 +1483,31 @@ FEEDER_ROW *feeder_row_parse( char *input )
 	if ( *buffer ) feeder_row->full_name = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer ) feeder_row->street_address = strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer ) feeder_row->transaction_date_time = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer ) feeder_row->file_row_description = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) feeder_row->file_row_amount = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 9 );
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) feeder_row->file_row_balance = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 10 );
+	piece( buffer, SQL_DELIMITER, input, 9 );
 	if ( *buffer ) feeder_row->calculate_balance = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 11 );
+	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer ) feeder_row->check_number = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 12 );
+	piece( buffer, SQL_DELIMITER, input, 11 );
 	if ( *buffer ) feeder_row->feeder_phrase = strdup( buffer );
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 12 );
+		feeder_row->contact_key = strdup( buffer );
+	}
 
 	return feeder_row;
 }
@@ -1628,11 +1643,9 @@ int feeder_row_latest_date_number(
 		const char *feeder_row_table,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time,
-		char *fund_name )
+		char *feeder_load_date_time )
 {
 	char *primary_where;
-	char *where;
 	char system_string[ 1024 ];
 
 	if ( !feeder_account_name )
@@ -1658,15 +1671,6 @@ int feeder_row_latest_date_number(
 			feeder_account_name,
 			feeder_load_date_time );
 
-	where =
-		/* ---------------------------------- */
-		/* Returns parameter or static memory */
-		/* ---------------------------------- */
-		feeder_row_latest_date_number_where(
-			PREDICTIVE_FUND_COLUMN_NAME,
-			fund_name,
-			primary_where );
-
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
@@ -1676,7 +1680,7 @@ int feeder_row_latest_date_number(
 		/* ---------------------- */
 		feeder_row_latest_date_number_select( reverse_order_boolean),
 		feeder_row_table,
-		where );
+		primary_where );
 
 	return
 	/* --------------------------- */
@@ -1686,29 +1690,51 @@ int feeder_row_latest_date_number(
 }
 
 FEEDER_ROW *feeder_row_fetch(
+		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
+		boolean contact_key_boolean,
 		int feeder_row_number )
 {
-	return
-	feeder_row_parse(
+	char *select_string;
+	char *primary_where;
+	char *system_string;
+
+	select_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		string_pipe_fetch(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			feeder_row_system_string(
-				FEEDER_ROW_SELECT,
-				FEEDER_ROW_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				feeder_row_primary_where(
-					feeder_account_name,
-					feeder_load_date_time,
-					feeder_row_number ) ) ) );
+		entity_select_string(
+			FEEDER_ROW_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		feeder_row_primary_where(
+			feeder_account_name,
+			feeder_load_date_time,
+			feeder_row_number );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_row_system_string(
+			select_string,
+			FEEDER_ROW_TABLE,
+			primary_where );
+
+	return
+	feeder_row_parse(
+		fund_name,
+		contact_key_boolean,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_pipe_fetch( system_string ) );
 }
 
 char *feeder_row_primary_where(
@@ -2064,31 +2090,6 @@ boolean feeder_row_list_non_match_boolean( LIST *feeder_row_list )
 	return 0;
 }
 
-char *feeder_row_latest_date_number_where(
-		const char *feeder_fund_column_name,
-		char *fund_name,
-		char *primary_where )
-{
-	if ( !fund_name )
-	{
-		return primary_where;
-	}
-	else
-	{
-		static char where[ 256 ];
-
-		snprintf(
-			where,
-			sizeof ( where ),
-			"%s and %s = '%s'",
-			primary_where,
-			feeder_fund_column_name,
-			fund_name );
-
-		return where;
-	}
-}
-
 int feeder_row_feeder_row_number(
 		boolean reverse_order_boolean,
 		int feeder_load_row_list_length )
@@ -2112,3 +2113,32 @@ int feeder_row_feeder_row_number(
 
 	return return_row_number;
 }
+
+char *feeder_row_select_string(
+		const char *feeder_row_select,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)feeder_row_select /* base_string */,
+			(char *)predictive_fund_column /* component */,
+			0 /* not escape_boolean */,
+			predictive_fund_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			(char *)entity_contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			entity_contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
+}
+

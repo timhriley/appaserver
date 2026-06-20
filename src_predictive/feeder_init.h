@@ -213,6 +213,7 @@
 
 typedef struct
 {
+	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
 	boolean institution_missing_boolean;
 	char *account_name;

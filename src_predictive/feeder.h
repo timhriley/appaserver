@@ -49,6 +49,7 @@ typedef struct
 	int match_days_ago;
 	char *match_minimum_date;
 	LIST *feeder_matched_journal_list;
+	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
 	LIST *feeder_row_list;
 	int feeder_row_count;
@@ -98,8 +99,8 @@ char *feeder_match_minimum_date(
 		char *exchange_minimum_date_string,
 		int feeder_match_days_ago );
 
-/* Usage */
-/* ----- */
+/* Driver */
+/* ------ */
 void feeder_execute(
 		char *process_name,
 		char *fund_name,

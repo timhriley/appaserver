@@ -44,14 +44,16 @@ LIST *feeder_audit_journal_row_list(
 LIST *feeder_audit_journal_non_fund_row_list(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time );
+		char *feeder_load_date_time,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 LIST *feeder_audit_journal_fund_row_list(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		char *feeder_load_date_time );
+		char *feeder_load_date_time,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -59,10 +61,11 @@ LIST *feeder_audit_journal_fund_row_list(
 /* Safely returns */
 /* -------------- */
 FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
+		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
 		char *feeder_load_date_time,
-		char *fund_name );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

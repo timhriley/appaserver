@@ -24,13 +24,24 @@
 #include "feeder_phrase.h"
 
 LIST *feeder_phrase_list(
-		char *feeder_phrase_select,
-		char *feeder_phrase_table )
+		const char *feeder_phrase_select,
+		const char *feeder_phrase_table,
+		boolean entity_contact_key_boolean )
 {
+	char *select_string;
 	LIST *list;
 	FILE *pipe_open;
 	char input[ 1024 ];
 	FEEDER_PHRASE *feeder_phrase;
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			feeder_phrase_select /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			entity_contact_key_boolean );
 
 	pipe_open =
 		/* -------------- */
@@ -41,16 +52,17 @@ LIST *feeder_phrase_list(
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				feeder_phrase_select,
-				feeder_phrase_table,
+				select_string,
+				(char *)feeder_phrase_table,
 				(char *)0 /* where */ ) );
 
 	list = list_new();
 
-	while ( string_input( input, pipe_open, 1024 ) )
+	while ( string_input( input, pipe_open, sizeof ( input ) ) )
 	{
 		feeder_phrase =
 			feeder_phrase_parse(
+				entity_contact_key_boolean,
 				input );
 
 		if ( !feeder_phrase->nominal_account )
@@ -80,17 +92,20 @@ LIST *feeder_phrase_list(
 	return list;
 }
 
-FEEDER_PHRASE *feeder_phrase_parse( char *input )
+FEEDER_PHRASE *feeder_phrase_parse(
+		boolean contact_key_boolean,
+		char *input )
 {
+	char phrase[ 128 ];
 	char buffer[ 128 ];
 	FEEDER_PHRASE *feeder_phrase;
 
 	if ( !input || !*input ) return NULL;
 
-	/* See FEEDER_PHRASE_SELECT */
-	/* ------------------------ */
-	piece( buffer, SQL_DELIMITER, input, 0 );
-	feeder_phrase = feeder_phrase_new( strdup( buffer ) );
+	/* See entity_select_string() */
+	/* -------------------------- */
+	piece( phrase, SQL_DELIMITER, input, 0 );
+	feeder_phrase = feeder_phrase_new( strdup( phrase ) );
 
 	/* Returns null if not enough delimiters */
 	/* ------------------------------------- */
@@ -100,8 +115,11 @@ FEEDER_PHRASE *feeder_phrase_parse( char *input )
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer ) feeder_phrase->full_name = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) feeder_phrase->street_address = strdup( buffer );
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 3 );
+		if ( *buffer ) feeder_phrase->contact_key = strdup( buffer );
+	}
 
 	return feeder_phrase;
 }
@@ -151,12 +169,11 @@ FEEDER_PHRASE *feeder_phrase_calloc( void )
 
 FEEDER_PHRASE *feeder_phrase_seek(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *description_space_trim,
 		LIST *feeder_phrase_list )
 {
 	if ( !financial_institution_full_name
-	||   !financial_institution_street_address
 	||   !description_space_trim )
 	{
 		char message[ 128 ];
@@ -184,7 +201,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 	return
 	feeder_phrase_extract(
 		financial_institution_full_name,
-		financial_institution_street_address,
+		financial_institution_contact_key,
 		feeder_phrase_list );
 }
 
@@ -251,11 +268,10 @@ char *feeder_phrase_primary_where( char *feeder_phrase )
 
 FEEDER_PHRASE *feeder_phrase_entity_set(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		FEEDER_PHRASE *feeder_phrase )
 {
 	if ( !financial_institution_full_name
-	||   !financial_institution_street_address
 	||   !feeder_phrase )
 	{
 		char message[ 128 ];
@@ -280,13 +296,13 @@ FEEDER_PHRASE *feeder_phrase_entity_set(
 			financial_institution_full_name,
 			feeder_phrase->full_name );
 
-	feeder_phrase->street_address =
+	feeder_phrase->contact_key =
 		/* ------------------------ */
 		/* Returns either parameter */
 		/* ------------------------ */
-		feeder_phrase_street_address(
-			financial_institution_street_address,
-			feeder_phrase->street_address );
+		feeder_phrase_contact_key(
+			financial_institution_contact_key,
+			feeder_phrase->contact_key );
 
 	return feeder_phrase;
 }
@@ -301,14 +317,14 @@ char *feeder_phrase_full_name(
 		return financial_institution_full_name;
 }
 
-char *feeder_phrase_street_address(
-		char *financial_institution_street_address,
-		char *feeder_phrase_street_address )
+char *feeder_phrase_contact_key(
+		char *financial_institution_contact_key,
+		char *feeder_phrase_contact_key )
 {
-	if ( feeder_phrase_street_address )
-		return feeder_phrase_street_address;
+	if ( feeder_phrase_contact_key )
+		return feeder_phrase_contact_key;
 	else
-		return financial_institution_street_address;
+		return financial_institution_contact_key;
 }
 
 void feeder_phrase_zap_match_length( LIST *feeder_phrase_list )
@@ -325,7 +341,7 @@ void feeder_phrase_zap_match_length( LIST *feeder_phrase_list )
 
 FEEDER_PHRASE *feeder_phrase_extract(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		LIST *feeder_phrase_list )
 {
 	FEEDER_PHRASE *return_feeder_phrase = {0};
@@ -341,7 +357,7 @@ FEEDER_PHRASE *feeder_phrase_extract(
 			return_feeder_phrase =
 				feeder_phrase_entity_set(
 					financial_institution_full_name,
-					financial_institution_street_address,
+					financial_institution_contact_key,
 					feeder_phrase /* in/out */ );
 
 			highest_length = feeder_phrase->match_length;

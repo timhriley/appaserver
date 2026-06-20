@@ -764,14 +764,18 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 
 	feeder_init_input = feeder_init_input_calloc();
 
+	feeder_init_input->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
 	feeder_init_input->predictive_fund_name =
 		/* ------------------------- */
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN,
-			fund_name );
+			fund_name,
+			feeder_init_input->predictive_fund_boolean );
 
 	feeder_init_input->institution_missing_boolean =
 		feeder_init_input_institution_missing_boolean(

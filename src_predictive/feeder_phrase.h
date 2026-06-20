@@ -21,8 +21,7 @@
 
 #define FEEDER_PHRASE_SELECT		"feeder_phrase,"		\
 					"nominal_account,"		\
-					"full_name,"			\
-					"street_address"
+					"full_name"
 
 #define FEEDER_PHRASE_DELIMITER		'|'
 
@@ -31,19 +30,21 @@ typedef struct
 	char *phrase;
 	char *nominal_account;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	int match_length;
 } FEEDER_PHRASE;
 
 /* Usage */
 /* ----- */
 LIST *feeder_phrase_list(
-		char *feeder_phrase_select,
- 		char *feeder_phrase_table );
+		const char *feeder_phrase_select,
+ 		const char *feeder_phrase_table,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_parse(
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -60,7 +61,7 @@ FEEDER_PHRASE *feeder_phrase_calloc(
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_seek(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *feeder_load_row_description_space_trim,
 		LIST *feeder_phrase_list );
 
@@ -80,7 +81,7 @@ void feeder_phrase_set_match_length(
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_extract(
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		LIST *feeder_phrase_list );
 
 /* Usage */
@@ -98,7 +99,7 @@ char *feeder_phrase_primary_where(
 /* --------------------- */
 FEEDER_PHRASE *feeder_phrase_entity_set(
 		char *financial_institution_full_name,
-		char *feeder_phrase_seek_full_name,
+		char *financial_institution_contact_key,
 		FEEDER_PHRASE *feeder_phrase /* in/out */ );
 
 /* Process */
@@ -112,9 +113,9 @@ char *feeder_phrase_full_name(
 
 /* Returns either parameter */
 /* ------------------------ */
-char *feeder_phrase_street_address(
-		char *financial_institution_street_address,
-		char *feeder_phrase_street_address );
+char *feeder_phrase_contact_key(
+		char *financial_institution_contact_key,
+		char *feeder_phrase_contact_key );
 
 /* Usage */
 /* ----- */

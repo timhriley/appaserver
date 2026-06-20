@@ -118,20 +118,17 @@ LIST *predictive_fund_name_list(
 }
 
 char *predictive_fund_name(
-		const char *predictive_fund_table,
-		const char *predictive_fund_column,
-		char *fund_name )
+		char *fund_name,
+		boolean predictive_fund_boolean )
 {
-	if ( predictive_fund_boolean(
-		predictive_fund_table,
-		predictive_fund_column ) )
+	if ( predictive_fund_boolean )
 	{
 		if ( !fund_name
 		||   !*fund_name
 		||   strcmp(	fund_name,
-				predictive_fund_table ) == 0
+				PREDICTIVE_FUND_TABLE ) == 0
 		||   strcmp(	fund_name,
-				predictive_fund_column ) == 0 )
+				PREDICTIVE_FUND_COLUMN ) == 0 )
 		{
 			return NULL;
 		}
