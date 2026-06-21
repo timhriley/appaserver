@@ -20,7 +20,7 @@ SUBSIDIARY_TRANSACTION *
 	subsidiary_transaction_new(
 		const char *foreign_table_name,
 		const char *foreign_full_name_column,
-		const char *foreign_street_address_column,
+		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
 		char *prior_transaction_date_time,
 		LIST *insert_journal_list,
@@ -29,7 +29,8 @@ SUBSIDIARY_TRANSACTION *
 		SUBSIDIARY_TRANSACTION_INSERT *
 			subsidiary_transaction_insert,
 		SUBSIDIARY_TRANSACTION_DELETE *
-			subsidiary_transaction_delete )
+			subsidiary_transaction_delete,
+		boolean contact_key_boolean )
 {
 	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 
@@ -46,7 +47,7 @@ SUBSIDIARY_TRANSACTION *
 				subsidiary_transaction_delete->
 					full_name,
 				subsidiary_transaction_delete->
-					street_address,
+					contact_key,
 				subsidiary_transaction_delete->
 					transaction_date_time );
 	}
@@ -63,7 +64,7 @@ SUBSIDIARY_TRANSACTION *
 				subsidiary_transaction_insert->
 					full_name,
 				subsidiary_transaction_insert->
-					street_address,
+					contact_key,
 				subsidiary_transaction_insert->
 					transaction_date_time );
 
@@ -89,16 +90,17 @@ SUBSIDIARY_TRANSACTION *
 			subsidiary_transaction_update_template(
 				foreign_table_name,
 				foreign_full_name_column,
-				foreign_street_address_column,
+				foreign_contact_key_column,
 				foreign_date_time_column,
 				subsidiary_transaction_insert->
 					full_name,
 				subsidiary_transaction_insert->
-					street_address,
+					contact_key,
 				subsidiary_transaction_insert->
 					transaction_date_time
 					/* foreign_date_time */,
-				prior_transaction_date_time );
+				prior_transaction_date_time,
+				contact_key_boolean );
 	}
 
 	return subsidiary_transaction;
@@ -133,24 +135,24 @@ SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc( void )
 char *subsidiary_transaction_update_template(
 		const char *foreign_table_name,
 		const char *foreign_full_name_column,
-		const char *foreign_street_address_column,
+		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *foreign_date_time,
-		char *transaction_date_time )
+		char *transaction_date_time,
+		boolean contact_key_boolean )
 {
 	char update_template[ 1024 ];
 
-	if ( !full_name
-	||   !street_address )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -168,23 +170,43 @@ char *subsidiary_transaction_update_template(
 		return NULL;
 	}
 
-	snprintf(
-		update_template,
-		sizeof ( update_template ),
-		"update %s "
-		"set %s = '%cs' "
-		"where %s = '%s' and "
-		"%s = '%s' and "
-		"%s = '%s';",
-		foreign_table_name,
-		foreign_date_time_column,
-		'%',
-		foreign_full_name_column,
-		full_name,
-		foreign_street_address_column,
-		street_address,
-		foreign_date_time_column,
-		foreign_date_time );
+	if ( contact_key_boolean )
+	{
+		snprintf(
+			update_template,
+			sizeof ( update_template ),
+			"update %s "
+			"set %s = '%cs' "
+			"where %s = '%s' and "
+			"%s = '%s' and "
+			"%s = '%s';",
+			foreign_table_name,
+			foreign_date_time_column,
+			'%',
+			foreign_full_name_column,
+			full_name,
+			foreign_contact_key_column,
+			contact_key,
+			foreign_date_time_column,
+			foreign_date_time );
+	}
+	else
+	{
+		snprintf(
+			update_template,
+			sizeof ( update_template ),
+			"update %s "
+			"set %s = '%cs' "
+			"where %s = '%s' and "
+			"%s = '%s';",
+			foreign_table_name,
+			foreign_date_time_column,
+			'%',
+			foreign_full_name_column,
+			full_name,
+			foreign_date_time_column,
+			foreign_date_time );
+	}
 
 	return strdup( update_template );
 }
@@ -218,7 +240,7 @@ void subsidiary_transaction_execute(
 		transaction_delete(
 			delete_transaction->fund_name,
 			delete_transaction->full_name,
-			delete_transaction->street_address,
+			delete_transaction->contact_key,
 			delete_transaction->transaction_date_time );
 	}
 
@@ -231,7 +253,7 @@ void subsidiary_transaction_execute(
 			transaction_insert(
 				insert_transaction->fund_name,
 				insert_transaction->full_name,
-				insert_transaction->street_address,
+				insert_transaction->contact_key,
 				insert_transaction->transaction_date_time,
 				insert_transaction->transaction_amount,
 				0 /* check_number */,
@@ -269,14 +291,14 @@ void subsidiary_transaction_execute(
 SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete_new(
 		PREUPDATE_CHANGE *preupdate_change_full_name,
-		PREUPDATE_CHANGE *preupdate_change_street_address,
+		PREUPDATE_CHANGE *preupdate_change_contact_key,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
 		boolean journal_list_match_boolean )
 {
 	SUBSIDIARY_TRANSACTION_DELETE *subsidiary_transaction_delete;
 
 	if ( !preupdate_change_full_name
-	||   !preupdate_change_street_address
+	||   !preupdate_change_contact_key
 	||   !preupdate_change_foreign_date_time )
 	{
 		char message[ 128 ];
@@ -294,7 +316,7 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	}
 
 	if (	preupdate_change_full_name->no_change_boolean
-	&&  	preupdate_change_street_address->no_change_boolean
+	&&  	preupdate_change_contact_key->no_change_boolean
 	&&  	preupdate_change_foreign_date_time->no_change_boolean
 	&&	journal_list_match_boolean )
 	{
@@ -313,11 +335,11 @@ SUBSIDIARY_TRANSACTION_DELETE *
 		return NULL;
 	}
 
-	subsidiary_transaction_delete->street_address =
-		preupdate_change_street_address->
+	subsidiary_transaction_delete->contact_key =
+		preupdate_change_contact_key->
 			prior_datum;
 
-	if ( !subsidiary_transaction_delete->street_address )
+	if ( !subsidiary_transaction_delete->contact_key )
 	{
 		free( subsidiary_transaction_delete );
 		return NULL;
@@ -366,14 +388,14 @@ SUBSIDIARY_TRANSACTION_DELETE *
 SUBSIDIARY_TRANSACTION_INSERT *
 	subsidiary_transaction_insert_new(
 		PREUPDATE_CHANGE *preupdate_change_full_name,
-		PREUPDATE_CHANGE *preupdate_change_street_address,
+		PREUPDATE_CHANGE *preupdate_change_contact_key,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
 		boolean journal_list_match_boolean )
 {
 	SUBSIDIARY_TRANSACTION_INSERT *subsidiary_transaction_insert;
 
 	if ( !preupdate_change_full_name
-	||   !preupdate_change_street_address
+	||   !preupdate_change_contact_key
 	||   !preupdate_change_foreign_date_time )
 	{
 		char message[ 128 ];
@@ -391,7 +413,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	}
 
 	if (	preupdate_change_full_name->no_change_boolean
-	&&  	preupdate_change_street_address->no_change_boolean
+	&&  	preupdate_change_contact_key->no_change_boolean
 	&&  	preupdate_change_foreign_date_time->no_change_boolean
 	&&	journal_list_match_boolean )
 	{
@@ -410,11 +432,11 @@ SUBSIDIARY_TRANSACTION_INSERT *
 		return NULL;
 	}
 
-	subsidiary_transaction_insert->street_address =
-		preupdate_change_street_address->
+	subsidiary_transaction_insert->contact_key =
+		preupdate_change_contact_key->
 			new_datum;
 
-	if ( !subsidiary_transaction_insert->street_address )
+	if ( !subsidiary_transaction_insert->contact_key )
 	{
 		free( subsidiary_transaction_insert );
 		return NULL;

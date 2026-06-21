@@ -150,8 +150,6 @@ SALE_LIBRARY=								\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
 		customer_payment.o					\
-		subsidiary_transaction.o				\
-		subsidiary_transaction_state.o				\
 		customer_payment_transaction.o				\
 		sale_transaction.o					\
 		sale_loss_transaction.o
@@ -185,14 +183,14 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_account_balance				\
 		fixed_asset_home_trigger				\
 		investment_transaction_driver				\
-		generate_invoice					\
-		import_predictbooks					\
-		post_change_customer_sale				\
-		hourly_service_sale_trigger				\
-		post_change_customer_payment				\
-		post_change_hourly_service_work				\
-		post_change_fixed_service_sale				\
-		post_change_fixed_service_work
+		import_predictbooks
+#		post_change_customer_sale				\
+#		hourly_service_sale_trigger				\
+#		post_change_customer_payment				\
+#		post_change_hourly_service_work				\
+#		post_change_fixed_service_sale				\
+#		post_change_fixed_service_work
+#		generate_invoice					\
 #		post_accrual						\
 #		depreciate_fixed_assets					\
 #		post_change_vendor_payment				\
@@ -580,13 +578,17 @@ fixed_asset_home_trigger:						\
 	fixed_asset_home_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${LIBRARY}/preupdate_change.o					\
-	fixed_asset_home.o
+	fixed_asset_home.o						\
+	subsidiary_transaction.o					\
+	subsidiary_transaction_state.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${LIBRARY}/preupdate_change.o				\
 		fixed_asset_home_trigger.c				\
 		fixed_asset_home.o					\
+		subsidiary_transaction.o				\
+		subsidiary_transaction_state.o				\
 		-o fixed_asset_home_trigger
 
 post_change_prepaid_asset_purchase:					\

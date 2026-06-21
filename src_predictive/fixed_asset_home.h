@@ -21,7 +21,8 @@
 	"full_name,"				\
 	"purchase_date_time,"			\
 	"fixed_asset_cost,"			\
-	"asset_account"
+	"asset_account,"			\
+	"credit_account"
 
 typedef struct
 {
@@ -29,9 +30,9 @@ typedef struct
 	char *full_name;
 	char *purchase_date_time;
 	double fixed_asset_cost;
-	char *asset_account;
+	char *asset_account_string;
 	ACCOUNT *debit_account;
-	char *account_equity_string;
+	char *credit_account_string;
 	ACCOUNT *credit_account;
 	LIST *journal_binary_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;

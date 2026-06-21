@@ -17,14 +17,14 @@
 SUBSIDIARY_TRANSACTION_STATE *
 	subsidiary_transaction_state_new(
 		const char *preupdate_full_name_placeholder,
-		const char *preupdate_street_address_placeholder,
+		const char *preupdate_contact_key_placeholder,
 		const char *preupdate_foreign_date_time_placeholder,
 		char *state,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
 		char *preupdate_foreign_date_time,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *foreign_date_time,
 		LIST *insert_journal_list )
 {
@@ -64,14 +64,14 @@ SUBSIDIARY_TRANSACTION_STATE *
 			preupdate_full_name_placeholder
 				/* preupdate_placeholder_name */ );
 
-	subsidiary_transaction_state->preupdate_change_street_address =
+	subsidiary_transaction_state->preupdate_change_contact_key =
 		preupdate_change_new(
 			APPASERVER_INSERT_STATE,
 			APPASERVER_PREDELETE_STATE,
 			state,
-			preupdate_street_address,
-			street_address,
-			preupdate_street_address_placeholder );
+			preupdate_contact_key,
+			contact_key,
+			preupdate_contact_key_placeholder );
 
 	subsidiary_transaction_state->preupdate_change_foreign_date_time =
 		preupdate_change_new(
@@ -88,11 +88,14 @@ SUBSIDIARY_TRANSACTION_STATE *
 			JOURNAL_TABLE,
 			(char *)0 /* fund_name */,
 			full_name,
-			street_address,
+			contact_key,
 			foreign_date_time
 				/* transaction_date_time */ );
 
 	subsidiary_transaction_state->exist_boolean =
+		/* ----------------------- */
+		/* Any journal rows exist? */
+		/* ----------------------- */
 		subsidiary_transaction_state_exist_boolean(
 			subsidiary_transaction_state->old_journal_list );
 
@@ -110,7 +113,7 @@ SUBSIDIARY_TRANSACTION_STATE *
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
-				preupdate_change_street_address,
+				preupdate_change_contact_key,
 			subsidiary_transaction_state->
 				preupdate_change_foreign_date_time,
 			subsidiary_transaction_state->
@@ -121,7 +124,7 @@ SUBSIDIARY_TRANSACTION_STATE *
 			subsidiary_transaction_state->
 				preupdate_change_full_name,
 			subsidiary_transaction_state->
-				preupdate_change_street_address,
+				preupdate_change_contact_key,
 			subsidiary_transaction_state->
 				preupdate_change_foreign_date_time,
 			subsidiary_transaction_state->
@@ -163,7 +166,7 @@ boolean subsidiary_transaction_state_insert_boolean(
 		PREUPDATE_CHANGE *
 			preupdate_change_full_name,
 		PREUPDATE_CHANGE *
-			preupdate_change_street_address,
+			preupdate_change_contact_key,
 		PREUPDATE_CHANGE *
 			preupdate_change_foreign_date_time,
 		boolean journal_list_match_boolean )
@@ -178,10 +181,10 @@ boolean subsidiary_transaction_state_insert_boolean(
 		return 1;
 	}
 
-	if (	preupdate_change_street_address->
+	if (	preupdate_change_contact_key->
 			state_evaluate ==
 		from_null_to_something
-	||	preupdate_change_street_address->
+	||	preupdate_change_contact_key->
 			state_evaluate ==
 		from_something_to_something_else )
 	{
@@ -210,14 +213,14 @@ boolean subsidiary_transaction_state_delete_boolean(
 		PREUPDATE_CHANGE *
 			preupdate_change_full_name,
 		PREUPDATE_CHANGE *
-			preupdate_change_street_address,
+			preupdate_change_contact_key,
 		PREUPDATE_CHANGE *
 			preupdate_change_foreign_date_time,
 		boolean subsidiary_transaction_state_exist_boolean,
 		boolean journal_list_match_boolean )
 {
 	if ( !preupdate_change_full_name
-	||   !preupdate_change_street_address
+	||   !preupdate_change_contact_key
 	||   !preupdate_change_foreign_date_time )
 	{
 		char message[ 128 ];
@@ -244,7 +247,7 @@ boolean subsidiary_transaction_state_delete_boolean(
 
 	if (	!preupdate_change_full_name->
 			no_change_boolean
-	||	!preupdate_change_street_address->
+	||	!preupdate_change_contact_key->
 			no_change_boolean
 	||	!preupdate_change_foreign_date_time->
 			no_change_boolean )

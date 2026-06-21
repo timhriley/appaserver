@@ -340,6 +340,9 @@ IMPORT_PREDICT_INPUT *import_predict_input_new(
 
 	import_predict_input->entity_self =
 		entity_self_fetch(
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ),
 			0 /* not fetch_entity_boolean */ );
 
 	if ( !import_predict_input->entity_self )

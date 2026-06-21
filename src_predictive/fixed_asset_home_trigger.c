@@ -65,13 +65,13 @@ int main( int argc, char **argv )
 
 	subsidiary_transaction_execute(
 		application_name,
-		prior_fixed_asset->
+		fixed_asset_home->
 			subsidiary_transaction->
 				delete_transaction,
-		prior_fixed_asset->
+		fixed_asset_home->
 			subsidiary_transaction->
 				insert_transaction,
-		prior_fixed_asset->
+		fixed_asset_home->
 			subsidiary_transaction->
 			update_template );
 

@@ -20,17 +20,15 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		char *asset_name,
 		char *state,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
 		char *preupdate_purchase_date_time )
 {
 	FIXED_ASSET_HOME *fixed_asset_home;
 	char *system_string;
-	char *pipe_fetch;
+	char *input;
 
 	if ( !asset_name
 	||   !state
 	||   !preupdate_full_name
-	||   !preupdate_street_address
 	||   !preupdate_purchase_date_time )
 	{
 		char message[ 128 ];
@@ -61,18 +59,18 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				FIXED_ASSET_HOME_PRIMARY_KEY,
 				asset_name ) );
 
-	if ( ! ( pipe_fetch =
+	if ( ! ( input =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			string_pipe_fetch( system_string ) ) )
+			string_system_input( system_string ) ) )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"string_pipe_fetch(%s) returned empty.",
+			"string_system_fetch(%s) returned empty.",
 			system_string );
 
 		appaserver_error_stderr_exit(
@@ -88,14 +86,15 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		/* -------------- */
 		fixed_asset_home_parse(
 			asset_name,
-			pipe_fetch /* input */ );
+			input );
 
 	if ( fixed_asset_home->fixed_asset_cost
-	&&   fixed_asset_home->asset_account )
+	&&   fixed_asset_home->asset_account_string )
 	{
 		if ( ! ( fixed_asset_home->debit_account =
 				account_fetch(
-					fixed_asset_home->asset_account,
+					fixed_asset_home->
+						asset_account_string,
 					1 /* fetch_subclassification */,
 					1 /* fetch_element */ ) ) )
 		{
@@ -105,7 +104,7 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				message,
 				sizeof ( message ),
 				"account_fetch(%s) returned empty.",
-				fixed_asset_home->asset_account );
+				fixed_asset_home->asset_account_string );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -114,18 +113,10 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				message );
 		}
 
-		fixed_asset_home->account_equity_string =
-			/* ------------------------------------ */
-			/* Returns heap memory from static list */
-			/* ------------------------------------ */
-			account_equity_string(
-				ACCOUNT_EQUITY_KEY,
-				__FUNCTION__ );
-
 		if ( ! ( fixed_asset_home->credit_account =
 				account_fetch(
 					fixed_asset_home->
-						account_equity_string,
+						credit_account_string,
 					1 /* fetch_subclassification */,
 					1 /* fetch_element */ ) ) )
 		{
@@ -135,7 +126,7 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				message,
 				sizeof ( message ),
 				"account_fetch(%s) returned empty.",
-				fixed_asset_home->account_equity_string );
+				fixed_asset_home->credit_account_string );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -146,8 +137,9 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 
 		fixed_asset_home->journal_binary_list =
 			journal_binary_list(
+				(char *)0 /* fund_name */,
 				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
+				(char *)0 /* contact_key */,
 				(char *)0 /* transaction_date_time */,
 				fixed_asset_home->fixed_asset_cost
 					/* transaction_amount */,
@@ -162,17 +154,17 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		subsidiary_transaction_state_new(
 			"preupdate_full_name"
 			/* preupdate_full_name_placeholder */,
-			"preupdate_street_address"
-			/* preupdate_street_address_placeholder */,
+			"preupdate_contact_key"
+			/* preupdate_contact_key_placeholder */,
 			"preupdate_purchase_date_time"
 			/* preupdate_foreign_date_time_placeholder */,
 			state,
 			preupdate_full_name,
-			preupdate_street_address,
+			"preupdate_contact_key" /* preupdate_contact_key */,
 			preupdate_purchase_date_time
 			/* preupdate_foreign_date_time */,
 			fixed_asset_home->full_name,
-			fixed_asset_home->street_address,
+			(char *)0 /* contact_key */,
 			fixed_asset_home->
 				purchase_date_time
 				/* foreign_date_time */,
@@ -188,8 +180,8 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				/* foreign_table_name */,
 			"full_name"
 				/* foreign_full_name_column */,
-			"street_address"
-				/* foreign_street_addres_column */,
+			"contact_key"
+				/* foreign_contact_key_column */,
 			"purchase_date_time"
 				/* foreign_date_time_column */,
 			fixed_asset_home->
@@ -207,10 +199,11 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				subsidiary_transaction_insert,
 			fixed_asset_home->
 				subsidiary_transaction_state->
-				subsidiary_transaction_delete );
+				subsidiary_transaction_delete,
+			0 /* not entity_contact_key_boolean */ );
 
 	free( system_string );
-	free( pipe_fetch );
+	free( input );
 
 	return fixed_asset_home;
 }
@@ -254,31 +247,30 @@ FIXED_ASSET_HOME *fixed_asset_home_parse(
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	if ( *buffer )
-		fixed_asset_home->street_address =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer )
 		fixed_asset_home->purchase_date_time =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
 	{
 		fixed_asset_home->fixed_asset_cost =
 			atof( buffer );
 	}
 
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer )
+		fixed_asset_home->asset_account_string =
+			strdup( buffer );
+
 	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
-		fixed_asset_home->asset_account =
+		fixed_asset_home->credit_account_string =
 			strdup( buffer );
 
 	return fixed_asset_home;
 }
 
-FIXED_ASSET_HOME *fixed_asset_home_new(
-		char *asset_name )
+FIXED_ASSET_HOME *fixed_asset_home_new( char *asset_name )
 {
 	FIXED_ASSET_HOME *fixed_asset_home;
 

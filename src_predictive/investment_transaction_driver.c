@@ -105,7 +105,7 @@ void output_investment_transaction(
 						full_name,
 					investment_transaction->
 						transaction->
-						street_address,
+						contact_key,
 					investment_transaction->
 						transaction->
 						transaction_date_time,
@@ -198,7 +198,7 @@ void output_liability_transaction(
 						full_name,
 					account_delta->
 						transaction_binary->
-						street_address,
+						contact_key,
 					account_delta->
 						transaction_binary->
 						transaction_date_time,

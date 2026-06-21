@@ -11,6 +11,7 @@
 #include "appaserver_error.h"
 #include "date.h"
 #include "float.h"
+#include "entity.h"
 #include "journal.h"
 #include "investment.h"
 #include "investment_transaction.h"
@@ -67,6 +68,9 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 
 	if ( ! ( investment_transaction->entity_self =
 			entity_self_fetch(
+				entity_contact_key_boolean(
+					ENTITY_TABLE,
+					ENTITY_CONTACT_KEY_COLUMN ),
 				0 /* not fetch_entity_boolean */ ) ) )
 	{
 		char message[ 128 ];
@@ -185,8 +189,9 @@ TRANSACTION *investment_negative_transaction(
 
 	return
 	transaction_binary(
+		(char *)0 /* fund_name */,
 		entity_self->full_name,
-		entity_self->street_address,
+		entity_self->contact_key,
 		transaction_date_time,
 		transaction_amount,
 		INVESTMENT_TRANSACTION_MEMO,
@@ -228,8 +233,9 @@ TRANSACTION *investment_positive_transaction(
 
 	return
 	transaction_binary(
+		(char *)0 /* fund_name */,
 		entity_self->full_name,
-		entity_self->street_address,
+		entity_self->contact_key,
 		transaction_date_time,
 		transaction_amount,
 		INVESTMENT_TRANSACTION_MEMO,

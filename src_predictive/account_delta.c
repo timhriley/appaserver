@@ -71,6 +71,9 @@ ACCOUNT_DELTA *account_delta_new(
 
 	if ( ! ( account_delta->entity_self_fetch =
 			entity_self_fetch(
+				entity_contact_key_boolean(
+					ENTITY_TABLE,
+					ENTITY_CONTACT_KEY_COLUMN ),
 				0 /* not fetch_entity_boolean */ ) ) )
 	{
 		char message[ 128 ];
@@ -116,8 +119,9 @@ ACCOUNT_DELTA *account_delta_new(
 
 	account_delta->transaction_binary =
 		transaction_binary(
+			fund_name,
 			account_delta->entity_self_fetch->full_name,
-			account_delta->entity_self_fetch->street_address,
+			account_delta->entity_self_fetch->contact_key,
 			account_delta->date_now19 /* transaction_date_time */,
 			account_delta->transaction_amount,
 			memo,
