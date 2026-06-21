@@ -675,7 +675,8 @@ LIST *journal_account_distinct_entity_list(
 	ENTITY *entity;
 	LIST *list = {0};
 	char full_name[ 128 ];
-	char contact_key[ 128 ];
+	char buffer[ 128 ];
+	char *contact_key;
 
 	if ( !list_length( account_name_list ) ) return NULL;
 
@@ -718,13 +719,24 @@ LIST *journal_account_distinct_entity_list(
 	{
 		piece( full_name, SQL_DELIMITER, input, 0 );
 
-		entity = entity_new( strdup( full_name ) );
-
 		if ( contact_key_boolean )
 		{
-			piece( contact_key, SQL_DELIMITER, input, 1 );
-			entity->contact_key = strdup( contact_key );
+			piece( buffer, SQL_DELIMITER, input, 1 );
+			contact_key = strdup( buffer );
 		}
+		else
+		{
+			contact_key = NULL;
+		}
+
+		entity =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			entity_new(
+				contact_key_boolean,
+				strdup( full_name ),
+				contact_key );
 
 		if ( !list ) list = list_new();
 

@@ -65,8 +65,8 @@ ENTITY_SELF *entity_self_parse(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Safely returns heap memory of static pointer */
+/* -------------------------------------------- */
 ENTITY_SELF *entity_self_new(
 		boolean entity_contact_key_boolean,
 		char *full_name,

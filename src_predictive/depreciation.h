@@ -51,7 +51,7 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_label;
-	enum depreciation_method depreciation_method;
+	enum depreciation_method depreciation_method_evaluate;
 	char *depreciation_date;
 	int units_produced;
 	double amount;
@@ -82,6 +82,12 @@ DEPRECIATION *depreciation_evaluate(
 double depreciation_accumulated(
 		double prior_accumulated_depreciation,
 		double depreciation_amount );
+
+/* Usage */
+/* ----- */
+DEPRECIATION *depreciation_parse(
+		boolean entity_contact_key_boolean,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -190,17 +196,6 @@ char *depreciation_primary_where(
 		char *serial_label,
 		char *depreciation_date );
 
-/* Returns heap memory */
-/* ------------------- */
-char *depreciation_system_string(
-		conat char *depreciation_table,
-		char *entity_select_string,
-		char *where );
-
-DEPRECIATION *depreciation_parse(
-		boolean entity_contact_key_boolean,
-		char *input );
-
 /* Usage */
 /* ----- */
 void depreciation_list_insert(
@@ -208,60 +203,63 @@ void depreciation_list_insert(
 
 /* Process */
 /* ------- */
-FILE *depreciation_insert_pipe_open(
-		char *depreciation_table,
-		char *depreciation_insert_columns );
 
-void depreciation_insert_pipe(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *depreciation_insert_string(
+		const char sql_delimiter,
 		char *asset_name,
 		char *serial_label,
 		char *depreciation_date,
 		int depreciation_units_produced,
 		double depreciation_amount,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
-		FILE *insert_pipe_open );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
-LIST *depreciation_fetch_list(
-		char *depreciation_table,
-		char *asset_name,
-		char *serial_label );
 
-/* Usage */
-/* ----- */
-LIST *depreciation_system_list(
-		char *depreciation_system_string );
-
-/* Process */
-/* ------- */
-FILE *depreciation_input_pipe_open(
-		char *depreciation_system_string );
+/* Returns heap memory */
+/* ------------------- */
+char *depreciation_insert_system_string(
+		const char *depreciation_select,
+		const char *depreciation_table,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 TRANSACTION *depreciation_transaction(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *fixed_asset_purchase_depreciation_date,
 		double depreciation_amount,
 		char *account_depreciation_expense,
 		char *account_accumulated_depreciation );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+
 enum depreciation_method depreciation_method_evaluate(
 		char *depreciation_method_string );
 
+/* Usage */
+/* ----- */
+
 char *depreciation_method_string(
  		enum depreciation_method depreciation_method );
+
+/* Usage */
+/* ----- */
 
 double depreciation_fraction_of_year(
 		char *service_placement_date,
 		char *prior_depreciation_date,
 		char *depreciation_date_string );
+
+/* Usage */
+/* ----- */
 
 char *depreciation_prior_depreciation_date(
 		char *depreciation_table,
@@ -269,15 +267,14 @@ char *depreciation_prior_depreciation_date(
 		char *serial_label,
 		char *depreciation_date );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *depreciation_subquery_exists_where(
 		char *depreciation_table,
 		char *fixed_asset_purchase_table,
 		char *depreciation_date );
-
-FILE *depreciation_delete_open(
-		char *depreciation_primary_key,
-		char *depreciation_table );
 
 #endif

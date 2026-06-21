@@ -119,7 +119,8 @@ ENTITY_SELF *entity_self_fetch(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"entity_self_parse() returned empty." );
+			"entity_self_parse(%s) returned empty.",
+			input );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

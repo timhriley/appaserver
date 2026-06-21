@@ -74,9 +74,9 @@ LIST *tax_form_entity_list( LIST *tax_form_line_account_journal_list )
 }
 
 void tax_form_entity_getset(
-			LIST *list,
-			char *full_name,
-			double journal_amount )
+		LIST *list,
+		char *full_name,
+		double journal_amount )
 {
 	TAX_FORM_ENTITY *tax_form_entity;
 
@@ -94,23 +94,29 @@ void tax_form_entity_getset(
 	if ( !journal_amount ) return;
 
 	if ( list_rewind( list ) )
-	{
-		do {
-			tax_form_entity = list_get( list );
+	do {
+		tax_form_entity = list_get( list );
 
-			if ( strcmp(
-				tax_form_entity->entity->full_name,
-				full_name ) == 0 )
-			{
-				tax_form_entity->total += journal_amount;
-				return;
-			}
-		} while( list_next( list ) );
-	}
+		if ( strcmp(
+			tax_form_entity->entity->full_name,
+			full_name ) == 0 )
+		{
+			tax_form_entity->total += journal_amount;
+			return;
+		}
+	} while( list_next( list ) );
 
 	tax_form_entity = tax_form_entity_calloc();
 
-	tax_form_entity->entity = entity_new( full_name );
+	tax_form_entity->entity =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		entity_new(
+			0 /* not entity_contact_key_boolean */,
+			full_name,
+			(char *)0 /* contact_key */ );
+
 	tax_form_entity->total = journal_amount;
 
 	list_set( list, tax_form_entity );
