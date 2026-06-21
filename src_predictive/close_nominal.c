@@ -116,8 +116,14 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 			0 /* not latest_zero_balance_boolean */,
 			0 /* not fetch_contra_account_boolean */ );
 
+	close_nominal_do->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	close_nominal_do->entity_self =
 		entity_self_fetch(
+			close_nominal_do->entity_contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	if ( !close_nominal_do->entity_self )
@@ -146,7 +152,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 			close_nominal_do->
 				equity_subclassification_statement_list,
 			close_nominal_do->entity_self->full_name,
-			close_nominal_do->entity_self->street_address );
+			close_nominal_do->entity_self->contact_key );
 
 	if ( close_nominal_do->close_transaction->transaction )
 	{
@@ -405,7 +411,7 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 		    transaction_fetch(
 			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
+			(char *)0 /* contact_key */,
 			close_nominal_undo->
 				transaction_date_close_nominal_undo->
 				transaction_date_time_memo_maximum_string,
@@ -482,7 +488,7 @@ void close_nominal_undo_execute( TRANSACTION *transaction )
 	transaction_delete(
 		transaction->fund_name,
 		transaction->full_name,
-		transaction->street_address,
+		transaction->contact_key,
 		transaction->transaction_date_time );
 }
 

@@ -517,7 +517,7 @@ char *string_pipe_input(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *string_system_string_input(
+char *string_system_input(
 		char *system_string );
 
 /* Usage */

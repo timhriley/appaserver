@@ -32,7 +32,10 @@ ENTITY_SELF *entity_self_calloc( void )
 	return entity_self;
 }
 
-ENTITY_SELF *entity_self_new( char *full_name )
+ENTITY_SELF *entity_self_new(
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key )
 {
 	ENTITY_SELF *entity_self;
 
@@ -46,9 +49,23 @@ ENTITY_SELF *entity_self_new( char *full_name )
 		exit( 1 );
 	}
 
+	if ( contact_key_boolean
+	&& ( !contact_key || !*contact_key ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: contact_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	entity_self = entity_self_calloc();
 
+	entity_self->entity_contact_key_boolean = contact_key_boolean;
 	entity_self->full_name = full_name;
+
+	entity_self->contact_key = contact_key;
 
 	return entity_self;
 }
@@ -60,7 +77,9 @@ ENTITY_SELF *entity_self_fetch(
 	char *select;
 	char *system_string;
 	char *input;
-	ENTITY_SELF *entity_self;
+	static ENTITY_SELF *entity_self;
+
+	if ( entity_self ) return entity_self;
 
 	select =
 		/* ------------------- */
@@ -86,7 +105,7 @@ ENTITY_SELF *entity_self_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_system_string_input(
+		string_system_input(
 			system_string );
 
 	if ( ! ( entity_self =
@@ -121,6 +140,7 @@ ENTITY_SELF *entity_self_parse(
 {
 	char full_name[ 128 ];
 	char buffer[ 128 ];
+	char *contact_key = {0};
 	ENTITY_SELF *entity_self;
 
 	if ( !input || !*input ) return NULL;
@@ -129,9 +149,20 @@ ENTITY_SELF *entity_self_parse(
 	/* ------------------------ */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 7 );
+		contact_key = strdup( buffer );
+	}
+
 	entity_self =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		entity_self_new(
-			strdup( full_name ) );
+			contact_key_boolean,
+			strdup( full_name ),
+			contact_key );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	entity_self->credit_card_number = strdup( buffer );
@@ -151,12 +182,6 @@ ENTITY_SELF *entity_self_parse(
 	piece( buffer, SQL_DELIMITER, input, 6 );
 	entity_self->invoice_statement_current = strdup( buffer );
 
-	if ( contact_key_boolean )
-	{
-		piece( buffer, SQL_DELIMITER, input, 7 );
-		entity_self->contact_key = strdup( buffer );
-	}
-
 	if ( fetch_entity_boolean )
 	{
 		entity_self->entity =
@@ -173,24 +198,12 @@ char *entity_self_select(
 		const char *entity_contact_key_column,
 		boolean contact_key_boolean )
 {
-	char select[ 1024 ];
-
-	if ( contact_key_boolean )
-	{
-		snprintf(
-			select,
-			sizeof ( select ),
-			"%s,%s",
-			entity_self_select,
-			entity_contact_key_column );
-	}
-	else
-	{
-		string_strcpy(
-			select,
-			(char *)entity_self_select,
-			sizeof ( select ) /* buffer_size */ );
-	}
-
-	return strdup( select );
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	entity_select_string(
+		entity_self_select,
+		entity_contact_key_column,
+		contact_key_boolean );
 }

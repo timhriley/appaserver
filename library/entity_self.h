@@ -23,6 +23,7 @@
 
 typedef struct
 {
+	boolean entity_contact_key_boolean;
 	char *full_name;
 	char *contact_key /* optional */;
 	char *credit_card_number;
@@ -36,6 +37,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory of static pointer */
+/* ------------------------------------- */
 ENTITY_SELF *entity_self_fetch(
 		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean );
@@ -48,20 +52,25 @@ ENTITY_SELF *entity_self_fetch(
 char *entity_self_select(
 		const char *entity_self_select,
 		const char *entity_contact_key_column,
-		boolean contact_key_boolean );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 ENTITY_SELF *entity_self_parse(
-		boolean contact_key_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
-		char *string_system_string_input );
+		char *string_system_input );
 
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 ENTITY_SELF *entity_self_new(
-		char *full_name );
+		boolean entity_contact_key_boolean,
+		char *full_name,
+		char *contact_key );
 
 /* Process */
 /* ------- */

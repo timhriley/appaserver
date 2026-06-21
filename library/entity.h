@@ -32,9 +32,9 @@
 
 typedef struct
 {
+	boolean entity_contact_key_boolean;
 	char *full_name;
 	char *contact_key /* optional */;
-	boolean contact_key_boolean;
 	char *street_address;
 	char *city;
 	char *state_code;
@@ -75,14 +75,15 @@ ENTITY *entity_parse(
 		boolean entity_contact_key_boolean,
 		char *input );
 
-
 /* Usage */
 /* ----- */
 
 /* Safely returns */
 /* -------------- */
 ENTITY *entity_new(
-		char *full_name );
+		boolean entity_contact_key_boolean,
+		char *full_name,
+		char *contact_key );
 
 /* Process */
 /* ------- */
@@ -138,6 +139,7 @@ ENTITY *entity_full_name_seek(
 /* Usage */
 /* ----- */
 ENTITY *entity_getset(
+		boolean entity_contact_key_boolean,
 		LIST *entity_list,
 		char *full_name,
 		char *contact_key,
@@ -220,6 +222,9 @@ ENTITY *entity_full_name_entity(
 
 /* Usage */
 /* ----- */
+
+/* Returns static boolean */
+/* ---------------------- */
 boolean entity_contact_key_boolean(
 		const char *entity_table,
 		const char *entity_contact_key_column );

@@ -16,22 +16,24 @@
 #include "folder.h"
 #include "float.h"
 #include "appaserver_error.h"
+#include "entity.h"
 #include "transaction.h"
 #include "subclassification.h"
 #include "application.h"
 #include "account.h"
 #include "journal.h"
+#include "predictive.h"
 #include "liability.h"
 
 LIABILITY *liability_entity_fetch(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *account_current_liability_name_list )
 {
-	LIABILITY *liability = liability_calloc();
+	LIABILITY *liability;
 
 	if ( !full_name
-	||   !street_address
 	||   !list_length( account_current_liability_name_list ) )
 	{
 		fprintf(stderr,
@@ -41,6 +43,8 @@ LIABILITY *liability_entity_fetch(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	liability = liability_calloc();
 
 	liability->string_in_clause =
 		/* ------------------- */
@@ -55,8 +59,9 @@ LIABILITY *liability_entity_fetch(
 		/* --------------------- */
 		liability_entity_where(
 			full_name,
-			street_address,
-			liability->string_in_clause );
+			contact_key,
+			liability->string_in_clause,
+			contact_key_boolean );
 
 	liability->journal_system_list =
 		journal_system_list(
@@ -66,6 +71,8 @@ LIABILITY *liability_entity_fetch(
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
+				PREDICTIVE_FUND_COLUMN,
+				ENTITY_CONTACT_KEY_COLUMN,
 				liability->entity_where ),
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
@@ -106,13 +113,14 @@ LIABILITY *liability_entity_fetch(
 
 char *liability_entity_where(
 		char *full_name,
-		char *street_address,
-		char *string_in_clause )
+		char *contact_key,
+		char *string_in_clause,
+		boolean contact_key_boolean )
 {
+	char *primary_where;
 	static char where[ 512 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !string_in_clause )
 	{
 		fprintf(stderr,
@@ -123,17 +131,20 @@ char *liability_entity_where(
 		exit( 1 );
 	}
 
-	sprintf(where,
-		"full_name = '%s' and "
-		"street_address = '%s' and "
-		"account in (%s)",
+	primary_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name(
-			full_name ),
-			street_address,
-			string_in_clause );
+		entity_primary_where(
+				contact_key_boolean,
+				full_name,
+				contact_key );
+
+	sprintf(where,
+		"%s and "
+		"account in (%s)",
+		primary_where,
+		string_in_clause );
 
 	return where;
 }
@@ -166,6 +177,8 @@ LIABILITY *liability_account_fetch( char *liability_account_name )
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
+				PREDICTIVE_FUND_COLUMN,
+				ENTITY_CONTACT_KEY_COLUMN,
 				liability->account_where ),
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
@@ -242,8 +255,7 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc( void )
 	return liability_account_entity;
 }
 
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
-			char *account_name )
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new( char *account_name )
 {
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity =
 		liability_account_entity_calloc();
@@ -254,32 +266,41 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
 }
 
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
+		boolean contact_key_boolean,
 		char *string_input )
 {
 	char account_name[ 128 ];
 	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char buffer[ 128 ];
+	char *contact_key = {0};
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 
-	if ( !string_input ) return (LIABILITY_ACCOUNT_ENTITY *)0;
+	if ( !string_input ) return NULL;
 
-	/* See LIABILITY_ACCOUNT_ENTITY_SELECT */
-	/* ------------------------------------ */
+	/* See entity_select_string() */
+	/* -------------------------- */
 	piece( account_name, SQL_DELIMITER, string_input, 0 );
 
 	liability_account_entity =
 		liability_account_entity_new(
 			strdup( account_name ) );
 
-	if ( piece( full_name, SQL_DELIMITER, string_input, 1 ) )
-	{
-		piece( street_address, SQL_DELIMITER, string_input, 2 );
+	piece( full_name, SQL_DELIMITER, string_input, 1 );
 
-		liability_account_entity->entity =
-			entity_new(
-				strdup( full_name ),
-				strdup( street_address ) );
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, string_input, 2 );
+		contact_key = strdup( buffer );
 	}
+
+	liability_account_entity->entity =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		entity_new(
+			contact_key_boolean,
+			strdup( full_name ),
+			contact_key );
 
 	return liability_account_entity;
 }
@@ -288,38 +309,59 @@ LIST *liability_account_entity_list(
 		const char *liability_account_entity_select,
 		const char *liability_account_entity_table )
 {
-	if ( !folder_column_boolean(
+	boolean contact_key_boolean;
+	char *select_string;
+
+	if ( !appaserver_table_column_boolean(
 		(char *)liability_account_entity_table,
 		"account" /* column_name */ ) )
 	{
-		return (LIST *)0;
+		return NULL;
 	}
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			liability_account_entity_select /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	return
 	liability_account_entity_system_list(
+		contact_key_boolean,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		liability_account_entity_system_string(
-			liability_account_entity_select,
-			liability_account_entity_table ) );
+			liability_account_entity_table,
+			select_string ) );
 }
 
 char *liability_account_entity_system_string(
-		const char *select,
-		const char *table )
+		const char *table,
+		char *select_string )
 {
 	static char system_string[ 128 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s",
-		select,
+		select_string,
 		table );
 
 	return system_string;
 }
 
-LIST *liability_account_entity_system_list( char *system_string )
+LIST *liability_account_entity_system_list(
+		boolean contact_key_boolean,
+		char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -341,9 +383,13 @@ LIST *liability_account_entity_system_list( char *system_string )
 	/* -------------- */
 	input_pipe = appaserver_input_pipe( system_string );
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		list_set( list, liability_account_entity_parse( input ) );
+		list_set(
+			list,
+			liability_account_entity_parse(
+				contact_key_boolean,
+				input ) );
 	}
 
 	pclose( input_pipe );
@@ -536,8 +582,9 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 
 	if ( ! ( liability_entity->liability =
 			liability_entity_fetch(
+				entity->entity_contact_key_boolean,
 				entity->full_name,
-				entity->street_address,
+				entity->contact_key,
 				account_current_liability_name_list ) ) )
 	{
 		free( liability_entity );
@@ -548,8 +595,9 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 	{
 		liability_entity->receivable =
 			receivable_fetch(
+				entity->entity_contact_key_boolean,
 				entity->full_name,
-				entity->street_address,
+				entity->contact_key,
 				account_receivable_name_list );
 	}
 
@@ -952,8 +1000,15 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 			ACCOUNT_TABLE,
 			SUBCLASSIFICATION_RECEIVABLE );
 
+	liability_calculate->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	if ( ! ( liability_calculate->entity_self =
 			entity_self_fetch(
+				liability_calculate->
+					entity_contact_key_boolean,
 				0 /* not fetch_entity_boolean */ ) ) )
 	{
 		fprintf(stderr,
@@ -1279,7 +1334,7 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 		transaction_amount )
 	{
 		free( liability_transaction );
-		return (LIABILITY_TRANSACTION *)0;
+		return NULL;
 	}
 
 	liability_transaction->transaction =
@@ -1518,14 +1573,26 @@ LIST *liability_entity_distinct_entity_list(
 			list_get(
 				journal_account_distinct_entity_list );
 
-		if ( strcmp(
-			entity->full_name,
-			entity_self->full_name ) == 0
-		&&   strcmp(
-			entity->street_address,
-			entity_self->street_address ) == 0 )
+		if ( entity_self->entity_contact_key_boolean )
 		{
-			continue;
+			if ( strcmp(
+				entity->full_name,
+				entity_self->full_name ) == 0
+			&&   strcmp(
+				entity->contact_key,
+				entity_self->contact_key ) == 0 )
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if ( strcmp(
+				entity->full_name,
+				entity_self->full_name ) == 0 )
+			{
+				continue;
+			}
 		}
 
 		if ( ( liability_entity =
@@ -1543,8 +1610,9 @@ LIST *liability_entity_distinct_entity_list(
 }
 
 LIABILITY_ENTITY *liability_entity_seek(
+		boolean contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *liability_entity_list )
 {
 	LIABILITY_ENTITY *liability_entity;
@@ -1565,19 +1633,31 @@ LIABILITY_ENTITY *liability_entity_seek(
 			exit( 1 );
 		}
 
-		if ( strcmp(
-			full_name,
-			liability_entity->entity->full_name ) == 0
-		&&   strcmp(
-			street_address,
-			liability_entity->entity->street_address ) == 0 )
+		if ( contact_key_boolean )
 		{
-			return liability_entity;
+			if ( strcmp(
+				full_name,
+				liability_entity->entity->full_name ) == 0
+			&&   strcmp(
+				contact_key,
+				liability_entity->entity->contact_key ) == 0 )
+			{
+				return liability_entity;
+			}
+		}
+		else
+		{
+			if ( strcmp(
+				full_name,
+				liability_entity->entity->full_name ) == 0 )
+			{
+				return liability_entity;
+			}
 		}
 
 	} while ( list_next( liability_entity_list ) );
 
-	return (LIABILITY_ENTITY *)0;
+	return NULL;
 }
 
 LIST *liability_payment_entity_list(
@@ -1594,8 +1674,9 @@ LIST *liability_payment_entity_list(
 
 		if ( ! ( liability_entity =
 				liability_entity_seek(
+					entity->entity_contact_key_boolean,
 					entity->full_name,
-					entity->street_address,
+					entity->contact_key,
 					liability_entity_list ) ) )
 		{
 			fprintf(stderr,

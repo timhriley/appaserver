@@ -34,13 +34,16 @@ ENTITY *entity_calloc( void )
 	return entity;
 }
 
-ENTITY *entity_new( char *full_name )
+ENTITY *entity_new(
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key )
 {
 	ENTITY *entity;
 
 	if ( !full_name
 	||   !*full_name
-	||   strcmp( full_name, "full_name" ) == 0 )
+	||   strcmp( full_name, ENTITY_FULL_NAME_COLUMN ) == 0 )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: full_name is empty.\n",
@@ -50,9 +53,12 @@ ENTITY *entity_new( char *full_name )
 		exit( 1 );
 	}
 
-
 	entity = entity_calloc();
+
+	entity->entity_contact_key_boolean = contact_key_boolean;
+
 	entity->full_name = full_name;
+	entity->contact_key = contact_key;
 
 	return entity;
 }
@@ -113,6 +119,7 @@ ENTITY *entity_seek(
 }
 
 ENTITY *entity_getset(
+		boolean contact_key_boolean,
 		LIST *entity_list,
 		char *full_name,
 		char *contact_key,
@@ -130,17 +137,17 @@ ENTITY *entity_getset(
 		{
 			entity =
 				entity_new(
-					strdup( full_name ) );
-
-			if ( contact_key )
-			{
-				entity->contact_key = strdup( contact_key );
-			}
+					contact_key_boolean,
+					strdup( full_name ),
+					strdup( contact_key ) );
 		}
 		else
 		{
-			entity = entity_new( full_name );
-			entity->contact_key = contact_key;
+			entity =
+				entity_new(
+					contact_key_boolean,
+					full_name,
+					contact_key );
 		}
 
 		list_set( entity_list, entity );
@@ -217,7 +224,7 @@ ENTITY *entity_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_system_string_input(
+		string_system_input(
 			system_string );
 
 	return
@@ -231,7 +238,8 @@ ENTITY *entity_parse(
 		char *input )
 {
 	char full_name[ 128 ];
-	char piece_buffer[ 128 ];
+	char *contact_key = {0};
+	char buffer[ 128 ];
 	ENTITY *entity;
 
 	if ( !input || !*input ) return NULL;
@@ -240,40 +248,41 @@ ENTITY *entity_parse(
 	/* -------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 
-	/* Safely returns */
-	/* -------------- */
-	entity = entity_new( strdup( full_name ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	if ( *piece_buffer ) entity->street_address = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	if ( *piece_buffer ) entity->city = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	if ( *piece_buffer ) entity->state_code = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	if ( *piece_buffer ) entity->zip_code = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	if ( *piece_buffer ) entity->land_phone_number = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	if ( *piece_buffer ) entity->cell_phone_number = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	if ( *piece_buffer ) entity->email_address = strdup( piece_buffer );
-
 	if ( contact_key_boolean )
 	{
-		piece( piece_buffer, SQL_DELIMITER, input, 8 );
-		if ( *piece_buffer )
-			entity->contact_key =
-				strdup( piece_buffer );
-
-		entity->contact_key_boolean = 1;
+		piece( buffer, SQL_DELIMITER, input, 8 );
+		if ( *buffer ) contact_key = strdup( buffer );
 	}
+
+	entity =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		entity_new(
+			contact_key_boolean,
+			strdup( full_name ),
+			contact_key );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) entity->street_address = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) entity->city = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) entity->state_code = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) entity->zip_code = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) entity->land_phone_number = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) entity->cell_phone_number = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer ) entity->email_address = strdup( buffer );
 
 	return entity;
 }
@@ -415,7 +424,7 @@ char *entity_fetch_contact_key(
 				primary_where );
 
 		contact_key =
-			string_system_string_input(
+			string_system_input(
 				system_string );
 
 		free( system_string );
@@ -547,6 +556,7 @@ LIST *entity_full_contact_list(
 		LIST *full_name_list,
 		LIST *contact_key_list )
 {
+	boolean contact_key_boolean;
 	LIST *entity_list;
 	ENTITY *entity;
 
@@ -568,6 +578,11 @@ LIST *entity_full_contact_list(
 	list_rewind( full_name_list );
 	list_rewind( contact_key_list );
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	entity_list = list_new();
 
 	do {
@@ -576,9 +591,9 @@ LIST *entity_full_contact_list(
 			/* Safely returns */
 			/* -------------- */
 			entity_new(
-				list_get( full_name_list ) );
-
-		entity->contact_key = list_get( contact_key_list );
+				contact_key_boolean,
+				list_get( full_name_list ),
+				list_get( contact_key_list ) );
 
 		list_set( entity_list, entity );
 		list_next( contact_key_list );
@@ -596,17 +611,19 @@ ENTITY *entity_full_name_entity(
 
 	if ( !full_name ) return NULL;
 
-	/* Safely returns */
-	/* -------------- */
-	entity = entity_new( strdup( full_name ) );
-
-	entity->contact_key =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		entity_fetch_contact_key(
+	entity =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		entity_new(
 			contact_key_boolean,
-			full_name );
+			strdup( full_name ),
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			entity_fetch_contact_key(
+				contact_key_boolean,
+				full_name ) );
 
 	return entity;
 }

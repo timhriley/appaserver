@@ -20,13 +20,20 @@
 #define UNITS_OF_PRODUCTION		"units_of_production"
 #define NOT_DEPRECIATED			"not_depreciated"
 
-#define DEPRECIATION_INSERT_COLUMNS	"asset_name,"		\
+#define DEPRECIATION_SELECT		"asset_name,"		\
 					"serial_label,"		\
 					"depreciation_date,"	\
 					"units_produced,"	\
 					"depreciation_amount,"	\
 					"full_name,"		\
-					"street_address,"	\
+					"transaction_date_time"
+
+#define DEPRECIATION_INSERT		"asset_name,"		\
+					"serial_label,"		\
+					"depreciation_date,"	\
+					"units_produced,"	\
+					"depreciation_amount,"	\
+					"full_name,"		\
 					"transaction_date_time"
 
 #define DEPRECIATION_PRIMARY_KEY	"asset_name,"		\
@@ -186,10 +193,12 @@ char *depreciation_primary_where(
 /* Returns heap memory */
 /* ------------------- */
 char *depreciation_system_string(
-		char *depreciation_table,
+		conat char *depreciation_table,
+		char *entity_select_string,
 		char *where );
 
 DEPRECIATION *depreciation_parse(
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -216,36 +225,7 @@ void depreciation_insert_pipe(
 
 /* Usage */
 /* ----- */
-void depreciation_update(
-		int units_produced,
-		double depreciation_amount,
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		char *asset_name,
-		char *serial_label,
-		char *depreciation_date );
-
-/* Process */
-/* ------- */
-FILE *depreciation_update_pipe_open(
-		char *depreciation_table,
-		char *depreciation_primary_key );
-
-void depreciation_update_pipe(
-		int units_produced,
-		double depreciation_amount,
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		char *fixed_asset_name_escape,
-		char *serial_label,
-		char *depreciation_date,
-		FILE *update_pipe_open );
-
-/* Usage */
-/* ----- */
-LIST *depreciation_list_fetch(
+LIST *depreciation_fetch_list(
 		char *depreciation_table,
 		char *asset_name,
 		char *serial_label );

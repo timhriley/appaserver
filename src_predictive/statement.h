@@ -669,6 +669,7 @@ typedef struct
 	char *process_name;
 	char *transaction_date_begin_date_string;
 	char *end_date_time;
+	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
 	LIST *element_statement_list;
 	boolean pdf_landscape_boolean;

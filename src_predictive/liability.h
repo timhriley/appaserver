@@ -19,10 +19,9 @@
 #define LIABILITY_ACCOUNT_ENTITY_TABLE		"liability_account_entity"
 
 #define LIABILITY_ACCOUNT_ENTITY_SELECT		"account,"	\
-						"full_name,"	\
-						"street_address"
+						"full_name"
 
-#define LIABILITY_TRANSACTION_MEMO	"Liability Payment"
+#define LIABILITY_TRANSACTION_MEMO		"Liability Payment"
 
 typedef struct
 {
@@ -95,8 +94,9 @@ char *liability_account_where(
 /* Usage */
 /* ----- */
 LIABILITY *liability_entity_fetch(
+		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *account_current_liability_name_list );
 
 /* Process */
@@ -106,8 +106,9 @@ LIABILITY *liability_entity_fetch(
 /* --------------------- */
 char *liability_entity_where(
 		char *full_name,
-		char *street_address,
-		char *string_in_clause );
+		char *contact_key,
+		char *string_in_clause,
+		boolean entity_contact_key_boolean );
 
 typedef struct
 {
@@ -127,17 +128,19 @@ LIST *liability_account_entity_list(
 /* Returns static memory */
 /* --------------------- */
 char *liability_account_entity_system_string(
-		const char *liability_account_entity_select,
-		const char *liability_account_entity_table );
+		const char *liability_account_entity_table,
+		char *entity_select_string );
 
 /* Usage */
 /* ----- */
 LIST *liability_account_entity_system_list(
+		boolean entity_contact_key_boolean,
 		char *liability_account_entity_system_string );
 
 /* Usage */
 /* ----- */
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
+		boolean entity_contact_key_boolean,
 		char *string_input );
 
 /* Usage */
@@ -212,8 +215,9 @@ double liability_entity_amount_due(
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_seek(
+		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		LIST *liability_entity_list );
 
 /* Driver */
@@ -321,6 +325,7 @@ typedef struct
 	LIST *account_current_liability_name_list;
 	LIST *journal_account_distinct_entity_list;
 	LIST *account_receivable_name_list;
+	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	LIST *liability_entity_list;
 } LIABILITY_CALCULATE;

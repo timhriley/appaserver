@@ -23,6 +23,7 @@ typedef struct
 	LIST *element_statement_list;
 	char *equity_subclassification_where;
 	LIST *equity_subclassification_statement_list;
+	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	CLOSE_TRANSACTION *close_transaction;
 	double journal_debit_sum;

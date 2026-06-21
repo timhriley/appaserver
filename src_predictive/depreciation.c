@@ -373,20 +373,21 @@ DEPRECIATION *depreciation_new(
 	return depreciation;
 }
 
-DEPRECIATION *depreciation_parse( char *input )
+DEPRECIATION *depreciation_parse(
+		boolean contact_key_boolean,
+		char *input )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
 	char depreciation_date[ 128 ];
+	char buffer[ 128 ];
 	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char piece_buffer[ 1024 ];
 	DEPRECIATION *depreciation;
 
-	if ( !input || !*input ) return (DEPRECIATION *)0;
+	if ( !input || !*input ) return NULL;
 
-	/* See attribute_list depreciation */
-	/* ------------------------------- */
+	/* See entity_select_string() */
+	/* -------------------------- */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_label, SQL_DELIMITER, input, 1 );
 	piece( depreciation_date, SQL_DELIMITER, input, 2 );
@@ -397,30 +398,38 @@ DEPRECIATION *depreciation_parse( char *input )
 			strdup( serial_label ),
 			strdup( depreciation_date ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	depreciation->units_produced = atoi( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) depreciation->units_produced = atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	depreciation->amount = atof( piece_buffer );
-
-	*full_name = '\0';
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) depreciation->amount = atof( piece_buffer );
 
 	piece( full_name, SQL_DELIMITER, input, 5 );
-	piece( street_address, SQL_DELIMITER, input, 6 );
 
 	if ( *full_name )
 	{
-		depreciation->entity_self =
-			entity_self_new(
-				strdup( full_name ),
-				strdup( street_address ) );
+		char *contact_key = {0};
+
+		if ( contact_key_boolean )
+		{
+			piece( buffer, SQL_DELIMITER, input, 7 );
+			contact_key = strdup( buffer );
+
+			depreciation->entity_self =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				entity_self_new(
+					contact_key_boolean,
+					strdup( full_name ),
+					contact_key );
+		}
 	}
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 7 )
-	&&   *piece_buffer )
-	{
-		depreciation->transaction_date_time = strdup( piece_buffer );
-	}
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer )
+		depreciation->transaction_date_time =
+			strdup( buffer );
 
 	return depreciation;
 }
@@ -451,6 +460,11 @@ DEPRECIATION *depreciation_fetch(
 		char *serial_label,
 		char *depreciation_date )
 {
+	boolean contact_key_boolean;
+	char *select_string;
+	char *primary_where;
+	char *system_string;
+
 	if ( !asset_name
 	||   !serial_label
 	||   !depreciation_date )
@@ -463,18 +477,43 @@ DEPRECIATION *depreciation_fetch(
 		exit( 1 );
 	}
 
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			DEPRECIATION_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	primary_where =
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 depreciation_primary_where(
+			asset_name,
+			serial_label,
+			depreciation_date );
+
 	return
 	depreciation_parse(
-		string_pipe_fetch(
+		contact_key_boolean,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_system_input(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			depreciation_system_string(
 				DEPRECIATION_TABLE,
-		 		/* --------------------- */
-		 		/* Returns static memory */
-		 		/* --------------------- */
-		 		depreciation_primary_where(
-					asset_name,
-					serial_label,
-					depreciation_date ) ) ) );
+				select_string,
+				primary_where ) ) );
 }
 
 FILE *depreciation_input_pipe_open( char *system_string )
@@ -519,6 +558,7 @@ LIST *depreciation_system_list( char *system_string )
 		list_set(
 			list, 
 			depreciation_parse(
+				contact_key_boolean,
 				input ) );
 	}
 
@@ -527,15 +567,19 @@ LIST *depreciation_system_list( char *system_string )
 }
 
 char *depreciation_system_string(
-		char *depreciation_table,
+		conat char *depreciation_table,
+		char *select_string,
 		char *where )
 {
 	char system_string[ 1024 ];
 
 	if ( !where ) where = "1 = 1";
 
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" depreciation_date",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh %s %s \"%s\" depreciation_date",
+		select_string,
 		depreciation_table,
 		where );
 
@@ -543,7 +587,7 @@ char *depreciation_system_string(
 }
 
 LIST *depreciation_list_fetch(
-		char *depreciation_table,
+		const char *depreciation_table,
 		char *asset_name,
 		char *serial_label )
 {
@@ -894,7 +938,7 @@ enum depreciation_method depreciation_method_evaluate(
 DEPRECIATION *depreciation_evaluate(
 		char *asset_name,
 		char *serial_label,
-		enum depreciation_method depreciation_method,
+		enum depreciation_method depreciation_method_evaluate,
 		char *service_placement_date,
 		char *prior_depreciation_date,
 		char *depreciation_date,
@@ -1085,118 +1129,6 @@ char *depreciation_subquery_exists_where(
 		depreciation_date );
 
 	return strdup( where );
-}
-
-FILE *depreciation_update_pipe_open(
-		char *table,
-		char *primary_key )
-{
-	char system_string[ 1024 ];
-
-	sprintf( system_string,
-		 "update_statement.e table=%s key=%s carrot=y	|"
-		 "tee_appaserver.sh				|"
-		 "sql						 ",
-		 table,
-		 primary_key );
-
-	return popen( system_string, "w" );
-}
-
-void depreciation_update(
-		int units_produced,
-		double depreciation_amount,
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		char *asset_name,
-		char *serial_label,
-		char *depreciation_date )
-{
-	FILE *update_pipe_open;
-
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time
-	||   !asset_name
-	||   !serial_label
-	||   !depreciation_date )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	update_pipe_open =
-		depreciation_update_pipe_open(
-			DEPRECIATION_TABLE,
-			DEPRECIATION_PRIMARY_KEY );
-
-	depreciation_update_pipe(
-		units_produced,
-		depreciation_amount,
-		full_name,
-		street_address,
-		transaction_date_time,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		fixed_asset_name_escape( asset_name ),
-		serial_label,
-		depreciation_date,
-		update_pipe_open );
-
-	pclose( update_pipe_open );
-}
-
-void depreciation_update_pipe(
-		int units_produced,
-		double depreciation_amount,
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		char *fixed_asset_name_escape,
-		char *serial_label,
-		char *depreciation_date,
-		FILE *update_pipe_open )
-{
-	fprintf(update_pipe_open,
-		"%s^%s^%s^units_produced^%d\n",
-		fixed_asset_name_escape,
-		serial_label,
-		depreciation_date,
-		units_produced );
-
-	fprintf(update_pipe_open,
-		"%s^%s^%s^depreciation_amount^%.2lf\n",
-		fixed_asset_name_escape,
-		serial_label,
-		depreciation_date,
-		depreciation_amount );
-
-	fprintf(update_pipe_open,
-		"%s^%s^%s^full_name^%s\n",
-		fixed_asset_name_escape,
-		serial_label,
-		depreciation_date,
-		full_name );
-
-	fprintf(update_pipe_open,
-		"%s^%s^%s^street_address^%s\n",
-		fixed_asset_name_escape,
-		serial_label,
-		depreciation_date,
-		street_address );
-
-	fprintf(update_pipe_open,
-		"%s^%s^%s^transaction_date_time^%s\n",
-		fixed_asset_name_escape,
-		serial_label,
-		depreciation_date,
-		transaction_date_time );
 }
 
 int depreciation_units_produced(

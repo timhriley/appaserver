@@ -324,7 +324,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 
 	/* Returns heap memory or null */
 	/* --------------------------- */
-	input = string_system_string_input( system_string );
+	input = string_system_input( system_string );
 
 	free( system_string );
 

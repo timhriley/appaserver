@@ -971,7 +971,7 @@ int string_instr(
         return -1;
 }
 
-char *string_system_string_input( char *system_string )
+char *string_system_input( char *system_string )
 {
 	char buffer[ STRING_64K ];
 	FILE *pipe;
@@ -995,12 +995,12 @@ char *string_system_string_input( char *system_string )
 
 char *string_pipe_input( char *system_string )
 {
-	return string_system_string_input( system_string );
+	return string_system_input( system_string );
 }
 
 char *string_fetch_pipe( char *system_string )
 {
-	return string_system_string_input( system_string );
+	return string_system_input( system_string );
 }
 
 char *string_fetch( char *system_string )
@@ -1015,7 +1015,7 @@ char *string_pipe_fetch( char *system_string )
 
 char *string_pipe( char *system_string )
 {
-	return string_system_string_input( system_string );
+	return string_system_input( system_string );
 }
 
 LIST *string_pipe_list(	char *system_string )

@@ -93,8 +93,14 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 	if ( reverse_nominal_do->no_close_message )
 		return reverse_nominal_do;
 
+	reverse_nominal_do->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	reverse_nominal_do->entity_self =
 		entity_self_fetch(
+			reverse_nominal_do->entity_contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	if ( !reverse_nominal_do->entity_self )
@@ -124,7 +130,7 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 				close_transaction->
 				journal_list,
 			reverse_nominal_do->entity_self->full_name,
-			reverse_nominal_do->entity_self->street_address );
+			reverse_nominal_do->entity_self->contact_key );
 
 	if ( reverse_nominal_do->reverse_transaction->no_reverse_message )
 	{

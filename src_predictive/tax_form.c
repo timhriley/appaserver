@@ -110,21 +110,17 @@ void tax_form_entity_getset(
 
 	tax_form_entity = tax_form_entity_calloc();
 
-	tax_form_entity->entity =
-		entity_new(
-			full_name,
-			(char *)0 /* street_address */ );
-
+	tax_form_entity->entity = entity_new( full_name );
 	tax_form_entity->total = journal_amount;
 
 	list_set( list, tax_form_entity );
 }
 
 LIST *tax_form_line_account_list(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
-			char *tax_form_line_string )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date,
+		char *tax_form_line_string )
 {
 	char *where;
 
@@ -165,9 +161,9 @@ LIST *tax_form_line_account_list(
 }
 
 char *tax_form_line_account_system_string(
-			char *select,
-			char *table,
-			char *where )
+		char *select,
+		char *table,
+		char *where )
 {
 	char system_string[ 1024 ];
 
@@ -193,11 +189,11 @@ char *tax_form_line_account_system_string(
 }
 
 LIST *tax_form_line_account_system_list(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
-			char *tax_form_line_string,
-			char *tax_form_line_account_system_string )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date,
+		char *tax_form_line_string,
+		char *tax_form_line_account_system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -247,11 +243,11 @@ FILE *tax_form_line_account_input_pipe(
 }
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_parse(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
-			char *tax_form_line_string,
-			char *input )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date,
+		char *tax_form_line_string,
+		char *input )
 {
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 
@@ -361,8 +357,7 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_calloc( void )
 	return tax_form_line_account;
 }
 
-double tax_form_line_account_total(
-			LIST *journal_tax_form_list )
+double tax_form_line_account_total( LIST *journal_tax_form_list )
 {
 	if ( !list_length( journal_tax_form_list ) )
 	{
@@ -376,8 +371,8 @@ double tax_form_line_account_total(
 }
 
 char *tax_form_line_where(
-			char *tax_form_name,
-			char *tax_form_line_string )
+		char *tax_form_name,
+		char *tax_form_line_string )
 {
 	static char where[ 128 ];
 
@@ -401,9 +396,9 @@ char *tax_form_line_where(
 }
 
 LIST *tax_form_line_list(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date )
 {
 	char *where;
 	char *system_string;
@@ -445,9 +440,9 @@ LIST *tax_form_line_list(
 }
 
 char *tax_form_line_system_string(
-			char *select,
-			char *table,
-			char *where )
+		char *select,
+		char *table,
+		char *where )
 {
 	char system_string[ 1024 ];
 
@@ -473,10 +468,10 @@ char *tax_form_line_system_string(
 }
 
 LIST *tax_form_line_system_list(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
-			char *tax_form_line_system_string )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date,
+		char *tax_form_line_system_string )
 {
 	FILE *input_pipe;
 	LIST *list;
@@ -533,10 +528,10 @@ FILE *tax_form_line_input_pipe( char *system_string )
 }
 
 TAX_FORM_LINE *tax_form_line_parse(
-			char *tax_form_name,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
-			char *input )
+		char *tax_form_name,
+		char *tax_form_fiscal_begin_date,
+		char *tax_form_fiscal_end_date,
+		char *input )
 {
 	TAX_FORM_LINE *tax_form_line;
 	char buffer[ 512 ];

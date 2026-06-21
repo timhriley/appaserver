@@ -136,7 +136,7 @@ TRANSACTION *transaction_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_system_string_input(
+		string_system_input(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */

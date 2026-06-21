@@ -99,7 +99,8 @@ feeder_load_row_list_raw_display(
 	feeder->feeder_phrase_list =
 		feeder_phrase_list(
 			FEEDER_PHRASE_SELECT,
-			FEEDER_PHRASE_TABLE );
+			FEEDER_PHRASE_TABLE,
+			feeder->entity_contact_key_boolean );
 
 	feeder->match_days_ago =
 		/* -------------- */

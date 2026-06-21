@@ -206,14 +206,18 @@ STATEMENT *statement_fetch(
 
 	statement->process_name = process_name;
 
+	statement->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
 	statement->predictive_fund_name =
 		/* ------------------------- */
 		/* Returns parameter or null */
 		/* ------------------------- */
 		predictive_fund_name(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN,
-			fund_name );
+			fund_name,
+			statement->predictive_fund_boolean );
 
 	statement->transaction_date_begin_date_string =
 		transaction_date_begin_date_string;

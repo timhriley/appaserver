@@ -101,7 +101,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_system_string_input(
+		string_system_input(
 			system_string );
 
 	if ( !input )
@@ -455,7 +455,7 @@ APPASERVER_USER *appaserver_user_fetch(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_system_string_input(
+		string_system_input(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */

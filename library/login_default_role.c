@@ -37,7 +37,7 @@ char *login_default_role_name(
 	}
 
 	return
-	string_system_string_input(
+	string_system_input(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */

@@ -124,8 +124,9 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 
 	feeder_transaction->transaction =
 		transaction_binary(
+			fund_name,
 			feeder_phrase_seek->full_name,
-			feeder_phrase_seek->street_address,
+			feeder_phrase_seek->contact_key,
 			transaction_date_time,
 			amount /* transaction_amount */,
 			memo,
