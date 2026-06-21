@@ -656,7 +656,7 @@ char *depreciation_method_string(
 		return NOT_DEPRECIATED;
 }
 
-enum depreciation_method depreciation_method_evaluate(
+enum depreciation_method depreciation_method_resolve(
 		char *depreciation_method_string )
 {
 	if ( !depreciation_method_string )
@@ -664,35 +664,35 @@ enum depreciation_method depreciation_method_evaluate(
 		return not_depreciated;
 	}
 	else
-	if ( timlib_strcmp(
+	if ( strcmp(
 		depreciation_method_string,
 		DOUBLE_DECLINING_BALANCE ) == 0 )
 	{
 		return double_declining_balance;
 	}
 	else
-	if ( timlib_strcmp(
+	if ( strcmp(
 		depreciation_method_string,
 		N_DECLINING_BALANCE ) == 0 )
 	{
 		return n_declining_balance;
 	}
 	else
-	if ( timlib_strcmp(
+	if ( strcmp(
 		depreciation_method_string,
 		STRAIGHT_LINE ) == 0 )
 	{
 		return straight_line;
 	}
 	else
-	if ( timlib_strcmp(
+	if ( strcmp(
 		depreciation_method_string,
 		SUM_OF_YEARS_DIGITS ) == 0 )
 	{
 		return sum_of_years_digits;
 	}
 	else
-	if ( timlib_strcmp(
+	if ( strcmp(
 		depreciation_method_string,
 		UNITS_OF_PRODUCTION ) == 0 )
 	{
@@ -707,7 +707,7 @@ enum depreciation_method depreciation_method_evaluate(
 DEPRECIATION *depreciation_evaluate(
 		char *asset_name,
 		char *serial_label,
-		enum depreciation_method depreciation_method_evaluate,
+		enum depreciation_method depreciation_method_resolve,
 		char *service_placement_date,
 		char *prior_depreciation_date,
 		char *depreciation_date,
@@ -729,12 +729,12 @@ DEPRECIATION *depreciation_evaluate(
 		depreciation_units_produced(
 			asset_name,
 			serial_label,
-			depreciation_method_evaluate,
+			depreciation_method_resolve,
 			units_produced_so_far );
 
 	amount =
 		depreciation_amount(
-			depreciation_method_evaluate,
+			depreciation_method_resolve,
 			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
@@ -769,8 +769,8 @@ DEPRECIATION *depreciation_evaluate(
 			serial_label,
 			depreciation_date );
 
-	depreciation->depreciation_method_evaluate =
-		depreciation_method_evaluate;
+	depreciation->depreciation_method_resolve =
+		depreciation_method_resolve;
 
 	depreciation->units_produced = units_produced;
 	depreciation->amount = amount;

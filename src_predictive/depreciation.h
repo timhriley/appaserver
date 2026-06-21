@@ -51,7 +51,7 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_label;
-	enum depreciation_method depreciation_method_evaluate;
+	enum depreciation_method depreciation_method_resolve;
 	char *depreciation_date;
 	int units_produced;
 	double amount;
@@ -241,7 +241,7 @@ TRANSACTION *depreciation_transaction(
 /* Usage */
 /* ----- */
 
-enum depreciation_method depreciation_method_evaluate(
+enum depreciation_method depreciation_method_resolve(
 		char *depreciation_method_string );
 
 /* Usage */

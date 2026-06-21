@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/prior_fixed_asset.c			*/
+/* $APPASERVER_HOME/src_predictive/fixed_asset_home.c			*/
 /* ---------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/
@@ -14,16 +14,16 @@
 #include "sql.h"
 #include "security.h"
 #include "journal.h"
-#include "prior_fixed_asset.h"
+#include "fixed_asset_home.h"
 
-PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
+FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		char *asset_name,
 		char *state,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
 		char *preupdate_purchase_date_time )
 {
-	PRIOR_FIXED_ASSET *prior_fixed_asset;
+	FIXED_ASSET_HOME *fixed_asset_home;
 	char *system_string;
 	char *pipe_fetch;
 
@@ -52,13 +52,13 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			PRIOR_FIXED_ASSET_SELECT,
-			PRIOR_FIXED_ASSET_TABLE,
+			FIXED_ASSET_HOME_SELECT,
+			FIXED_ASSET_HOME_TABLE,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			prior_fixed_asset_primary_where(
-				PRIOR_FIXED_ASSET_PRIMARY_KEY,
+			fixed_asset_home_primary_where(
+				FIXED_ASSET_HOME_PRIMARY_KEY,
 				asset_name ) );
 
 	if ( ! ( pipe_fetch =
@@ -82,20 +82,20 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 			message );
 	}
 
-	prior_fixed_asset =
+	fixed_asset_home =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		prior_fixed_asset_parse(
+		fixed_asset_home_parse(
 			asset_name,
 			pipe_fetch /* input */ );
 
-	if ( prior_fixed_asset->fixed_asset_cost
-	&&   prior_fixed_asset->asset_account )
+	if ( fixed_asset_home->fixed_asset_cost
+	&&   fixed_asset_home->asset_account )
 	{
-		if ( ! ( prior_fixed_asset->debit_account =
+		if ( ! ( fixed_asset_home->debit_account =
 				account_fetch(
-					prior_fixed_asset->asset_account,
+					fixed_asset_home->asset_account,
 					1 /* fetch_subclassification */,
 					1 /* fetch_element */ ) ) )
 		{
@@ -105,7 +105,7 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				message,
 				sizeof ( message ),
 				"account_fetch(%s) returned empty.",
-				prior_fixed_asset->asset_account );
+				fixed_asset_home->asset_account );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -114,7 +114,7 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				message );
 		}
 
-		prior_fixed_asset->account_equity_string =
+		fixed_asset_home->account_equity_string =
 			/* ------------------------------------ */
 			/* Returns heap memory from static list */
 			/* ------------------------------------ */
@@ -122,9 +122,9 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				ACCOUNT_EQUITY_KEY,
 				__FUNCTION__ );
 
-		if ( ! ( prior_fixed_asset->credit_account =
+		if ( ! ( fixed_asset_home->credit_account =
 				account_fetch(
-					prior_fixed_asset->
+					fixed_asset_home->
 						account_equity_string,
 					1 /* fetch_subclassification */,
 					1 /* fetch_element */ ) ) )
@@ -135,7 +135,7 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				message,
 				sizeof ( message ),
 				"account_fetch(%s) returned empty.",
-				prior_fixed_asset->account_equity_string );
+				fixed_asset_home->account_equity_string );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -144,18 +144,18 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				message );
 		}
 
-		prior_fixed_asset->journal_binary_list =
+		fixed_asset_home->journal_binary_list =
 			journal_binary_list(
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
 				(char *)0 /* transaction_date_time */,
-				prior_fixed_asset->fixed_asset_cost
+				fixed_asset_home->fixed_asset_cost
 					/* transaction_amount */,
-				prior_fixed_asset->debit_account,
-				prior_fixed_asset->credit_account );
+				fixed_asset_home->debit_account,
+				fixed_asset_home->credit_account );
 	}
 
-	prior_fixed_asset->subsidiary_transaction_state =
+	fixed_asset_home->subsidiary_transaction_state =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
@@ -171,20 +171,20 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 			preupdate_street_address,
 			preupdate_purchase_date_time
 			/* preupdate_foreign_date_time */,
-			prior_fixed_asset->full_name,
-			prior_fixed_asset->street_address,
-			prior_fixed_asset->
+			fixed_asset_home->full_name,
+			fixed_asset_home->street_address,
+			fixed_asset_home->
 				purchase_date_time
 				/* foreign_date_time */,
-			prior_fixed_asset->journal_binary_list
+			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */ );
 
-	prior_fixed_asset->subsidiary_transaction =
+	fixed_asset_home->subsidiary_transaction =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		subsidiary_transaction_new(
-			PRIOR_FIXED_ASSET_TABLE
+			FIXED_ASSET_HOME_TABLE
 				/* foreign_table_name */,
 			"full_name"
 				/* foreign_full_name_column */,
@@ -192,34 +192,34 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_fetch(
 				/* foreign_street_addres_column */,
 			"purchase_date_time"
 				/* foreign_date_time_column */,
-			prior_fixed_asset->
+			fixed_asset_home->
 				purchase_date_time
 				/* prior_transaction_date_time */,
-			prior_fixed_asset->journal_binary_list
+			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */,
-			prior_fixed_asset->
+			fixed_asset_home->
 				fixed_asset_cost
 				/* foreign_amount */,
 			asset_name
 				/* transaction_memo */,
-			prior_fixed_asset->
+			fixed_asset_home->
 				subsidiary_transaction_state->
 				subsidiary_transaction_insert,
-			prior_fixed_asset->
+			fixed_asset_home->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete );
 
 	free( system_string );
 	free( pipe_fetch );
 
-	return prior_fixed_asset;
+	return fixed_asset_home;
 }
 
-PRIOR_FIXED_ASSET *prior_fixed_asset_parse(
+FIXED_ASSET_HOME *fixed_asset_home_parse(
 		char *asset_name,
 		char *input )
 {
-	PRIOR_FIXED_ASSET *prior_fixed_asset;
+	FIXED_ASSET_HOME *fixed_asset_home;
 	char buffer[ 128 ];
 
 	if ( !asset_name
@@ -241,46 +241,46 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_parse(
 			message );
 	}
 
-	prior_fixed_asset =
-		prior_fixed_asset_new(
+	fixed_asset_home =
+		fixed_asset_home_new(
 			asset_name );
 
-	/* See PRIOR_FIXED_ASSET_SELECT */
+	/* See FIXED_ASSET_HOME_SELECT */
 	/* ---------------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );
 	if ( *buffer )
-		prior_fixed_asset->full_name =
+		fixed_asset_home->full_name =
 			strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	if ( *buffer )
-		prior_fixed_asset->street_address =
+		fixed_asset_home->street_address =
 			strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
-		prior_fixed_asset->purchase_date_time =
+		fixed_asset_home->purchase_date_time =
 			strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
 	{
-		prior_fixed_asset->fixed_asset_cost =
+		fixed_asset_home->fixed_asset_cost =
 			atof( buffer );
 	}
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
-		prior_fixed_asset->asset_account =
+		fixed_asset_home->asset_account =
 			strdup( buffer );
 
-	return prior_fixed_asset;
+	return fixed_asset_home;
 }
 
-PRIOR_FIXED_ASSET *prior_fixed_asset_new(
+FIXED_ASSET_HOME *fixed_asset_home_new(
 		char *asset_name )
 {
-	PRIOR_FIXED_ASSET *prior_fixed_asset;
+	FIXED_ASSET_HOME *fixed_asset_home;
 
 	if ( !asset_name || !*asset_name )
 	{
@@ -299,19 +299,19 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_new(
 	}
 
 
-	prior_fixed_asset = prior_fixed_asset_calloc();
-	prior_fixed_asset->asset_name = asset_name;
+	fixed_asset_home = fixed_asset_home_calloc();
+	fixed_asset_home->asset_name = asset_name;
 
-	return prior_fixed_asset;
+	return fixed_asset_home;
 }
 
-PRIOR_FIXED_ASSET *prior_fixed_asset_calloc( void )
+FIXED_ASSET_HOME *fixed_asset_home_calloc( void )
 {
-	PRIOR_FIXED_ASSET *prior_fixed_asset;
+	FIXED_ASSET_HOME *fixed_asset_home;
 
-	if ( ! ( prior_fixed_asset =
+	if ( ! ( fixed_asset_home =
 			calloc( 1,
-				sizeof ( PRIOR_FIXED_ASSET ) ) ) )
+				sizeof ( FIXED_ASSET_HOME ) ) ) )
 	{
 		char message[ 128 ];
 
@@ -327,11 +327,11 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_calloc( void )
 			message );
 	}
 
-	return prior_fixed_asset;
+	return fixed_asset_home;
 }
 
-char *prior_fixed_asset_primary_where(
-		const char *prior_fixed_asset_primary_key,
+char *fixed_asset_home_primary_where(
+		const char *fixed_asset_home_primary_key,
 		char *asset_name )
 {
 	static char where[ 128 ];
@@ -357,7 +357,7 @@ char *prior_fixed_asset_primary_where(
 		where,
 		sizeof ( where ),
 		"%s = '%s'",
-		prior_fixed_asset_primary_key,
+		fixed_asset_home_primary_key,
 		( tmp =
 			/* ------------------- */
 			/* Returns heap memory */

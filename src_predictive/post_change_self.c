@@ -46,6 +46,9 @@ int main( int argc, char **argv )
 
 	if ( ! ( self =
 			entity_self_fetch(
+				entity_contact_key_boolean(
+					ENTITY_TABLE,
+					ENTITY_CONTACT_KEY_COLUMN ),
 				0 /* not fetch_entity_boolean */ ) ) )
 	{
 		fprintf(stderr,

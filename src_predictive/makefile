@@ -180,12 +180,10 @@ EXECUTABLES=	trial_balance_output					\
 		reverse_nominal_accounts				\
 		populate_print_checks_entity				\
 		pay_liabilities_process					\
-		depreciate_fixed_assets					\
-		post_accrual						\
 		transaction_html_display				\
 		post_change_self					\
 		post_change_account_balance				\
-		prior_fixed_asset_trigger				\
+		fixed_asset_home_trigger				\
 		investment_transaction_driver				\
 		generate_invoice					\
 		import_predictbooks					\
@@ -195,6 +193,8 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_hourly_service_work				\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work
+#		post_accrual						\
+#		depreciate_fixed_assets					\
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -213,7 +213,6 @@ EXECUTABLES=	trial_balance_output					\
 #		post_change_inventory_sale_return			\
 #		post_change_prepaid_asset_accrual			\
 #		post_change_prepaid_asset_purchase			\
-#		post_change_prior_fixed_asset				\
 #		post_change_purchase_order				\
 #		post_change_service_purchase				\
 #		post_change_supply_purchase				\
@@ -577,20 +576,18 @@ post_change_service_purchase: post_change_service_purchase.c		\
 		post_change_service_purchase.c				\
 		-o post_change_service_purchase
 
-prior_fixed_asset_trigger:						\
-	prior_fixed_asset_trigger.c					\
+fixed_asset_home_trigger:						\
+	fixed_asset_home_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	${SALE_LIBRARY}							\
 	${LIBRARY}/preupdate_change.o					\
-	prior_fixed_asset.o
+	fixed_asset_home.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		${SALE_LIBRARY}						\
 		${LIBRARY}/preupdate_change.o				\
-		prior_fixed_asset_trigger.c				\
-		prior_fixed_asset.o					\
-		-o prior_fixed_asset_trigger
+		fixed_asset_home_trigger.c				\
+		fixed_asset_home.o					\
+		-o fixed_asset_home_trigger
 
 post_change_prepaid_asset_purchase:					\
 	post_change_prepaid_asset_purchase.c				\
@@ -669,15 +666,15 @@ post_change_vendor_payment: post_change_vendor_payment.c		\
 		post_change_vendor_payment.c				\
 		-o post_change_vendor_payment
 
-post_change_prior_fixed_asset: post_change_prior_fixed_asset.c		\
+post_change_fixed_asset_home: post_change_fixed_asset_home.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	subsidiary_transaction.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		subsidiary_transaction.o				\
-		post_change_prior_fixed_asset.c				\
-		-o post_change_prior_fixed_asset
+		post_change_fixed_asset_home.c				\
+		-o post_change_fixed_asset_home
 
 post_change_account_balance: post_change_account_balance.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
@@ -1235,11 +1232,11 @@ subsidiary_transaction_state.o:						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c subsidiary_transaction_state.c
 
-prior_fixed_asset.o:							\
-	prior_fixed_asset.c						\
-	prior_fixed_asset.h
+fixed_asset_home.o:							\
+	fixed_asset_home.c						\
+	fixed_asset_home.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c prior_fixed_asset.c
+		-c fixed_asset_home.c
 
 import_predict.o: import_predict.c import_predict.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

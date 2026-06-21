@@ -20,6 +20,27 @@
 					"asset_name,"		\
 					"serial_label"
 
+#define FIXED_ASSET_PURCHASE_SELECT	"asset_name,"			    \
+					"serial_label,"			    \
+					"full_name,"			    \
+					"purchase_date_time,"		    \
+					"service_placement_date,"	    \
+					"fixed_asset_cost,"		    \
+					"units_produced_so_far,"	    \
+					"disposal_date,"		    \
+					"recovery_class_year,"		    \
+					"recovery_method,"		    \
+					"recovery_convention,"		    \
+					"recovery_system,"		    \
+					"depreciation_method,"		    \
+					"estimated_useful_life_years,"	    \
+					"estimated_useful_life_units,"	    \
+					"estimated_residual_value,"	    \
+					"declining_balance_n,"		    \
+					"cost_basis,"			    \
+					"finance_accumulated_depreciation," \
+					"tax_adjusted_basis"
+
 typedef struct
 {
 	char *asset_name;
