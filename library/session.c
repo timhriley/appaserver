@@ -1371,18 +1371,6 @@ SESSION *session_new(
 			session->appaserver_user,
 			contact_key_boolean );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: insert_string=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	session->insert_string );
-msg( (char *)0, message );
-}
 	session->insert_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1393,18 +1381,6 @@ msg( (char *)0, message );
 			SESSION_INSERT,
 			contact_key_boolean );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: insert_system_string=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	session->insert_system_string );
-msg( (char *)0, message );
-}
 	return session;
 }
 

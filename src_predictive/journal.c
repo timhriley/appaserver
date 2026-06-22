@@ -991,6 +991,18 @@ char *journal_insert_system_string(
 		insert_column_string,
 		sql_delimiter );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"\n\n%s/%s()/%d: system_string=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	system_string );
+msg( (char *)0, message );
+}
 	return strdup( system_string );
 }
 
@@ -1055,10 +1067,36 @@ char *journal_insert_data_string(
 	char credit_amount_string[ 32 ];
 	OPTIONAL_COLUMN *optional_column;
 
-	if ( !full_name
-	||   !transaction_date_time
-	||   !account_name )
+	if ( !full_name )
 	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: full_name is missing.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return NULL;
+	}
+
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: transaction_date_time is missing.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return NULL;
+	}
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: account_name is missing.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
 		return NULL;
 	}
 
@@ -1069,6 +1107,12 @@ char *journal_insert_data_string(
 		credit_amount,
 		0.0 ) )
 	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
 		return NULL;
 	}
 
@@ -2968,10 +3012,10 @@ JOURNAL *journal_insert_new(
 	calloc->fund_name =
 		(fund_name) ? fund_name : journal->fund_name;
 
-	calloc->fund_name =
+	calloc->full_name =
 		(full_name) ? full_name : journal->full_name;
 
-	calloc->fund_name =
+	calloc->contact_key =
 		(contact_key) ? contact_key : journal->contact_key;
 
 	calloc->transaction_date_time =
