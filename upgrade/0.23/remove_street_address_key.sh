@@ -14,8 +14,8 @@ then
 	exit 1
 fi
 
-#output="cat"
-output="sql"
+output="cat"
+#output="sql"
 
 # Returns 0 if ELEMENT.element exists
 # -----------------------------------
@@ -77,6 +77,15 @@ delete_table_column()
 	echo "delete from table_column where table_name = '$table' and column_name = '$column';" | $output
 }
 
+delete_foreign_column()
+{
+	table=$1
+	related_table=$2
+	foreign_column=$3
+
+	echo "delete from foreign_column where table_name = '$table' and related_table = '$related_table' and foreign_column = '$foreign_column';" | $output
+}
+
 get_index_name()
 {
 	table=$1
@@ -101,35 +110,41 @@ create_index()
 
 # Table=entity
 # ------------
-table=entity
-integrity $table full_name street_address
-update_table_column $table street_address
-index_name=$(get_index_name $table)
-drop_index $table $index_name
-create_index $table
+#table=entity
+#integrity $table full_name street_address
+#update_table_column $table street_address
+#index_name=$(get_index_name $table)
+#drop_index $table $index_name
+#create_index $table
+#
+## For each of the remaining tables
+## --------------------------------
+#for table in	account_balance		\
+#		appaserver_user		\
+#		feeder_account		\
+#		feeder_load_event	\
+#		feeder_phrase		\
+#		feeder_row		\
+#		financial_institution	\
+#		investment_account	\
+#		journal			\
+#		login_default_role	\
+#		prior_fixed_asset	\
+#		role_appaserver_user	\
+#		self			\
+#		session			\
+#		transaction		\
+#		vendor
+#do
+#	delete_table_column $table street_address
+#	drop_column $table street_address
+#	index_name=$(get_index_name $table)
+#	drop_index $table $index_name
+#	create_index $table
+#done
 
-for table in	account_balance		\
-		appaserver_user		\
-		feeder_account		\
-		feeder_load_event	\
-		feeder_phrase		\
-		feeder_row		\
-		financial_institution	\
-		investment_account	\
-		journal			\
-		login_default_role	\
-		prior_fixed_asset	\
-		role_appaserver_user	\
-		self			\
-		session			\
-		transaction		\
-		vendor
-do
-	delete_table_column $table street_address
-	drop_column $table street_address
-	index_name=$(get_index_name $table)
-	drop_index $table $index_name
-	create_index $table
-done
+# Foreign_Column for relation feeder_row -> journal
+# -------------------------------------------------
+delete_foreign_column feeder_row journal street_address
 
 exit 0
