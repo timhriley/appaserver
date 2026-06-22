@@ -37,10 +37,10 @@ integrity()
 
 	if [ $count -ne ${distinct_count} ]
 	then
-		echo "ERROR in `basename.e $0 n`: duplicate ${column1}s in $table" 1>&2
+		echo "ERROR in `basename.e $0 n`: duplicate ${column1}s in ${table}." 1>&2
 		echo "You need to execute the Merge Purge process on $table." 1>&2
 		echo "To find the duplicates, execute:" 1>&2
-		echo "select.sh $column1,$column2 $table | sort | less" 1>&2
+		echo "\$ select.sh $column1,$column2 $table | sort | less" 1>&2
 		exit 1
 	fi
 }
