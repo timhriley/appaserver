@@ -86,7 +86,6 @@ POST_LOGIN *post_login_new(
 					post_login_input->
 					appaserver_user->
 					password );
-
 	}
 
 	if ( !post_login->post_login_input->missing_application_boolean

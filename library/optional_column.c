@@ -20,15 +20,14 @@ OPTIONAL_COLUMN *optional_column_new(
 {
 	OPTIONAL_COLUMN *optional_column;
 
-	if ( !base_string
-	||   !component )
+	if ( !base_string )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"base_string is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -45,6 +44,22 @@ OPTIONAL_COLUMN *optional_column_new(
 	}
 	else
 	{
+		if ( !component )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"component is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		if ( escape_boolean )
 		{
 			component =

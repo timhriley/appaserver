@@ -1371,6 +1371,18 @@ SESSION *session_new(
 			session->appaserver_user,
 			contact_key_boolean );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: insert_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	session->insert_string );
+msg( (char *)0, message );
+}
 	session->insert_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1381,6 +1393,18 @@ SESSION *session_new(
 			SESSION_INSERT,
 			contact_key_boolean );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: insert_system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	session->insert_system_string );
+msg( (char *)0, message );
+}
 	return session;
 }
 
@@ -1490,13 +1514,13 @@ boolean session_browser_key_changed_boolean( char *http_user_agent )
 char *session_insert_appaserver_user_string(
 		const char sql_delimiter,
 		APPASERVER_USER *appaserver_user,
-		boolean entity_contact_key_boolean )
+		boolean contact_key_boolean )
 {
 	char *appaserver_user_string;
 
 	if ( !appaserver_user )
 	{
-		if ( entity_contact_key_boolean )
+		if ( contact_key_boolean )
 			appaserver_user_string = "^";
 		else
 			appaserver_user_string = "";
@@ -1514,7 +1538,7 @@ char *session_insert_appaserver_user_string(
 				appaserver_user->full_name /* base_string */,
 				appaserver_user->contact_key /* component */,
 				0 /* not escape_boolean */,
-				entity_contact_key_boolean /* set_boolean */ );
+				contact_key_boolean /* set_boolean */ );
 	
 		appaserver_user_string =
 			optional_column->return_string;
