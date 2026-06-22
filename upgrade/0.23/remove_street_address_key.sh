@@ -14,8 +14,8 @@ then
 	exit 1
 fi
 
-output="cat"
-#output="sql"
+#output="cat"
+output="sql"
 
 # Returns 0 if ELEMENT.element exists
 # -----------------------------------
