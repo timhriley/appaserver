@@ -23,21 +23,21 @@
 void journal_trigger_insert(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name );
 
 void journal_trigger_delete(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name );
 
 void journal_trigger_update(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		char *preupdate_fund,
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *transaction_date_time;
 	char *account_name;
 	char *debit_amount;
@@ -100,14 +100,14 @@ int main( int argc, char **argv )
 	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s fund full_name street_address transaction_date_time account debit_amount credit_amount state preupdate_fund preupdate_transaction_date_time preupdate_account preupdate_debit_amount preupdate_credit_amount\n",
+"Usage: %s fund full_name contact_key transaction_date_time account debit_amount credit_amount state preupdate_fund preupdate_transaction_date_time preupdate_account preupdate_debit_amount preupdate_credit_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	fund_name = argv[ 1 ];
 	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
+	contact_key = argv[ 3 ];
 	transaction_date_time = argv[ 4 ];
 	account_name = argv[ 5 ];
 	debit_amount = argv[ 6 ];
@@ -126,7 +126,7 @@ int main( int argc, char **argv )
 		journal_trigger_delete(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			account_name );
 
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 		journal_trigger_insert(
 			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			transaction_date_time,
 			account_name );
 
@@ -212,6 +212,8 @@ int main( int argc, char **argv )
 			"preupdate_credit_amount"
 				/* preupdate_placeholder_name */ );
 
+fprintf( stderr, "6)\n" );
+
 	if ( fund_preupdate_change->no_change_boolean
 	&&   transaction_preupdate_change->no_change_boolean
 	&&   account_preupdate_change->no_change_boolean
@@ -221,10 +223,12 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+fprintf( stderr, "7)\n" );
+
 	journal_trigger_update(
 		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		transaction_date_time,
 		account_name,
 		preupdate_fund,
@@ -240,7 +244,7 @@ int main( int argc, char **argv )
 void journal_trigger_update(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name,
 		char *preupdate_fund,
@@ -343,21 +347,20 @@ void journal_trigger_update(
 	transaction_fetch_update(
 		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		transaction_date_time );
 }
 
 void journal_trigger_insert(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name )
 {
 	JOURNAL_PROPAGATE *journal_propagate;
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name )
 	{
@@ -403,21 +406,20 @@ void journal_trigger_insert(
 	transaction_fetch_update(
 		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		transaction_date_time );
 }
 
 void journal_trigger_delete(
 		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *transaction_date_time,
 		char *account_name )
 {
 	JOURNAL_PROPAGATE *journal_propagate;
 
 	if ( !full_name
-	||   !street_address
 	||   !transaction_date_time
 	||   !account_name )
 	{
@@ -438,6 +440,7 @@ void journal_trigger_delete(
 			transaction_date_time,
 			account_name );
 
+
 	/* If still rows for this account */
 	/* ------------------------------ */
 	if ( journal_propagate )
@@ -450,7 +453,7 @@ void journal_trigger_delete(
 	transaction_fetch_update(
 		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		transaction_date_time );
 }
 

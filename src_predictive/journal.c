@@ -52,6 +52,7 @@ JOURNAL *journal_prior(
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
+	char *less_where;
 	JOURNAL *journal;
 	char *max_transaction_date_time;
 
@@ -69,19 +70,22 @@ JOURNAL *journal_prior(
 			message );
 	}
 
+	less_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		journal_less_where(
+			fund_name,
+			transaction_date_time,
+			account_name );
+
 	max_transaction_date_time =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		journal_max_transaction_date_time(
 			JOURNAL_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_less_where(
-				fund_name,
-				transaction_date_time,
-				account_name ) );
+			less_where );
 
 	if ( !max_transaction_date_time ) return NULL;
 
@@ -439,7 +443,7 @@ JOURNAL *journal_account_fetch(
 			entity_contact_key_boolean(
 				ENTITY_TABLE,
 				ENTITY_CONTACT_KEY_COLUMN ),
-			string_pipe( system_string ) /* input */ );
+			string_system_input( system_string ) );
 
 	free( system_string );
 
@@ -621,8 +625,6 @@ char *journal_system_string(
 			fund_boolean,
 			contact_key_boolean );
 
-	free( select_string );
-
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
@@ -630,6 +632,8 @@ char *journal_system_string(
 		select_string,
 		journal_table,
 		where );
+
+	free( select_string );
 
 	return strdup( system_string );
 }

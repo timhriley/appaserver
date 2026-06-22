@@ -25,7 +25,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *account_type;
 	char *csv_format_filename;
 	int date_column;
@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 	if ( argc != 19 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process fund full_name street_address account_type csv_format_filename date_column description_column debit_column credit_column balance_column reference_column reverse_order_yn account_end_balance execute_yn\n",
+"Usage: %s session login_name role process fund full_name contact_key account_type csv_format_filename date_column description_column debit_column credit_column balance_column reference_column reverse_order_yn account_end_balance execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 4 ];
 	fund_name = argv[ 5 ];
 	full_name = argv[ 6 ];
-	street_address = argv[ 7 ];
+	contact_key = argv[ 7 ];
 	account_type = argv[ 8 ];
 	csv_format_filename = argv[ 9 ];
 	date_column = atoi( argv[ 10 ] );
@@ -171,8 +171,8 @@ int main( int argc, char **argv )
 				fund_name,
 				full_name
 				/* financial_institution_full_name */,
-				street_address
-				/* financial_institution_street_address */,
+				contact_key
+				/* financial_institution_contact_key */,
 				csv_format_filename,
 				checking_boolean,
 				exchange_csv->exchange_journal_begin_amount,

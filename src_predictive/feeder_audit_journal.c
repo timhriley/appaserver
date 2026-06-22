@@ -97,7 +97,7 @@ LIST *feeder_audit_journal_row_list(
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN );
 
-	if ( fund_boolean )
+	if ( !fund_boolean )
 	{
 		row_list =
 			feeder_audit_journal_non_fund_row_list(

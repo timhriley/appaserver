@@ -309,8 +309,8 @@ void feeder_execute(
 		feeder->account_uncleared_checks_string );
 
 	feeder_load_event_insert(
-		FEEDER_LOAD_EVENT_TABLE,
 		FEEDER_LOAD_EVENT_INSERT,
+		FEEDER_LOAD_EVENT_TABLE,
 		feeder->
 			feeder_load_event->
 			feeder_account_name,

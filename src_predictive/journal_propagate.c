@@ -71,13 +71,16 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 			1 /* fetch_element */,
 			1 /* fetch_account */ );
 
+
 	journal_propagate->prior_transaction_date_time =
 		journal_propagate_prior_transaction_date_time(
 			journal_propagate->journal_prior );
 
+
 	journal_propagate->prior_previous_balance =
 		journal_propagate_prior_previous_balance(
 			journal_propagate->journal_prior );
+
 
 	journal_propagate->journal_list =
 		journal_propagate_journal_list(
@@ -85,6 +88,7 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 			account_name,
 			journal_propagate->prior_transaction_date_time,
 			journal_propagate->prior_previous_balance );
+
 
 	if ( list_length( journal_propagate->journal_list ) )
 	{

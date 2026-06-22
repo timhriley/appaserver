@@ -68,7 +68,10 @@ LIST *feeder_matched_journal_list(
 			JOURNAL_TABLE,
 			feeder_row_table,
 			feeder_account_name,
-			account_uncleared_checks_string );
+			account_uncleared_checks_string,
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN ) );
 
 	where =
 		/* ------------------- */
@@ -142,9 +145,18 @@ char *feeder_matched_journal_subquery(
 		const char *journal_table,
 		const char *feeder_row_table,
 		char *feeder_account_name,
-		char *account_uncleared_checks_string )
+		char *account_uncleared_checks_string,
+		boolean contact_key_boolean )
 {
 	char subquery[ 1024 ];
+	char *contact_join;
+
+	contact_join =
+		feeder_matched_journal_contact_join(
+			journal_table,
+			feeder_row_table,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
 
 	snprintf(
 		subquery,
@@ -153,16 +165,14 @@ char *feeder_matched_journal_subquery(
 		"(select 1 from %s					"
 		"	where %s.full_name =				"
 		"	      %s.full_name and				"
-		"	      %s.street_address =			"
-		"	      %s.street_address and			"
+		"	      %s and					"
 		"	      %s.transaction_date_time =		"
 		"	      %s.transaction_date_time and		"
 		"	      %s.feeder_account in ('%s','%s'))		",
 		feeder_row_table,
 		feeder_row_table,
 		journal_table,
-		feeder_row_table,
-		journal_table,
+		contact_join,
 		feeder_row_table,
 		journal_table,
 		feeder_row_table,
@@ -419,5 +429,32 @@ char *feeder_matched_journal_check_update_statement(
 			account_uncleared_checks_string ) );
 
 	return strdup( update_statement );
+}
+
+char *feeder_matched_journal_contact_join(
+		const char *journal_table,
+		const char *feeder_row_table,
+		const char *contact_key_column,
+		boolean contact_key_boolean )
+{
+	static char contact_join[ 128 ];
+
+	if ( contact_key_boolean )
+	{
+		snprintf(
+			contact_join,
+			sizeof ( contact_join ),
+			"%s.%s = %s.%s",
+			feeder_row_table,
+			contact_key_column,
+			journal_table,
+			contact_key_column );
+	}
+	else
+	{
+		strcpy( contact_join, "1 = 1" );
+	}
+
+	return contact_join;
 }
 

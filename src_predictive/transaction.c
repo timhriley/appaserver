@@ -229,6 +229,7 @@ char *transaction_primary_where(
 	static char where[ 512 ];
 	char *fund_where;
 	char *escape_transaction_date_time;
+	char *primary_where;
 
 	fund_where =
 		/* ------------------------ */
@@ -246,13 +247,7 @@ char *transaction_primary_where(
 		transaction_escape_date_time(
 			transaction_date_time );
 
-	snprintf(
-		where,
-		sizeof ( where ),
-		"%s and "
-		"%s and "
-		"transaction_date_time = '%s'",
-		fund_where,
+	primary_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -261,7 +256,16 @@ char *transaction_primary_where(
 				ENTITY_TABLE,
 				ENTITY_CONTACT_KEY_COLUMN ),
 			full_name,
-			contact_key ),
+			contact_key );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and "
+		"%s and "
+		"transaction_date_time = '%s'",
+		fund_where,
+		primary_where,
 		escape_transaction_date_time );
 
 	return where;

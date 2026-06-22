@@ -46,14 +46,6 @@ LIST *feeder_matched_journal_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_matched_journal_subquery(
-		const char *journal_table,
-		const char *feeder_row_table,
-		char *feeder_account_name,
-		char *account_uncleared_checks_string );
-
-/* Returns heap memory */
-/* ------------------- */
 char *feeder_matched_journal_where(
 		char *feeder_account_name,
 		char *account_uncleared_checks,
@@ -103,5 +95,28 @@ FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_amount_seek(
 		double exchange_journal_amount,
 		LIST *feeder_matched_journal_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_matched_journal_subquery(
+		const char *journal_table,
+		const char *feeder_row_table,
+		char *feeder_account_name,
+		char *account_uncleared_checks_string,
+		boolean entity_contact_key_boolean );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_matched_journal_contact_join(
+		const char *journal_table,
+		const char *feeder_row_table,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean );
 
 #endif

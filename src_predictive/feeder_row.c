@@ -1171,7 +1171,7 @@ LIST *feeder_row_list(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_row_exist_list,
@@ -1184,8 +1184,7 @@ LIST *feeder_row_list(
 	char *minimum_transaction_date_time = {0};
 
 	if ( !feeder_account_name
-	||   !financial_institution_full_name
-	||   !financial_institution_street_address )
+	||   !financial_institution_full_name )
 	{
 		char message[ 128 ];
 
@@ -1210,7 +1209,7 @@ LIST *feeder_row_list(
 				fund_name,
 				feeder_account_name,
 				financial_institution_full_name,
-				financial_institution_street_address,
+				financial_institution_contact_key,
 				account_uncleared_checks_string,
 				feeder_phrase_list,
 				feeder_row_exist_list,
@@ -1247,7 +1246,7 @@ FEEDER_ROW *feeder_row_new(
 		char *fund_name,
 		char *feeder_account_name,
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_row_exist_list,
@@ -1260,7 +1259,6 @@ FEEDER_ROW *feeder_row_new(
 
 	if ( !feeder_account_name
 	||   !financial_institution_full_name
-	||   !financial_institution_street_address
 	||   !feeder_load_row
 	||   !feeder_row_number )
 	{
@@ -1334,7 +1332,7 @@ FEEDER_ROW *feeder_row_new(
 		feeder_row->feeder_phrase_seek =
 			feeder_phrase_seek(
 				financial_institution_full_name,
-				financial_institution_street_address,
+				financial_institution_contact_key,
 				feeder_load_row->description_space_trim,
 				feeder_phrase_list );
 	}
@@ -1723,8 +1721,8 @@ FEEDER_ROW *feeder_row_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		feeder_row_system_string(
-			select_string,
 			FEEDER_ROW_TABLE,
+			select_string,
 			primary_where );
 
 	return

@@ -248,17 +248,12 @@ char *feeder_load_event_insert_string(
 	snprintf(
 		insert_string,
 		sizeof ( insert_string ),
-		"%s%c%s%c%s%c%.2lf%c%s%c%s\n",
+		"%s^%s^%s^%.2lf^%s^%s\n",
 		feeder_account_name,
-		sql_delimiter,
 		feeder_load_filename,
-		sql_delimiter,
 		feeder_row_account_end_date,
-		sql_delimiter,
 		feeder_row_account_end_balance,
-		sql_delimiter,
 	 	feeder_load_date_time,
-		sql_delimiter,
 		full_name );
 
 	optional_column =
@@ -266,7 +261,7 @@ char *feeder_load_event_insert_string(
 		/* Safely returns */
 		/* -------------- */
 		optional_column_new(
-			SQL_DELIMITER,
+			sql_delimiter,
 			insert_string /* base_string */,
 			contact_key /* component column or datum */,
 			1 /* not escape_boolean */,
