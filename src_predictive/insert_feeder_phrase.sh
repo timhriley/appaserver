@@ -63,23 +63,21 @@ then
 	exit 0
 fi
 
-street_address="any"
-
 # Insert feeder_phrase
 # --------------------
 table="feeder_phrase"
-field="feeder_phrase,nominal_account,full_name,street_address"
+field="feeder_phrase,nominal_account,full_name"
 
-echo "$feeder_phrase^$account^$full_name^$street_address"	|
+echo "$feeder_phrase^$account^$full_name"			|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
 
 # Insert entity
 # -------------
-field="full_name,street_address"
+field="full_name"
 
-echo "$full_name^$street_address"				|
+echo "$full_name"						|
 insert_statement.e table=entity field=$field del='^'		|
 sql.e 2>&1							|
 grep -vi duplicate						|
