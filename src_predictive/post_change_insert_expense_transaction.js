@@ -9,30 +9,30 @@ function post_change_insert_expense_transaction()
 
 	// Turn on edits
 	// -------------
-	element = document.getElementById( "full_name^street_address" );
+	element = document.getElementById( "full_name" );
 	element.disabled = 0;
 
-	element = document.getElementById( "full_name" );
+	element = document.getElementById( "new_full_name" );
 	element.disabled = 0;
 
 	// Make mutually exclusive
 	// -----------------------
-	element = document.getElementById( "full_name^street_address" );
+	element = document.getElementById( "full_name" );
 	value = timlib_drop_down_element_value( element.options );
 
 	if ( value != 'select' )
 	{
-		element = document.getElementById( "full_name" );
+		element = document.getElementById( "new_full_name" );
 		element.disabled = 1;
 
 		return true;
 	}
 
-	element = document.getElementById( "full_name" );
+	element = document.getElementById( "new_full_name" );
 
 	if ( element.value != "" )
 	{
-		element = document.getElementById( "full_name^street_address" );
+		element = document.getElementById( "full_name" );
 		element.disabled = 1;
 
 		return true;

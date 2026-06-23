@@ -465,8 +465,8 @@ char *entity_insert_system_string(
 		insert_column_string,
 		sql_delimiter,
 		(ignore_duplicate_boolean)
-	       		? "cat"
-			: "grep -vi duplicate" );
+			? "grep -vi duplicate"
+	       		: "cat" );
 
 	free( insert_column_string );
 
@@ -481,15 +481,14 @@ char *entity_insert_data_string(
 {
 	OPTIONAL_COLUMN *optional_column;
 
-	if ( !full_name
-	||   !contact_key )
+	if ( !full_name )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -548,15 +547,6 @@ char *entity_name_display(
 	}
 
 	return display;
-}
-
-FILE *entity_input_pipe( char *system_string )
-{
-	return
-	/* -------------- */
-	/* Safely returns */
-	/* -------------- */
-	popen( system_string, "r" );
 }
 
 LIST *entity_full_contact_list(

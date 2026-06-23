@@ -12,16 +12,17 @@
 #include "transaction.h"
 
 #define INSERT_EXPENSE_TRANSACTION_JOURNAL_DUPLICATE_MESSAGE \
-"<h3>Duplication Error. Please execute this path: Insert --> Transaction -->Transaction</h3>"
+"Duplication Error. Please execute this path: Insert --> Transaction -->Transaction"
 
 typedef struct
 {
 	char *transaction_date;
-	int check_number;
 	boolean predictive_fund_boolean;
 	boolean fund_empty_boolean;
 	boolean feeder_empty_boolean;
+	boolean new_name_boolean;
 	boolean name_empty_boolean;
+	char *full_name;
 	boolean debit_empty_boolean;
 	boolean amount_empty_boolean;
 	boolean check_duplicate_boolean;
@@ -43,6 +44,7 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 		char *feeder_account,
 		char *full_name,
 		char *contact_key,
+		char *new_full_name,
 		char *transaction_date,
 		char *debit_account,
 		double transaction_amount,
@@ -55,8 +57,20 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 boolean insert_expense_transaction_input_feeder_empty_boolean(
 		char *feeder_account );
 
+boolean insert_expense_transaction_input_new_name_boolean(
+		char *new_full_name );
+
 boolean insert_expense_transaction_input_name_empty_boolean(
-		char *full_name );
+		char *full_name,
+		boolean insert_expense_transaction_input_new_name_boolean );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *insert_expense_transaction_input_full_name(
+		char *full_name,
+		char *new_full_name,
+		boolean
+		insert_expense_transaction_input_new_name_boolean );
 
 boolean insert_expense_transaction_input_debit_empty_boolean(
 		char *debit_account );
@@ -151,6 +165,7 @@ INSERT_EXPENSE_TRANSACTION *
 		char *feeder_account,
 		char *full_name,
 		char *contact_key,
+		char *new_full_name,
 		char *transaction_date,
 		char *debit_account,
 		double transaction_amount,

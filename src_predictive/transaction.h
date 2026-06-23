@@ -99,6 +99,13 @@ TRANSACTION *transaction_new(
 TRANSACTION *transaction_calloc(
 		void );
 
+/* Returns parameter or null */
+/* ------------------------- */
+char *transaction_fund_name(
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
+		char *fund_name );
+
 /* Usage */
 /* ----- */
 TRANSACTION *transaction_entity_new(

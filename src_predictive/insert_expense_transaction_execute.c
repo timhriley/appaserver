@@ -10,25 +10,25 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "document.h"
+#include "entity.h"
 #include "insert_expense_transaction.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *session_key;
-	char *login_name;
-	char *role_name;
 	char *process_name;
 	char *fund_name;
+	char *feeder_account;
 	char *full_name;
 	char *contact_key;
-	char *account_type;
-	char *exchange_format_filename;
-	boolean execute_boolean;
-	boolean checking_boolean;
-	boolean okay_continue = 1;
-	EXCHANGE *exchange = {0};
-	FEEDER_INIT *feeder_init = {0};
+	char *new_full_name;
+	char *account;
+	char *transaction_date;
+	double transaction_amount;
+	int check_number;
+	char *memo;
+	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+	char *error_message = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -37,128 +37,124 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process fund full_name contact_key account_type exchange_format_filename execute_yn\n",
+"Usage: %s process fund feeder_account full_name contact_key new_full_name account transaction_date transaction_amount check_number memo\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
-	session_key = argv[ 1 ];
-	login_name = argv[ 2 ];
-	role_name = argv[ 3 ];
-	process_name = argv[ 4 ];
-	fund_name = argv[ 5 ];
-	full_name = argv[ 6 ];
-	contact_key = argv[ 7 ];
-	account_type = argv[ 8 ];
-	exchange_format_filename = argv[ 9 ];
-	execute_boolean = (*argv[ 10 ] == 'y');
+	process_name = argv[ 1 ];
+	fund_name = argv[ 2 ];
+	feeder_account = argv[ 3 ];
+	full_name = argv[ 4 ];
+	contact_key = argv[ 5 ];
+	new_full_name = argv[ 6 ];
+	account = argv[ 7 ];
+	transaction_date = argv[ 8 ];
+	transaction_amount = atof( argv[ 9 ] );
+	check_number = atoi( argv[ 10 ] );
+	memo = argv[ 11 ];
 
 	document_process_output(
 		application_name,
 		(LIST *)0 /* javascript_filename_list */,
 		process_name /* title */ );
 
-	if ( !*full_name
-	||   strcmp(
-		full_name,
-		"full_name" ) == 0 )
+
+	insert_expense_transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		insert_expense_transaction_new(
+			fund_name,
+			feeder_account,
+			full_name,
+			contact_key,
+			new_full_name,
+			transaction_date,
+			account /* debit_account */,
+			transaction_amount,
+			check_number,
+			memo );
+
+	if ( insert_expense_transaction->error_message )
 	{
-		printf(	"%s\n",
-			FEEDER_INIT_INSTITUTION_MISSING_MESSAGE );
-
-		okay_continue = 0;
+		printf( "<h3>%s</h3>\n",
+			insert_expense_transaction->error_message );
 	}
-
-	if ( !*account_type
-	||   strcmp(
-		account_type,
-		"account_type" ) == 0 )
+	else
 	{
-		printf(
-		"<h3>Please select an account type.</h3>\n" );
-
-		okay_continue = 0;
+		insert_expense_transaction->
+			transaction_binary->
+			transaction_date_time =
+				/* -------------------------------------- */
+				/* Returns inserted transaction_date_time */
+				/* -------------------------------------- */
+				transaction_insert(
+					insert_expense_transaction->
+						transaction_binary->
+							fund_name,
+					insert_expense_transaction->
+						transaction_binary->
+							full_name,
+					insert_expense_transaction->
+						transaction_binary->
+							contact_key,
+					insert_expense_transaction->
+						transaction_binary->
+							transaction_date_time,
+					insert_expense_transaction->
+						transaction_binary->
+							transaction_amount,
+					insert_expense_transaction->
+						transaction_binary->
+							check_number,
+					insert_expense_transaction->
+						transaction_binary->
+							memo,
+					insert_expense_transaction->
+							transaction_binary->
+							journal_list,
+					1 /* insert_journal_list_boolean */ );
+	
+		if ( insert_expense_transaction->
+			insert_expense_transaction_input->
+			new_name_boolean )
+		{
+			error_message =
+				/* ----------------------------- */
+				/* Returns error message or null */
+				/* ----------------------------- */
+				entity_insert(
+					ENTITY_TABLE,
+					ENTITY_FULL_NAME_COLUMN,
+					ENTITY_CONTACT_KEY_COLUMN,
+					insert_expense_transaction->
+					    insert_expense_transaction_input->
+					    entity_contact_key_boolean,
+					insert_expense_transaction->
+					    insert_expense_transaction_input->
+						full_name,
+					insert_expense_transaction->
+					    insert_expense_transaction_input->
+					    entity_contact_key,
+					1 /* ignore_duplicate_boolean */ );
+		}
+	
+		if ( error_message )
+		{
+			printf( "%s\n", error_message );
+		}
+		else
+		{
+			transaction_html_display(
+				insert_expense_transaction->
+					transaction_binary );
+		}
 	}
-
-	if ( !*exchange_format_filename
-	||   strcmp(
-		exchange_format_filename,
-		"exchange_format_filename" ) == 0 )
-	{
-		printf(
-		"<h3>Please transmit an exchange formatted file.</h3>\n" );
-
-		okay_continue = 0;
-	}
-
-	if ( okay_continue )
-	{
-		exchange =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			exchange_fetch(
-				application_name,
-				exchange_format_filename,
-				appaserver_parameter_upload_directory() );
-	}
-
-	if ( exchange && !exchange->open_tag_boolean )
-	{
-		printf(
-	"<h3>Sorry, but this file is not in open exchange format.</h3>\n" );
-
-		okay_continue = 0;
-	}
-
-	if ( exchange && !list_length( exchange->exchange_journal_list ) )
-	{
-		printf(
-"<h3>Sorry, but this exchange formatted file doesn't have any transactions.</h3>\n" );
-		okay_continue = 0;
-	}
-
-	checking_boolean = ( strcmp( account_type, "checking" ) == 0 );
-
-	if ( okay_continue )
-	{
-		feeder_init =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_init_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				fund_name,
-				full_name
-				/* financial_institution_full_name */,
-				contact_key
-				/* financial_institution_contact_key */,
-				exchange_format_filename,
-				checking_boolean,
-				exchange->exchange_journal_begin_amount,
-				exchange->minimum_date_string );
-	}
-
-	feeder_init_process(
-		application_name,
-		login_name,
-		fund_name,
-		execute_boolean,
-		checking_boolean,
-		(exchange)
-			? exchange->exchange_journal_begin_amount
-			: 0.0,
-		(exchange)
-			? exchange->minimum_date_string
-			: NULL,
-		feeder_init );
 
 	document_close();
 

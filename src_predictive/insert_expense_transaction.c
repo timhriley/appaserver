@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "appaserver.h"
 #include "sql.h"
+#include "float.h"
 #include "date_convert.h"
 #include "entity.h"
 #include "predictive.h"
@@ -25,6 +26,7 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 		char *feeder_account,
 		char *full_name,
 		char *contact_key,
+		char *new_full_name,
 		char *transaction_date,
 		char *debit_account,
 		double transaction_amount,
@@ -65,12 +67,26 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 	if ( insert_expense_transaction_input->feeder_empty_boolean )
 		return insert_expense_transaction_input;
 
+	insert_expense_transaction_input->new_name_boolean =
+		insert_expense_transaction_input_new_name_boolean(
+			new_full_name );
+
 	insert_expense_transaction_input->name_empty_boolean =
 		insert_expense_transaction_input_name_empty_boolean(
-			full_name );
+			full_name,
+			insert_expense_transaction_input->new_name_boolean );
 
 	if ( insert_expense_transaction_input->name_empty_boolean )
 		return insert_expense_transaction_input;
+
+	insert_expense_transaction_input->full_name =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		insert_expense_transaction_input_full_name(
+			full_name,
+			new_full_name,
+			insert_expense_transaction_input->new_name_boolean );
 
 	insert_expense_transaction_input->debit_empty_boolean =
 		insert_expense_transaction_input_debit_empty_boolean(
@@ -105,7 +121,7 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 		insert_expense_transaction_input_journal_duplicate_boolean(
 			JOURNAL_TABLE,
 			fund_name,
-			full_name,
+			insert_expense_transaction_input->full_name,
 			contact_key,
 			insert_expense_transaction_input->transaction_date,
 			debit_account,
@@ -200,7 +216,8 @@ boolean insert_expense_transaction_input_feeder_empty_boolean(
 }
 
 boolean insert_expense_transaction_input_name_empty_boolean(
-		char *full_name )
+		char *full_name,
+		boolean new_name_boolean )
 {
 	boolean empty_boolean = 0;
 
@@ -208,7 +225,7 @@ boolean insert_expense_transaction_input_name_empty_boolean(
 	||   !*full_name
 	||   strcmp( full_name, "full_name" ) == 0 )
 	{
-		empty_boolean = 1;
+		empty_boolean = !new_name_boolean;
 	}
 
 	return empty_boolean;
@@ -234,7 +251,13 @@ boolean insert_expense_transaction_input_amount_empty_boolean(
 {
 	boolean empty_boolean = 0;
 
-	if ( !transaction_amount ) empty_boolean = 1;
+	if ( float_virtually_same(
+		transaction_amount,
+		0.0 )
+	||   transaction_amount < 0.0 )
+	{
+		empty_boolean = 1;
+	}
 
 	return empty_boolean;
 }
@@ -299,7 +322,7 @@ char *insert_expense_transaction_input_transaction_date(
 	return date;
 }
 
-boolean insert_expense_transaction_fund_empty_boolean(
+boolean insert_expense_transaction_input_fund_empty_boolean(
 		char *fund_name,
 		boolean fund_boolean )
 {
@@ -475,6 +498,7 @@ INSERT_EXPENSE_TRANSACTION *
 		char *feeder_account,
 		char *full_name,
 		char *contact_key,
+		char *new_full_name,
 		char *transaction_date,
 		char *debit_account,
 		double transaction_amount,
@@ -494,6 +518,7 @@ INSERT_EXPENSE_TRANSACTION *
 			feeder_account,
 			full_name,
 			contact_key,
+			new_full_name,
 			transaction_date,
 			debit_account,
 			transaction_amount,
@@ -535,7 +560,9 @@ INSERT_EXPENSE_TRANSACTION *
 			/* -------------- */
 			transaction_binary(
 				fund_name,
-				full_name,
+				insert_expense_transaction->
+					insert_expense_transaction_input->
+					full_name,
 				insert_expense_transaction->
 					insert_expense_transaction_input->
 					entity_contact_key,
@@ -590,23 +617,23 @@ char *insert_expense_transaction_error_message(
 
 	if ( fund_empty_boolean )
 		error_message =
-			"<h3>Please choose a fund.</h3>";
+			"Please choose a fund.";
 	else
 	if ( feeder_empty_boolean )
 		error_message =
-			"<h3>Please choose a feeder account.</h3>";
+			"Please choose a feeder account.";
 	else
 	if ( name_empty_boolean )
 		error_message =
-			"<h3>Please choose an entity.</h3>";
+			"Please choose an entity or enter in a new full name.";
 	else
 	if ( debit_empty_boolean )
 		error_message =
-			"<h3>Please choose a nominal account.</h3>";
+			"Please choose a nominal account.";
 	else
 	if ( amount_empty_boolean )
 		error_message =
-			"<h3>Please enter in a transaction amount.</h3>";
+			"Please enter in a positive transaction amount.";
 	else
 	if ( check_duplicate_boolean )
 	{
@@ -615,7 +642,7 @@ char *insert_expense_transaction_error_message(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"<h3>Check number %d already exists.</h3>",
+			"Check number %d already exists.",
 			check_number );
 
 		error_message = strdup( message );
@@ -626,5 +653,35 @@ char *insert_expense_transaction_error_message(
 			INSERT_EXPENSE_TRANSACTION_JOURNAL_DUPLICATE_MESSAGE;
 
 	return error_message;
+}
+
+boolean insert_expense_transaction_input_new_name_boolean(
+		char *new_full_name )
+{
+	boolean new_name_boolean = 0;
+
+	if ( new_full_name
+	&&   *new_full_name
+	&&   strcmp( new_full_name, "new_full_name" ) != 0 )
+	{
+		new_name_boolean = 1;
+	}
+
+	return new_name_boolean;
+}
+
+char *insert_expense_transaction_input_full_name(
+		char *full_name,
+		char *new_full_name,
+		boolean new_name_boolean )
+{
+	char *input_full_name;
+
+	if ( new_name_boolean )
+		input_full_name = new_full_name;
+	else
+		input_full_name = full_name;
+
+	return input_full_name;
 }
 

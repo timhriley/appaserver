@@ -991,18 +991,6 @@ char *journal_insert_system_string(
 		insert_column_string,
 		sql_delimiter );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"\n\n%s/%s()/%d: system_string=[%s]\n\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	system_string );
-msg( (char *)0, message );
-}
 	return strdup( system_string );
 }
 

@@ -58,12 +58,36 @@ TRANSACTION *transaction_new(
 
 	transaction = transaction_calloc();
 
-	transaction->fund_name = fund_name;
+	transaction->fund_name =
+		/* ------------------------- */
+		/* Returns parameter or null */
+		/* ------------------------- */
+		transaction_fund_name(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN,
+			fund_name );
+
 	transaction->full_name = full_name;
 	transaction->contact_key = contact_key;
 	transaction->transaction_date_time = transaction_date_time;
 
 	return transaction;
+}
+
+char *transaction_fund_name(
+		const char *predictive_fund_table,
+		const char *predictive_fund_column,
+		char *fund_name )
+{
+	return
+	/* ------------------------- */
+	/* Returns parameter or null */
+	/* ------------------------- */
+	predictive_fund_name(
+		fund_name,
+		predictive_fund_boolean(
+			predictive_fund_table,
+			predictive_fund_column ) );
 }
 
 char *transaction_system_string(
@@ -289,12 +313,24 @@ char *transaction_insert(
 	char *race_free_date_time;
 	char *insert_column_string;
 
-	if ( !full_name
-	||   !transaction_date_time )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !transaction_date_time )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "transaction_date_time is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1053,7 +1089,11 @@ TRANSACTION *transaction_binary(
 {
 	TRANSACTION *transaction;
 
-	if ( !transaction_amount ) return NULL;
+	if ( float_virtually_same( transaction_amount, 0.0 )
+	||   transaction_amount < 0.0 )
+	{
+		return NULL;
+	}
 
 	transaction =
 		transaction_new(
@@ -1067,11 +1107,11 @@ TRANSACTION *transaction_binary(
 
 	transaction->journal_list =
 		journal_binary_list(
-			fund_name,
+			transaction->fund_name,
 			full_name,
 			contact_key,
 			transaction_date_time,
-			float_abs( transaction_amount ),
+			transaction_amount,
 			account_fetch(
 				debit_account_name,
 				1 /* fetch_subclassification */,
