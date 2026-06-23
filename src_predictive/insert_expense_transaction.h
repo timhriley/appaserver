@@ -9,6 +9,10 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "transaction.h"
+
+#define INSERT_EXPENSE_TRANSACTION_JOURNAL_DUPLICATE_MESSAGE \
+"<h3>Duplication Error. Please execute this path: Insert --> Transaction -->Transaction</h3>"
 
 typedef struct
 {
@@ -126,5 +130,49 @@ char *insert_expense_transaction_input_credit_account(
 /* ------------------- */
 char *insert_expense_transaction_input_transaction_date_time(
 		char *transaction_date );
+
+typedef struct
+{
+	INSERT_EXPENSE_TRANSACTION_INPUT *
+		insert_expense_transaction_input;
+
+	char *error_message;
+	TRANSACTION *transaction_binary;
+} INSERT_EXPENSE_TRANSACTION;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+INSERT_EXPENSE_TRANSACTION *
+	insert_expense_transaction_new(
+		char *fund_name,
+		char *feeder_account,
+		char *full_name,
+		char *contact_key,
+		char *transaction_date,
+		char *debit_account,
+		double transaction_amount,
+		int check_number,
+		char *memo );
+
+/* Process */
+/* ------- */
+INSERT_EXPENSE_TRANSACTION *
+	insert_expense_transaction_calloc(
+		void );
+
+/* Returns program memory, heap memory, or null */
+/* -------------------------------------------- */
+char *insert_expense_transaction_error_message(
+		int check_number,
+		boolean fund_empty_boolean,
+		boolean feeder_empty_boolean,
+		boolean name_empty_boolean,
+		boolean debit_empty_boolean,
+		boolean amount_empty_boolean,
+		boolean check_duplicate_boolean,
+		boolean journal_duplicate_boolean );
 
 #endif

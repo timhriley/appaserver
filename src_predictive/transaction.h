@@ -111,6 +111,9 @@ TRANSACTION *transaction_entity_new(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 TRANSACTION *transaction_binary(
 		char *fund_name,
 		char *full_name,

@@ -15,6 +15,7 @@
 #include "folder_attribute.h"
 #include "security.h"
 #include "entity_key.h"
+#include "spool.h"
 #include "optional_column.h"
 #include "entity.h"
 
@@ -439,7 +440,8 @@ char *entity_insert_system_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		boolean entity_contact_key_boolean )
+		boolean entity_contact_key_boolean,
+		boolean ignore_duplicate_boolean )
 {
 	char *insert_column_string;
 	char system_string[ 1024 ];
@@ -457,10 +459,14 @@ char *entity_insert_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"insert_statement table=%s field=%s delimiter='%c' | "
-		"sql",
+		"sql 2>&1 |"
+		"%s",
 		entity_table,
 		insert_column_string,
-		sql_delimiter );
+		sql_delimiter,
+		(ignore_duplicate_boolean)
+	       		? "cat"
+			: "grep -vi duplicate" );
 
 	free( insert_column_string );
 
@@ -838,3 +844,53 @@ boolean entity_contact_key_populated_boolean(
 
 	return populated_boolean;
 }
+
+char *entity_insert(
+		const char *entity_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		boolean ignore_duplicate_boolean )
+{
+	char *system_string;
+	char *data_string;
+	char *spool_string;
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_system_string(
+			entity_table,
+			entity_full_name_column,
+			entity_contact_key_column,
+			SQL_DELIMITER,
+			contact_key_boolean,
+			ignore_duplicate_boolean );
+
+	data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_data_string(
+			SQL_DELIMITER,
+			contact_key_boolean,
+			full_name,
+			contact_key );
+
+	spool_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		spool_data_string(
+			system_string,
+			data_string );
+
+	free( system_string );
+	free( data_string );
+
+	return spool_string;
+}
+

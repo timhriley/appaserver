@@ -468,3 +468,163 @@ char *insert_expense_transaction_input_transaction_date_time(
 
 	return strdup( transaction_date_time );
 }
+
+INSERT_EXPENSE_TRANSACTION *
+	insert_expense_transaction_new(
+		char *fund_name,
+		char *feeder_account,
+		char *full_name,
+		char *contact_key,
+		char *transaction_date,
+		char *debit_account,
+		double transaction_amount,
+		int check_number,
+		char *memo )
+{
+	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+
+	insert_expense_transaction = insert_expense_transaction_calloc();
+
+	insert_expense_transaction->insert_expense_transaction_input =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		insert_expense_transaction_input_new(
+			fund_name,
+			feeder_account,
+			full_name,
+			contact_key,
+			transaction_date,
+			debit_account,
+			transaction_amount,
+			check_number );
+
+	insert_expense_transaction->error_message =
+		/* -------------------------------------------- */
+		/* Returns program memory, heap memory, or null */
+		/* -------------------------------------------- */
+		insert_expense_transaction_error_message(
+			check_number,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				fund_empty_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				feeder_empty_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				name_empty_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				debit_empty_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				amount_empty_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				check_duplicate_boolean,
+			insert_expense_transaction->
+				insert_expense_transaction_input->
+				journal_duplicate_boolean );
+
+	if ( !insert_expense_transaction->error_message )
+	{
+		insert_expense_transaction->transaction_binary =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			transaction_binary(
+				fund_name,
+				full_name,
+				insert_expense_transaction->
+					insert_expense_transaction_input->
+					entity_contact_key,
+				insert_expense_transaction->
+					insert_expense_transaction_input->
+					transaction_date_time,
+				transaction_amount,
+				memo,
+				debit_account,
+				feeder_account /* credit_account_name */ );
+	}
+
+	return insert_expense_transaction;
+}
+
+INSERT_EXPENSE_TRANSACTION *insert_expense_transaction_calloc( void )
+{
+	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+
+	if ( ! ( insert_expense_transaction =
+			calloc( 1,
+				sizeof ( INSERT_EXPENSE_TRANSACTION ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return insert_expense_transaction;
+}
+
+char *insert_expense_transaction_error_message(
+		int check_number,
+		boolean fund_empty_boolean,
+		boolean feeder_empty_boolean,
+		boolean name_empty_boolean,
+		boolean debit_empty_boolean,
+		boolean amount_empty_boolean,
+		boolean check_duplicate_boolean,
+		boolean journal_duplicate_boolean )
+{
+	char *error_message = {0};
+
+	if ( fund_empty_boolean )
+		error_message =
+			"<h3>Please choose a fund.</h3>";
+	else
+	if ( feeder_empty_boolean )
+		error_message =
+			"<h3>Please choose a feeder account.</h3>";
+	else
+	if ( name_empty_boolean )
+		error_message =
+			"<h3>Please choose an entity.</h3>";
+	else
+	if ( debit_empty_boolean )
+		error_message =
+			"<h3>Please choose a nominal account.</h3>";
+	else
+	if ( amount_empty_boolean )
+		error_message =
+			"<h3>Please enter in a transaction amount.</h3>";
+	else
+	if ( check_duplicate_boolean )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"<h3>Check number %d already exists.</h3>",
+			check_number );
+
+		error_message = strdup( message );
+	}
+	else
+	if ( journal_duplicate_boolean )
+		error_message =
+			INSERT_EXPENSE_TRANSACTION_JOURNAL_DUPLICATE_MESSAGE;
+
+	return error_message;
+}
+

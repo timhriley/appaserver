@@ -170,7 +170,8 @@ char *entity_insert(
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *contact_key );
+		char *contact_key,
+		boolean ignore_duplicate_boolean );
 
 /* Usage */
 /* ----- */
@@ -182,7 +183,8 @@ char *entity_insert_system_string(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		const char sql_delimiter,
-		boolean entity_contact_key_boolean );
+		boolean entity_contact_key_boolean,
+		boolean ignore_duplicate_boolean );
 
 /* Usage */
 /* ----- */
