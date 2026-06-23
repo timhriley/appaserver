@@ -1256,3 +1256,9 @@ account_delta.o:							\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account_delta.c
 
+insert_expense_transaction.o:						\
+	insert_expense_transaction.c					\
+	insert_expense_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c insert_expense_transaction.c
+
