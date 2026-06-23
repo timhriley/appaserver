@@ -12,6 +12,7 @@
 #include "sql.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "folder_attribute.h"
 #include "security.h"
 #include "entity_key.h"
 #include "optional_column.h"
@@ -723,30 +724,44 @@ boolean entity_contact_key_boolean(
 }
 
 char *entity_contact_key(
+		const char *entity_table,
 		const char *entity_contact_key_column,
-		const char *entity_contact_key_default,
+		char *full_name,
 		char *contact_key,
-		boolean entity_contact_key_boolean,
-		boolean stack_memory_boolean )
+		boolean contact_key_boolean )
 {
 	char *key = {0};
 
-	if ( entity_contact_key_boolean )
+	if ( contact_key_boolean )
 	{
-		if (	!contact_key
-		||	!*contact_key
-		||	strcmp(
-				contact_key,
-				entity_contact_key_column ) == 0 )
+		if ( entity_contact_key_populated_boolean(
+			entity_contact_key_column,
+			contact_key ) )
 		{
-			key = (char *)entity_contact_key_default;
+			key = contact_key;
 		}
 		else
 		{
-			if ( stack_memory_boolean )
-				key = strdup( contact_key );
-			else
-				key = contact_key;
+			key =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				entity_fetch_contact_key(
+					1 /* entity_contact_key_boolean */,
+					full_name );
+
+			if ( !key )
+			{
+				key =
+				    /* --------------------------- */
+				    /* Returns heap memory or null */
+				    /* --------------------------- */
+				    folder_attribute_fetch_default_value(
+					(char *)entity_table
+						/* folder_name */,
+					(char *)ENTITY_CONTACT_KEY_COLUMN
+						/* attribute_name */ );
+			}
 		}
 	}
 
@@ -804,4 +819,22 @@ LIST *entity_primary_key_list(
 	}
 
 	return list;
+}
+
+boolean entity_contact_key_populated_boolean(
+		const char *entity_contact_key_column,
+		char *contact_key )
+{
+	boolean populated_boolean = 0;
+
+	if (	contact_key
+	&&	*contact_key
+	&&	strcmp(
+			contact_key,
+			entity_contact_key_column ) != 0 )
+	{
+		populated_boolean = 1;
+	}
+
+	return populated_boolean;
 }

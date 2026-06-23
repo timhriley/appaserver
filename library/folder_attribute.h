@@ -249,73 +249,122 @@ FOLDER_ATTRIBUTE *folder_attribute_seek(
 LIST *folder_attribute_viewonly_attribute_name_list(
 		LIST *folder_attribute_append_isa_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 LIST *folder_attribute_name_list(
 		char *folder_name,
 		LIST *folder_attribute_append_isa_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_folder_prefixed_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_primary_list(
 		char *folder_name,
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_non_primary_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_primary_key_list(
 		char *folder_name,
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_non_primary_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_number_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_date_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 int folder_attribute_calendar_date_name_list_length(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_time_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_float_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_integer_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_number_name_list(
 		LIST *folder_attribute_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
 char *folder_attribute_sort_attribute_name(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *folder_attribute_list_display(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_fetch_primary_key_list(
 		char *folder_name );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_name_list_attribute_list(
 		LIST *folder_name_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_lookup_required_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_insert_required_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
 LIST *folder_attribute_upload_filename_list(
 		LIST *folder_attribute_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *folder_attribute_fetch_default_value(
+		char *folder_name,
+		char *attribute_name );
 
 #endif

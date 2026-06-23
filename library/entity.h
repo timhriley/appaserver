@@ -235,11 +235,17 @@ boolean entity_contact_key_boolean(
 /* Returns parameter heap memory or null */
 /* ------------------------------------- */
 char *entity_contact_key(
+		const char *entity_table,
 		const char *entity_contact_key_column,
-		const char *entity_contact_key_default,
+		char *full_name,
 		char *contact_key,
-		boolean entity_contact_key_boolean,
-		boolean stack_memory_boolean );
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+boolean entity_contact_key_populated_boolean(
+		const char *entity_contact_key_column,
+		char *contact_key );
 
 /* Usage */
 /* ----- */

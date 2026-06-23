@@ -1858,3 +1858,37 @@ LIST *folder_attribute_viewonly_attribute_name_list(
 	return viewonly_attribute_name_list;
 }
 
+char *folder_attribute_fetch_default_value(
+		char *folder_name,
+		char *attribute_name )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( !folder_name
+	||   !attribute_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	folder_attribute =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		folder_attribute_fetch(
+			folder_name,
+			attribute_name,
+			0 /* not fetch_attribute */ );
+
+	return folder_attribute->default_value;
+}
