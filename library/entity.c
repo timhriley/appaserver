@@ -717,6 +717,7 @@ boolean entity_contact_key_boolean(
 char *entity_contact_key(
 		const char *entity_table,
 		const char *entity_contact_key_column,
+		const char *entity_contact_key_default,
 		char *full_name,
 		char *contact_key,
 		boolean contact_key_boolean )
@@ -752,6 +753,11 @@ char *entity_contact_key(
 						/* folder_name */,
 					(char *)ENTITY_CONTACT_KEY_COLUMN
 						/* attribute_name */ );
+			}
+
+			if ( !key )
+			{
+				key = (char *)entity_contact_key_default;
 			}
 		}
 	}

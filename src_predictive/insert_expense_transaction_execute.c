@@ -11,7 +11,7 @@
 #include "appaserver_parameter.h"
 #include "document.h"
 #include "entity.h"
-#include "insert_expense_transaction.h"
+#include "insert_expense.h"
 
 int main( int argc, char **argv )
 {
@@ -27,7 +27,7 @@ int main( int argc, char **argv )
 	double transaction_amount;
 	int check_number;
 	char *memo;
-	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+	INSERT_EXPENSE *insert_expense;
 	char *error_message = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -64,11 +64,11 @@ int main( int argc, char **argv )
 		process_name /* title */ );
 
 
-	insert_expense_transaction =
+	insert_expense =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		insert_expense_transaction_new(
+		insert_expense_new(
 			fund_name,
 			feeder_account,
 			full_name,
@@ -80,48 +80,48 @@ int main( int argc, char **argv )
 			check_number,
 			memo );
 
-	if ( insert_expense_transaction->error_message )
+	if ( insert_expense->error_message )
 	{
 		printf( "<h3>%s</h3>\n",
-			insert_expense_transaction->error_message );
+			insert_expense->error_message );
 	}
 	else
 	{
-		insert_expense_transaction->
+		insert_expense->
 			transaction_binary->
 			transaction_date_time =
 				/* -------------------------------------- */
 				/* Returns inserted transaction_date_time */
 				/* -------------------------------------- */
 				transaction_insert(
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							fund_name,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							full_name,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							contact_key,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							transaction_date_time,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							transaction_amount,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							check_number,
-					insert_expense_transaction->
+					insert_expense->
 						transaction_binary->
 							memo,
-					insert_expense_transaction->
+					insert_expense->
 							transaction_binary->
 							journal_list,
 					1 /* insert_journal_list_boolean */ );
 	
-		if ( insert_expense_transaction->
-			insert_expense_transaction_input->
+		if ( insert_expense->
+			insert_expense_input->
 			new_name_boolean )
 		{
 			error_message =
@@ -132,28 +132,21 @@ int main( int argc, char **argv )
 					ENTITY_TABLE,
 					ENTITY_FULL_NAME_COLUMN,
 					ENTITY_CONTACT_KEY_COLUMN,
-					insert_expense_transaction->
-					    insert_expense_transaction_input->
+					insert_expense->
+					    insert_expense_input->
 					    entity_contact_key_boolean,
-					insert_expense_transaction->
-					    insert_expense_transaction_input->
+					insert_expense->
+					    insert_expense_input->
 						full_name,
-					insert_expense_transaction->
-					    insert_expense_transaction_input->
+					insert_expense->
+					    insert_expense_input->
 					    entity_contact_key,
 					1 /* ignore_duplicate_boolean */ );
 		}
 	
-		if ( error_message )
-		{
-			printf( "%s\n", error_message );
-		}
-		else
-		{
-			transaction_html_display(
-				insert_expense_transaction->
-					transaction_binary );
-		}
+		if ( error_message ) printf( "%s\n", error_message );
+
+		transaction_html_display( insert_expense->transaction_binary );
 	}
 
 	document_close();

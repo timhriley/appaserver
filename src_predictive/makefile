@@ -512,13 +512,13 @@ insert_expense_transaction_execute:					\
 	insert_expense_transaction_execute.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${FEEDER_LIBRARY}						\
-	insert_expense_transaction.o
+	insert_expense.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		insert_expense_transaction_execute.c			\
 		${FEEDER_LIBRARY}					\
-		insert_expense_transaction.o				\
+		insert_expense.o					\
 		-o insert_expense_transaction_execute
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
@@ -1270,9 +1270,15 @@ account_delta.o:							\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account_delta.c
 
-insert_expense_transaction.o:						\
-	insert_expense_transaction.c					\
-	insert_expense_transaction.h
+insert_expense.o:							\
+	insert_expense.c						\
+	insert_expense.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c insert_expense_transaction.c
+		-c insert_expense.c
+
+insert_feeder.o:							\
+	insert_feeder.c							\
+	insert_feeder.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c insert_feeder.c
 

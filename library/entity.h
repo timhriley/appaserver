@@ -235,11 +235,12 @@ boolean entity_contact_key_boolean(
 /* Usage */
 /* ----- */
 
-/* Returns parameter heap memory or null */
-/* ------------------------------------- */
+/* Returns parameter, heap memory, or null */
+/* --------------------------------------- */
 char *entity_contact_key(
 		const char *entity_table,
 		const char *entity_contact_key_column,
+		const char *entity_contact_key_default,
 		char *full_name,
 		char *contact_key,
 		boolean entity_contact_key_boolean );

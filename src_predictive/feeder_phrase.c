@@ -384,3 +384,55 @@ boolean feeder_phrase_match_boolean(
 		description_space_trim /* string */,
 		feeder_component /* regular_expression */ );
 }
+
+char *feeder_phrase_insert(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase_insert_columns,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean,
+		char *feeder_account,
+		char *new_full_name,
+		char *feeder_phrase,
+		char *entity_contact_key )
+{
+	char *system_string;
+	char *data_string;
+	char *spool_string;
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_phrase_insert_system_string(
+			feeder_phrase_table,
+			feeder_phrase_insert_columns,
+			entity_contact_key_column,
+			SQL_DELIMITER,
+			contact_key_boolean );
+
+	data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_phrase_insert_data_string(
+			SQL_DELIMITER,
+			contact_key_boolean,
+			feeder_account,
+			new_full_name,
+			feeder_phrase,
+			entity_contact_key );
+
+	spool_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		spool_data_string(
+			system_string,
+			data_string );
+
+	free( system_string );
+	free( data_string );
+
+	return spool_string;
+}
+

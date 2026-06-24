@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/insert_expense_transaction.c		*/
+/* $APPASERVER_HOME/src_predictive/insert_expense.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -18,10 +18,10 @@
 #include "predictive.h"
 #include "journal.h"
 #include "account.h"
-#include "insert_expense_transaction.h"
+#include "insert_expense.h"
 
-INSERT_EXPENSE_TRANSACTION_INPUT *
-	insert_expense_transaction_input_new(
+INSERT_EXPENSE_INPUT *
+	insert_expense_input_new(
 		char *fund_name,
 		char *feeder_account,
 		char *full_name,
@@ -32,131 +32,131 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 		double transaction_amount,
 		int check_number )
 {
-	INSERT_EXPENSE_TRANSACTION_INPUT *
-		insert_expense_transaction_input;
+	INSERT_EXPENSE_INPUT *
+		insert_expense_input;
 
-	insert_expense_transaction_input =
-		insert_expense_transaction_input_calloc();
+	insert_expense_input =
+		insert_expense_input_calloc();
 
-	insert_expense_transaction_input->transaction_date =
+	insert_expense_input->transaction_date =
 		/* -------------------------------- */
 		/* Returns parameter or heap memory */
 		/* -------------------------------- */
-		insert_expense_transaction_input_transaction_date(
+		insert_expense_input_transaction_date(
 			transaction_date );
 
-	insert_expense_transaction_input->
+	insert_expense_input->
 		predictive_fund_boolean =
 			predictive_fund_boolean(
 				PREDICTIVE_FUND_TABLE,
 				PREDICTIVE_FUND_COLUMN );
 
-	insert_expense_transaction_input->fund_empty_boolean =
-		insert_expense_transaction_input_fund_empty_boolean(
+	insert_expense_input->fund_empty_boolean =
+		insert_expense_input_fund_empty_boolean(
 			fund_name,
-			insert_expense_transaction_input->
+			insert_expense_input->
 				predictive_fund_boolean );
 
-	if ( insert_expense_transaction_input->fund_empty_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->fund_empty_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->feeder_empty_boolean =
-		insert_expense_transaction_input_feeder_empty_boolean(
+	insert_expense_input->feeder_empty_boolean =
+		insert_expense_input_feeder_empty_boolean(
 			feeder_account );
 
-	if ( insert_expense_transaction_input->feeder_empty_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->feeder_empty_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->new_name_boolean =
-		insert_expense_transaction_input_new_name_boolean(
+	insert_expense_input->new_name_boolean =
+		insert_expense_input_new_name_boolean(
 			new_full_name );
 
-	insert_expense_transaction_input->name_empty_boolean =
-		insert_expense_transaction_input_name_empty_boolean(
+	insert_expense_input->name_empty_boolean =
+		insert_expense_input_name_empty_boolean(
 			full_name,
-			insert_expense_transaction_input->new_name_boolean );
+			insert_expense_input->new_name_boolean );
 
-	if ( insert_expense_transaction_input->name_empty_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->name_empty_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->full_name =
+	insert_expense_input->full_name =
 		/* ------------------------ */
 		/* Returns either parameter */
 		/* ------------------------ */
-		insert_expense_transaction_input_full_name(
+		insert_expense_input_full_name(
 			full_name,
 			new_full_name,
-			insert_expense_transaction_input->new_name_boolean );
+			insert_expense_input->new_name_boolean );
 
-	insert_expense_transaction_input->debit_empty_boolean =
-		insert_expense_transaction_input_debit_empty_boolean(
+	insert_expense_input->debit_empty_boolean =
+		insert_expense_input_debit_empty_boolean(
 			debit_account );
 
-	if ( insert_expense_transaction_input->debit_empty_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->debit_empty_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->amount_empty_boolean =
-		insert_expense_transaction_input_amount_empty_boolean(
+	insert_expense_input->amount_empty_boolean =
+		insert_expense_input_amount_empty_boolean(
 			transaction_amount );
 
-	if ( insert_expense_transaction_input->amount_empty_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->amount_empty_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->check_duplicate_boolean =
-		insert_expense_transaction_input_check_duplicate_boolean(
+	insert_expense_input->check_duplicate_boolean =
+		insert_expense_input_check_duplicate_boolean(
 			TRANSACTION_TABLE,
 			transaction_amount,
 			check_number );
 
-	if ( insert_expense_transaction_input->check_duplicate_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->check_duplicate_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->
+	insert_expense_input->
 		entity_contact_key_boolean =
 			entity_contact_key_boolean(
 				ENTITY_TABLE,
 				ENTITY_CONTACT_KEY_COLUMN );
 
-	insert_expense_transaction_input->journal_duplicate_boolean =
-		insert_expense_transaction_input_journal_duplicate_boolean(
+	insert_expense_input->journal_duplicate_boolean =
+		insert_expense_input_journal_duplicate_boolean(
 			JOURNAL_TABLE,
 			fund_name,
-			insert_expense_transaction_input->full_name,
+			insert_expense_input->full_name,
 			contact_key,
-			insert_expense_transaction_input->transaction_date,
+			insert_expense_input->transaction_date,
 			debit_account,
 			transaction_amount,
-			insert_expense_transaction_input->
+			insert_expense_input->
 				predictive_fund_boolean,
-			insert_expense_transaction_input->
+			insert_expense_input->
 				entity_contact_key_boolean );
 
-	if ( insert_expense_transaction_input->journal_duplicate_boolean )
-		return insert_expense_transaction_input;
+	if ( insert_expense_input->journal_duplicate_boolean )
+		return insert_expense_input;
 
-	insert_expense_transaction_input->credit_account =
+	insert_expense_input->credit_account =
 		/* -------------------------------- */
 		/* Returns parameter or heap memory */
 		/* -------------------------------- */
-		insert_expense_transaction_input_credit_account(
+		insert_expense_input_credit_account(
 			ACCOUNT_UNCLEARED_CHECKS_KEY,
 			feeder_account,
 			check_number );
 
-	insert_expense_transaction_input->transaction_date_time =
+	insert_expense_input->transaction_date_time =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		insert_expense_transaction_input_transaction_date_time(
-			insert_expense_transaction_input->transaction_date );
+		insert_expense_input_transaction_date_time(
+			insert_expense_input->transaction_date );
 
-	insert_expense_transaction_input->
+	insert_expense_input->
 		entity_contact_key_boolean =
 			entity_contact_key_boolean(
 				ENTITY_TABLE,
 				ENTITY_CONTACT_KEY_COLUMN );
 
-	insert_expense_transaction_input->
+	insert_expense_input->
 		entity_contact_key =
 			/* ------------------------------------- */
 			/* Returns parameter heap memory or null */
@@ -166,22 +166,22 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 				ENTITY_CONTACT_KEY_COLUMN,
 				full_name,
 				contact_key,
-				insert_expense_transaction_input->
+				insert_expense_input->
 					entity_contact_key_boolean );
 
-	return insert_expense_transaction_input;
+	return insert_expense_input;
 }
 
-INSERT_EXPENSE_TRANSACTION_INPUT *
-	insert_expense_transaction_input_calloc(
+INSERT_EXPENSE_INPUT *
+	insert_expense_input_calloc(
 		void )
 {
-	INSERT_EXPENSE_TRANSACTION_INPUT *
-		insert_expense_transaction_input;
+	INSERT_EXPENSE_INPUT *
+		insert_expense_input;
 
-	if ( ! ( insert_expense_transaction_input =
+	if ( ! ( insert_expense_input =
 		    calloc( 1,
-			    sizeof ( INSERT_EXPENSE_TRANSACTION_INPUT ) ) ) )
+			    sizeof ( INSERT_EXPENSE_INPUT ) ) ) )
 	{
 		char message[ 1024 ];
 
@@ -197,10 +197,10 @@ INSERT_EXPENSE_TRANSACTION_INPUT *
 			message );
 	}
 
-	return insert_expense_transaction_input;
+	return insert_expense_input;
 }
 
-boolean insert_expense_transaction_input_feeder_empty_boolean(
+boolean insert_expense_input_feeder_empty_boolean(
 		char *feeder_account )
 {
 	boolean empty_boolean = 0;
@@ -215,7 +215,7 @@ boolean insert_expense_transaction_input_feeder_empty_boolean(
 	return empty_boolean;
 }
 
-boolean insert_expense_transaction_input_name_empty_boolean(
+boolean insert_expense_input_name_empty_boolean(
 		char *full_name,
 		boolean new_name_boolean )
 {
@@ -231,7 +231,7 @@ boolean insert_expense_transaction_input_name_empty_boolean(
 	return empty_boolean;
 }
 
-boolean insert_expense_transaction_input_debit_empty_boolean(
+boolean insert_expense_input_debit_empty_boolean(
 		char *debit_account )
 {
 	boolean empty_boolean = 0;
@@ -246,7 +246,7 @@ boolean insert_expense_transaction_input_debit_empty_boolean(
 	return empty_boolean;
 }
 
-boolean insert_expense_transaction_input_amount_empty_boolean(
+boolean insert_expense_input_amount_empty_boolean(
 		double transaction_amount )
 {
 	boolean empty_boolean = 0;
@@ -262,7 +262,7 @@ boolean insert_expense_transaction_input_amount_empty_boolean(
 	return empty_boolean;
 }
 
-boolean insert_expense_transaction_input_check_duplicate_boolean(
+boolean insert_expense_input_check_duplicate_boolean(
 		const char *transaction_table,
 		double transaction_amount,
 		int check_number )
@@ -294,7 +294,7 @@ boolean insert_expense_transaction_input_check_duplicate_boolean(
 	return duplicate_boolean;
 }
 
-char *insert_expense_transaction_input_transaction_date(
+char *insert_expense_input_transaction_date(
 		char *transaction_date )
 {
 	DATE_CONVERT *date_convert;
@@ -322,7 +322,7 @@ char *insert_expense_transaction_input_transaction_date(
 	return date;
 }
 
-boolean insert_expense_transaction_input_fund_empty_boolean(
+boolean insert_expense_input_fund_empty_boolean(
 		char *fund_name,
 		boolean fund_boolean )
 {
@@ -341,7 +341,7 @@ boolean insert_expense_transaction_input_fund_empty_boolean(
 	return fund_empty_boolean;
 }
 
-boolean insert_expense_transaction_input_journal_duplicate_boolean(
+boolean insert_expense_input_journal_duplicate_boolean(
 		const char *journal_table,
 		char *fund_name,
 		char *full_name,
@@ -359,7 +359,7 @@ boolean insert_expense_transaction_input_journal_duplicate_boolean(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		insert_expense_transaction_input_journal_where(
+		insert_expense_input_journal_where(
 			fund_name,
 			full_name,
 			contact_key,
@@ -381,7 +381,7 @@ boolean insert_expense_transaction_input_journal_duplicate_boolean(
 	return atoi( string_pipe( system_string ) );
 }
 
-char *insert_expense_transaction_input_journal_where(
+char *insert_expense_input_journal_where(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -429,7 +429,7 @@ char *insert_expense_transaction_input_journal_where(
 	return strdup( where );
 }
 
-char *insert_expense_transaction_input_credit_account(
+char *insert_expense_input_credit_account(
 		const char *account_uncleared_checks_key,
 		char *feeder_account,
 		int check_number )
@@ -454,7 +454,7 @@ char *insert_expense_transaction_input_credit_account(
 	return credit_account;
 }
 
-char *insert_expense_transaction_input_transaction_date_time(
+char *insert_expense_input_transaction_date_time(
 		char *transaction_date )
 {
 	char *transaction_time;
@@ -492,8 +492,8 @@ char *insert_expense_transaction_input_transaction_date_time(
 	return strdup( transaction_date_time );
 }
 
-INSERT_EXPENSE_TRANSACTION *
-	insert_expense_transaction_new(
+INSERT_EXPENSE *
+	insert_expense_new(
 		char *fund_name,
 		char *feeder_account,
 		char *full_name,
@@ -505,15 +505,15 @@ INSERT_EXPENSE_TRANSACTION *
 		int check_number,
 		char *memo )
 {
-	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+	INSERT_EXPENSE *insert_expense;
 
-	insert_expense_transaction = insert_expense_transaction_calloc();
+	insert_expense = insert_expense_calloc();
 
-	insert_expense_transaction->insert_expense_transaction_input =
+	insert_expense->insert_expense_input =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		insert_expense_transaction_input_new(
+		insert_expense_input_new(
 			fund_name,
 			feeder_account,
 			full_name,
@@ -524,50 +524,50 @@ INSERT_EXPENSE_TRANSACTION *
 			transaction_amount,
 			check_number );
 
-	insert_expense_transaction->error_message =
+	insert_expense->error_message =
 		/* -------------------------------------------- */
 		/* Returns program memory, heap memory, or null */
 		/* -------------------------------------------- */
-		insert_expense_transaction_error_message(
+		insert_expense_error_message(
 			check_number,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				fund_empty_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				feeder_empty_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				name_empty_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				debit_empty_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				amount_empty_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				check_duplicate_boolean,
-			insert_expense_transaction->
-				insert_expense_transaction_input->
+			insert_expense->
+				insert_expense_input->
 				journal_duplicate_boolean );
 
-	if ( !insert_expense_transaction->error_message )
+	if ( !insert_expense->error_message )
 	{
-		insert_expense_transaction->transaction_binary =
+		insert_expense->transaction_binary =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
 			transaction_binary(
 				fund_name,
-				insert_expense_transaction->
-					insert_expense_transaction_input->
+				insert_expense->
+					insert_expense_input->
 					full_name,
-				insert_expense_transaction->
-					insert_expense_transaction_input->
+				insert_expense->
+					insert_expense_input->
 					entity_contact_key,
-				insert_expense_transaction->
-					insert_expense_transaction_input->
+				insert_expense->
+					insert_expense_input->
 					transaction_date_time,
 				transaction_amount,
 				memo,
@@ -575,16 +575,16 @@ INSERT_EXPENSE_TRANSACTION *
 				feeder_account /* credit_account_name */ );
 	}
 
-	return insert_expense_transaction;
+	return insert_expense;
 }
 
-INSERT_EXPENSE_TRANSACTION *insert_expense_transaction_calloc( void )
+INSERT_EXPENSE *insert_expense_calloc( void )
 {
-	INSERT_EXPENSE_TRANSACTION *insert_expense_transaction;
+	INSERT_EXPENSE *insert_expense;
 
-	if ( ! ( insert_expense_transaction =
+	if ( ! ( insert_expense =
 			calloc( 1,
-				sizeof ( INSERT_EXPENSE_TRANSACTION ) ) ) )
+				sizeof ( INSERT_EXPENSE ) ) ) )
 	{
 		char message[ 1024 ];
 
@@ -600,10 +600,10 @@ INSERT_EXPENSE_TRANSACTION *insert_expense_transaction_calloc( void )
 			message );
 	}
 
-	return insert_expense_transaction;
+	return insert_expense;
 }
 
-char *insert_expense_transaction_error_message(
+char *insert_expense_error_message(
 		int check_number,
 		boolean fund_empty_boolean,
 		boolean feeder_empty_boolean,
@@ -650,12 +650,12 @@ char *insert_expense_transaction_error_message(
 	else
 	if ( journal_duplicate_boolean )
 		error_message =
-			INSERT_EXPENSE_TRANSACTION_JOURNAL_DUPLICATE_MESSAGE;
+			INSERT_EXPENSE_JOURNAL_DUPLICATE_MESSAGE;
 
 	return error_message;
 }
 
-boolean insert_expense_transaction_input_new_name_boolean(
+boolean insert_expense_input_new_name_boolean(
 		char *new_full_name )
 {
 	boolean new_name_boolean = 0;
@@ -670,7 +670,7 @@ boolean insert_expense_transaction_input_new_name_boolean(
 	return new_name_boolean;
 }
 
-char *insert_expense_transaction_input_full_name(
+char *insert_expense_input_full_name(
 		char *full_name,
 		char *new_full_name,
 		boolean new_name_boolean )
