@@ -21,7 +21,7 @@ typedef struct
 	char *customer_contact_key;
 	boolean sales_tax_exempt_boolean;
 	ENTITY *entity;
-	double invoice_balance;
+	double past_due;
 } CUSTOMER;
 
 /* Usage */
@@ -31,7 +31,7 @@ CUSTOMER *customer_fetch(
 		char *customer_contact_key,
 		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_payable_balance_boolean );
+		boolean fetch_past_due_boolean );
 
 /* Usage */
 /* ----- */
@@ -40,7 +40,7 @@ CUSTOMER *customer_parse(
 		char *customer_contact_key,
 		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_payable_balance_boolean,
+		boolean fetch_past_due_boolean,
 		char *input );
 
 /* Usage */
@@ -59,7 +59,7 @@ CUSTOMER *customer_calloc(
 
 /* Usage */
 /* ----- */
-double customer_invoice_balance(
+double customer_past_due(
 		const char *account_payable_key,
 		const char *account_receivable_key,
 		char *customer_full_name,

@@ -108,7 +108,7 @@ INVOICE *invoice_new(
 				customer_contact_key,
 				invoice->entity_contact_key_boolean,
 				1 /* fetch_entity_boolean */,
-				1 /* fetch_invoice_balance_boolean */ ) ) )
+				1 /* fetch_past_due_boolean */ ) ) )
 	{
 		char message[ 128 ];
 
@@ -163,7 +163,7 @@ INVOICE *invoice_new(
 		/* -------------- */
 		invoice_summary_new(
 			invoice_line_item_list,
-			invoice->customer->invoice_balance );
+			invoice->customer->past_due );
 
 	return invoice;
 }
@@ -244,7 +244,7 @@ void invoice_html_output_footer(
 		boolean description_boolean,
 		boolean discount_boolean,
 		double extended_total,
-		double customer_payable_balance,
+		double customer_past_due,
 		double invoice_summary_amount_due,
 		char *amount_due_label,
 		FILE *output_stream )
@@ -270,9 +270,12 @@ void invoice_html_output_footer(
 		string_commas_money(
 		 	extended_total ) );
 
-	if ( !float_virtually_same( customer_payable_balance, 0.0 ) )
+	if ( !float_virtually_same( customer_past_due, 0.0 ) )
 	{
-		fprintf( output_stream, "<tr><td>Payment (Thank you)" );
+		if ( customer_past_due < 0.0 )
+			fprintf( output_stream, "<tr><td>Payment (Thank you)" );
+		else
+			fprintf( output_stream, "<tr><td>Past Due" );
 
 		if ( description_boolean )
 			fprintf( output_stream, "<td>" );
@@ -290,7 +293,7 @@ void invoice_html_output_footer(
 			/* Returns static memory */
 			/* --------------------- */
 			string_commas_money(
-			 	customer_payable_balance ) );
+			 	customer_past_due ) );
 	}
 
 	fprintf(output_stream,
@@ -540,7 +543,7 @@ void invoice_html_output(
 		invoice->
 			invoice_summary->
 			invoice_line_item_extended_total,
-		invoice->customer->invoice_balance,
+		invoice->customer->past_due,
 		invoice->invoice_summary->amount_due,
 		invoice->amount_due_label,
 		output_stream );
@@ -841,17 +844,17 @@ double invoice_summary_invoice_amount(
 }
 
 double invoice_summary_amount_due(
-		double customer_invoice_balance,
+		double customer_past_due,
 		double invoice_amount )
 {
 	return
 	invoice_amount +
-	customer_invoice_balance;
+	customer_past_due;
 }
 
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_invoice_balance )
+		double customer_past_due )
 {
 	INVOICE_SUMMARY *invoice_summary;
 
@@ -884,7 +887,7 @@ INVOICE_SUMMARY *invoice_summary_new(
 
 	invoice_summary->amount_due =
 		invoice_summary_amount_due(
-			customer_invoice_balance,
+			customer_past_due,
 			invoice_summary->invoice_amount );
 
 	return invoice_summary;

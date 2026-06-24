@@ -21,7 +21,7 @@ CUSTOMER *customer_fetch(
 		char *customer_contact_key,
 		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_invoice_balance_boolean )
+		boolean fetch_past_due_boolean )
 {
 	char *where;
 	char *system_string;
@@ -69,7 +69,7 @@ CUSTOMER *customer_fetch(
 		customer_contact_key,
 		contact_key_boolean,
 		fetch_entity_boolean,
-		fetch_invoice_balance_boolean,
+		fetch_past_due_boolean,
 		input );
 }
 
@@ -78,7 +78,7 @@ CUSTOMER *customer_parse(
 		char *customer_contact_key,
 		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_invoice_balance_boolean,
+		boolean fetch_past_due_boolean,
 		char *input )
 {
 	char buffer[ 128 ];
@@ -136,10 +136,10 @@ CUSTOMER *customer_parse(
 		}
 	}
 
-	if ( fetch_invoice_balance_boolean )
+	if ( fetch_past_due_boolean )
 	{
-		customer->invoice_balance =
-			customer_invoice_balance(
+		customer->past_due =
+			customer_past_due(
 				ACCOUNT_PAYABLE_KEY,
 				ACCOUNT_RECEIVABLE_KEY,
 				customer_full_name,
@@ -196,7 +196,7 @@ CUSTOMER *customer_calloc( void )
 	return customer;
 }
 
-double customer_invoice_balance(
+double customer_past_due(
 		const char *account_payable_key,
 		const char *account_receivable_key,
 		char *customer_full_name,

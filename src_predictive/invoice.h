@@ -116,7 +116,7 @@ typedef struct
 /* -------------- */
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_invoice_balance );
+		double customer_past_due );
 
 /* Process */
 /* ------- */
