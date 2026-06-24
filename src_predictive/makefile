@@ -173,6 +173,7 @@ EXECUTABLES=	trial_balance_output					\
 		feeder_init_execute					\
 		feeder_init_csv_execute					\
 		insert_expense_transaction_execute			\
+		insert_feeder_phrase					\
 		journal_trigger						\
 		tax_form_report						\
 		close_nominal_accounts					\
@@ -520,6 +521,19 @@ insert_expense_transaction_execute:					\
 		${FEEDER_LIBRARY}					\
 		insert_expense.o					\
 		-o insert_expense_transaction_execute
+
+insert_feeder_phrase:							\
+	insert_feeder_phrase.c						\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${FEEDER_LIBRARY}						\
+	insert_feeder.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		insert_feeder_phrase.c					\
+		${FEEDER_LIBRARY}					\
+		insert_feeder.o						\
+		-o insert_feeder_phrase
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}

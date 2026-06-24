@@ -14,6 +14,8 @@
 #include "appaserver.h"
 #include "column.h"
 #include "float.h"
+#include "spool.h"
+#include "optional_column.h"
 #include "sql.h"
 #include "sed.h"
 #include "environ.h"
@@ -387,17 +389,35 @@ boolean feeder_phrase_match_boolean(
 
 char *feeder_phrase_insert(
 		const char *feeder_phrase_table,
-		const char *feeder_phrase_insert_columns,
+		const char *feeder_phrase_select,
 		const char *entity_contact_key_column,
 		boolean contact_key_boolean,
+		char *feeder_phrase,
 		char *feeder_account,
 		char *new_full_name,
-		char *feeder_phrase,
 		char *entity_contact_key )
 {
 	char *system_string;
 	char *data_string;
 	char *spool_string;
+
+	if ( !feeder_phrase
+	||   !feeder_account
+	||   !new_full_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	system_string =
 		/* ------------------- */
@@ -405,7 +425,7 @@ char *feeder_phrase_insert(
 		/* ------------------- */
 		feeder_phrase_insert_system_string(
 			feeder_phrase_table,
-			feeder_phrase_insert_columns,
+			feeder_phrase_select,
 			entity_contact_key_column,
 			SQL_DELIMITER,
 			contact_key_boolean );
@@ -417,9 +437,9 @@ char *feeder_phrase_insert(
 		feeder_phrase_insert_data_string(
 			SQL_DELIMITER,
 			contact_key_boolean,
+			feeder_phrase,
 			feeder_account,
 			new_full_name,
-			feeder_phrase,
 			entity_contact_key );
 
 	spool_string =
@@ -434,5 +454,89 @@ char *feeder_phrase_insert(
 	free( data_string );
 
 	return spool_string;
+}
+
+char *feeder_phrase_insert_data_string(
+		const char sql_delimiter,
+		boolean contact_key_boolean,
+		char *feeder_phrase,
+		char *feeder_account,
+		char *new_full_name,
+		char *entity_contact_key )
+{
+	char data_string[ 1024 ];
+	OPTIONAL_COLUMN *optional_column;
+
+	if ( !feeder_phrase
+	||   !feeder_account
+	||   !new_full_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		data_string,
+		sizeof ( data_string ),
+		"%s^%s^%s",
+		feeder_phrase,
+		feeder_account,
+		new_full_name );
+
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			sql_delimiter,
+			data_string /* base_string */,
+			entity_contact_key /* component */,
+			1 /* escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string;
+}
+
+char *feeder_phrase_insert_system_string(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase_select,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean contact_key_boolean )
+{
+	char *insert_column_string;
+	char system_string[ 1024 ];
+
+	insert_column_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_insert_column_string(
+			feeder_phrase_select /* entity_insert */,
+			entity_contact_key_column,
+			contact_key_boolean );
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"insert_statement table=%s field=%s delimiter='%c' | "
+		"sql 2>&1",
+		feeder_phrase_table,
+		insert_column_string,
+		sql_delimiter );
+
+	free( insert_column_string );
+
+	return strdup( system_string );
 }
 

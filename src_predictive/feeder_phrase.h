@@ -123,4 +123,44 @@ boolean feeder_phrase_match_boolean(
 		char *description_space_trim,
 		char *feeder_component );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_phrase_insert(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase_select,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean,
+		char *feeder_phrase,
+		char *feeder_account,
+		char *new_full_name,
+		char *entity_contact_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_phrase_insert_system_string(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase_select,
+		const char *entity_contact_key_column,
+		const char sql_delimiter,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_phrase_insert_data_string(
+		const char sql_delimiter,
+		boolean entity_contact_key_boolean,
+		char *feeder_phrase,
+		char *feeder_account,
+		char *new_full_name,
+		char *entity_contact_key );
+
 #endif

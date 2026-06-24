@@ -164,6 +164,7 @@ INSERT_EXPENSE_INPUT *
 			entity_contact_key(
 				ENTITY_TABLE,
 				ENTITY_CONTACT_KEY_COLUMN,
+				ENTITY_CONTACT_KEY_DEFAULT,
 				full_name,
 				contact_key,
 				insert_expense_input->
