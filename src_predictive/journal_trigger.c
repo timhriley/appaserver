@@ -157,7 +157,7 @@ int main( int argc, char **argv )
 			state,
 			preupdate_fund,
 			fund_name /* postupdate_datum */,
-			"preupdate_fund"
+			"preupdate_fund_name"
 				/* preupdate_placeholder_name */ );
 
 	transaction_preupdate_change =
@@ -212,8 +212,6 @@ int main( int argc, char **argv )
 			"preupdate_credit_amount"
 				/* preupdate_placeholder_name */ );
 
-fprintf( stderr, "6)\n" );
-
 	if ( fund_preupdate_change->no_change_boolean
 	&&   transaction_preupdate_change->no_change_boolean
 	&&   account_preupdate_change->no_change_boolean
@@ -222,8 +220,6 @@ fprintf( stderr, "6)\n" );
 	{
 		exit( 0 );
 	}
-
-fprintf( stderr, "7)\n" );
 
 	journal_trigger_update(
 		fund_name,

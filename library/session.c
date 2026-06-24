@@ -302,10 +302,12 @@ SESSION *session_parse(
 
 	if ( appaserver_user_boolean )
 	{
-		char contact_key[ 128 ];
+		char *contact_key = {0};
 
 		if ( contact_key_boolean )
 		{
+			piece( buffer, SQL_DELIMITER, string_fetch, 8 );
+			if ( *buffer ) contact_key = strdup( buffer );
 		}
 
 		if ( ! ( session->appaserver_user =
