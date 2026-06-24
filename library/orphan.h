@@ -11,6 +11,8 @@
 #include "list.h"
 #include "relation_mto1.h"
 
+#define DEBUG_MODE 0
+
 typedef struct
 {
 	RELATION_MTO1 *relation_mto1;

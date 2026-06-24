@@ -1287,6 +1287,16 @@ LIST *orphan_folder_list(
 	do {
 		folder_name = list_get( name_list );
 
+		if ( DEBUG_MODE )
+		{
+			fprintf(stderr,
+				"%s/%s/%d: folder_name=%s\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				folder_name );
+		}
+
 		orphan_folder =
 			/* -------------- */
 			/* Safely returns */
