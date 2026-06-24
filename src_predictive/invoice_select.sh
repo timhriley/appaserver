@@ -24,12 +24,12 @@ echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 full_name street_address sale_date_time" 1>&2
+	echo "Usage: $0 full_name contact_key sale_date_time" 1>&2
 	exit 1
 fi
 
 full_name=$1
-street_address=$2
+contact_key=$2
 sale_date_time=$3
 
 inventory_sale_select="inventory_name,'',quantity,retail_price,discount_amount,extended_price"
@@ -50,24 +50,31 @@ hourly_service_work_select="	service_name,
 				hourly_rate,
 				'0'"
 
+if [ "$contact_key" = "" ]
+then
+	contact_key_join="1 = 1"
+else
+	contact_key_join="contact_key = '$contact_key'"
+fi
+
 #echo "select ${inventory_sale_select}
 #from inventory_sale
 #where full_name = '$full_name'
-#and street_address = '$street_address'
+#and $contact_key_join
 #and sale_date_time = '$sale_date_time';" |
 #sql.e '^'
 
 #echo "select ${fixed_service_sale_select}
 #from fixed_service_sale
 #where full_name = '$full_name'
-#and street_address = '$street_address'
+#and $contact_key_join
 #and sale_date_time = '$sale_date_time';" |
 #sql.e '^'
 
 echo "select ${hourly_service_work_select}
 from hourly_service_work
 where full_name = '$full_name'
-and street_address = '$street_address'
+and $contact_key_join
 and sale_date_time = '$sale_date_time'
 and end_work_date_time is not null;" |
 sql.e '^'

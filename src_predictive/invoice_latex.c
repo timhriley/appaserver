@@ -241,7 +241,7 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 			invoice_summary->
 				invoice_line_item_discount_total,
 			invoice_summary->invoice_amount,
-			customer->journal_payable_balance,
+			customer->invoice_balance,
 			invoice_summary->amount_due );
 
 	invoice_latex_table->display =

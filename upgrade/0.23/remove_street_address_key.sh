@@ -14,6 +14,11 @@ then
 	exit 1
 fi
 
+if [ "$application" = "appahost" ]
+then
+	exit 0
+fi
+
 #output="cat"
 output="sql"
 

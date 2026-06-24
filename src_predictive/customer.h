@@ -18,17 +18,18 @@
 typedef struct
 {
 	char *customer_full_name;
-	char *customer_street_address;
+	char *customer_contact_key;
 	boolean sales_tax_exempt_boolean;
 	ENTITY *entity;
-	double journal_payable_balance;
+	double invoice_balance;
 } CUSTOMER;
 
 /* Usage */
 /* ----- */
 CUSTOMER *customer_fetch(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
+		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
 		boolean fetch_payable_balance_boolean );
 
@@ -36,10 +37,11 @@ CUSTOMER *customer_fetch(
 /* ----- */
 CUSTOMER *customer_parse(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
+		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
 		boolean fetch_payable_balance_boolean,
-		char *string_pipe_input );
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -48,12 +50,20 @@ CUSTOMER *customer_parse(
 /* -------------- */
 CUSTOMER *customer_new(
 		char *customer_full_name,
-		char *customer_street_address );
+		char *customer_contact_key );
 
 /* Process */
 /* ------- */
 CUSTOMER *customer_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+double customer_invoice_balance(
+		const char *account_payable_key,
+		const char *account_receivable_key,
+		char *customer_full_name,
+		char *customer_contact_key );
 
 #endif
 

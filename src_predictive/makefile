@@ -184,14 +184,14 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_account_balance				\
 		fixed_asset_home_trigger				\
 		investment_transaction_driver				\
-		import_predictbooks
+		import_predictbooks					\
+		generate_invoice
 #		post_change_customer_sale				\
 #		hourly_service_sale_trigger				\
 #		post_change_customer_payment				\
 #		post_change_hourly_service_work				\
 #		post_change_fixed_service_sale				\
 #		post_change_fixed_service_work
-#		generate_invoice					\
 #		post_accrual						\
 #		depreciate_fixed_assets					\
 #		post_change_vendor_payment				\

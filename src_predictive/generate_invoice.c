@@ -20,7 +20,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *customer_full_name;
-	char *customer_street_address;
+	char *customer_contact_key;
 	char *sale_date_time;
 	boolean workorder_boolean;
 	LIST *line_item_list;
@@ -39,7 +39,7 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-		"Usage: %s process full_name street_address sale_date_time\n",
+		"Usage: %s process full_name contact_key sale_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -48,7 +48,7 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	customer_full_name = argv[ 2 ];
-	customer_street_address = argv[ 3 ];
+	customer_contact_key = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 
 	document_process_output(
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	line_item_list =
 		invoice_line_item_list(
 			customer_full_name,
-			customer_street_address,
+			customer_contact_key,
 			sale_date_time );
 
 	invoice =
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 			sale_date_time
 				/* invoice_date_time_string */,
 			customer_full_name,
-			customer_street_address,
+			customer_contact_key,
 			(workorder_boolean)
 				? invoice_workorder
 				: invoice_due,

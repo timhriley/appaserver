@@ -18,20 +18,20 @@
 
 CUSTOMER *customer_fetch(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
+		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_payable_balance_boolean )
+		boolean fetch_invoice_balance_boolean )
 {
 	char *where;
 	char *system_string;
 	char *input;
 
-	if ( !customer_full_name
-	||   !customer_street_address )
+	if ( !customer_full_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "customer_full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -45,8 +45,9 @@ CUSTOMER *customer_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
+			contact_key_boolean,
 			customer_full_name,
-			customer_street_address );
+			customer_contact_key );
 
 	system_string =
 		/* ------------------- */
@@ -57,35 +58,33 @@ CUSTOMER *customer_fetch(
 			CUSTOMER_TABLE,
 			where );
 
-	input =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		string_pipe_input( system_string );
-
-	if ( !input ) return NULL;
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	input = string_system_input( system_string );
 
 	return
 	customer_parse(
 		customer_full_name,
-		customer_street_address,
+		customer_contact_key,
+		contact_key_boolean,
 		fetch_entity_boolean,
-		fetch_payable_balance_boolean,
+		fetch_invoice_balance_boolean,
 		input );
 }
 
 CUSTOMER *customer_parse(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
+		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_payable_balance_boolean,
+		boolean fetch_invoice_balance_boolean,
 		char *input )
 {
-	char piece_buffer[ 128 ];
+	char buffer[ 128 ];
 	CUSTOMER *customer;
 
 	if ( !customer_full_name
-	||   !customer_street_address
 	||   !input )
 	{
 		char message[ 128 ];
@@ -105,30 +104,29 @@ CUSTOMER *customer_parse(
 		/* -------------- */
 		customer_new(
 			customer_full_name,
-			customer_street_address );
+			customer_contact_key );
 
 	/* See CUSTOMER_SELECT */
 	/* ------------------- */
-	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	piece( buffer, SQL_DELIMITER, input, 0 );
 
-	if ( *piece_buffer ) customer->sales_tax_exempt_boolean =
-		( *piece_buffer == 'y' );
+	if ( *buffer ) customer->sales_tax_exempt_boolean = ( *buffer == 'y' );
 
 	if ( fetch_entity_boolean )
 	{
 		customer->entity =
 			entity_fetch(
 				customer_full_name,
-				customer_street_address );
+				customer_contact_key,
+				contact_key_boolean );
 
 		if ( !customer->entity )
 		{
 			char message[ 1024 ];
 
 			sprintf(message,
-				"entity_fetch(%s,%s) returned empty.",
-				customer_full_name,
-				customer_street_address );
+				"entity_fetch(%s) returned empty.",
+				customer_full_name );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -138,28 +136,14 @@ CUSTOMER *customer_parse(
 		}
 	}
 
-	if ( fetch_payable_balance_boolean )
+	if ( fetch_invoice_balance_boolean )
 	{
-		LIST *list;
-
-		list =
-			journal_entity_list(
-				JOURNAL_SELECT,
-				JOURNAL_TABLE,
-				(char *)0 /* fund_name */,
+		customer->invoice_balance =
+			customer_invoice_balance(
+				ACCOUNT_PAYABLE_KEY,
+				ACCOUNT_RECEIVABLE_KEY,
 				customer_full_name,
-				customer_street_address,
-				/* ------------------------------------ */
-				/* Returns heap memory from static list */
-				/* ------------------------------------ */
-				account_payable_string(
-					ACCOUNT_PAYABLE_KEY,
-					__FUNCTION__ ) );
-
-		customer->journal_payable_balance =
-			journal_debit_credit_sum_difference(
-				0 /* not element_accumulate_debit */,
-				list );
+				customer_contact_key );
 	}
 
 	return customer;
@@ -167,16 +151,15 @@ CUSTOMER *customer_parse(
 
 CUSTOMER *customer_new(
 		char *customer_full_name,
-		char *customer_street_address )
+		char *customer_contact_key )
 {
 	CUSTOMER *customer;
 
-	if ( !customer_full_name
-	||   !customer_street_address )
+	if ( !customer_full_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "customer_full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -188,7 +171,7 @@ CUSTOMER *customer_new(
 	customer = customer_calloc();
 
 	customer->customer_full_name = customer_full_name;
-	customer->customer_street_address = customer_street_address;
+	customer->customer_contact_key = customer_contact_key;
 
 	return customer;
 }
@@ -211,5 +194,57 @@ CUSTOMER *customer_calloc( void )
 	}
 
 	return customer;
+}
+
+double customer_invoice_balance(
+		const char *account_payable_key,
+		const char *account_receivable_key,
+		char *customer_full_name,
+		char *customer_contact_key )
+{
+
+	double payable_balance;
+	double receivable_balance;
+	LIST *list;
+
+	list =
+		journal_entity_list(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			(char *)0 /* fund_name */,
+			customer_full_name,
+			customer_contact_key,
+			/* ------------------------------------ */
+			/* Returns heap memory from static list */
+			/* ------------------------------------ */
+			account_payable_string(
+				account_payable_key,
+				__FUNCTION__ ) );
+
+	payable_balance =
+		journal_debit_credit_sum_difference(
+			0 /* not element_accumulate_debit */,
+			list );
+
+	list =
+		journal_entity_list(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			(char *)0 /* fund_name */,
+			customer_full_name,
+			customer_contact_key,
+			/* ------------------------------------ */
+			/* Returns heap memory from static list */
+			/* ------------------------------------ */
+			account_receivable_string(
+				account_receivable_key,
+				__FUNCTION__ ) );
+
+	receivable_balance =
+		journal_debit_credit_sum_difference(
+			1 /* element_accumulate_debit */,
+			list );
+
+	return payable_balance - receivable_balance;
 }
 

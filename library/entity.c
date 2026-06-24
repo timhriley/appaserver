@@ -178,20 +178,15 @@ boolean entity_list_exist_boolean(
 
 ENTITY *entity_fetch(
 		char *full_name,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
-	boolean contact_key_boolean;
 	char *primary_where;
 	char *select_string;
 	char *system_string;
 	char *input;
 
 	if ( !full_name || !*full_name ) return NULL;
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	primary_where =
 		/* --------------------- */

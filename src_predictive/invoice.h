@@ -33,7 +33,7 @@ typedef struct
 /* ----- */
 LIST *invoice_line_item_list(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		char *sale_date_time );
 
 /* Usage */
@@ -95,7 +95,7 @@ double invoice_line_item_discount_total(
 /* ------------------- */
 char *invoice_line_item_system_string(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		char *sale_date_time );
 
 typedef struct
@@ -116,7 +116,7 @@ typedef struct
 /* -------------- */
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_payable_balance );
+		double customer_invoice_balance );
 
 /* Process */
 /* ------- */
@@ -133,8 +133,9 @@ double invoice_summary_amount_due(
 
 typedef struct
 {
-	LIST *invoice_line_item_list;
 	enum invoice_enum invoice_enum;
+	LIST *invoice_line_item_list;
+	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	CUSTOMER *customer;
 	char *use_key;
@@ -154,7 +155,7 @@ INVOICE *invoice_new(
 		char *transaction_date_time_string,
 		char *invoice_date_time_string,
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list );
 

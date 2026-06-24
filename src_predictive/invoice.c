@@ -43,19 +43,30 @@ INVOICE *invoice_new(
 		char *transaction_date_time_string,
 		char *invoice_date_time_string,
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list )
 {
 	INVOICE *invoice;
 
-	if ( !invoice_date_time_string
-	||   !customer_full_name
-	||   !customer_street_address )
+	if ( !invoice_date_time_string )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "invoice_date_time_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !customer_full_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "customer_full_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -66,10 +77,17 @@ INVOICE *invoice_new(
 
 	invoice = invoice_calloc();
 
+	invoice->invoice_enum = invoice_enum;
 	invoice->invoice_line_item_list = invoice_line_item_list;
+
+	invoice->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	if ( ! ( invoice->entity_self =
 			entity_self_fetch(
+				invoice->entity_contact_key_boolean,
 				1 /* fetch_entity_boolean */ ) ) )
 	{
 		char message[ 128 ];
@@ -87,18 +105,18 @@ INVOICE *invoice_new(
 	if ( ! ( invoice->customer =
 			customer_fetch(
 				customer_full_name,
-				customer_street_address,
+				customer_contact_key,
+				invoice->entity_contact_key_boolean,
 				1 /* fetch_entity_boolean */,
-				1 /* fetch_payable_balance_boolean */ ) ) )
+				1 /* fetch_invoice_balance_boolean */ ) ) )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"customer_fetch(%s,%s) returned empty.",
-			customer_full_name,
-			customer_street_address );
+			"customer_fetch(%s) returned empty.",
+			customer_full_name );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -145,7 +163,7 @@ INVOICE *invoice_new(
 		/* -------------- */
 		invoice_summary_new(
 			invoice_line_item_list,
-			invoice->customer->journal_payable_balance );
+			invoice->customer->invoice_balance );
 
 	return invoice;
 }
@@ -522,8 +540,7 @@ void invoice_html_output(
 		invoice->
 			invoice_summary->
 			invoice_line_item_extended_total,
-		invoice->customer->journal_payable_balance
-			/* customer_payable_balance */,
+		invoice->customer->invoice_balance,
 		invoice->invoice_summary->amount_due,
 		invoice->amount_due_label,
 		output_stream );
@@ -701,7 +718,7 @@ void invoice_html_output_self(
 	 	column_span,
 		invoice_date_string,
 	 	entity_self->full_name,
-	 	entity_self->street_address,
+	 	entity_self->entity->street_address,
 	 	entity_self->entity->city,
 	 	entity_self->entity->state_code,
 	 	entity_self->entity->zip_code );
@@ -742,7 +759,7 @@ void invoice_html_output_customer(
 "<br>%s, %s %s\n",
 		 	column_span + 1,
 		 	customer->customer_full_name,
-		 	customer->customer_street_address,
+		 	customer->entity->street_address,
 		 	customer->entity->city,
 		 	(customer->entity->state_code)
 		 		? customer->entity->state_code
@@ -760,7 +777,9 @@ void invoice_html_output_customer(
 "<br>%s\n",
 		 	column_span + 1,
 		 	customer->customer_full_name,
-		 	customer->customer_street_address );
+		 	(customer->customer_contact_key)
+		 		? customer->customer_contact_key
+				: "" );
 	}
 }
 
@@ -822,17 +841,17 @@ double invoice_summary_invoice_amount(
 }
 
 double invoice_summary_amount_due(
-		double customer_payable_balance,
+		double customer_invoice_balance,
 		double invoice_amount )
 {
 	return
-	invoice_amount -
-	customer_payable_balance;
+	invoice_amount +
+	customer_invoice_balance;
 }
 
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_payable_balance )
+		double customer_invoice_balance )
 {
 	INVOICE_SUMMARY *invoice_summary;
 
@@ -865,7 +884,7 @@ INVOICE_SUMMARY *invoice_summary_new(
 
 	invoice_summary->amount_due =
 		invoice_summary_amount_due(
-			customer_payable_balance,
+			customer_invoice_balance,
 			invoice_summary->invoice_amount );
 
 	return invoice_summary;
@@ -909,13 +928,12 @@ double invoice_line_item_discount_total( LIST *line_item_list )
 
 char *invoice_line_item_system_string(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		char *sale_date_time )
 {
 	char system_string[ 1024 ];
 
 	if ( !customer_full_name
-	||   !customer_street_address
 	||   !sale_date_time )
 	{
 		char message[ 128 ];
@@ -934,7 +952,9 @@ char *invoice_line_item_system_string(
 		sizeof ( system_string ),
 		"invoice_select.sh \"%s\" \"%s\" \"%s\"",
 		customer_full_name,
-		customer_street_address,
+		(customer_contact_key)
+			? customer_contact_key
+			: "",
 		sale_date_time );
 
 	return strdup( system_string );
@@ -942,7 +962,7 @@ char *invoice_line_item_system_string(
 
 LIST *invoice_line_item_list(
 		char *customer_full_name,
-		char *customer_street_address,
+		char *customer_contact_key,
 		char *sale_date_time )
 {
 	char *system_string;
@@ -952,7 +972,6 @@ LIST *invoice_line_item_list(
 	LIST *list;
 
 	if ( !customer_full_name
-	||   !customer_street_address
 	||   !sale_date_time )
 	{
 		char message[ 128 ];
@@ -973,7 +992,7 @@ LIST *invoice_line_item_list(
 		/* ------------------- */
 		invoice_line_item_system_string(
 			customer_full_name,
-			customer_street_address,
+			customer_contact_key,
 			sale_date_time );
 
 	input_pipe =
@@ -984,7 +1003,7 @@ LIST *invoice_line_item_list(
 
 	list = list_new();
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		invoice_line_item =
 			invoice_line_item_parse(

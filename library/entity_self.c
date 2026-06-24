@@ -188,7 +188,8 @@ ENTITY_SELF *entity_self_parse(
 		entity_self->entity =
 			entity_fetch(
 				entity_self->full_name,
-				entity_self->contact_key );
+				entity_self->contact_key,
+				contact_key_boolean );
 	}
 
 	return entity_self;
