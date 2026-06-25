@@ -186,6 +186,22 @@ do
 	rename_column $table street_address contact_key
 done
 
+# Two relationships to APPASERVER_USER
+# ------------------------------------
+insert_column appaserver_contact_key character 60
+
+# FIXED_SERVICE_WORK
+# ------------------
+update_table_column fixed_service_work appaserver_street_address appaserver_contact_key
+rename_column fixed_service_work appaserver_street_address appaserver_contact_key
+
+# HOURLY_SERVICE_WORK
+# -------------------
+update_table_column hourly_service_work appaserver_street_address appaserver_contact_key
+rename_column hourly_service_work appaserver_street_address appaserver_contact_key
+
+# FOREIGN_COLUMN
+# --------------
 update_foreign_column street_address contact_key
 update_foreign_column appaserver_street_address appaserver_contact_key
 
