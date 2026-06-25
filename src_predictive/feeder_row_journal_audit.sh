@@ -89,7 +89,7 @@ select="select feeder_row.transaction_date_time,feeder_row.feeder_row_number,fee
 
 from="from feeder_row,journal"
 
-where="where feeder_row.feeder_account = '$feeder_account' and feeder_row.transaction_date_time >= '$minimum_transaction_date' and feeder_row.full_name = journal.full_name and feeder_row.street_address = journal.street_address and feeder_row.transaction_date_time = journal.transaction_date_time and journal.account = '$feeder_account'"
+where="where feeder_row.feeder_account = '$feeder_account' and feeder_row.transaction_date_time >= '$minimum_transaction_date' and feeder_row.transaction_date_time = journal.transaction_date_time and journal.account = '$feeder_account'"
 
 order="order by feeder_row.transaction_date_time"
 

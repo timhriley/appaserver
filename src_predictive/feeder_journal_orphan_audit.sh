@@ -87,11 +87,11 @@ justification="left,left,right,right"
 
 select="select journal.transaction_date_time,journal.full_name,check_number,debit_amount,credit_amount,balance"
 
-journal_subquery="not exists ( select 1 from feeder_row where feeder_row.feeder_account = journal.account and feeder_row.full_name = journal.full_name and feeder_row.street_address = journal.street_address and feeder_row.transaction_date_time = journal.transaction_date_time )"
+journal_subquery="not exists ( select 1 from feeder_row where feeder_row.feeder_account = journal.account and feeder_row.transaction_date_time = journal.transaction_date_time )"
 
-transaction_subquery="not exists ( select 1 from transaction where journal.full_name = transaction.full_name and journal.street_address = transaction.street_address and journal.transaction_date_time = transaction.transaction_date_time and memo = 'Opening entry')"
+transaction_subquery="not exists ( select 1 from transaction where journal.transaction_date_time = transaction.transaction_date_time and memo = 'Opening entry')"
 
-join="journal.full_name = transaction.full_name and journal.street_address = transaction.street_address and journal.transaction_date_time = transaction.transaction_date_time"
+join="journal.transaction_date_time = transaction.transaction_date_time"
 
 where="where account = '$feeder_account' and journal.transaction_date_time <> '$first_transaction_date_time' and journal.transaction_date_time >= '$minimum_transaction_date' and journal.transaction_date_time < '$maximum_transaction_date_time' and $join and $journal_subquery and $transaction_subquery"
 
