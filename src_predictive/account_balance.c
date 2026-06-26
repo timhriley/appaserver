@@ -167,13 +167,17 @@ char *account_balance_update_change_string(
 }
 
 char *account_balance_update_percent_string(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *date_string,
-		int balance_change_percent )
+		int update_balance_change_percent,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean )
 {
-	static char string[ 256 ];
+	char string[ 1024 ];
 
 	if ( !full_name
 	||   !street_address
@@ -199,7 +203,7 @@ char *account_balance_update_percent_string(
 		date_string,
 		balance_change_percent );
 
-	return string;
+	return strdup( string );
 }
 
 LIST *account_balance_list(
@@ -458,15 +462,261 @@ char *account_balance_list_update( LIST *account_balance_update_set )
 
 char *account_balance_update_system_string(
 		const char *account_balance_table,
-		const char *account_balance_primary_key )
+		const char *account_balance_primary_key,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean )
 {
+	char *key_string;
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	key_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_key_string(
+			account_balance_primary_key,
+			predictive_fund_column,
+			entity_contact_key_column,
+			predictive_fund_boolean,
+			entity_contact_key_boolean );
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"update_statement.e table=%s key=%s carrot=y |"
 		"sql.e 2>&1",
 		account_balance_table,
-		account_balance_primary_key );
+		key_string );
+
+	free( key_string );
 
 	return strdup( system_string );
 }
+
+char *account_balance_key_string(
+		const char *account_balance_primary_key,
+		const char *predictive_fund_column,
+		const char *entity_contact_key_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			account_balance_primary_key /* base */,
+			predictive_fund_column /* component */,
+			0 /* not escape_boolean */,
+			fund_boolean /* set_boolean */ );
+
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base */,
+			entity_contact_key_column /* component */,
+			0 /* not escape_boolean */,
+			contact_key_boolean /* set_boolean */ );
+
+	return optional_column->return_string /* heap memory */;
+}
+
+void account_balance_update_spool(
+		char *update_change_string,
+		char *update_percent_string,
+		SPOOL *spool )
+{
+	if ( !update_change_string
+	||   !update_percent_string
+	||   !spool )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fprintf(
+		spool->output_pipe,
+		"%s\n",
+		update_change_string );
+
+	fprintf(
+		spool->output_pipe,
+		"%s\n",
+		update_percent_stringl );
+}
+
+void account_balance_update(
+		char *fund_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		ACCOUNT_BALANCE *account_balance_fetch,
+		ACCOUNT_BALANCE *account_balance_next )
+{
+	char *update_system_string;
+	SPOOL *spool;
+	LIST *list;
+	char *error_string;
+
+	if ( !account_balance_fetch ) return;
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_update_system_string(
+			account_balance_table,
+			account_balance_primary_key,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	spool =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+
+		/* -------------------------------------------- */
+		/* The output is in:				*/
+		/* spool_list( spool_new()->output_filename )   */
+		/* -------------------------------------------- */
+		spool_new(
+			update_system_string,
+			0 /* not capture_stderr_boolean */ );
+
+	account_balance_update_spool(
+		account_balance_fetch->update_change_string,
+		account_balance_fetch->update_percent_string,
+		spool );
+
+	if ( account_balance_next )
+	{
+		account_balance_update_spool(
+			account_balance_next->update_change_string,
+			account_balance_next->update_percent_string,
+			spool );
+	}
+
+	pclose( spool->output_pipe );
+	list = spool_list( spool->output_filename );
+	error_string = list_string_delimited( list, "<br>" );
+	if ( error_string ) printf( "%s\n", error_string );
+}
+
+char *account_balance_fetch_date(
+		const char *account_balance_table,
+		const *account_balance_min_function,
+		const *account_balance_max_function,
+		char *account_balance_where,
+		boolean fetch_min_boolean )
+{
+	char *system_string;
+	char *date;
+
+	if ( !account_balance_where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_balance_where is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(fetch_min_boolean)
+				? account_balance_min_function
+				: account_balance_max_function,
+			account_balance_table,
+			account_balance_where );
+
+	date = string_system_input( system_string );
+	free( system_string );
+
+	return date;
+}
+
+char *account_balance_where(
+		char *fund_name,
+		char *as_of_date,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		char *account_number,
+		const char *relational_operator )
+{
+	char *account_where;
+	char where[ 1024 ];
+
+	if ( !as_of_date
+	||   !full_name
+	||   !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	account_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_where(
+			fund_name,
+			full_name,
+			contact_key,
+			investment_purpose,
+			predictive_fund_boolean,
+			entity_contact_key_boolean );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and date %s '%s'",
+		account_where,
+		relational_operator,
+		as_of_date );
+
+	return strdup( where );
+}
+
+

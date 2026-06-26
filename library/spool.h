@@ -21,8 +21,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 
-/* Output in spool_list( spool_new()->output_filename ) */
-/* ---------------------------------------------------- */
+/* The output is in spool_list( spool_new()->output_filename ) */
+/* ----------------------------------------------------------- */
 SPOOL *spool_new(
 		char *system_string,
 		boolean capture_stderr_boolean );
