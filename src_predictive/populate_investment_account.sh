@@ -1,8 +1,7 @@
 :
 # $APPASERVER_HOME/src_predictive/populate_investment_account.sh
-# --------------------------------------------------------------------
-#
-# Freely available software: see Appaserver.org
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
 # ---------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
@@ -32,7 +31,7 @@ parameter_where="$1"
 
 table="investment_account"
 
-select="concat( full_name, '^', street_address, '^', account_number, ' [', investment_classification, ']' )"
+select="concat( full_name, '^', account_number, ' [', investment_classification, ']' )"
 
 if [ "$parameter_where" = "where" -o "$parameter_where" = "" ]
 then

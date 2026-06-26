@@ -20,14 +20,14 @@
 /* ---------------------------- */
 char *post_change_account_balance_insert_update_delete(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *account_number;
 	char *date_string;
 	char *state;
@@ -42,13 +42,13 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-	"Usage: %s full_name street_address account_number date state\n",
+	"Usage: %s full_name contact_key account_number date state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
+	contact_key = argv[ 2 ];
 	account_number = argv[ 3 ];
 
 	/* Stub */
@@ -70,7 +70,7 @@ int main( int argc, char **argv )
 		char *error_string =
 			post_change_account_balance_insert_update_delete(
 				full_name,
-				street_address,
+				contact_key,
 				account_number );
 
 		if ( error_string )
@@ -87,7 +87,7 @@ int main( int argc, char **argv )
 
 char *post_change_account_balance_insert_update_delete(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number )
 {
 	INVESTMENT_ACCOUNT *investment_account;
@@ -96,7 +96,7 @@ char *post_change_account_balance_insert_update_delete(
 	if ( ! ( investment_account =
 			investment_account_fetch(
 				full_name,
-				street_address,
+				contact_key,
 				account_number,
 				1 /* fetch_account_balance_list */ ) ) )
 	{

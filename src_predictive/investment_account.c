@@ -39,7 +39,7 @@ INVESTMENT_ACCOUNT *investment_account_calloc( void )
 
 INVESTMENT_ACCOUNT *investment_account_parse(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *primary_where,
 		char *input )
@@ -55,7 +55,7 @@ INVESTMENT_ACCOUNT *investment_account_parse(
 		/* -------------- */
 		investment_account_new(
 			full_name,
-			street_address,
+			contact_key,
 			account_number,
 			primary_where );
 
@@ -96,7 +96,7 @@ INVESTMENT_ACCOUNT *investment_account_parse(
 
 char *investment_account_primary_where(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number )
 {
 	static char where[ 512 ];
@@ -105,10 +105,10 @@ char *investment_account_primary_where(
 		where,
 		sizeof ( where ),
 		"full_name = '%s' and		"
-		"street_address = '%s' and	"
+		"contact_key = '%s' and	"
 		"account_number = '%s'		",
 		full_name,
-		street_address,
+		contact_key,
 		account_number );
 
 	return where;
@@ -116,7 +116,7 @@ char *investment_account_primary_where(
 
 INVESTMENT_ACCOUNT *investment_account_fetch(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		boolean fetch_account_balance_list )
 {
@@ -126,7 +126,7 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 	INVESTMENT_ACCOUNT *investment_account;
 
 	if ( !full_name
-	||   !street_address
+	||   !contact_key
 	||   !account_number )
 	{
 		char message[ 128 ];
@@ -146,7 +146,7 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 		/* --------------------- */
 		investment_account_primary_where(
 			full_name,
-			street_address,
+			contact_key,
 			account_number );
 
 	system_string =
@@ -171,7 +171,7 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 	investment_account =
 		investment_account_parse(
 			full_name,
-			street_address,
+			contact_key,
 			account_number,
 			primary_where,
 			input );
@@ -183,7 +183,7 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 		sprintf(message,
 			"investment_account_parse(%s,%s,%s) returned empty.",
 			full_name,
-			street_address,
+			contact_key,
 			account_number );
 
 		appaserver_error_stderr_exit(
@@ -198,7 +198,7 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 		investment_account->account_balance_list =
 			account_balance_list(
 				full_name,
-				street_address,
+				contact_key,
 				account_number,
 				primary_where );
 
@@ -214,14 +214,14 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 
 INVESTMENT_ACCOUNT *investment_account_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *primary_where )
 {
 	INVESTMENT_ACCOUNT *investment_account;
 
 	if ( !full_name
-	||   !street_address
+	||   !contact_key
 	||   !account_number
 	||   !primary_where )
 	{
@@ -239,7 +239,7 @@ INVESTMENT_ACCOUNT *investment_account_new(
 	investment_account = investment_account_calloc();
 
 	investment_account->full_name = full_name;
-	investment_account->street_address = street_address;
+	investment_account->contact_key = contact_key;
 	investment_account->account_number = account_number;
 	investment_account->primary_where = primary_where;
 

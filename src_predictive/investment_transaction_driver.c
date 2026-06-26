@@ -14,6 +14,7 @@
 #include "account_delta.h"
 
 #define IRS_RETIREMENT_PERCENT		0.10
+#define INVESTMENT_MEMO			"Investment mark to market"
 #define LIABILITY_MEMO			"Liability mark to market"
 #define TAXABLE_INVESTMENT_PURPOSE	"taxable_retirement"
 #define IRA_TAX_PAYABLE_KEY		"IRA_tax_payable"
@@ -54,10 +55,12 @@ int main( int argc, char **argv )
 	retirement_account_sum = atof( argv[ 2 ] );
 	execute_boolean = (*argv[ 3 ] == 'y');
 
+	printf( "<h3>%s</h3\n", INVESTMENT_MEMO );
 	output_investment_transaction(
 		investment_account_sum,
 		execute_boolean );
 
+	printf( "<h3>%s</h3\n", LIABILITY_MEMO );
 	output_liability_transaction(
 		retirement_account_sum,
 		execute_boolean );

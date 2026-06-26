@@ -22,7 +22,7 @@
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *account_number;
 	char *primary_where;
 	char *investment_classification;
@@ -39,7 +39,7 @@ typedef struct
 /* ----- */
 INVESTMENT_ACCOUNT *investment_account_fetch(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		boolean fetch_account_balance_list );
 
@@ -55,14 +55,14 @@ double investment_account_update_balance_latest(
 /* --------------------- */
 char *investment_account_primary_where(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number );
 
 /* Usage */
 /* ----- */
 INVESTMENT_ACCOUNT *investment_account_parse(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *investment_account_primary_where,
 		char *input );
@@ -74,7 +74,7 @@ INVESTMENT_ACCOUNT *investment_account_parse(
 /* -------------- */
 INVESTMENT_ACCOUNT *investment_account_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *investment_account_primary_where );
 
