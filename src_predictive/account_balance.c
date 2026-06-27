@@ -924,3 +924,140 @@ ACCOUNT_BALANCE *account_balance_latest(
 		account_number );
 }
 
+ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *account_number,
+		char *date )
+{
+	ACCOUNT_BALANCE_TRIGGER *account_balance_trigger;
+
+	if ( !full_name
+	||   !account_number
+	||   !date )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	account_balance_trigger = account_balance_trigger_calloc();
+
+	account_balance_trigger->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	account_balance_trigger->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	account_balance_trigger->account_balance_fetch =
+		account_balance_fetch(
+			fund_name,
+			date,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number );
+
+	account_balance_trigger->account_balance_prior =
+		account_balance_prior(
+			fund_name,
+			date,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number );
+
+	account_balance_trigger->account_balance_next =
+		account_balance_next(
+			fund_name,
+			date,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number );
+
+	/* If deleted */
+	/* ---------- */
+	if ( !account_balance_trigger->account_balance_fetch )
+	{
+		account_balance_delta_set(
+			fund_name,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			account_balance_trigger->
+				account_balance_prior,
+			account_balance_trigger->
+				account_balance_next
+				/* account_balance_current in/out */ );
+	}
+	else
+	{
+		account_balance_delta_set(
+			fund_name,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			account_balance_trigger->
+				account_balance_prior,
+			account_balance_trigger->
+				account_balance_fetch
+				/* account_balance_current in/out */ );
+
+		/* If inserted into the middle */
+		/* --------------------------- */
+		account_balance_delta_set(
+			fund_name,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			account_balance_trigger->
+				account_balance_fetch
+				/* account_balance_prior */,
+			account_balance_trigger->
+				account_balance_next
+				/* account_balance_current in/out */ );
+	}
+
+	return account_balance_trigger;
+}
+
+ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_calloc( void )
+{
+	ACCOUNT_BALANCE_TRIGGER *account_balance_trigger;
+
+	if ( ! ( account_balance_trigger =
+			calloc( 1,
+				sizeof ( ACCOUNT_BALANCE_TRIGGER ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return account_balance_trigger;
+}
+

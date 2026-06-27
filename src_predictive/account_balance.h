@@ -232,4 +232,30 @@ char *account_balance_key_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
+typedef struct
+{
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
+	ACCOUNT_BALANCE *account_balance_fetch;
+	ACCOUNT_BALANCE *account_balance_prior;
+	ACCOUNT_BALANCE *account_balance_next;
+} ACCOUNT_BALANCE_TRIGGER;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *account_number,
+		char *date );
+
+/* Process */
+/* ------- */
+ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_calloc(
+		void );
+
 #endif

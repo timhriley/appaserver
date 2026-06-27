@@ -14,22 +14,22 @@
 #include "inventory.h"
 #include "appaserver_error.h"
 #include "account_balance.h"
-#include "investment_account.h"
 
-/* Returns error_string or null */
-/* ---------------------------- */
-char *post_change_account_balance_insert_update_delete(
+void post_change_account_balance_insert_update_delete(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_number );
+		char *account_number,
+		char *date );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
 	char *full_name;
 	char *contact_key;
 	char *account_number;
-	char *date_string;
+	char *date;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -39,23 +39,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-	"Usage: %s full_name contact_key account_number date state\n",
+"Usage: %s fund_name full_name contact_key account_number date state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	contact_key = argv[ 2 ];
-	account_number = argv[ 3 ];
-
-	/* Stub */
-	/* ---- */
-	if ( ( date_string = argv[ 4 ] ) ){}
-
-	state = argv[ 5 ];
+	fund_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	contact_key = argv[ 3 ];
+	account_number = argv[ 4 ];
+	date = argv[ 5 ];
+	state = argv[ 6 ];
 
 	/* If Changed the financial institution's name or address */
 	/* ------------------------------------------------------ */
@@ -67,58 +64,41 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) == 0
 	||   strcmp( state, "delete" ) == 0 )
 	{
-		char *error_string =
-			post_change_account_balance_insert_update_delete(
-				full_name,
-				contact_key,
-				account_number );
-
-		if ( error_string )
-		{
-			appaserver_error_message_file(
-				application_name,
-				(char *)0 /* login_name */,
-				error_string /* message */ );
-		}
+		post_change_account_balance_insert_update_delete(
+			fund_name,
+			full_name,
+			contact_key,
+			account_number,
+			date );
 	}
 
 	return 0;
 }
 
-char *post_change_account_balance_insert_update_delete(
+void post_change_account_balance_insert_update_delete(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_number )
+		char *account_number,
+		char *date )
 {
-	INVESTMENT_ACCOUNT *investment_account;
-	char *error_string;
+	ACCOUNT_BALANCE_TRIGGER *account_balance_trigger;
 
-	if ( ! ( investment_account =
-			investment_account_fetch(
-				full_name,
-				contact_key,
-				account_number,
-				1 /* fetch_account_balance_list */ ) ) )
-	{
-		/* Might be deleted */
-		/* ---------------- */
-		return (char *)0;
-	}
+	account_balance_trigger =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		account_balance_trigger_new(
+			fund_name,
+			full_name,
+			contact_key,
+			account_number,
+			date );
 
-	error_string =
-		account_balance_list_update(
-			investment_account->
-				account_balance_list );
-
-	if ( error_string ) return error_string;
-
-	return
-	/* ---------------------------- */
-	/* Returns error_string or null */
-	/* ---------------------------- */
-	investment_account_update(
-		INVESTMENT_ACCOUNT_TABLE,
-		investment_account->primary_where,
-		investment_account->update_balance_latest );
+	account_balance_update(
+		account_balance_trigger->predictive_fund_boolean,
+		account_balance_trigger->entity_contact_key_boolean,
+		account_balance_trigger->account_balance_fetch,
+		account_balance_trigger->account_balance_next );
 }
 
