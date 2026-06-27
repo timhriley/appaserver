@@ -15,19 +15,21 @@
 #include "float.h"
 #include "entity.h"
 #include "spool.h"
+#include "predictive.h"
+#include "optional_column.h"
 #include "investment_account.h"
 #include "account_balance.h"
 
 ACCOUNT_BALANCE *account_balance_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *date_string )
 {
 	ACCOUNT_BALANCE *account_balance;
 
 	if ( !full_name
-	||   !street_address
 	||   !account_number
 	||   !date_string )
 	{
@@ -44,8 +46,9 @@ ACCOUNT_BALANCE *account_balance_new(
 
 	account_balance = account_balance_calloc();
 
+	account_balance->fund_name = fund_name;
 	account_balance->full_name = full_name;
-	account_balance->street_address = street_address;
+	account_balance->contact_key = contact_key;
 	account_balance->account_number = account_number;
 	account_balance->date_string = date_string;
 
@@ -74,73 +77,70 @@ ACCOUNT_BALANCE *account_balance_calloc( void )
 }
 
 ACCOUNT_BALANCE *account_balance_parse(
-		char *full_name,
-		char *street_address,
-		char *account_number,
+		char *fund_name,
+		boolean contact_key_boolean,
 		char *input )
 {
 	ACCOUNT_BALANCE *account_balance;
+	char full_name[ 128 ];
+	char account_number[ 128 ];
 	char date_string[ 128 ];
-	char balance[ 128 ];
-	char balance_change[ 128 ];
-	char balance_change_percent[ 128 ];
-
-	if ( !full_name
-	||   !street_address
-	||   !account_number )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	char buffer[ 128 ];
+	char *contact_key = {0};
 
 	if ( !input || !*input ) return NULL;
 
-	/* See ACCOUNT_BALANCE_SELECT */
+	/* See entity_select_string() */
 	/* -------------------------- */
-	piece( date_string, SQL_DELIMITER, input, 0 );
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( account_number, SQL_DELIMITER, input, 1 );
+	piece( date_string, SQL_DELIMITER, input, 2 );
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 6 );
+		contact_key = strdup( buffer );
+	}
 
 	account_balance =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		account_balance_new(
-			full_name,
-			street_address,
-			account_number,
+			fund_name,
+			strdup( full_name ),
+			contact_key,
+			strdup( account_number ),
 			strdup( date_string ) );
 
-	piece( balance, SQL_DELIMITER, input, 1 );
-	account_balance->balance = atof( balance );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer )account_balance->balance = atof( buffer );
 
-	piece( balance_change, SQL_DELIMITER, input, 2 );
-	account_balance->balance_change =
-		atof( balance_change );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) account_balance->balance_change = atof( buffer );
 
-	piece( balance_change_percent, SQL_DELIMITER, input, 3 );
-	account_balance->balance_change_percent =
-		atoi( balance_change_percent );
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) account_balance->balance_change_percent = atoi( buffer );
 
 	return account_balance;
 }
 
 char *account_balance_update_change_string(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *account_number,
 		char *date_string,
-		double balance_change )
+		double update_balance_change,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	static char string[ 256 ];
+	char string[ 1024 ];
+	OPTIONAL_COLUMN *optional_column;
+	char update_string[ 128 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !account_number
 	||   !date_string )
 	{
@@ -155,15 +155,49 @@ char *account_balance_update_change_string(
 			message );
 	}
 
-	sprintf(string,
-	 	"%s^%s^%s^%s^balance_change^%.2lf\n",
+	snprintf(
+		string,
+		sizeof ( string ),
+	 	"%s^%s^%s\n",
 		full_name,
-		street_address,
 		account_number,
-		date_string,
-		balance_change );
+		date_string );
 
-	return string;
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			sql_delimiter,
+			string /* base_string */,
+			fund_name /* component */,
+			0 /* not escape_boolean*/,
+			fund_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			contact_key /* component */,
+			0 /* not escape_boolean*/,
+			contact_key_boolean /* set_boolean */ );
+
+	snprintf(
+		update_string,
+		sizeof ( update_string ),
+	 	"balance_change%c%.2lf",
+		sql_delimiter,
+		update_balance_change );
+
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			update_string /* component */,
+			0 /* not escape_boolean*/,
+			1 /* set_boolean */ );
+
+	return optional_column->return_string;
 }
 
 char *account_balance_update_percent_string(
@@ -174,13 +208,14 @@ char *account_balance_update_percent_string(
 		char *account_number,
 		char *date_string,
 		int update_balance_change_percent,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char string[ 1024 ];
+	OPTIONAL_COLUMN *optional_column;
+	char update_string[ 128 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !account_number
 	||   !date_string )
 	{
@@ -195,151 +230,49 @@ char *account_balance_update_percent_string(
 			message );
 	}
 
-	sprintf(string,
-	 	"%s^%s^%s^%s^balance_change_percent^%d\n",
+	snprintf(
+		string,
+		sizeof ( string ),
+	 	"%s^%s^%s\n",
 		full_name,
-		street_address,
 		account_number,
-		date_string,
-		balance_change_percent );
+		date_string );
 
-	return strdup( string );
-}
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			sql_delimiter,
+			string /* base_string */,
+			fund_name /* component */,
+			0 /* not escape_boolean*/,
+			fund_boolean /* set_boolean */ );
 
-LIST *account_balance_list(
-		char *full_name,
-		char *street_address,
-		char *account_number,
-		char *investment_account_primary_where )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *list;
-	char *system_string;
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			contact_key /* component */,
+			0 /* not escape_boolean*/,
+			contact_key_boolean /* set_boolean */ );
 
-	if ( !full_name
-	||   !street_address
-	||   !account_number
-	||   !investment_account_primary_where )
-	{
-		char message[ 128 ];
+	snprintf(
+		update_string,
+		sizeof ( update_string ),
+	 	"balance_change_percent%c%d",
+		sql_delimiter,
+		update_balance_change_percent );
 
-		sprintf(message, "parameter is empty." );
+	optional_column =
+		optional_column_new(
+			sql_delimiter,
+			optional_column->return_string /* base_string */,
+			update_string /* component */,
+			0 /* not escape_boolean*/,
+			1 /* set_boolean */ );
 
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list = list_new();
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_balance_system_string(
-			ACCOUNT_BALANCE_SELECT,
-			ACCOUNT_BALANCE_TABLE,
-			investment_account_primary_where );
-
-	/* Safely returns */
-	/* -------------- */
-	input_pipe = appaserver_input_pipe( system_string );
-
-	while ( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set(
-			list, 
-			account_balance_parse(
-				full_name,
-				street_address,
-				account_number,
-				input ) );
-	}
-
-	pclose( input_pipe );
-
-	return list;
-}
-
-char *account_balance_system_string(
-		const char *select,
-		const char *account_balance_table,
-		char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !where )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "where is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\" date",
-		select,
-		account_balance_table,
-		where ); 
-
-	return strdup( system_string );
-}
-
-LIST *account_balance_update_set( LIST *account_balance_list )
-{
-	ACCOUNT_BALANCE *account_balance;
-	ACCOUNT_BALANCE *account_balance_prior = {0};
-	double change;
-	int change_percent;
-
-	if ( list_rewind( account_balance_list ) )
-	do {
-		account_balance = list_get( account_balance_list );
-
-		if ( list_first_boolean( account_balance_list ) )
-		{
-			account_balance->
-				update_balance_change =
-					account_balance->
-						balance;
-
-			account_balance->
-				update_balance_change_percent = 100;
-		}
-		else
-		{
-			change =
-				account_balance_update_change(
-					account_balance_prior->balance,
-					account_balance->balance );
-
-			account_balance->
-				update_balance_change =
-					change;
-
-			change_percent =
-				account_balance_update_change_percent(
-					account_balance_prior->balance,
-					change );
-
-			account_balance->
-				update_balance_change_percent =
-					change_percent;
-		}
-
-		account_balance_prior = account_balance;
-
-	} while ( list_next( account_balance_list ) );
-
-	return account_balance_list;
+	return optional_column->return_string;
 }
 
 double account_balance_update_change(
@@ -382,91 +315,13 @@ int account_balance_update_change_percent(
 	return change_percent;
 }
 
-char *account_balance_list_update( LIST *account_balance_update_set )
-{
-	char *system_string;
-	SPOOL *spool;
-	ACCOUNT_BALANCE *account_balance;
-	char *string;
-	LIST *list;
-	char *error_string;
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_balance_update_system_string(
-			ACCOUNT_BALANCE_TABLE,
-			ACCOUNT_BALANCE_PRIMARY_KEY );
-
-	spool =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		spool_new(
-			system_string,
-			0 /* not capture_stderr_boolean */ );
-
-	if ( list_rewind( account_balance_update_set ) )
-	do {
-		account_balance = list_get( account_balance_update_set );
-
-		string =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			account_balance_update_change_string(
-				account_balance->full_name,
-				account_balance->street_address,
-				account_balance->account_number,
-				account_balance->date_string,
-				account_balance->
-					update_balance_change );
-
-		fprintf(spool->output_pipe,
-			"%s\n",
-			string );
-
-		string =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			account_balance_update_percent_string(
-				account_balance->full_name,
-				account_balance->street_address,
-				account_balance->account_number,
-				account_balance->date_string,
-				account_balance->
-					update_balance_change_percent );
-
-		fprintf(spool->output_pipe,
-			"%s\n",
-			string );
-	} while ( list_next( account_balance_update_set ) );
-
-	pclose( spool->output_pipe );
-	list = spool_list( spool->output_filename );
-
-	error_string =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_string_delimited(
-			list, "<br>" );
-
-	if ( *error_string )
-		return error_string;
-	else
-		return (char *)0;
-}
-
 char *account_balance_update_system_string(
 		const char *account_balance_table,
 		const char *account_balance_primary_key,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *key_string;
 	char system_string[ 1024 ];
@@ -479,8 +334,8 @@ char *account_balance_update_system_string(
 			account_balance_primary_key,
 			predictive_fund_column,
 			entity_contact_key_column,
-			predictive_fund_boolean,
-			entity_contact_key_boolean );
+			fund_boolean,
+			contact_key_boolean );
 
 	snprintf(
 		system_string,
@@ -510,8 +365,8 @@ char *account_balance_key_string(
 		/* -------------- */
 		optional_column_new(
 			',' /* delimiter */,
-			account_balance_primary_key /* base */,
-			predictive_fund_column /* component */,
+			(char *)account_balance_primary_key /* base */,
+			(char *)predictive_fund_column /* component */,
 			0 /* not escape_boolean */,
 			fund_boolean /* set_boolean */ );
 
@@ -522,7 +377,7 @@ char *account_balance_key_string(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base */,
-			entity_contact_key_column /* component */,
+			(char *)entity_contact_key_column /* component */,
 			0 /* not escape_boolean */,
 			contact_key_boolean /* set_boolean */ );
 
@@ -560,17 +415,16 @@ void account_balance_update_spool(
 	fprintf(
 		spool->output_pipe,
 		"%s\n",
-		update_percent_stringl );
+		update_percent_string );
 }
 
 void account_balance_update(
-		char *fund_name,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		ACCOUNT_BALANCE *account_balance_fetch,
 		ACCOUNT_BALANCE *account_balance_next )
 {
-	char *update_system_string;
+	char *system_string;
 	SPOOL *spool;
 	LIST *list;
 	char *error_string;
@@ -582,8 +436,8 @@ void account_balance_update(
 		/* Returns heap memory */
 		/* ------------------- */
 		account_balance_update_system_string(
-			account_balance_table,
-			account_balance_primary_key,
+			ACCOUNT_BALANCE_TABLE,
+			ACCOUNT_BALANCE_PRIMARY_KEY,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
 			fund_boolean,
@@ -599,8 +453,10 @@ void account_balance_update(
 		/* spool_list( spool_new()->output_filename )   */
 		/* -------------------------------------------- */
 		spool_new(
-			update_system_string,
+			system_string,
 			0 /* not capture_stderr_boolean */ );
+
+	free( system_string );
 
 	account_balance_update_spool(
 		account_balance_fetch->update_change_string,
@@ -623,8 +479,8 @@ void account_balance_update(
 
 char *account_balance_fetch_date(
 		const char *account_balance_table,
-		const *account_balance_min_function,
-		const *account_balance_max_function,
+		const char *account_balance_min_function,
+		const char *account_balance_max_function,
 		char *account_balance_where,
 		boolean fetch_min_boolean )
 {
@@ -653,12 +509,15 @@ char *account_balance_fetch_date(
 		/* ------------------- */
 		appaserver_system_string(
 			(fetch_min_boolean)
-				? account_balance_min_function
-				: account_balance_max_function,
-			account_balance_table,
+				? (char *)account_balance_min_function
+				: (char *)account_balance_max_function,
+			(char *)account_balance_table,
 			account_balance_where );
 
+	/* Returns heap memory or null */
+	/* --------------------------- */
 	date = string_system_input( system_string );
+
 	free( system_string );
 
 	return date;
@@ -667,14 +526,14 @@ char *account_balance_fetch_date(
 char *account_balance_where(
 		char *fund_name,
 		char *as_of_date,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *full_name,
 		char *contact_key,
 		char *account_number,
 		const char *relational_operator )
 {
-	char *account_where;
+	char *primary_where;
 	char where[ 1024 ];
 
 	if ( !as_of_date
@@ -695,28 +554,373 @@ char *account_balance_where(
 			message );
 	}
 
-
-	account_where =
+	primary_where =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		investment_account_where(
+		investment_account_primary_where(
 			fund_name,
 			full_name,
 			contact_key,
-			investment_purpose,
-			predictive_fund_boolean,
-			entity_contact_key_boolean );
+			account_number,
+			fund_boolean,
+			contact_key_boolean );
 
 	snprintf(
 		where,
 		sizeof ( where ),
 		"%s and date %s '%s'",
-		account_where,
+		primary_where,
 		relational_operator,
 		as_of_date );
 
 	return strdup( where );
 }
 
+void account_balance_delta_set(
+		char *fund_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		ACCOUNT_BALANCE *account_balance_prior,
+		ACCOUNT_BALANCE *account_balance_current /* in/out */ )
+{
+	if ( account_balance_current )
+	{
+		if ( !account_balance_prior )
+		{
+			account_balance_current->
+				update_balance_change =
+					account_balance_current->balance;
+
+			account_balance_current->
+				update_balance_change_percent = 100;
+		}
+		else
+		{
+			double update_change;
+			int change_percent;
+
+			update_change =
+				account_balance_update_change(
+					account_balance_prior->balance,
+					account_balance_current->balance );
+
+			account_balance_current->
+				update_balance_change =
+					update_change;
+
+			change_percent =
+				account_balance_update_change_percent(
+					account_balance_prior->balance,
+					update_change );
+
+			account_balance_current->
+				update_balance_change_percent =
+					change_percent;
+		}
+
+		account_balance_current->update_change_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_balance_update_change_string(
+				SQL_DELIMITER,
+				fund_name,
+				account_balance_current->full_name,
+				account_balance_current->contact_key,
+				account_balance_current->account_number,
+				account_balance_current->date_string,
+				account_balance_current->update_balance_change,
+				fund_boolean,
+				contact_key_boolean );
+
+		account_balance_current->update_percent_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_balance_update_percent_string(
+				SQL_DELIMITER,
+				fund_name,
+				account_balance_current->full_name,
+				account_balance_current->contact_key,
+				account_balance_current->account_number,
+				account_balance_current->date_string,
+				account_balance_current->
+					update_balance_change_percent,
+				fund_boolean,
+				contact_key_boolean );
+	}
+}
+
+ACCOUNT_BALANCE *account_balance_next(
+		char *fund_name,
+		char *as_of_date,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		char *account_number )
+{
+	char *where;
+	char *fetch_date;
+
+	if ( !as_of_date
+	||   !full_name
+	||   !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_where(
+			fund_name,
+			as_of_date,
+			fund_boolean,
+			contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number,
+			">" /* relational_operator */ );
+
+	fetch_date =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		account_balance_fetch_date(
+			ACCOUNT_BALANCE_TABLE,
+			ACCOUNT_BALANCE_MIN_FUNCTION,
+			ACCOUNT_BALANCE_MAX_FUNCTION,
+			where,
+			1 /* fetch_min_boolean */ );
+
+	free( where );
+
+	return
+	account_balance_fetch(
+		fund_name,
+		fetch_date,
+		fund_boolean,
+		contact_key_boolean,
+		full_name,
+		contact_key,
+		account_number );
+}
+
+ACCOUNT_BALANCE *account_balance_prior(
+		char *fund_name,
+		char *as_of_date,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		char *account_number )
+{
+	char *where;
+	char *fetch_date;
+
+	if ( !full_name
+	||   !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_where(
+			fund_name,
+			as_of_date,
+			fund_boolean,
+			contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number,
+			"<" /* relational_operator */ );
+
+	fetch_date =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		account_balance_fetch_date(
+			ACCOUNT_BALANCE_TABLE,
+			ACCOUNT_BALANCE_MIN_FUNCTION,
+			ACCOUNT_BALANCE_MAX_FUNCTION,
+			where,
+			0 /* not fetch_min_boolean */ );
+
+	return
+	account_balance_fetch(
+		fund_name,
+		fetch_date,
+		fund_boolean,
+		contact_key_boolean,
+		full_name,
+		contact_key,
+		account_number );
+}
+
+ACCOUNT_BALANCE *account_balance_fetch(
+		char *fund_name,
+		char *date,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		char *account_number )
+{
+	char *select_string;
+	char *where;
+	char *system_string;
+
+	if ( !full_name
+	||   !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !date ) return NULL;
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			ACCOUNT_BALANCE_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_where(
+			fund_name,
+			date,
+			fund_boolean,
+			contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number,
+			"=" /* relational_operator */ );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			select_string,
+			ACCOUNT_BALANCE_TABLE,
+			where );
+
+	return
+	account_balance_parse(
+		fund_name,
+		contact_key_boolean,
+		string_system_input( system_string ) );
+}
+
+ACCOUNT_BALANCE *account_balance_latest(
+		char *fund_name,
+		char *as_of_date,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *full_name,
+		char *contact_key,
+		char *account_number )
+{
+	char *where;
+	char *fetch_date;
+
+	if ( !as_of_date
+	||   !full_name
+	||   !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_where(
+			fund_name,
+			as_of_date,
+			fund_boolean,
+			contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number,
+			"<=" /* relational_operator */ );
+
+	fetch_date =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		account_balance_fetch_date(
+			ACCOUNT_BALANCE_TABLE,
+			ACCOUNT_BALANCE_MIN_FUNCTION,
+			ACCOUNT_BALANCE_MAX_FUNCTION,
+			where,
+			0 /* not fetch_min_boolean */ );
+
+	free( where );
+
+	return
+	account_balance_fetch(
+		fund_name,
+		fetch_date,
+		fund_boolean,
+		contact_key_boolean,
+		full_name,
+		contact_key,
+		account_number );
+}
 

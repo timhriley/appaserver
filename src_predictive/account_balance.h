@@ -13,7 +13,9 @@
 
 #define ACCOUNT_BALANCE_TABLE		"account_balance"
 
-#define ACCOUNT_BALANCE_SELECT		"date,"				\
+#define ACCOUNT_BALANCE_SELECT		"full_name,"			\
+					"account_number,"		\
+					"date,"				\
 					"balance,"			\
 					"balance_change,"		\
 					"balance_change_percent"
@@ -27,6 +29,7 @@
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
 	char *contact_key;
 	char *account_number;
@@ -78,6 +81,7 @@ ACCOUNT_BALANCE *account_balance_parse(
 /* Safely returns */
 /* -------------- */
 ACCOUNT_BALANCE *account_balance_new(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *account_number,
@@ -183,15 +187,14 @@ char *account_balance_where(
 /* --------------------------- */
 char *account_balance_fetch_date(
 		const char *account_balance_table,
-		const *account_balance_min_function,
-		const *account_balance_max_function,
+		const char *account_balance_min_function,
+		const char *account_balance_max_function,
 		char *account_balance_where,
 		boolean fetch_min_boolean );
 
 /* Driver */
 /* ------ */
 void account_balance_update(
-		char *fund_name,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		ACCOUNT_BALANCE *account_balance_fetch,

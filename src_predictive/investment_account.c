@@ -13,6 +13,8 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "spool.h"
+#include "entity.h"
+#include "predictive.h"
 #include "account_balance.h"
 #include "investment_account.h"
 
@@ -38,100 +40,118 @@ INVESTMENT_ACCOUNT *investment_account_calloc( void )
 }
 
 INVESTMENT_ACCOUNT *investment_account_parse(
-		char *full_name,
-		char *contact_key,
-		char *account_number,
-		char *primary_where,
+		char *fund_name,
+		char *as_of_date,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *input )
 {
+	char full_name[ 128 ];
+	char account_number[ 128 ];
 	char buffer[ 128 ];
+	char *contact_key = {0};
 	INVESTMENT_ACCOUNT *investment_account;
 
-	if ( !input || !*input ) return (INVESTMENT_ACCOUNT *)0;
+	if ( !input || !*input ) return NULL;
+
+	/* See entity_select_string() */
+	/* -------------------------- */
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( account_number, SQL_DELIMITER, input, 1 );
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, 8 );
+		contact_key = strdup( buffer );
+	}
 
 	investment_account =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		investment_account_new(
-			full_name,
+			fund_name,
+			strdup( full_name ),
 			contact_key,
-			account_number,
-			primary_where );
+			strdup( account_number ) );
 
-	/* See INVESTMENT_ACCOUNT_SELECT */
-	/* ----------------------------- */
-	piece( buffer, SQL_DELIMITER, input, 0 );
+	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
 		investment_account->investment_classification =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
+	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
 		investment_account->investment_purpose =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
+	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
 		investment_account->certificate_maturity_months =
 			atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer )
 		investment_account->certificate_maturity_date =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer )
 		investment_account->interest_rate =
 			atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer )
 		investment_account->balance_latest =
 			atof( buffer );
 
+	investment_account->account_balance_latest =
+		account_balance_latest(
+			fund_name,
+			as_of_date,
+			fund_boolean,
+			contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number );
+
+	investment_account->primary_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_primary_where(
+			fund_name,
+			full_name,
+			contact_key,
+			account_number,
+			fund_boolean,
+			contact_key_boolean );
+
 	return investment_account;
 }
 
-char *investment_account_primary_where(
+LIST *investment_account_list(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_number )
+		char *as_of_date,
+		char *investment_purpose,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	static char where[ 512 ];
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"full_name = '%s' and		"
-		"contact_key = '%s' and	"
-		"account_number = '%s'		",
-		full_name,
-		contact_key,
-		account_number );
-
-	return where;
-}
-
-INVESTMENT_ACCOUNT *investment_account_fetch(
-		char *full_name,
-		char *contact_key,
-		char *account_number,
-		boolean fetch_account_balance_list )
-{
-	char *primary_where;
+	char *select_string;
+	char *where;
 	char *system_string;
-	char *input;
+	FILE *input_pipe;
+	char input[ 1024 ];
 	INVESTMENT_ACCOUNT *investment_account;
+	LIST *list = list_new();
 
-	if ( !full_name
-	||   !contact_key
-	||   !account_number )
+	if ( !as_of_date )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "as_of_date is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -140,90 +160,74 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 			message );
 	}
 
-	primary_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		investment_account_primary_where(
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			INVESTMENT_ACCOUNT_SELECT /* ENTITY_SELECT */,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_where(
+			fund_name,
 			full_name,
 			contact_key,
-			account_number );
+			investment_purpose,
+			fund_boolean,
+			contact_key_boolean );
 
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			INVESTMENT_ACCOUNT_SELECT,
+			select_string,
 			INVESTMENT_ACCOUNT_TABLE,
-			primary_where );
+			where );
 
-	if ( ! ( input =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			string_pipe_input(
-				system_string ) ) )
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
+
+	while( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		return NULL;
+		investment_account =
+			investment_account_parse(
+				fund_name,
+				as_of_date,
+				fund_boolean,
+				contact_key_boolean,
+				input );
+
+		list_set( list, investment_account );
 	}
 
-	investment_account =
-		investment_account_parse(
-			full_name,
-			contact_key,
-			account_number,
-			primary_where,
-			input );
+	pclose ( input_pipe );
 
-	if ( !investment_account )
+	if ( !list_length( list ) )
 	{
-		char message[ 128 ];
-
-		sprintf(message,
-			"investment_account_parse(%s,%s,%s) returned empty.",
-			full_name,
-			contact_key,
-			account_number );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		list_free( list );
+		list = NULL;
 	}
 
-	if ( fetch_account_balance_list )
-	{
-		investment_account->account_balance_list =
-			account_balance_list(
-				full_name,
-				contact_key,
-				account_number,
-				primary_where );
-
-		investment_account->update_balance_latest =
-			investment_account_update_balance_latest(
-				account_balance_update_set(
-				investment_account->
-					account_balance_list /* in/out */ ) );
-	}
-
-	return investment_account;
+	return list;
 }
 
 INVESTMENT_ACCOUNT *investment_account_new(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_number,
-		char *primary_where )
+		char *account_number )
 {
 	INVESTMENT_ACCOUNT *investment_account;
 
 	if ( !full_name
-	||   !contact_key
-	||   !account_number
-	||   !primary_where )
+	||   !account_number )
 	{
 		char message[ 128 ];
 
@@ -238,29 +242,29 @@ INVESTMENT_ACCOUNT *investment_account_new(
 
 	investment_account = investment_account_calloc();
 
+	investment_account->fund_name = fund_name;
 	investment_account->full_name = full_name;
 	investment_account->contact_key = contact_key;
 	investment_account->account_number = account_number;
-	investment_account->primary_where = primary_where;
 
 	return investment_account;
 }
 
 char *investment_account_update(
 		const char *investment_account_table,
-		char *where,
-		double update_balance_latest )
+		char *primary_where,
+		double balance )
 {
 	char *update_statement;
 	SPOOL *spool;
 	LIST *list;
 	char *error_string;
 
-	if  ( !where )
+	if  ( !primary_where )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "where is empty." );
+		sprintf(message, "primary_where is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -275,9 +279,8 @@ char *investment_account_update(
 		/* ------------------- */
 		investment_account_update_statement(
 			investment_account_table,
-			where,
-			update_balance_latest );
-
+			primary_where,
+			balance );
 
 	/* Safely returns */
 	/* -------------- */
@@ -300,7 +303,7 @@ char *investment_account_update(
 char *investment_account_update_statement(
 		const char *investment_account_table,
 		char *investment_account_primary_where,
-		double update_balance_latest )
+		double balance )
 {
 	char statement[ 1024 ];
 
@@ -309,24 +312,146 @@ char *investment_account_update_statement(
 		sizeof ( statement ),
 		"update %s set balance_latest = %.2lf where %s;",
 		investment_account_table,
-		update_balance_latest,
+		balance,
 		investment_account_primary_where );
 
 	return strdup( statement );
 }
 
-double investment_account_update_balance_latest(
-		LIST *account_balance_update_set )
+double investment_account_sum( LIST *investment_account_list )
 {
-	ACCOUNT_BALANCE *account_balance;
+	INVESTMENT_ACCOUNT *investment_account;
+	double sum = {0};
 
-	if ( ! ( account_balance =
-			list_last(
-				account_balance_update_set ) ) )
+	if ( list_rewind( investment_account_list ) )
+	do {
+		investment_account = list_get( investment_account_list );
+
+		if ( !investment_account->account_balance_latest )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"investment_account->account_balanced_latest is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		sum += investment_account->account_balance_latest->balance;
+
+	} while ( list_next( investment_account_list ) );
+
+	return sum;
+}
+
+char *investment_account_where(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *investment_purpose,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *fund_where;
+	char *primary_where;
+	char *purpose_where;
+	char where[ 1024 ];
+
+	fund_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		predictive_fund_where(
+			fund_name,
+			fund_boolean );
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			contact_key_boolean,
+			full_name,
+			contact_key );
+
+	purpose_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		investment_account_purpose_where(
+			investment_purpose );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and %s and %s",
+		fund_where,
+		primary_where,
+		purpose_where );
+
+	return strdup( where );
+}
+
+char *investment_account_purpose_where( char *investment_purpose )
+{
+	static char where[ 128 ];
+
+	if ( investment_purpose_boolean( investment_purpose ) )
 	{
-		char message[ 128 ];
+		snprintf(
+			where,
+			sizeof ( where ),
+			"investment_purpose = '%s'",
+			investment_purpose );
+	}
+	else
+	{
+		strcpy( where, "1 = 1" );
+	}
 
-		sprintf(message, "account_balance_update_set is empty." );
+	return where;
+}
+
+boolean investment_purpose_boolean( char *investment_purpose )
+{
+	boolean purpose_boolean = 0;
+
+	if ( investment_purpose
+	&&   *investment_purpose
+	&&   strcmp( investment_purpose, "investment_purpose" ) != 0 )
+	{
+		purpose_boolean = 1;
+	}
+
+	return purpose_boolean;
+}
+
+char *investment_account_primary_where(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *account_number,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *fund_where;
+	char *primary_where;
+	char where[ 1024 ];
+
+	if ( !account_number )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_number is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -335,6 +460,31 @@ double investment_account_update_balance_latest(
 			message );
 	}
 
-	return account_balance->balance;
+	fund_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		predictive_fund_where(
+			fund_name,
+			fund_boolean );
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			contact_key_boolean,
+			full_name,
+			contact_key );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and %s and account_number = '%s'",
+		fund_where,
+		primary_where,
+		account_number );
+
+	return strdup( where );
 }
 
