@@ -153,6 +153,12 @@ SALE_LIBRARY=								\
 		customer_payment_transaction.o				\
 		sale_transaction.o					\
 		sale_loss_transaction.o
+
+INVESTMENT_LIBRARY=							\
+		account_balance.o					\
+		investment_account.o					\
+		investment_transaction.o
+
 CLOSE_LIBRARY= 								\
 		close_nominal.o						\
 		close_equity.o						\
@@ -170,6 +176,7 @@ EXECUTABLES=	trial_balance_output					\
 		ledger_propagate					\
 		feeder_upload						\
 		feeder_upload_csv					\
+		account_balance_execute					\
 		feeder_init_execute					\
 		feeder_init_csv_execute					\
 		insert_expense_transaction_execute			\
@@ -184,7 +191,6 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_self					\
 		post_change_account_balance				\
 		fixed_asset_home_trigger				\
-		investment_transaction_driver				\
 		import_predictbooks					\
 		generate_invoice
 #		post_change_customer_sale				\
@@ -485,6 +491,16 @@ feeder_upload_csv: feeder_upload_csv.c					\
 		${FEEDER_LIBRARY}					\
 		-o feeder_upload_csv
 
+account_balance_execute: account_balance_execute.c			\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${INVESTMENT_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		account_balance_execute.c				\
+		${INVESTMENT_LIBRARY}					\
+		-o account_balance_execute
+
 feeder_init_execute: feeder_init_execute.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${FEEDER_LIBRARY}						\
@@ -708,27 +724,13 @@ post_change_fixed_asset_home: post_change_fixed_asset_home.c		\
 
 post_change_account_balance: post_change_account_balance.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		investment_account.o					\
-		account_balance.o
+		${INVESTMENT_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		investment_account.o					\
-		account_balance.o					\
+		${INVESTMENT_LIBRARY}					\
 		post_change_account_balance.c				\
 		-o post_change_account_balance
-
-investment_transaction_driver: investment_transaction_driver.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		investment_transaction.o				\
-		account_delta.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		investment_transaction.o				\
-		account_delta.o						\
-		investment_transaction_driver.c				\
-		-o investment_transaction_driver
 
 post_change_customer_sale: post_change_customer_sale.c			\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\

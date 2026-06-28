@@ -17,7 +17,9 @@
 #include "spool.h"
 #include "predictive.h"
 #include "optional_column.h"
+#include "investment.h"
 #include "investment_account.h"
+#include "investment_transaction.h"
 #include "account_balance.h"
 
 ACCOUNT_BALANCE *account_balance_new(
@@ -534,10 +536,10 @@ char *account_balance_where(
 		const char *relational_operator )
 {
 	char *primary_where;
+	char *date_where;
 	char where[ 1024 ];
 
-	if ( !as_of_date
-	||   !full_name
+	if ( !full_name
 	||   !account_number )
 	{
 		char message[ 1024 ];
@@ -566,13 +568,20 @@ char *account_balance_where(
 			fund_boolean,
 			contact_key_boolean );
 
+	date_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		account_balance_date_where(
+			relational_operator,
+			as_of_date );
+
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s and date %s '%s'",
+		"%s and %s",
 		primary_where,
-		relational_operator,
-		as_of_date );
+		date_where );
 
 	return strdup( where );
 }
@@ -1061,3 +1070,131 @@ ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_calloc( void )
 	return account_balance_trigger;
 }
 
+ACCOUNT_BALANCE_PROCESS *account_balance_process_new(
+		char *fund_name,
+		char *financial_institution_full_name,
+		char *financial_institution_contact_key,
+		char *as_of_date,
+		char *investment_purpose )
+{
+	ACCOUNT_BALANCE_PROCESS *account_balance_process;
+
+	account_balance_process = account_balance_process_calloc();
+
+	account_balance_process->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	account_balance_process->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	account_balance_process->investment_account_list =
+		investment_account_list(
+			fund_name,
+			financial_institution_full_name,
+			financial_institution_contact_key,
+			as_of_date,
+			investment_purpose,
+			account_balance_process->predictive_fund_boolean,
+			account_balance_process->entity_contact_key_boolean );
+
+	account_balance_process->investment_account_asset_sum =
+		investment_account_asset_sum(
+			account_balance_process->
+				investment_account_list );
+
+	account_balance_process->investment_transaction_boolean =
+		investment_transaction_boolean(
+			financial_institution_full_name,
+			as_of_date,
+			investment_purpose );
+
+	if ( account_balance_process->investment_transaction_boolean )
+	{
+		account_balance_process->investment_transaction_asset =
+			investment_transaction_asset(
+				INVESTMENT_ACCOUNT_KEY,
+				INVESTMENT_GAIN_ACCOUNT_KEY,
+				INVESTMENT_LOSS_ACCOUNT_KEY,
+				INVESTMENT_TRANSACTION_ASSET_MEMO,
+				fund_name,
+				account_balance_process->
+					investment_account_asset_sum );
+
+		account_balance_process->investment_account_liability_sum =
+			investment_account_liability_sum(
+				INVESTMENT_PURPOSE_TAXABLE_LIABILITY,
+				account_balance_process->
+					investment_account_list );
+
+		account_balance_process->
+			investment_transaction_liability_amount =
+				investment_transaction_liability_amount(
+					INVESTMENT_IRA_TAX_PERCENT,
+					account_balance_process->
+					    investment_account_liability_sum );
+
+		account_balance_process->investment_transaction_liability =
+			investment_transaction_liability(
+				ACCOUNT_EQUITY_KEY,
+				INVESTMENT_IRA_TAX_PAYABLE_KEY,
+				INVESTMENT_TRANSACTION_LIABILITY_MEMO,
+				fund_name,
+				account_balance_process->
+				    investment_transaction_liability_amount );
+	}
+
+	return account_balance_process;
+}
+
+ACCOUNT_BALANCE_PROCESS *account_balance_process_calloc( void )
+{
+	ACCOUNT_BALANCE_PROCESS *account_balance_process;
+
+	if ( ! ( account_balance_process =
+			calloc( 1,
+				sizeof ( ACCOUNT_BALANCE_PROCESS ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return account_balance_process;
+}
+
+char *account_balance_date_where(
+		const char *relational_operator,
+		char *as_of_date )
+{
+	static char date_where[ 128 ];
+
+	if ( !investment_transaction_date_populated_boolean(
+		as_of_date ) )
+	{
+		strcpy( date_where, "1 = 1" );
+	}
+	else
+	{
+		snprintf(
+			date_where,
+			sizeof ( date_where ),
+			"date %s '%s'",
+			relational_operator,
+			as_of_date );
+	}
+
+	return date_where;
+}

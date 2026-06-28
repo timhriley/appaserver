@@ -22,6 +22,12 @@
 					"interest_rate,"		\
 					"balance_latest"
 
+
+#define INVESTMENT_ACCOUNT_HEADING					\
+"institution_full_name,account_number,As Of Date,Book Value,Certificate Maturity,Investment Purpose"
+
+#define INVESTMENT_ACCOUNT_JUSTIFICATION				\
+					"Left,left,left,right,right,left"
 typedef struct
 {
 	char *fund_name;
@@ -100,6 +106,30 @@ char *investment_account_where(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *investment_account_purpose_where(
+		char *investment_purpose );
+
+/* Process */
+/* ------- */
+boolean investment_account_purpose_populated_boolean(
+		char *investment_purpose );
+
+/* Usage */
+/* ----- */
+double investment_account_asset_sum(
+		LIST *investment_account_list );
+
+/* Usage */
+/* ----- */
+double investment_account_liability_sum(
+		const char *investment_purpose_taxable_liability,
+		LIST *investment_account_list );
+
 /* Driver */
 /* ------ */
 
@@ -120,22 +150,23 @@ char *investment_account_update_statement(
 		char *investment_account_primary_where,
 		double balance );
 
-/* Usage */
-/* ----- */
-double investment_account_sum(
-		LIST *investment_account_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *investment_account_purpose_where(
-		char *investment_purpose );
+/* Driver */
+/* ------ */
+void investment_account_list_html_output(
+		const char sql_delimiter,
+		const char *investment_account_heading,
+		const char *investment_account_justification,
+		LIST *investment_account_list,
+		double investment_account_asset_sum );
 
 /* Process */
 /* ------- */
-boolean investment_purpose_boolean(
-		char *investment_purpose );
+
+/* Returns heap memory */
+/* ------------------- */
+char *investment_account_system_string(
+		const char sql_delimiter,
+		const char *investment_account_heading,
+		const char *investment_account_justification );
 
 #endif

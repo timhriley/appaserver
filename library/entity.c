@@ -344,34 +344,44 @@ char *entity_primary_where(
 		char *contact_key )
 {
 	static char where[ 256 ];
-	char *escape_full_name;
-	char *contact_key_where;
 
-	escape_full_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		entity_escape_full_name(
-			full_name );
+	if ( !entity_full_name_populated_boolean(
+		ENTITY_FULL_NAME_COLUMN,
+		full_name ) )
+	{
+		strcpy( where, "1 = 1 " );
+	}
+	else
+	{
+		char *escape_full_name;
+		char *contact_key_where;
 
-	contact_key_where =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		entity_contact_key_where(
-			contact_key_boolean,
-			contact_key );
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"full_name = '%s' and "
-		"%s",
-		escape_full_name,
-		contact_key_where );
-
-	free( escape_full_name );
-	free( contact_key_where );
+		escape_full_name =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			entity_escape_full_name(
+				full_name );
+	
+		contact_key_where =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			entity_contact_key_where(
+				contact_key_boolean,
+				contact_key );
+	
+		snprintf(
+			where,
+			sizeof ( where ),
+			"full_name = '%s' and "
+			"%s",
+			escape_full_name,
+			contact_key_where );
+	
+		free( escape_full_name );
+		free( contact_key_where );
+	}
 
 	return where;
 }
@@ -816,6 +826,18 @@ LIST *entity_primary_key_list(
 	}
 
 	return list;
+}
+
+boolean entity_full_name_populated_boolean(
+		const char *entity_full_name_column,
+		char *full_name )
+{
+	return
+	entity_contact_key_populated_boolean(
+		entity_full_name_column
+			/* entity_contact_key_column */,
+		full_name
+			/* contact_key */ );
 }
 
 boolean entity_contact_key_populated_boolean(

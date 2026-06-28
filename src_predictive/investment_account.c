@@ -115,6 +115,8 @@ INVESTMENT_ACCOUNT *investment_account_parse(
 			contact_key,
 			account_number );
 
+	if ( !investment_account->account_balance_latest ) return NULL;
+
 	investment_account->primary_where =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -318,10 +320,12 @@ char *investment_account_update_statement(
 	return strdup( statement );
 }
 
-double investment_account_sum( LIST *investment_account_list )
+double investment_account_liability_sum(
+		const char *investment_purpose_taxable_liability,
+		LIST *investment_account_list )
 {
 	INVESTMENT_ACCOUNT *investment_account;
-	double sum = {0};
+	double liability_sum = {0};
 
 	if ( list_rewind( investment_account_list ) )
 	do {
@@ -343,11 +347,54 @@ double investment_account_sum( LIST *investment_account_list )
 				message );
 		}
 
-		sum += investment_account->account_balance_latest->balance;
+		if ( string_strcmp(
+			investment_account->investment_purpose,
+			(char *)investment_purpose_taxable_liability ) == 0 )
+		{
+			liability_sum +=
+				investment_account->
+					account_balance_latest->
+					balance;
+		}
 
 	} while ( list_next( investment_account_list ) );
 
-	return sum;
+	return liability_sum;
+}
+
+double investment_account_asset_sum( LIST *investment_account_list )
+{
+	INVESTMENT_ACCOUNT *investment_account;
+	double asset_sum = {0};
+
+	if ( list_rewind( investment_account_list ) )
+	do {
+		investment_account = list_get( investment_account_list );
+
+		if ( !investment_account->account_balance_latest )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"investment_account->account_balanced_latest is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		asset_sum +=
+			investment_account->
+				account_balance_latest->
+				balance;
+
+	} while ( list_next( investment_account_list ) );
+
+	return asset_sum;
 }
 
 char *investment_account_where(
@@ -402,7 +449,8 @@ char *investment_account_purpose_where( char *investment_purpose )
 {
 	static char where[ 128 ];
 
-	if ( investment_purpose_boolean( investment_purpose ) )
+	if ( investment_account_purpose_populated_boolean(
+		investment_purpose ) )
 	{
 		snprintf(
 			where,
@@ -418,18 +466,18 @@ char *investment_account_purpose_where( char *investment_purpose )
 	return where;
 }
 
-boolean investment_purpose_boolean( char *investment_purpose )
+boolean investment_account_purpose_populated_boolean( char *investment_purpose )
 {
-	boolean purpose_boolean = 0;
+	boolean populated_boolean = 0;
 
 	if ( investment_purpose
 	&&   *investment_purpose
 	&&   strcmp( investment_purpose, "investment_purpose" ) != 0 )
 	{
-		purpose_boolean = 1;
+		populated_boolean = 1;
 	}
 
-	return purpose_boolean;
+	return populated_boolean;
 }
 
 char *investment_account_primary_where(
@@ -486,5 +534,105 @@ char *investment_account_primary_where(
 		account_number );
 
 	return strdup( where );
+}
+
+void investment_account_list_html_output(
+		const char sql_delimiter,
+		const char *investment_account_heading,
+		const char *investment_account_justification,
+		LIST *investment_account_list,
+		double asset_sum )
+{
+	char *system_string;
+	FILE *output_pipe;
+	INVESTMENT_ACCOUNT *investment_account;
+	char buffer1[ 128 ];
+	char buffer2[ 128 ];
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_system_string(
+			sql_delimiter,
+			investment_account_heading,
+			investment_account_justification );
+
+	/* Safely returns */
+	/* -------------- */
+	output_pipe = appaserver_output_pipe( system_string );
+
+	if ( list_rewind( investment_account_list ) )
+	do {
+		investment_account = list_get( investment_account_list );
+
+		if ( !investment_account->account_balance_latest )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"investment_account->account_balance_latest is empty." );
+
+			pclose( output_pipe );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		fprintf(
+			output_pipe,
+			"%s^%s^%s^%s^%s^%s\n",
+			string_initial_capital(
+				buffer1,
+				investment_account->full_name ),
+			investment_account->account_number,
+			investment_account->account_balance_latest->date_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_commas_dollar(
+				investment_account->
+					account_balance_latest->
+					balance ),
+			(investment_account->certificate_maturity_date)
+				? investment_account->certificate_maturity_date
+				: "",
+			string_initial_capital(
+				buffer2,
+				investment_account->investment_purpose ) );
+
+	} while ( list_next( investment_account_list ) );
+
+	fprintf(output_pipe,
+		"Sum^^^%s\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_commas_dollar( asset_sum ) );
+
+	pclose( output_pipe );
+}
+
+char *investment_account_system_string(
+		const char sql_delimiter,
+		const char *heading,
+		const char *justification )
+{
+	char system_string[ 1024 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"html_table.e '' '%s' '%c' '%s'",
+		heading,
+		sql_delimiter,
+		justification );
+
+	return strdup( system_string );
 }
 

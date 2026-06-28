@@ -62,16 +62,6 @@ char *entity_select_string(
 
 /* Usage */
 /* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *entity_primary_where(
-		boolean entity_contact_key_boolean,
-		char *full_name,
-		char *contact_key );
-
-/* Usage */
-/* ----- */
 ENTITY *entity_parse(
 		boolean entity_contact_key_boolean,
 		char *input );
@@ -98,6 +88,16 @@ ENTITY *entity_calloc(
 /* ------------------- */
 char *entity_contact_key_where(
 		boolean entity_contact_key_boolean,
+		char *contact_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *entity_primary_where(
+		boolean entity_contact_key_boolean,
+		char *full_name,
 		char *contact_key );
 
 /* Usage */
@@ -250,6 +250,12 @@ char *entity_contact_key(
 boolean entity_contact_key_populated_boolean(
 		const char *entity_contact_key_column,
 		char *contact_key );
+
+/* Usage */
+/* ----- */
+boolean entity_full_name_populated_boolean(
+		const char *entity_full_name_column,
+		char *full_name );
 
 /* Usage */
 /* ----- */

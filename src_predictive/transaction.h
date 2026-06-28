@@ -207,9 +207,11 @@ char *transaction_insert_data_string(
 
 /* Usage */
 /* ----- */
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *transaction_stamp_insert(
-		TRANSACTION *transaction,
-		boolean insert_journal_list_boolean );
+		TRANSACTION *transaction /* in/out */ );
 
 /* Usage */
 /* ----- */

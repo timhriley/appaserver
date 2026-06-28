@@ -10,6 +10,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "spool.h"
+#include "investment_transaction.h"
 
 #define ACCOUNT_BALANCE_TABLE		"account_balance"
 
@@ -192,6 +193,15 @@ char *account_balance_fetch_date(
 		char *account_balance_where,
 		boolean fetch_min_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *account_balance_date_where(
+		const char *relational_operator,
+		char *as_of_date );
+
 /* Driver */
 /* ------ */
 void account_balance_update(
@@ -256,6 +266,36 @@ ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_new(
 /* Process */
 /* ------- */
 ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_calloc(
+		void );
+
+typedef struct
+{
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
+	LIST *investment_account_list;
+	boolean investment_transaction_boolean;
+	double investment_account_asset_sum;
+	double investment_account_liability_sum;
+	double investment_transaction_liability_amount;
+	INVESTMENT_TRANSACTION *investment_transaction_asset;
+	INVESTMENT_TRANSACTION *investment_transaction_liability;
+} ACCOUNT_BALANCE_PROCESS;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ACCOUNT_BALANCE_PROCESS *account_balance_process_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *as_of_date,
+		char *investment_purpose );
+
+/* Process */
+/* ------- */
+ACCOUNT_BALANCE_PROCESS *account_balance_process_calloc(
 		void );
 
 #endif

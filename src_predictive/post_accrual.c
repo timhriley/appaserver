@@ -117,8 +117,7 @@ int main( int argc, char **argv )
 		{
 			transaction_date_time =
 				transaction_stamp_insert(
-					accrual->transaction /* in/out */,
-					1 /* insert_journal_list_boolean */ );
+					accrual->transaction /* in/out */ );
 		}
 
 		if ( with_html )

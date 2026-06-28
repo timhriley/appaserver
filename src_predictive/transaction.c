@@ -1348,8 +1348,7 @@ char *transaction_increment_date_time( char *transaction_date_string )
 }
 
 char *transaction_stamp_insert(
-		TRANSACTION *transaction /* in/out */,
-		boolean insert_journal_list_boolean )
+		TRANSACTION *transaction )
 {
 	if ( !transaction
 	||   !transaction->transaction_amount )
@@ -1375,7 +1374,7 @@ char *transaction_stamp_insert(
 			transaction->check_number,
 			transaction->memo,
 			transaction->journal_list,
-			insert_journal_list_boolean );
+			1 /* insert_journal_list_boolean */ );
 
 	return transaction->transaction_date_time;
 }
