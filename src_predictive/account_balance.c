@@ -160,7 +160,7 @@ char *account_balance_update_change_string(
 	snprintf(
 		string,
 		sizeof ( string ),
-	 	"%s^%s^%s\n",
+	 	"%s^%s^%s",
 		full_name,
 		account_number,
 		date_string );
@@ -235,7 +235,7 @@ char *account_balance_update_percent_string(
 	snprintf(
 		string,
 		sizeof ( string ),
-	 	"%s^%s^%s\n",
+	 	"%s^%s^%s",
 		full_name,
 		account_number,
 		date_string );
@@ -431,7 +431,11 @@ void account_balance_update(
 	LIST *list;
 	char *error_string;
 
-	if ( !account_balance_fetch ) return;
+	if ( !account_balance_fetch
+	&&   !account_balance_next )
+	{
+		return;
+	}
 
 	system_string =
 		/* ------------------- */
@@ -460,10 +464,13 @@ void account_balance_update(
 
 	free( system_string );
 
-	account_balance_update_spool(
-		account_balance_fetch->update_change_string,
-		account_balance_fetch->update_percent_string,
-		spool );
+	if ( account_balance_fetch )
+	{
+		account_balance_update_spool(
+			account_balance_fetch->update_change_string,
+			account_balance_fetch->update_percent_string,
+			spool );
+	}
 
 	if ( account_balance_next )
 	{
@@ -521,6 +528,8 @@ char *account_balance_fetch_date(
 	date = string_system_input( system_string );
 
 	free( system_string );
+
+	if ( date && *date == '\0' ) date = NULL;
 
 	return date;
 }
@@ -601,8 +610,19 @@ void account_balance_delta_set(
 				update_balance_change =
 					account_balance_current->balance;
 
-			account_balance_current->
-				update_balance_change_percent = 100;
+			if ( account_balance_current->balance )
+			{
+				account_balance_current->
+					update_balance_change_percent = 100;
+			}
+			else
+			/* ------------------------------------- */
+			/* Trap if first row has balance of zero */
+			/* ------------------------------------- */
+			{
+				account_balance_current->
+					update_balance_change_percent = 0;
+			}
 		}
 		else
 		{
@@ -1028,8 +1048,8 @@ ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_new(
 				account_balance_fetch
 				/* account_balance_current in/out */ );
 
-		/* If inserted into the middle */
-		/* --------------------------- */
+		/* If insert or update in the middle */
+		/* --------------------------------- */
 		account_balance_delta_set(
 			fund_name,
 			account_balance_trigger->predictive_fund_boolean,
