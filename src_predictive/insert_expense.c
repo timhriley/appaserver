@@ -239,7 +239,7 @@ boolean insert_expense_input_debit_empty_boolean(
 
 	if ( !debit_account
 	||   !*debit_account
-	||   strcmp( debit_account, "debit_account" ) == 0 )
+	||   strcmp( debit_account, "account" ) == 0 )
 	{
 		empty_boolean = 1;
 	}

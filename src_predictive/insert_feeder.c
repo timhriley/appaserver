@@ -53,7 +53,7 @@ boolean insert_feeder_account_empty_boolean(
 
 	if ( !feeder_account
 	||   !*feeder_account
-	||   strcmp( feeder_account, "feeder_account" ) == 0 )
+	||   strcmp( feeder_account, "account" ) == 0 )
 	{
 		empty_boolean = 1;
 	}
@@ -125,7 +125,7 @@ char *insert_feeder_error_message(
 
 	if ( account_empty_boolean )
 		error_message =
-			"Please choose a feeder account.";
+			"Please choose a nominal account.";
 	else
 	if ( name_empty_boolean )
 		error_message =

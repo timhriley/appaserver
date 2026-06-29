@@ -91,7 +91,10 @@ int main( int argc, char **argv )
 	}
 
 	if ( balance_column == 0
-	&&   !atof( account_end_balance_string ) )
+	&& ( !*account_end_balance_string
+	||   strcmp(
+		account_end_balance_string,
+		"account_end_balance" ) == 0 ) )
 	{
 		printf( "<h3>Please enter an Account End Balance.</h3>\n" );
 		okay_continue = 0;

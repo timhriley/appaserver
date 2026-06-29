@@ -11,9 +11,20 @@ then
 fi
 
 git checkout main
+
+if [ $? -ne 0 ]
+then
+	exit 1
+fi
+
 git merge $current_branch
+return_value=$?
+
 git checkout $current_branch
 
-echo "Branch main is now caught up with this branch."
+if [ $return_value -eq 0 ]
+then
+	echo "Branch main is now caught up with this branch."
+fi
 
 exit 0
