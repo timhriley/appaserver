@@ -14,9 +14,9 @@ then
 	exit 1
 fi
 
-# Returns 0 if ELEMENT.element exists
-# -----------------------------------
-table_column_exists.sh element element
+# Returns 0 if ACCOUNT_BALANCE.account_number exists
+# --------------------------------------------------
+table_column_exists.sh account_balance account_number
 
 if [ $? -ne 0 ]
 then
