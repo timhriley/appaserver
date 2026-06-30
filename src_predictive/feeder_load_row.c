@@ -74,6 +74,7 @@ char *feeder_load_row_trim_date( char *description_space_trim )
 FEEDER_LOAD_ROW *feeder_load_row_new(
 		double exchange_journal_amount,
 		char *exchange_journal_description,
+		int exchange_journal_check_number,
 		char *transaction_date_time,
 		double debit_amount,
 		double credit_amount,
@@ -81,7 +82,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 
-	if ( float_virtually_same( exchange_journal_amount, 0.0 )
+	if ( float_money_virtually_same( exchange_journal_amount, 0.0 )
 	||   !exchange_journal_description
 	||   !transaction_date_time )
 	{
@@ -120,6 +121,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	feeder_load_row->check_number =
 		feeder_load_row_check_number(
+			exchange_journal_check_number,
 			feeder_load_row->description_space_trim );
 
 	feeder_load_row->description_embedded =
@@ -167,7 +169,8 @@ char *feeder_load_row_description_embedded(
 	/* Returns feeder_load_row_description_build */
 	/* ----------------------------------------- */
 	feeder_load_row_description_crop(
-		FEEDER_LOAD_ROW_DESCRIPTION_SIZE,
+		FEEDER_LOAD_ROW_DESCRIPTION_SIZE
+			/* probably 140 */,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -410,7 +413,9 @@ int feeder_load_row_check_text_number( char *description_space_trim )
 		strlen_substr );
 }
 
-int feeder_load_row_check_number( char *description_space_trim )
+int feeder_load_row_check_number(
+		int exchange_journal_check_number,
+		char *description_space_trim )
 {
 	int check_number;
        
@@ -427,17 +432,22 @@ int feeder_load_row_check_number( char *description_space_trim )
 			message );
 	}
 
+	if ( exchange_journal_check_number )
+		return exchange_journal_check_number;
+
 	if ( ( check_number = feeder_load_row_pound_colon_number(
 		description_space_trim ) ) )
 	{
 		return check_number;
 	}
 
+/* OUCH!
 	if ( ( check_number = feeder_load_row_pound_number(
 		description_space_trim ) ) )
 	{
 		return check_number;
 	}
+*/
 
 	return
 	feeder_load_row_check_text_number(
@@ -487,6 +497,7 @@ LIST *feeder_load_row_list( LIST *exchange_journal_list )
 			feeder_load_row_new(
 				exchange_journal->amount,
 				exchange_journal->description,
+				exchange_journal->check_number,
 				exchange_journal->
 					journal->
 					transaction_date_time,

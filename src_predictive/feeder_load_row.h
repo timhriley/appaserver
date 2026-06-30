@@ -45,6 +45,7 @@ typedef struct
 FEEDER_LOAD_ROW *feeder_load_row_new(
 		double exchange_journal_amount,
 		char *exchange_journal_description,
+		int exchange_journal_check_number,
 		char *transaction_date_time,
 		double debit_amount,
 		double credit_amount,
@@ -122,6 +123,7 @@ LIST *feeder_load_row_list(
 /* Usage */
 /* ----- */
 int feeder_load_row_check_number(
+		int exchange_journal_check_number,
 		char *feeder_load_row_description_space_trim );
 
 /* Process */
