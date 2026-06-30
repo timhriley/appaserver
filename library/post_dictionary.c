@@ -397,9 +397,24 @@ char *post_dictionary_file_specification(
 
 char *post_dictionary_apache_marker( char *input )
 {
-	static char apache_marker[ 128 ];
+	static char apache_marker[ 512 ];
 
-	if ( strlen( input ) > 127 ) return NULL;
+	if ( strlen( input ) > sizeof ( apache_marker ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"apache_marker is too big for buffer of size %lu.",
+			sizeof ( apache_marker ) - 1 );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	/* ---------------------------------------------------- */
 	/* Returns destination or null if not enough delimiters */

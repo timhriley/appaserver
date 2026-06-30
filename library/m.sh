@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make xml_separate.e
+	cd ../src_appaserver
+	make post_prompt_process
 fi
 
