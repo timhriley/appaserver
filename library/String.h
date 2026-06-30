@@ -226,7 +226,7 @@ int string_strncmp(
 
 /* Usage */
 /* ----- */
-boolean string_loose_strcmp(
+int string_loose_strcmp(
 		char *s1,
 		char *s2 );
 

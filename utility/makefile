@@ -1859,13 +1859,10 @@ payroll_period.e: payroll_period.c					\
 bracket_line.e: bracket_line.c
 	$(CC)	${CFLAGS} bracket_line.c -o bracket_line.e
 
-xml_separate.e: xml_separate.c						\
-		${LIBRARY}/token.o
-	$(CC)   ${CFLAGS} -I${LIBRARY} 					\
+xml_separate.e: xml_separate.c
+	$(CC)   ${CFLAGS} 						\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		xml_separate.c 						\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/token.o 					\
 		-o xml_separate.e
 
 sort_delimited_numbers.e: sort_delimited_numbers.c

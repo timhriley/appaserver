@@ -441,7 +441,7 @@ int string_strncmp( char *large_string, char *small_string )
 	return strncasecmp( large_string, small_string, small_string_length );
 }
 
-boolean string_loose_strcmp( char *s1, char *s2 )
+int string_loose_strcmp( char *s1, char *s2 )
 {
 	if ( !s1 && !s2 ) return 0;
 	if ( !s2 ) return -1;

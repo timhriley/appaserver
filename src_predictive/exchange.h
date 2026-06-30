@@ -14,24 +14,26 @@
 #define EXCHANGE_OFX_TAG		"<OFX>"
 #define EXCHANGE_ORG_TAG		"<ORG>"
 #define EXCHANGE_DTPOSTED_TAG		"<DTPOSTED>"
+#define EXCHANGE_STMTTRN_TAG		"<STMTTRN>"
+#define EXCHANGE_STMTTRN_END_TAG	"</STMTTRN>"
 #define EXCHANGE_TRNAMT_TAG		"<TRNAMT>"
 #define EXCHANGE_NAME_TAG		"<NAME>"
 #define EXCHANGE_MEMO_TAG		"<MEMO>"
-#define EXCHANGE_STMTTRN_END_TAG	"</STMTTRN>"
 #define EXCHANGE_BALAMT_TAG		"<BALAMT>"
-#define EXCHANGE_TRNTYPE_TAG		"<TRNTYPE>"
+#define EXCHANGE_CHECKNUM_TAG		"<CHECKNUM>"
 
 typedef struct
 {
-	double amount;
+	int check_number;
 	char *description;
+	double amount;
 	JOURNAL *journal;
 } EXCHANGE_JOURNAL;
 
 /* Usage */
 /* ----- */
 EXCHANGE_JOURNAL *exchange_journal_extract(
-		LIST *exchange_file_list );
+		LIST *tag_list );
 
 /* Usage */
 /* ----- */
@@ -39,10 +41,11 @@ EXCHANGE_JOURNAL *exchange_journal_extract(
 /* Safely returns */
 /* -------------- */
 EXCHANGE_JOURNAL *exchange_journal_new(
+		int check_number,
 		char *date_posted,
 		char *amount_string,
 		char *description,
-		double balance_double );
+		double balance );
 
 /* Process */
 /* ------- */
@@ -67,7 +70,7 @@ double exchange_journal_credit_amount(
 /* Usage */
 /* ----- */
 LIST *exchange_journal_list(
-		LIST *exchange_file_list );
+		LIST *exchange_transaction_list );
 
 /* Usage */
 /* ----- */
@@ -117,6 +120,7 @@ typedef struct
 	LIST *file_list;
 	boolean open_tag_boolean;
 	char *financial_institution;
+	LIST *exchange_transaction_list;
 	LIST *exchange_journal_list;
 	double balance_amount;
 	double exchange_journal_begin_amount;
@@ -199,5 +203,29 @@ char *exchange_financial_institution(
 double exchange_balance_amount(
 		const char *exchange_balamt_tag,
 		LIST *exchange_file_list );
+
+typedef struct
+{
+	LIST *tag_list;
+} EXCHANGE_TRANSACTION;
+
+/* Usage */
+/* ----- */
+LIST *exchange_transaction_list(
+		const char *exchange_stmttrn_tag,
+		const char *exchange_stmttrn_end_tag,
+		LIST *exchange_file_list /* in/out */ );
+
+/* Usage */
+/* ----- */
+EXCHANGE_TRANSACTION *exchange_transaction_new(
+	const char *exchange_stmttrn_tag,
+	const char *exchange_stmttrn_end_tag,
+	LIST *exchange_file_list );
+
+/* Process */
+/* ------- */
+EXCHANGE_TRANSACTION *exchange_transaction_calloc(
+	void );
 
 #endif

@@ -440,6 +440,7 @@ EXCHANGE_JOURNAL *exchange_csv_journal_resolve(
 	/* Safely returns */
 	/* -------------- */
 	exchange_journal_new(
+		0 /* check_number */,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
