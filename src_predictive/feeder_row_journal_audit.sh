@@ -101,7 +101,7 @@ sql								|
 html_table.e "$table_title" "$heading" "^" "$justification"	|
 cat
 
-echo "</body></html>"
+document_close.sh
 
 exit 0
 

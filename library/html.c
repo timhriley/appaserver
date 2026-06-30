@@ -329,6 +329,7 @@ char *html_cell_datum_tag(
 	char *ptr = tag;
 
 	if ( !datum ) datum = "";
+	if ( strcmp( datum, "-0.00" ) == 0 ) datum = "0.00";
 
 	if ( strlen( datum ) > 65500 )
 	{
