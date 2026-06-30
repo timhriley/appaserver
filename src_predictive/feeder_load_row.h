@@ -131,7 +131,12 @@ int feeder_load_row_check_number(
 
 /* If like "VETERANS AFFAIRS DES:PAYMENT CHECK #:1827" */
 /* --------------------------------------------------- */
-int feeder_load_row_pound_colon_number(
+int feeder_load_row_check_pound_colon_number(
+		char *feeder_load_row_description_space_trim );
+
+/* If like "CHECK #1827" */
+/* --------------------------------------------------- */
+int feeder_load_row_check_pound_number(
 		char *feeder_load_row_description_space_trim );
 
 /* If like "check 1827" or "CHECK 1827" */
@@ -144,8 +149,10 @@ int feeder_load_row_check_text_number(
 
 /* If like "#1827" */
 /* --------------- */
+/* OUCH!
 int feeder_load_row_pound_number(
 		char *feeder_load_row_description_space_trim );
+*/
 
 /* Usage */
 /* ----- */

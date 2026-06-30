@@ -301,27 +301,8 @@ int feeder_load_row_position_check_number(
 	}
 }
 
-int feeder_load_row_pound_colon_number( char *description_space_trim )
-{
-	char *substr = "#:";
-	int position;
-
-	position =
-		/* ------------------------ */
-		/* Returns -1 if not found. */
-		/* ------------------------ */
-		string_instr( 
-			substr,
-			description_space_trim /* string */,
-			1 /* occurrence */ );
-
-	return
-	feeder_load_row_position_check_number(
-		description_space_trim,
-		position,
-		strlen( substr ) );
-}
-
+#ifdef NOT_DEFINED
+OUCH!
 int feeder_load_row_pound_number( char *description_space_trim )
 {
 	char *substr;
@@ -365,6 +346,99 @@ int feeder_load_row_pound_number( char *description_space_trim )
 		description_space_trim,
 		position,
 		strlen( substr ) /* strlen_substr */ );
+}
+#endif
+
+int feeder_load_row_check_pound_number( char *description_space_trim )
+{
+	char *substr;
+	int strlen_substr;
+	int position;
+	int check_number;
+
+	substr = "check #";
+	strlen_substr = strlen( substr );
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	if ( ( check_number =
+		feeder_load_row_position_check_number(
+			description_space_trim,
+			position,
+			strlen_substr ) ) )
+	{
+		return check_number;
+	}
+
+	substr = "CHECK #";
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	return
+	feeder_load_row_position_check_number(
+		description_space_trim,
+		position,
+		strlen_substr );
+}
+
+int feeder_load_row_check_pound_colon_number( char *description_space_trim )
+{
+	char *substr;
+	int strlen_substr;
+	int position;
+	int check_number;
+
+	substr = "check #:";
+	strlen_substr = strlen( substr );
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	if ( ( check_number =
+		feeder_load_row_position_check_number(
+			description_space_trim,
+			position,
+			strlen_substr ) ) )
+	{
+		return check_number;
+	}
+
+	substr = "CHECK #:";
+
+	position =
+		/* ------------------------ */
+		/* Returns -1 if not found. */
+		/* ------------------------ */
+		string_instr( 
+			substr,
+			description_space_trim /* string */,
+			1 /* occurrence */ );
+
+	return
+	feeder_load_row_position_check_number(
+		description_space_trim,
+		position,
+		strlen_substr );
 }
 
 int feeder_load_row_check_text_number( char *description_space_trim )
@@ -435,7 +509,13 @@ int feeder_load_row_check_number(
 	if ( exchange_journal_check_number )
 		return exchange_journal_check_number;
 
-	if ( ( check_number = feeder_load_row_pound_colon_number(
+	if ( ( check_number = feeder_load_row_check_pound_colon_number(
+		description_space_trim ) ) )
+	{
+		return check_number;
+	}
+
+	if ( ( check_number = feeder_load_row_check_pound_number(
 		description_space_trim ) ) )
 	{
 		return check_number;
