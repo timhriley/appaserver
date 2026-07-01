@@ -209,6 +209,7 @@ APPASERVER_LIBRARY=						\
 		upload_purge.o					\
 		preupdate_change.o				\
 		file.o						\
+		filename.o					\
 		credit_provider.o
 
 all: 	${APPASERVER_LIBRARY}
@@ -931,6 +932,9 @@ preupdate_change.o: preupdate_change.c preupdate_change.h
 
 file.o: file.c file.h
 	${CC} ${CFLAGS} -c file.c
+
+filename.o: filename.c filename.h
+	${CC} ${CFLAGS} -c filename.c
 
 credit_provider.o: credit_provider.c credit_provider.h
 	${CC} ${CFLAGS} -c credit_provider.c

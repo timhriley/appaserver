@@ -157,7 +157,7 @@ NAME_ARG *init_arg( char *argv_0 )
 
 	if ( argv_0 )
 	{
-		arg->usage_filename = basename_get_base_name( argv_0, 0 );
+		arg->usage_filename = basename_base_name( argv_0, 0 );
 	}
 
         return arg;

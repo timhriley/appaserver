@@ -9,12 +9,14 @@
 #include <stdio.h>
 #include "boolean.h"
 #include "dictionary.h"
+#include "filename.h"
 
 #define POST_DICTIONARY_FILE_NAME_PREFIX	"post_dictionary_file"
+#define POST_DICTIONARY_FILE_FILENAME_MAX_SIZE	80
 
 typedef struct
 {
-	char *date_name;
+	FILENAME *filename;
 	char *specification;
 	char *specification_key;
 } POST_DICTIONARY_FILE;
@@ -22,12 +24,11 @@ typedef struct
 /* Usage */
 /* ----- */
 POST_DICTIONARY_FILE *post_dictionary_file_new(
-		const char *security_escape_character_string,
 		char *application_name,
 		char *upload_directory,
 		char *post_dictionary_apache_key,
 		char *post_dictionary_attribute_name,
-		char *post_dictionary_file_datum );
+		char *post_dictionary_filename );
 
 /* Process */
 /* ------- */
@@ -43,36 +44,19 @@ char *post_dictionary_file_specification_key(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
-char *post_dictionary_file_clean_name(
-		const char *security_escape_character_string,
-		char *post_dictionary_file_datum );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *post_dictionary_file_date_name(
-		char *post_dictionary_file_clean_name );
-
-/* Usage */
-/* ----- */
-
 /* Returns heap memory */
 /* ------------------- */
 char *post_dictionary_file_specification(
 		char *application_name,
 		char *upload_directory,
-		char *post_dictionary_file_date_name );
+		char *filename_return_string );
 
 /* Usage */
 /* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *post_dictionary_file_datum(
+char *post_dictionary_filename(
 		LIST *upload_filename_list,
 		char *post_dictionary_attribute_name,
 		char *input );

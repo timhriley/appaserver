@@ -111,6 +111,7 @@ DICTIONARY *post_dictionary_fetch(
 	char *apache_marker;
 	char *attribute_name;
 	char *datum;
+	char *filename;
 	POST_DICTIONARY_FILE *post_dictionary_file;
 	DICTIONARY *original_post_dictionary = dictionary_huge();
 
@@ -156,30 +157,31 @@ DICTIONARY *post_dictionary_fetch(
 				post_dictionary_attribute_name(
 					input );
 
-			datum =
+			filename =
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
-				post_dictionary_file_datum(
+				post_dictionary_filename(
 					upload_filename_list,
 					attribute_name,
 					input );
 
-			if ( datum )
+			if ( filename )
 			{
 				post_dictionary_file =
 				     post_dictionary_file_new(
-					SECURITY_ESCAPE_CHARACTER_STRING,
 					application_name,
 					upload_directory,
 					apache_key,
 					attribute_name,
-					datum );
+					filename );
 
 				dictionary_set(
 					original_post_dictionary,
 					attribute_name,
-					post_dictionary_file->date_name );
+					post_dictionary_file->
+						filename->
+						return_string );
 
 				dictionary_set(
 					original_post_dictionary,
@@ -365,13 +367,13 @@ void post_dictionary_file_write(
 char *post_dictionary_file_specification(
 		char *application_name,
 		char *upload_directory,
-		char *date_name )
+		char *filename_return_string )
 {
-	char specification[ 512 ];
+	char specification[ 1024 ];
 
 	if ( !application_name
 	||   !upload_directory
-	||   !date_name )
+	||   !filename_return_string )
 	{
 		char message[ 128 ];
 
@@ -390,7 +392,7 @@ char *post_dictionary_file_specification(
 	 	"%s/%s/%s",
 	 	upload_directory,
 		application_name,
-	 	date_name );
+	 	filename_return_string );
 
 	return strdup( specification );
 }
@@ -496,110 +498,14 @@ int post_dictionary_row_number(
 	return 0;
 }
 
-char *post_dictionary_file_clean_name(
-		const char *security_escape_character_string,
-		char *post_dictionary_file_datum )
-{
-	static char clean_name[ 256 ];
-
-	string_strcpy(
-		clean_name,
-		post_dictionary_file_datum,
-		sizeof ( clean_name ) /* buffer_size */ );
-
-	/* Returns source_destination */
-	/* -------------------------- */
-	string_search_replace_character(
-		clean_name /* source_destination */,
-		' ',
-		'_' );
-
-	/* Returns source_destination */
-	/* -------------------------- */
-	string_remove_character_string(
-		clean_name /* source_destination */,
-		(char *)security_escape_character_string
-			/* character_string */ );
-
-	/* Returns source_destination */
-	/* -------------------------- */
-	string_remove_character(
-		clean_name /* source_destination */,
-		',' );
-
-	return clean_name;
-}
-
-char *post_dictionary_file_date_name( char *clean_name )
-{
-	char date_name[ 1024 ];
-	static char *yyyymmdd;
-	char *base_name;
-	char *extension;
-	char *dot;
-
-	if ( !clean_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"clean_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	/* Returns static memory */
-	/* --------------------- */
-	if ( !yyyymmdd ) yyyymmdd = date_now_yyyymmdd();
-
-	base_name =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		basename_base_name(
-			clean_name,
-			1 /* strip_extension */ );
-
-	extension =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		basename_extension(
-			clean_name );
-
-	if ( *extension )
-		dot = ".";
-	else
-		dot = "";
-
-	snprintf(
-		date_name,
-		sizeof ( date_name ),
-		"%s_%s%s%s",
-		base_name,
-		yyyymmdd,
-		dot,
-		extension );
-
-	return strdup( date_name );
-}
-
 POST_DICTIONARY_FILE *post_dictionary_file_new(
-		const char *security_escape_character_string,
 		char *application_name,
 		char *upload_directory,
 		char *apache_key,
 		char *attribute_name,
-		char *post_dictionary_file_datum )
+		char *post_dictionary_filename )
 {
 	POST_DICTIONARY_FILE *post_dictionary_file;
-	char *clean_name;
 
 	if ( !application_name
 	||   !upload_directory )
@@ -624,7 +530,7 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 
 	if ( !apache_key
 	||   !attribute_name
-	||   !post_dictionary_file_datum )
+	||   !post_dictionary_filename )
 	{
 		char message[ 128 ];
 
@@ -642,20 +548,15 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 
 	post_dictionary_file = post_dictionary_file_calloc();
 
-	clean_name =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		post_dictionary_file_clean_name(
-			security_escape_character_string,
-			post_dictionary_file_datum );
-
-	post_dictionary_file->date_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		post_dictionary_file_date_name(
-			clean_name );
+	post_dictionary_file->filename =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		filename_new(
+			post_dictionary_filename /* filename_string */,
+			POST_DICTIONARY_FILE_FILENAME_MAX_SIZE
+				/* probably 80 */,
+			1 /* append_date_boolean */ );
 
 	post_dictionary_file->specification =
 		/* ------------------- */
@@ -664,7 +565,9 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 		post_dictionary_file_specification(
 			application_name,
 			upload_directory,
-			post_dictionary_file->date_name );
+			post_dictionary_file->
+				filename->
+				return_string /* heap memory */  );
 
 	post_dictionary_file->specification_key =
 		/* ------------------ */
@@ -857,12 +760,12 @@ char *post_dictionary_datum(
 		string_trim( datum /* buffer */ ) );
 }
 
-char *post_dictionary_file_datum(
+char *post_dictionary_filename(
 		LIST *upload_filename_list,
 		char *attribute_name,
 		char *input )
 {
-	char datum[ STRING_1K ];
+	char filename[ 1024 ];
 
 	if ( !attribute_name
 	||   !input )
@@ -888,14 +791,15 @@ char *post_dictionary_file_datum(
 		return NULL;
 	}
 
-	if ( !piece( datum, '"', input, 3 ) ) return NULL;
-	if ( !*datum ) return NULL;
+	if ( !piece( filename, '"', input, 3 ) ) return NULL;
+	if ( !*filename ) return NULL;
 
 	return
 	strdup(
 		/* --------------------------------- */
 		/* Trims leading and trailing spaces */
+		/* Returns buffer.		     */
 		/* --------------------------------- */
-		string_trim( datum ) );
+		string_trim( filename ) );
 }
 

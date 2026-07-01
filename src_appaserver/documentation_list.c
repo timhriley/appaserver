@@ -120,7 +120,7 @@ int main( int argc, char **argv )
 		file_to_process = list_get_string( file_list );
 
 		strcpy( base_name,
-			basename_get_base_name(
+			basename_base_name(
 				file_to_process, 1 /* strip_extension */ ) );
 		printf(
 	"<li><a class=diagram target=\"%s\" href=\"%s:/%s/%s\">%s</a>\n",

@@ -40,20 +40,19 @@ int main( int argc, char **argv )
 	if ( directory )
 	{
 		printf( "%s\n",
-			basename_get_directory(
+			basename_directory(
 				filename ) );
 	}
 	else
 	{
 		printf( "%s\n",
-			basename_get_base_name(
+			basename_base_name(
 				filename,	
 				strip_extension ) );
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void basename_stdin( void )
 {
@@ -62,7 +61,7 @@ void basename_stdin( void )
 	while( get_line( filename, stdin ) )
 	{
 		printf( "%s\n",
-			basename_get_base_name(
+			basename_base_name(
 				filename,	
 				0 /* not strip_extension */ ) );
 	}

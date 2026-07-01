@@ -385,7 +385,6 @@ boolean string_character_exists(
 
 /* Usage */
 /* ----- */
-
 boolean string_character_boolean(
 		char *datum,
 		char c );

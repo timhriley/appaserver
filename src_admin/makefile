@@ -50,6 +50,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_link.o				\
 		${LIBRARY}/widget.o					\
 		${LIBRARY}/file.o					\
+		${LIBRARY}/filename.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
