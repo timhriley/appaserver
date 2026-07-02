@@ -51,7 +51,8 @@ int filename_extension_length(
 /* Returns static memory */
 /* --------------------- */
 char *filename_basename(
-		char *filename_string );
+		char *filename,
+		boolean strip_extension );
 
 /* Returns static memory */
 /* --------------------- */
@@ -80,13 +81,18 @@ char *filename_date(
 		boolean append_date_boolean,
 		char *filename_trim );
 
-/* Usage */
-/* ----- */
-
 /* Returns heap memory */
 /* ------------------- */
 char *filename_return_string(
 		char *filename_extension /* static memory */,
 		char *filename_date );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *filename_directory(
+		char *filename_string );
 
 #endif

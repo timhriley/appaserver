@@ -14,7 +14,6 @@
 #include "appaserver_error.h"
 #include "String.h"
 #include "piece.h"
-#include "basename.h"
 #include "security.h"
 #include "date.h"
 #include "filename.h"
@@ -53,7 +52,9 @@ FILENAME *filename_new(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		filename_basename( filename_string );
+		filename_basename(
+			filename_string,
+			1 /* strip_extension */ );
 
 	filename->clean =
 		/* --------------------- */
@@ -120,44 +121,25 @@ FILENAME *filename_calloc( void )
 
 char *filename_extension( char *filename_string )
 {
-	char *extension;
-	static char extension_return[ 128 ];
+	static char extension[ 128 ];
+	int count;
 
-	*extension_return = '\0';
+	*extension = '\0';
 
-	extension =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		basename_extension( filename_string );
+	count = string_character_count( '.', filename_string );
 
-	if ( *extension )
+	if ( count )
 	{
-		snprintf(
-			extension_return,
-			sizeof ( extension_return ),
-			".%s",
-			extension );
+		piece( extension, '.', filename_string, count );
 	}
 
-	return extension_return;
+	return extension;
 }
 
 int filename_extension_length( char *filename_extension )
 {
 	return
 	string_strlen( filename_extension );
-}
-
-char *filename_basename( char *filename_string )
-{
-	return
-	/* --------------------- */
-	/* Returns static memory */
-	/* --------------------- */
-	basename_base_name(
-		filename_string,
-		1 /* strip_extension */ );
 }
 
 char *filename_clean(
@@ -206,10 +188,15 @@ int filename_string_left_size(
 		boolean append_date_boolean,
 		int extension_length )
 {
-	int subtract;
+	int subtract = 0;
 	int left_size;
 
-	subtract = extension_length;
+	if ( extension_length )
+	{
+		/* Add the dot too */
+		/* --------------- */
+		subtract = extension_length + 1;
+	}
 
 	if ( append_date_boolean ) subtract += filename_append_date_length;
 
@@ -264,15 +251,115 @@ char *filename_return_string(
 		char *filename_extension /* static memory */,
 		char *filename_date )
 {
+	char dot_string[ 2 ];
 	char return_string[ 256 ];
+
+
+	if ( *filename_extension )
+	{
+		strcpy( dot_string, "." );
+	}
+	else
+	{
+		*dot_string = '\0';
+	}
 
 	snprintf(
 		return_string,
 		sizeof ( return_string ),
-		"%s%s",
+		"%s%s%s",
 		filename_date,
+		dot_string,
 		filename_extension );
 
 	return strdup( return_string );
 }
 
+char *filename_basename(
+		char *filename,
+		boolean strip_extension )
+{
+	static char basename[ 512 ];
+	char local_buffer[ 512 ];
+	char *end_ptr;
+
+	string_strcpy( local_buffer, filename, sizeof ( local_buffer ) );
+	end_ptr = local_buffer + strlen( local_buffer );
+
+	/* First, strip off extension */
+	/* -------------------------- */
+	if ( strip_extension && string_character_exists( local_buffer, '.' ) )
+	{
+		while( end_ptr != local_buffer )
+		{
+			/* If found extension */
+			/* ------------------ */
+			if ( *end_ptr == '.' )
+			{
+				/* Make this the end of string */
+				/* --------------------------- */
+				*end_ptr-- = '\0';
+				break;
+			}
+			else
+			{
+				end_ptr--;
+			}
+		}
+	}
+
+	/* Second, Isolate basename */
+	/* ------------------------ */
+	while( end_ptr != local_buffer )
+	{
+		/* If at the back slash in front of the base name */
+		/* ---------------------------------------------- */
+		if ( *end_ptr == '\\' 
+		||   *end_ptr == '/' )
+		{
+			/* Base name is the next character */
+			/* ------------------------------- */
+			end_ptr++;
+			break;
+		}
+		else
+		{
+			end_ptr--;
+		}
+	}
+
+	/* Copy to static memory to return */
+	/* ------------------------------- */
+	strcpy( basename, end_ptr );
+
+	return basename;
+}
+
+char *filename_directory( char *filename_string )
+{
+	static char directory[ 256 ];
+	char local_buffer[ 512 ];
+	char *directory_ptr;
+
+	*directory = '\0';
+
+	string_strcpy( local_buffer, filename_string, sizeof ( local_buffer ) );
+	directory_ptr = local_buffer + strlen( local_buffer );
+
+	while( directory_ptr != local_buffer )
+	{
+		if ( *directory_ptr == '\\' 
+		||   *directory_ptr == '/' )
+		{
+			*directory_ptr = '\0';
+			strcpy( directory, local_buffer );
+			break;
+		}
+		else
+		{
+			directory_ptr--;
+		}
+	}
+
+	return directory;
+}

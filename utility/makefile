@@ -45,7 +45,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\
-		${LIBRARY}/basename.o					\
 		${LIBRARY}/session.o					\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/attribute.o					\
@@ -54,7 +53,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_link.o				\
 		${LIBRARY}/widget.o					\
 		${LIBRARY}/file.o					\
-		${LIBRARY}/filename.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
@@ -94,6 +92,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/row_security.o				\
 		${LIBRARY}/row_security_role_update.o			\
 		${LIBRARY}/post_dictionary.o				\
+		${LIBRARY}/filename.o					\
 		${LIBRARY}/folder_menu.o				\
 		${LIBRARY}/menu.o					\
 		${LIBRARY}/ajax.o					\

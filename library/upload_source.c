@@ -9,7 +9,7 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "String.h"
-#include "basename.h"
+#include "filename.h"
 #include "session.h"
 #include "file.h"
 #include "upload_source.h"
@@ -186,8 +186,9 @@ char *upload_source_filename( char *upload_source_directory_filename )
 	/* --------------------- */
 	/* Returns static memory */
 	/* --------------------- */
-	basename_filename(
-		upload_source_directory_filename /* argv_0 */ );
+	filename_basename(
+		upload_source_directory_filename,
+		0 /* not strip_extension */ );
 }
 
 char *upload_source_destination_directory(

@@ -1,13 +1,14 @@
-/* utility/basename.c					*/
-/* ---------------------------------------------------- */
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/basename.c					*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "timlib.h"
-#include "basename.h"
 #include "boolean.h"
+#include "String.h"
+#include "filename.h"
 
 void basename_stdin( void );
 
@@ -40,13 +41,13 @@ int main( int argc, char **argv )
 	if ( directory )
 	{
 		printf( "%s\n",
-			basename_directory(
+			filename_directory(
 				filename ) );
 	}
 	else
 	{
 		printf( "%s\n",
-			basename_base_name(
+			filename_basename(
 				filename,	
 				strip_extension ) );
 	}
@@ -58,10 +59,10 @@ void basename_stdin( void )
 {
 	char filename[ 1024 ];
 
-	while( get_line( filename, stdin ) )
+	while( string_input( filename, stdin, sizeof ( filename ) ) )
 	{
 		printf( "%s\n",
-			basename_base_name(
+			filename_basename(
 				filename,	
 				0 /* not strip_extension */ ) );
 	}

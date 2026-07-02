@@ -13,7 +13,7 @@
 #include "environ.h"
 #include "piece.h"
 #include "sql.h"
-#include "basename.h"
+#include "filename.h"
 #include "column.h"
 #include "appaserver.h"
 #include "application.h"
@@ -102,7 +102,9 @@ boolean process_executable_okay(
 		return 1;
 	}
 
-	directory = basename_directory( which_string );
+	/* Returns static memory */
+	/* --------------------- */
+	directory = filename_directory( which_string );
 
 	/* Anything in $CGI_HOME is okay. */
 	/* ------------------------------ */

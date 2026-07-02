@@ -31,7 +31,6 @@ APPASERVER_LIBRARY=						\
 		google_earth.o					\
 		environ.o 					\
 		latex.o						\
-		basename.o					\
 		role.o						\
 		role_folder.o					\
 		role_appaserver_user.o				\
@@ -262,9 +261,6 @@ name_arg.o: name_arg.c name_arg.h
 
 date.o: date.c date.h
 	${CC} ${CFLAGS} -c date.c
-
-basename.o: basename.c
-	${CC} ${CFLAGS} -c basename.c
 
 piece.o: piece.c piece.h
 	${CC} ${CFLAGS} -c piece.c

@@ -20,14 +20,14 @@
 #include "appaserver_parameter.h"
 #include "sql.h"
 #include "environ.h"
-#include "basename.h"
+#include "filename.h"
 
 int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
 	char system_string[ 8192 ];
 	char delimiter = SQL_DELIMITER;
-	char *base_name;
+	char *basename;
 	char *quick_flag;
 	char *override_database = {0};
 	char *database_connection = {0};
@@ -61,9 +61,9 @@ int main( int argc, char **argv )
 			override_database = argv[ 1 ];
 	}
 
-	base_name = basename_base_name( argv[ 0 ], 1 );
+	basename = filename_basename( argv[ 0 ], 1 );
 
-	if ( strcmp( base_name, "sql_quick" ) == 0 )
+	if ( strcmp( basename, "sql_quick" ) == 0 )
 		quick_flag = "--quick";
 	else
 		quick_flag = "";

@@ -36,7 +36,7 @@ CORE_LIBRARY=								\
 
 STANDARD_LIBRARY=							\
 		${CORE_LIBRARY}						\
-		${LIBRARY}/basename.o					\
+		${LIBRARY}/filename.o					\
 		${LIBRARY}/aggregate_level.o				\
 		${LIBRARY}/aggregate_statistic.o
 

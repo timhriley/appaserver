@@ -16,7 +16,7 @@
 #include "application_log.h"
 #include "appaserver.h"
 #include "appaserver_parameter.h"
-#include "basename.h"
+#include "filename.h"
 #include "environ.h"
 #include "mysqldump.h"
 
@@ -1764,7 +1764,7 @@ char *mysqldump_input_basename( char *argv_0 )
 	/* --------------------- */
 	/* Returns static memory */
 	/* --------------------- */
-	basename_base_name(
+	filename_basename(
 		argv_0,
 		0 /* not strip_extension */ );
 }

@@ -26,7 +26,6 @@
 #include "appaserver_parameter.h"
 #include "upload_source.h"
 #include "piece.h"
-#include "basename.h"
 #include "environ.h"
 #include "javascript.h"
 #include "appaserver.h"

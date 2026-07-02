@@ -9,7 +9,7 @@
 #include <malloc.h>
 #include "name_arg.h"
 #include "piece.h"
-#include "basename.h"
+#include "filename.h"
 #include "timlib.h"
 
 void set_comment( NAME_ARG *arg, char *comment )
@@ -157,7 +157,7 @@ NAME_ARG *init_arg( char *argv_0 )
 
 	if ( argv_0 )
 	{
-		arg->usage_filename = basename_base_name( argv_0, 0 );
+		arg->usage_filename = filename_basename( argv_0, 0 );
 	}
 
         return arg;

@@ -41,7 +41,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\
-		${LIBRARY}/basename.o					\
 		${LIBRARY}/session.o					\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/attribute.o					\
