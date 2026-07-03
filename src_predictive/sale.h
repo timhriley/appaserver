@@ -18,20 +18,22 @@
 
 #define SALE_TABLE		"sale"
 
-#define SALE_SELECT		"gross_revenue,"		\
-				"invoice_amount,"		\
-				"payment_total,"		\
-				"amount_due,"			\
-				"completed_date_time,"		\
-				"uncollectible_date_time,"	\
+#define SALE_SELECT		"full_name,"				\
+				"sale_date_time,"			\
+				"gross_revenue,"			\
+				"invoice_amount,"			\
+				"payment_total,"			\
+				"amount_due,"				\
+				"completed_date_time,"			\
 				"transaction_date_time"
 
 #define SALE_MEMO		"Customer Sale"
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *sale_date_time;
 	SALE_FETCH *sale_fetch;
 	double inventory_sale_total;
@@ -52,10 +54,12 @@ typedef struct
 /* Usage */
 /* ----- */
 SALE *sale_trigger_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_street_address,
 		char *preupdate_uncollectible_date_time );
@@ -71,9 +75,12 @@ SALE *sale_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *sale_primary_where(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
-		char *sale_date_time );
+		char *contact_key,
+		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

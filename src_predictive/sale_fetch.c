@@ -6,7 +6,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "piece.h"
 #include "date.h"

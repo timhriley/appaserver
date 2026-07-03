@@ -22,7 +22,7 @@ fi
 (
 cat << shell_all_done
 delete from process where process = 'post_change_customer_sale';
-insert into process (process,command_line,notepad,html_help_file_anchor,execution_count,post_change_javascript,process_group,process_set_display,javascript_filename,preprompt_help_text) values ('post_change_customer_sale','post_change_customer_sale fund_name full_name contact_key sale_date_time \$state preupdate_full_name preupdate_contact_key preupdate_uncollectible_date_time',null,null,null,null,null,null,null,null);
+insert into process (process,command_line,notepad,html_help_file_anchor,execution_count,post_change_javascript,process_group,process_set_display,javascript_filename,preprompt_help_text) values ('post_change_customer_sale','post_change_customer_sale fund_name full_name contact_key sale_date_time \$state preupdate_fund_name preupdate_full_name preupdate_contact_key preupdate_uncollectible_date_time',null,null,null,null,null,null,null,null);
 delete from process_parameter where process = 'post_change_customer_sale';
 shell_all_done
 ) | sql.e 2>&1 | grep -iv duplicate
