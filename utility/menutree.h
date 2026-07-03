@@ -1,10 +1,9 @@
-/* menutree.h */
-/* ---------- */
-/* --------------------------------------------------------
-	This module supports a tree structured menu system.
-
-	Tim Riley
------------------------------------------------------------ */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/menutree.h					*/
+/* ---------------------------------------------------------------	*/
+/* This module supports a tree structured menu system.			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #ifndef MENU_TREE_H
 #define MENU_TREE_H
@@ -86,4 +85,4 @@ int change_the_directory( NODE *n );
 int menu_tree_load( MENU_TREE *m, char *filename );
 void interact( MENU_TREE *m );
 
-#endif	/* MENU_TREE_H */
+#endif

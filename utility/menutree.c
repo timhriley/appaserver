@@ -1,10 +1,9 @@
-/* menutree.c */
-/* ---------- */
-/* --------------------------------------------------------
-	This module supports a tree structured menu system.
-
-	Tim Riley
------------------------------------------------------------ */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/menutree.c					*/
+/* ---------------------------------------------------------------	*/
+/* This module supports a tree structured menu system.			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,8 +49,7 @@ MENU_TREE *menu_tree_init( void )
 	m->current = (NODE *)top( m->node_stack );
 
 	return m;
-
-} /* menu_tree_init() */
+}
 
 void interact( MENU_TREE *m )
 {
@@ -59,8 +57,6 @@ void interact( MENU_TREE *m )
 	int response_int;
 	NODE *save_node;
 
-	/* Exit in the middle. */
-	/* ------------------- */
 	while( 1 )
 	{
 		menu_tree_display_root_text( m->current->display_text );
@@ -143,8 +139,7 @@ void interact( MENU_TREE *m )
 			}
 		}
 	}
-
-} /* interact() */
+}
 
 
 void menu_tree_display_root_text( char *display_text )
@@ -153,8 +148,7 @@ void menu_tree_display_root_text( char *display_text )
 	printf( "%s\n", display_text );
 	printf( 
 "-------------------------------------------------------------------------\n" );
-
-} /* menu_tree_display_root_text() */
+}
 
 
 void menu_tree_goto_root( MENU_TREE *m )
@@ -254,8 +248,7 @@ int menu_tree_load_recursive( MENU_TREE *m, FILE *infile, NODE *root )
 	}
 
 	return 1;
-
-} /* menu_tree_load_recursive() */
+}
 
 
 int set_other_node_info( NODE *node_ptr, char *process_string )
@@ -316,8 +309,7 @@ int set_other_node_info( NODE *node_ptr, char *process_string )
 	}
 
 	return 1;
-
-} /* set_other_node_info() */
+}
 
 
 int search_fn_array( char *command )
@@ -334,8 +326,7 @@ int search_fn_array( char *command )
 		}
 	}
 	return -1;
-
-} /* search_fn_array() */
+}
 
 
 int prompt( NODE *node_ptr, char *argument_string )
@@ -372,7 +363,7 @@ int prompt( NODE *node_ptr, char *argument_string )
 	node_ptr->current_prompt = p_ptr;
 
 	return 1;
-} /* prompt() */
+}
 
 int executable( NODE *node_ptr, char *argument_string )
 {
@@ -390,15 +381,14 @@ int executable( NODE *node_ptr, char *argument_string )
 		node_ptr->executable = executable;
 	}
 	return 1;
-} /* executable() */
+}
 
 
 int list_values( NODE *node_ptr, char *argument_string )
 {
 	node_ptr->current_prompt->list_values = strdup( argument_string );
 	return 1;
-
-} /* list_values() */
+}
 
 
 int confirm( NODE *node_ptr, char *argument_string )
@@ -415,16 +405,14 @@ int confirm( NODE *node_ptr, char *argument_string )
 		node_ptr->confirm = 1;
 	}
 	return 1;
-
-} /* confirm() */
+}
 
 
 int directory( NODE *node_ptr, char *argument_string )
 {
 	node_ptr->directory = strdup( argument_string );
 	return 1;
-
-} /* directory() */
+}
 
 
 int text( NODE *node_ptr, char *argument_string )
@@ -441,14 +429,13 @@ int text( NODE *node_ptr, char *argument_string )
 		enqueue( node_ptr->text_queue, text );
 
 	return 1;
-
-} /* text() */
+}
 
 int save( NODE *node_ptr, char *argument_string )
 {
 	node_ptr->save_key = strdup( argument_string );
 	return 1;
-} /* save() */
+}
 
 
 int menu_tree_load( MENU_TREE *m, char *filename )
@@ -473,8 +460,7 @@ int menu_tree_load( MENU_TREE *m, char *filename )
 	menu_tree_load_recursive( m, infile, m->current );
 
 	return 1;
-
-} /* menu_tree_load() */
+}
 
 
 char *menu_tree_get_error( MENU_TREE *m )
@@ -487,7 +473,7 @@ int menu_tree_handle_error( MENU_TREE *m, char *error )
 {
 	strcpy( m->error_buffer, error );	
 	return -1;
-} /* menu_tree_handle_error() */
+}
 
 
 void menu_tree_display_stack( MENU_TREE *m )
@@ -567,9 +553,7 @@ int menu_tree_goto_selection( MENU_TREE *m, int i )
 {
 	NODE *n;
 
-	if ( !go_head( m->current->node_list ) )
-		return 0;
-
+	if ( go_head( m->current->node_list ) )
 	do
 	{
 		if ( i-- == 1 )
@@ -591,9 +575,7 @@ int menu_tree_goto_selection( MENU_TREE *m, int i )
 	} while( next_item( m->current->node_list ) );
 
 	return 0;
-
-} /* menu_tree_goto_selection() */
-
+}
 
 void display_text_queue( NODE *n )
 {
@@ -606,8 +588,7 @@ void display_text_queue( NODE *n )
 		queue_display( n->text_queue );
 		printf( "\n" );
 	}
-
-} /* display_text_queue() */
+}
 
 
 int execute_it( NODE *n )
@@ -621,10 +602,9 @@ int execute_it( NODE *n )
 
 	if ( n->save_key )
 		save_default_values( n->prompt_list, n->save_key );
+
 	return system( sys_str );
-
-} /* execute_it() */
-
+}
 
 
 int menu_tree_confirm( NODE *n )
@@ -641,8 +621,7 @@ int menu_tree_confirm( NODE *n )
 	{
 		return 1;
 	}
-
-} /* menu_tree_confirm() */
+}
 
 
 void display_prompts( LIST *prompt_list )
@@ -669,8 +648,7 @@ void display_prompts( LIST *prompt_list )
 		} while( next_item( prompt_list ) );
 		printf( "\n" );
 	}
-
-} /* display_prompts() */
+}
 
 int change_the_directory( NODE *n )
 {
@@ -684,8 +662,7 @@ int change_the_directory( NODE *n )
 	}
 	
 	return 1;
-
-} /* change_the_directory() */
+}
 
 
 char *replace_sys_str_with_prompt_list( char *s, LIST *prompt_list )
@@ -711,8 +688,7 @@ char *replace_sys_str_with_prompt_list( char *s, LIST *prompt_list )
 	go_record( prompt_list, current_record );
 
 	return s;
-
-} /* replace_sys_str_with_prompt_list() */
+}
 
 
 
@@ -723,23 +699,16 @@ void populate_sys_str( char *sys_str, LIST *prompt_list, char *executable )
 	strcpy( sys_str, executable );
 
 	if ( go_head( prompt_list ) )
+	do
 	{
-		do
-		{
-			p = (PROMPT *)retrieve_item_ptr( prompt_list );
-			search_replace_single_quoted_string(
-					sys_str,
-					p->variable, 
-					p->entered_value );
-/*
-			search_replace(	p->variable, 
-					p->entered_value, 
-					sys_str );
-*/
-		} while( next_item( prompt_list ) );
-	}
+		p = (PROMPT *)retrieve_item_ptr( prompt_list );
+		search_replace_single_quoted_string(
+				sys_str,
+				p->variable, 
+				p->entered_value );
 
-} /* populate_sys_str() */
+	} while( next_item( prompt_list ) );
+}
 
 void get_variables_from_user( LIST *prompt_list )
 {
@@ -747,52 +716,49 @@ void get_variables_from_user( LIST *prompt_list )
 	char buffer[ 1024 ];
 
 	if ( go_head( prompt_list ) )
+	do
 	{
-		do
+		p = (PROMPT *)retrieve_item_ptr( prompt_list );
+
+		/* Execute a list values (maybe) */
+		/* ----------------------------- */
+		if ( p->list_values )
 		{
-			p = (PROMPT *)retrieve_item_ptr( prompt_list );
+			char sys_str[ 1024 ];
 
-			/* Execute a list values (maybe) */
-			/* ----------------------------- */
-			if ( p->list_values )
-			{
-				char sys_str[ 1024 ];
+			printf( "\n" );
+			strcpy( sys_str, p->list_values );
 
-				printf( "\n" );
-				strcpy( sys_str, p->list_values );
+			if ( system( replace_sys_str_with_prompt_list( 
+				sys_str, prompt_list ) ) ){}
 
-				if ( system( replace_sys_str_with_prompt_list( 
-					sys_str, prompt_list ) ) ){}
+			printf( "\n" );
+		}
 
-				printf( "\n" );
-			}
+		if ( p->default_value && *p->default_value )
+		{
+			printf( "%s (Enter=%s): ", 
+				p->prompt,
+				p->default_value );
+		}
+		else
+			printf( "%s: ", p->prompt );
 
-			if ( p->default_value && *p->default_value )
-			{
-				printf( "%s (Enter=%s): ", 
-					p->prompt,
-					p->default_value );
-			}
-			else
-				printf( "%s: ", p->prompt );
+		*buffer = '\0';
+		get_line( buffer, stdin );
 
-			*buffer = '\0';
-			get_line( buffer, stdin );
+		if ( !*buffer && p->default_value )
+		{
+			strcpy( buffer, p->default_value );
+		}
 
-			if ( !*buffer && p->default_value )
-			{
-				strcpy( buffer, p->default_value );
-			}
+		/* Save the entry */
+		/* -------------- */
+		if ( p->entered_value ) free( p->entered_value );
+		p->entered_value = strdup( buffer );
 
-			/* Save the entry */
-			/* -------------- */
-			if ( p->entered_value ) free( p->entered_value );
-			p->entered_value = strdup( buffer );
-
-		} while( next_item( prompt_list ) );
-	}
-
-} /* get_variables_from_user() */
+	} while( next_item( prompt_list ) );
+}
 
 
 void save_default_values( LIST *prompt_list, char *save_key )
@@ -809,8 +775,7 @@ void save_default_values( LIST *prompt_list, char *save_key )
 	f = fopen( buffer, "w" );
 	if ( !f ) return;
 
-	if ( !go_head( prompt_list ) ) return;
-
+	if ( go_head( prompt_list ) )
 	do
 	{
 		p = (PROMPT *)retrieve_item_ptr( prompt_list );
@@ -820,8 +785,7 @@ void save_default_values( LIST *prompt_list, char *save_key )
 	} while( next_item( prompt_list ) );
 	
 	fclose( f );
-
-} /* save_default_values() */
+}
 
 void load_default_values( LIST *prompt_list, char *save_key )
 {
@@ -853,8 +817,7 @@ void load_default_values( LIST *prompt_list, char *save_key )
 	}
 
 	fclose( f );
-
-} /* load_default_values() */
+}
 
 PROMPT *prompt_search( LIST *prompt_list, char *variable )
 {
@@ -870,6 +833,5 @@ PROMPT *prompt_search( LIST *prompt_list, char *variable )
 	} while( next_item( prompt_list ) );
 
 	return (PROMPT *)0;
-
-} /* prompt_search() */
+}
 

@@ -467,6 +467,12 @@ char *query_select_list_string(
 		common_name = list_get( common_name_list );
 		ptr += sprintf( ptr, ",%s", common_name );
 
+		if ( list_length( common_name_list ) > 1
+		&&   !list_last_boolean( common_name_list ) )
+		{
+			ptr += sprintf( ptr, ",'/'" );
+		}
+
 		if ( list_last_boolean( common_name_list ) )
 		{
 			ptr += sprintf( ptr, ",']')" );

@@ -16,11 +16,12 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *sale_date_time;
 	char *state;
 	char *preupdate_full_name;
-	char *preupdate_street_address;
+	char *preupdate_contact_key;
+	char *preupdate_sale_date_time;
 	char *preupdate_uncollectible_date_time;
 	SALE *sale;
 
@@ -31,32 +32,34 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8  )
+	if ( argc != 9  )
 	{
 		fprintf(stderr,
-"Usage: %s full_name street_address sale_date_time state preupdate_full_name preupdate_street_address preupdate_uncollectible_date_time\n",
+"Usage: %s full_name contact_key sale_date_time state preupdate_full_name preupdate_contact_key preupdate_sale_date_time preupdate_uncollectible_date_time\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
+	contact_key = argv[ 2 ];
 	sale_date_time = argv[ 3 ];
 	state = argv[ 4 ];
 	preupdate_full_name = argv[ 5 ];
-	preupdate_street_address = argv[ 6 ];
-	preupdate_uncollectible_date_time = argv[ 7 ];
+	preupdate_contact_key = argv[ 6 ];
+	preupdate_sale_date_time = argv[ 7 ];
+	preupdate_uncollectible_date_time = argv[ 8 ];
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) exit( 0 );
 
 	sale =
 		sale_trigger_new(
 			full_name,
-			street_address,
+			contact_key,
 			sale_date_time,
 			state,
 			preupdate_full_name,
-			preupdate_street_address,
+			preupdate_contact_key,
+			preupdate_sale_date_time,
 			preupdate_uncollectible_date_time );
 
 	if ( !sale ) exit( 0 );
@@ -64,7 +67,7 @@ int main( int argc, char **argv )
 	sale_update(
 		SALE_TABLE,
 		full_name,
-		street_address,
+		contact_key,
 		sale_date_time,
 		sale->
 			sale_fetch->
@@ -87,7 +90,8 @@ int main( int argc, char **argv )
 		sale->invoice_amount,
 		sale->customer_payment_total,
 		sale->amount_due,
-		sale->sale_transaction );
+		sale->sale_transaction,
+		sale->sale_loss_transaction );
 
 	if ( sale->sale_transaction )
 	{
@@ -103,6 +107,24 @@ int main( int argc, char **argv )
 				insert_transaction,
 			sale->
 				sale_transaction->
+				subsidiary_transaction->
+				update_template );
+	}
+
+	if ( sale->sale_loss_transaction )
+	{
+		subsidiary_transaction_execute(
+			application_name,
+			sale->
+				sale_loss_transaction->
+				subsidiary_transaction->
+				delete_transaction,
+			sale->
+				sale_loss_transaction->
+				subsidiary_transaction->
+				insert_transaction,
+			sale->
+				sale_loss_transaction->
 				subsidiary_transaction->
 				update_template );
 	}
