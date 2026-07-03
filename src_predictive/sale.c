@@ -27,17 +27,16 @@
 
 SALE *sale_trigger_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *state,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
 		char *preupdate_uncollectible_date_time )
 {
 	SALE *sale;
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time
 	||   !state )
 	{
@@ -58,7 +57,7 @@ SALE *sale_trigger_new(
 	sale = sale_calloc();
 
 	sale->full_name = full_name;
-	sale->street_address = street_address;
+	sale->contact_key = contact_key;
 	sale->sale_date_time = sale_date_time;
 
 	sale->sale_fetch =
@@ -66,7 +65,7 @@ SALE *sale_trigger_new(
 			SALE_SELECT,
 			SALE_TABLE,
 			full_name,
-			street_address,
+			contact_key,
 			sale_date_time );
 
 	if ( !sale->sale_fetch )

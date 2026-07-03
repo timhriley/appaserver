@@ -32,10 +32,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9  )
+	if ( argc != 8  )
 	{
 		fprintf(stderr,
-"Usage: %s full_name contact_key sale_date_time state preupdate_full_name preupdate_contact_key preupdate_sale_date_time preupdate_uncollectible_date_time\n",
+"Usage: %s full_name contact_key sale_date_time state preupdate_full_name preupdate_contact_key preupdate_uncollectible_date_time\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -46,8 +46,7 @@ int main( int argc, char **argv )
 	state = argv[ 4 ];
 	preupdate_full_name = argv[ 5 ];
 	preupdate_contact_key = argv[ 6 ];
-	preupdate_sale_date_time = argv[ 7 ];
-	preupdate_uncollectible_date_time = argv[ 8 ];
+	preupdate_uncollectible_date_time = argv[ 7 ];
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) exit( 0 );
 
@@ -59,7 +58,6 @@ int main( int argc, char **argv )
 			state,
 			preupdate_full_name,
 			preupdate_contact_key,
-			preupdate_sale_date_time,
 			preupdate_uncollectible_date_time );
 
 	if ( !sale ) exit( 0 );
