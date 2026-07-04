@@ -202,7 +202,7 @@ char *entity_insert_column_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *entity_insert_data_string(
+char *entity_primary_data_string(
 		const char sql_delimiter,
 		boolean entity_contact_key_boolean,
 		char *full_name,

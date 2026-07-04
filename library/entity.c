@@ -478,7 +478,7 @@ char *entity_insert_system_string(
 	return strdup( system_string );
 }
 
-char *entity_insert_data_string(
+char *entity_primary_data_string(
 		const char sql_delimiter,
 		boolean contact_key_boolean,
 		char *full_name,
@@ -887,7 +887,7 @@ char *entity_insert(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		entity_insert_data_string(
+		entity_primary_data_string(
 			SQL_DELIMITER,
 			contact_key_boolean,
 			full_name,

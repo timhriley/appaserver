@@ -83,6 +83,8 @@ OPTIONAL_COLUMN *optional_column_new(
 		if ( escape_boolean ) free( component );
 	}
 
+	optional_column->prior_return_string = base_string;
+
 	return optional_column;
 }
 
@@ -125,5 +127,47 @@ char *optional_column_return_string(
 		component );
 
 	return strdup( return_string );
+}
+
+OPTIONAL_COLUMN *optional_column_money_new(
+		const char delimiter,
+		char *base_string,
+		double money,
+		boolean set_boolean )
+{
+	char component[ 32 ];
+
+	if ( !base_string )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"base_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		component,
+		sizeof ( component ),
+		"%.2lf",
+		money );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	optional_column_new(
+		delimiter,
+		base_string,
+		component /* column or datum */,
+		0 /* not escape_boolean */,
+		set_boolean );
 }
 

@@ -12,6 +12,7 @@
 #include "date.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "optional_column.h"
 #include "sql.h"
 #include "transaction.h"
 #include "journal.h"
@@ -20,6 +21,7 @@
 #include "fixed_service_sale.h"
 #include "hourly_service_sale.h"
 #include "customer_payment.h"
+#include "entity.h"
 #include "entity_self.h"
 #include "self_tax.h"
 #include "account.h"
@@ -147,10 +149,10 @@ SALE *sale_trigger_new(
 	sale->sale_transaction =
 		sale_transaction_new(
 			full_name,
-			street_address,
+			contact_key,
 			state,
 			preupdate_full_name,
-			preupdate_street_address,
+			preupdate_contact_key,
 			sale->sale_fetch->predictive_title_passage_rule,
 			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->shipped_date_time,
@@ -169,13 +171,13 @@ SALE *sale_trigger_new(
 	sale->sale_loss_transaction =
 		sale_loss_transaction_new(
 			full_name,
-			street_address,
+			contact_key,
 			sale->
 				sale_fetch->
 				uncollectible_date_time,
 			state,
 			preupdate_full_name,
-			preupdate_street_address,
+			preupdate_contact_key,
 			preupdate_uncollectible_date_time,
 			sale->amount_due );
 
@@ -185,7 +187,7 @@ SALE *sale_trigger_new(
 
 char *sale_primary_where(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time )
 {
 	static char where[ 128 ];
@@ -194,7 +196,7 @@ char *sale_primary_where(
 	char *tmp3;
 
 	if ( !full_name
-	||   !street_address
+	||   !contact_key
 	||   !sale_date_time )
 	{
 		char message[ 128 ];
@@ -215,13 +217,13 @@ char *sale_primary_where(
 		where,
 		sizeof ( where ),
 		"full_name = '%s' and		"
-		"street_address = '%s' and	"
+		"contact_key = '%s' and	"
 		"sale_date_time = '%s'		",
 		/* --------------------- */
 		/* Returns heap memory */
 		/* --------------------- */
 		( tmp1 = security_escape( full_name ) ),
-		( tmp2 = security_escape( street_address ) ),
+		( tmp2 = security_escape( contact_key ) ),
 		( tmp3 = security_escape( sale_date_time ) ) );
 
 	return where;
@@ -232,7 +234,7 @@ char *sale_update_system_string( const char *sale_table )
 	char system_string[ 1024 ];
 	char *key;
 
-	key = "full_name,street_address,sale_date_time";
+	key = "full_name,contact_key,sale_date_time";
 
 	snprintf(
 		system_string,
@@ -247,7 +249,7 @@ char *sale_update_system_string( const char *sale_table )
 void sale_update(
 		const char *sale_table,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
@@ -268,7 +270,6 @@ void sale_update(
 	FILE *pipe;
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time )
 	{
 		char message[ 128 ];
@@ -304,7 +305,7 @@ void sale_update(
 		fprintf(pipe,
 	 		"%s^%s^%s^inventory_sale_total^%.2lf\n",
 			entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+			entity_escape_contact_key( contact_key ),
 			sale_date_time,
 			inventory_sale_total );
 	}
@@ -314,7 +315,7 @@ void sale_update(
 		fprintf(pipe,
 	 		"%s^%s^%s^specific_inventory_sale_total^%.2lf\n",
 			entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+			entity_escape_contact_key( contact_key ),
 			sale_date_time,
 			specific_inventory_sale_total );
 	}
@@ -324,7 +325,7 @@ void sale_update(
 		fprintf(pipe,
 	 		"%s^%s^%s^fixed_service_sale_total^%.2lf\n",
 			entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+			entity_escape_contact_key( contact_key ),
 			sale_date_time,
 			fixed_service_sale_total );
 	}
@@ -334,7 +335,7 @@ void sale_update(
 		fprintf(pipe,
 	 		"%s^%s^%s^hourly_service_sale_total^%.2lf\n",
 			entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+			entity_escape_contact_key( contact_key ),
 			sale_date_time,
 			hourly_service_sale_total );
 	}
@@ -342,7 +343,7 @@ void sale_update(
 	fprintf(pipe,
 	 	"%s^%s^%s^gross_revenue^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
+		entity_escape_contact_key( contact_key ),
 		sale_date_time,
 		sale_gross_revenue );
 
@@ -352,7 +353,7 @@ void sale_update(
 		fprintf(pipe,
 	 		"%s^%s^%s^sales_tax^%.2lf\n",
 			entity_escape_full_name( full_name ),
-			entity_escape_street_address( street_address ),
+			entity_escape_contact_key( contact_key ),
 			sale_date_time,
 			sale_sales_tax );
 	}
@@ -360,28 +361,28 @@ void sale_update(
 	fprintf(pipe,
 	 	"%s^%s^%s^invoice_amount^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
+		entity_escape_contact_key( contact_key ),
 		sale_date_time,
 		sale_invoice_amount );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^payment_total^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
+		entity_escape_contact_key( contact_key ),
 		sale_date_time,
 		customer_payment_total );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^amount_due^%.2lf\n",
 		entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
+		entity_escape_contact_key( contact_key ),
 		sale_date_time,
 		sale_amount_due );
 
 	fprintf(pipe,
 	 	"%s^%s^%s^transaction_date_time^%s\n",
 		entity_escape_full_name( full_name ),
-		entity_escape_street_address( street_address ),
+		entity_escape_contact_key( contact_key ),
 		sale_date_time,
 		/* ------------------------------------------- */
 		/* Returns component of sale_transaction or "" */
@@ -523,3 +524,160 @@ char *sale_update_transaction_date_time(
 	return transaction_date_time;
 }
 
+LIST *sale_primary_key_list(
+		const char *sale_date_time_column,
+		boolean entity_contact_key_boolean )
+{
+	LIST *list;
+
+	list =
+		entity_primary_key_list(
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			entity_contact_key_boolean );
+
+	list_set( list, sale_date_time_column );
+
+	return list;
+}
+
+char *sale_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *fund_string;
+	char *primary_data_string;
+	char data_string[ 1024 ];
+
+	if ( !full_name
+	||   !sale_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fund_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		predictive_fund_string(
+			sql_delimiter,
+			fund_name,
+			fund_boolean );
+
+	primary_data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_primary_data_string(
+			sql_delimiter,
+			entity_contact_key_boolean,
+			full_name,
+			contact_key );
+
+	snprintf(
+		data_string,
+		"%s%s%c%s",
+		fund_string,
+		sql_delimiter,
+		primary_data_string,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_escape_date_time(
+			sale_date_time ) );
+
+	free( primary_data_string );
+
+	return strdup( data_string );
+}
+
+
+LIST *sale_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		boolean shipping_charge_boolean;
+		boolean inventory_sale_boolean;
+		boolean specific_inventory_sale_boolean;
+		boolean fixed_service_sale_boolean;
+		boolean hourly_service_sale_boolean;
+		boolean payment_list_boolean;
+		boolean sales_tax_boolean,
+		double inventory_sale_total,
+		double specific_inventory_sale_total,
+		double fixed_service_sale_total,
+		double hourly_service_sale_total,
+		double sale_gross_revenue,
+		double sale_sales_tax,
+		double sale_invoice_amount,
+		double customer_payment_total,
+		double sale_amount_due )
+{
+	LIST *list = list_new();
+	char *primary_data_string;
+	OPTIONAL_COLUMN *optional_column;
+
+	primary_data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		sale_primary_data_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			sale_date_time,
+			fund_boolean,
+			contact_key_boolean );
+
+	if ( shipping_charge_boolean )
+	{
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_new(
+				sql_delimiter,
+				primary_data_string /* base_string */,
+				"shipping_charge" /* component */,
+				0 /* not escape_boolean */,
+				1 /* set_boolean */ );
+
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_money_new(
+				sql_delimiter,
+				optional_column->return_string
+					/* base_string */,
+				sale_sales_tax
+					/* money */,
+				1 /* set_boolean */ );
+
+		free( optional_column_money_new()->prior_return_string );
+		list_set( list, optional_column_money_new()->return_string );
+	}
+
+	return list;
+}

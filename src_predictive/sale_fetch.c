@@ -13,6 +13,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "folder_attribute.h"
+#include "optional_column.h"
 #include "specific_inventory_sale.h"
 #include "inventory_sale.h"
 #include "fixed_service_sale.h"
@@ -24,113 +25,163 @@
 
 char *sale_fetch_select(
 		const char *sale_select,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
+		boolean financial_institution_full_name_boolean,
+		boolean entity_contact_key_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
+		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean,
-		boolean fixed_service_sale_boolean )
+		boolean sales_tax_boolean,
+		boolean title_passage_rule_boolean,
+		boolean shipped_date_time_boolean,
+		boolean arrived_date_boolean,
+		boolean uncollectible_date_time_boolean )
 {
-	char select[ 1024 ];
-	char *ptr = select;
+	OPTIONAL_COLUMN *optional_column;
 
-	ptr += sprintf(
-		ptr,
-		"%s",
-		sale_select );
+	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		optional_column_new(
+			',' /* delimiter */,
+			(char *)sale_select /* base_string */,
+			"financial_institution_full_name" /* component */,
+			0 /* not escape_boolean */,
+			financial_institution_full_name_boolean
+				/* set_boolean */ );
 
-	if ( inventory_sale_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",inventory_sale_total" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"financial_institution_contact_key" /* component */,
+			0 /* not escape_boolean */,
+			financial_institution_full_name_boolean &&
+			entity_contact_key_boolean
+				/* set_boolean */ );
 
-	if ( specific_inventory_sale_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",specific_inventory_sale_total" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"shipping_charge" /* component */,
+			0 /* not escape_boolean */,
+			shipping_charge_boolean /* set_boolean */ );
 
-	if ( inventory_sale_boolean
-	||   specific_inventory_sale_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",sales_tax" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"instructions" /* component */,
+			0 /* not escape_boolean */,
+			instructions_boolean /* set_boolean */ );
 
-	if ( title_passage_rule_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",title_passage_rule"
-			",shipped_date_time"
-			",arived_date" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"inventory_sale_total" /* component */,
+			0 /* not escape_boolean */,
+			inventory_sale_boolean /* set_boolean */ );
 
-	if ( shipping_charge_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",shipping_charge" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"specific_inventory_sale_total" /* component */,
+			0 /* not escape_boolean */,
+			specific_inventory_sale_boolean /* set_boolean */ );
 
-	if ( instructions_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",instructions" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"fixed_service_sale_total" /* component */,
+			0 /* not escape_boolean */,
+			fixed_service_sale_boolean /* set_boolean */ );
 
-	if ( hourly_service_sale_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",hourly_service_sale_total" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"hourly_service_sale_total" /* component */,
+			0 /* not escape_boolean */,
+			hourly_service_sale_boolean /* set_boolean */ );
 
-	if ( fixed_service_sale_boolean )
-	{
-		ptr += sprintf(
-			ptr,
-			",fixed_service_sale_total" );
-	}
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"sales_tax" /* component */,
+			0 /* not escape_boolean */,
+			sales_tax_boolean /* set_boolean */ );
 
-	return strdup( select );
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"title_passage_rule" /* component */,
+			0 /* not escape_boolean */,
+			title_passage_rule_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"shipped_date_time" /* component */,
+			0 /* not escape_boolean */,
+			shipped_date_time_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"arrived_date" /* component */,
+			0 /* not escape_boolean */,
+			arrived_date_boolean /* set_boolean */ );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"uncollectible_date_time" /* component */,
+			0 /* not escape_boolean */,
+			uncollectible_date_time_boolean /* set_boolean */ );
+
+	return optional_column->return_string;
 }
 
-SALE_FETCH *sale_fetch_parse(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
+void sale_fetch_parse(
 		SALE_FETCH *sale_fetch /* in/out */,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean title_passage_rule_boolean,
+		boolean financial_institution_full_name_boolean,
+		boolean entity_contact_key_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
-		boolean hourly_service_sale_boolean,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
 		boolean fixed_service_sale_boolean,
-		char *fetch )
+		boolean hourly_service_sale_boolean,
+		boolean sales_tax_boolean,
+		boolean title_passage_rule_boolean,
+		boolean shipped_date_time_boolean,
+		boolean arrived_date_boolean,
+		boolean uncollectible_date_time_boolean,
+		char *input )
 {
-	char piece_buffer[ STRING_64K ];
+	char buffer[ 1024 ];
 	int optional_piece_offset;
 
-	if ( !full_name
-	||   !street_address
-	||   !sale_date_time
-	||   !sale_fetch
-	||   !fetch )
+	if ( !sale_fetch )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"sale_fetch() is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -139,204 +190,247 @@ SALE_FETCH *sale_fetch_parse(
 			message );
 	}
 
+	if ( !input || !*input )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"input is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
 	/* See sale_fetch_select() */
 	/* ----------------------- */
-	piece( piece_buffer, SQL_DELIMITER, fetch, 0 );
-	if ( *piece_buffer )
-		sale_fetch->
-			gross_revenue =
-				atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	if ( *buffer ) sale_fetch->full_name = strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 1 );
-	if ( *piece_buffer )
-		sale_fetch->
-			invoice_amount =
-				atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) sale_fetch->sale_date_time = strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 2 );
-	if ( *piece_buffer )
-		sale_fetch->
-			payment_total =
-				atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) sale_fetch->gross_revenue = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 3 );
-	if ( *piece_buffer )
-		sale_fetch->
-			amount_due =
-				atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) sale_fetch->invoice_amount = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 4 );
-	if ( *piece_buffer )
-		sale_fetch->
-			completed_date_time =
-				strdup( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) sale_fetch->payment_total = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 5 );
-	if ( *piece_buffer )
-		sale_fetch->
-			uncollectible_date_time =
-				strdup( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) sale_fetch->amount_due = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, fetch, 6 );
-	if ( *piece_buffer )
-		sale_fetch->
-			transaction_date_time =
-				strdup( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) sale_fetch->completed_date_time = strdup( buffer );
 
-	optional_piece_offset = 7;
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer ) sale_fetch->transaction_date_time = strdup( buffer );
 
-	if ( inventory_sale_boolean )
+	optional_piece_offset = 8;
+
+	if ( financial_institution_full_name_boolean )
 	{
-		piece(	piece_buffer,
+		piece(	buffer,
 			SQL_DELIMITER,
-			fetch,
+			input,
 			optional_piece_offset++ );
 
-		if ( *piece_buffer )
+		if ( *buffer )
 			sale_fetch->
-				inventory_sale_total =
-					atof( piece_buffer );
-	}
+				financial_institution_full_name =
+					strdup( buffer );
 
-	if ( specific_inventory_sale_boolean )
-	{
-		piece(	piece_buffer,
-			SQL_DELIMITER,
-			fetch,
-			optional_piece_offset++ );
+		if ( entity_contact_key_boolean )
+		{
+			piece(	buffer,
+				SQL_DELIMITER,
+				input,
+				optional_piece_offset++ );
 
-		if ( *piece_buffer )
-			sale_fetch->
-				specific_inventory_sale_total =
-					atof( piece_buffer );
-	}
-
-	if ( inventory_sale_boolean
-	||   specific_inventory_sale_boolean )
-	{
-		piece(	piece_buffer,
-			SQL_DELIMITER,
-			fetch,
-			optional_piece_offset++ );
-
-		if ( *piece_buffer )
-			sale_fetch->
-				sales_tax =
-					atof( piece_buffer );
-	}
-
-	if ( title_passage_rule_boolean )
-	{
-		piece(	piece_buffer,
-			SQL_DELIMITER,
-			fetch,
-			optional_piece_offset++ );
-
-		if ( *piece_buffer )
-			sale_fetch->
-				title_passage_rule_string =
-					strdup( piece_buffer );
-
-		piece(	piece_buffer,
-			SQL_DELIMITER,
-			fetch,
-			optional_piece_offset++ );
-
-		if ( *piece_buffer )
-			sale_fetch->
-				shipped_date_time =
-					strdup( piece_buffer );
-
-		piece(	piece_buffer,
-			SQL_DELIMITER,
-			fetch,
-			optional_piece_offset++ );
-
-		if ( *piece_buffer )
-			sale_fetch->
-				arrived_date =
-					strdup( piece_buffer );
-
+			if ( *buffer )
+				sale_fetch->
+					financial_institution_contact_key =
+						strdup( buffer );
+		}
 	}
 
 	if ( shipping_charge_boolean )
 	{
-		piece(	piece_buffer,
+		piece(	buffer,
 			SQL_DELIMITER,
-			fetch,
+			input,
 			optional_piece_offset++ );
 
-		if ( *piece_buffer )
+		if ( *buffer )
 			sale_fetch->
 				shipping_charge =
-					atof( piece_buffer );
+					atof( buffer );
 	}
 
 	if ( instructions_boolean )
 	{
-		piece(	piece_buffer,
+		piece(	buffer,
 			SQL_DELIMITER,
-			fetch,
+			input,
 			optional_piece_offset++ );
 
-		if ( *piece_buffer )
+		if ( *buffer )
 			sale_fetch->
 				instructions =
-					strdup( piece_buffer );
+					strdup( buffer );
+	}
+
+	if ( inventory_sale_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				inventory_sale_total =
+					atof( buffer );
+	}
+
+	if ( specific_inventory_sale_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				specific_inventory_sale_total =
+					atof( buffer );
 	}
 
 	if ( fixed_service_sale_boolean )
 	{
-		piece(	piece_buffer,
+		piece(	buffer,
 			SQL_DELIMITER,
-			fetch,
+			input,
 			optional_piece_offset++ );
 
-		if ( *piece_buffer )
+		if ( *buffer )
 			sale_fetch->
 				fixed_service_sale_total =
-					atof( piece_buffer );
+					atof( buffer );
 	}
 
 	if ( hourly_service_sale_boolean )
 	{
-		piece(	piece_buffer,
+		piece(	buffer,
 			SQL_DELIMITER,
-			fetch,
+			input,
 			optional_piece_offset++ );
 
-		if ( *piece_buffer )
+		if ( *buffer )
 			sale_fetch->
 				hourly_service_sale_total =
-					atof( piece_buffer );
+					atof( buffer );
+	}
+
+	if ( sales_tax_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				sales_tax =
+					atof( buffer );
 	}
 
 	if ( title_passage_rule_boolean )
 	{
-		sale_fetch->predictive_title_passage_rule =
-			predictive_resolve_title_passage_rule(
-				sale_fetch->
-					title_passage_rule_string );
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+		{
+			sale_fetch->
+				title_passage_rule_string =
+					strdup( buffer );
+
+			sale_fetch->predictive_title_passage_rule =
+				predictive_resolve_title_passage_rule(
+					sale_fetch->
+						title_passage_rule_string );
+		}
+
 	}
 
-	return sale_fetch;
+	if ( shipped_date_time_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				shipped_date_time =
+					strdup( buffer );
+	}
+
+	if ( arrived_date_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				arrived_date =
+					strdup( buffer );
+
+	}
+
+	if ( uncollectible_date_time_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				uncollectible_date_time =
+					strdup( buffer );
+	}
 }
 
 SALE_FETCH *sale_fetch_new(
 		const char *sale_select,
 		const char *sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
-		char *sale_date_time )
+		char *contact_key,
+		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean )
 {
 	char *select;
 	char *where;
 	char *system_string;
-	char *fetch;
+	char *input;
 	SALE_FETCH *sale_fetch;
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time )
 	{
 		char message[ 128 ];
@@ -360,22 +454,14 @@ SALE_FETCH *sale_fetch_new(
 		/* Safely returns */
 		/* -------------- */
 		folder_fetch(
-			SALE_TABLE /* folder_name */,
+			(char *)sale_table /* folder_name */,
 			(LIST *)0 /* role_attribute_exclude_name_list */,
 			1 /* fetch_folder_attribute_list */,
 			0 /* not fetch_attribute */,
 			0 /* not cache_boolean */ );
 
-	sale_fetch->inventory_sale_boolean =
-		sale_fetch_inventory_sale_boolean(
-			sale_fetch->folder_fetch->folder_attribute_list );
-
-	sale_fetch->specific_inventory_sale_boolean =
-		sale_fetch_specific_inventory_sale_boolean(
-			sale_fetch->folder_fetch->folder_attribute_list );
-
-	sale_fetch->title_passage_rule_boolean =
-		sale_fetch_title_passage_rule_boolean(
+	sale_fetch->financial_institution_full_name_boolean =
+		sale_fetch_financial_institution_full_name_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	sale_fetch->shipping_charge_boolean =
@@ -386,12 +472,40 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch_instructions_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
-	sale_fetch->hourly_service_sale_boolean =
-		sale_fetch_hourly_service_sale_boolean(
+	sale_fetch->inventory_sale_boolean =
+		sale_fetch_inventory_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->specific_inventory_sale_boolean =
+		sale_fetch_specific_inventory_sale_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	sale_fetch->fixed_service_sale_boolean =
 		sale_fetch_fixed_service_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->hourly_service_sale_boolean =
+		sale_fetch_hourly_service_sale_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->sales_tax_boolean =
+		sale_fetch_sales_tax_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->title_passage_rule_boolean =
+		sale_fetch_title_passage_rule_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->shipped_date_time_boolean =
+		sale_fetch_shipped_date_time_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->arrived_date_boolean =
+		sale_fetch_arrived_date_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->uncollectible_date_time_boolean =
+		sale_fetch_uncollectible_date_time_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	select =
@@ -400,22 +514,31 @@ SALE_FETCH *sale_fetch_new(
 		/* ------------------- */
 		sale_fetch_select(
 			sale_select,
-			sale_fetch->inventory_sale_boolean,
-			sale_fetch->specific_inventory_sale_boolean,
-			sale_fetch->title_passage_rule_boolean,
+			sale_fetch->financial_institution_full_name_boolean,
+			entity_contact_key_boolean,
 			sale_fetch->shipping_charge_boolean,
 			sale_fetch->instructions_boolean,
+			sale_fetch->inventory_sale_boolean,
+			sale_fetch->specific_inventory_sale_boolean,
+			sale_fetch->fixed_service_sale_boolean,
 			sale_fetch->hourly_service_sale_boolean,
-			sale_fetch->fixed_service_sale_boolean );
+			sale_fetch->sales_tax_boolean,
+			sale_fetch->title_passage_rule_boolean,
+			sale_fetch->shipped_date_time_boolean,
+			sale_fetch->arrived_date_boolean,
+			sale_fetch->uncollectible_date_time_boolean );
 
 	where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		sale_primary_where(
+			fund_name,
 			full_name,
-			street_address,
-			sale_date_time );
+			contact_key,
+			sale_date_time,
+			predictive_fund_boolean,
+			entity_contact_key_boolean );
 
 	system_string =
 		/* ------------------- */
@@ -428,11 +551,11 @@ SALE_FETCH *sale_fetch_new(
 
 	free( select );
 
-	if ( ! ( fetch =
+	if ( ! ( input =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			string_pipe_fetch(
+			string_system_input(
 				system_string ) ) )
 	{
 		return NULL;
@@ -440,34 +563,36 @@ SALE_FETCH *sale_fetch_new(
 
 	free( system_string );
 
-	sale_fetch =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		sale_fetch_parse(
-			full_name,
-			street_address,
-			sale_date_time,
-			sale_fetch,
-			sale_fetch->inventory_sale_boolean,
-			sale_fetch->specific_inventory_sale_boolean,
-			sale_fetch->title_passage_rule_boolean,
-			sale_fetch->shipping_charge_boolean,
-			sale_fetch->instructions_boolean,
-			sale_fetch->hourly_service_sale_boolean,
-			sale_fetch->fixed_service_sale_boolean,
-			fetch );
+	sale_fetch_parse(
+		sale_fetch /* in/out */,
+		sale_fetch->financial_institution_full_name_boolean,
+		entity_contact_key_boolean,
+		sale_fetch->shipping_charge_boolean,
+		sale_fetch->instructions_boolean,
+		sale_fetch->inventory_sale_boolean,
+		sale_fetch->specific_inventory_sale_boolean,
+		sale_fetch->fixed_service_sale_boolean,
+		sale_fetch->hourly_service_sale_boolean,
+		sale_fetch->sales_tax_boolean,
+		sale_fetch->title_passage_rule_boolean,
+		sale_fetch->shipped_date_time_boolean,
+		sale_fetch->arrived_date_boolean,
+		sale_fetch->uncollectible_date_time_boolean,
+		input );
 
 	if ( sale_fetch->inventory_sale_boolean )
 	{
 		sale_fetch->inventory_sale_list =
 			inventory_sale_list(
 				INVENTORY_SALE_TABLE,
+				INVENTORY_SALE_SELECT,
 				full_name,
-				street_address,
-				sale_date_time );
+				contact_key,
+				sale_date_time,
+				entity_contact_key_boolean );
 	}
 
+#ifdef NOT_DEFINED
 	if ( sale_fetch->specific_inventory_sale_boolean )
 	{
 		sale_fetch->specific_inventory_sale_list =
@@ -572,6 +697,7 @@ SALE_FETCH *sale_fetch_new(
 				street_address,
 				sale_date_time );
 	}
+#endif
 
 	return sale_fetch;
 }
@@ -671,6 +797,21 @@ boolean sale_fetch_fixed_service_sale_boolean(
 {
 	if ( folder_attribute_seek(
 		"fixed_service_sale_total",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_financial_institution_full_name_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		"financial_institution_full_name",
 		folder_attribute_list ) )
 	{
 		return 1;

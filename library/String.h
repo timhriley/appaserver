@@ -562,7 +562,6 @@ char *string_trim_character_array(
 
 /* Usage */
 /* ----- */
-
 char *string_delimiter_repeat(
 		char *string,
 		char delimiter,
@@ -571,6 +570,8 @@ char *string_delimiter_repeat(
 /* Usage */
 /* ----- */
 
+/* Inserts the trailing null */
+/* ------------------------- */
 char *string_strncpy(
 		char *destination,
 		char *source,

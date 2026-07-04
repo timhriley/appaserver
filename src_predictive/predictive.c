@@ -10,6 +10,7 @@
 #include "list.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "security.h"
 #include "predictive.h"
 
 char *predictive_fund_where(
@@ -121,22 +122,71 @@ char *predictive_fund_name(
 		char *fund_name,
 		boolean predictive_fund_boolean )
 {
+	char *name = NULL;
+
 	if ( predictive_fund_boolean )
 	{
-		if ( !fund_name
-		||   !*fund_name
-		||   strcmp(	fund_name,
-				PREDICTIVE_FUND_TABLE ) == 0
-		||   strcmp(	fund_name,
-				PREDICTIVE_FUND_COLUMN ) == 0 )
+		if ( fund_name
+		&&   *fund_name
+		&&   strcmp(	fund_name,
+				PREDICTIVE_FUND_TABLE ) != 0
+		&&   strcmp(	fund_name,
+				PREDICTIVE_FUND_COLUMN ) != 0
+		&&   !security_forbid_boolean(
+			SECURITY_FORBID_CHARACTER_STRING,
+			fund_name /* string */ ) )
 		{
-			return NULL;
+			name = fund_name;
+		}
+	}
+
+	return name;
+}
+
+char *predictive_fund_string(
+		const char delimiter,
+		char *fund_name,
+		boolean predictive_fund_boolean )
+{
+	static char fund_string[ 32 ];
+
+	*fund_string = '\0';
+
+	if ( predictive_fund_boolean )
+	{
+		char *name;
+
+		name =
+			/* ------------------------- */
+			/* Returns parameter or null */
+			/* ------------------------- */
+			predictive_fund_name(
+				fund_name,
+				predictive_fund_boolean );
+
+		if ( !name )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"fund_name is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
 		}
 
-		return fund_name;
+		snprintf(
+			fund_string,
+			sizeof ( fund_string ),
+			"%s%c",
+			name,
+			delimiter );
 	}
-	else
-	{
-		return NULL;
-	}
+
+	return fund_string;
 }

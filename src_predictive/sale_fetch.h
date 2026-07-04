@@ -29,11 +29,11 @@ typedef struct
 	boolean hourly_service_sale_boolean;
 	boolean sales_tax_boolean;
 	boolean title_passage_rule_boolean;
-	boolean customer_payment_list_boolean;
+	boolean shipped_date_time_boolean;
 	boolean arrived_date_boolean;
 	boolean uncollectible_date_time_boolean;
 	char *financial_institution_full_name;
-	char *financial_institutiion_contact_key;
+	char *financial_institution_contact_key;
 	double shipping_charge;
 	char *instructions;
 	double inventory_sale_total;
@@ -41,7 +41,7 @@ typedef struct
 	double fixed_service_sale_total;
 	double hourly_service_sale_total;
 	double gross_revenue;
-	double sale_tax;
+	double sales_tax;
 	double invoice_amount;
 	char *title_passage_rule_string;
 	enum predictive_title_passage_rule predictive_title_passage_rule;
@@ -86,7 +86,7 @@ boolean sale_fetch_shipping_charge_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_instructions_boolean(
-		LIST *>folder_attribute_list );
+		LIST *folder_attribute_list );
 
 boolean sale_fetch_inventory_sale_boolean(
 		LIST *folder_attribute_list );
@@ -119,8 +119,8 @@ boolean sale_fetch_uncollectible_date_time_boolean(
 /* ------------------- */
 char *sale_fetch_select(
 		const char *sale_select,
-		boolean entity_contact_key_boolean,
 		boolean sale_fetch_financial_institution_full_name_boolean,
+		boolean entity_contact_key_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_sale_boolean,
@@ -129,16 +129,16 @@ char *sale_fetch_select(
 		boolean sale_fetch_hourly_service_sale_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
-		boolean sale_fetch_shipping_date_time_boolean,
+		boolean sale_fetch_shipped_date_time_boolean,
 		boolean sale_fetch_arrived_date_boolean,
 		boolean sale_fetch_uncollectible_date_time_boolean );
 
 /* Usage */
 /* ----- */
 void sale_fetch_parse(
-		boolean entity_contact_key_boolean,
 		SALE_FETCH *sale_fetch_calloc /* in/out */,
 		boolean sale_fetch_financial_institution_full_name_boolean,
+		boolean entity_contact_key_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_sale_boolean,

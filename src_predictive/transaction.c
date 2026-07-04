@@ -308,7 +308,6 @@ char *transaction_insert(
 {
 	boolean fund_boolean;
 	boolean contact_key_boolean;
-	boolean lock_boolean;
 	FILE *pipe_open;
 	char *race_free_date_time;
 	char *insert_column_string;
@@ -367,11 +366,6 @@ char *transaction_insert(
 			ENTITY_TABLE,
 			ENTITY_CONTACT_KEY_COLUMN );
 
-	lock_boolean =
-		transaction_lock_boolean(
-			TRANSACTION_TABLE,
-			TRANSACTION_LOCK_COLUMN );
-
 	insert_column_string =
 		/* --------------------- */
 		/* Returns static memory */
@@ -380,10 +374,8 @@ char *transaction_insert(
 			TRANSACTION_INSERT,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
-			TRANSACTION_LOCK_COLUMN,
 			fund_boolean,
-			contact_key_boolean,
-			lock_boolean );
+			contact_key_boolean );
 
 	race_free_date_time =
 		transaction_race_free_date_time(
@@ -413,7 +405,6 @@ char *transaction_insert(
 		transaction_memo( memo ),
 		fund_boolean,
 		contact_key_boolean,
-		lock_boolean,
 		pipe_open );
 
 	pclose( pipe_open );
@@ -449,7 +440,6 @@ void transaction_insert_pipe(
 		char *transaction_memo,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean lock_boolean,
 		FILE *pipe_open )
 {
 	char *insert_data_string;
@@ -478,8 +468,7 @@ void transaction_insert_pipe(
 			transaction_check_number,
 			transaction_memo,
 			fund_boolean,
-			contact_key_boolean,
-			lock_boolean );
+			contact_key_boolean );
 
 	if ( insert_data_string )
 	{
@@ -1621,14 +1610,15 @@ char *transaction_insert_column_string(
 		const char *transaction_insert,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
-		const char *transaction_lock_column,
 		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean transaction_lock_boolean )
+		boolean entity_contact_key_boolean )
 {
 	OPTIONAL_COLUMN *optional_column;
 
 	optional_column =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		optional_column_new(
 			',' /* delimiter */,
 			(char *)transaction_insert /* base_string */,
@@ -1637,9 +1627,6 @@ char *transaction_insert_column_string(
 			predictive_fund_boolean /* set_boolean */ );
 
 	optional_column =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
@@ -1647,32 +1634,7 @@ char *transaction_insert_column_string(
 			0 /* not escape_boolean */,
 			entity_contact_key_boolean /* set_boolean */ );
 
-	optional_column =
-		optional_column_new(
-			',' /* delimiter */,
-			optional_column->return_string /* base_string */,
-			(char *)transaction_lock_column /* component */,
-			0 /* not escape_boolean */,
-			transaction_lock_boolean /* set_boolean */ );
-
 	return optional_column->return_string;
-}
-
-boolean transaction_lock_boolean(
-		const char *transaction_table,
-		const char *transaction_lock_column )
-{
-	static boolean lock_boolean = -1;
-
-	if ( lock_boolean == -1 )
-	{
-		lock_boolean =
-			appaserver_table_column_boolean(
-				transaction_table,
-				transaction_lock_column );
-	}
-
-	return lock_boolean;
 }
 
 char *transaction_insert_data_string(
@@ -1685,8 +1647,7 @@ char *transaction_insert_data_string(
 		char *transaction_check_number,
 		char *transaction_memo,
 		boolean fund_boolean,
-		boolean contact_key_boolean,
-		boolean lock_boolean )
+		boolean contact_key_boolean )
 {
 	OPTIONAL_COLUMN *optional_column;
 	char data_string[ 1024 ];
@@ -1734,14 +1695,6 @@ char *transaction_insert_data_string(
 			contact_key /* component */,
 			1 /* escape_boolean */,
 			contact_key_boolean /* set_boolean */ );
-
-	optional_column =
-		optional_column_new(
-			sql_delimiter,
-			optional_column->return_string /* base_string */,
-			"y" /* component */,
-			0 /* not escape_boolean */,
-			lock_boolean /* set_boolean */ );
 
 	return optional_column->return_string;
 }

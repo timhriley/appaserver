@@ -1254,7 +1254,7 @@ char *string_strncpy(
 		char *source,
 		int count )
 {
-	int str_len;
+	int strlen;
 
 	if ( !destination )
 	{
@@ -1270,9 +1270,9 @@ char *string_strncpy(
 
 	if ( !source ) return destination;
 
-	str_len = string_strlen( source );
+	strlen = string_strlen( source );
 
-	if ( count > str_len ) count = str_len;
+	if ( count > strlen ) count = strlen;
 
 	strncpy( destination, source, count );
 	*(destination + count) = '\0';

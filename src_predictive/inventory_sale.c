@@ -17,14 +17,13 @@
 
 INVENTORY_SALE *inventory_sale_new(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *inventory_name )
 {
 	INVENTORY_SALE *inventory_sale;
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time
 	||   !inventory_name )
 	{
@@ -45,7 +44,7 @@ INVENTORY_SALE *inventory_sale_new(
 	inventory_sale = inventory_sale_calloc();
 
 	inventory_sale->full_name = full_name;
-	inventory_sale->street_address = street_address;
+	inventory_sale->contact_key = contact_key;
 	inventory_sale->sale_date_time = sale_date_time;
 	inventory_sale->inventory_name = inventory_name;
 
@@ -79,16 +78,15 @@ INVENTORY_SALE *inventory_sale_calloc( void )
 
 INVENTORY_SALE *inventory_sale_parse(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *input )
 {
 	INVENTORY_SALE *inventory_sale;
 	char inventory_name[ 128 ];
-	char piece_buffer[ 128 ];
+	char buffer[ 128 ];
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time
 	||   !input
 	||   !*input )
@@ -104,34 +102,25 @@ INVENTORY_SALE *inventory_sale_parse(
 		/* -------------- */
 		inventory_sale_new(
 			full_name,
-			street_address,
+			contact_key,
 			sale_date_time,
 			strdup( inventory_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	if ( *piece_buffer )
-		inventory_sale->quantity =
-			atoi( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) inventory_sale->quantity = atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	if ( *piece_buffer )
-		inventory_sale->retail_price =
-			atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) inventory_sale->retail_price = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	if ( *piece_buffer )
-		inventory_sale->discount_amount =
-			atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) inventory_sale->discount_amount = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	if ( *piece_buffer )
-		inventory_sale->extended_price =
-			atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) inventory_sale->extended_price = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	if ( *piece_buffer )
-		inventory_sale->cost_of_goods_sold =
-			atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer )
+		inventory_sale->cost_of_goods_sold = atof( buffer );
 
 	inventory_sale->sale_extended_price =
 		SALE_EXTENDED_PRICE(
@@ -390,5 +379,21 @@ INVENTORY_SALE *inventory_sale_seek(
 	} while ( list_next( inventory_sale_list ) );
 
 	return NULL;
+}
+
+LIST *inventory_sale_primary_key_list(
+		const char *inventory_sale_inventory_column,
+		boolean contact_key_boolean )
+{
+	LIST *list;
+
+	list =
+		sale_primary_key_list(
+			SALE_DATE_TIME_COLUMN,
+			entity_contact_key_boolean );
+
+	list_set( list, inventory_sale_inventory_column );
+
+	return list;
 }
 

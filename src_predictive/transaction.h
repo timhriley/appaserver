@@ -24,8 +24,6 @@
 #define TRANSACTION_DATE_TIME_COLUMN		"transaction_date_time"
 #define TRANSACTION_AMOUNT_COLUMN		"transaction_amount"
 
-#define TRANSACTION_LOCK_COLUMN			"transaction_lock_yn"
-
 #define TRANSACTION_SELECT	"full_name,"			\
 				"transaction_date_time,"	\
 				"transaction_amount,"		\
@@ -184,7 +182,6 @@ void transaction_insert_pipe(
 		char *transaction_memo,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		boolean transaction_lock_boolean,
 		FILE *pipe_open );
 
 /* Process */
@@ -202,8 +199,7 @@ char *transaction_insert_data_string(
 		char *transaction_check_number,
 		char *transaction_memo,
 		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean transaction_lock_boolean );
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -212,12 +208,6 @@ char *transaction_insert_data_string(
 /* -------------------------------------- */
 char *transaction_stamp_insert(
 		TRANSACTION *transaction /* in/out */ );
-
-/* Usage */
-/* ----- */
-boolean transaction_lock_boolean(
-		const char *transaction_table,
-		const char *transaction_lock_column );
 
 /* Usage */
 /* ----- */
@@ -458,9 +448,7 @@ char *transaction_insert_column_string(
 		const char *transaction_insert,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
-		const char *transaction_lock_column,
 		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean transaction_lock_boolean );
+		boolean entity_contact_key_boolean );
 
 #endif

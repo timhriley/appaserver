@@ -16,6 +16,7 @@ typedef struct
 	/* Heap memory */
 	/* ----------- */
 	char *return_string;
+	char *prior_return_string;
 } OPTIONAL_COLUMN;
 
 /* Usage */
@@ -44,5 +45,16 @@ char *optional_column_return_string(
 		const char delimiter,
 		char *base_string,
 		char *component );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+OPTIONAL_COLUMN *optional_column_money_new(
+		const char delimiter,
+		char *base_string,
+		double money,
+		boolean set_boolean );
 
 #endif
