@@ -107,7 +107,12 @@ char *subsidiary_transaction_update_template(
 
 /* Driver */
 /* ------ */
-void subsidiary_transaction_execute(
+
+/* ------------------------------------ */
+/* Updates the parent table.		*/
+/* Returns transaction_date_time.	*/
+/* ------------------------------------ */
+char *subsidiary_transaction_execute(
 		char *application_name,
 		TRANSACTION *delete_transaction,
 		TRANSACTION *insert_transaction,

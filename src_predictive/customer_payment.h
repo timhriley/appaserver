@@ -109,6 +109,8 @@ char *customer_payment_primary_where(
 /* Usage */
 /* ----- */
 double customer_payment_total(
+		boolean payment_list_boolean,
+		double payment_total,
 		LIST *customer_payment_list );
 
 #endif

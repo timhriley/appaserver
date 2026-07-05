@@ -73,7 +73,7 @@ char *predictive_fund_name(
 /* Returns static memory */
 /* --------------------- */
 char *predictive_fund_string(
-		const char delimiter,
+		char delimiter /* optional */,
 		char *fund_name,
 		boolean predictive_fund_boolean );
 #endif

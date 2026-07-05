@@ -144,7 +144,7 @@ char *predictive_fund_name(
 }
 
 char *predictive_fund_string(
-		const char delimiter,
+		char delimiter,
 		char *fund_name,
 		boolean predictive_fund_boolean )
 {
@@ -155,6 +155,7 @@ char *predictive_fund_string(
 	if ( predictive_fund_boolean )
 	{
 		char *name;
+		char delimiter_string[ 2 ] = {0};
 
 		name =
 			/* ------------------------- */
@@ -180,12 +181,14 @@ char *predictive_fund_string(
 				message );
 		}
 
+		*delimiter_string = delimiter;
+
 		snprintf(
 			fund_string,
 			sizeof ( fund_string ),
-			"%s%c",
+			"%s%s",
 			name,
-			delimiter );
+			delimiter_string );
 	}
 
 	return fund_string;

@@ -132,11 +132,19 @@ CUSTOMER_PAYMENT *customer_payment_parse(
 	return customer_payment;
 }
 
-double customer_payment_total( LIST *customer_payment_list )
+double customer_payment_total(
+		boolean payment_list_boolean,
+		double payment_total,
+		LIST *customer_payment_list )
 {
 	CUSTOMER_PAYMENT *customer_payment;
-	double total = 0.0;
+	double total;
 
+	if ( payment_list_boolean )
+	{
+		total = payment_total;
+	}
+	else
 	if ( list_rewind( customer_payment_list ) )
 	do {
 		customer_payment = list_get( customer_payment_list );

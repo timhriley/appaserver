@@ -211,13 +211,13 @@ char *subsidiary_transaction_update_template(
 	return strdup( update_template );
 }
 
-void subsidiary_transaction_execute(
+char *subsidiary_transaction_execute(
 		char *application_name,
 		TRANSACTION *delete_transaction,
 		TRANSACTION *insert_transaction,
 		char *update_template )
 {
-	char *transaction_date_time;
+	char *transaction_date_time = {0};
 
 	if ( !application_name )
 	{
@@ -286,6 +286,8 @@ void subsidiary_transaction_execute(
 			}
 		}
 	}
+
+	return transaction_date_time;
 }
 
 SUBSIDIARY_TRANSACTION_DELETE *

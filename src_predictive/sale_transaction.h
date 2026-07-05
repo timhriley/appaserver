@@ -24,11 +24,16 @@ typedef struct
 /* Usage */
 /* ----- */
 SALE_TRANSACTION *sale_transaction_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *state,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *financial_institution_full_name,
+		char *financial_institution_contact_key,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
