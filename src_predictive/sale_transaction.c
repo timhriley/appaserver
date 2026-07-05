@@ -20,11 +20,17 @@
 #include "sale_transaction.h"
 
 SALE_TRANSACTION *sale_transaction_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *financial_institution_full_name,
+		char *financial_institution_contact_key,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
@@ -43,7 +49,6 @@ SALE_TRANSACTION *sale_transaction_new(
 	SALE_TRANSACTION *sale_transaction;
 
 	if ( !full_name
-	||   !street_address
 	||   !state )
 	{
 		char message[ 128 ];

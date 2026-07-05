@@ -66,7 +66,7 @@ SALE *sale_trigger_new(
 		char *state,
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
 		char *preupdate_uncollectible_date_time );
 
 /* Process */
@@ -158,13 +158,14 @@ LIST *sale_update_string_list(
 		char *sale_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		boolean shipping_charge_boolean;
-		boolean inventory_sale_boolean;
-		boolean specific_inventory_sale_boolean;
-		boolean fixed_service_sale_boolean;
-		boolean hourly_service_sale_boolean;
+		boolean shipping_charge_boolean,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_sale_boolean,
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean,
 		boolean sales_tax_boolean,
-		boolean payment_list_boolean;
+		boolean payment_list_boolean,
+		double shipping_charge,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
 		double fixed_service_sale_total,
@@ -201,14 +202,18 @@ char *sale_primary_data_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Usage */
-/* ----- */
-void sale_update(
+/* Driver */
+/* ------ */
+
+/* Returns inserted sale_transaction->transaction_date_time */
+/* -------------------------------------------------------- */
+char *sale_update(
 		const char *sale_table,
+		char *application_name,
 		LIST *update_string_list,
 		LIST *primary_key_list,
-		TRANSACTION *sale_transaction,
-		TRANSACTION *sale_loss_transaction );
+		SALE_TRANSACTION *sale_transaction,
+		SALE_TRANSACTION *sale_loss_transaction );
 
 /* Usage */
 /* ----- */

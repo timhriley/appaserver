@@ -33,6 +33,7 @@ SALE *sale_trigger_new(
 		char *contact_key,
 		char *sale_date_time,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
 		char *preupdate_uncollectible_date_time )
@@ -172,6 +173,7 @@ SALE *sale_trigger_new(
 			full_name,
 			contact_key,
 			state,
+			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
 			sale->predictive_fund_boolean,
@@ -201,6 +203,7 @@ SALE *sale_trigger_new(
 				sale_fetch->
 				uncollectible_date_time,
 			state,
+			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
 			preupdate_uncollectible_date_time,
@@ -351,8 +354,9 @@ char *sale_update_system_string(
 	return strdup( system_string );
 }
 
-void sale_update(
+char *sale_update(
 		const char *sale_table,
+		char *application_name,
 		LIST *update_string_list,
 		LIST *primary_key_list,
 		TRANSACTION *sale_transaction,
@@ -361,6 +365,7 @@ void sale_update(
 	char *system_string;
 	FILE *pipe;
 	char *update_string;
+	char *transaction_date_time = {0};
 
 	if ( !list_length( primary_key_list ) )
 	{
@@ -391,11 +396,11 @@ void sale_update(
 	/* -------------- */
 	pipe = appaserver_output_pipe( system_string );
 
+	free( system_string );
 
 	if ( list_rewind( update_string_list ) )
 	do {
 		update_string = list_get( update_string_list );
-
 		fprintf( pipe, "%s\n", update_string );
 
 	} while ( list_next( update_string_list ) );
@@ -408,17 +413,18 @@ void sale_update(
 		/* Updates the parent table.		*/
 		/* Returns transaction_date_time.	*/
 		/* ------------------------------------ */
-		(void)subsidiary_transaction_execute(
-			application_name,
-			sale_transaction->
-				subsidiary_transaction->
-				delete_transaction,
-			sale_transaction->
-				subsidiary_transaction->
-				insert_transaction,
-			sale_transaction->
-				subsidiary_transaction->
-				update_template );
+		transaction_date_time =
+			subsidiary_transaction_execute(
+				application_name,
+				sale_transaction->
+					subsidiary_transaction->
+					delete_transaction,
+				sale_transaction->
+					subsidiary_transaction->
+					insert_transaction,
+				sale_transaction->
+					subsidiary_transaction->
+					update_template );
 	}
 
 	if ( sale_loss_transaction )
@@ -435,6 +441,8 @@ void sale_update(
 				subsidiary_transaction->
 				update_template );
 	}
+
+	return transaction_date_time;
 }
 
 double sale_work_hours(
@@ -680,13 +688,14 @@ LIST *sale_update_string_list(
 		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean shipping_charge_boolean;
-		boolean inventory_sale_boolean;
+		boolean shipping_charge_boolean,
+		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean;
-		boolean fixed_service_sale_boolean;
-		boolean hourly_service_sale_boolean;
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean,
 		boolean sales_tax_boolean,
-		boolean payment_list_boolean;
+		boolean payment_list_boolean,
+		double shipping_charge,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
 		double fixed_service_sale_total,
@@ -826,7 +835,7 @@ LIST *sale_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"payment_total" /* column_name */,
-			 customer_payment_total /* money */,
+			customer_payment_total /* money */,
 			payment_list_boolean /* set_boolean */ );
 
 	list_set( list, update_string );

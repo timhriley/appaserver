@@ -28,6 +28,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *full_name,
 		char *contact_key,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
 		boolean predictive_fund_boolean,
