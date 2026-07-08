@@ -359,8 +359,8 @@ char *sale_update(
 		char *application_name,
 		LIST *update_string_list,
 		LIST *primary_key_list,
-		TRANSACTION *sale_transaction,
-		TRANSACTION *sale_loss_transaction )
+		SALE_TRANSACTION *sale_transaction,
+		SALE_LOSS_TRANSACTION *sale_loss_transaction )
 {
 	char *system_string;
 	FILE *pipe;

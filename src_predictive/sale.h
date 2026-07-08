@@ -209,11 +209,11 @@ char *sale_primary_data_string(
 /* -------------------------------------------------------- */
 char *sale_update(
 		const char *sale_table,
-		char *application_name,
+		char *application_name /* for transaction update */,
 		LIST *update_string_list,
 		LIST *primary_key_list,
 		SALE_TRANSACTION *sale_transaction,
-		SALE_TRANSACTION *sale_loss_transaction );
+		SALE_LOSS_TRANSACTION *sale_loss_transaction );
 
 /* Usage */
 /* ----- */

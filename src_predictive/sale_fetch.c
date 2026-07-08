@@ -577,7 +577,6 @@ SALE_FETCH *sale_fetch_new(
 				entity_contact_key_boolean );
 	}
 
-#ifdef NOT_DEFINED
 	if ( sale_fetch->specific_inventory_sale_boolean )
 	{
 		sale_fetch->specific_inventory_sale_list =
@@ -682,7 +681,6 @@ SALE_FETCH *sale_fetch_new(
 				street_address,
 				sale_date_time );
 	}
-#endif
 
 	return sale_fetch;
 }

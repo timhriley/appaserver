@@ -40,6 +40,7 @@ typedef struct
 LIST *inventory_sale_list(
 		const char *inventory_sale_select,
 		const char *inventory_sale_table,
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
