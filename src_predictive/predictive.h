@@ -28,6 +28,7 @@ enum predictive_title_passage_rule{
 /* Returns static memory */
 /* --------------------- */
 char *predictive_fund_where(
+		const char *predictive_fund_column,
 		char *fund_name,
 		boolean predictive_fund_boolean );
 

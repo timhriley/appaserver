@@ -13,6 +13,7 @@
 #include "appaserver.h"
 #include "sql.h"
 #include "folder.h"
+#include "predictive.h"
 #include "journal.h"
 #include "account_journal.h"
 #include "contra_account.h"
@@ -24,6 +25,8 @@ LIST *contra_account_list(
 		char *end_date_time_string )
 {
 	LIST *list;
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 	FILE *input_pipe;
 	char *system_string;
 	char input[ 1024 ];
@@ -39,6 +42,16 @@ LIST *contra_account_list(
 	}
 
 	list = list_new();
+
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	system_string =
 		/* ------------------- */
@@ -82,6 +95,8 @@ LIST *contra_account_list(
 				fund_name,
 				contra_account->account_name,
 				end_date_time_string,
+				fund_boolean,
+				contact_key_boolean,
 				0 /* not fetch_transaction */,
 				0 /* not latest_zero_balance_boolean */ );
 
@@ -98,6 +113,8 @@ LIST *contra_account_list(
 				contra_account->contra_to_account
 					/* account_name */,
 				end_date_time_string,
+				fund_boolean,
+				contact_key_boolean,
 				0 /* not fetch_transaction */,
 				0 /* not latest_zero_balance_boolean */ );
 

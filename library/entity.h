@@ -84,11 +84,12 @@ ENTITY *entity_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *entity_contact_key_where(
-		boolean entity_contact_key_boolean,
-		char *contact_key );
+		const char *entity_contact_key_column,
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -96,9 +97,11 @@ char *entity_contact_key_where(
 /* Returns static memory */
 /* --------------------- */
 char *entity_primary_where(
-		boolean entity_contact_key_boolean,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
 		char *full_name,
-		char *contact_key );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

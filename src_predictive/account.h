@@ -91,6 +91,8 @@ LIST *account_statement_list(
 		char *fund_name,
 		char *subclassification_primary_where,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
@@ -108,6 +110,8 @@ FILE *account_pipe(
 ACCOUNT *account_statement_parse(
 		char *fund_name,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,

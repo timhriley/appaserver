@@ -26,9 +26,10 @@
 #include "liability.h"
 
 LIABILITY *liability_entity_fetch(
-		boolean contact_key_boolean,
 		char *full_name,
 		char *contact_key,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		LIST *account_current_liability_name_list )
 {
 	LIABILITY *liability;
@@ -73,11 +74,15 @@ LIABILITY *liability_entity_fetch(
 				JOURNAL_TABLE,
 				PREDICTIVE_FUND_COLUMN,
 				ENTITY_CONTACT_KEY_COLUMN,
+				fund_boolean,
+				contact_key_boolean,
 				liability->entity_where ),
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
-			1 /* fetch_transaction */ );
+			0 /* not fetch_transaction */ );
 
 	if ( !list_length( liability->journal_system_list ) )
 	{
@@ -136,11 +141,15 @@ char *liability_entity_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-				contact_key_boolean,
-				full_name,
-				contact_key );
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			full_name,
+			contact_key,
+			contact_key_boolean );
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"%s and "
 		"account in (%s)",
 		primary_where,
@@ -149,7 +158,10 @@ char *liability_entity_where(
 	return where;
 }
 
-LIABILITY *liability_account_fetch( char *liability_account_name )
+LIABILITY *liability_account_fetch(
+		char *liability_account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	LIABILITY *liability;
 
@@ -179,7 +191,11 @@ LIABILITY *liability_account_fetch( char *liability_account_name )
 				JOURNAL_TABLE,
 				PREDICTIVE_FUND_COLUMN,
 				ENTITY_CONTACT_KEY_COLUMN,
+				fund_boolean,
+				contact_key_boolean,
 				liability->account_where ),
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
@@ -523,7 +539,9 @@ char *liability_payment_credit_account_name(
 
 LIABILITY_ENTITY *liability_entity_account_name_new(
 		char *account_name,
-		ENTITY *entity )
+		ENTITY *entity,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	LIABILITY_ENTITY *liability_entity;
 
@@ -543,7 +561,9 @@ LIABILITY_ENTITY *liability_entity_account_name_new(
 
 	if ( ! ( liability_entity->liability =
 			liability_account_fetch(
-				account_name ) ) )
+				account_name,
+				fund_boolean,
+				contact_key_boolean ) ) )
 	{
 		free( liability_entity );
 		return NULL;
@@ -560,6 +580,8 @@ LIABILITY_ENTITY *liability_entity_account_name_new(
 LIABILITY_ENTITY *liability_entity_account_list_new(
 		LIST *account_current_liability_name_list,
 		LIST *account_receivable_name_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		ENTITY *entity )
 {
 	LIABILITY_ENTITY *liability_entity;
@@ -582,9 +604,10 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 
 	if ( ! ( liability_entity->liability =
 			liability_entity_fetch(
-				entity->entity_contact_key_boolean,
 				entity->full_name,
 				entity->contact_key,
+				fund_boolean,
+				contact_key_boolean,
 				account_current_liability_name_list ) ) )
 	{
 		free( liability_entity );
@@ -595,9 +618,10 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 	{
 		liability_entity->receivable =
 			receivable_fetch(
-				entity->entity_contact_key_boolean,
 				entity->full_name,
 				entity->contact_key,
+				fund_boolean,
+				contact_key_boolean,
 				account_receivable_name_list );
 	}
 
@@ -649,6 +673,7 @@ LIABILITY_ENTITY *liability_entity_calloc( void )
 
 LIABILITY_PAYMENT *liability_payment_new(
 		char *application_name,
+		char *fund_name,
 		char *cash_account_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
@@ -758,6 +783,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 
 	liability_payment->liability_transaction_list =
 		liability_transaction_list_new(
+			fund_name,
 			dialog_box_payment_amount,
 			starting_check_number,
 			liability_payment->transaction_memo,
@@ -1000,6 +1026,11 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 			ACCOUNT_TABLE,
 			SUBCLASSIFICATION_RECEIVABLE );
 
+	liability_calculate->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
 	liability_calculate->entity_contact_key_boolean =
 		entity_contact_key_boolean(
 			ENTITY_TABLE,
@@ -1029,7 +1060,11 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 			liability_calculate->liability_entity_list,
 			liability_entity_account_list(
 				liability_calculate->
-					liability_account_entity_list ) );
+					liability_account_entity_list,
+				liability_calculate->
+					predictive_fund_boolean,
+				liability_calculate->
+					entity_contact_key_boolean ) );
 	}
 
 	if ( list_length(
@@ -1045,6 +1080,8 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 					journal_account_distinct_entity_list,
 				liability_calculate->
 					account_receivable_name_list,
+				liability_calculate->predictive_fund_boolean,
+				liability_calculate->entity_contact_key_boolean,
 				liability_calculate->
 					entity_self ) );
 	}
@@ -1219,6 +1256,7 @@ double liability_journal_list_transaction_amount(
 
 LIABILITY_TRANSACTION_LIST *
 	liability_transaction_list_new(
+		char *fund_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
 		char *transaction_memo,
@@ -1253,6 +1291,7 @@ LIABILITY_TRANSACTION_LIST *
 		list_set(
 			liability_transaction_list->list,
 			liability_transaction_new(
+				fund_name,
 				dialog_box_payment_amount,
 				starting_check_number
 					/* check_number */,
@@ -1297,6 +1336,7 @@ LIABILITY_TRANSACTION_LIST *
 }
 
 LIABILITY_TRANSACTION *liability_transaction_new(
+		char *fund_name,
 		double dialog_box_payment_amount,
 		int check_number,
 		char *transaction_memo,
@@ -1339,6 +1379,7 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 
 	liability_transaction->transaction =
 		transaction_entity_new(
+			fund_name,
 			liability_entity->entity,
 			date_display_19( transaction_date_time ),
 			liability_transaction->
@@ -1496,7 +1537,9 @@ char *liability_payment_error_message( const char *message )
 }
 
 LIST *liability_entity_account_list(
-	LIST *liability_account_entity_list )
+		LIST *liability_account_entity_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	LIST *liability_entity_list = list_new();
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
@@ -1517,7 +1560,9 @@ LIST *liability_entity_account_list(
 		liability_entity =
 			liability_entity_account_name_new(
 				liability_account_entity->account_name,
-				liability_account_entity->entity );
+				liability_account_entity->entity,
+				fund_boolean,
+				contact_key_boolean );
 
 		if ( liability_entity )
 		{
@@ -1541,6 +1586,8 @@ LIST *liability_entity_distinct_entity_list(
 		LIST *account_current_liability_name_list,
 		LIST *journal_account_distinct_entity_list,
 		LIST *account_receivable_name_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		ENTITY_SELF *entity_self )
 {
 	ENTITY *entity;
@@ -1575,10 +1622,10 @@ LIST *liability_entity_distinct_entity_list(
 
 		if ( entity_self->entity_contact_key_boolean )
 		{
-			if ( strcmp(
+			if ( string_strcmp(
 				entity->full_name,
 				entity_self->full_name ) == 0
-			&&   strcmp(
+			&&   string_strcmp(
 				entity->contact_key,
 				entity_self->contact_key ) == 0 )
 			{
@@ -1587,7 +1634,7 @@ LIST *liability_entity_distinct_entity_list(
 		}
 		else
 		{
-			if ( strcmp(
+			if ( string_strcmp(
 				entity->full_name,
 				entity_self->full_name ) == 0 )
 			{
@@ -1599,6 +1646,8 @@ LIST *liability_entity_distinct_entity_list(
 				liability_entity_account_list_new(
 					account_current_liability_name_list,
 					account_receivable_name_list,
+					fund_boolean,
+					contact_key_boolean,
 					entity ) ) )
 		{
 			list_set( liability_entity_list, liability_entity );

@@ -214,13 +214,12 @@
 typedef struct
 {
 	boolean predictive_fund_boolean;
-	char *predictive_fund_name;
+	boolean entity_contact_key_boolean;
 	boolean institution_missing_boolean;
 	char *account_name;
 	boolean account_exist_boolean;
 	char *date_now_yyyy_mm_dd;
 	boolean date_recent_boolean;
-	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	char *appaserver_error_filespecification;
 	char *date_now19;
@@ -233,7 +232,6 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_INPUT *feeder_init_input_new(
 		char *application_name,
-		char *fund_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
 		char *exchange_minimum_date_string );
@@ -320,7 +318,9 @@ JOURNAL *feeder_init_transaction_journal(
 /* Usage */
 /* ----- */
 void feeder_init_transaction_insert(
-		FEEDER_INIT_TRANSACTION *feeder_init_transaction );
+		FEEDER_INIT_TRANSACTION *feeder_init_transaction,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 typedef struct
 {

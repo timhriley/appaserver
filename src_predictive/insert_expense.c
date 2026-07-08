@@ -401,6 +401,7 @@ char *insert_expense_input_journal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		predictive_fund_where(
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			fund_boolean );
 
@@ -409,9 +410,11 @@ char *insert_expense_input_journal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	snprintf(
 		where,

@@ -437,11 +437,6 @@ MENU *menu_new( char *application_name,
 			role_name,
 			1 /* fetch_process */ );
 
-	menu->role_process_set_member_list =
-		role_process_set_member_list(
-			role_name,
-			1 /* fetch_process_set */ );
-
 	menu->appaserver_user_role_name_list =
 		appaserver_user_role_name_list(
 			login_name );
@@ -449,7 +444,7 @@ MENU *menu_new( char *application_name,
 	menu->role_process_or_set_group_name_list =
 		role_process_or_set_group_name_list(
 			menu->role_process_list,
-			menu->role_process_set_member_list );
+			(LIST *)0 /* role_process_set_member_list */ );
 
 	menu->role_folder_subschema_name_list =
 		role_folder_subschema_name_list(
@@ -462,7 +457,7 @@ MENU *menu_new( char *application_name,
 	menu->role_process_or_set_missing_group_name_list =
 		role_process_or_set_missing_group_name_list(
 			menu->role_process_list,
-			menu->role_process_set_member_list );
+			(LIST *)0 /* role_process_set_member_list */ );
 
 	if ( !application_menu_horizontal_boolean )
 	{
@@ -476,7 +471,7 @@ MENU *menu_new( char *application_name,
 			menu->role_folder_lookup_list,
 			menu->role_folder_insert_list,
 			menu->role_process_list,
-			menu->role_process_set_member_list,
+			(LIST *)0 /* role_process_set_member_list */,
 			menu->appaserver_user_role_name_list,
 			menu->role_folder_subschema_name_list,
 			menu->role_folder_subschema_missing_folder_name_list,
@@ -495,7 +490,7 @@ MENU *menu_new( char *application_name,
 			menu->role_folder_lookup_list,
 			menu->role_folder_insert_list,
 			menu->role_process_list,
-			menu->role_process_set_member_list,
+			(LIST *)0 /* role_process_set_member_list */,
 			menu->appaserver_user_role_name_list,
 			menu->role_folder_subschema_name_list,
 			menu->role_folder_subschema_missing_folder_name_list,

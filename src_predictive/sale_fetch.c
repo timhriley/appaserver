@@ -25,8 +25,7 @@
 
 char *sale_fetch_select(
 		const char *sale_select,
-		boolean financial_institution_full_name_boolean,
-		boolean entity_contact_key_boolean,
+		boolean feeder_account_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
 		boolean inventory_sale_boolean,
@@ -48,20 +47,9 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			(char *)sale_select /* base_string */,
-			"financial_institution_full_name" /* component */,
+			"feeder_account" /* component */,
 			0 /* not escape_boolean */,
-			financial_institution_full_name_boolean
-				/* set_boolean */ );
-
-	optional_column =
-		optional_column_new(
-			',' /* delimiter */,
-			optional_column->return_string /* base_string */,
-			"financial_institution_contact_key" /* component */,
-			0 /* not escape_boolean */,
-			financial_institution_full_name_boolean &&
-			entity_contact_key_boolean
-				/* set_boolean */ );
+			feeder_account_boolean /* set_boolean */ );
 
 	optional_column =
 		optional_column_new(
@@ -71,6 +59,8 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			shipping_charge_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	optional_column =
 		optional_column_new(
 			',' /* delimiter */,
@@ -78,6 +68,8 @@ char *sale_fetch_select(
 			"instructions" /* component */,
 			0 /* not escape_boolean */,
 			instructions_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	optional_column =
 		optional_column_new(
@@ -87,6 +79,8 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			inventory_sale_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	optional_column =
 		optional_column_new(
 			',' /* delimiter */,
@@ -94,6 +88,8 @@ char *sale_fetch_select(
 			"specific_inventory_sale_total" /* component */,
 			0 /* not escape_boolean */,
 			specific_inventory_sale_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	optional_column =
 		optional_column_new(
@@ -103,6 +99,8 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			fixed_service_sale_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	optional_column =
 		optional_column_new(
 			',' /* delimiter */,
@@ -110,6 +108,8 @@ char *sale_fetch_select(
 			"hourly_service_sale_total" /* component */,
 			0 /* not escape_boolean */,
 			hourly_service_sale_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	optional_column =
 		optional_column_new(
@@ -119,6 +119,8 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			sales_tax_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	optional_column =
 		optional_column_new(
 			',' /* delimiter */,
@@ -126,6 +128,8 @@ char *sale_fetch_select(
 			"title_passage_rule" /* component */,
 			0 /* not escape_boolean */,
 			title_passage_rule_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	optional_column =
 		optional_column_new(
@@ -135,6 +139,8 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			shipped_date_time_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	optional_column =
 		optional_column_new(
 			',' /* delimiter */,
@@ -142,6 +148,8 @@ char *sale_fetch_select(
 			"arrived_date" /* component */,
 			0 /* not escape_boolean */,
 			arrived_date_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	optional_column =
 		optional_column_new(
@@ -151,13 +159,14 @@ char *sale_fetch_select(
 			0 /* not escape_boolean */,
 			uncollectible_date_time_boolean /* set_boolean */ );
 
+	free( optional_column->prior_return_string );
+
 	return optional_column->return_string;
 }
 
 void sale_fetch_parse(
 		SALE_FETCH *sale_fetch /* in/out */,
-		boolean financial_institution_full_name_boolean,
-		boolean entity_contact_key_boolean,
+		boolean feeder_account_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
 		boolean inventory_sale_boolean,
@@ -235,30 +244,14 @@ void sale_fetch_parse(
 
 	optional_piece_offset = 8;
 
-	if ( financial_institution_full_name_boolean )
+	if ( feeder_account_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
 			input,
 			optional_piece_offset++ );
 
-		if ( *buffer )
-			sale_fetch->
-				financial_institution_full_name =
-					strdup( buffer );
-
-		if ( entity_contact_key_boolean )
-		{
-			piece(	buffer,
-				SQL_DELIMITER,
-				input,
-				optional_piece_offset++ );
-
-			if ( *buffer )
-				sale_fetch->
-					financial_institution_contact_key =
-						strdup( buffer );
-		}
+		if ( *buffer ) sale_fetch->feeder_account = strdup( buffer );
 	}
 
 	if ( shipping_charge_boolean )
@@ -268,10 +261,7 @@ void sale_fetch_parse(
 			input,
 			optional_piece_offset++ );
 
-		if ( *buffer )
-			sale_fetch->
-				shipping_charge =
-					atof( buffer );
+		if ( *buffer ) sale_fetch->shipping_charge = atof( buffer );
 	}
 
 	if ( instructions_boolean )
@@ -281,10 +271,7 @@ void sale_fetch_parse(
 			input,
 			optional_piece_offset++ );
 
-		if ( *buffer )
-			sale_fetch->
-				instructions =
-					strdup( buffer );
+		if ( *buffer ) sale_fetch->instructions = strdup( buffer );
 	}
 
 	if ( inventory_sale_boolean )
@@ -460,8 +447,8 @@ SALE_FETCH *sale_fetch_new(
 			0 /* not fetch_attribute */,
 			0 /* not cache_boolean */ );
 
-	sale_fetch->financial_institution_full_name_boolean =
-		sale_fetch_financial_institution_full_name_boolean(
+	sale_fetch->feeder_account_boolean =
+		sale_fetch_feeder_account_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	sale_fetch->shipping_charge_boolean =
@@ -514,8 +501,7 @@ SALE_FETCH *sale_fetch_new(
 		/* ------------------- */
 		sale_fetch_select(
 			sale_select,
-			sale_fetch->financial_institution_full_name_boolean,
-			entity_contact_key_boolean,
+			sale_fetch->feeder_account_boolean,
 			sale_fetch->shipping_charge_boolean,
 			sale_fetch->instructions_boolean,
 			sale_fetch->inventory_sale_boolean,
@@ -565,8 +551,7 @@ SALE_FETCH *sale_fetch_new(
 
 	sale_fetch_parse(
 		sale_fetch /* in/out */,
-		sale_fetch->financial_institution_full_name_boolean,
-		entity_contact_key_boolean,
+		sale_fetch->feeder_account_boolean,
 		sale_fetch->shipping_charge_boolean,
 		sale_fetch->instructions_boolean,
 		sale_fetch->inventory_sale_boolean,
@@ -807,11 +792,11 @@ boolean sale_fetch_fixed_service_sale_boolean(
 	}
 }
 
-boolean sale_fetch_financial_institution_full_name_boolean(
+boolean sale_fetch_feeder_account_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
-		"financial_institution_full_name",
+		"feeder_account",
 		folder_attribute_list ) )
 	{
 		return 1;

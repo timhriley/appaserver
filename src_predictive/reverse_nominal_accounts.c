@@ -15,10 +15,14 @@
 
 void reverse_nominal_accounts_do(
 		REVERSE_NOMINAL_DO *reverse_nominal_do,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean execute );
 
 void reverse_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean execute );
 
 int main( int argc, char **argv )
@@ -135,6 +139,8 @@ int main( int argc, char **argv )
 	{
 		reverse_nominal_accounts_do(
 			reverse_nominal->reverse_nominal_do,
+			reverse_nominal->predictive_fund_boolean,
+			reverse_nominal->entity_contact_key_boolean,
 			execute );
 
 		if ( execute )
@@ -172,6 +178,8 @@ int main( int argc, char **argv )
 
 		reverse_nominal_accounts_undo(
 			reverse_nominal->close_nominal_undo,
+			reverse_nominal->predictive_fund_boolean,
+			reverse_nominal->entity_contact_key_boolean,
 			execute );
 
 		if ( execute )
@@ -205,6 +213,8 @@ int main( int argc, char **argv )
 
 void reverse_nominal_accounts_do(
 		REVERSE_NOMINAL_DO *reverse_nominal_do,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean execute )
 {
 	if ( !reverse_nominal_do )
@@ -269,6 +279,8 @@ void reverse_nominal_accounts_do(
 				reverse_transaction->
 				transaction->
 				journal_list,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* insert_journal_list_boolean */ );
 	}
 	else
@@ -295,6 +307,8 @@ void reverse_nominal_accounts_do(
 
 void reverse_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean execute )
 {
 	if ( !close_nominal_undo )
@@ -329,7 +343,9 @@ void reverse_nominal_accounts_undo(
 	if ( execute )
 	{
 		close_nominal_undo_execute(
-			close_nominal_undo->transaction );
+			close_nominal_undo->transaction,
+			fund_boolean,
+			contact_key_boolean );
 	}
 	else
 	{

@@ -18,6 +18,8 @@ ACCOUNT_JOURNAL *account_journal_latest(
 		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean )
 {
@@ -43,6 +45,8 @@ ACCOUNT_JOURNAL *account_journal_latest(
 				fund_name,
 				account_name,
 				end_date_time_string,
+				fund_boolean,
+				contact_key_boolean,
 				fetch_transaction,
 				latest_zero_balance_boolean ) ) )
 	{

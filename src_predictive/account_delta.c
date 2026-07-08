@@ -41,12 +41,24 @@ ACCOUNT_DELTA *account_delta_new(
 	/* ------------------- */
 	account_delta->date_now19 = date_now19( date_utc_offset() );
 
+	account_delta->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	account_delta->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	account_delta->account_journal_latest =
 		account_journal_latest(
 			JOURNAL_TABLE,
 			fund_name,
 			account_delta->balance_account_name,
 			account_delta->date_now19 /* end_date_time_string */,
+			account_delta->predictive_fund_boolean,
+			account_delta->entity_contact_key_boolean,
 			0 /* not fetch_transaction */,
 			0 /* not latest_zero_balance_boolean */ );
 

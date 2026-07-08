@@ -28,7 +28,9 @@
 JOURNAL_PROPAGATE *journal_propagate_new(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	JOURNAL_PROPAGATE *journal_propagate;
 
@@ -55,7 +57,8 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 			journal_min_transaction_date_time(
 				JOURNAL_TABLE,
 				fund_name,
-				account_name );
+				account_name,
+				fund_boolean );
 	}
 
 	/* If no journal entries for this account */
@@ -67,6 +70,8 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 			fund_name,
 			transaction_date_time,
 			account_name,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_subclassification */,
 			1 /* fetch_element */,
 			1 /* fetch_account */ );
@@ -86,6 +91,8 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 		journal_propagate_journal_list(
 			fund_name,
 			account_name,
+			fund_boolean,
+			contact_key_boolean,
 			journal_propagate->prior_transaction_date_time,
 			journal_propagate->prior_previous_balance );
 
@@ -104,6 +111,8 @@ JOURNAL_PROPAGATE *journal_propagate_new(
 		journal_propagate->update_statement_list =
 			journal_propagate_update_statement_list(
 				JOURNAL_TABLE,
+				fund_boolean,
+				contact_key_boolean,
 				journal_propagate->journal_list );
 	}
 
@@ -177,6 +186,8 @@ boolean journal_propagate_accumulate_debit(
 LIST *journal_propagate_journal_list(
 		char *fund_name,
 		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *prior_transaction_date_time,
 		double prior_previous_balance )
 {
@@ -205,17 +216,22 @@ LIST *journal_propagate_journal_list(
 			JOURNAL_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			journal_propagate_greater_equal_where(
 				fund_name,
 				account_name,
+				fund_boolean,
 				prior_transaction_date_time ) );
 
 	journal_list =
 		journal_system_list(
 			system_string,
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
@@ -368,6 +384,7 @@ double journal_propagate_previous_balance(
 char *journal_propagate_greater_equal_where(
 		char *fund_name,
 		char *account_name,
+		boolean fund_boolean,
 		char *prior_transaction_date_time )
 {
 	static char where[ 128 ];
@@ -379,10 +396,10 @@ char *journal_propagate_greater_equal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name );
+			account_name,
+			fund_boolean );
 
 	if ( prior_transaction_date_time )
 	{
@@ -403,6 +420,8 @@ char *journal_propagate_greater_equal_where(
 
 LIST *journal_propagate_update_statement_list(
 		const char *journal_table,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		LIST *journal_propagate_journal_list )
 {
 	LIST *update_statement_list = list_new();
@@ -427,7 +446,9 @@ LIST *journal_propagate_update_statement_list(
 				journal->transaction_date_time,
 				journal->account_name,
 				journal->previous_balance,
-				journal->balance );
+				journal->balance,
+				fund_boolean,
+				contact_key_boolean );
 
 		list_set(
 			update_statement_list,
@@ -452,7 +473,9 @@ char *journal_propagate_update_statement(
 		char *transaction_date_time,
 		char *account_name,
 		double previous_balance,
-		double balance )
+		double balance,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *primary_where;
 	char update_statement[ 2048 ];
@@ -484,7 +507,9 @@ char *journal_propagate_update_statement(
 			full_name,
 			contact_key,
 			transaction_date_time,
-			account_name );
+			account_name,
+			fund_boolean,
+			contact_key_boolean );
 
 	snprintf(
 		update_statement,
@@ -506,6 +531,8 @@ char *journal_propagate_update_statement(
 void journal_propagate_account_list(
 		char *fund_name,
 		char *transaction_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		LIST *journal_extract_account_list )
 {
 	ACCOUNT *account;
@@ -521,7 +548,9 @@ void journal_propagate_account_list(
 			journal_propagate_new(
 				fund_name,
 				transaction_date_time,
-				account->account_name );
+				account->account_name,
+				fund_boolean,
+				contact_key_boolean );
 
 		if ( journal_propagate )
 		{

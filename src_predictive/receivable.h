@@ -60,9 +60,10 @@ typedef struct
 /* Usage */
 /* ----- */
 RECEIVABLE *receivable_fetch(
-		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		LIST *account_receivable_name_list );
 
 /* Process */
@@ -76,9 +77,9 @@ RECEIVABLE *receivable_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *receivable_where(
-		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key,
+		boolean entity_contact_key_boolean,
 		char *string_in_clause );
 
 #endif

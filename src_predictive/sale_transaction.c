@@ -29,8 +29,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *preupdate_contact_key,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		char *financial_institution_full_name,
-		char *financial_institution_contact_key,
+		char *feeder_account,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
@@ -82,7 +81,6 @@ SALE_TRANSACTION *sale_transaction_new(
 			message );
 	}
 
-
 	if ( !sale_invoice_amount ) return NULL;
 
 	sale_transaction = sale_transaction_calloc();
@@ -101,6 +99,7 @@ SALE_TRANSACTION *sale_transaction_new(
 	{
 		sale_transaction->journal_list =
 			sale_transaction_journal_list(
+				feeder_account,
 				shipping_charge,
 				inventory_sale_total,
 				inventory_sale_CGS_total,
@@ -118,17 +117,17 @@ SALE_TRANSACTION *sale_transaction_new(
 		subsidiary_transaction_state_new(
 			"preupdate_full_name"
 				/* preupdate_full_name_placeholder */,
-			"preupdate_street_address"
-				/* preupdate_street_address_placeholder */,
+			"preupdate_contact_key"
+				/* preupdate_contact_key_placeholder */,
 			"preupdate_transaction_date_time"
 				/* preupdate_foreign_date_time_placeholder */,
 			state,
 			preupdate_full_name,
-			preupdate_street_address,
+			preupdate_contact_key,
 			prior_transaction_date_time
 				/* preupdate_foreign_date_time */,
 			full_name,
-			street_address,
+			contact_key,
 			sale_transaction->transaction_date_time
 				/* foreign_date_time */,
 			sale_transaction->journal_list
@@ -143,8 +142,8 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_table_name */,
 			"full_name"
 				/* foreign_full_name_column */,
-			"street_address"
-				/* foreign_street_address_column */,
+			"contact_key"
+				/* foreign_contact_key_column */,
 			"transaction_date_time"
 				/* foreign_date_time_column */,
 			prior_transaction_date_time,
@@ -229,6 +228,7 @@ char *sale_transaction_date_time(
 }
 
 LIST *sale_transaction_journal_list(
+		char *feeder_account,
 		double shipping_charge,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
@@ -242,8 +242,8 @@ LIST *sale_transaction_journal_list(
 	double debit_sum;
 	double credit_sum;
 	double difference;
+	ACCOUNT *debit_account;
 	JOURNAL *journal;
-	ACCOUNT *receivable;
 	ACCOUNT *revenue;
 
 	debit_sum =
@@ -283,13 +283,26 @@ LIST *sale_transaction_journal_list(
 			message );
 	}
 
-	receivable =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		account_receivable(
-			ACCOUNT_RECEIVABLE_KEY,
-			__FUNCTION__ );
+	debit_account =
+		sale_transaction_debit_account(
+			feeder_account );
+
+	if ( !debit_account )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"sale_transaction_debit_account(%s) returned empty.",
+			feeder_account );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	journal =
 		/* -------------- */
@@ -297,7 +310,7 @@ LIST *sale_transaction_journal_list(
 		/* -------------- */
 		journal_account_new(
 			sale_invoice_amount,
-			receivable /* debit_account */,
+			debit_account,
 			(ACCOUNT *)0 /* credit_account */ );
 
 	list_set( list, journal );
@@ -480,4 +493,27 @@ double sale_transaction_inventory_total(
 	return
 	inventory_sale_total +
 	specific_inventory_sale_total;
+}
+
+ACCOUNT *sale_transaction_debit_account( char *feeder_account )
+{
+	ACCOUNT *account;
+
+	if ( feeder_account )
+	{
+		account =
+			account_fetch(
+				feeder_account,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ );
+	}
+	else
+	{
+		account =
+			account_receivable(
+				ACCOUNT_RECEIVABLE_KEY,
+				__FUNCTION__ );
+	}
+
+	return account;
 }

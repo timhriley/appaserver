@@ -15,16 +15,21 @@
 
 void close_nominal_accounts_do(
 		CLOSE_NOMINAL_DO *close_nominal_do,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean execute );
 
 void close_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
-		boolean execute );
+		boolean execute,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *fund_name;
 	char *as_of_date;
 	boolean undo;
 	boolean execute;
@@ -37,19 +42,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-			"Usage: %s process as_of_date undo execute_yn\n",
+			"Usage: %s process fund as_of_date undo execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	as_of_date = argv[ 2 ];
-	undo = (*argv[ 3 ]) == 'y';
-	execute = (*argv[ 4 ] == 'y');
+	fund_name = argv[ 2 ];
+	as_of_date = argv[ 3 ];
+	undo = (*argv[ 4 ]) == 'y';
+	execute = (*argv[ 5 ] == 'y');
 
 	close_nominal =
 		/* -------------- */
@@ -58,7 +64,7 @@ int main( int argc, char **argv )
 		close_nominal_fetch(
 			application_name,
 			process_name,
-			(char *)0 /* fund_name */,
+			fund_name,
 			as_of_date,
 			undo );
 
@@ -104,6 +110,8 @@ int main( int argc, char **argv )
 	{
 		close_nominal_accounts_do(
 			close_nominal->close_nominal_do,
+			close_nominal->predictive_fund_boolean,
+			close_nominal->entity_contact_key_boolean,
 			execute );
 
 		if ( execute )
@@ -141,6 +149,8 @@ int main( int argc, char **argv )
 
 		close_nominal_accounts_undo(
 			close_nominal->close_nominal_undo,
+			close_nominal->predictive_fund_boolean,
+			close_nominal->entity_contact_key_boolean,
 			execute );
 
 		if ( execute )
@@ -174,6 +184,8 @@ int main( int argc, char **argv )
 
 void close_nominal_accounts_do(
 		CLOSE_NOMINAL_DO *close_nominal_do,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean execute )
 {
 	if ( !close_nominal_do )
@@ -236,6 +248,8 @@ void close_nominal_accounts_do(
 				close_transaction->
 				transaction->
 				journal_list,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* insert_journal_list_boolean */ );
 	}
 	else
@@ -273,6 +287,8 @@ void close_nominal_accounts_do(
 
 void close_nominal_accounts_undo(
 		CLOSE_NOMINAL_UNDO *close_nominal_undo,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean execute )
 {
 	if ( !close_nominal_undo )
@@ -304,7 +320,9 @@ void close_nominal_accounts_undo(
 	if ( execute )
 	{
 		close_nominal_undo_execute(
-			close_nominal_undo->transaction );
+			close_nominal_undo->transaction,
+			fund_boolean,
+			contact_key_boolean );
 	}
 	else
 	{

@@ -9,6 +9,8 @@
 #include "timlib.h"
 #include "String.h"
 #include "appaserver_error.h"
+#include "entity.h"
+#include "predictive.h"
 #include "account.h"
 #include "subclassification.h"
 #include "close_nominal.h"
@@ -32,7 +34,9 @@ CLOSE_NOMINAL_DO *close_nominal_do_calloc( void )
 
 CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 		char *fund_name,
-		char *as_of_date_string )
+		char *as_of_date_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	CLOSE_NOMINAL_DO *close_nominal_do;
 
@@ -82,6 +86,8 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 				transaction_date_close_nominal_do->
 				transaction_date_close_date_time
 				/* end_date_time */,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -109,6 +115,8 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 				transaction_date_close_nominal_do->
 				transaction_date_close_date_time
 					/* end_date_time */,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_element */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -116,14 +124,9 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 			0 /* not latest_zero_balance_boolean */,
 			0 /* not fetch_contra_account_boolean */ );
 
-	close_nominal_do->entity_contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
-
 	close_nominal_do->entity_self =
 		entity_self_fetch(
-			close_nominal_do->entity_contact_key_boolean,
+			contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	if ( !close_nominal_do->entity_self )
@@ -217,6 +220,16 @@ CLOSE_NOMINAL *close_nominal_fetch(
 
 	close_nominal = close_nominal_calloc();
 
+	close_nominal->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	close_nominal->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	if ( undo )
 	{
 		close_nominal->close_nominal_undo =
@@ -225,7 +238,9 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			/* -------------- */
 			close_nominal_undo_fetch(
 				TRANSACTION_TABLE,
-				TRANSACTION_CLOSE_MEMO );
+				TRANSACTION_CLOSE_MEMO,
+				close_nominal->predictive_fund_boolean,
+				close_nominal->entity_contact_key_boolean );
 
 		if ( !close_nominal->
 			close_nominal_undo->
@@ -272,7 +287,9 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			/* -------------- */
 			close_nominal_do_fetch(
 				fund_name,
-				as_of_date_string );
+				as_of_date_string,
+				close_nominal->predictive_fund_boolean,
+				close_nominal->entity_contact_key_boolean );
 
 		if ( close_nominal->
 			close_nominal_do->
@@ -386,7 +403,9 @@ char *close_nominal_do_transaction_exists_message(
 
 CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 		const char *transaction_table,
-		const char *memo )
+		const char *memo,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	CLOSE_NOMINAL_UNDO *close_nominal_undo =
 		close_nominal_undo_calloc();
@@ -415,6 +434,8 @@ CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 			close_nominal_undo->
 				transaction_date_close_nominal_undo->
 				transaction_date_time_memo_maximum_string,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_journal_list */ ) ) )
 	{
 		char message[ 128 ];
@@ -470,7 +491,10 @@ void close_nominal_undo_display( TRANSACTION *transaction )
 	transaction_html_display( transaction );
 }
 
-void close_nominal_undo_execute( TRANSACTION *transaction )
+void close_nominal_undo_execute(
+		TRANSACTION *transaction,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	if ( !transaction )
 	{
@@ -489,7 +513,9 @@ void close_nominal_undo_execute( TRANSACTION *transaction )
 		transaction->fund_name,
 		transaction->full_name,
 		transaction->contact_key,
-		transaction->transaction_date_time );
+		transaction->transaction_date_time,
+		fund_boolean,
+		contact_key_boolean );
 }
 
 char *close_nominal_undo_execute_message( char *transaction_date_time )

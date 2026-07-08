@@ -31,6 +31,8 @@ ACCOUNT_JOURNAL *account_journal_latest(
 		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean );
 

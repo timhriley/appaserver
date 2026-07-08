@@ -14,6 +14,7 @@
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
 	char *contact_key;
 	char *transaction_date_time;
@@ -23,6 +24,7 @@ typedef struct
 /* ----- */
 SUBSIDIARY_TRANSACTION_INSERT *
 	subsidiary_transaction_insert_new(
+		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
@@ -36,6 +38,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
 	char *contact_key;
 	char *transaction_date_time;
@@ -45,6 +48,7 @@ typedef struct
 /* ----- */
 SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete_new(
+		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
 		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
@@ -71,6 +75,7 @@ typedef struct
 SUBSIDIARY_TRANSACTION *
 	subsidiary_transaction_new(
 		const char *foreign_table_name,
+		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
@@ -82,6 +87,7 @@ SUBSIDIARY_TRANSACTION *
 			subsidiary_transaction_insert,
 		SUBSIDIARY_TRANSACTION_DELETE *
 			subsidiary_transaction_delete,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
 /* Process */
@@ -96,13 +102,16 @@ SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc(
 /* --------------------------- */
 char *subsidiary_transaction_update_template(
 		const char *foreign_table_name,
+		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *foreign_date_time,
 		char *prior_transaction_date_time,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
 /* Driver */
@@ -116,6 +125,8 @@ char *subsidiary_transaction_execute(
 		char *application_name,
 		TRANSACTION *delete_transaction,
 		TRANSACTION *insert_transaction,
-		char *update_template );
+		char *update_template,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 #endif

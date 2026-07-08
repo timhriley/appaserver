@@ -14,6 +14,7 @@
 #include "predictive.h"
 
 char *predictive_fund_where(
+		const char *predictive_fund_column,
 		char *fund_name,
 		boolean fund_boolean )
 {
@@ -24,7 +25,7 @@ char *predictive_fund_where(
 	||   strcmp(	fund_name,
 			PREDICTIVE_FUND_TABLE ) == 0
 	||   strcmp(	fund_name,
-			PREDICTIVE_FUND_COLUMN ) == 0
+			predictive_fund_column ) == 0
 	||   !fund_boolean )
 	{
 		strcpy( where, "1 = 1" );
@@ -35,7 +36,7 @@ char *predictive_fund_where(
 			where,
 			sizeof ( where ),
 		 	"%s = '%s'",
-			PREDICTIVE_FUND_COLUMN,
+			predictive_fund_column,
 		 	fund_name );
 	}
 

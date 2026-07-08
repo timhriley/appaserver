@@ -312,9 +312,9 @@ SESSION *session_parse(
 
 		if ( ! ( session->appaserver_user =
 				appaserver_user_fetch(
-					contact_key_boolean,
 					full_name /* stack memory */,
 					contact_key /* stack_memory */,
+					contact_key_boolean,
 					0 /* not fetch_role_name_list */ ) ) )
 		{
 			return NULL;

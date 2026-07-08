@@ -59,6 +59,8 @@ LIST *subclassification_where_statement_list(
 		char *fund_name,
 		char *where,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,
@@ -86,6 +88,8 @@ FILE *subclassification_pipe(
 SUBCLASSIFICATION *subclassification_statement_parse(
 		char *fund_name,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_element,
 		boolean fetch_account_list,
 		boolean fetch_journal_latest,

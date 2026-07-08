@@ -134,6 +134,7 @@ LIST *feeder_audit_journal_non_fund_row_list(
 			feeder_account_name,
 			reverse_order_boolean,
 			feeder_load_date_time,
+			0 /* not predictive_fund_boolean */,
 			contact_key_boolean );
 
 	list_set( row_list, feeder_row );
@@ -173,6 +174,7 @@ LIST *feeder_audit_journal_fund_row_list(
 				feeder_account_name,
 				reverse_order_boolean,
 				feeder_load_date_time,
+				1 /* predictive_fund_boolean */,
 				contact_key_boolean );
 
 		list_set( row_list, feeder_row );
@@ -193,6 +195,7 @@ FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
 		char *feeder_load_date_time,
+		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
 	int latest_date_number;
@@ -240,6 +243,8 @@ FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 			fund_name,
 			feeder_row->transaction_date_time,
 			feeder_account_name,
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_entity */,

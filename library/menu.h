@@ -410,7 +410,6 @@ typedef struct
 	LIST *role_folder_lookup_list;
 	LIST *role_folder_insert_list;
 	LIST *role_process_list;
-	LIST *role_process_set_member_list;
 	LIST *appaserver_user_role_name_list;
 	LIST *role_folder_subschema_name_list;
 	LIST *role_folder_subschema_missing_folder_name_list;

@@ -193,9 +193,11 @@ ENTITY *entity_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	select_string =
 		/* ------------------- */
@@ -339,14 +341,16 @@ char *entity_escape_contact_key( char *contact_key )
 }
 
 char *entity_primary_where(
-		boolean contact_key_boolean,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
 		char *full_name,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	static char where[ 256 ];
 
 	if ( !entity_full_name_populated_boolean(
-		ENTITY_FULL_NAME_COLUMN,
+		entity_full_name_column,
 		full_name ) )
 	{
 		strcpy( where, "1 = 1 " );
@@ -364,23 +368,22 @@ char *entity_primary_where(
 				full_name );
 	
 		contact_key_where =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			entity_contact_key_where(
-				contact_key_boolean,
-				contact_key );
+				entity_contact_key_column,
+				contact_key,
+				contact_key_boolean );
 	
 		snprintf(
 			where,
 			sizeof ( where ),
-			"full_name = '%s' and "
-			"%s",
+			"full_name = '%s' and %s",
 			escape_full_name,
 			contact_key_where );
 	
 		free( escape_full_name );
-		free( contact_key_where );
 	}
 
 	return where;
@@ -417,9 +420,11 @@ char *entity_fetch_contact_key(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
-				contact_key_boolean,
+				ENTITY_FULL_NAME_COLUMN,
+				ENTITY_CONTACT_KEY_COLUMN,
 				full_name,
-				(char *)0 /* contact_key */ );
+				(char *)0 /* contact_key */,
+				contact_key_boolean );
 
 		system_string =
 			/* ------------------- */
@@ -674,13 +679,14 @@ char *entity_select_string(
 }
 
 char *entity_contact_key_where(
-		boolean entity_contact_key_boolean,
-		char *contact_key )
+		const char *entity_contact_key_column,
+		char *contact_key,
+		boolean contact_key_boolean )
 {
-	char where[ 1024 ];
+	static char where[ 128 ];
 
-	if ( !entity_contact_key_boolean
-	||   !contact_key )
+	if ( !contact_key
+	||   !contact_key_boolean )
 	{
 		strcpy( where, "1 = 1" );
 	}
@@ -698,13 +704,14 @@ char *entity_contact_key_where(
 		snprintf(
 			where,
 			sizeof ( where ),
-			"contact_key = '%s'",
+			"%s = '%s'",
+			entity_contact_key_column,
 			escape_contact_key );
 
 		free( escape_contact_key );
 	}
 
-	return strdup( where );
+	return where;
 }
 
 boolean entity_contact_key_boolean(
@@ -833,6 +840,9 @@ boolean entity_full_name_populated_boolean(
 		char *full_name )
 {
 	return
+	/* -------------------------------- */
+	/* Borrow from contact_key function */
+	/* -------------------------------- */
 	entity_contact_key_populated_boolean(
 		entity_full_name_column
 			/* entity_contact_key_column */,

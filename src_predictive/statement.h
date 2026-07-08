@@ -671,6 +671,7 @@ typedef struct
 	char *end_date_time;
 	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
+	boolean entity_contact_key_boolean;
 	LIST *element_statement_list;
 	boolean pdf_landscape_boolean;
 	STATEMENT_CAPTION *statement_caption;
@@ -794,7 +795,9 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *filter_element_name_list,
 		char *end_date_time_string,
 		int years_ago,
-		STATEMENT *statement,
+		LIST *current_element_statement_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_contra_account_boolean );
 
 /* Process */

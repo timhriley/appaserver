@@ -38,6 +38,8 @@ typedef struct
 LIST *feeder_matched_journal_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks_string );
 
@@ -68,26 +70,16 @@ double feeder_matched_journal_amount(
 
 /* Usage */
 /* ----- */
-FEEDER_MATCHED_JOURNAL *
-	feeder_matched_journal_check_seek(
+
+/* Independent of fund */
+/* ------------------- */
+FEEDER_MATCHED_JOURNAL *feeder_matched_journal_check_seek(
 		char *feeder_account_name,
+		boolean entity_contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
 		LIST *feeder_matched_journal_list );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_matched_journal_check_update_statement(
-		const char *journal_table,
-		char *feeder_account_name,
-		char *account_uncleared_checks_string,
-		char *full_name,
-		char *contact_key,
-		char *transaction_date_time );
 
 /* Usage */
 /* ----- */
@@ -99,6 +91,8 @@ FEEDER_MATCHED_JOURNAL *
 /* Usage */
 /* ----- */
 
+/* ------------------- */
+/* Independent of fund */
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_matched_journal_subquery(
@@ -118,5 +112,21 @@ char *feeder_matched_journal_contact_join(
 		const char *feeder_row_table,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* ------------------- */
+/* Independent of fund */
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_matched_journal_check_update_statement(
+		const char *journal_table,
+		char *feeder_account_name,
+		boolean entity_contact_key_boolean,
+		char *account_uncleared_checks_string,
+		char *full_name,
+		char *contact_key,
+		char *transaction_date_time );
 
 #endif

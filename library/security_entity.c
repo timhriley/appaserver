@@ -93,10 +93,12 @@ char *security_entity_where(
 	/* Returns static memory */
 	/* --------------------- */
 	entity_primary_where(
+		ENTITY_FULL_NAME_COLUMN,
+		ENTITY_CONTACT_KEY_COLUMN,
+		full_name,
+		contact_key,
 		entity_contact_key_boolean(
 			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN ),
-		full_name,
-		contact_key );
+			ENTITY_CONTACT_KEY_COLUMN ) );
 }
 

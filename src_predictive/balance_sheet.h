@@ -545,7 +545,9 @@ double balance_sheet_drawing_amount(
 		const char *journal_table,
 		const char *account_drawing_key,
 		char *fund_name,
-		char *transaction_end_date_time_string );
+		char *transaction_end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

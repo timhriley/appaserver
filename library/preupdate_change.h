@@ -12,10 +12,10 @@
 #include "boolean.h"
 
 enum preupdate_change_state {
+	no_change_null,
 	from_null_to_something,
 	from_something_to_null,
 	from_something_to_something_else,
-	no_change_null,
 	no_change_something };
 
 typedef struct

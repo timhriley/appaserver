@@ -22,7 +22,9 @@
 typedef struct
 {
 	char *date_now19;
-	char *check_account_name;
+	char *fetch_account_name;
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	ACCOUNT_JOURNAL *account_journal_latest;
 	double balance;
 	double delta;
@@ -50,7 +52,7 @@ INVESTMENT_TRANSACTION *investment_transaction_calloc(
 
 /* Returns either parameter */
 /* ------------------------ */
-char *investment_transaction_check_account_name(
+char *investment_transaction_fetch_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
 		boolean accumulate_debit_boolean );

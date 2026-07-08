@@ -65,6 +65,19 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_account_name = feeder_account_name;
 
+	feeder->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	feeder->predictive_fund_name =
+		/* ------------------------- */
+		/* Returns parameter or null */
+		/* ------------------------- */
+		predictive_fund_name(
+			fund_name,
+			feeder->predictive_fund_boolean );
+
 	feeder->entity_contact_key_boolean =
 		entity_contact_key_boolean(
 			ENTITY_TABLE,
@@ -136,27 +149,17 @@ feeder_load_row_list_raw_display(
 		feeder_matched_journal_list(
 			FEEDER_ROW_TABLE,
 			feeder_account_name,
+			feeder->predictive_fund_boolean,
+			feeder->entity_contact_key_boolean,
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
-
-	feeder->predictive_fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN );
-
-	feeder->predictive_fund_name =
-		/* ------------------------- */
-		/* Returns parameter or null */
-		/* ------------------------- */
-		predictive_fund_name(
-			fund_name,
-			feeder->predictive_fund_boolean );
 
 	feeder->feeder_row_list =
 		feeder_row_list(
 			feeder->predictive_fund_name,
 			feeder_account_name,
 			reverse_order_boolean,
+			feeder->entity_contact_key_boolean,
 			feeder->
 				feeder_account->
 				financial_institution_full_name,
@@ -295,6 +298,8 @@ void feeder_execute(
 	/* ---------------------------- */
 	feeder_row_transaction_insert(
 		fund_name,
+		feeder->predictive_fund_boolean,
+		feeder->entity_contact_key_boolean,
 		feeder->feeder_row_list );
 
 	feeder_row_check_journal_update(
@@ -306,7 +311,9 @@ void feeder_execute(
 		feeder->
 			feeder_load_event->
 			feeder_load_date_time,
-		feeder->account_uncleared_checks_string );
+		feeder->account_uncleared_checks_string,
+		feeder->predictive_fund_boolean,
+		feeder->entity_contact_key_boolean );
 
 	feeder_load_event_insert(
 		FEEDER_LOAD_EVENT_INSERT,

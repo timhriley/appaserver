@@ -9,10 +9,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "String.h"
-#include "timlib.h"
 #include "appaserver_error.h"
 #include "piece.h"
 #include "sql.h"
+#include "entity.h"
+#include "predictive.h"
 #include "transaction_date.h"
 #include "tax_form.h"
 
@@ -1655,9 +1656,7 @@ char *tax_form_entity_latex_caption(
 	sprintf(caption,
 		"Tax form line: %s; Account: %s; Total: %s",
 		tax_form_line_string,
-		string_initial_capital(
-			buffer,
-			account_name ),
+		string_initial_capital( buffer, account_name ),
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -2222,9 +2221,12 @@ char *tax_form_account_html_caption(
 	sprintf(caption,
 		"Tax form line: %s/%s; Total: %s",
 		tax_form_line_string,
-		format_initial_capital( buffer, tax_form_line_description ),
+		string_initial_capital( buffer, tax_form_line_description ),
 		strdup( 
-			timlib_dollar_round_string(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_commas_rounded_dollar(
 				tax_form_line_total ) ) );
 
 	return strdup( caption );
@@ -2482,11 +2484,14 @@ char *tax_form_entity_html_caption(
 	sprintf(caption,
 		"Tax form line: %s; Account: %s; Total: %s",
 		tax_form_line_string,
-		format_initial_capital(
+		string_initial_capital(
 			buffer,
 			account_name ),
 		strdup(
-			timlib_dollar_round_string(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_commas_rounded_dollar(
 				journal_list_total ) ) );
 
 	return strdup( caption );
@@ -2588,16 +2593,30 @@ LIST *tax_form_line_account_journal_list(
 		boolean subclassification_current_liability_boolean,
 		boolean subclassification_receivable_boolean )
 {
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 	LIST *journal_list;
 	LIST *list;
 	JOURNAL *journal;
+
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	journal_list =
 		journal_tax_form_list(
 			tax_form_fiscal_begin_date,
 			tax_form_fiscal_end_date,
 			transaction_date_preclose_time,
-			account_name );
+			account_name,
+			fund_boolean,
+			contact_key_boolean );
 
 	if ( !list_rewind( journal_list ) ) return (LIST *)0;
 

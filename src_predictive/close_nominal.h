@@ -23,7 +23,6 @@ typedef struct
 	LIST *element_statement_list;
 	char *equity_subclassification_where;
 	LIST *equity_subclassification_statement_list;
-	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	CLOSE_TRANSACTION *close_transaction;
 	double journal_debit_sum;
@@ -37,7 +36,9 @@ typedef struct
 /* -------------- */
 CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 		char *fund_name,
-		char *as_of_date_string );
+		char *as_of_date_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -80,7 +81,9 @@ typedef struct
 /* -------------- */
 CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
 		const char *transaction_table,
-		const char *memo );
+		const char *memo,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -95,10 +98,14 @@ void close_nominal_undo_display(
 /* Driver */
 /* ------ */
 void close_nominal_undo_execute(
-		TRANSACTION *transaction );
+		TRANSACTION *transaction,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 typedef struct
 {
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	CLOSE_NOMINAL_DO *close_nominal_do;
 	CLOSE_NOMINAL_UNDO *close_nominal_undo;
 	char *undo_no_transaction_message;

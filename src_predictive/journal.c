@@ -48,6 +48,8 @@ JOURNAL *journal_prior(
 		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element )
@@ -77,7 +79,8 @@ JOURNAL *journal_prior(
 		journal_less_where(
 			fund_name,
 			transaction_date_time,
-			account_name );
+			account_name,
+			fund_boolean );
 
 	max_transaction_date_time =
 		/* --------------------------- */
@@ -94,6 +97,8 @@ JOURNAL *journal_prior(
 			fund_name,
 			max_transaction_date_time,
 			account_name,
+			fund_boolean,
+			contact_key_boolean,
 			fetch_account,
 			fetch_subclassification,
 			fetch_element,
@@ -109,6 +114,8 @@ JOURNAL *journal_latest(
 		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean )
 {
@@ -141,8 +148,11 @@ JOURNAL *journal_latest(
 				journal_less_equal_where(
 					fund_name,
 					end_date_time_string,
-					account_name ) ),
+					account_name,
+					fund_boolean ) ),
 			account_name,
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
@@ -177,7 +187,8 @@ JOURNAL *journal_latest(
 char *journal_less_equal_where(
 		char *fund_name,
 		char *end_date_time_string,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean )
 {
 	char *transaction_date_time_where;
 	static char where[ 384 ];
@@ -212,10 +223,10 @@ char *journal_less_equal_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name ) );
+			account_name,
+			fund_boolean ) );
 
 	return where;
 }
@@ -223,7 +234,8 @@ char *journal_less_equal_where(
 char *journal_less_where(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean )
 {
 	char *transaction_date_time_where;
 	static char where[ 384 ];
@@ -258,10 +270,10 @@ char *journal_less_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name ) );
+			account_name,
+			fund_boolean ) );
 
 	return where;
 }
@@ -269,7 +281,8 @@ char *journal_less_where(
 char *journal_transaction_account_where(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean )
 {
 	char *transaction_date_time_where;
 	static char where[ 384 ];
@@ -305,21 +318,20 @@ char *journal_transaction_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name ) );
+			account_name,
+			fund_boolean ) );
 
 	return where;
 }
 
 char *journal_account_where(
-		const char *predictive_fund_table,
 		const char *predictive_fund_column,
 		char *fund_name,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean )
 {
-	boolean fund_boolean;
 	static char where[ 128 ];
 
 	if ( !account_name )
@@ -335,11 +347,6 @@ char *journal_account_where(
 			message );
 	}
 
-	fund_boolean =
-		predictive_fund_boolean(
-			predictive_fund_table,
-			predictive_fund_column );
-
 	snprintf(
 		where,
 		sizeof ( where ),
@@ -348,6 +355,7 @@ char *journal_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		predictive_fund_where(
+			predictive_fund_column,
 			fund_name,
 			fund_boolean ),
 		/* --------------------- */
@@ -390,6 +398,8 @@ JOURNAL *journal_account_fetch(
 		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
@@ -423,13 +433,16 @@ JOURNAL *journal_account_fetch(
 			JOURNAL_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			journal_transaction_account_where(
 				fund_name,
 				transaction_date_time,
-				account_name ) );
+				account_name,
+				fund_boolean ) );
 
 	journal =
 		journal_parse(
@@ -437,12 +450,8 @@ JOURNAL *journal_account_fetch(
 			fetch_subclassification,
 			fetch_element,
 			fetch_transaction,
-			predictive_fund_boolean(
-				PREDICTIVE_FUND_TABLE,
-				PREDICTIVE_FUND_COLUMN ),
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN ),
+			fund_boolean,
+			contact_key_boolean,
 			string_system_input( system_string ) );
 
 	free( system_string );
@@ -462,11 +471,11 @@ JOURNAL *journal_parse(
 	char full_name[ 128 ];
 	char transaction_date_time[ 128 ];
 	char account_name[ 128 ];
-	int additional_piece = 7;
 	char buffer[ 1024 ];
 	char *fund_name = {0};
 	char *contact_key = {0};
 	JOURNAL *journal;
+	int additional_piece = 7;
 
 	if ( !input || !*input ) return NULL;
 
@@ -519,6 +528,8 @@ JOURNAL *journal_parse(
 				journal->full_name,
 				journal->contact_key,
 				journal->transaction_date_time,
+				fund_boolean,
+				contact_key_boolean,
 				0 /* not fetch_journal_list */ );
 	}
 
@@ -536,13 +547,13 @@ JOURNAL *journal_parse(
 
 LIST *journal_system_list(
 		char *system_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_transaction )
 {
-	boolean fund_boolean;
-	boolean contact_key_boolean;
 	FILE *pipe;
 	char input[ 1024 ];
 	LIST *system_list = list_new();
@@ -556,16 +567,6 @@ LIST *journal_system_list(
 			__LINE__ );
 		exit( 1 );
 	}
-
-	fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN );
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	/* Safely returns */
 	/* -------------- */
@@ -595,24 +596,14 @@ char *journal_system_string(
 		const char *journal_table,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *where )
 {
 	char *select_string;
-	boolean fund_boolean;
-	boolean contact_key_boolean;
 	char system_string[ 1024 ];
 
 	if ( !where ) where = "1 = 1";
-
-	fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			predictive_fund_column );
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			entity_contact_key_column );
 
 	select_string =
 		/* ------------------- */
@@ -1783,78 +1774,6 @@ double journal_transaction_amount( LIST *journal_list )
 	return transaction_amount;
 }
 
-LIST *journal_year_list(
-		int tax_year,
-		char *account_name,
-		boolean fetch_transaction )
-{
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			PREDICTIVE_FUND_COLUMN,
-			ENTITY_CONTACT_KEY_COLUMN,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_year_where(
-				tax_year,
-				account_name,
-				TRANSACTION_DATE_PRECLOSE_TIME ) ),
-		0 /* not fetch_account */,
-		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */,
-		fetch_transaction );
-}
-
-char *journal_year_where(
-		int tax_year,
-		char *account_name,
-		const char *transaction_date_preclose_time )
-{
-	static char where[ 384 ];
-	char begin_date_time[ 32 ];
-	char end_date_time[ 32 ];
-	char escape_account[ 64 ];
-
-	if ( !tax_year
-	||   !account_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(begin_date_time,
-		"%d-01-01 00:00:00",
-		tax_year );
-
-	sprintf(end_date_time,
-		"%d-12-31 %s",
-		tax_year,
-		transaction_date_preclose_time );
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"account = '%s' and "
-		"transaction_date_time between '%s' and '%s'",
-		string_escape_quote(
-			escape_account,
-			account_name ),
-		begin_date_time,
-		end_date_time );
-
-	return where;
-}
-
 int journal_transaction_count(
 		const char *journal_table,
 		char *account_name,
@@ -2114,7 +2033,8 @@ char *journal_min_transaction_system_string(
 char *journal_min_transaction_date_time(
 		const char *journal_table,
 		char *fund_name,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean )
 {
 	char *account_where;
 	char *system_string;
@@ -2138,10 +2058,10 @@ char *journal_min_transaction_date_time(
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name );
+			account_name,
+			fund_boolean );
 
 	system_string =
 		/* ------------------- */
@@ -2186,11 +2106,13 @@ LIST *journal_account_name_list(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			full_name,
+			contact_key,
 			entity_contact_key_boolean(
 				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN ),
-			full_name,
-			contact_key );
+				ENTITY_CONTACT_KEY_COLUMN ) );
 
 	snprintf(
 		where,
@@ -2215,51 +2137,6 @@ LIST *journal_account_name_list(
 	list_pipe( system_string );
 }
 
-double journal_first_account_balance(
-		const char *journal_table,
-		char *fund_name,
-		char *account_name )
-{
-	char *min_transaction_date_time;
-	JOURNAL *journal;
-
-	if ( !account_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ! ( min_transaction_date_time =
-			journal_min_transaction_date_time(
-				journal_table,
-				fund_name,
-				account_name ) ) )
-	{
-		return 0.0;
-	}
-
-	journal =
-		journal_account_fetch(
-			fund_name,
-			min_transaction_date_time,
-			account_name,
-			0 /* not fetch_account */,
-			0 /* not fetch_subclassification */,
-			0 /* not fetch_element */,
-			0 /* not fetch_transaction */ );
-
-	if ( journal )
-		return journal->balance;
-	else
-		return 0.0;
-}
 
 double journal_balance_sum( LIST *journal_list )
 {
@@ -2281,7 +2158,9 @@ LIST *journal_tax_form_list(
 		char *tax_form_fiscal_begin_date,
 		char *tax_form_fiscal_end_date,
 		const char *transaction_date_preclose_time,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *where;
 
@@ -2320,7 +2199,11 @@ LIST *journal_tax_form_list(
 			JOURNAL_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean,
 			where ),
+		fund_boolean,
+		contact_key_boolean,
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
 		0 /* not fetch_element */,
@@ -2404,7 +2287,9 @@ char *journal_primary_where(
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char where[ 1024 ];
 
@@ -2437,7 +2322,9 @@ char *journal_primary_where(
 			fund_name,
 			full_name,
 			contact_key,
-			transaction_date_time ),
+			transaction_date_time,
+			fund_boolean,
+			contact_key_boolean ),
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -2480,7 +2367,9 @@ LIST *journal_entity_list(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	if ( !full_name
 	||   !account_name )
@@ -2509,6 +2398,8 @@ LIST *journal_entity_list(
 			journal_table,
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -2516,7 +2407,11 @@ LIST *journal_entity_list(
 				fund_name,
 				full_name,
 				contact_key,
-				account_name ) ),
+				account_name,
+				fund_boolean,
+				contact_key_boolean ) ),
+		fund_boolean,
+		contact_key_boolean,
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
 		0 /* not fetch_element */,
@@ -2529,7 +2424,9 @@ LIST *journal_transaction_list(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *transaction_date_time )
+		char *transaction_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	LIST *list = {0};
 
@@ -2546,6 +2443,8 @@ LIST *journal_transaction_list(
 					journal_table,
 					PREDICTIVE_FUND_COLUMN,
 					ENTITY_CONTACT_KEY_COLUMN,
+					fund_boolean,
+					contact_key_boolean,
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -2553,7 +2452,11 @@ LIST *journal_transaction_list(
 						fund_name,
 						full_name,
 						contact_key,
-						transaction_date_time ) ),
+						transaction_date_time,
+						fund_boolean,
+						contact_key_boolean ) ),
+				fund_boolean,
+				contact_key_boolean,
 				1 /* fetch_account */,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */,
@@ -2567,7 +2470,9 @@ char *journal_entity_where(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_name )
+		char *account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *primary_where;
 	char *account_where;
@@ -2595,21 +2500,21 @@ char *journal_entity_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN ),
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	account_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		journal_account_where(
-			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN,
 			fund_name,
-			account_name );
+			account_name,
+			fund_boolean );
 
 	snprintf(
 		where,

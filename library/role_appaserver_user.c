@@ -15,9 +15,9 @@
 
 LIST *role_appaserver_user_name_list(
 		const char *role_appaserver_user_table,
-		boolean contact_key_boolean,
 		char *full_name,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	if ( !full_name )
 	{
@@ -47,7 +47,9 @@ LIST *role_appaserver_user_name_list(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
-				contact_key_boolean,
+				ENTITY_FULL_NAME_COLUMN,
+				ENTITY_CONTACT_KEY_COLUMN,
 				full_name,
-				contact_key ) ) );
+				contact_key,
+				contact_key_boolean ) ) );
 }

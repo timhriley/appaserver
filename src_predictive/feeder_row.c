@@ -285,7 +285,6 @@ char *feeder_row_list_insert_system_string(
 		/* Returns heap memory */
 		/* ------------------- */
 		feeder_row_list_insert_field(
-			sql_delimiter,
 			feeder_row_insert,
 			predictive_fund_column,
 			entity_contact_key_column,
@@ -309,7 +308,6 @@ char *feeder_row_list_insert_system_string(
 }
 
 char *feeder_row_list_insert_field(
-		char sql_delimiter,
 		const char *feeder_row_insert,
 		const char *fund_column,
 		const char *contact_key_column,
@@ -320,7 +318,7 @@ char *feeder_row_list_insert_field(
 
 	optional_column =
 		optional_column_new(
-			sql_delimiter,
+			',' /* delimiter */,
 			(char *)feeder_row_insert /* base_string */,
 			(char *)fund_column /* component */,
 			0 /* not escape_boolean */,
@@ -328,11 +326,13 @@ char *feeder_row_list_insert_field(
 
 	optional_column =
 		optional_column_new(
-			sql_delimiter,
+			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
 			(char *)contact_key_column /* component */,
 			0 /* not escape_boolean */,
 			contact_key_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	return optional_column->return_string /* heap memory */;
 }
@@ -391,7 +391,7 @@ char *feeder_row_insert_string(
 	snprintf(
 		insert_string,
 		sizeof ( insert_string ),
-		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s^%s^%s^%s\n",
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s^%s^%s^%s",
 		feeder_account_name,
 		feeder_load_date_time,
 		feeder_date,
@@ -410,7 +410,7 @@ char *feeder_row_insert_string(
 			sql_delimiter,
 			insert_string /* base_string */,
 			fund_name /* component */,
-			0 /* not escape_boolean */,
+			1 /* not escape_boolean */,
 			fund_boolean /* set_boolean */ );
 
 	optional_column =
@@ -418,8 +418,10 @@ char *feeder_row_insert_string(
 			sql_delimiter,
 			optional_column->return_string /* base_string */,
 			contact_key /* component */,
-			0 /* not escape_boolean */,
+			1 /* not escape_boolean */,
 			contact_key_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
 
 	return optional_column->return_string /* heap memory */;
 }
@@ -729,6 +731,8 @@ void feeder_row_list_display(
 
 void feeder_row_transaction_insert(
 		char *fund_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		LIST *feeder_row_list )
 {
 	LIST *transaction_list;
@@ -740,24 +744,11 @@ void feeder_row_transaction_insert(
 			fund_name,
 			feeder_row_list ) ) )
 	{
-		boolean fund_boolean;
-		boolean contact_key_boolean;
-
 		/* May reset transaction->transaction_date_time */
 		/* -------------------------------------------- */
 		transaction_list_insert(
 			transaction_list,
 			0 /* not insert_journal_list_boolean */ );
-
-		fund_boolean =
-			predictive_fund_boolean(
-				PREDICTIVE_FUND_TABLE,
-				PREDICTIVE_FUND_COLUMN );
-
-		contact_key_boolean =
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN );
 
 		transaction_journal_list_insert(
 			fund_name,
@@ -1170,6 +1161,7 @@ LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
+		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
@@ -1208,6 +1200,7 @@ LIST *feeder_row_list(
 			feeder_row_new(
 				fund_name,
 				feeder_account_name,
+				contact_key_boolean,
 				financial_institution_full_name,
 				financial_institution_contact_key,
 				account_uncleared_checks_string,
@@ -1245,6 +1238,7 @@ LIST *feeder_row_list(
 FEEDER_ROW *feeder_row_new(
 		char *fund_name,
 		char *feeder_account_name,
+		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
@@ -1302,8 +1296,12 @@ FEEDER_ROW *feeder_row_new(
 		if ( feeder_load_row->check_number )
 		{
 			feeder_row->feeder_matched_journal =
+				/* ------------------- */
+				/* Independent of fund */
+				/* ------------------- */
 				feeder_matched_journal_check_seek(
 					feeder_account_name,
+					contact_key_boolean,
 					account_uncleared_checks_string,
 					feeder_load_row->check_number,
 					feeder_load_row->
@@ -1772,7 +1770,9 @@ void feeder_row_journal_propagate(
 		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *account_uncleared_checks )
+		char *account_uncleared_checks,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *minimum_transaction_date_time;
 	JOURNAL_PROPAGATE *journal_propagate;
@@ -1805,7 +1805,9 @@ void feeder_row_journal_propagate(
 		journal_propagate_new(
 			fund_name,
 			minimum_transaction_date_time,
-			feeder_account_name );
+			feeder_account_name,
+			fund_boolean,
+			contact_key_boolean );
 
 	if ( journal_propagate )
 	{
@@ -1818,7 +1820,9 @@ void feeder_row_journal_propagate(
 		journal_propagate_new(
 			fund_name,
 			minimum_transaction_date_time,
-			account_uncleared_checks );
+			account_uncleared_checks,
+			fund_boolean,
+			contact_key_boolean );
 
 	if ( journal_propagate )
 	{

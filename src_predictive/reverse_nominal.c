@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include "String.h"
 #include "appaserver_error.h"
+#include "entity.h"
+#include "predictive.h"
 #include "close_nominal.h"
 #include "reverse_nominal.h"
 
@@ -30,7 +32,10 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_calloc( void )
 	return reverse_nominal_do;
 }
 
-REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
+REVERSE_NOMINAL_DO *reverse_nominal_do_fetch(
+		char *reverse_date_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	REVERSE_NOMINAL_DO *reverse_nominal_do;
 
@@ -78,8 +83,10 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 		transaction_fetch(
 			(char *)0 /* fund_name */,
 			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
+			(char *)0 /* contact_key */,
 			reverse_nominal_do->close_date_time,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_journal_list */ );
 
 	reverse_nominal_do->no_close_message =
@@ -93,14 +100,9 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch( char *reverse_date_string )
 	if ( reverse_nominal_do->no_close_message )
 		return reverse_nominal_do;
 
-	reverse_nominal_do->entity_contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
-
 	reverse_nominal_do->entity_self =
 		entity_self_fetch(
-			reverse_nominal_do->entity_contact_key_boolean,
+			contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	if ( !reverse_nominal_do->entity_self )
@@ -178,6 +180,16 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 
 	reverse_nominal = reverse_nominal_calloc();
 
+	reverse_nominal->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	reverse_nominal->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	if ( undo )
 	{
 		reverse_nominal->close_nominal_undo =
@@ -186,7 +198,11 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 			/* -------------- */
 			close_nominal_undo_fetch(
 				TRANSACTION_TABLE,
-				TRANSACTION_REVERSE_MEMO );
+				TRANSACTION_REVERSE_MEMO,
+				reverse_nominal->
+					predictive_fund_boolean,
+				reverse_nominal->
+					entity_contact_key_boolean );
 
 		if ( !reverse_nominal->
 			close_nominal_undo->
@@ -234,7 +250,11 @@ REVERSE_NOMINAL *reverse_nominal_fetch(
 				/* Safely returns */
 				/* -------------- */
 				reverse_nominal_do_fetch(
-					reverse_date_string );
+					reverse_date_string,
+					reverse_nominal->
+						predictive_fund_boolean,
+					reverse_nominal->
+						entity_contact_key_boolean );
 		}
 	}
 

@@ -65,6 +65,7 @@ FEEDER_ROW *feeder_audit_journal_feeder_row_fetch(
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
 		char *feeder_load_date_time,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
 /* Usage */

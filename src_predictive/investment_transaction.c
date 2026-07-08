@@ -12,6 +12,7 @@
 #include "date.h"
 #include "float.h"
 #include "entity.h"
+#include "predictive.h"
 #include "journal.h"
 #include "investment.h"
 #include "investment_account.h"
@@ -78,6 +79,10 @@ void investment_transaction_output(
 					investment_transaction->
 						transaction_binary->
 						journal_list,
+					investment_transaction->
+						predictive_fund_boolean,
+					investment_transaction->
+						entity_contact_key_boolean,
 					1 /* insert_journal_list_boolean */ );
 	}
 
@@ -107,11 +112,11 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 
 	investment_transaction = investment_transaction_calloc();
 
-	investment_transaction->check_account_name =
+	investment_transaction->fetch_account_name =
 		/* ------------------------ */
 		/* Returns either parameter */
 		/* ------------------------ */
-		investment_transaction_check_account_name(
+		investment_transaction_fetch_account_name(
 			debit_account_name,
 			credit_account_name,
 			accumulate_debit_boolean );
@@ -119,13 +124,25 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 	investment_transaction->date_now19 =
 		date_now19( date_utc_offset() );
 
+	investment_transaction->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	investment_transaction->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	investment_transaction->account_journal_latest =
 		account_journal_latest(
 			JOURNAL_TABLE,
 			fund_name,
-			investment_transaction->check_account_name,
+			investment_transaction->fetch_account_name,
 			investment_transaction->date_now19
 				/* end_date_time_string */,
+			investment_transaction->predictive_fund_boolean,
+			investment_transaction->entity_contact_key_boolean,
 			0 /* not fetch_transaction */,
 			0 /* not latest_zero_balance_boolean */ );
 
@@ -150,9 +167,7 @@ INVESTMENT_TRANSACTION *investment_transaction_new(
 		/* Returns heap memory of static pointer */
 		/* ------------------------------------- */
 		entity_self_fetch(
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN ),
+			investment_transaction->entity_contact_key_boolean,
 			0 /* not fetch_entity_boolean */ );
 
 	if ( investment_transaction->delta > 0.0 )
@@ -232,7 +247,7 @@ INVESTMENT_TRANSACTION *investment_transaction_calloc( void )
 	return investment_transaction;
 }
 
-char *investment_transaction_check_account_name(
+char *investment_transaction_fetch_account_name(
 		char *debit_account_name,
 		char *credit_account_name,
 		boolean accumulate_debit_boolean )

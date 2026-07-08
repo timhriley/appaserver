@@ -71,6 +71,8 @@ TRANSACTION *transaction_fetch(
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_journal_list );
 
 /* Usage */
@@ -78,6 +80,7 @@ TRANSACTION *transaction_fetch(
 TRANSACTION *transaction_parse(
 		char *fund_name,
 		boolean fetch_journal_list,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		char *input );
 
@@ -107,6 +110,7 @@ char *transaction_fund_name(
 /* Usage */
 /* ----- */
 TRANSACTION *transaction_entity_new(
+		char *fund_name,
 		ENTITY *entity,
 		char *transaction_date_time,
 		double transaction_amount,
@@ -152,6 +156,8 @@ char *transaction_insert(
 		int check_number,
 		char *memo,
 		LIST *journal_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean insert_journal_list_boolean );
 
 /* Process */
@@ -207,7 +213,9 @@ char *transaction_insert_data_string(
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_stamp_insert(
-		TRANSACTION *transaction /* in/out */ );
+		TRANSACTION *transaction /* in/out */,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -215,7 +223,9 @@ void transaction_fetch_update(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *transaction_date_time );
+		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -269,14 +279,6 @@ TRANSACTION *transaction_date_time_fetch(
 		char *transaction_date_time,
 		boolean fetch_journal_list );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_date_time_fetch_where(
-		char *transaction_date_time );
-
 /* Usage */
 /* ----- */
 void transaction_journal_list_insert(
@@ -323,18 +325,6 @@ TRANSACTION *transaction_binary_account_key(
 
 /* Usage */
 /* ----- */
-char *transaction_refresh(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *transaction_date_time,
-		double transaction_amount,
-		int check_number,
-		char *memo,
-		LIST *journal_list );
-
-/* Usage */
-/* ----- */
 
 /* ------------------------------------ */
 /* Returns heap memory.			*/
@@ -352,6 +342,16 @@ char *transaction_fetch_where(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_fetch_where(
 		char *transaction_date_time );
 
 /* Usage */
@@ -360,7 +360,9 @@ void transaction_delete(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *transaction_date_time );
+		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -391,7 +393,9 @@ char *transaction_primary_where(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *transaction_date_time );
+		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -428,16 +432,6 @@ char *transaction_select_string(
 		const char *transaction_select,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_fund_where(
-		const char *predictive_fund_table,
-		const char *predictive_fund_column,
-		char *fund_name );
 
 /* Usage */
 /* ----- */

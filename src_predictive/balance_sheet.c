@@ -2898,6 +2898,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			balance_sheet->
 				transaction_date_statement->
 				end_date_time,
+			balance_sheet->statement->predictive_fund_boolean,
+			balance_sheet->statement->entity_contact_key_boolean,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -2933,6 +2935,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			balance_sheet->
 				transaction_date_statement->
 				prior_end_date_time,
+			balance_sheet->statement->predictive_fund_boolean,
+			balance_sheet->statement->entity_contact_key_boolean,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -2968,7 +2972,13 @@ BALANCE_SHEET *balance_sheet_fetch(
 			fund_name,
 			balance_sheet->
 				transaction_date_statement->
-				end_date_time );
+				end_date_time,
+			balance_sheet->
+				statement->
+				predictive_fund_boolean,
+			balance_sheet->
+				statement->
+				entity_contact_key_boolean );
 
 	balance_sheet->balance_sheet_equity =
 		/* -------------- */
@@ -3314,7 +3324,9 @@ double balance_sheet_drawing_amount(
 		const char *journal_table,
 		const char *account_drawing_key,
 		char *fund_name,
-		char *transaction_end_date_time )
+		char *transaction_end_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	char *drawing_string;
 	ACCOUNT_JOURNAL *account_journal;
@@ -3348,6 +3360,8 @@ double balance_sheet_drawing_amount(
 			fund_name,
 			drawing_string /* account_name */,
 			transaction_end_date_time,
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_transaction */,
 			0 /* not latest_zero_balance_boolean */ );
 

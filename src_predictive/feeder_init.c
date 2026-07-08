@@ -481,7 +481,9 @@ JOURNAL *feeder_init_transaction_journal(
 }
 
 void feeder_init_transaction_insert(
-		FEEDER_INIT_TRANSACTION *feeder_init_transaction )
+		FEEDER_INIT_TRANSACTION *feeder_init_transaction,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	if ( !feeder_init_transaction
 	||   !feeder_init_transaction->transaction )
@@ -527,6 +529,8 @@ void feeder_init_transaction_insert(
 			feeder_init_transaction->
 				transaction->
 				journal_list,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* insert_journal_list_boolean */ );
 	}
 }
@@ -737,7 +741,6 @@ FEEDER_INIT_CHECKING *feeder_init_checking_calloc( void )
 
 FEEDER_INIT_INPUT *feeder_init_input_new(
 		char *application_name,
-		char *fund_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
 		char *exchange_minimum_date_string )
@@ -769,13 +772,10 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 			PREDICTIVE_FUND_TABLE,
 			PREDICTIVE_FUND_COLUMN );
 
-	feeder_init_input->predictive_fund_name =
-		/* ------------------------- */
-		/* Returns parameter or null */
-		/* ------------------------- */
-		predictive_fund_name(
-			fund_name,
-			feeder_init_input->predictive_fund_boolean );
+	feeder_init_input->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
 
 	feeder_init_input->institution_missing_boolean =
 		feeder_init_input_institution_missing_boolean(
@@ -813,11 +813,6 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 			FEEDER_INIT_INPUT_DAYS_AGO,
 			exchange_minimum_date_string,
 			feeder_init_input->date_now_yyyy_mm_dd );
-
-	feeder_init_input->entity_contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	feeder_init_input->entity_self =
 		entity_self_fetch(
@@ -1082,7 +1077,6 @@ FEEDER_INIT *feeder_init_new(
 		/* -------------- */
 		feeder_init_input_new(
 			application_name,
-			fund_name,
 			financial_institution_full_name,
 			checking_boolean,
 			exchange_minimum_date_string );
@@ -1104,9 +1098,7 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_checking_new(
 				0 /* not execute_boolean */,
-				feeder_init->
-					feeder_init_input->
-					predictive_fund_name,
+				fund_name,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1129,9 +1121,7 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_credit_new(
 				0 /* not execute_boolean */,
-				feeder_init->
-					feeder_init_input->
-					predictive_fund_name,
+				fund_name,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1228,9 +1218,7 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			feeder_init->
-				feeder_init_input->
-				predictive_fund_name );
+			fund_name );
 
 	feeder_init->activity_system_string =
 		/* --------------------- */
@@ -1241,9 +1229,7 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			feeder_init->
-				feeder_init_input->
-				predictive_fund_name );
+			fund_name );
 
 	feeder_init->position_system_string =
 		/* --------------------- */
@@ -1254,9 +1240,7 @@ FEEDER_INIT *feeder_init_new(
 			session_key,
 			login_name,
 			role_name,
-			feeder_init->
-				feeder_init_input->
-				predictive_fund_name );
+			fund_name );
 
 	return feeder_init;
 }
@@ -1766,9 +1750,7 @@ void feeder_init_process(
 				/* -------------- */
 				feeder_init_credit_new(
 					1 /* execute_boolean */,
-					feeder_init->
-						feeder_init_input->
-						predictive_fund_name,
+					fund_name,
 					exchange_journal_begin_amount,
 					exchange_minimum_date_string,
 					feeder_init->
@@ -1789,14 +1771,26 @@ void feeder_init_process(
 			feeder_init_transaction_insert(
 				feeder_init->
 					feeder_init_checking->
-					feeder_init_transaction );
+					feeder_init_transaction,
+				feeder_init->
+					feeder_init_input->
+					predictive_fund_boolean,
+				feeder_init->
+					feeder_init_input->
+					entity_contact_key_boolean );
 		}
 		else
 		{
 			feeder_init_transaction_insert(
 				feeder_init->
 					feeder_init_credit->
-					feeder_init_transaction );
+					feeder_init_transaction,
+				feeder_init->
+					feeder_init_input->
+					predictive_fund_boolean,
+				feeder_init->
+					feeder_init_input->
+					entity_contact_key_boolean );
 		}
 
 		feeder_load_event_insert(

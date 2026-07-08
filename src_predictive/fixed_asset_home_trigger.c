@@ -5,10 +5,10 @@
 /* -------------------------------------------------------------------	*/
 
 /* --------------------------------
-Has a 1:1 TRANSACTION
-1) Need preupdate_full_name
-2) Need preupdate_foreign_date_time
-3) Ignore the delete state
+1) Has a 1:1 TRANSACTION
+2) Need preupdate_full_name
+3) Need preupdate_foreign_date_time
+4) Ignore the delete state
 ----------------------------------- */
 
 #include <stdio.h>
@@ -73,7 +73,9 @@ int main( int argc, char **argv )
 				insert_transaction,
 		fixed_asset_home->
 			subsidiary_transaction->
-			update_template );
+			update_template,
+		0 /* not predictive_fund_boolean */,
+		0 /* not entity_contact_key_boolean */ );
 
 	return 0;
 }

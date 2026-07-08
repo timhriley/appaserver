@@ -44,7 +44,6 @@
 					"check_number,"			\
 					"feeder_phrase"
 
-
 #define FEEDER_ROW_INSERT		"feeder_account,"		\
 					"feeder_load_date_time,"	\
 					"feeder_date,"			\
@@ -145,8 +144,9 @@ LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
+		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
-		char *financial_institution_street_address,
+		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
@@ -167,6 +167,7 @@ int feeder_row_feeder_row_number(
 FEEDER_ROW *feeder_row_new(
 		char *fund_name,
 		char *feeder_account_name,
+		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		char *account_uncleared_checks_string,
@@ -409,7 +410,6 @@ char *feeder_row_list_insert_system_string(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_row_list_insert_field(
-		char sql_delimiter,
 		const char *feeder_row_insert,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
@@ -479,6 +479,8 @@ double feeder_row_exist_sum(
 /* ---------------------------- */
 void feeder_row_transaction_insert(
 		char *fund_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		LIST *feeder_row_list );
 
 /* Process */
@@ -495,7 +497,9 @@ void feeder_row_journal_propagate(
 		char *fund_name,
 		char *feeder_account_name,
 		char *feeder_load_date_time,
-		char *account_uncleared_checks );
+		char *account_uncleared_checks,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

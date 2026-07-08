@@ -188,9 +188,9 @@ APPASERVER_USER *appaserver_user_parse(
 		appaserver_user->role_appaserver_user_name_list =
 			role_appaserver_user_name_list(
 				ROLE_APPASERVER_USER_TABLE,
-				contact_key_boolean,
 				appaserver_user->full_name,
-				appaserver_user->contact_key );
+				appaserver_user->contact_key,
+				contact_key_boolean );
 	}
 
 	return appaserver_user;
@@ -418,9 +418,9 @@ LIST *appaserver_user_role_name_list( char *login_name )
 }
 
 APPASERVER_USER *appaserver_user_fetch(
-		boolean contact_key_boolean,
 		char *full_name /* stack memory */,
 		char *contact_key /* stack memory */,
+		boolean contact_key_boolean,
 		boolean fetch_role_name_list )
 {
 	char *select_string;
@@ -466,9 +466,11 @@ APPASERVER_USER *appaserver_user_fetch(
 				/* Returns static memory */
 				/* --------------------- */
 				entity_primary_where(
-					contact_key_boolean,
+					ENTITY_FULL_NAME_COLUMN,
+					ENTITY_CONTACT_KEY_COLUMN,
 					full_name,
-					contact_key ) ) );
+					contact_key,
+					contact_key_boolean ) ) );
 
 	if ( !input ) return NULL;
 

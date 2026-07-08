@@ -63,7 +63,8 @@ double customer_past_due(
 		const char *account_payable_key,
 		const char *account_receivable_key,
 		char *customer_full_name,
-		char *customer_contact_key );
+		char *customer_contact_key,
+		boolean entity_contact_key_boolean );
 
 #endif
 

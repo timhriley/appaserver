@@ -28,7 +28,9 @@ typedef struct
 JOURNAL_PROPAGATE *journal_propagate_new(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -59,6 +61,8 @@ boolean journal_propagate_accumulate_debit(
 LIST *journal_propagate_journal_list(
 		char *fund_name,
 		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *journal_propagate_prior_transaction_date_time,
 		double journal_propagate_prior_previous_balance );
 
@@ -97,12 +101,15 @@ double journal_propagate_previous_balance(
 char *journal_propagate_greater_equal_where(
 		char *fund_name,
 		char *account_name,
+		boolean predictive_fund_boolean,
 		char *prior_transaction_date_time );
 
 /* Usage */
 /* ----- */
 LIST *journal_propagate_update_statement_list(
 		const char *journal_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		LIST *journal_propagate_journal_list );
 
 /* Usage */
@@ -118,13 +125,17 @@ char *journal_propagate_update_statement(
 		char *transaction_date_time,
 		char *account_name,
 		double previous_balance,
-		double balance );
+		double balance,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 void journal_propagate_account_list(
 		char *fund_name,
 		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		LIST *journal_extract_account_list );
 
 #endif

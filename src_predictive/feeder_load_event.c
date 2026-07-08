@@ -248,7 +248,7 @@ char *feeder_load_event_insert_string(
 	snprintf(
 		insert_string,
 		sizeof ( insert_string ),
-		"%s^%s^%s^%.2lf^%s^%s\n",
+		"%s^%s^%s^%.2lf^%s^%s",
 		feeder_account_name,
 		feeder_load_filename,
 		feeder_row_account_end_date,

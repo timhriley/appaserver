@@ -415,6 +415,7 @@ char *investment_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		predictive_fund_where(
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			fund_boolean );
 
@@ -423,9 +424,11 @@ char *investment_account_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	purpose_where =
 		/* --------------------- */
@@ -513,6 +516,7 @@ char *investment_account_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		predictive_fund_where(
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			fund_boolean );
 
@@ -521,10 +525,11 @@ char *investment_account_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
-
+			contact_key,
+			contact_key_boolean );
 	snprintf(
 		where,
 		sizeof ( where ),

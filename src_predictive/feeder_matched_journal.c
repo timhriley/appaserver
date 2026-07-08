@@ -36,6 +36,8 @@
 LIST *feeder_matched_journal_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *feeder_match_minimum_date,
 		char *account_uncleared_checks_string )
 {
@@ -69,9 +71,7 @@ LIST *feeder_matched_journal_list(
 			feeder_row_table,
 			feeder_account_name,
 			account_uncleared_checks_string,
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN ) );
+			contact_key_boolean );
 
 	where =
 		/* ------------------- */
@@ -93,7 +93,11 @@ LIST *feeder_matched_journal_list(
 				JOURNAL_TABLE,
 				PREDICTIVE_FUND_COLUMN,
 				ENTITY_CONTACT_KEY_COLUMN,
+				fund_boolean,
+				contact_key_boolean,
 				where ),
+			fund_boolean,
+			contact_key_boolean,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
 			0 /* not fetch_element */,
@@ -206,7 +210,9 @@ char *feeder_matched_journal_where(
 			message );
 	}
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"account in ('%s','%s') and		"
 		"transaction_date_time >= '%s' and	"
 		"%s					",
@@ -221,6 +227,7 @@ char *feeder_matched_journal_where(
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
 		char *feeder_account_name,
+		boolean contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
@@ -259,11 +266,13 @@ FEEDER_MATCHED_JOURNAL *
 		{
 			feeder_matched_journal->check_update_statement =
 				/* ------------------- */
+				/* Independent of fund */
 				/* Returns heap memory */
 				/* ------------------- */
 				feeder_matched_journal_check_update_statement(
 					JOURNAL_TABLE,
 					feeder_account_name,
+					contact_key_boolean,
 					account_uncleared_checks_string,
 					feeder_matched_journal->
 						full_name,
@@ -389,11 +398,13 @@ double feeder_matched_journal_amount(
 char *feeder_matched_journal_check_update_statement(
 		const char *journal_table,
 		char *feeder_account,
+		boolean contact_key_boolean,
 		char *account_uncleared_checks_string,
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time )
 {
+	char *primary_where;
 	char update_statement[ 1024 ];
 
 	if ( !feeder_account
@@ -412,12 +423,7 @@ char *feeder_matched_journal_check_update_statement(
 			message );
 	}
 
-	snprintf(
-		update_statement,
-		sizeof ( update_statement ),
-		"update %s set account = '%s' where %s;",
-		journal_table,
-		feeder_account,
+	primary_where =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -426,7 +432,19 @@ char *feeder_matched_journal_check_update_statement(
 			full_name,
 			contact_key,
 			transaction_date_time,
-			account_uncleared_checks_string ) );
+			account_uncleared_checks_string,
+			0 /* not predictive_fund_boolean */,
+			contact_key_boolean );
+
+	snprintf(
+		update_statement,
+		sizeof ( update_statement ),
+		"update %s set account = '%s' where %s;",
+		journal_table,
+		feeder_account,
+		primary_where );
+
+	free( primary_where );
 
 	return strdup( update_statement );
 }

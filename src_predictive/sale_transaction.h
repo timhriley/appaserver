@@ -33,8 +33,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *preupdate_contact_key,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *financial_institution_full_name,
-		char *financial_institution_contact_key,
+		char *feeder_account,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
@@ -67,6 +66,7 @@ char *sale_transaction_date_time(
 /* Usage */
 /* ----- */
 LIST *sale_transaction_journal_list(
+		char *feeder_account,
 		double shipping_charge,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
@@ -101,4 +101,10 @@ double sale_transaction_CGS_total(
 double sale_transaction_inventory_total(
 		double inventory_sale_total,
 		double specific_inventory_sale_total );
+
+/* Usage */
+/* ----- */
+ACCOUNT *sale_transaction_debit_account(
+		char *feeder_account );
+
 #endif

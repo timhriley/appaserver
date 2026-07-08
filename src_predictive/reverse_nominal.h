@@ -23,7 +23,6 @@ typedef struct
 	char *close_date_time;
 	TRANSACTION *close_transaction;
 	char *no_close_message;
-	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	REVERSE_TRANSACTION *reverse_transaction;
 	double journal_debit_sum;
@@ -36,7 +35,9 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 REVERSE_NOMINAL_DO *reverse_nominal_do_fetch(
-		char *reverse_date_string );
+		char *reverse_date_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -69,6 +70,8 @@ void reverse_nominal_undo_execute(
 
 typedef struct
 {
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	REVERSE_NOMINAL_DO *reverse_nominal_do;
 	CLOSE_NOMINAL_UNDO *close_nominal_undo;
 	char *undo_no_transaction_message;

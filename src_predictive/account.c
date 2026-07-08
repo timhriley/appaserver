@@ -28,6 +28,8 @@ LIST *account_statement_list(
 		char *fund_name,
 		char *subclassification_primary_where,
 		char *end_date_time_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
@@ -100,6 +102,8 @@ LIST *account_statement_list(
 			account_statement_parse(
 				fund_name,
 				end_date_time_string,
+				fund_boolean,
+				contact_key_boolean,
 				chart_account_boolean,
 				fetch_subclassification,
 				fetch_element,
@@ -125,6 +129,8 @@ LIST *account_statement_list(
 ACCOUNT *account_statement_parse(
 		char *fund_name,
 		char *end_date_time_string,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
@@ -194,6 +200,8 @@ ACCOUNT *account_statement_parse(
 				fund_name,
 				account->account_name,
 				end_date_time_string,
+				fund_boolean,
+				contact_key_boolean,
 				fetch_transaction,
 				latest_zero_balance_boolean );
 

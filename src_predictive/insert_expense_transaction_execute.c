@@ -96,28 +96,34 @@ int main( int argc, char **argv )
 				transaction_insert(
 					insert_expense->
 						transaction_binary->
-							fund_name,
+						fund_name,
 					insert_expense->
 						transaction_binary->
-							full_name,
+						full_name,
 					insert_expense->
 						transaction_binary->
-							contact_key,
+						contact_key,
 					insert_expense->
 						transaction_binary->
-							transaction_date_time,
+						transaction_date_time,
 					insert_expense->
 						transaction_binary->
-							transaction_amount,
+						transaction_amount,
 					insert_expense->
 						transaction_binary->
-							check_number,
+						check_number,
 					insert_expense->
 						transaction_binary->
-							memo,
+						memo,
 					insert_expense->
-							transaction_binary->
-							journal_list,
+						transaction_binary->
+						journal_list,
+					insert_expense->
+						insert_expense_input->
+						predictive_fund_boolean,
+					insert_expense->
+						insert_expense_input->
+						entity_contact_key_boolean,
 					1 /* insert_journal_list_boolean */ );
 	
 		if ( insert_expense->

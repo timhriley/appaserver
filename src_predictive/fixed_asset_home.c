@@ -152,6 +152,8 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		/* Safely returns */
 		/* -------------- */
 		subsidiary_transaction_state_new(
+			"preupdate_fund_name"
+			/* preupdate_fund_name_placeholder */,
 			"preupdate_full_name"
 			/* preupdate_full_name_placeholder */,
 			"preupdate_contact_key"
@@ -159,15 +161,18 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 			"preupdate_purchase_date_time"
 			/* preupdate_foreign_date_time_placeholder */,
 			state,
+			(char *)0 /* preupdate_fund_name */,
 			preupdate_full_name,
-			"preupdate_contact_key" /* preupdate_contact_key */,
+			(char *)0 /* preupdate_contact_key */,
 			preupdate_purchase_date_time
 			/* preupdate_foreign_date_time */,
+			(char*)0 /* fund_name */,
 			fixed_asset_home->full_name,
 			(char *)0 /* contact_key */,
-			fixed_asset_home->
-				purchase_date_time
+			fixed_asset_home->purchase_date_time
 				/* foreign_date_time */,
+			0 /* not predictive_fund_boolean */,
+			0 /* not entity_contact_key_boolean */,
 			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */ );
 
@@ -178,19 +183,19 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		subsidiary_transaction_new(
 			FIXED_ASSET_HOME_TABLE
 				/* foreign_table_name */,
+			"fund_name"
+				/* foreign_fund_name_column */,
 			"full_name"
 				/* foreign_full_name_column */,
 			"contact_key"
 				/* foreign_contact_key_column */,
 			"purchase_date_time"
 				/* foreign_date_time_column */,
-			fixed_asset_home->
-				purchase_date_time
+			fixed_asset_home->purchase_date_time
 				/* prior_transaction_date_time */,
 			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */,
-			fixed_asset_home->
-				fixed_asset_cost
+			fixed_asset_home->fixed_asset_cost
 				/* foreign_amount */,
 			asset_name
 				/* transaction_memo */,
@@ -200,6 +205,7 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 			fixed_asset_home->
 				subsidiary_transaction_state->
 				subsidiary_transaction_delete,
+			0 /* not predictive_fund_boolean */,
 			0 /* not entity_contact_key_boolean */ );
 
 	free( system_string );

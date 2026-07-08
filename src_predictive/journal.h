@@ -47,6 +47,8 @@ typedef struct
 /* ----- */
 LIST *journal_system_list(
 		char *journal_system_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
@@ -86,6 +88,8 @@ JOURNAL *journal_prior(
 		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element );
@@ -97,18 +101,10 @@ JOURNAL *journal_latest(
 		char *fund_name,
 		char *account_name,
 		char *end_date_time_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_transaction_boolean,
 		boolean latest_zero_balance_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_transaction_account_where(
-		char *fund_name,
-		char *transaction_date_time,
-		char *account_name );
 
 /* Usage */
 /* ----- */
@@ -131,27 +127,12 @@ char *journal_max_prior_transaction_date_time(
 
 /* Usage */
 /* ----- */
-LIST *journal_year_list(
-		int tax_year,
-		char *account_name,
-		boolean fetch_transaction );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_year_where(
-		int tax_year,
-		char *account_name,
-		const char *transaction_date_preclose_time );
-
-/* Usage */
-/* ----- */
 JOURNAL *journal_account_fetch(
 		char *fund_name,
 		char *transaction_date_time,
 		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		boolean fetch_account,
 		boolean fetch_subclassification,
 		boolean fetch_element,
@@ -259,13 +240,6 @@ double journal_account_list_credit_sum(
 
 /* Usage */
 /* ----- */
-double journal_first_account_balance(
-		const char *journal_table,
-		char *fund_name,
-		char *account_name );
-
-/* Usage */
-/* ----- */
 double journal_balance_sum(
 		LIST *journal_list );
 
@@ -300,7 +274,9 @@ LIST *journal_tax_form_list(
 		char *tax_form_fiscal_begin_date,
 		char *tax_form_fiscal_end_date,
 		const char *transaction_date_preclose_time,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -388,7 +364,9 @@ LIST *journal_entity_list(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -398,7 +376,9 @@ LIST *journal_transaction_list(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *transaction_date_time );
+		char *transaction_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -410,7 +390,9 @@ char *journal_primary_where(
 		char *full_name,
 		char *contact_key,
 		char *transaction_date_time,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -421,7 +403,9 @@ char *journal_entity_where(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -499,6 +483,8 @@ char *journal_system_string(
 		const char *journal_table,
 		const char *predictive_fund_column,
 		const char *entity_contact_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *where );
 
 /* Usage */
@@ -521,7 +507,8 @@ char *journal_select_string(
 char *journal_min_transaction_date_time(
 		const char *journal_table,
 		char *fund_name,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */
@@ -538,10 +525,10 @@ char *journal_max_transaction_date_time(
 /* Returns static memory */
 /* --------------------- */
 char *journal_account_where(
-		const char *predictive_fund_table,
 		const char *predictive_fund_column,
 		char *fund_name,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */
@@ -551,7 +538,8 @@ char *journal_account_where(
 char *journal_transaction_account_where(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */
@@ -561,7 +549,8 @@ char *journal_transaction_account_where(
 char *journal_less_equal_where(
 		char *fund_name,
 		char *end_date_time_string,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */
@@ -571,7 +560,8 @@ char *journal_less_equal_where(
 char *journal_less_where(
 		char *fund_name,
 		char *transaction_date_time,
-		char *account_name );
+		char *account_name,
+		boolean predictive_fund_boolean );
 
 /* Usage */
 /* ----- */

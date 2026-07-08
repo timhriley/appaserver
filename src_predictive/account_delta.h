@@ -22,6 +22,8 @@ typedef struct
 {
 	char *balance_account_name;
 	char *date_now19;
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	ACCOUNT_JOURNAL *account_journal_latest;
 	double amount;
 	double current_balance;

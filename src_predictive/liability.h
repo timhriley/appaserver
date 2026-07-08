@@ -79,7 +79,9 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY *liability_account_fetch(
-		char *liability_account_name );
+		char *liability_account_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -94,9 +96,10 @@ char *liability_account_where(
 /* Usage */
 /* ----- */
 LIABILITY *liability_entity_fetch(
-		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		LIST *account_current_liability_name_list );
 
 /* Process */
@@ -178,7 +181,9 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *liability_entity_account_list(
-		LIST *liability_account_entity_list );
+		LIST *liability_account_entity_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -186,19 +191,25 @@ LIST *liability_entity_distinct_entity_list(
 		LIST *account_current_liability_name_list,
 		LIST *journal_account_distinct_entity_list,
 		LIST *account_receivable_name_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		ENTITY_SELF *entity_self );
 
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_account_name_new(
 		char *account_name,
-		ENTITY *entity );
+		ENTITY *entity,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_account_list_new(
 		LIST *account_current_liability_name_list,
 		LIST *account_receivable_name_list,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		ENTITY *entity );
 
 /* Process */
@@ -261,6 +272,7 @@ typedef struct
 /* ----- */
 LIABILITY_TRANSACTION_LIST *
 	liability_transaction_list_new(
+		char *fund_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
 		char *transaction_memo,
@@ -306,6 +318,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY_TRANSACTION *liability_transaction_new(
+		char *fund_name,
 		double dialog_box_payment_amount,
 		int check_number,
 		char *transaction_memo,
@@ -325,6 +338,7 @@ typedef struct
 	LIST *account_current_liability_name_list;
 	LIST *journal_account_distinct_entity_list;
 	LIST *account_receivable_name_list;
+	boolean predictive_fund_boolean;
 	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	LIST *liability_entity_list;
@@ -358,6 +372,7 @@ typedef struct
 /* ----- */
 LIABILITY_PAYMENT *liability_payment_new(
 		char *application_name,
+		char *fund_name,
 		char *cash_account_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,

@@ -219,6 +219,11 @@ STATEMENT *statement_fetch(
 			fund_name,
 			statement->predictive_fund_boolean );
 
+	statement->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	statement->transaction_date_begin_date_string =
 		transaction_date_begin_date_string;
 
@@ -230,6 +235,8 @@ STATEMENT *statement_fetch(
 			statement->predictive_fund_name,
 			element_name_list,
 			end_date_time,
+			statement->predictive_fund_boolean,
+			statement->entity_contact_key_boolean,
 			1 /* fetch_subclassification */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -850,7 +857,10 @@ LIST *statement_prior_year_list(
 				element_name_list,
 				end_date_time_string,
 				years_ago,
-				statement,
+				statement->element_statement_list
+					/* current_element_statement_list */,
+				statement->predictive_fund_boolean,
+				statement->entity_contact_key_boolean,
 				fetch_contra_account_boolean ) );
 	}
 
@@ -862,7 +872,9 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		LIST *element_name_list,
 		char *end_date_time_string,
 		int years_ago,
-		STATEMENT *statement,
+		LIST *current_element_statement_list,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		boolean fetch_contra_account_boolean )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
@@ -871,8 +883,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 
 	if ( !list_length( element_name_list )
 	||   !end_date_time_string
-	||   !years_ago
-	||   !statement )
+	||   !years_ago )
 	{
 		char message[ 128 ];
 
@@ -885,7 +896,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			message );
 	}
 
-	if ( !list_length( statement->element_statement_list ) ) return NULL;
+	if ( !list_length( current_element_statement_list ) ) return NULL;
 
 	statement_prior_year = statement_prior_year_calloc();
 
@@ -902,6 +913,8 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			fund_name,
 			element_name_list,
 			statement_prior_year->date_time,
+			fund_boolean,
+			contact_key_boolean,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
@@ -918,13 +931,12 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		statement_prior_year->
 			element_statement_list );
 
-	list_rewind( statement->element_statement_list );
+	list_rewind( current_element_statement_list );
 
 	do {
 		current_element =
 			list_get(
-				statement->
-					element_statement_list );
+				current_element_statement_list );
 
 		prior_element =
 			element_seek(
@@ -938,7 +950,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 				current_element );
 		}
 
-	} while ( list_next( statement->element_statement_list ) );
+	} while ( list_next( current_element_statement_list ) );
 
 	return statement_prior_year;
 }

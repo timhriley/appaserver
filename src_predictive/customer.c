@@ -12,6 +12,7 @@
 #include "sql.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "entity.h"
 #include "journal.h"
 #include "account.h"
 #include "customer.h"
@@ -45,9 +46,11 @@ CUSTOMER *customer_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			contact_key_boolean,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			customer_full_name,
-			customer_contact_key );
+			customer_contact_key,
+			contact_key_boolean );
 
 	system_string =
 		/* ------------------- */
@@ -143,7 +146,8 @@ CUSTOMER *customer_parse(
 				ACCOUNT_PAYABLE_KEY,
 				ACCOUNT_RECEIVABLE_KEY,
 				customer_full_name,
-				customer_contact_key );
+				customer_contact_key,
+				contact_key_boolean );
 	}
 
 	return customer;
@@ -200,7 +204,8 @@ double customer_past_due(
 		const char *account_payable_key,
 		const char *account_receivable_key,
 		char *customer_full_name,
-		char *customer_contact_key )
+		char *customer_contact_key,
+		boolean contact_key_boolean )
 {
 
 	double payable_balance;
@@ -219,7 +224,9 @@ double customer_past_due(
 			/* ------------------------------------ */
 			account_payable_string(
 				account_payable_key,
-				__FUNCTION__ ) );
+				__FUNCTION__ ),
+			0 /* not predictive_fund_boolean */,
+			contact_key_boolean );
 
 	payable_balance =
 		journal_debit_credit_sum_difference(
@@ -238,7 +245,9 @@ double customer_past_due(
 			/* ------------------------------------ */
 			account_receivable_string(
 				account_receivable_key,
-				__FUNCTION__ ) );
+				__FUNCTION__ ),
+			0 /* not predictive_fund_boolean */,
+			contact_key_boolean );
 
 	receivable_balance =
 		journal_debit_credit_sum_difference(

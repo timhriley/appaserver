@@ -24,7 +24,7 @@
 #define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
 					"feeder_load_transaction_days_ago"
 
-#define FEEDER_MATCH_DEFAULT_DAYS_AGO	6
+#define FEEDER_MATCH_DEFAULT_DAYS_AGO	366
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
@@ -51,6 +51,8 @@
 typedef struct
 {
 	char *feeder_account_name;
+	boolean predictive_fund_boolean;
+	char *predictive_fund_name;
 	boolean entity_contact_key_boolean;
 	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
@@ -60,8 +62,6 @@ typedef struct
 	int match_days_ago;
 	char *match_minimum_date;
 	LIST *feeder_matched_journal_list;
-	boolean predictive_fund_boolean;
-	char *predictive_fund_name;
 	LIST *feeder_row_list;
 	int feeder_row_count;
 	boolean feeder_row_list_non_match_boolean;

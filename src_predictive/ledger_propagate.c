@@ -13,10 +13,12 @@
 #include "environ.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
+#include "entity.h"
 #include "transaction.h"
 #include "journal.h"
-#include "journal_propagate.h"
+#include "predictive.h"
 #include "account.h"
+#include "journal_propagate.h"
 
 int main( int argc, char **argv )
 {
@@ -25,6 +27,8 @@ int main( int argc, char **argv )
 	char *transaction_date_time;
 	char *preupdate_transaction_date_time = "";
 	char *propagate_transaction_date_time = {0};
+	boolean fund_boolean;
+	boolean contact_key_boolean;
 	JOURNAL_PROPAGATE *journal_propagate;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -72,6 +76,16 @@ int main( int argc, char **argv )
 			transaction_date_time;
 	}
 
+	fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	/* If every account */
 	/* ---------------- */
 	if (	argc < 5
@@ -95,7 +109,9 @@ int main( int argc, char **argv )
 				journal_propagate_new(
 					fund_name,
 					propagate_transaction_date_time,
-					account_name );
+					account_name,
+					fund_boolean,
+					contact_key_boolean );
 
 			if ( journal_propagate )
 			{
@@ -125,7 +141,9 @@ int main( int argc, char **argv )
 				journal_propagate_new(
 					fund_name,
 					propagate_transaction_date_time,
-					account_name );
+					account_name,
+					fund_boolean,
+					contact_key_boolean );
 
 			if ( journal_propagate )
 			{

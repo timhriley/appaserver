@@ -37,6 +37,11 @@ int main( int argc, char **argv )
 	}
 
 	application_name = argv[ 1 ];
+	session_key = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	application_menu_horizontal_boolean = (*argv[ 5 ] == 'y');
+	content_type_boolean = (*argv[ 6 ] == 'y');
 
 	session_environment_set( application_name );
 
@@ -44,12 +49,6 @@ int main( int argc, char **argv )
 		argc,
 		argv,
 		application_name );
-
-	session_key = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	application_menu_horizontal_boolean = (*argv[ 5 ] == 'y');
-	content_type_boolean = (*argv[ 6 ] == 'y');
 
 	if ( content_type_boolean )
 	{
@@ -75,6 +74,18 @@ int main( int argc, char **argv )
 			appaserver_parameter_data_directory(),
 			1 /* folder_menu_remove_boolean */ );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: folder_menu=%x\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	(unsigned int)(long)folder_menu );
+msg( (char *)0, message );
+}
 	menu =
 		/* -------------- */
 		/* Safely returns */
@@ -87,6 +98,18 @@ int main( int argc, char **argv )
 			application_menu_horizontal_boolean,
 			folder_menu->count_list );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: menu=%x\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	(unsigned int)(long)menu );
+msg( (char *)0, message );
+}
 	if ( !menu->html )
 	{
 		fprintf(stderr,
@@ -123,6 +146,17 @@ int main( int argc, char **argv )
 				application_name,
 				(LIST *)0 /* javascript_filename_list */ ) );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( (char *)0, message );
+}
 	printf( "%s\n%s\n%s\n%s\n%s\n%s\n",
 		document->html,
 		document->document_head->html,
