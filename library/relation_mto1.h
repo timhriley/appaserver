@@ -159,6 +159,16 @@ LIST *relation_mto1_to_one_fetch_list(
 
 /* Usage */
 /* ----- */
+LIST *relation_mto1_omit_drillthru_list(
+		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
+LIST *relation_mto1_omit_update_list(
+		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
 LIST *relation_mto1_without_omit_drillthru_list(
 		LIST *relation_mto1_list );
 

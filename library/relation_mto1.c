@@ -852,6 +852,55 @@ LIST *relation_mto1_to_one_fetch_list(
 			/* many_folder_primary_key_list */ );
 }
 
+LIST *relation_mto1_omit_drillthru_list( LIST *relation_mto1_list )
+{
+	LIST *list = list_new();
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( relation_mto1->relation->omit_drillthru )
+		{
+			list_set( list, relation_mto1 );
+		}
+
+	} while ( list_next( relation_mto1_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+
+LIST *relation_mto1_omit_update_list( LIST *relation_mto1_list )
+{
+	LIST *list = list_new();
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( relation_mto1->relation->omit_update )
+		{
+			list_set( list, relation_mto1 );
+		}
+
+	} while ( list_next( relation_mto1_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
 LIST *relation_mto1_without_omit_drillthru_list( LIST *relation_mto1_list )
 {
 	LIST *list = list_new();

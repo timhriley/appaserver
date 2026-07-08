@@ -37,13 +37,10 @@
 "<li>Probably the File Row Description changed." \
 "<ol><li>Duplicate another browser tab." \
 "<li>[Copy] the suspected Description into your clipboard." \
-"<li>Lookup --> Transaction --> Journal." \
-"<li>On the Drillthru Transaction screen, "\
-"query the suspected transction date and transaction amount." \
-"<li>On the Lookup Journal screen, " \
-"[Fill] the Account with the feeder account then [Submit]." \
-"<li>On the Update Journal screen, check [Drilldown], then [Submit]."\
-"<li>On the Feeder Row block, [Paste} your clipboard onto the " \
+"<li>Lookup --> Feeder --> Feeder Row." \
+"<li>Skip the Drillthru Feeder Load Event Screen."\
+"<li>Query the Lookup Feeder Row, then [Submit]."\
+"<li>On the Update Feeder Row screen, [Paste} your clipboard onto the " \
 "File Row Description, then [Submit].</ol>" \
 "<li>Execute the Audit process called Feeder Row Journal Audit. " \
 "Check the File Row Amount column for a clue.</ol>"

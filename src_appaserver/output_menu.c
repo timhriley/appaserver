@@ -74,18 +74,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_data_directory(),
 			1 /* folder_menu_remove_boolean */ );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: folder_menu=%x\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	(unsigned int)(long)folder_menu );
-msg( (char *)0, message );
-}
 	menu =
 		/* -------------- */
 		/* Safely returns */
@@ -98,18 +86,6 @@ msg( (char *)0, message );
 			application_menu_horizontal_boolean,
 			folder_menu->count_list );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: menu=%x\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	(unsigned int)(long)menu );
-msg( (char *)0, message );
-}
 	if ( !menu->html )
 	{
 		fprintf(stderr,
@@ -146,17 +122,6 @@ msg( (char *)0, message );
 				application_name,
 				(LIST *)0 /* javascript_filename_list */ ) );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: \n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-msg( (char *)0, message );
-}
 	printf( "%s\n%s\n%s\n%s\n%s\n%s\n",
 		document->html,
 		document->document_head->html,
