@@ -494,3 +494,95 @@ char *fixed_service_sale_primary_where(
 	return where;
 }
 
+void fixed_service_sale_trigger(
+		char *application_name,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *state )
+{
+	FIXED_SERVICE_SALE *fixed_service_sale;
+	SALE *sale;
+
+	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
+
+	if ( strcmp(
+		state,
+		APPASERVER_INSERT_STATE ) == 0
+	||   strcmp(
+		state,
+		APPASERVER_UPDATE_STATE ) == 0 )
+	{
+		fixed_service_sale =
+			fixed_service_sale_fetch(
+				FIXED_SERVICE_SALE_SELECT,
+				FIXED_SERVICE_SALE_TABLE,
+				full_name,
+				street_address,
+				sale_date_time,
+				service_name );
+	
+		fixed_service_sale_update(
+			FIXED_SERVICE_SALE_TABLE,
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			fixed_service_sale->
+				fixed_service_work_hours,
+			fixed_service_sale->net_revenue );
+	}
+	
+	sale =
+		sale_trigger_new(
+			full_name,
+			street_address,
+			sale_date_time,
+			state,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_street_address */,
+			(char *)0 /* preupdate_uncollectible_date_time */ );
+
+	if ( !sale ) return;
+
+	sale_update(
+		SALE_TABLE,
+		full_name,
+		street_address,
+		sale_date_time,
+		sale->sale_fetch->inventory_sale_boolean,
+		sale->sale_fetch->specific_inventory_sale_boolean,
+		sale->sale_fetch->fixed_service_sale_boolean,
+		sale->sale_fetch->fixed_service_sale_boolean,
+		sale->inventory_sale_total,
+		sale->specific_inventory_sale_total,
+		sale->fixed_service_sale_total,
+		sale->fixed_service_sale_total,
+		sale->gross_revenue,
+		sale->sales_tax,
+		sale->invoice_amount,
+		sale->customer_payment_total,
+		sale->amount_due,
+		sale->sale_transaction );
+	
+	if ( sale->sale_transaction )
+	{
+		subsidiary_transaction_execute(
+			application_name,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				delete_transaction,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				insert_transaction,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				update_template );
+	}
+}
+

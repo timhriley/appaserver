@@ -119,5 +119,15 @@ void fixed_service_sale_update(
 char *fixed_service_sale_update_system_string(
 		const char *fixed_service_sale_table );
 
+/* Driver */
+/* ------ */
+void fixed_service_sale_trigger(
+		char *application_name,
+		char *full_name,
+		char *street_address,
+		char *sale_date_time,
+		char *service_name,
+		char *state );
+
 #endif
 

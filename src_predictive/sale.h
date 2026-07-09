@@ -16,19 +16,21 @@
 #include "sale_loss_transaction.h"
 #include "sale_fetch.h"
 
-#define SALE_TABLE		"sale"
+#define SALE_TABLE			"sale"
 
-#define SALE_SELECT		"full_name,"				\
-				"sale_date_time,"			\
-				"gross_revenue,"			\
-				"invoice_amount,"			\
-				"payment_total,"			\
-				"amount_due,"				\
-				"completed_date_time,"			\
-				"transaction_date_time"
+#define SALE_SELECT			"full_name,"			\
+					"sale_date_time,"		\
+					"gross_revenue,"		\
+					"invoice_amount,"		\
+					"payment_total,"		\
+					"amount_due,"			\
+					"completed_date_time,"		\
+					"transaction_date_time"
 
-#define SALE_DATE_TIME_COLUMN	"sale_date_time"
-#define SALE_MEMO		"Customer Sale"
+#define SALE_DATE_TIME_COLUMN		"sale_date_time"
+#define SALE_SERVICE_NAME_COLUMN	"service_name"
+#define SALE_BEGIN_WORK_COLUMN		"begin_work_date_time"
+#define SALE_MEMO			"Customer Sale"
 
 typedef struct
 {
@@ -179,8 +181,8 @@ LIST *sale_update_string_list(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
 char *sale_update_string(
 		const char sql_delimiter,
 		char *sale_primary_data_string,

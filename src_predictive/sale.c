@@ -470,11 +470,9 @@ double sale_work_hours(
 			message );
 	}
 
-	if ( !end_work_date_time ) return 0.0;
+	if ( !end_work_date_time || !*end_work_date_time ) return 0.0;
 
-	if ( ! ( earlier_date =
-			date_19new(
-				begin_work_date_time ) ) )
+	if ( ! ( earlier_date = date_19new( begin_work_date_time ) ) )
 	{
 		char message[ 128 ];
 
@@ -491,9 +489,7 @@ double sale_work_hours(
 			message );
 	}
 
-	if ( ! ( later_date =
-			date_19new(
-				end_work_date_time ) ) )
+	if ( ! ( later_date = date_19new( end_work_date_time ) ) )
 	{
 		char message[ 128 ];
 
@@ -509,7 +505,6 @@ double sale_work_hours(
 			__LINE__,
 			message );
 	}
-
 
 	subtract_minutes =
 		date_subtract_minutes(

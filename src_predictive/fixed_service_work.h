@@ -19,18 +19,13 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *sale_date_time;
-	char *service_name;
 	char *begin_work_date_time;
 	char *end_work_date_time;
-	char *work_description;
 	char *activity;
-	char *appaserver_full_name;
-	char *appaserver_street_address;
 	double work_hours; /* from parse */
 	double sale_work_hours; /* for update */
+	LIST *primary_key_list;
+	LIST *update_string_list;
 } FIXED_SERVICE_WORK;
 
 /* Usage */
@@ -38,29 +33,24 @@ typedef struct
 LIST *fixed_service_work_list(
 		const char *fixed_service_work_select,
 		const char *fixed_service_work_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
-		char *service_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *fixed_service_work_where(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name );
+		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 FIXED_SERVICE_WORK *fixed_service_work_parse(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *string_input );
 
 /* Usage */
@@ -69,11 +59,10 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 /* Safely returns */
 /* -------------- */
 FIXED_SERVICE_WORK *fixed_service_work_new(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *begin_work_date_time );
+		char *begin_work_date_time,
+		char *end_work_date_time,
+		char *activity,
+		double work_hours );
 
 /* Process */
 /* ------- */
@@ -85,11 +74,28 @@ FIXED_SERVICE_WORK *fixed_service_work_calloc(
 FIXED_SERVICE_WORK *fixed_service_work_fetch(
 		const char *fixed_service_work_select,
 		const char *fixed_service_work_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *begin_work_date_time );
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+LIST *fixed_service_work_primary_key_list(
+		const char *sale_begin_work_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+void fixed_service_work_update(
+		const char *fixed_service_work_table,
+		LIST *update_string_list,
+		LIST *primary_key_list );
 
 /* Usage */
 /* ----- */
@@ -97,34 +103,61 @@ FIXED_SERVICE_WORK *fixed_service_work_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *fixed_service_work_primary_where(
+		const char *sale_begin_work_column,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *begin_work_date_time );
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
-double fixed_service_work_hours(
+double fixed_service_work_total(
 		LIST *fixed_service_work_list );
 
 /* Usage */
 /* ----- */
-void fixed_service_work_update(
-		const char *fixed_service_work_table,
+LIST *fixed_service_work_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		double sale_work_hours );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *fixed_service_sale_update_system_string(
-		const char *fixed_service_work_table );
+char *fixed_service_work_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Driver */
+/* ------ */
+void fixed_service_work_trigger(
+		char *application_name,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *begin_work_date_time,
+		char *state );
 
 #endif
