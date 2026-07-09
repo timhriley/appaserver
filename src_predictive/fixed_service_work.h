@@ -12,12 +12,9 @@
 
 #define FIXED_SERVICE_WORK_TABLE	"fixed_service_work"
 
-#define FIXED_SERVICE_WORK_SELECT	"begin_work_date_time,"		\
-					"end_work_date_time,"		\
-					"work_description,"		\
-					"activity,"			\
-					"appaserver_full_name,"		\
-					"appaserver_street_address,"	\
+#define FIXED_SERVICE_WORK_SELECT	"begin_work_date_time,"	\
+					"end_work_date_time,"	\
+					"activity,"		\
 					"work_hours"
 
 typedef struct
