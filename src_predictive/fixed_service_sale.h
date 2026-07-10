@@ -21,9 +21,6 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *sale_date_time;
 	char *service_name;
 	double fixed_price;
 	double estimated_hours;
@@ -33,6 +30,8 @@ typedef struct
 	LIST *fixed_service_work_list;
 	double fixed_service_work_hours; /* for update */
 	double fixed_service_sale_net_revenue; /* for update */
+	LIST *update_string_list;
+	LIST *primary_key_list;
 } FIXED_SERVICE_SALE;
 
 /* Usage */
@@ -40,16 +39,24 @@ typedef struct
 LIST *fixed_service_sale_list(
 		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
-		char *sale_date_time );
+		char *contact_key,
+		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean fixed_service_work_boolean );
 
 /* Usage */
 /* ----- */
 FIXED_SERVICE_SALE *fixed_service_sale_parse(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		boolean fixed_service_work_boolean,
 		char *input );
 
 /* Usage */
@@ -58,9 +65,6 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 /* Safely returns */
 /* -------------- */
 FIXED_SERVICE_SALE *fixed_service_sale_new(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
 		char *service_name );
 
 /* Process */
@@ -73,10 +77,28 @@ FIXED_SERVICE_SALE *fixed_service_sale_calloc(
 FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
-		char *service_name );
+		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean fixed_service_work_boolean );
+
+/* Usage */
+/* ----- */
+LIST *fixed_service_sale_primary_key_list(
+		const char *sale_service_name_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+void fixed_service_sale_update(
+		const char *fixed_service_sale_table,
+		LIST *update_string_list,
+		LIST *primary_key_list );
 
 /* Usage */
 /* ----- */
@@ -84,10 +106,14 @@ FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *fixed_service_sale_primary_where(
+		const char *sale_service_name_column,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
-		char *service_name );
+		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -102,29 +128,40 @@ double fixed_service_sale_total(
 
 /* Usage */
 /* ----- */
-void fixed_service_sale_update(
-		const char *fixed_service_sale_table,
+LIST *fixed_service_sale_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		double fixed_service_work_hours,
 		double fixed_service_sale_net_revenue );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *fixed_service_sale_update_system_string(
-		const char *fixed_service_sale_table );
+char *fixed_service_sale_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Driver */
 /* ------ */
 void fixed_service_sale_trigger(
 		char *application_name,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *state );

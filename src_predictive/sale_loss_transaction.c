@@ -14,19 +14,22 @@
 #include "sale_loss_transaction.h"
 
 SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *uncollectible_date_time,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
 		char *preupdate_uncollectible_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		double sale_amount_due )
 {
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
 
 	if ( !full_name
-	||   !street_address
 	||   !state )
 	{
 		char message[ 128 ];
@@ -47,34 +50,35 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 
 	sale_loss_transaction = sale_loss_transaction_calloc();
 
-	sale_loss_transaction->account_loss_string =
-		account_loss_string(
-			ACCOUNT_LOSS_KEY,
-			__FUNCTION__ );
-
-	if ( ! ( sale_loss_transaction->debit_account =
-			account_fetch(
-				sale_loss_transaction->account_loss_string,
-				1 /* fetch_subclassification */,
-				1 /* fetch_element */ ) ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"account_fetch(%s) returned empty.",
-			sale_loss_transaction->account_loss_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
 	if ( uncollectible_date_time )
 	{
+		sale_loss_transaction->account_loss_string =
+			account_loss_string(
+				ACCOUNT_LOSS_KEY,
+				__FUNCTION__ );
+
+		if ( ! ( sale_loss_transaction->debit_account =
+				account_fetch(
+					sale_loss_transaction->
+						account_loss_string,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ ) ) )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"account_fetch(%s) returned empty.",
+				sale_loss_transaction->account_loss_string );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		sale_loss_transaction->account_receivable_string =
 			account_receivable_string(
 				ACCOUNT_RECEIVABLE_KEY,
@@ -105,8 +109,9 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 
 		sale_loss_transaction->journal_binary_list =
 			journal_binary_list(
+				(char *)0 /* fund_name */,
 				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
+				(char *)0 /* contact_key */,
 				(char *)0 /* transaction_date_time */,
 				sale_amount_due
 					/* transaction_amount */,
@@ -119,21 +124,27 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		/* Safely returns */
 		/* -------------- */
 		subsidiary_transaction_state_new(
+			"preupdate_fund_name"
+				/* preupdate_fund_name_placeholder */,
 			"preupdate_full_name"
 				/* preupdate_full_name_placeholder */,
-			"preupdate_street_address"
-				/* preupdate_street_address_placeholder */,
+			"preupdate_contact_key"
+				/* preupdate_contact_key_placeholder */,
 			"preupdate_uncollectible_date_time"
 				/* preupdate_foreign_date_time_placeholder */,
 			state,
+			preupdate_fund_name,
 			preupdate_full_name,
-			preupdate_street_address,
+			preupdate_contact_key,
 			preupdate_uncollectible_date_time
 				/* preupdate_foreign_date_time */,
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			uncollectible_date_time
 				/* foreign_date_time */,
+			fund_boolean,
+			contact_key_boolean,
 			sale_loss_transaction->journal_binary_list
 				/* insert_journal_list */ );
 
@@ -144,10 +155,12 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
+			"fund_name"
+				/* foreign_full_name_column */,
 			"full_name"
 				/* foreign_full_name_column */,
-			"street_address"
-				/* foreign_street_address_column */,
+			"contact_key"
+				/* foreign_contact_key_column */,
 			"uncollectible_date_time"
 				/* foreign_date_time_column */,
 			uncollectible_date_time
@@ -162,7 +175,9 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 				subsidiary_transaction_insert,
 			sale_loss_transaction->
 				subsidiary_transaction_state->
-				subsidiary_transaction_delete );
+				subsidiary_transaction_delete,
+			fund_boolean,
+			contact_key_boolean );
 
 	return sale_loss_transaction;
 }

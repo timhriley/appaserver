@@ -65,16 +65,6 @@ SALE *sale_trigger_new(
 	sale->contact_key = contact_key;
 	sale->sale_date_time = sale_date_time;
 
-	sale->predictive_fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN );
-
-	sale->entity_contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
-
 	sale->sale_fetch =
 		sale_fetch_new(
 			SALE_SELECT,
@@ -82,10 +72,10 @@ SALE *sale_trigger_new(
 			fund_name,
 			full_name,
 			contact_key,
-			sale_date_time,
-			sale->predictive_fund_boolean,
-			sale->entity_contact_key_boolean );
+			sale_date_time );
 
+	/* May be deleted */
+	/* -------------- */
 	if ( !sale->sale_fetch )
 	{
 		free( sale );
@@ -176,10 +166,9 @@ SALE *sale_trigger_new(
 			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
-			sale->predictive_fund_boolean,
-			sale->entity_contact_key_boolean,
-			sale->sale_fetch->financial_institution_full_name,
-			sale->sale_fetch->financial_institution_contact_key,
+			sale->sale_fetch->predictive_fund_boolean,
+			sale->sale_fetch->entity_contact_key_boolean,
+			sale->sale_fetch->feeder_account,
 			sale->sale_fetch->predictive_title_passage_rule,
 			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->shipped_date_time,
@@ -197,6 +186,7 @@ SALE *sale_trigger_new(
 
 	sale->sale_loss_transaction =
 		sale_loss_transaction_new(
+			fund_name,
 			full_name,
 			contact_key,
 			sale->
@@ -207,6 +197,12 @@ SALE *sale_trigger_new(
 			preupdate_full_name,
 			preupdate_contact_key,
 			preupdate_uncollectible_date_time,
+			sale->
+				sale_fetch->
+				predictive_fund_boolean,
+			sale->
+				sale_fetch->
+				entity_contact_key_boolean,
 			sale->amount_due );
 
 	sale->update_string_list =
@@ -216,15 +212,16 @@ SALE *sale_trigger_new(
 			full_name,
 			contact_key,
 			sale_date_time,
-			sale->predictive_fund_boolean,
-			sale->entity_contact_key_boolean,
-			sale->sale_fetch->shipping_charge_boolean;
-			sale->sale_fetch->inventory_sale_boolean;
-			sale->sale_fetch->specific_inventory_sale_boolean;
-			sale->sale_fetch->fixed_service_sale_boolean;
-			sale->sale_fetch->hourly_service_sale_boolean;
+			sale->sale_fetch->predictive_fund_boolean,
+			sale->sale_fetch->entity_contact_key_boolean,
+			sale->sale_fetch->shipping_charge_boolean,
+			sale->sale_fetch->inventory_sale_boolean,
+			sale->sale_fetch->specific_inventory_sale_boolean,
+			sale->sale_fetch->fixed_service_sale_boolean,
+			sale->sale_fetch->hourly_service_sale_boolean,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->sale_fetch->payment_list_boolean;
+			sale->sale_fetch->payment_list_boolean,
+			sale->shipping_charge,
 			sale->inventory_sale_total,
 			sale->specific_inventory_sale_total,
 			sale->fixed_service_sale_total,
@@ -234,15 +231,6 @@ SALE *sale_trigger_new(
 			sale->invoice_amount,
 			sale->customer_payment_total,
 			sale->amount_due );
-
-	sale->primary_key_list =
-		sale_primary_key_list(
-			PREDICTIVE_FUND_COLUMN,
-			ENTITY_FULL_NAME_COLUMN,
-			ENTITY_CONTACT_KEY_COLUMN,
-			SALE_DATE_TIME_COLUMN,
-			sale->predictive_fund_boolean,
-			sale->entity_contact_key_boolean );
 
 	return sale;
 }
@@ -258,7 +246,7 @@ char *sale_primary_where(
 	char *fund_where;
 	char *contact_key_where;
 	char *escape_date_time;
-	static char where[ 128 ];
+	static char where[ 256 ];
 
 	if ( !full_name
 	||   !sale_date_time )
@@ -569,43 +557,6 @@ char *sale_update_transaction_date_time(
 	}
 
 	return transaction_date_time;
-}
-
-LIST *sale_primary_key_list(
-		const char *predictive_fund_column,
-		const char *entity_full_name_column,
-		const char *entity_contact_key_column,
-		const char *sale_date_time_column,
-		boolean fund_boolean,
-		boolean contact_key_boolean )
-{
-	char *fund_string;
-	LIST *list = list_new();
-
-	fund_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		predictive_fund_string(
-			0 /* delimiter */,
-			predictive_fund_column,
-			fund_boolean );
-
-	if ( *fund_string )
-	{
-		list_set( list, fund_string );
-	}
-
-	list_set_list(
-		list,
-		entity_primary_key_list(
-			entity_full_name_column,
-			entity_contact_key_column,
-			entity_contact_key_boolean ) );
-
-	list_set( list, sale_date_time_column );
-
-	return list;
 }
 
 char *sale_primary_data_string(

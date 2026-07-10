@@ -38,9 +38,8 @@ typedef struct
 	char *full_name;
 	char *contact_key;
 	char *sale_date_time;
-	boolean predictive_fund_boolean;
-	boolean entity_contact_key_boolean;
 	SALE_FETCH *sale_fetch;
+	double shipping_charge;
 	double inventory_sale_total;
 	double inventory_sale_CGS_total;
 	double specific_inventory_sale_total;
@@ -55,7 +54,6 @@ typedef struct
 	SALE_TRANSACTION *sale_transaction;
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
 	LIST *update_string_list;
-	LIST *primary_key_list;
 } SALE;
 
 /* Usage */
@@ -139,16 +137,6 @@ char *sale_primary_where(
 double sale_work_hours(
 		char *begin_work_date_time,
 		char *end_work_date_time );
-
-/* Usage */
-/* ----- */
-LIST *sale_primary_key_list(
-		const char *predictive_fund_column,
-		const char *entity_full_name_column,
-		const char *entity_contact_key_column,
-		const char *sale_date_time_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */

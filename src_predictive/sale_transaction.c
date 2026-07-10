@@ -115,6 +115,8 @@ SALE_TRANSACTION *sale_transaction_new(
 		/* Safely returns */
 		/* -------------- */
 		subsidiary_transaction_state_new(
+			"preupdate_fund_name"
+				/* preupdate_fund_name_placeholder */,
 			"preupdate_full_name"
 				/* preupdate_full_name_placeholder */,
 			"preupdate_contact_key"
@@ -122,14 +124,18 @@ SALE_TRANSACTION *sale_transaction_new(
 			"preupdate_transaction_date_time"
 				/* preupdate_foreign_date_time_placeholder */,
 			state,
+			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
 			prior_transaction_date_time
 				/* preupdate_foreign_date_time */,
+			fund_name,
 			full_name,
 			contact_key,
 			sale_transaction->transaction_date_time
 				/* foreign_date_time */,
+			fund_boolean,
+			contact_key_boolean,
 			sale_transaction->journal_list
 				/* insert_journal_list */ );
 
@@ -140,6 +146,8 @@ SALE_TRANSACTION *sale_transaction_new(
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
+			"fund_name"
+				/* foreign_fund_name_column */,
 			"full_name"
 				/* foreign_full_name_column */,
 			"contact_key"
@@ -151,13 +159,15 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* insert_journal_list */,
 			sale_invoice_amount
 				/* foreign_amount */,
-			"Sale" /* transaction_memo */,
+			SALE_MEMO /* transaction_memo */,
 			sale_transaction->
 				subsidiary_transaction_state->
 				subsidiary_transaction_insert,
 			sale_transaction->
 				subsidiary_transaction_state->
-				subsidiary_transaction_delete );
+				subsidiary_transaction_delete,
+			fund_boolean,
+			contact_key_boolean );
 
 	return sale_transaction;
 }

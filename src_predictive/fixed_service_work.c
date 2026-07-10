@@ -59,7 +59,8 @@ LIST *fixed_service_work_list(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		fixed_service_work_where(
+		fixed_service_sale_primary_where(
+			SALE_SERVICE_NAME_COLUMN,
 			fund_name,
 			full_name,
 			contact_key,
@@ -132,56 +133,6 @@ LIST *fixed_service_work_list(
 	return list;
 }
 
-char *fixed_service_work_where(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name )
-{
-	static char where[ 256 ];
-	char *tmp1;
-
-	if ( !full_name
-	||   !street_address
-	||   !sale_date_time
-	||   !service_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"%s and "
-		"service_name = '%s'",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		sale_primary_where(
-			full_name,
-			street_address,
-			sale_date_time ),
-		/* --------------------- */
-		/* Returns heap memory */
-		/* --------------------- */
-		( tmp1 = security_escape( service_name ) ) );
-
-	free( tmp1 );
-
-	return where;
-}
-
 FIXED_SERVICE_WORK *fixed_service_work_parse(
 		char *fund_name,
 		char *full_name,
@@ -190,7 +141,7 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 		char *service_name,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		char *string_input )
+		char *input )
 {
 	char begin_work_date_time[ 128 ];
 	char end_work_date_time[ 128 ];
@@ -313,21 +264,21 @@ FIXED_SERVICE_WORK *fixed_service_work_calloc( void )
 	return fixed_service_work;
 }
 
-double fixed_service_work_total( LIST *fixed_service_work_list )
+double fixed_service_work_hours( LIST *fixed_service_work_list )
 {
 	FIXED_SERVICE_WORK *fixed_service_work;
-	double total = 0.0;
+	double hours = 0.0;
 
 	if ( list_rewind( fixed_service_work_list ) )
 	do {
 		fixed_service_work =
 			list_get( fixed_service_work_list );
 
-		total += fixed_service_work->work_hours;
+		hours += fixed_service_work->work_hours;
 
 	} while ( list_next( fixed_service_work_list ) );
 
-	return total;
+	return hours;
 }
 
 FIXED_SERVICE_WORK *fixed_service_work_fetch(
@@ -419,7 +370,7 @@ char *fixed_service_work_primary_where(
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
-	static char where[ 256 ];
+	static char where[ 320 ];
 	char *service_sale_primary_where;
 	char *injection_escape;
 
@@ -446,13 +397,14 @@ char *fixed_service_work_primary_where(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		static char *fixed_service_sale_primary_where(
+		fixed_service_sale_primary_where(
+			SALE_SERVICE_NAME_COLUMN,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
 			service_name,
-			fund_name,
+			fund_boolean,
 			contact_key_boolean );
 
 	injection_escape =
@@ -522,7 +474,7 @@ char *fixed_service_work_primary_data_string(
 			sale_date_time,
 			service_name,
 			fund_boolean,
-			ontact_key_boolean );
+			contact_key_boolean );
 
 	injection_escape =
 		/* ------------------- */
@@ -592,8 +544,8 @@ LIST *fixed_service_work_update_string_list(
 			sale_date_time,
 			service_name,
 			begin_work_date_time,
-			predictive_fund_boolean,
-			entity_contact_key_boolean );
+			fund_boolean,
+			contact_key_boolean );
 
 	update_string =
 		/* ------------------------------------------------ */
@@ -618,6 +570,8 @@ void fixed_service_work_update(
 		LIST *update_string_list,
 		LIST *primary_key_list )
 {
+	/* Borrow sale_update() */
+	/* -------------------- */
 	(void)sale_update(
 		fixed_service_work_table,
 		(char *)0 /* application_name for transaction_update */,
@@ -640,9 +594,7 @@ LIST *fixed_service_work_primary_key_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	list_set(
-		list,
-		sale_begin_work_column );
+	list_set( list, (void *)sale_begin_work_column );
 
 	return list;
 }
@@ -658,6 +610,26 @@ void fixed_service_work_trigger(
 		char *state )
 {
 	FIXED_SERVICE_WORK *fixed_service_work;
+
+	if ( !full_name
+	||   !sale_date_time
+	||   !service_name
+	||   !begin_work_date_time
+	||   !state )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
 
@@ -693,7 +665,28 @@ void fixed_service_work_trigger(
 				begin_work_date_time,
 				fund_boolean,
 				contact_key_boolean );
-	
+
+		if ( !fixed_service_work )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"fixed_service_work_fetch(%s,%s,%s,%s) returned empty.",
+				full_name,
+				sale_date_time,
+				service_name,
+				begin_work_date_time );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+
 		fixed_service_work_update(
 			FIXED_SERVICE_WORK_TABLE,
 			fixed_service_work->update_string_list,

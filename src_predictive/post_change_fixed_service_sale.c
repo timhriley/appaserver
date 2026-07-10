@@ -16,8 +16,9 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *sale_date_time;
 	char *service_name;
 	char *state;
@@ -29,22 +30,23 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address sale_date_time service_name state\n",
+"Usage: %s fund_name full_name contact_key sale_date_time service_name state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
-	sale_date_time = argv[ 3 ];
-	service_name = argv[ 4 ];
-	state = argv[ 5 ];
+	fund_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	contact_key = argv[ 3 ];
+	sale_date_time = argv[ 4 ];
+	service_name = argv[ 5 ];
+	state = argv[ 6 ];
 
-	/* If change 1:m full_name or street address. */
-	/* ------------------------------------------ */
+	/* If change 1:m full_name, contact_key, or service_name. */
+	/* ------------------------------------------------------ */
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
 	/* If change 1:m sale_date_time. */
@@ -53,8 +55,9 @@ int main( int argc, char **argv )
 
 	fixed_service_sale_trigger(
 		application_name,
+		fund_name,
 		full_name,
-		street_address,
+		contact_key,
 		sale_date_time,
 		service_name,
 		state );

@@ -115,7 +115,7 @@ char *fixed_service_work_primary_where(
 
 /* Usage */
 /* ----- */
-double fixed_service_work_total(
+double fixed_service_work_hours(
 		LIST *fixed_service_work_list );
 
 /* Usage */

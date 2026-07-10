@@ -16,6 +16,7 @@
 
 typedef struct
 {
+	char *fund_name;
 	char *full_name;
 	char *contact_key;
 	char *sale_date_time;
@@ -28,10 +29,13 @@ typedef struct
 	boolean fixed_service_sale_boolean;
 	boolean hourly_service_sale_boolean;
 	boolean sales_tax_boolean;
+	boolean payment_list_boolean;
 	boolean title_passage_rule_boolean;
 	boolean shipped_date_time_boolean;
 	boolean arrived_date_boolean;
 	boolean uncollectible_date_time_boolean;
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	char *feeder_account;
 	double shipping_charge;
 	char *instructions;
@@ -59,6 +63,7 @@ typedef struct
 	CUSTOMER *customer;
 	ENTITY_SELF *entity_self;
 	double self_tax_state_sales_tax_rate;
+	LIST *primary_key_list;
 } SALE_FETCH;
 
 /* Usage */
@@ -69,9 +74,7 @@ SALE_FETCH *sale_fetch_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
+		char *sale_date_time );
 
 /* Process */
 /* ------- */
@@ -100,6 +103,11 @@ boolean sale_fetch_hourly_service_sale_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_sales_tax_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_payment_list_boolean(
+		const char *customer_payment_table,
+		const char *customer_payment_date_column,
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_title_passage_rule_boolean(
@@ -148,6 +156,16 @@ void sale_fetch_parse(
 		boolean sale_fetch_arrived_date_boolean,
 		boolean sale_fetch_uncollectible_date_time_boolean,
 		char *input );
+
+/* Usage */
+/* ----- */
+LIST *sale_fetch_primary_key_list(
+		const char *predictive_fund_column,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char *sale_date_time_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 #endif
 

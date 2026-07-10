@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "sql.h"
 #include "piece.h"
@@ -134,7 +133,7 @@ CUSTOMER_PAYMENT *customer_payment_parse(
 
 double customer_payment_total(
 		boolean payment_list_boolean,
-		double payment_total,
+		double invoice_amount,
 		LIST *customer_payment_list )
 {
 	CUSTOMER_PAYMENT *customer_payment;
@@ -142,7 +141,7 @@ double customer_payment_total(
 
 	if ( payment_list_boolean )
 	{
-		total = payment_total;
+		total = invoice_amount;
 	}
 	else
 	if ( list_rewind( customer_payment_list ) )

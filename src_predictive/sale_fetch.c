@@ -399,6 +399,15 @@ void sale_fetch_parse(
 				uncollectible_date_time =
 					strdup( buffer );
 	}
+
+	sale_fetch->primary_key_list =
+		sale_fetch_primary_key_list(
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			SALE_DATE_TIME_COLUMN,
+			sale_fetch->predictive_fund_boolean,
+			sale_fetch->entity_contact_key_boolean );
 }
 
 SALE_FETCH *sale_fetch_new(
@@ -407,9 +416,7 @@ SALE_FETCH *sale_fetch_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean )
+		char *sale_date_time )
 {
 	char *select;
 	char *where;
@@ -435,6 +442,11 @@ SALE_FETCH *sale_fetch_new(
 	}
 
 	sale_fetch = sale_fetch_calloc();
+
+	sale_fetch->fund_name = fund_name;
+	sale_fetch->full_name = full_name;
+	sale_fetch->contact_key = contact_key;
+	sale_fetch->sale_date_time = sale_date_time;
 
 	sale_fetch->folder_fetch =
 		/* -------------- */
@@ -479,6 +491,12 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch_sales_tax_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
+	sale_fetch->payment_list_boolean =
+		sale_fetch_payment_list_boolean(
+			CUSTOMER_PAYMENT_TABLE,
+			CUSTOMER_PAYMENT_DATE_COLUMN,
+			sale_fetch->folder_fetch->folder_attribute_list );
+
 	sale_fetch->title_passage_rule_boolean =
 		sale_fetch_title_passage_rule_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
@@ -514,6 +532,16 @@ SALE_FETCH *sale_fetch_new(
 			sale_fetch->arrived_date_boolean,
 			sale_fetch->uncollectible_date_time_boolean );
 
+	sale_fetch->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	sale_fetch->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	where =
 		/* --------------------- */
 		/* Returns static memory */
@@ -523,8 +551,8 @@ SALE_FETCH *sale_fetch_new(
 			full_name,
 			contact_key,
 			sale_date_time,
-			predictive_fund_boolean,
-			entity_contact_key_boolean );
+			sale_fetch->predictive_fund_boolean,
+			sale_fetch->entity_contact_key_boolean );
 
 	system_string =
 		/* ------------------- */
@@ -565,6 +593,8 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch->uncollectible_date_time_boolean,
 		input );
 
+#ifdef NOT_DEFINED
+
 	if ( sale_fetch->inventory_sale_boolean )
 	{
 		sale_fetch->inventory_sale_list =
@@ -574,7 +604,7 @@ SALE_FETCH *sale_fetch_new(
 				full_name,
 				contact_key,
 				sale_date_time,
-				entity_contact_key_boolean );
+				contact_key_boolean );
 	}
 
 	if ( sale_fetch->specific_inventory_sale_boolean )
@@ -659,6 +689,7 @@ SALE_FETCH *sale_fetch_new(
 			}
 		}
 	}
+#endif
 
 	if ( sale_fetch->fixed_service_sale_boolean )
 	{
@@ -666,11 +697,16 @@ SALE_FETCH *sale_fetch_new(
 			fixed_service_sale_list(
 				FIXED_SERVICE_SALE_SELECT,
 				FIXED_SERVICE_SALE_TABLE,
+				fund_name,
 				full_name,
-				street_address,
-				sale_date_time );
+				contact_key,
+				sale_date_time,
+				sale_fetch->predictive_fund_boolean,
+				sale_fetch->entity_contact_key_boolean,
+				1 /* fixed_service_work_boolean */ );
 	}
 
+/*
 	if ( sale_fetch->hourly_service_sale_boolean )
 	{
 		sale_fetch->hourly_service_sale_list =
@@ -681,6 +717,16 @@ SALE_FETCH *sale_fetch_new(
 				street_address,
 				sale_date_time );
 	}
+*/
+
+	sale_fetch->primary_key_list =
+		sale_fetch_primary_key_list(
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			SALE_DATE_TIME_COLUMN,
+			sale_fetch->predictive_fund_boolean,
+			sale_fetch->entity_contact_key_boolean );
 
 	return sale_fetch;
 }
@@ -826,5 +872,68 @@ SALE_FETCH *sale_fetch_calloc( void )
 	}
 
 	return sale_fetch;
+}
+
+boolean sale_fetch_payment_list_boolean(
+		const char *customer_payment_table,
+		const char *customer_payment_date_column,
+		LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( list_rewind( folder_attribute_list ) )
+	do {
+		folder_attribute = list_get( folder_attribute_list );
+
+
+		if ( strcmp(
+			folder_attribute->folder_name,
+			customer_payment_table ) == 0
+		&&   strcmp(
+			folder_attribute->attribute_name,
+			customer_payment_date_column ) == 0 )
+		{
+			return 1;
+		}
+	} while ( list_next( folder_attribute_list ) );
+
+	return 0;
+}
+
+LIST *sale_fetch_primary_key_list(
+		const char *predictive_fund_column,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char *sale_date_time_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *fund_string;
+	LIST *list = list_new();
+
+	fund_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		predictive_fund_string(
+			0 /* delimiter */,
+			(char *)predictive_fund_column,
+			fund_boolean );
+
+	if ( *fund_string )
+	{
+		list_set( list, fund_string );
+	}
+
+	list_set_list(
+		list,
+		entity_primary_key_list(
+			entity_full_name_column,
+			entity_contact_key_column,
+			contact_key_boolean ) );
+
+	list_set( list, (void *)sale_date_time_column );
+
+	return list;
 }
 

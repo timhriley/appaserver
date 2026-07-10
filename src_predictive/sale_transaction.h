@@ -10,6 +10,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "predictive.h"
+#include "account.h"
 #include "subsidiary_transaction_state.h"
 #include "subsidiary_transaction.h"
 

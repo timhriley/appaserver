@@ -19,6 +19,7 @@
 					"check_number"
 
 #define CUSTOMER_PAYMENT_MEMO		"Customer payment"
+#define CUSTOMER_PAYMENT_DATE_COLUMN	"payment_date_time"
 
 typedef struct
 {
@@ -110,7 +111,7 @@ char *customer_payment_primary_where(
 /* ----- */
 double customer_payment_total(
 		boolean payment_list_boolean,
-		double payment_total,
+		double invoice_amount,
 		LIST *customer_payment_list );
 
 #endif
