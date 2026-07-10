@@ -142,17 +142,17 @@ SALE_LIBRARY=								\
 		sale.o							\
 		sale_fetch.o						\
 		customer.o						\
-		self_tax.o						\
-		inventory_sale.o					\
-		specific_inventory_sale.o				\
 		fixed_service_sale.o					\
 		fixed_service_work.o					\
-		hourly_service_sale.o					\
-		hourly_service_work.o					\
-		customer_payment.o					\
-		customer_payment_transaction.o				\
 		sale_transaction.o					\
-		sale_loss_transaction.o
+		sale_loss_transaction.o					\
+		customer_payment.o
+#		self_tax.o						\
+#		inventory_sale.o					\
+#		specific_inventory_sale.o				\
+#		hourly_service_sale.o					\
+#		hourly_service_work.o					\
+#		customer_payment_transaction.o				\
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -193,12 +193,12 @@ EXECUTABLES=	trial_balance_output					\
 		fixed_asset_home_trigger				\
 		import_predictbooks					\
 		generate_invoice
-#		post_change_customer_sale				\
+#		post_change_customer_sale
+#		post_change_fixed_service_sale				\
+#		post_change_fixed_service_work				\
 #		hourly_service_sale_trigger				\
 #		post_change_customer_payment				\
 #		post_change_hourly_service_work				\
-#		post_change_fixed_service_sale				\
-#		post_change_fixed_service_work
 #		post_accrual						\
 #		depreciate_fixed_assets					\
 #		post_change_vendor_payment				\

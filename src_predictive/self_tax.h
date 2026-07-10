@@ -21,7 +21,6 @@ enum self_tax_payroll_pay_period{
 
 #define SELF_TAX_SELECT						\
 	"full_name,"						\
-	"street_address,"					\
 	"inventory_cost_method,"				\
 	"payroll_pay_period,"					\
 	"payroll_begin_day,"					\
@@ -47,7 +46,7 @@ enum self_tax_payroll_pay_period{
 typedef struct
 {
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *inventory_cost_method;
 	char *payroll_pay_period_string;
 	char *payroll_begin_day;
@@ -80,7 +79,7 @@ typedef struct
 SELF_TAX *self_tax_fetch(
 		const char *self_tax_table,
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 /* Process */
 /* ------- */
@@ -91,7 +90,7 @@ enum self_tax_payroll_pay_period self_tax_resolve_payroll_pay_period(
 /* ----- */
 SELF_TAX *self_tax_parse(
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *input );
 
 /* Usage */
@@ -101,7 +100,7 @@ SELF_TAX *self_tax_parse(
 /* -------------- */
 SELF_TAX *self_tax_new(
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 /* Process */
 /* ------- */
@@ -115,13 +114,13 @@ SELF_TAX *self_tax_calloc(
 /* --------------------------- */
 char *self_tax_paypal_cash_account_name(
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 /* Usage */
 /* ----- */
 double self_tax_state_sales_tax_rate(
 		char *full_name,
-		char *street_address );
+		char *contact_key );
 
 /* Usage */
 /* ----- */

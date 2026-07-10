@@ -16,6 +16,7 @@
 #include "sql.h"
 #include "sale.h"
 #include "predictive.h"
+#include "sale_fetch.h"
 #include "fixed_service_work.h"
 #include "fixed_service_sale.h"
 
@@ -541,7 +542,7 @@ void fixed_service_sale_trigger(
 		SALE_TABLE,
 		application_name /* for transaction_update */,
 		sale->update_string_list,
-		sale->sale_fetch->sale_primary_key_list,
+		sale->sale_fetch->primary_key_list,
 		sale->sale_transaction,
 		(SALE_LOSS_TRANSACTION *)0 );
 }
@@ -712,7 +713,7 @@ LIST *fixed_service_sale_primary_key_list(
 	LIST *primary_key_list;
 
 	primary_key_list =
-		sale_primary_key_list(
+		sale_fetch_primary_key_list(
 			PREDICTIVE_FUND_COLUMN,
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,

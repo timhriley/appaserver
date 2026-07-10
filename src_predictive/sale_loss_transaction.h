@@ -15,6 +15,8 @@
 
 typedef struct
 {
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	char *account_loss_string;
 	ACCOUNT *debit_account;
 	char *account_receivable_string;

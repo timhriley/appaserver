@@ -244,7 +244,7 @@ char *sale_primary_where(
 		boolean contact_key_boolean )
 {
 	char *fund_where;
-	char *contact_key_where;
+	char *primary_where;
 	char *escape_date_time;
 	static char where[ 256 ];
 
@@ -270,17 +270,20 @@ char *sale_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		predictive_fund_where(
+			PREDICTIVE_FUND_COLUMN,
 			fund_name,
 			fund_boolean );
 
-	contact_key_where =
+	primary_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_contact_key_where(
-			contact_key_boolean,
+		entity_primary_where(
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
 			full_name,
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	escape_date_time =
 		/* --------------------- */
@@ -294,7 +297,7 @@ char *sale_primary_where(
 		sizeof ( where ),
 		"%s and %s and sale_date_time = '%s'",
 		fund_where,
-		contact_key_where,
+		primary_where,
 		escape_date_time );
 
 	return where;
@@ -328,7 +331,8 @@ char *sale_update_system_string(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		list_delimited_string(
-			primary_key_list );
+			primary_key_list,
+			',' );
 
 	snprintf(
 		system_string,
@@ -412,7 +416,9 @@ char *sale_update(
 					insert_transaction,
 				sale_transaction->
 					subsidiary_transaction->
-					update_template );
+					update_template,
+				sale_transaction->predictive_fund_boolean,
+				sale_transaction->entity_contact_key_boolean );
 	}
 
 	if ( sale_loss_transaction )
@@ -427,7 +433,9 @@ char *sale_update(
 				insert_transaction,
 			sale_loss_transaction->
 				subsidiary_transaction->
-				update_template );
+				update_template,
+			sale_transaction->predictive_fund_boolean,
+			sale_transaction->entity_contact_key_boolean );
 	}
 
 	return transaction_date_time;
@@ -604,13 +612,14 @@ char *sale_primary_data_string(
 		/* ------------------- */
 		entity_primary_data_string(
 			sql_delimiter,
-			entity_contact_key_boolean,
+			contact_key_boolean,
 			full_name,
 			contact_key );
 
 	snprintf(
 		data_string,
-		"%s%s%c%s",
+		sizeof ( data_string ),
+		"%s%c%s%s",
 		fund_string,
 		sql_delimiter,
 		primary_data_string,
@@ -636,7 +645,7 @@ LIST *sale_update_string_list(
 		boolean contact_key_boolean,
 		boolean shipping_charge_boolean,
 		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean;
+		boolean specific_inventory_sale_boolean,
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean,
 		boolean sales_tax_boolean,
@@ -821,7 +830,7 @@ char *sale_update_string(
 			optional_column_new(
 				sql_delimiter,
 				primary_data_string /* base_string */,
-				column_name /* component */,
+				(char *)column_name /* component */,
 				0 /* not escape_boolean */,
 				1 /* set_boolean */ );
 
@@ -836,11 +845,9 @@ char *sale_update_string(
 				money,
 				1 /* set_boolean */ );
 
-		free( optional_column_money->prior_return_string );
+		free( optional_column->prior_return_string );
 
-		update_string =
-			optional_column_money->
-				return_string;
+		update_string = optional_column->return_string;
 	}
 
 	return update_string;

@@ -50,6 +50,9 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 
 	sale_loss_transaction = sale_loss_transaction_calloc();
 
+	sale_loss_transaction->predictive_fund_boolean = fund_boolean;
+	sale_loss_transaction->entity_contact_key_boolean = contact_key_boolean;
+
 	if ( uncollectible_date_time )
 	{
 		sale_loss_transaction->account_loss_string =

@@ -23,7 +23,6 @@ int main( int argc, char **argv )
 	char *preupdate_fund_name;
 	char *preupdate_full_name;
 	char *preupdate_contact_key;
-	char *preupdate_sale_date_time;
 	char *preupdate_uncollectible_date_time;
 	SALE *sale;
 
@@ -70,68 +69,11 @@ int main( int argc, char **argv )
 
 	sale_update(
 		SALE_TABLE,
-		full_name,
-		contact_key,
-		sale_date_time,
-		sale->
-			sale_fetch->
-			inventory_sale_boolean,
-		sale->
-			sale_fetch->
-			specific_inventory_sale_boolean,
-		sale->
-			sale_fetch->
-			fixed_service_sale_boolean,
-		sale->
-			sale_fetch->
-			hourly_service_sale_boolean,
-		sale->inventory_sale_total,
-		sale->specific_inventory_sale_total,
-		sale->fixed_service_sale_total,
-		sale->hourly_service_sale_total,
-		sale->gross_revenue,
-		sale->sales_tax,
-		sale->invoice_amount,
-		sale->customer_payment_total,
-		sale->amount_due,
+		application_name /* for transaction_update */,
+		sale->update_string_list,
+		sale->sale_fetch->primary_key_list,
 		sale->sale_transaction,
 		sale->sale_loss_transaction );
-
-	if ( sale->sale_transaction )
-	{
-		subsidiary_transaction_execute(
-			application_name,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				delete_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				insert_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				update_template );
-	}
-
-	if ( sale->sale_loss_transaction )
-	{
-		subsidiary_transaction_execute(
-			application_name,
-			sale->
-				sale_loss_transaction->
-				subsidiary_transaction->
-				delete_transaction,
-			sale->
-				sale_loss_transaction->
-				subsidiary_transaction->
-				insert_transaction,
-			sale->
-				sale_loss_transaction->
-				subsidiary_transaction->
-				update_template );
-	}
 
 	return 0;
 }
