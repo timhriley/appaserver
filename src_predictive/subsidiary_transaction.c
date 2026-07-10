@@ -39,6 +39,12 @@ SUBSIDIARY_TRANSACTION *
 
 	subsidiary_transaction = subsidiary_transaction_calloc();
 
+	subsidiary_transaction->predictive_fund_boolean =
+		fund_boolean;
+
+	subsidiary_transaction->entity_contact_key_boolean =
+		contact_key_boolean;
+
 	if ( subsidiary_transaction_delete )
 	{
 		subsidiary_transaction->delete_transaction =

@@ -30,6 +30,7 @@
 #define SALE_DATE_TIME_COLUMN		"sale_date_time"
 #define SALE_SERVICE_NAME_COLUMN	"service_name"
 #define SALE_BEGIN_WORK_COLUMN		"begin_work_date_time"
+#define SALE_PAYMENT_DATE_COLUMN	"payment_date_time"
 #define SALE_MEMO			"Customer Sale"
 
 typedef struct

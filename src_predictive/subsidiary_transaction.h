@@ -62,6 +62,8 @@ SUBSIDIARY_TRANSACTION_DELETE *
 
 typedef struct
 {
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	TRANSACTION *delete_transaction;
 	TRANSACTION *insert_transaction;
 	char *update_template;

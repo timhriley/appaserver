@@ -44,9 +44,9 @@ PREUPDATE_CHANGE *preupdate_change_new(
 		/* Returns either parameter */
 		/* ------------------------ */
 		preupdate_change_preupdate_datum(
-				preupdate_placeholder_name,
-				preupdate_datum,
-				postupdate_datum );
+			preupdate_placeholder_name,
+			preupdate_datum,
+			postupdate_datum );
 
 	preupdate_change->state_evaluate =
 		preupdate_change_state_evaluate(

@@ -85,9 +85,6 @@ SALE_TRANSACTION *sale_transaction_new(
 
 	sale_transaction = sale_transaction_calloc();
 
-	sale_transaction->predictive_fund_boolean = fund_boolean;
-	sale_transaction->entity_contact_key_boolean = contact_key_boolean;
-
 	sale_transaction->transaction_date_time =
 /* ---------------------------------------------------------------------- */
 /* Returns completed_date_time, shipped_date_time, static memory, or null */

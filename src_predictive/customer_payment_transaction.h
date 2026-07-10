@@ -25,18 +25,19 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *payment_date_time,
 		char *state,
+		char *preupdate_fund_name,
 		char *preupdate_full_name,
-		char *preupdate_street_address,
+		char *preupdate_contact_key,
 		char *preupdate_payment_date_time,
-		char *account_cash_string,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *cash_account_string,
 		double payment_amount );
 
 /* Process */

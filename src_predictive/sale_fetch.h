@@ -21,7 +21,7 @@ typedef struct
 	char *contact_key;
 	char *sale_date_time;
 	FOLDER *folder_fetch;
-	boolean feeder_account_boolean;
+	boolean cash_account_boolean;
 	boolean shipping_charge_boolean;
 	boolean instructions_boolean;
 	boolean inventory_sale_boolean;
@@ -36,7 +36,7 @@ typedef struct
 	boolean uncollectible_date_time_boolean;
 	boolean predictive_fund_boolean;
 	boolean entity_contact_key_boolean;
-	char *feeder_account;
+	char *cash_account;
 	double shipping_charge;
 	char *instructions;
 	double inventory_sale_total;
@@ -81,7 +81,7 @@ SALE_FETCH *sale_fetch_new(
 SALE_FETCH *sale_fetch_calloc(
 		void );
 
-boolean sale_fetch_feeder_account_boolean(
+boolean sale_fetch_cash_account_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_shipping_charge_boolean(
@@ -126,7 +126,7 @@ boolean sale_fetch_uncollectible_date_time_boolean(
 /* ------------------- */
 char *sale_fetch_select(
 		const char *sale_select,
-		boolean sale_fetch_feeder_account_boolean,
+		boolean sale_fetch_cash_account_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_sale_boolean,
@@ -143,7 +143,7 @@ char *sale_fetch_select(
 /* ----- */
 void sale_fetch_parse(
 		SALE_FETCH *sale_fetch_calloc /* in/out */,
-		boolean sale_fetch_feeder_account_boolean,
+		boolean sale_fetch_cash_account_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_sale_boolean,

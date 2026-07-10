@@ -148,7 +148,7 @@ SALE *sale_trigger_new(
 
 	sale->customer_payment_total =
 		customer_payment_total(
-			sale->sale_fetch->payment_list_boolean,
+			sale->sale_fetch->cash_account,
 			sale->sale_fetch->payment_total,
 			sale->sale_fetch->customer_payment_list );
 
@@ -168,7 +168,7 @@ SALE *sale_trigger_new(
 			preupdate_contact_key,
 			sale->sale_fetch->predictive_fund_boolean,
 			sale->sale_fetch->entity_contact_key_boolean,
-			sale->sale_fetch->feeder_account,
+			sale->sale_fetch->cash_account,
 			sale->sale_fetch->predictive_title_passage_rule,
 			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->shipped_date_time,
@@ -417,8 +417,12 @@ char *sale_update(
 				sale_transaction->
 					subsidiary_transaction->
 					update_template,
-				sale_transaction->predictive_fund_boolean,
-				sale_transaction->entity_contact_key_boolean );
+				sale_transaction->
+					subsidiary_transaction->
+					predictive_fund_boolean,
+				sale_transaction->
+					subsidiary_transaction->
+					entity_contact_key_boolean );
 	}
 
 	if ( sale_loss_transaction )
@@ -434,8 +438,12 @@ char *sale_update(
 			sale_loss_transaction->
 				subsidiary_transaction->
 				update_template,
-			sale_transaction->predictive_fund_boolean,
-			sale_transaction->entity_contact_key_boolean );
+			sale_loss_transaction->
+				subsidiary_transaction->
+				predictive_fund_boolean,
+			sale_loss_transaction->
+				subsidiary_transaction->
+				entity_contact_key_boolean );
 	}
 
 	return transaction_date_time;

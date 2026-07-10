@@ -16,8 +16,6 @@
 
 typedef struct
 {
-	boolean predictive_fund_boolean;
-	boolean entity_contact_key_boolean;
 	char *transaction_date_time;
 	LIST *journal_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;

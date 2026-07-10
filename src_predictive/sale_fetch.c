@@ -25,7 +25,7 @@
 
 char *sale_fetch_select(
 		const char *sale_select,
-		boolean feeder_account_boolean,
+		boolean cash_account_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
 		boolean inventory_sale_boolean,
@@ -47,9 +47,9 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			(char *)sale_select /* base_string */,
-			"feeder_account" /* component */,
+			"cash_account" /* component */,
 			0 /* not escape_boolean */,
-			feeder_account_boolean /* set_boolean */ );
+			cash_account_boolean /* set_boolean */ );
 
 	optional_column =
 		optional_column_new(
@@ -166,7 +166,7 @@ char *sale_fetch_select(
 
 void sale_fetch_parse(
 		SALE_FETCH *sale_fetch /* in/out */,
-		boolean feeder_account_boolean,
+		boolean cash_account_boolean,
 		boolean shipping_charge_boolean,
 		boolean instructions_boolean,
 		boolean inventory_sale_boolean,
@@ -244,14 +244,14 @@ void sale_fetch_parse(
 
 	optional_piece_offset = 8;
 
-	if ( feeder_account_boolean )
+	if ( cash_account_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
 			input,
 			optional_piece_offset++ );
 
-		if ( *buffer ) sale_fetch->feeder_account = strdup( buffer );
+		if ( *buffer ) sale_fetch->cash_account = strdup( buffer );
 	}
 
 	if ( shipping_charge_boolean )
@@ -459,8 +459,8 @@ SALE_FETCH *sale_fetch_new(
 			0 /* not fetch_attribute */,
 			0 /* not cache_boolean */ );
 
-	sale_fetch->feeder_account_boolean =
-		sale_fetch_feeder_account_boolean(
+	sale_fetch->cash_account_boolean =
+		sale_fetch_cash_account_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	sale_fetch->shipping_charge_boolean =
@@ -519,7 +519,7 @@ SALE_FETCH *sale_fetch_new(
 		/* ------------------- */
 		sale_fetch_select(
 			sale_select,
-			sale_fetch->feeder_account_boolean,
+			sale_fetch->cash_account_boolean,
 			sale_fetch->shipping_charge_boolean,
 			sale_fetch->instructions_boolean,
 			sale_fetch->inventory_sale_boolean,
@@ -579,7 +579,7 @@ SALE_FETCH *sale_fetch_new(
 
 	sale_fetch_parse(
 		sale_fetch /* in/out */,
-		sale_fetch->feeder_account_boolean,
+		sale_fetch->cash_account_boolean,
 		sale_fetch->shipping_charge_boolean,
 		sale_fetch->instructions_boolean,
 		sale_fetch->inventory_sale_boolean,
@@ -836,11 +836,11 @@ boolean sale_fetch_fixed_service_sale_boolean(
 	}
 }
 
-boolean sale_fetch_feeder_account_boolean(
+boolean sale_fetch_cash_account_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
-		"feeder_account",
+		"cash_account",
 		folder_attribute_list ) )
 	{
 		return 1;
