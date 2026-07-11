@@ -622,6 +622,7 @@ void post_table_edit_input_dictionary_time_set(
 
 		if ( ( folder_attribute =
 			folder_attribute_seek(
+				(char *)0 /* folder_name */,
 				trim_index /* attribute_name */,
 				folder_attribute_append_isa_list ) ) )
 		{

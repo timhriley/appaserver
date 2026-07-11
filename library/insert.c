@@ -828,6 +828,7 @@ INSERT_FOLDER *insert_folder_new(
 
 		if ( ! ( folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					attribute_name,
 					folder_attribute_append_isa_list ) ) )
 		{
@@ -908,6 +909,7 @@ INSERT_FOLDER *insert_folder_new(
 
 		if ( ! ( folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					attribute_name,
 					folder_attribute_append_isa_list ) ) )
 		{
@@ -1514,6 +1516,7 @@ APPASERVER_USER *insert_appaserver_user(
 	{
 		folder_attribute =
 			folder_attribute_seek(
+				(char *)0 /* folder_name */,
 				(char *)appaserver_user_full_name,
 				folder_attribute_append_isa_list );
 

@@ -835,6 +835,7 @@ char *folder_attribute_sort_attribute_name(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+			(char *)0 /* folder_name */,
 			SORT_ORDER_ATTRIBUTE_NAME,
 			folder_attribute_list ) )
 	{
@@ -842,6 +843,7 @@ char *folder_attribute_sort_attribute_name(
 	}
 	else
 	if ( folder_attribute_seek(
+			(char *)0 /* folder_name */,
 			DISPLAY_ORDER_ATTRIBUTE_NAME,
 			folder_attribute_list ) )
 	{
@@ -849,6 +851,7 @@ char *folder_attribute_sort_attribute_name(
 	}
 	else
 	if ( folder_attribute_seek(
+			(char *)0 /* folder_name */,
 			SEQUENCE_NUMBER_ATTRIBUTE_NAME,
 			folder_attribute_list ) )
 	{
@@ -859,6 +862,7 @@ char *folder_attribute_sort_attribute_name(
 }
 
 FOLDER_ATTRIBUTE *folder_attribute_seek(
+		char *folder_name,
 		char *attribute_name,
 		LIST *folder_attribute_list )
 {
@@ -869,6 +873,16 @@ FOLDER_ATTRIBUTE *folder_attribute_seek(
 		folder_attribute =
 			list_get(
 				folder_attribute_list );
+
+		if ( folder_name )
+		{
+			if ( string_strcmp(
+				folder_attribute->folder_name,
+				folder_name ) != 0 )
+			{
+				continue;
+			}
+		}
 
 		if ( string_strcmp(
 			folder_attribute->attribute_name,
@@ -1590,6 +1604,7 @@ char *folder_attribute_where_string(
 
 		if ( ( folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					primary_key,
 					folder_attribute_list ) ) )
 		{

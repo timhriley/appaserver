@@ -754,6 +754,7 @@ char *query_statistic_select_folder_name(
 
 	folder_attribute =
 		folder_attribute_seek(
+			(char *)0 /* folder_name */,
 			attribute_name,
 			folder_attribute_append_isa_list );
 

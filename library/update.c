@@ -3118,6 +3118,7 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 
 	if ( ! ( update_attribute->folder_attribute =
 			folder_attribute_seek(
+				(char *)0 /* folder_name */,
 				attribute_name,
 				many_folder_attribute_list ) ) )
 	{
@@ -3532,6 +3533,7 @@ char *update_sql_statement_string(
 
 		if ( ( folder_attribute =
 			folder_attribute_seek(
+				(char *)0 /* folder_name */,
 				update_column_name,
 				folder_attribute_list ) ) )
 		{

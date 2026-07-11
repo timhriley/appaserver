@@ -1825,6 +1825,7 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 
 		if ( ( folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					key_trimmed,
 					folder_attribute_list ) ) )
 		{

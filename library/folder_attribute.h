@@ -241,6 +241,7 @@ LIST *folder_attribute_seek_list(
 /* Usage */
 /* ----- */
 FOLDER_ATTRIBUTE *folder_attribute_seek(
+		char *folder_name,
 		char *attribute_name,
 		LIST *folder_attribute_list );
 

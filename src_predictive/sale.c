@@ -82,6 +82,7 @@ SALE *sale_trigger_new(
 		return NULL;
 	}
 
+/*
 	if ( sale->sale_fetch->inventory_sale_boolean )
 	{
 		sale->inventory_sale_total =
@@ -107,6 +108,7 @@ SALE *sale_trigger_new(
 					sale_fetch->
 					specific_inventory_sale_list );
 	}
+*/
 
 	if ( sale->sale_fetch->fixed_service_sale_boolean )
 	{
@@ -115,12 +117,14 @@ SALE *sale_trigger_new(
 				sale->sale_fetch->fixed_service_sale_list );
 	}
 
+/*
 	if ( sale->sale_fetch->hourly_service_sale_boolean )
 	{
 		sale->hourly_service_sale_total =
 			hourly_service_sale_total(
 				sale->sale_fetch->hourly_service_sale_list );
 	}
+*/
 
 	sale->gross_revenue =
 		SALE_GROSS_REVENUE(

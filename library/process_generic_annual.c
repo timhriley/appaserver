@@ -404,6 +404,7 @@ boolean process_generic_input_date_is_date_time(
 
 	if ( ! ( folder_attribute =
 			folder_attribute_seek(
+				(char *)0 /* folder_name */,
 				date_attribute_name,
 				folder_attribute_list ) ) )
 	{

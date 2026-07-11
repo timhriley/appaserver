@@ -3614,6 +3614,7 @@ QUERY_CELL *query_cell_parse(
 	{
 		if ( ( folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					attribute_name,
 					folder_attribute_list ) ) )
 		{
@@ -5219,6 +5220,7 @@ char *query_data_where(
 		{
 			folder_attribute =
 				folder_attribute_seek(
+					(char *)0 /* folder_name */,
 					attribute_name,
 					folder_attribute_list );
 

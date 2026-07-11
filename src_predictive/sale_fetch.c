@@ -731,10 +731,90 @@ SALE_FETCH *sale_fetch_new(
 	return sale_fetch;
 }
 
+boolean sale_fetch_payment_list_boolean(
+		const char *customer_payment_table,
+		const char *customer_payment_date_column,
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		(char *)customer_payment_table,
+		(char *)customer_payment_date_column,
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_uncollectible_date_time_boolean(
+		LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"uncollectible_date_time",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_shipped_date_time_boolean( LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"shipped_date_time",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_arrived_date_boolean( LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"arrived_date",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean sale_fetch_sales_tax_boolean( LIST *folder_attribute_list )
+{
+	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"sales_tax",
+		folder_attribute_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 boolean sale_fetch_inventory_sale_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"inventory_sale_total",
 		folder_attribute_list ) )
 	{
@@ -750,6 +830,7 @@ boolean sale_fetch_specific_inventory_sale_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"specific_inventory_sale_total",
 		folder_attribute_list ) )
 	{
@@ -765,6 +846,7 @@ boolean sale_fetch_title_passage_rule_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"title_passage_rule",
 		folder_attribute_list ) )
 	{
@@ -780,6 +862,7 @@ boolean sale_fetch_shipping_charge_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"shipping_charge",
 		folder_attribute_list ) )
 	{
@@ -795,6 +878,7 @@ boolean sale_fetch_instructions_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"instructions",
 		folder_attribute_list ) )
 	{
@@ -810,6 +894,7 @@ boolean sale_fetch_hourly_service_sale_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"hourly_service_sale_total",
 		folder_attribute_list ) )
 	{
@@ -825,6 +910,7 @@ boolean sale_fetch_fixed_service_sale_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"fixed_service_sale_total",
 		folder_attribute_list ) )
 	{
@@ -840,6 +926,7 @@ boolean sale_fetch_cash_account_boolean(
 		LIST *folder_attribute_list )
 {
 	if ( folder_attribute_seek(
+		(char *)0 /* folder_name */,
 		"cash_account",
 		folder_attribute_list ) )
 	{
@@ -872,32 +959,6 @@ SALE_FETCH *sale_fetch_calloc( void )
 	}
 
 	return sale_fetch;
-}
-
-boolean sale_fetch_payment_list_boolean(
-		const char *customer_payment_table,
-		const char *customer_payment_date_column,
-		LIST *folder_attribute_list )
-{
-	FOLDER_ATTRIBUTE *folder_attribute;
-
-	if ( list_rewind( folder_attribute_list ) )
-	do {
-		folder_attribute = list_get( folder_attribute_list );
-
-
-		if ( strcmp(
-			folder_attribute->folder_name,
-			customer_payment_table ) == 0
-		&&   strcmp(
-			folder_attribute->attribute_name,
-			customer_payment_date_column ) == 0 )
-		{
-			return 1;
-		}
-	} while ( list_next( folder_attribute_list ) );
-
-	return 0;
 }
 
 LIST *sale_fetch_primary_key_list(
