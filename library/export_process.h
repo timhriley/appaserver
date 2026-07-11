@@ -175,4 +175,12 @@ void export_process_output_populate_name(
 		LIST *process_parameter_list,
 		boolean helper_name_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *export_process_escape_command_line(
+		char *process_command_line_fetch );
+
 #endif

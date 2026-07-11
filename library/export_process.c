@@ -1175,7 +1175,7 @@ void export_process_output_populate_name(
 	char *populate_process;
 	char *command_line_fetch;
 	char delimited_string[ 2048 ];
-	char *escape_dollar;
+	char *escape_command_line;
 	char *sql_statement;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1206,11 +1206,11 @@ void export_process_output_populate_name(
 			process_command_line_fetch(
 				populate_process /* process_name */ );
 
-		escape_dollar =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			string_escape_dollar(
+		escape_command_line =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			export_process_escape_command_line(
 				command_line_fetch );
 
 		snprintf(
@@ -1219,9 +1219,7 @@ void export_process_output_populate_name(
 			"%s%c%s",
 			populate_process,
 			SQL_DELIMITER,
-			escape_dollar );
-
-		free( escape_dollar );
+			escape_command_line );
 
 		sql_statement =
 			/* ------------------- */
@@ -1241,5 +1239,21 @@ void export_process_output_populate_name(
 		free( sql_statement );
 
 	} while ( list_next( process_parameter_list ) );
+}
+
+char *export_process_escape_command_line( char *command_line_fetch )
+{
+	static char destination[ 2048 ];
+
+	*destination = '\0';
+
+	if ( command_line_fetch )
+	{
+		string_escape_quote_dollar(
+			destination,
+			command_line_fetch );
+	}
+
+	return destination;
 }
 

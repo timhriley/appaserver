@@ -27,6 +27,7 @@
 #include "sql.h"
 #include "date.h"
 #include "shell_script.h"
+#include "export_process.h"
 #include "export_subschema.h"
 
 EXPORT_SUBSCHEMA *export_subschema_new(
@@ -887,6 +888,7 @@ void export_subschema_output_process(
 		char *folder_name )
 {
 	char *column_fetch;
+	char *escape_command_line;
 
 	if ( !export_subschema_process_file )
 	{
@@ -934,6 +936,7 @@ void export_subschema_output_process(
 	{
 		char *command_line_fetch;
 		char *process_string;
+		char destination[ 1024 ];
 		char *sql_statement;
 
 		command_line_fetch =
@@ -943,6 +946,13 @@ void export_subschema_output_process(
 			process_command_line_fetch(
 				column_fetch /* process_name */ );
 
+		escape_command_line =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			export_process_escape_command_line(
+				command_line_fetch );
+
 		process_string =
 			/* ----------------------------- */
 			/* Returns static memory or null */
@@ -951,8 +961,7 @@ void export_subschema_output_process(
 				SQL_DELIMITER,
 				column_fetch
 					/* process_name */,
-				command_line_fetch
-					/* command_line */ );
+				escape_command_line );
 
 		if ( !process_string )
 		{
@@ -961,7 +970,13 @@ void export_subschema_output_process(
 			snprintf(
 				message,
 				sizeof ( message ),
-			"export_subschema_process_string() returned empty." );
+		"export_subschema_process_string(%s,%s) returned empty.",
+				(column_fetch)
+					? column_fetch
+					: "null",
+				(command_line_fetch)
+					? command_line_fetch
+					: "null" );
 
 			fclose( export_subschema_process_file );
 
@@ -981,7 +996,9 @@ void export_subschema_output_process(
 				PROCESS_TABLE,
 				"process,command_line"
 					/* attribute_name_list_string */,
-				process_string
+				string_escape_quote_dollar(
+					destination,
+					process_string )
 					/* delimited_string */ );
 
 		fprintf(export_subschema_process_file,
@@ -1023,6 +1040,7 @@ void export_subschema_output_operation(
 	LIST *operation_list;
 	FOLDER_OPERATION *folder_operation;
 	char *operation_string;
+	char *escape_command_line;
 	char *sql_statement;
 	char *process_string;
 
@@ -1214,6 +1232,12 @@ void export_subschema_output_operation(
 				message );
 		}
 
+		escape_command_line =
+			/* Returns static memory */
+			/* --------------------- */
+			export_process_escape_command_line(
+				process_string );
+
 		sql_statement =
 			/* ------------------- */
 			/* Returns heap memory */
@@ -1223,7 +1247,7 @@ void export_subschema_output_operation(
 				PROCESS_TABLE,
 				"process,command_line"
 					/* attribute_name_list_string */,
-				process_string
+				escape_command_line
 					/* delimited_string */ );
 
 		fprintf(export_subschema_process_file,

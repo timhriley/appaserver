@@ -363,12 +363,14 @@ export_table: export_table.c						\
 
 export_subschema: export_subschema.c ${APPASERVER_LIBRARY}		\
 	${LIBRARY}/export_subschema.o					\
+	${LIBRARY}/export_process.o					\
 	${LIBRARY}/shell_script.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		export_subschema.c					\
 		${LIBRARY}/export_subschema.o				\
+		${LIBRARY}/export_process.o				\
 		${LIBRARY}/shell_script.o				\
 		-o export_subschema
 

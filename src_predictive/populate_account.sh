@@ -131,10 +131,14 @@ then
 	one2m_where="account.subclassification like '%investment%'"
 fi
 
-if [	"$many_table" = "fixed_asset" -o		\
-	"$many_table" = "prior_fixed_asset" ]
+if [	"$many_table" = "fixed_asset" ]
 then
-	one2m_where="account.subclassification = 'property_plant_equipment' or account.subclassification = 'fixed_asset'"
+	if [ "$related_column" = "asset_account" ]
+	then
+		one2m_where="account.subclassification in ( 'property_plant_equipment', 'fixed_asset' )"
+	else
+		one2m_where="account.subclassification in ( 'cash_or_equivalent', 'current_liability', 'net_asset' )"
+	fi
 fi
 
 if [	"$many_table" = "fixed_service" -o	\
