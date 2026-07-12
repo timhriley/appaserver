@@ -276,18 +276,6 @@ QUERY_ROW *query_row_seek(
 char *query_row_display(
 		QUERY_ROW *query_row );
 
-/* Usage */
-/* ----- */
-boolean query_row_list_set_viewonly_boolean(
-		LIST *query_fetch_row_list /* in/out */,
-		LIST *relation_one2m_list );
-
-/* Usage */
-/* ----- */
-boolean query_row_set_viewonly_boolean(
-		QUERY_ROW *query_row /* in/out */,
-		LIST *relation_one2m_list );
-
 typedef struct
 {
 	char *folder_name;

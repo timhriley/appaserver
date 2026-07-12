@@ -104,11 +104,5 @@ char *relation_one2m_where_string(
 char *relation_one2m_list_display(
 		LIST *relation_one2m_list );
 
-/* Usage */
-/* ----- */
-LIST *relation_one2m_omit_update_list(
-		LIST *relation_mto1_recursive_list,
-		LIST *relation_one2m_list );
-
 #endif
 

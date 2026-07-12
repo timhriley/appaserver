@@ -219,13 +219,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 					/* one_folder_primary_key_list */,
 			0 /* not include_isa_boolean */ );
 
-	table_edit_input->relation_one2m_omit_update_list =
-		relation_one2m_omit_update_list(
-			table_edit_input->
-				relation_mto1_recursive_list,
-			table_edit_input->
-				relation_one2m_list );
-
 	table_edit_input->folder_attribute_append_isa_list =
 		folder_attribute_append_isa_list(
 			table_edit_input->
@@ -549,23 +542,31 @@ TABLE_EDIT *table_edit_new(
 				query_fetch->
 				row_list );
 
-	table_edit->query_row_list_set_viewonly_boolean =
-		query_row_list_set_viewonly_boolean(
+	table_edit->relation_omit_update =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		relation_omit_update_new(
+			folder_name,
+			table_edit->
+				table_edit_input->
+				relation_mto1_recursive_list
+				/* relation_mto1_list_set_one_to_many_list() */,
+			table_edit->
+				table_edit_input->
+				relation_one2m_list,
 			table_edit->
 				query_table_edit->
 				query_fetch->
-				row_list /* in/out */,
-			table_edit->
-				table_edit_input->
-				relation_one2m_omit_update_list );
+				row_list /* in/out */ );
 
-	table_edit->non_owner_viewonly =
-		table_edit_non_owner_viewonly(
+	table_edit->viewonly_boolean =
+		table_edit_viewonly_boolean(
 			table_edit->
 				table_edit_input->
 				folder_row_level_restriction->
 				non_owner_viewonly,
-		table_edit->query_row_list_set_viewonly_boolean );
+		table_edit->relation_omit_update->viewonly_boolean );
 
 	table_edit->row_security =
 		/* -------------- */
@@ -590,7 +591,7 @@ TABLE_EDIT *table_edit_new(
 				table_edit_input->
 				folder->
 				post_change_javascript,
-			table_edit->non_owner_viewonly,
+			table_edit->viewonly_boolean,
 			table_edit->
 				table_edit_input->
 				dictionary_separate->
@@ -2222,12 +2223,12 @@ char *table_edit_document_notepad(
 	return NULL;
 }
 
-boolean table_edit_non_owner_viewonly(
+boolean table_edit_viewonly_boolean(
 		boolean non_owner_viewonly,
-		boolean viewonly_boolean )
+		boolean relation_omit_update_viewonly_boolean )
 {
 	if ( non_owner_viewonly
-	||   viewonly_boolean )
+	||   relation_omit_update_viewonly_boolean )
 	{
 		return 1;
 	}

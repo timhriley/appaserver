@@ -296,7 +296,7 @@ ROW_SECURITY *row_security_new(
 		LIST *relation_one2m_join_list,
 		LIST *folder_attribute_append_isa_list,
 		char *post_change_javascript,
-		boolean non_owner_viewonly,
+		boolean table_edit_viewonly_boolean,
 		DICTIONARY *drop_down_dictionary,
 		LIST *no_display_name_list,
 		LIST *query_select_name_list,
@@ -319,7 +319,7 @@ boolean row_security_regular_boolean(
 		char *table_edit_state );
 
 boolean row_security_viewonly_relation_boolean(
-		boolean non_owner_viewonly,
+		boolean table_edit_viewonly_boolean,
 		ROW_SECURITY_ROLE_UPDATE_LIST *
 			row_security_role_update_list,
 		boolean row_security_regular_boolean );
