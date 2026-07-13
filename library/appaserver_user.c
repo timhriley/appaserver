@@ -468,6 +468,7 @@ APPASERVER_USER *appaserver_user_fetch(
 				entity_primary_where(
 					ENTITY_FULL_NAME_COLUMN,
 					ENTITY_CONTACT_KEY_COLUMN,
+					(char *)0 /* folder_name */,
 					full_name,
 					contact_key,
 					contact_key_boolean ) ) );
