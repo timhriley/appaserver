@@ -597,18 +597,6 @@ LOOKUP_DELETE_INPUT *lookup_delete_input_new(
 			lookup_delete_input->folder_attribute_date_name_list,
 			lookup_delete_input->folder_attribute_append_isa_list );
 
-
-#ifdef NOT_DEFINED
-	lookup_delete_input->relation_mto1_list =
-		relation_mto1_status_skipped_list(
-			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
-			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
-			lookup_delete_input->relation_mto1_list,
-			lookup_delete_input->
-				dictionary_separate->
-				drillthru_dictionary );
-#endif
-
 	lookup_delete_input->query_dictionary =
 		lookup_delete_input_query_dictionary(
 			lookup_delete_input->

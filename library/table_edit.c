@@ -178,12 +178,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 		relation_mto1_without_omit_drillthru_list(
 			table_edit_input->relation_mto1_list );
 
-/*
-	table_edit_input->relation_mto1_list =
-		relation_mto1_without_omit_update_list(
-			table_edit_input->relation_mto1_list );
-*/
-
 	table_edit_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
 			(LIST *)0 /* mto1_isa_list Pass in null */,
@@ -292,14 +286,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			table_edit_input->folder_attribute_date_name_list,
 			table_edit_input->folder_attribute_append_isa_list );
 
-	relation_mto1_list_status_skipped_omit_update_set(
-			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
-			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
-			table_edit_input->relation_mto1_list /* in/out */,
-			table_edit_input->
-				dictionary_separate->
-				drillthru_dictionary );
-
 	table_edit_input->onload_javascript_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -368,22 +354,22 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 					override_row_restrictions );
 	}
 
-	table_edit_input->drillthru_status =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drillthru_status_new(
-			table_edit_input->
-				dictionary_separate->
-				drillthru_dictionary );
-
 	if ( !viewonly_boolean )
 	{
+		DRILLTHRU_STATUS *drillthru_status;
+
+		drillthru_status =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			drillthru_status_new(
+				table_edit_input->
+					dictionary_separate->
+					drillthru_dictionary );
+
 		table_edit_input->max_foreign_key_list_length =
 			table_edit_input_max_foreign_key_list_length(
-				table_edit_input->
-					drillthru_status->
-					skipped_boolean,
+				drillthru_status->skipped_boolean,
 				drilldown_base_folder_name );
 
 		table_edit_input->viewonly_attribute_name_list =
@@ -397,9 +383,7 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 					folder_attribute_append_isa_list,
 				table_edit_input->
 					max_foreign_key_list_length,
-				table_edit_input->
-					drillthru_status->
-					skipped_boolean );
+				drillthru_status->skipped_boolean );
 	}
 
 	table_edit_input->date_convert_login_name_enum =

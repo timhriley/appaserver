@@ -549,37 +549,6 @@ RELATION_MTO1 *relation_mto1_seek(
 	return NULL;
 }
 
-void relation_mto1_list_foreign_key_less_equal_update_set(
-		unsigned long query_drop_down_fetch_max_rows,
-		int drillthru_skipped_max_foreign_length,
-		LIST *relation_mto1_list )
-{
-	RELATION_MTO1 *relation_mto1;
-
-	relation_mto1_list_omit_update_set(
-		relation_mto1_list /* in/out */ );
-
-	if ( list_rewind( relation_mto1_list ) )
-	do {
-		relation_mto1 = list_get( relation_mto1_list );
-
-		if ( list_length(
-			relation_mto1->
-				relation_foreign_key_list ) <=
-			drillthru_skipped_max_foreign_length )
-		{
-			if ( query_row_count(
-				relation_mto1->
-					one_folder_name ) <=
-			     (unsigned long)query_drop_down_fetch_max_rows )
-			{
-				relation_mto1->relation->omit_update = 0;
-			}
-		}
-
-	} while ( list_next( relation_mto1_list ) );
-}
-
 RELATION_MTO1 *relation_mto1_new(
 		char *many_folder_name,
 		LIST *many_folder_primary_key_list,
@@ -926,7 +895,8 @@ LIST *relation_mto1_without_omit_drillthru_list( LIST *relation_mto1_list )
 	return list;
 }
 
-LIST *relation_mto1_without_omit_update_list( LIST *relation_mto1_list )
+LIST *relation_mto1_without_row_level_omit_update_list(
+		LIST *relation_mto1_list )
 {
 	LIST *list = list_new();
 	RELATION_MTO1 *relation_mto1;
@@ -1063,60 +1033,6 @@ void relation_mto1_list_set_one_to_many_list(
 	} while ( list_next( relation_mto1_list ) );
 }
 
-void relation_mto1_list_status_skipped_omit_update_set(
-		int query_drop_down_fetch_max_rows,
-		int drillthru_skipped_max_foreign_length,
-		LIST *relation_mto1_list,
-		DICTIONARY *drillthru_dictionary )
-{
-	DRILLTHRU_STATUS *drillthru_status;
-
-	drillthru_status =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drillthru_status_new(
-			drillthru_dictionary );
-
-	if (	drillthru_status->skipped_boolean
-	&&	list_length( relation_mto1_list ) )
-	{
-		relation_mto1_list_foreign_key_less_equal_update_set(
-			query_drop_down_fetch_max_rows,
-			drillthru_skipped_max_foreign_length,
-			relation_mto1_list /* in/out */ );
-	}
-}
-
-void relation_mto1_list_omit_update_set( LIST *relation_mto1_list )
-{
-	RELATION_MTO1 *relation_mto1;
-
-	if ( list_rewind( relation_mto1_list ) )
-	do {
-		relation_mto1 = list_get( relation_mto1_list );
-
-		if ( !relation_mto1->relation )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"relation_mto1->relation is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		relation_mto1->relation->omit_update = 1;
-
-	} while ( list_next( relation_mto1_list ) );
-}
-
 LIST *relation_mto1_foreign_key_less_equal_list(
 		int query_drop_down_fetch_max_rows,
 		int drillthru_skipped_max_foreign_length,
@@ -1153,33 +1069,5 @@ LIST *relation_mto1_foreign_key_less_equal_list(
 	}
 
 	return list;
-}
-
-LIST *relation_mto1_status_skipped_list(
-		int query_drop_down_fetch_max_rows,
-		int drillthru_skipped_max_foreign_length,
-		LIST *relation_mto1_list,
-		DICTIONARY *drillthru_dictionary )
-{
-	DRILLTHRU_STATUS *drillthru_status;
-
-	drillthru_status =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drillthru_status_new(
-			drillthru_dictionary );
-
-	if (	drillthru_status->skipped_boolean
-	&&	list_length( relation_mto1_list ) )
-	{
-		relation_mto1_list =
-			relation_mto1_foreign_key_less_equal_list(
-				query_drop_down_fetch_max_rows,
-				drillthru_skipped_max_foreign_length,
-				relation_mto1_list );
-	}
-
-	return relation_mto1_list;
 }
 

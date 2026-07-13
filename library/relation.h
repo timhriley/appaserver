@@ -45,7 +45,7 @@ typedef struct
 	int pair_one2m_order;
 	boolean omit_drillthru;
 	boolean omit_drilldown;
-	boolean omit_update;
+	boolean omit_update /* row level; -> TRANSACTION */;
 	boolean relation_type_isa;
 	boolean copy_common_columns;
 	boolean automatic_preselection;

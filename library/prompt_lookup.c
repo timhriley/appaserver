@@ -413,7 +413,7 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 			prompt_lookup_input->relation_mto1_list );
 
 	prompt_lookup_input->relation_mto1_list =
-		relation_mto1_without_omit_update_list(
+		relation_mto1_without_row_level_omit_update_list(
 			prompt_lookup_input->relation_mto1_list );
 
 	prompt_lookup_input->relation_mto1_isa_list =
@@ -493,15 +493,6 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 			prompt_lookup_input->folder_attribute_date_name_list,
 			prompt_lookup_input->folder_attribute_append_isa_list );
 
-	prompt_lookup_input->relation_mto1_list =
-		relation_mto1_status_skipped_list(
-			QUERY_DROP_DOWN_FETCH_MAX_ROWS,
-			DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
-			prompt_lookup_input->relation_mto1_list,
-			prompt_lookup_input->
-				dictionary_separate_drillthru->
-				drillthru_dictionary );
-
 	prompt_lookup_input->drillthru_status =
 		/* -------------- */
 		/* Safely returns */
@@ -510,6 +501,15 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 			prompt_lookup_input->
 				dictionary_separate_drillthru->
 				drillthru_dictionary );
+
+	if ( prompt_lookup_input->drillthru_status->skipped_boolean )
+	{
+		prompt_lookup_input->relation_mto1_list =
+			relation_mto1_foreign_key_less_equal_list(
+				QUERY_DROP_DOWN_FETCH_MAX_ROWS,
+				DRILLTHRU_SKIPPED_MAX_FOREIGN_LENGTH,
+				prompt_lookup_input->relation_mto1_list );
+	}
 
 	if ( !prompt_lookup_input->drillthru_status->participating_boolean
 	||   !prompt_lookup_input->drillthru_status->skipped_boolean )
