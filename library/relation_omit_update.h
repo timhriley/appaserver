@@ -9,11 +9,12 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "relation_one2m.h"
 #include "query.h"
 
 typedef struct
 {
-	LIST *relation_one2m_list;
+	RELATION_ONE2M *relation_one2m;
 	boolean viewonly_boolean;
 } RELATION_OMIT_UPDATE;
 
@@ -36,20 +37,20 @@ RELATION_OMIT_UPDATE *relation_omit_update_calloc(
 
 /* Usage */
 /* ----- */
-LIST *relation_omit_update_one2m_list(
+RELATION_ONE2M *relation_omit_update_one2m_seek(
 		LIST *relation_mto1_recursive_list,
 		LIST *relation_one2m_list );
 
 /* Usage */
 /* ----- */
-boolean relation_omit_update_set_viewonly_boolean(
+boolean relation_omit_update_one2m_viewonly_boolean(
 		LIST *query_fetch_row_list /* in/out */,
-		LIST *relation_omit_update_one2m_list );
+		RELATION_ONE2M *relation_one2m );
 
 /* Usage */
 /* ----- */
-boolean relation_omit_update_row_set_viewonly_boolean(
+boolean relation_omit_update_one2m_row_viewonly_boolean(
 		QUERY_ROW *query_row /* in/out */,
-		LIST *relation_omit_update_one2m_list );
+		RELATION_ONE2M *relation_one2m );
 
 #endif

@@ -40,15 +40,18 @@ RELATION_OMIT_UPDATE *relation_omit_update_new(
 
 	relation_omit_update = relation_omit_update_calloc();
 
-	relation_omit_update->relation_one2m_list =
-		relation_omit_update_one2m_list(
+	relation_omit_update->relation_one2m =
+		relation_omit_update_one2m_seek(
 			relation_mto1_recursive_list,
 			relation_one2m_list );
 
-	relation_omit_update->viewonly_boolean =
-		relation_omit_update_set_viewonly_boolean(
-			query_fetch_row_list /* in/out */,
-			relation_omit_update->relation_one2m_list );
+	if ( relation_omit_update->relation_one2m )
+	{
+		relation_omit_update->viewonly_boolean =
+			relation_omit_update_one2m_viewonly_boolean(
+				query_fetch_row_list /* in/out */,
+				relation_omit_update->relation_one2m );
+	}
 
 	return relation_omit_update;
 }
@@ -78,13 +81,12 @@ RELATION_OMIT_UPDATE *relation_omit_update_calloc( void )
 	return relation_omit_update;
 }
 
-LIST *relation_omit_update_one2m_list(
+RELATION_ONE2M *relation_omit_update_one2m_seek(
 		LIST *relation_mto1_recursive_list,
 		LIST *relation_one2m_list )
 {
 	RELATION_MTO1 *relation_mto1;
 	RELATION_ONE2M *relation_one2m;
-	LIST *list = list_new();
 
 	if ( list_rewind( relation_mto1_recursive_list ) )
 	do {
@@ -101,7 +103,7 @@ LIST *relation_omit_update_one2m_list(
 
 			if ( relation_one2m->relation->omit_update )
 			{
-				list_set( list, relation_one2m );
+				return relation_one2m;
 			}
 
 		} while ( list_next( 
@@ -116,23 +118,17 @@ LIST *relation_omit_update_one2m_list(
 
 		if ( relation_one2m->relation->omit_update )
 		{
-			list_set( list, relation_one2m );
+			return relation_one2m;
 		}
 
 	} while ( list_next( relation_one2m_list ) );
 
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
-
-	return list;
+	return NULL;
 }
 
-boolean relation_omit_update_set_viewonly_boolean(
+boolean relation_omit_update_one2m_viewonly_boolean(
 		LIST *query_fetch_row_list,
-		LIST *relation_omit_update_one2m_list )
+		RELATION_ONE2M *relation_one2m )
 {
 	QUERY_ROW *query_row;
 	boolean viewonly_boolean = 0;
@@ -141,9 +137,9 @@ boolean relation_omit_update_set_viewonly_boolean(
 	do {
 		query_row = list_get( query_fetch_row_list );
 
-		if ( relation_omit_update_row_set_viewonly_boolean(
+		if ( relation_omit_update_one2m_row_viewonly_boolean(
 			query_row,
-			relation_omit_update_one2m_list ) )
+			relation_one2m ) )
 		{
 			viewonly_boolean = 1;
 		}
@@ -153,12 +149,11 @@ boolean relation_omit_update_set_viewonly_boolean(
 	return viewonly_boolean;
 }
 
-boolean relation_omit_update_row_set_viewonly_boolean(
+boolean relation_omit_update_one2m_row_viewonly_boolean(
 		QUERY_ROW *query_row,
-		LIST *relation_omit_update_one2m_list )
+		RELATION_ONE2M *relation_one2m )
 {
-	RELATION_ONE2M *relation_one2m;
-	LIST *query_cell_list;
+	LIST *cell_attribute_list;
 	char *where_string;
 	char *system_string;
 	boolean viewonly_boolean = 0;
@@ -179,64 +174,57 @@ boolean relation_omit_update_row_set_viewonly_boolean(
 			message );
 	}
 
-	if ( list_rewind( relation_omit_update_one2m_list ) )
-	do {
-		relation_one2m =
-			list_get(
-				relation_omit_update_one2m_list );
-
-		query_cell_list =
-			/* ------------------------------- */
-			/* Returns query_cell_list or null */
-			/* ------------------------------- */
-			query_cell_attribute_list(
-				relation_one2m->
-					one_folder_primary_key_list
-						/* attribute_name_list */,
-				query_row->cell_list );
-
-		if ( list_length( query_cell_list ) )
-		{
-			if ( query_cell_list_set_attribute_name(
-				relation_one2m->relation_foreign_key_list
+	cell_attribute_list =
+		/* ------------------------------- */
+		/* Returns query_cell_list or null */
+		/* ------------------------------- */
+		query_cell_attribute_list(
+			relation_one2m->
+				one_folder_primary_key_list
 					/* attribute_name_list */,
-				query_cell_list /* in/out */ ) )
-			{
-				where_string =
-					/* --------------------------- */
-					/* Returns heap memory or null */
-					/* --------------------------- */
-					query_cell_where_string(
-						query_cell_list );
+			query_row->cell_list );
 
-				system_string =
-					/* ------------------- */
-					/* Returns heap memory */
-					/* ------------------- */
-					appaserver_system_string(
-						"count(1)" /* select */,
-						/* --------------------- */
-						/* Returns static memory */
-						/* --------------------- */
-						appaserver_table_name(
-							relation_one2m->
-							many_folder_name ),
-						where_string );
+	if ( list_length( cell_attribute_list ) )
+	{
+		if ( query_cell_list_set_attribute_name(
+			relation_one2m->relation_foreign_key_list
+				/* attribute_name_list */,
+			cell_attribute_list /* in/out */ ) )
+		{
+			where_string =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				query_cell_where_string(
+					cell_attribute_list
+						/* query_cell_list */ );
 
-				query_row->viewonly_boolean =
-					(boolean)string_atoi(
-						string_system_input(
-							system_string ) );
+			system_string =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				appaserver_system_string(
+					"count(1)" /* select */,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					appaserver_table_name(
+						relation_one2m->
+						many_folder_name ),
+					where_string );
 
-				if ( query_row->viewonly_boolean )
-					viewonly_boolean = 1;
+			query_row->viewonly_boolean =
+				(boolean)string_atoi(
+					string_system_input(
+						system_string ) );
 
-				free( where_string );
-				free( system_string );
-			}
+			if ( query_row->viewonly_boolean )
+				viewonly_boolean = 1;
+
+			free( where_string );
+			free( system_string );
 		}
-
-	} while ( list_next( relation_omit_update_one2m_list ) );
+	}
 
 	return viewonly_boolean;
 }
