@@ -169,6 +169,8 @@ QUERY_CELL *query_cell_seek(
 /* ------------------- */
 char *query_cell_list_display(
 		LIST *cell_list );
+char *query_row_cell_list_display(
+		LIST *cell_list );
 
 /* Process */
 /* ------- */

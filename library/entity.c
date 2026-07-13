@@ -379,7 +379,8 @@ char *entity_primary_where(
 		snprintf(
 			where,
 			sizeof ( where ),
-			"full_name = '%s' and %s",
+			"%s = '%s' and %s",
+			entity_full_name_column,
 			escape_full_name,
 			contact_key_where );
 	

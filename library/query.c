@@ -734,6 +734,7 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 					attribute_not_null
 				: (char *)0 );
 
+
 	if ( !list_length( query_table_edit->query_select_table_edit_list ) )
 	{
 		char message[ 128 ];
@@ -7094,6 +7095,11 @@ LIST *query_cell_data_list( LIST *query_row_cell_list )
 	}
 
 	return data_list;
+}
+
+char *query_row_cell_list_display( LIST *cell_list )
+{
+	return query_cell_list_display( cell_list );
 }
 
 char *query_cell_list_display( LIST *cell_list )

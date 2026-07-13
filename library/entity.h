@@ -86,16 +86,6 @@ ENTITY *entity_calloc(
 
 /* Returns static memory */
 /* --------------------- */
-char *entity_contact_key_where(
-		const char *entity_contact_key_column,
-		char *contact_key,
-		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
 char *entity_primary_where(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
@@ -118,6 +108,16 @@ char *entity_escape_full_name(
 /* ------------------- */
 char *entity_escape_contact_key(
 		char *contact_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *entity_contact_key_where(
+		const char *entity_contact_key_column,
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
