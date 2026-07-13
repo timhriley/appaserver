@@ -481,6 +481,7 @@ CHOOSE_ISA_INPUT *choose_isa_input_new(
 		/* -------------- */
 		security_entity_new(
 			login_name,
+			one_folder_name,
 			choose_isa_input->
 				folder_row_level_restriction->
 				non_owner_forbid,

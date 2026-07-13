@@ -27,6 +27,7 @@ typedef struct
 /* -------------- */
 SECURITY_ENTITY *security_entity_new(
 		char *login_name,
+		char *folder_name,
 		boolean non_owner_forbid,
 		boolean override_row_restrictions );
 
@@ -38,10 +39,19 @@ SECURITY_ENTITY *security_entity_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *security_entity_where(
+		char *table_name,
 		char *full_name,
 		char *contact_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *security_entity_table_name(
+		char *folder_name );
 
 #endif

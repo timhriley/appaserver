@@ -132,6 +132,7 @@ UPDATE *update_new(
 		update->security_entity =
 			security_entity_new(
 				login_name,
+				folder_name,
 				folder_row_level_restriction->
 					non_owner_forbid ||
 				folder_row_level_restriction->

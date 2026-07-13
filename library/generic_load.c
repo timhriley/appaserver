@@ -1384,6 +1384,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 	generic_load_folder->security_entity =
 		security_entity_new(
 			login_name,
+			folder_name,
 			generic_load_folder->
 				folder_row_level_restriction->
 				non_owner_forbid,

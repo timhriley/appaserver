@@ -89,6 +89,7 @@ ENTITY *entity_calloc(
 char *entity_primary_where(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
+		char *table_name,
 		char *full_name,
 		char *contact_key,
 		boolean entity_contact_key_boolean );
@@ -100,6 +101,15 @@ char *entity_primary_where(
 /* ------------------- */
 char *entity_escape_full_name(
 		char *full_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *entity_table_name_column(
+		const char *column_name,
+		char *table_name );
 
 /* Usage */
 /* ----- */
@@ -116,6 +126,7 @@ char *entity_escape_contact_key(
 /* --------------------- */
 char *entity_contact_key_where(
 		const char *entity_contact_key_column,
+		char *table_name,
 		char *contact_key,
 		boolean entity_contact_key_boolean );
 

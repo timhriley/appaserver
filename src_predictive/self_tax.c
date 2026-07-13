@@ -47,8 +47,14 @@ SELF_TAX *self_tax_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			(char *)0 /* table_name */,
 			full_name,
-			street_address );
+			contact_key,
+			entity_contact_key_boolean(
+				ENTITY_TABLE,
+				ENTITY_CONTACT_KEY_COLUMN );
 
 	system_string =
 		/* ------------------- */

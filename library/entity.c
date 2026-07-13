@@ -195,6 +195,7 @@ ENTITY *entity_fetch(
 		entity_primary_where(
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			(char *)0 /* table_name */,
 			full_name,
 			contact_key,
 			contact_key_boolean );
@@ -343,6 +344,7 @@ char *entity_escape_contact_key( char *contact_key )
 char *entity_primary_where(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
+		char *table_name,
 		char *full_name,
 		char *contact_key,
 		boolean contact_key_boolean )
@@ -373,6 +375,7 @@ char *entity_primary_where(
 			/* --------------------- */
 			entity_contact_key_where(
 				entity_contact_key_column,
+				table_name,
 				contact_key,
 				contact_key_boolean );
 	
@@ -380,7 +383,12 @@ char *entity_primary_where(
 			where,
 			sizeof ( where ),
 			"%s = '%s' and %s",
-			entity_full_name_column,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_table_name_column(
+				entity_full_name_column /* column_name */,
+				table_name ),
 			escape_full_name,
 			contact_key_where );
 	
@@ -423,6 +431,7 @@ char *entity_fetch_contact_key(
 			entity_primary_where(
 				ENTITY_FULL_NAME_COLUMN,
 				ENTITY_CONTACT_KEY_COLUMN,
+				(char *)0 /* table_name */,
 				full_name,
 				(char *)0 /* contact_key */,
 				contact_key_boolean );
@@ -681,6 +690,7 @@ char *entity_select_string(
 
 char *entity_contact_key_where(
 		const char *entity_contact_key_column,
+		char *table_name,
 		char *contact_key,
 		boolean contact_key_boolean )
 {
@@ -706,7 +716,12 @@ char *entity_contact_key_where(
 			where,
 			sizeof ( where ),
 			"%s = '%s'",
-			entity_contact_key_column,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_table_name_column(
+				entity_contact_key_column /* column_name */,
+				table_name ),
 			escape_contact_key );
 
 		free( escape_contact_key );
@@ -918,3 +933,25 @@ char *entity_insert(
 	return spool_string;
 }
 
+char *entity_table_name_column(
+		const char *column_name,
+		char *table_name )
+{
+	static char table_name_column[ 64 ];
+
+	if ( !table_name )
+	{
+		strcpy( table_name_column, column_name );
+	}
+	else
+	{
+		snprintf(
+			table_name_column,
+			sizeof ( table_name_column ),
+			"%s.%s",
+			table_name,
+			column_name );
+	}
+
+	return table_name_column;
+}

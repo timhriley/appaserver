@@ -399,6 +399,7 @@ LOOKUP_SPREADSHEET_INPUT *lookup_spreadsheet_input_new(
 		/* -------------- */
 		security_entity_new(
 			login_name,
+			folder_name,
 			lookup_spreadsheet_input->
 				folder_row_level_restriction->
 				non_owner_forbid,

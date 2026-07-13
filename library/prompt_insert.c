@@ -250,6 +250,7 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 	prompt_insert_input->security_entity =
 		security_entity_new(
 			login_name,
+			folder_name,
 			prompt_insert_input->
 				folder_row_level_restriction->
 				non_owner_forbid,

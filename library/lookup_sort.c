@@ -669,6 +669,7 @@ LOOKUP_SORT_INPUT *lookup_sort_input_new(
 		/* -------------- */
 		security_entity_new(
 			login_name,
+			folder_name,
 			lookup_sort_input->
 				folder_row_level_restriction->
 				non_owner_forbid ||

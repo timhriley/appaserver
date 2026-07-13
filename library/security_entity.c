@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "String.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "entity.h"
 #include "security_entity.h"
@@ -35,10 +36,12 @@ SECURITY_ENTITY *security_entity_calloc( void )
 
 SECURITY_ENTITY *security_entity_new(
 		char *login_name,
+		char *folder_name,
 		boolean non_owner_forbid,
 		boolean override_row_restrictions )
 {
 	SECURITY_ENTITY *security_entity;
+	char *table_name;
 
 	if ( !login_name )
 	{
@@ -73,11 +76,20 @@ SECURITY_ENTITY *security_entity_new(
 			login_name,
 			0 /* not fetch_role_name_list */ );
 
+	table_name =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		security_entity_table_name(
+			folder_name );
+
+
 	security_entity->where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		security_entity_where(
+			table_name,
 			security_entity->appaserver_user->full_name,
 			security_entity->appaserver_user->contact_key );
 
@@ -85,6 +97,7 @@ SECURITY_ENTITY *security_entity_new(
 }
 
 char *security_entity_where(
+		char *table_name,
 		char *full_name,
 		char *contact_key )
 {
@@ -97,6 +110,7 @@ char *security_entity_where(
 		entity_primary_where(
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			table_name,
 			full_name,
 			contact_key,
 			entity_contact_key_boolean(
@@ -104,5 +118,16 @@ char *security_entity_where(
 				ENTITY_CONTACT_KEY_COLUMN ) );
 
 	return strdup( primary_where );
+}
+
+char *security_entity_table_name( char *folder_name )
+{
+	return
+	(folder_name)
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		? appaserver_table_name( folder_name )
+		: (char *)0;
 }
 

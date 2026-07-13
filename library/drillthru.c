@@ -278,6 +278,7 @@ DRILLTHRU_DOCUMENT *drillthru_document_new(
 		/* -------------- */
 		security_entity_new(
 			login_name,
+			base_folder_name,
 			drillthru_document->
 				folder_row_level_restriction->
 				non_owner_forbid,

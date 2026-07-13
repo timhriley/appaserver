@@ -676,6 +676,7 @@ TABLE_INSERT_INPUT *table_insert_input_new(
 	table_insert_input->security_entity =
 		security_entity_new(
 			login_name,
+			folder_name,
 			table_insert_input->
 				folder_row_level_restriction->
 				non_owner_forbid,

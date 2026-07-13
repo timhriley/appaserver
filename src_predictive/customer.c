@@ -48,6 +48,7 @@ CUSTOMER *customer_fetch(
 		entity_primary_where(
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			(char *)0 /* table_name */,
 			customer_full_name,
 			customer_contact_key,
 			contact_key_boolean );

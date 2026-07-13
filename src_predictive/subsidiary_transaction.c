@@ -211,6 +211,7 @@ char *subsidiary_transaction_update_template(
 				/* ENTITY_FULL_NAME_COLUMN */,
 			foreign_contact_key_column
 				/* ENTITY_CONTACT_KEY_COLUMN */,
+			(char *)0 /* table_name */,
 			full_name,
 			contact_key,
 			contact_key_boolean );

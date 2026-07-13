@@ -984,6 +984,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 		/* -------------- */
 		security_entity_new(
 			login_name,
+			folder_name,
 			process_parameter_drop_down->
 				folder_row_level_restriction->
 				non_owner_forbid,

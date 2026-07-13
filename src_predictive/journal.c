@@ -2108,6 +2108,7 @@ LIST *journal_account_name_list(
 		entity_primary_where(
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			(char *)0 /* table_name */,
 			full_name,
 			contact_key,
 			entity_contact_key_boolean(
@@ -2502,6 +2503,7 @@ char *journal_entity_where(
 		entity_primary_where(
 			ENTITY_FULL_NAME_COLUMN,
 			ENTITY_CONTACT_KEY_COLUMN,
+			(char *)0 /* table_name */,
 			full_name,
 			contact_key,
 			contact_key_boolean );
