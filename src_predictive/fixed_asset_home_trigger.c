@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 			preupdate_full_name,
 			preupdate_purchase_date_time );
 
-	subsidiary_transaction_execute(
+	(void)subsidiary_transaction_execute(
 		application_name,
 		fixed_asset_home->
 			subsidiary_transaction->

@@ -191,8 +191,6 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				/* foreign_contact_key_column */,
 			"purchase_date_time"
 				/* foreign_date_time_column */,
-			fixed_asset_home->purchase_date_time
-				/* prior_transaction_date_time */,
 			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */,
 			fixed_asset_home->fixed_asset_cost

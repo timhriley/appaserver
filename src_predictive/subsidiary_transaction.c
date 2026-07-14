@@ -24,7 +24,6 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
-		char *prior_transaction_date_time,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,
@@ -113,7 +112,6 @@ SUBSIDIARY_TRANSACTION *
 				subsidiary_transaction_insert->
 					transaction_date_time
 					/* foreign_date_time */,
-				prior_transaction_date_time,
 				fund_boolean,
 				contact_key_boolean );
 	}
@@ -157,7 +155,6 @@ char *subsidiary_transaction_update_template(
 		char *full_name,
 		char *contact_key,
 		char *foreign_date_time,
-		char *transaction_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -181,14 +178,7 @@ char *subsidiary_transaction_update_template(
 			message );
 	}
 
-	if ( !foreign_date_time
-	||   !transaction_date_time
-	||   strcmp(
-		foreign_date_time,
-		transaction_date_time ) == 0 )
-	{
-		return NULL;
-	}
+	if ( !foreign_date_time ) return NULL;
 
 	fund_where =
 		/* ------------------------------ */
@@ -323,8 +313,7 @@ SUBSIDIARY_TRANSACTION_DELETE *
 		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		boolean journal_list_match_boolean )
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time )
 {
 	SUBSIDIARY_TRANSACTION_DELETE *subsidiary_transaction_delete;
 
@@ -350,8 +339,7 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	if (	preupdate_change_fund_name->no_change_boolean
 	&&	preupdate_change_full_name->no_change_boolean
 	&&  	preupdate_change_contact_key->no_change_boolean
-	&&  	preupdate_change_foreign_date_time->no_change_boolean
-	&&	journal_list_match_boolean )
+	&&  	preupdate_change_foreign_date_time->no_change_boolean )
 	{
 		return NULL;
 	}
@@ -421,8 +409,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		boolean journal_list_match_boolean )
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time )
 {
 	SUBSIDIARY_TRANSACTION_INSERT *subsidiary_transaction_insert;
 
@@ -448,8 +435,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	if (	preupdate_change_fund_name->no_change_boolean
 	&&	preupdate_change_full_name->no_change_boolean
 	&&  	preupdate_change_contact_key->no_change_boolean
-	&&  	preupdate_change_foreign_date_time->no_change_boolean
-	&&	journal_list_match_boolean )
+	&&  	preupdate_change_foreign_date_time->no_change_boolean )
 	{
 		return NULL;
 	}

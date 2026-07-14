@@ -154,7 +154,6 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_contact_key_column */,
 			"transaction_date_time"
 				/* foreign_date_time_column */,
-			prior_transaction_date_time,
 			sale_transaction->journal_list
 				/* insert_journal_list */,
 			sale_invoice_amount

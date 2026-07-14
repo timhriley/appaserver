@@ -21,7 +21,7 @@ typedef struct
 	PREUPDATE_CHANGE *preupdate_change_contact_key;
 	PREUPDATE_CHANGE *preupdate_change_foreign_date_time;
 	LIST *old_journal_list;
-	boolean exist_boolean;
+	boolean journal_exist_boolean;
 	boolean journal_list_match_boolean;
 	SUBSIDIARY_TRANSACTION_INSERT *subsidiary_transaction_insert;
 	SUBSIDIARY_TRANSACTION_DELETE *subsidiary_transaction_delete;
@@ -59,7 +59,7 @@ SUBSIDIARY_TRANSACTION_STATE *
 
 /* Any journal rows exist? */
 /* ----------------------- */
-boolean subsidiary_transaction_state_exist_boolean(
+boolean subsidiary_transaction_state_journal_exist_boolean(
 		LIST *old_journal_list );
 
 #endif

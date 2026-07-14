@@ -27,8 +27,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		boolean journal_list_match_boolean );
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time );
 
 /* Process */
 /* ------- */
@@ -51,8 +50,7 @@ SUBSIDIARY_TRANSACTION_DELETE *
 		PREUPDATE_CHANGE *preupdate_change_fund_name,
 		PREUPDATE_CHANGE *preupdate_change_full_name,
 		PREUPDATE_CHANGE *preupdate_change_contact_key,
-		PREUPDATE_CHANGE *preupdate_change_foreign_date_time,
-		boolean journal_list_match_boolean );
+		PREUPDATE_CHANGE *preupdate_change_foreign_date_time );
 
 /* Process */
 /* ------- */
@@ -81,7 +79,6 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
-		char *prior_transaction_date_time,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,
@@ -112,7 +109,6 @@ char *subsidiary_transaction_update_template(
 		char *full_name,
 		char *contact_key,
 		char *foreign_date_time,
-		char *prior_transaction_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 

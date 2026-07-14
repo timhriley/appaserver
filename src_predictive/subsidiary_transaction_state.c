@@ -55,6 +55,11 @@ SUBSIDIARY_TRANSACTION_STATE *
 	subsidiary_transaction_state =
 		subsidiary_transaction_state_calloc();
 
+	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 )
+	{
+		return subsidiary_transaction_state;
+	}
+
 	subsidiary_transaction_state->predictive_fund_name =
 		/* ------------------------- */
 		/* Returns parameter or null */
@@ -140,14 +145,16 @@ SUBSIDIARY_TRANSACTION_STATE *
 			fund_boolean,
 			contact_key_boolean );
 
-	subsidiary_transaction_state->exist_boolean =
+	subsidiary_transaction_state->journal_exist_boolean =
 		/* ----------------------- */
 		/* Any journal rows exist? */
 		/* ----------------------- */
-		subsidiary_transaction_state_exist_boolean(
+		subsidiary_transaction_state_journal_exist_boolean(
 			subsidiary_transaction_state->old_journal_list );
 
-	if ( subsidiary_transaction_state->exist_boolean )
+	if (	strcmp(	state,
+			APPASERVER_PREDELETE_STATE ) != 0
+	&&	subsidiary_transaction_state->journal_exist_boolean )
 	{
 		subsidiary_transaction_state->journal_list_match_boolean =
 			journal_list_match_boolean(
@@ -156,31 +163,35 @@ SUBSIDIARY_TRANSACTION_STATE *
 					old_journal_list /* journal2_list */ );
 	}
 
-	subsidiary_transaction_state->subsidiary_transaction_insert =
-		subsidiary_transaction_insert_new(
-			subsidiary_transaction_state->
-				preupdate_change_fund_name,
-			subsidiary_transaction_state->
-				preupdate_change_full_name,
-			subsidiary_transaction_state->
-				preupdate_change_contact_key,
-			subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			subsidiary_transaction_state->
-				journal_list_match_boolean );
+	if (	!subsidiary_transaction_state->journal_exist_boolean
+	||	!subsidiary_transaction_state->journal_list_match_boolean )
+	{
+		subsidiary_transaction_state->subsidiary_transaction_insert =
+			subsidiary_transaction_insert_new(
+				subsidiary_transaction_state->
+					preupdate_change_fund_name,
+				subsidiary_transaction_state->
+					preupdate_change_full_name,
+				subsidiary_transaction_state->
+					preupdate_change_contact_key,
+				subsidiary_transaction_state->
+					preupdate_change_foreign_date_time );
+	}
 
-	subsidiary_transaction_state->subsidiary_transaction_delete =
-		subsidiary_transaction_delete_new(
-			subsidiary_transaction_state->
-				preupdate_change_fund_name,
-			subsidiary_transaction_state->
-				preupdate_change_full_name,
-			subsidiary_transaction_state->
-				preupdate_change_contact_key,
-			subsidiary_transaction_state->
-				preupdate_change_foreign_date_time,
-			subsidiary_transaction_state->
-				journal_list_match_boolean );
+	if (	subsidiary_transaction_state->journal_exist_boolean
+	&&	!subsidiary_transaction_state->journal_list_match_boolean )
+	{
+		subsidiary_transaction_state->subsidiary_transaction_delete =
+			subsidiary_transaction_delete_new(
+				subsidiary_transaction_state->
+					preupdate_change_fund_name,
+				subsidiary_transaction_state->
+					preupdate_change_full_name,
+				subsidiary_transaction_state->
+					preupdate_change_contact_key,
+				subsidiary_transaction_state->
+					preupdate_change_foreign_date_time );
+	}
 
 	return subsidiary_transaction_state;
 }
@@ -268,7 +279,7 @@ boolean subsidiary_transaction_state_delete_boolean(
 			preupdate_change_contact_key,
 		PREUPDATE_CHANGE *
 			preupdate_change_foreign_date_time,
-		boolean subsidiary_transaction_state_exist_boolean,
+		boolean subsidiary_transaction_state_journal_exist_boolean,
 		boolean journal_list_match_boolean )
 {
 	if ( !preupdate_change_full_name
@@ -307,7 +318,7 @@ boolean subsidiary_transaction_state_delete_boolean(
 		return 1;
 	}
 
-	if (	subsidiary_transaction_state_exist_boolean
+	if (	subsidiary_transaction_state_journal_exist_boolean
 	&&	!journal_list_match_boolean )
 	{
 		return 1;
@@ -316,7 +327,8 @@ boolean subsidiary_transaction_state_delete_boolean(
 	return 0;
 }
 
-boolean subsidiary_transaction_state_exist_boolean( LIST *old_journal_list )
+boolean subsidiary_transaction_state_journal_exist_boolean(
+	      LIST *old_journal_list )
 {
 	return
 	(boolean)list_length( old_journal_list );
