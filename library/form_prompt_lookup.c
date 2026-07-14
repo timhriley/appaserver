@@ -1018,6 +1018,10 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 				not_null_boolean = 1;
 		}
 
+		form_prompt_lookup_relation->
+			drop_down_widget_container->
+			recall_boolean = 1;
+
 		goto form_prompt_lookup_relation_hint_message;
 	}
 
