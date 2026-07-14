@@ -10,7 +10,7 @@ investment_account
 investment_classification
 investment_purpose
 journal
-prior_fixed_asset
+fixed_asset
 subclassification
 tax_form
 tax_form_line
