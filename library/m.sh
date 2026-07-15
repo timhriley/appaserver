@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_prompt_lookup
+	cd ../src_system
+	make delete_application
 fi
 

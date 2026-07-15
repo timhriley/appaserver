@@ -171,9 +171,15 @@ int main( int argc, char **argv )
 			application_upload->
 			delete_system_string );
 
-	application_delete_system( 
+	application_delete_system(
 		execute_boolean,
 		application_delete->drop_system_string );
+
+	application_delete_system(
+		execute_boolean,
+		application_delete->
+			application_backup->
+			delete_log_file_system_string );
 
 	if ( execute_boolean )
 	{

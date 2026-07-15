@@ -92,6 +92,15 @@ APPLICATION_BACKUP *application_backup_new(
 		application_backup_delete_directory_system_string(
 			application_backup->directory_name );
 
+	application_backup->delete_log_file_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		application_backup_delete_log_file_system_string(
+			application_name,
+			application_backup->
+				appaserver_parameter_backup_directory );
+
 	return application_backup;
 }
 
@@ -267,3 +276,35 @@ char *application_backup_create_directory_system_string(
 	return strdup( system_string );
 }
 
+char *application_backup_delete_log_file_system_string(
+		char *application_name,
+		char *backup_directory )
+{
+	char system_string[ 1024 ];
+
+	if ( !application_name
+	||   !backup_directory )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"rm -f %s/mysqldump_%s.log 2>/dev/null",
+		backup_directory,
+		application_name );
+
+	return strdup( system_string );
+}

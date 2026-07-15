@@ -11,15 +11,11 @@
 #include "appaserver_error.h"
 #include "mysqldump.h"
 
-/* Constants */
-/* --------- */
 #define PERCENTAGE_DROP_THRESHOLD	0.20
 
-/* Prototypes */
-/* ---------- */
 void mysqldump_fork_count_drop(
-				char *mysqldump_database_count_file,
-				char *mysqldump_database_yesterday_count_file );
+		char *mysqldump_database_count_file,
+		char *mysqldump_database_yesterday_count_file );
 
 int main( int argc, char **argv )
 {
@@ -44,12 +40,11 @@ int main( int argc, char **argv )
 		mysqldump_database_yesterday_count_file );
 
 	return 0;
-
-} /* main() */
+}
 
 void mysqldump_fork_count_drop(
-				char *mysqldump_database_count_file,
-				char *mysqldump_database_yesterday_count_file )
+			char *mysqldump_database_count_file,
+			char *mysqldump_database_yesterday_count_file )
 {
 	MYSQLDUMP *mysqldump;
 
@@ -82,6 +77,5 @@ void mysqldump_fork_count_drop(
 				mysqldump->
 					reached_percentage_drop_name_list ) );
 	}
-
-} /* mysqldump_fork_count_drop() */
+}
 

@@ -24,6 +24,7 @@ typedef struct
 	char *create_directory_system_string;
 	char *directory_name;
 	char *delete_directory_system_string;
+	char *delete_log_file_system_string;
 } APPLICATION_BACKUP;
 
 /* Usage */
@@ -40,6 +41,12 @@ APPLICATION_BACKUP *application_backup_new(
 /* ------- */
 APPLICATION_BACKUP *application_backup_calloc(
 		void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *application_backup_delete_log_file_system_string(
+		char *application_name,
+		char *application_parameter_backup_directory );
 
 /* Usage */
 /* ----- */
