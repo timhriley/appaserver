@@ -196,9 +196,9 @@ EXECUTABLES=	trial_balance_output					\
 		fixed_asset_home_trigger				\
 		import_predictbooks					\
 		generate_invoice					\
-		post_change_customer_sale
-#		post_change_fixed_service_sale				\
-#		post_change_fixed_service_work				\
+		post_change_customer_sale				\
+		post_change_fixed_service_sale				\
+		post_change_fixed_service_work
 #		hourly_service_sale_trigger				\
 #		post_change_customer_payment				\
 #		post_change_hourly_service_work				\
