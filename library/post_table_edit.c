@@ -293,7 +293,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 			post_table_edit_input->
 				folder_attribute_append_isa_list );
 
-	post_table_edit_input_dictionary_time_set(
+	post_table_edit_input_dictionary_set_time(
 		post_table_edit_input->
 			dictionary_separate->
 			multi_row_dictionary /* in/out */,
@@ -594,7 +594,7 @@ boolean post_table_edit_forbid(
 	return 1 - role_folder_lookup_boolean;
 }
 
-void post_table_edit_input_dictionary_time_set(
+void post_table_edit_input_dictionary_set_time(
 		DICTIONARY *multi_row_dictionary,
 		LIST *folder_attribute_append_isa_list )
 {
@@ -603,6 +603,7 @@ void post_table_edit_input_dictionary_time_set(
 	char trim_index[ 128 ];
 	char *get;
 	FOLDER_ATTRIBUTE *folder_attribute;
+	char *set_now_hhmmss;
 
 	key_list = dictionary_key_list( multi_row_dictionary );
 
@@ -614,57 +615,66 @@ void post_table_edit_input_dictionary_time_set(
 		/* --------------------------------------- */
 		get = dictionary_get( key, multi_row_dictionary );
 
-		if ( !get || *get == '/' ) continue;
+		if ( !get || !*get || *get == '/' ) continue;
 
 		/* Returns destination */
 		/* ------------------- */
 		(void)string_trim_index( trim_index, key );
 
-		if ( ( folder_attribute =
+		if ( ! ( folder_attribute =
 			folder_attribute_seek(
 				(char *)0 /* folder_name */,
 				trim_index /* attribute_name */,
 				folder_attribute_append_isa_list ) ) )
 		{
-			if ( !folder_attribute->attribute )
-			{
-				char message[ 128 ];
+			continue;
+		}
 
-				snprintf(
-					message,
-					sizeof ( message ),
+		if ( !folder_attribute->attribute )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
 				"folder_attribute->attribute is empty." );
 
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
-			if ( attribute_is_date_time(
-				folder_attribute->
-					attribute->
-					datatype_name ) )
-			{
-				char *set_now_hhmmss;
+		if ( !attribute_is_date_time(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			continue;
+		}
 
-				set_now_hhmmss =
-					/* --------------------------- */
-					/* Returns heap memory or null */
-					/* --------------------------- */
-					date_set_now_hhmmss(
-						get /* date_string */,
-						date_utc_offset() );
+		if ( string_character_boolean(
+			get /* datum */,
+			' ' /* c */ ) )
+		{
+			continue;
+		}
 
-				if ( set_now_hhmmss )
-				{
-					dictionary_set(
-						multi_row_dictionary,
-						key,
-						set_now_hhmmss );
-				}
-			}
+		set_now_hhmmss =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			date_set_now_hhmmss(
+				get /* date_string */,
+				date_utc_offset() );
+
+		if ( set_now_hhmmss )
+		{
+			dictionary_set(
+				multi_row_dictionary,
+				key,
+				set_now_hhmmss );
 		}
 
 	} while ( list_next( key_list ) );

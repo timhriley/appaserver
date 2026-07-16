@@ -985,4 +985,9 @@ void update_statement_execute(
 		char *application_name,
 		char *update_statement );
 
+/* Driver */
+/* ------ */
+void update_stderr_display(
+		LIST *update_row_list );
+
 #endif

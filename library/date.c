@@ -1908,9 +1908,12 @@ char *date_set_now_hhmmss(
 	char now_hhmmss[ 128 ];
 	char *tmp;
 
-	if ( !date_string ) return NULL;
-
-	if ( string_character_boolean( date_string, ' ' ) ) return NULL;
+	if ( !date_string
+	||   !*date_string
+	||   string_character_boolean( date_string, ' ' ) )
+	{
+		return NULL;
+	}
 
 	snprintf(
 		now_hhmmss,

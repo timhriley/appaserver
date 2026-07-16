@@ -2637,22 +2637,6 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 			key,
 			file_dictionary );
 
-	if ( ( !update_attribute->file_datum || !*update_attribute->file_datum )
-	&&   attribute_is_date_time(
-		folder_attribute->
-			attribute->
-			datatype_name ) )
-	{
-		update_attribute->post_datum =
-			/* ---------------------------------- */
-			/* Returns heap memory or date_string */
-			/* ---------------------------------- */
-			date_append_time(
-				update_attribute->post_datum
-					/* date_string */,
-				folder_attribute->attribute->width );
-	}
-
 	return update_attribute;
 }
 
@@ -5993,5 +5977,34 @@ int update_row_cell_count( UPDATE_ROW *update_row )
 	} while ( list_next( update_row->update_changed_list_list ) );
 
 	return cell_count;
+}
+
+void update_stderr_display( LIST *update_row_list )
+{
+	UPDATE_ROW *update_row;
+	UPDATE_CHANGED_LIST *update_changed_list;
+
+	if ( list_rewind( update_row_list ) )
+	do {
+		update_row = list_get( update_row_list );
+
+		if ( list_rewind( update_row->update_changed_list_list ) )
+		do {
+			update_changed_list =
+				list_get(
+					update_row->
+						update_changed_list_list );
+
+			fprintf(stderr,
+				"%s\n",
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				update_changed_list_display(
+					update_changed_list ) );
+
+		} while ( list_next( update_row->update_changed_list_list ) );
+
+	} while ( list_next( update_row_list ) );
 }
 
