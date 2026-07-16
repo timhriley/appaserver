@@ -26,6 +26,7 @@ typedef struct
 	double sale_work_hours; /* for update */
 	LIST *primary_key_list;
 	LIST *update_string_list;
+	char *sale_update_system_string;
 } FIXED_SERVICE_WORK;
 
 /* Usage */
@@ -93,9 +94,8 @@ LIST *fixed_service_work_primary_key_list(
 /* Usage */
 /* ----- */
 void fixed_service_work_update(
-		const char *fixed_service_work_table,
 		LIST *update_string_list,
-		LIST *primary_key_list );
+		char *sale_update_system_string );
 
 /* Usage */
 /* ----- */

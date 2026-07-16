@@ -37,7 +37,6 @@ RELATION_OMIT_UPDATE *relation_omit_update_new(
 			message );
 	}
 
-
 	relation_omit_update = relation_omit_update_calloc();
 
 	relation_omit_update->relation_one2m =
@@ -199,30 +198,33 @@ boolean relation_omit_update_one2m_row_viewonly_boolean(
 					cell_attribute_list
 						/* query_cell_list */ );
 
-			system_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				appaserver_system_string(
-					"count(1)" /* select */,
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					appaserver_table_name(
-						relation_one2m->
-						many_folder_name ),
-					where_string );
+			if ( where_string )
+			{
+				system_string =
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					appaserver_system_string(
+						"count(1)" /* select */,
+						/* --------------------- */
+						/* Returns static memory */
+						/* --------------------- */
+						appaserver_table_name(
+							relation_one2m->
+							many_folder_name ),
+						where_string );
 
-			query_row->viewonly_boolean =
-				(boolean)string_atoi(
-					string_system_input(
-						system_string ) );
+				query_row->viewonly_boolean =
+					(boolean)string_atoi(
+						string_system_input(
+							system_string ) );
 
-			if ( query_row->viewonly_boolean )
-				viewonly_boolean = 1;
+				if ( query_row->viewonly_boolean )
+					viewonly_boolean = 1;
 
-			free( where_string );
-			free( system_string );
+				free( where_string );
+				free( system_string );
+			}
 		}
 	}
 

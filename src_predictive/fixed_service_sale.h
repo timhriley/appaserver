@@ -32,6 +32,7 @@ typedef struct
 	double fixed_service_sale_net_revenue; /* for update */
 	LIST *update_string_list;
 	LIST *primary_key_list;
+	char *sale_update_system_string;
 } FIXED_SERVICE_SALE;
 
 /* Usage */
@@ -96,9 +97,8 @@ LIST *fixed_service_sale_primary_key_list(
 /* Usage */
 /* ----- */
 void fixed_service_sale_update(
-		const char *fixed_service_sale_table,
 		LIST *update_string_list,
-		LIST *primary_key_list );
+		char *sale_update_system_string );
 
 /* Usage */
 /* ----- */

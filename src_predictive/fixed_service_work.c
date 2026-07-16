@@ -183,12 +183,6 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 			fixed_service_work->begin_work_date_time,
 			fixed_service_work->end_work_date_time );
 
-	fixed_service_work->primary_key_list =
-		fixed_service_work_primary_key_list(
-			SALE_BEGIN_WORK_COLUMN,
-			fund_boolean,
-			contact_key_boolean );
-
 	fixed_service_work->update_string_list =
 		fixed_service_work_update_string_list(
 			SQL_DELIMITER,
@@ -201,6 +195,21 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 			fund_boolean,
 			contact_key_boolean,
 			fixed_service_work->sale_work_hours );
+
+	fixed_service_work->primary_key_list =
+		fixed_service_work_primary_key_list(
+			SALE_BEGIN_WORK_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	fixed_service_work->sale_update_system_string =
+		/* -------------------- */
+		/* Borrow sale_update() */
+		/* Returns heap memory  */
+		/* -------------------- */
+		sale_update_system_string(
+			FIXED_SERVICE_WORK_TABLE,
+			fixed_service_work->primary_key_list );
 
 	return fixed_service_work;
 }
@@ -566,17 +575,15 @@ LIST *fixed_service_work_update_string_list(
 }
 
 void fixed_service_work_update(
-		const char *fixed_service_work_table,
 		LIST *update_string_list,
-		LIST *primary_key_list )
+		char *sale_update_system_string )
 {
 	/* Borrow sale_update() */
 	/* -------------------- */
 	(void)sale_update(
-		fixed_service_work_table,
 		(char *)0 /* application_name for transaction_update */,
 		update_string_list,
-		primary_key_list,
+		sale_update_system_string,
 		(SALE_TRANSACTION *)0,
 		(SALE_LOSS_TRANSACTION*)0 );
 }
@@ -688,9 +695,8 @@ void fixed_service_work_trigger(
 
 
 		fixed_service_work_update(
-			FIXED_SERVICE_WORK_TABLE,
 			fixed_service_work->update_string_list,
-			fixed_service_work->primary_key_list );
+			fixed_service_work->sale_update_system_string );
 	}
 	
 	fixed_service_sale_trigger(

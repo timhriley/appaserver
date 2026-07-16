@@ -6895,7 +6895,10 @@ char *query_cell_where_string( LIST *query_row_cell_list )
 				message );
 		}
 
-		if ( !query_cell->attribute_name ) continue;
+		if ( !query_cell->attribute_name ) return NULL;
+		if ( !*query_cell->attribute_name ) return NULL;
+		if ( !query_cell->select_datum ) return NULL;
+		if ( !*query_cell->select_datum ) return NULL;
 
 		if ( ptr != where_string ) ptr += sprintf( ptr, " and " );
 

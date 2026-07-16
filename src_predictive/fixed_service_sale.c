@@ -155,6 +155,15 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 					SALE_SERVICE_NAME_COLUMN,
 					fund_boolean,
 					contact_key_boolean );
+
+		fixed_service_sale->sale_update_system_string =
+			/* -------------------- */
+			/* Borrow sale_update() */
+			/* Returns heap memory  */
+			/* -------------------- */
+			sale_update_system_string(
+				FIXED_SERVICE_SALE_TABLE,
+				fixed_service_sale->primary_key_list );
 	}
 
 	return fixed_service_sale;
@@ -519,9 +528,8 @@ void fixed_service_sale_trigger(
 		}
 
 		fixed_service_sale_update(
-			FIXED_SERVICE_SALE_TABLE,
 			fixed_service_sale->update_string_list,
-			fixed_service_sale->primary_key_list );
+			fixed_service_sale->sale_update_system_string );
 	}
 	
 	sale =
@@ -539,10 +547,9 @@ void fixed_service_sale_trigger(
 	if ( !sale ) return;
 
 	(void)sale_update(
-		SALE_TABLE,
 		application_name /* for transaction_update */,
 		sale->update_string_list,
-		sale->sale_fetch->primary_key_list,
+		sale->update_system_string,
 		sale->sale_transaction,
 		(SALE_LOSS_TRANSACTION *)0 );
 }
@@ -690,17 +697,15 @@ LIST *fixed_service_sale_update_string_list(
 }
 
 void fixed_service_sale_update(
-		const char *fixed_service_sale_table,
 		LIST *update_string_list,
-		LIST *primary_key_list )
+		char *sale_update_system_string )
 {
 	/* Borrow sale_update() */
 	/* -------------------- */
 	(void)sale_update(
-		fixed_service_sale_table,
 		(char *)0 /* application_name for transaction_update */,
 		update_string_list,
-		primary_key_list,
+		sale_update_system_string,
 		(SALE_TRANSACTION *)0,
 		(SALE_LOSS_TRANSACTION*)0 );
 }

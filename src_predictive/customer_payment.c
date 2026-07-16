@@ -512,10 +512,9 @@ void customer_payment_trigger(
 		if ( !sale ) return;
 
 		sale_update(
-			SALE_TABLE,
 			application_name,
 			sale->update_string_list,
-			sale->sale_fetch->primary_key_list,
+			sale->update_system_string,
 			sale->sale_transaction,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}
