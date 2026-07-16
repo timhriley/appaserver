@@ -68,10 +68,9 @@ int main( int argc, char **argv )
 	if ( !sale ) exit( 0 );
 
 	sale_update(
-		SALE_TABLE,
 		application_name /* for transaction_update */,
 		sale->update_string_list,
-		sale->sale_fetch->primary_key_list,
+		sale->update_system_string,
 		sale->sale_transaction,
 		sale->sale_loss_transaction );
 

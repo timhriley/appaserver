@@ -352,7 +352,8 @@ char *list_display(
 		LIST *list );
 
 void list_display_lines(
-		LIST *list );
+		LIST *list,
+		FILE *output_stream );
 
 /* Returns heap memory or "" */
 /* ------------------------- */

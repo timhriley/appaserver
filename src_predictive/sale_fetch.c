@@ -215,7 +215,6 @@ void sale_fetch_parse(
 			message );
 	}
 
-
 	/* See sale_fetch_select() */
 	/* ----------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );

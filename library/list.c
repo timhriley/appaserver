@@ -359,11 +359,13 @@ void list_delete_from_list( LIST *set, LIST *delete_list )
 	}
 }
 
-void list_display_lines( LIST *list )
+void list_display_lines(
+		LIST *list,
+		FILE *output_stream )
 {
 	if ( list_rewind( list ) )
 	do {
-		printf( "%s\n", (char *)list_get( list ) );
+		fprintf( output_stream, "%s\n", (char *)list_get( list ) );
 	} while( list_next( list ) );
 }
 

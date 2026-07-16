@@ -236,6 +236,14 @@ SALE *sale_trigger_new(
 			sale->customer_payment_total,
 			sale->amount_due );
 
+	sale->update_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		sale_update_system_string(
+			SALE_TABLE,
+			sale->sale_fetch->primary_key_list );
+
 	return sale;
 }
 
@@ -352,26 +360,24 @@ char *sale_update_system_string(
 }
 
 char *sale_update(
-		const char *sale_table,
 		char *application_name,
 		LIST *update_string_list,
-		LIST *primary_key_list,
+		char *update_system_string,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction )
 {
-	char *system_string;
 	FILE *pipe;
 	char *update_string;
 	char *transaction_date_time = {0};
 
-	if ( !list_length( primary_key_list ) )
+	if ( !update_system_string )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"primary_key_list is empty." );
+			"update_system_string is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -380,20 +386,10 @@ char *sale_update(
 			message );
 	}
 
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		sale_update_system_string(
-			sale_table,
-			primary_key_list );
-
 	/* -------------- */
 	/* Safely returns */
 	/* -------------- */
-	pipe = appaserver_output_pipe( system_string );
-
-	free( system_string );
+	pipe = appaserver_output_pipe( update_system_string );
 
 	if ( list_rewind( update_string_list ) )
 	do {
@@ -632,10 +628,10 @@ char *sale_primary_data_string(
 	snprintf(
 		data_string,
 		sizeof ( data_string ),
-		"%s%c%s%s",
+		"%s%s%c%s",
 		fund_string,
-		sql_delimiter,
 		primary_data_string,
+		sql_delimiter,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */

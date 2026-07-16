@@ -55,6 +55,7 @@ typedef struct
 	SALE_TRANSACTION *sale_transaction;
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
 	LIST *update_string_list;
+	char *update_system_string;
 } SALE;
 
 /* Usage */
@@ -199,10 +200,9 @@ char *sale_primary_data_string(
 /* Returns inserted sale_transaction->transaction_date_time */
 /* -------------------------------------------------------- */
 char *sale_update(
-		const char *sale_table,
 		char *application_name /* for transaction update */,
 		LIST *update_string_list,
-		LIST *primary_key_list,
+		char *sale_update_system_string,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction );
 

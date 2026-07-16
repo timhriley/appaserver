@@ -133,8 +133,8 @@ LIST *relation_seek_mto1_list( char *many_folder_name )
 			message );
 	}
 
-	/* Returns static LIST * */
-	/* --------------------- */
+	/* Returns static (LIST *) */
+	/* ----------------------- */
 	cache_list = relation_cache_list();
 
 	if ( list_rewind( cache_list ) )
