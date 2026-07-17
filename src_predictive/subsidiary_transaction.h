@@ -125,7 +125,6 @@ char *subsidiary_transaction_update_null_sql(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
 		const char *update_date_time_column,
 		char *fund_name,
 		char *full_name,
