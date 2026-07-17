@@ -453,11 +453,4 @@ char *insert_folder_command_line(
 		LIST *insert_data_list,
 		char *insert_folder_primary_data_list_string );
 
-/* Usage */
-/* ----- */
-void insert_copy_common_set(
-		DICTIONARY *dictionary /* in/out */,
-		LIST *folder_attribute_list,
-		LIST *relation_mto1_list );
-
 #endif

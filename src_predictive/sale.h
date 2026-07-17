@@ -156,7 +156,6 @@ LIST *sale_update_string_list(
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean,
 		boolean sales_tax_boolean,
-		boolean payment_list_boolean,
 		double shipping_charge,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,

@@ -57,7 +57,7 @@ LIST *relation_copy_where_query_cell_list(
 /* Returns heap memory */
 /* ------------------- */
 char *relation_copy_system_string(
-		const char sql_delimiter,
+		const char delimiter,
 		LIST *select_name_list,
 		char *folder_name,
 		char *where_string );

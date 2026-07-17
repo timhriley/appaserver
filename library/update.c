@@ -166,7 +166,7 @@ UPDATE *update_new(
 			multi_row_dictionary,
 			file_dictionary,
 			relation_one2m_list,
-			relation_mto1_list,
+			/* relation_mto1_list, */
 			relation_mto1_isa_list,
 			folder_attribute_append_isa_list,
 			post_change_process,
@@ -792,7 +792,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		LIST *relation_one2m_list,
-		LIST *relation_mto1_list,
+		/* LIST *relation_mto1_list, */
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
@@ -845,11 +845,13 @@ UPDATE_ROW_LIST *update_row_list_new(
 		row_number <= update_row_list->dictionary_highest_index;
 		row_number++ )
 	{
+#ifdef NOT_DEFINED
 		(void)relation_copy_new(
 			multi_row_dictionary /* in/out */,
 			folder_attribute_append_isa_list,
 			relation_mto1_list,
 			row_number );
+#endif
 
 		update_row =
 			update_row_new(

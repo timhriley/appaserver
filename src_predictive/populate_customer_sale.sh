@@ -38,7 +38,7 @@ parameter_where=$2
 
 where="$parameter_where"
 table=sale
-select="full_name,street_address,sale_date_time"
+select="full_name,contact_key,sale_date_time"
 
 select.sh $select $table "$where" select
 

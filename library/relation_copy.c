@@ -187,7 +187,7 @@ void relation_copy_set(
 		/* Returns heap memory */
 		/* ------------------- */
 		relation_copy_system_string(
-			SQL_DELIMITER,
+			',' /* delimiter */,
 			common_name_list /* select_name_list */,
 			relation_mto1->one_folder_name,
 			where_string );
@@ -278,7 +278,7 @@ LIST *relation_copy_where_query_cell_list(
 }
 
 char *relation_copy_system_string(
-		const char sql_delimiter,
+		const char delimiter,
 		LIST *select_name_list,
 		char *folder_name,
 		char *where_string )
@@ -310,7 +310,7 @@ char *relation_copy_system_string(
 		/* ------------------------- */
 		list_display_delimited(
 			select_name_list,
-			(char)sql_delimiter ),
+			(char)delimiter ),
 
 	snprintf(
 		system_string,

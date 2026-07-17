@@ -153,7 +153,7 @@ SALE *sale_trigger_new(
 	sale->customer_payment_total =
 		customer_payment_total(
 			sale->sale_fetch->cash_account,
-			sale->sale_fetch->payment_total,
+			sale->sale_fetch->invoice_amount,
 			sale->sale_fetch->customer_payment_list );
 
 	sale->amount_due =
@@ -224,7 +224,6 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->fixed_service_sale_boolean,
 			sale->sale_fetch->hourly_service_sale_boolean,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->sale_fetch->payment_list_boolean,
 			sale->shipping_charge,
 			sale->inventory_sale_total,
 			sale->specific_inventory_sale_total,
@@ -658,7 +657,6 @@ LIST *sale_update_string_list(
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean,
 		boolean sales_tax_boolean,
-		boolean payment_list_boolean,
 		double shipping_charge,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
@@ -800,7 +798,7 @@ LIST *sale_update_string_list(
 			primary_data_string,
 			"payment_total" /* column_name */,
 			customer_payment_total /* money */,
-			payment_list_boolean /* set_boolean */ );
+			1 /* set_boolean */ );
 
 	list_set( list, update_string );
 
