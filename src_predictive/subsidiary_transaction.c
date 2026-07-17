@@ -118,6 +118,37 @@ SUBSIDIARY_TRANSACTION *
 				contact_key_boolean );
 	}
 
+	if ( subsidiary_transaction_delete )
+	{
+		if ( strcmp(
+			foreign_date_time_column,
+			update_date_time_column ) != 0 )
+		{
+			subsidiary_transaction->update_null_sql =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				subsidiary_transaction_update_null_sql(
+					foreign_table_name,
+					foreign_fund_name_column,
+					foreign_full_name_column,
+					foreign_contact_key_column,
+					foreign_date_time_column,
+					update_date_time_column,
+					subsidiary_transaction_delete->
+						fund_name,
+					subsidiary_transaction_delete->
+						full_name,
+					subsidiary_transaction_delete->
+						contact_key,
+					subsidiary_transaction_delete->
+						transaction_date_time
+						/* foreign_date_time */,
+					fund_boolean,
+					contact_key_boolean );
+		}
+	}
+
 	return subsidiary_transaction;
 }
 
@@ -161,8 +192,7 @@ char *subsidiary_transaction_update_template(
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
-	char *fund_where;
-	char *primary_where;
+	char *update_where;
 	char update_template[ 1024 ];
 
 	if ( !full_name )
@@ -181,47 +211,34 @@ char *subsidiary_transaction_update_template(
 			message );
 	}
 
-	fund_where =
-		/* ------------------------------ */
-		/* Change it to the foreign where */
-		/* Returns static memory.	  */
-		/* ------------------------------ */
-		predictive_fund_where(
-			foreign_fund_name_column
-				/* PREDICTIVE_FUND_COLUMN */,
-			fund_name,
-			fund_boolean );
+	if ( !foreign_date_time ) return NULL;
 
-	primary_where =
-		/* ------------------------------ */
-		/* Change it to the foreign where */
-		/* Returns static memory.	  */
-		/* ------------------------------ */
-		entity_primary_where(
-			foreign_full_name_column
-				/* ENTITY_FULL_NAME_COLUMN */,
-			foreign_contact_key_column
-				/* ENTITY_CONTACT_KEY_COLUMN */,
-			(char *)0 /* table_name */,
+	update_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		subsidiary_transaction_update_where(
+			foreign_fund_name_column,
+			foreign_full_name_column,
+			foreign_contact_key_column,
+			foreign_date_time_column,
+			fund_name,
 			full_name,
 			contact_key,
+			foreign_date_time,
+			fund_boolean,
 			contact_key_boolean );
-
-	if ( !foreign_date_time ) return NULL;
 
 	snprintf(
 		update_template,
 		sizeof ( update_template ),
 		"update %s "
 		"set %s = '%cs' "
-		"where %s and %s and %s = '%s';",
+		"%s;",
 		foreign_table_name,
 		update_date_time_column,
 		'%',
-		fund_where,
-		primary_where,
-		foreign_date_time_column,
-		foreign_date_time );
+		update_where );
 
 	return strdup( update_template );
 }
@@ -231,6 +248,7 @@ char *subsidiary_transaction_execute(
 		TRANSACTION *delete_transaction,
 		TRANSACTION *insert_transaction,
 		char *update_template,
+		char *update_null_sql,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -297,6 +315,16 @@ char *subsidiary_transaction_execute(
 			SQL_EXECUTABLE,
 			application_name,
 			update_statement );
+	}
+
+	if (	update_null_sql
+	&&	delete_transaction
+	&&	!insert_transaction )
+	{
+		update_statement_execute(
+			SQL_EXECUTABLE,
+			application_name,
+			update_null_sql );
 	}
 
 	return transaction_date_time;
@@ -492,5 +520,140 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	}
 
 	return subsidiary_transaction_insert;
+}
+
+char *subsidiary_transaction_update_where(
+		const char *foreign_fund_name_column,
+		const char *foreign_full_name_column,
+		const char *foreign_contact_key_column,
+		const char *foreign_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *foreign_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *fund_where;
+	char *primary_where;
+	char where[ 1024 ];
+
+	if ( !full_name
+	||   !foreign_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fund_where =
+		/* ------------------------------ */
+		/* Change it to the foreign where */
+		/* Returns static memory.	  */
+		/* ------------------------------ */
+		predictive_fund_where(
+			foreign_fund_name_column
+				/* PREDICTIVE_FUND_COLUMN */,
+			fund_name,
+			fund_boolean );
+
+	primary_where =
+		/* ------------------------------ */
+		/* Change it to the foreign where */
+		/* Returns static memory.	  */
+		/* ------------------------------ */
+		entity_primary_where(
+			foreign_full_name_column
+				/* ENTITY_FULL_NAME_COLUMN */,
+			foreign_contact_key_column
+				/* ENTITY_CONTACT_KEY_COLUMN */,
+			(char *)0 /* table_name */,
+			full_name,
+			contact_key,
+			contact_key_boolean );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"where %s and %s and %s = '%s'",
+		fund_where,
+		primary_where,
+		foreign_date_time_column,
+		foreign_date_time );
+
+	return strdup( where );
+}
+
+char *subsidiary_transaction_update_null_sql(
+		const char *foreign_table_name,
+		const char *foreign_fund_name_column,
+		const char *foreign_full_name_column,
+		const char *foreign_contact_key_column,
+		const char *foreign_date_time_column,
+		const char *update_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *foreign_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	char *update_where;
+	char update_null_sql[ 1024 ];
+
+	if ( !full_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !foreign_date_time ) return NULL;
+
+	update_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		subsidiary_transaction_update_where(
+			foreign_fund_name_column,
+			foreign_full_name_column,
+			foreign_contact_key_column,
+			foreign_date_time_column,
+			fund_name,
+			full_name,
+			contact_key,
+			foreign_date_time,
+			fund_boolean,
+			contact_key_boolean );
+
+	snprintf(
+		update_null_sql,
+		sizeof ( update_null_sql ),
+		"update %s "
+		"set %s = null "
+		"%s;",
+		foreign_table_name,
+		update_date_time_column,
+		update_where );
+
+	return strdup( update_null_sql );
 }
 

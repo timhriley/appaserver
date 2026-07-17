@@ -420,6 +420,9 @@ char *sale_update(
 					update_template,
 				sale_transaction->
 					subsidiary_transaction->
+					update_null_sql,
+				sale_transaction->
+					subsidiary_transaction->
 					predictive_fund_boolean,
 				sale_transaction->
 					subsidiary_transaction->
@@ -439,6 +442,9 @@ char *sale_update(
 			sale_loss_transaction->
 				subsidiary_transaction->
 				update_template,
+			sale_loss_transaction->
+				subsidiary_transaction->
+				update_null_sql,
 			sale_loss_transaction->
 				subsidiary_transaction->
 				predictive_fund_boolean,

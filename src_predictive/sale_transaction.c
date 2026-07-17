@@ -152,7 +152,7 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_full_name_column */,
 			"contact_key"
 				/* foreign_contact_key_column */,
-			"completed_date_time"
+			"sale_date_time"
 				/* foreign_date_time_column */,
 			"transaction_date_time"
 				/* update_date_time_column */,

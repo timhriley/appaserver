@@ -166,7 +166,19 @@ void hourly_service_sale_trigger(
 			sale->
 				sale_transaction->
 				subsidiary_transaction->
-				update_template );
+				update_template,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				update_null_sql,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				predictive_fund_boolean,
+			sale->
+				sale_transaction->
+				subsidiary_transaction->
+				entity_contact_key_boolean );
 	}
 }
 

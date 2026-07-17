@@ -489,6 +489,10 @@ void customer_payment_trigger(
 				customer_payment->
 					customer_payment_transaction->
 					subsidiary_transaction->
+					update_null_sql,
+				customer_payment->
+					customer_payment_transaction->
+					subsidiary_transaction->
 					predictive_fund_boolean,
 				customer_payment->
 					customer_payment_transaction->

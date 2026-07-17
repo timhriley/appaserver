@@ -74,6 +74,9 @@ int main( int argc, char **argv )
 		fixed_asset_home->
 			subsidiary_transaction->
 			update_template,
+		fixed_asset_home->
+			subsidiary_transaction->
+			update_null_sql,
 		0 /* not predictive_fund_boolean */,
 		0 /* not entity_contact_key_boolean */ );
 

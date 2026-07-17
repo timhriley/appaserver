@@ -65,6 +65,7 @@ typedef struct
 	TRANSACTION *delete_transaction;
 	TRANSACTION *insert_transaction;
 	char *update_template;
+	char *update_null_sql;
 } SUBSIDIARY_TRANSACTION;
 
 /* Usage */
@@ -114,6 +115,42 @@ char *subsidiary_transaction_update_template(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *subsidiary_transaction_update_null_sql(
+		const char *foreign_table_name,
+		const char *foreign_fund_name_column,
+		const char *foreign_full_name_column,
+		const char *foreign_contact_key_column,
+		const char *foreign_date_time_column,
+		const char *update_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *foreign_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *subsidiary_transaction_update_where(
+		const char *foreign_fund_name_column,
+		const char *foreign_full_name_column,
+		const char *foreign_contact_key_column,
+		const char *foreign_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *foreign_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
 /* Driver */
 /* ------ */
 
@@ -126,6 +163,7 @@ char *subsidiary_transaction_execute(
 		TRANSACTION *delete_transaction,
 		TRANSACTION *insert_transaction,
 		char *update_template,
+		char *update_null_sql,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
