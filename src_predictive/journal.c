@@ -1071,10 +1071,12 @@ char *journal_insert_data_string(
 	if ( !account_name )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: account_name is missing.\n",
+"Warning in %s/%s()/%d: transaction=[%s,%s]: account_name is missing.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			full_name,
+			transaction_date_time );
 
 		return NULL;
 	}
@@ -1883,6 +1885,19 @@ void journal_list_pipe_insert(
 	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
+
+		if ( !journal->account_name )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: for transaction=[%s,%s]: account_name is missing.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				full_name,
+				transaction_date_time );
+
+			continue;
+		}
 
 		new_journal =
 			/* -------------- */
@@ -2695,28 +2710,13 @@ JOURNAL *journal_account_new(
 	{
 		journal->debit_amount = journal_amount;
 		journal->account = debit_account;
+		journal->account_name = debit_account->account_name;
 	}
 	else
 	{
 		journal->credit_amount = journal_amount;
 		journal->account = credit_account;
-	}
-
-	if ( !journal->account->account_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-	"for journal_amount=%.2lf, journal->account->account_name is empty.",
-			journal_amount );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		journal->account_name = credit_account->account_name;
 	}
 
 	return journal;

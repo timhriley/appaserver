@@ -118,23 +118,27 @@ CUSTOMER_PAYMENT *customer_payment_parse(
 
 double customer_payment_total(
 		char *cash_account,
+		char *completed_date_time,
 		double invoice_amount,
 		LIST *customer_payment_list )
 {
 	CUSTOMER_PAYMENT *customer_payment;
 	double total = 0.0;
 
-	if ( cash_account )
+	if ( completed_date_time )
 	{
-		total = invoice_amount;
+		if ( cash_account )
+		{
+			total = invoice_amount;
+		}
+		else
+		if ( list_rewind( customer_payment_list ) )
+		do {
+			customer_payment = list_get( customer_payment_list );
+			total += customer_payment->payment_amount;
+	
+		} while ( list_next( customer_payment_list ) );
 	}
-	else
-	if ( list_rewind( customer_payment_list ) )
-	do {
-		customer_payment = list_get( customer_payment_list );
-		total += customer_payment->payment_amount;
-
-	} while ( list_next( customer_payment_list ) );
 
 	return total;
 }

@@ -24,6 +24,7 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
+		const char *update_date_time_column,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,
@@ -103,6 +104,7 @@ SUBSIDIARY_TRANSACTION *
 				foreign_full_name_column,
 				foreign_contact_key_column,
 				foreign_date_time_column,
+				update_date_time_column,
 				subsidiary_transaction_insert->
 					fund_name,
 				subsidiary_transaction_insert->
@@ -151,6 +153,7 @@ char *subsidiary_transaction_update_template(
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
+		const char *update_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -178,8 +181,6 @@ char *subsidiary_transaction_update_template(
 			message );
 	}
 
-	if ( !foreign_date_time ) return NULL;
-
 	fund_where =
 		/* ------------------------------ */
 		/* Change it to the foreign where */
@@ -206,6 +207,8 @@ char *subsidiary_transaction_update_template(
 			contact_key,
 			contact_key_boolean );
 
+	if ( !foreign_date_time ) return NULL;
+
 	snprintf(
 		update_template,
 		sizeof ( update_template ),
@@ -213,7 +216,7 @@ char *subsidiary_transaction_update_template(
 		"set %s = '%cs' "
 		"where %s and %s and %s = '%s';",
 		foreign_table_name,
-		foreign_date_time_column,
+		update_date_time_column,
 		'%',
 		fund_where,
 		primary_where,
@@ -278,31 +281,22 @@ char *subsidiary_transaction_execute(
 				fund_boolean,
 				contact_key_boolean,
 				1 /* insert_journal_list_boolean */ );
+	}
 
-		if ( update_template )
-		{
-			int cmp;
+	if ( update_template && transaction_date_time )
+	{
+		char update_statement[ 1024 ];
 
-			cmp = strcmp(
-				insert_transaction->transaction_date_time,
-				transaction_date_time );
+		snprintf(
+			update_statement,
+			sizeof ( update_statement ),
+			update_template,
+			transaction_date_time );
 
-			if ( cmp != 0 )
-			{
-				char update_statement[ 1024 ];
-
-				snprintf(
-					update_statement,
-					sizeof ( update_statement ),
-					update_template,
-					transaction_date_time );
-	
-				update_statement_execute(
-					SQL_EXECUTABLE,
-					application_name,
-					update_statement );
-			}
-		}
+		update_statement_execute(
+			SQL_EXECUTABLE,
+			application_name,
+			update_statement );
 	}
 
 	return transaction_date_time;

@@ -166,6 +166,8 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 				/* foreign_contact_key_column */,
 			"uncollectible_date_time"
 				/* foreign_date_time_column */,
+			"uncollectible_date_time"
+				/* update_date_time_column */,
 			sale_loss_transaction->journal_binary_list
 				/* insert_journal_list */,
 			sale_amount_due

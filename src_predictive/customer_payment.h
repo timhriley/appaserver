@@ -119,6 +119,7 @@ char *customer_payment_primary_where(
 /* ----- */
 double customer_payment_total(
 		char *cash_account,
+		char *completed_date_time,
 		double invoice_amount,
 		LIST *customer_payment_list );
 

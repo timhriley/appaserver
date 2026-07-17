@@ -153,6 +153,7 @@ SALE *sale_trigger_new(
 	sale->customer_payment_total =
 		customer_payment_total(
 			sale->sale_fetch->cash_account,
+			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->invoice_amount,
 			sale->sale_fetch->customer_payment_list );
 

@@ -161,6 +161,8 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 				/* foreign_contact_key_column */,
 			"payment_date_time"
 				/* foreign_date_time_column */,
+			"payment_date_time"
+				/* update_date_time_column */,
 			customer_payment_transaction->journal_binary_list
 				/* insert_journal_list */,
 			payment_amount

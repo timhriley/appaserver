@@ -718,6 +718,20 @@ SALE_FETCH *sale_fetch_new(
 	}
 */
 
+	if ( sale_fetch->payment_list_boolean )
+	{
+		sale_fetch->customer_payment_list =
+			customer_payment_list(
+				CUSTOMER_PAYMENT_SELECT,
+				CUSTOMER_PAYMENT_TABLE,
+				fund_name,
+				full_name,
+				contact_key,
+				sale_date_time,
+				sale_fetch->predictive_fund_boolean,
+				sale_fetch->entity_contact_key_boolean );
+	}
+
 	sale_fetch->primary_key_list =
 		sale_fetch_primary_key_list(
 			PREDICTIVE_FUND_COLUMN,

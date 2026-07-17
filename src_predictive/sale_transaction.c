@@ -152,8 +152,10 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_full_name_column */,
 			"contact_key"
 				/* foreign_contact_key_column */,
-			"transaction_date_time"
+			"completed_date_time"
 				/* foreign_date_time_column */,
+			"transaction_date_time"
+				/* update_date_time_column */,
 			sale_transaction->journal_list
 				/* insert_journal_list */,
 			sale_invoice_amount
