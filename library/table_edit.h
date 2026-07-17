@@ -25,7 +25,6 @@
 #include "drillthru.h"
 #include "dictionary_separate.h"
 #include "date_convert.h"
-#include "relation_omit_update.h"
 
 #define TABLE_EDIT_EXECUTABLE			"output_table_edit"
 #define TABLE_EDIT_FORCE_DROP_DOWN_ROW_COUNT	3
@@ -85,9 +84,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 /* ------- */
 TABLE_EDIT_INPUT *table_edit_input_calloc(
 		void );
-
-boolean table_edit_input_omit_update_boolean(
-		LIST *relation_mto1_recursive_list );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -216,8 +212,6 @@ typedef struct
 	TABLE_EDIT_INPUT *table_edit_input;
 	QUERY_TABLE_EDIT *query_table_edit;
 	int query_row_list_length;
-	RELATION_OMIT_UPDATE *relation_omit_update;
-	boolean viewonly_boolean;
 	ROW_SECURITY *row_security;
 	char *post_action_string;
 	LIST *heading_label_list;
@@ -259,10 +253,6 @@ TABLE_EDIT *table_edit_calloc(
 
 int table_edit_query_row_list_length(
 		LIST *query_fetch_row_list );
-
-boolean table_edit_viewonly_boolean(
-		boolean non_owner_viewonly,
-		boolean relation_omit_update_viewonly_boolean );
 
 /* Returns heap memory */
 /* ------------------- */

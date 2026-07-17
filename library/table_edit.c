@@ -527,32 +527,6 @@ TABLE_EDIT *table_edit_new(
 				query_fetch->
 				row_list );
 
-	table_edit->relation_omit_update =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		relation_omit_update_new(
-			folder_name,
-			table_edit->
-				table_edit_input->
-				relation_mto1_recursive_list
-				/* relation_mto1_list_set_one_to_many_list() */,
-			table_edit->
-				table_edit_input->
-				relation_one2m_list,
-			table_edit->
-				query_table_edit->
-				query_fetch->
-				row_list /* in/out */ );
-
-	table_edit->viewonly_boolean =
-		table_edit_viewonly_boolean(
-			table_edit->
-				table_edit_input->
-				folder_row_level_restriction->
-				non_owner_viewonly,
-		table_edit->relation_omit_update->viewonly_boolean );
-
 	table_edit->row_security =
 		/* -------------- */
 		/* Safely returns */
@@ -576,7 +550,10 @@ TABLE_EDIT *table_edit_new(
 				table_edit_input->
 				folder->
 				post_change_javascript,
-			table_edit->viewonly_boolean,
+			table_edit->
+				table_edit_input->
+				folder_row_level_restriction->
+				non_owner_viewonly,
 			table_edit->
 				table_edit_input->
 				dictionary_separate->

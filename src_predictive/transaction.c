@@ -198,7 +198,7 @@ TRANSACTION *transaction_parse(
 
 	if ( contact_key_boolean )
 	{
-		piece( buffer, SQL_DELIMITER, input, 5 );
+		piece( buffer, SQL_DELIMITER, input, 6 );
 		contact_key = strdup( buffer );
 	}
 
@@ -217,6 +217,11 @@ TRANSACTION *transaction_parse(
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer ) transaction->memo = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer )
+		transaction->transaction_lock_boolean =
+			(*buffer == 'y');
 
 	if ( fetch_journal_list )
 	{
@@ -347,7 +352,8 @@ char *transaction_insert(
 			message );
 	}
 
-	if ( transaction_amount <= 0.0 )
+	if ( float_money_virtually_same( transaction_amount, 0.0 )
+	||   transaction_amount < 0.0 )
 	{
 		char message[ 1024 ];
 
@@ -402,6 +408,10 @@ char *transaction_insert(
 		/* Returns static memory */
 		/* --------------------- */
 		transaction_memo( memo ),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		transaction_lock_yn(),
 		fund_boolean,
 		contact_key_boolean,
 		pipe_open );
@@ -439,6 +449,7 @@ void transaction_insert_pipe(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
+		const char transaction_lock_yn,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		FILE *pipe_open )
@@ -468,6 +479,7 @@ void transaction_insert_pipe(
 			transaction_amount,
 			transaction_check_number,
 			transaction_memo,
+			transaction_lock_yn,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -1633,6 +1645,7 @@ char *transaction_insert_data_string(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
+		const char transaction_lock_yn,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -1657,12 +1670,13 @@ char *transaction_insert_data_string(
 	snprintf(
 		data_string,
 		sizeof ( data_string ),
-		"%s^%s^%.2lf^%s^%s",
+		"%s^%s^%.2lf^%s^%s^%c",
 	 	full_name,
 		transaction_race_free_date_time,
 		transaction_amount,
 		transaction_check_number,
-		transaction_memo );
+		transaction_memo,
+		transaction_lock_yn );
 
 	optional_column =
 		optional_column_new(
@@ -1722,5 +1736,10 @@ char *transaction_select_string(
 	}
 
 	return strdup( string );
+}
+
+char transaction_lock_yn( void )
+{
+	return 'y';
 }
 

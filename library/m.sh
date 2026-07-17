@@ -5,7 +5,7 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	touch post_prompt_insert.c
-	make post_prompt_insert
+	touch output_table_edit.c
+	make output_table_edit
 fi
 

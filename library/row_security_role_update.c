@@ -72,6 +72,11 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 					folder_name )
 				/* one_folder_primary_key_list */ );
 
+	row_security_role_update->relation_one2m_recursive_list =
+		relation_one2m_without_omit_drillthru_list(
+			row_security_role_update->
+				relation_one2m_recursive_list );
+
 	return row_security_role_update;
 }
 

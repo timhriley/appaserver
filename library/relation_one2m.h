@@ -70,6 +70,11 @@ boolean relation_one2m_foreign_key_none_primary(
 
 /* Usage */
 /* ----- */
+LIST *relation_one2m_without_omit_drillthru_list(
+		LIST *relation_one2m_list );
+
+/* Usage */
+/* ----- */
 LIST *relation_one2m_pair_list(
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );

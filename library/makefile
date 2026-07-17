@@ -88,7 +88,6 @@ APPASERVER_LIBRARY=						\
 		insert.o					\
 		optional_column.o				\
 		relation_copy.o					\
-		relation_omit_update.o				\
 		expected_count.o				\
 		update.o					\
 		delete.o					\
@@ -421,9 +420,6 @@ form_prompt_insert.o: form_prompt_insert.c form_prompt_insert.h
 
 relation_copy.o: relation_copy.c relation_copy.h
 	${CC} ${CFLAGS} -c relation_copy.c
-
-relation_omit_update.o: relation_omit_update.c relation_omit_update.h
-	${CC} ${CFLAGS} -c relation_omit_update.c
 
 form_prompt_process.o:						\
 	form_prompt_process.c					\

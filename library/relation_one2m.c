@@ -477,3 +477,28 @@ char *relation_one2m_list_display( LIST *relation_one2m_list )
 	return strdup( display );
 }
 
+LIST *relation_one2m_without_omit_drillthru_list( LIST *relation_one2m_list )
+{
+	LIST *list = list_new();
+	RELATION_ONE2M *relation_one2m;
+
+	if ( list_rewind( relation_one2m_list ) )
+	do {
+		relation_one2m = list_get( relation_one2m_list );
+
+		if ( !relation_one2m->relation->omit_drillthru )
+		{
+			list_set( list, relation_one2m );
+		}
+
+	} while ( list_next( relation_one2m_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+

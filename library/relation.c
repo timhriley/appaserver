@@ -88,27 +88,24 @@ RELATION *relation_parse( char *input )
 	relation->omit_drilldown = ( *field == 'y' );
 
 	piece( field, SQL_DELIMITER, input, 6 );
-	relation->omit_update = ( *field == 'y' );
-
-	piece( field, SQL_DELIMITER, input, 7 );
 	relation->relation_type_isa = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 8 );
+	piece( field, SQL_DELIMITER, input, 7 );
 	relation->copy_common_columns = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 9 );
+	piece( field, SQL_DELIMITER, input, 8 );
 	relation->automatic_preselection = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 10 );
+	piece( field, SQL_DELIMITER, input, 9 );
 	relation->drop_down_multi_select = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 11 );
+	piece( field, SQL_DELIMITER, input, 10 );
 	relation->join_one2m_each_row = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 12 );
+	piece( field, SQL_DELIMITER, input, 11 );
 	relation->ajax_fill_drop_down = ( *field == 'y' );
 
-	piece( hint_message, SQL_DELIMITER, input, 13 );
+	piece( hint_message, SQL_DELIMITER, input, 12 );
 	if ( *hint_message ) relation->hint_message = strdup( hint_message );
 
 	return relation;
@@ -757,7 +754,6 @@ char *relation_display( RELATION *relation )
 		"pair_one2m_order=%d, "
 		"omit_drillthru=%d, "
 		"omit_drilldown=%d, "
-		"omit_update=%d, "
 		"relation_type_isa=%d, "
 		"copy_common_columns=%d, "
 		"automatic_preselection=%d, "
@@ -770,7 +766,6 @@ char *relation_display( RELATION *relation )
 		relation->pair_one2m_order,
 		relation->omit_drillthru,
 		relation->omit_drilldown,
-		relation->omit_update,
 		relation->relation_type_isa,
 		relation->copy_common_columns,
 		relation->automatic_preselection,

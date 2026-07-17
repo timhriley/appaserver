@@ -28,13 +28,15 @@
 				"transaction_date_time,"	\
 				"transaction_amount,"		\
 				"check_number,"			\
-				"memo"
+				"memo,"				\
+				"transaction_lock_yn"
 
 #define TRANSACTION_INSERT	"full_name,"			\
 				"transaction_date_time,"	\
 				"transaction_amount,"		\
 				"check_number,"			\
-				"memo"
+				"memo,"				\
+				"transaction_lock_yn"
 
 typedef struct
 {
@@ -42,6 +44,7 @@ typedef struct
 	char *full_name;
 	char *contact_key /* optional */;
 	char *transaction_date_time;
+	boolean transaction_lock_boolean;
 
 	/* Set externally */
 	/* -------------- */
@@ -186,6 +189,7 @@ void transaction_insert_pipe(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
+		const char transaction_lock_yn,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		FILE *pipe_open );
@@ -204,6 +208,7 @@ char *transaction_insert_data_string(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
+		const char transaction_lock_yn,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -444,5 +449,13 @@ char *transaction_insert_column_string(
 		const char *entity_contact_key_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns program memory */
+/* ---------------------- */
+char transaction_lock_yn(
+		void );
 
 #endif

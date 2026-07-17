@@ -122,7 +122,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/relation_one2m.o				\
 		${LIBRARY}/relation_join.o				\
 		${LIBRARY}/relation_copy.o				\
-		${LIBRARY}/relation_omit_update.o			\
 		${LIBRARY}/aggregate_level.o				\
 		${LIBRARY}/aggregate_statistic.o			\
 		${LIBRARY}/choose_role.o				\
