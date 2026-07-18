@@ -996,26 +996,17 @@ LIST *form_table_edit_checkbox_container_list(
 			operation_name,
 		"delete" ) == 0 )
 	{
-		if ( string_strcmp( 
-			folder_operation->
-				operation->
-				operation_name,
-			"delete" ) == 0 )
-		{
-			list_set(
-				widget_container_list,
-				widget_container_new(
-					table_heading,
-					"Delete" ) );
-		}
-		else
-		{
-			list_set(
-				widget_container_list,
-				widget_container_new(
-					table_heading,
-					"Delete Isa" ) );
-		}
+		char buffer[ 128 ];
+
+		list_set(
+			widget_container_list,
+			widget_container_new(
+				table_heading,
+				string_initial_capital(
+					buffer,
+					folder_operation->
+						operation->
+						operation_name ) ) );
 	}
 	else
 	{
