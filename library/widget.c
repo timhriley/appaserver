@@ -2553,7 +2553,10 @@ char *widget_text_value_string(
 				message );
 		}
 
-		value_string = query_cell->display_datum;
+		if ( query_cell->display_datum )
+			value_string = query_cell->display_datum;
+		else
+			value_string = query_cell->select_datum;
 	}
 
 	return value_string;
