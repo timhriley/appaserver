@@ -16,6 +16,7 @@
 #include "query.h"
 #include "form.h"
 #include "dictionary_separate.h"
+#include "folder_operation.h"
 
 #define FORM_TABLE_EDIT_LABEL		"form_table_edit"
 #define FORM_TABLE_EDIT_MINIMUM_SORT	2
@@ -28,6 +29,7 @@ typedef struct
 	LIST *bottom_button_widget_container_list;
 	boolean sort_buttons_boolean;
 	LIST *sort_container_list;
+	boolean omit_delete_checkbox_boolean;
 	LIST *heading_container_list;
 	char *heading_container_string;
 	char *query_dictionary_hidden_html;
@@ -56,7 +58,8 @@ FORM_TABLE_EDIT *form_table_edit_new(
 		int table_edit_query_row_list_length,
 		char *table_edit_post_action_string,
 		LIST *table_edit_heading_label_list,
-		LIST *table_edit_heading_name_list );
+		LIST *table_edit_heading_name_list,
+		boolean table_edit_omit_heading_delete_checkbox_boolean );
 
 /* Process */
 /* ------- */
@@ -123,7 +126,8 @@ LIST *form_table_edit_heading_container_list(
 		DICTIONARY *no_display_dictionary,
 		LIST *folder_operation_list,
 		LIST *table_edit_heading_label_list,
-		char *form_name );
+		char *form_name,
+		boolean table_edit_omit_delete_checkbox_boolean );
 
 /* Usage */
 /* ----- */
@@ -141,5 +145,12 @@ WIDGET_CONTAINER *form_table_edit_heading_checkbox_container(
 char *form_table_edit_heading_checkbox_string(
 		char *operation_name,
 		char *checkbox_prompt );
+
+/* Usage */
+/* ----- */
+LIST *form_table_edit_checkbox_container_list(
+		char *form_name,
+		boolean table_edit_omit_delete_checkbox_boolean,
+		FOLDER_OPERATION *folder_operation );
 
 #endif

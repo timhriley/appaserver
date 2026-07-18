@@ -216,6 +216,7 @@ typedef struct
 	char *post_action_string;
 	LIST *heading_label_list;
 	LIST *heading_name_list;
+	boolean omit_heading_delete_checkbox_boolean;
 	FORM_TABLE_EDIT *form_table_edit;
 	char *appaserver_update_filespecification;
 	LIST *regular_widget_container_list;
@@ -254,26 +255,9 @@ TABLE_EDIT *table_edit_calloc(
 int table_edit_query_row_list_length(
 		LIST *query_fetch_row_list );
 
-/* Returns heap memory */
-/* ------------------- */
-char *table_edit_post_action_string(
-		char *post_table_edit_executable,
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *target_frame,
-		pid_t process_id,
-		char *drilldown_base_folder_name,
-		char *drilldown_primary_data_list_string,
-		LIST *drilldown_relation_foreign_key_list );
-
-LIST *table_edit_heading_name_list(
-		ROW_SECURITY_REGULAR_WIDGET_LIST *
-			regular_widget_list,
+boolean table_edit_omit_heading_delete_checkbox_boolean(
 		ROW_SECURITY_VIEWONLY_WIDGET_LIST *
-			viewonly_widget_list );
+			row_security_viewonly_widget_list );
 
 /* Returns folder->notepad or null */
 /* ------------------------------- */
@@ -397,6 +381,24 @@ boolean table_edit_row_viewonly_boolean(
 		boolean query_row_viewonly_boolean,
 		ROW_SECURITY_ROLE_UPDATE_LIST *
 			row_security_role_update_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *table_edit_post_action_string(
+		char *post_table_edit_executable,
+		char *application_name,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *target_frame,
+		pid_t process_id,
+		char *drilldown_base_folder_name,
+		char *drilldown_primary_data_list_string,
+		LIST *drilldown_relation_foreign_key_list );
 
 /* Usage */
 /* ----- */

@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "timlib.h"
 #include "piece.h"
 #include "environ.h"
 #include "dictionary.h"
@@ -25,7 +24,6 @@
 #include "button.h"
 #include "table.h"
 #include "appaserver.h"
-#include "folder_operation.h"
 #include "form.h"
 #include "form_table_edit.h"
 
@@ -58,7 +56,8 @@ FORM_TABLE_EDIT *form_table_edit_new(
 		int table_edit_query_row_list_length,
 		char *table_edit_post_action_string,
 		LIST *table_edit_heading_label_list,
-		LIST *table_edit_heading_name_list )
+		LIST *table_edit_heading_name_list,
+		boolean omit_heading_delete_checkbox_boolean )
 {
 	FORM_TABLE_EDIT *form_table_edit;
 
@@ -126,7 +125,8 @@ FORM_TABLE_EDIT *form_table_edit_new(
 			no_display_dictionary,
 			folder_operation_list,
 			table_edit_heading_label_list,
-			form_table_edit->form_name );
+			form_table_edit->form_name,
+			omit_heading_delete_checkbox_boolean );
 
 	form_table_edit->query_dictionary_hidden_html =
 		/* --------------------------- */
@@ -207,7 +207,8 @@ FORM_TABLE_EDIT *form_table_edit_new(
 				no_display_dictionary,
 				form_table_edit->blank_folder_operation_list,
 				table_edit_heading_label_list,
-				form_table_edit->form_name );
+				form_table_edit->form_name,
+				omit_heading_delete_checkbox_boolean );
 
 		free( form_table_edit->heading_container_string );
 
@@ -731,7 +732,8 @@ LIST *form_table_edit_heading_container_list(
 		DICTIONARY *no_display_dictionary,
 		LIST *folder_operation_list,
 		LIST *heading_label_list,
-		char *form_name )
+		char *form_name,
+		boolean omit_heading_delete_checkbox_boolean )
 {
 	FOLDER_OPERATION *folder_operation;
 	char heading_string[ 128 ];
@@ -762,24 +764,12 @@ LIST *form_table_edit_heading_container_list(
 				message );
 		}
 
-		list_set(
+		list_set_list(
 			widget_container_list,
-			widget_container_new(
-				table_heading, (char *)0 ) );
-
-		list_set(
-			widget_container_list,
-			form_table_edit_heading_checkbox_container(
+			form_table_edit_checkbox_container_list(
 				form_name,
-				folder_operation->
-					operation->
-					operation_name,
-				folder_operation->
-					operation->
-					widget_container,
-				folder_operation->
-					operation->
-					delete_warning_javascript ) );
+				omit_heading_delete_checkbox_boolean,
+				folder_operation ) );
 
 	} while ( list_next( folder_operation_list ) );
 
@@ -975,3 +965,79 @@ LIST *form_table_edit_blank_folder_operation_list(
 	return folder_operation_list;
 }
 
+LIST *form_table_edit_checkbox_container_list(
+		char *form_name,
+		boolean omit_heading_delete_checkbox_boolean,
+		FOLDER_OPERATION *folder_operation )
+{
+	LIST *widget_container_list = list_new();
+
+	if ( !folder_operation
+	||   !folder_operation->operation )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_operation is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( omit_heading_delete_checkbox_boolean
+	&&   string_strncmp( 
+		folder_operation->
+			operation->
+			operation_name,
+		"delete" ) == 0 )
+	{
+		if ( string_strcmp( 
+			folder_operation->
+				operation->
+				operation_name,
+			"delete" ) == 0 )
+		{
+			list_set(
+				widget_container_list,
+				widget_container_new(
+					table_heading,
+					"Delete" ) );
+		}
+		else
+		{
+			list_set(
+				widget_container_list,
+				widget_container_new(
+					table_heading,
+					"Delete Isa" ) );
+		}
+	}
+	else
+	{
+		list_set(
+			widget_container_list,
+			widget_container_new(
+				table_heading, (char *)0 ) );
+
+		list_set(
+			widget_container_list,
+			form_table_edit_heading_checkbox_container(
+				form_name,
+				folder_operation->
+					operation->
+					operation_name,
+				folder_operation->
+					operation->
+					widget_container,
+				folder_operation->
+					operation->
+					delete_warning_javascript ) );
+	}
+
+	return widget_container_list;
+}

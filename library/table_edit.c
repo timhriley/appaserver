@@ -604,6 +604,10 @@ TABLE_EDIT *table_edit_new(
 			table_edit->row_security->regular_widget_list,
 			table_edit->row_security->viewonly_widget_list );
 
+	table_edit->omit_heading_delete_checkbox_boolean =
+		table_edit_omit_heading_delete_checkbox_boolean(
+			table_edit->row_security->viewonly_widget_list );
+
 	table_edit->form_table_edit =
 		/* -------------- */
 		/* Safely returns */
@@ -634,7 +638,8 @@ TABLE_EDIT *table_edit_new(
 			table_edit->query_row_list_length,
 			table_edit->post_action_string,
 			table_edit->heading_label_list,
-			table_edit->heading_name_list );
+			table_edit->heading_name_list,
+			table_edit->omit_heading_delete_checkbox_boolean );
 
 	table_edit->appaserver_update_filespecification =
 		/* ------------------- */
@@ -2200,3 +2205,12 @@ boolean table_edit_viewonly_boolean(
 	}
 }
 
+boolean table_edit_omit_heading_delete_checkbox_boolean(
+		ROW_SECURITY_VIEWONLY_WIDGET_LIST *
+			row_security_viewonly_widget_list )
+{
+	if ( row_security_viewonly_widget_list )
+		return 1;
+	else
+		return 0;
+}
