@@ -20,6 +20,7 @@
 #include "dictionary_separate.h"
 #include "document.h"
 #include "drillthru.h"
+#include "row_security_role_update.h"
 #include "form_prompt_lookup.h"
 
 #define PROMPT_LOOKUP_EXECUTABLE	"output_prompt_lookup"
@@ -43,6 +44,7 @@ typedef struct
 	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
+	ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list;
 	LIST *folder_attribute_date_name_list;
 	DICTIONARY_SEPARATE_DRILLTHRU *dictionary_separate_drillthru;
 	DRILLTHRU_STATUS *drillthru_status;
@@ -116,7 +118,9 @@ boolean prompt_lookup_omit_insert_button(
 		boolean relation_mto1_exists_multi_select );
 
 boolean prompt_lookup_omit_delete_button(
-		LIST *folder_operation_list );
+		LIST *folder_operation_list,
+		ROW_SECURITY_ROLE_UPDATE_LIST *
+			row_security_role_update_list );
 
 boolean prompt_lookup_include_chart_buttons(
 		LIST *folder_attribute_append_isa_list );

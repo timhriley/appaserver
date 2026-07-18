@@ -615,7 +615,6 @@ function timlib_remove_index( element_name )
 	if ( i == 0 ) return element_name;
 
 	return element_name.substr( 0, i );
-
 }
 
 function timlib_element_value_set(
@@ -778,5 +777,36 @@ function timlib_wait_over()
 		frames[ i ].document.body.style.cursor = "default";
 	}
 	return true;
+}
+
+function timlib_string_initial_capital( source )
+{
+	var destination = "";
+	var initial_capital = true;
+
+	for ( var i = 0; i < source.length; i++ )
+	{
+		if ( source.charAt( i ) == '_' )
+		{
+			destination += ' ';
+			initial_capital = true;
+		}
+		else
+		{
+			if ( initial_capital )
+			{
+				destination +=
+					source.charAt( i ).toUpperCase();
+
+				initial_capital = false;
+			}
+			else
+			{
+				destination += source.charAt( i );
+			}
+		}
+	}
+
+	return destination;
 }
 

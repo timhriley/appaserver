@@ -59,16 +59,16 @@ form_cookie.prototype.cookie2form = function( form, element_name_list )
 	for ( i = 0; i < form.elements.length; i++ )
 	{
 		element = form.elements[ i ];
+
+		if ( element == undefined )
+			continue;
+
 		element_name = element.name;
 
 		if ( timlib_exists( element_name, element_name_list ) )
 		{
 			if ( element_name == 'execute_yn' )
-			{
 				continue;
-			}
-
-			if ( element == undefined ) continue;
 
 			value = this.cookie[ element_name ];
 
@@ -301,14 +301,6 @@ function form_cookie_set_checkbox_element( element, value )
 	if ( value == 'y' ) element.checked = true;
 }
 
-function form_cookie_set_drop_down_element_selected( element, value )
-{
-	for( var i = 0; i < element.options.length; i++ )
-		if ( element.options[ i ].value == value )
-			element.options[ i ].selected = true;
-	return true;
-}
-
 function form_cookie_trim_original_underbar_from_element_name_list(
 		element_name_list )
 {
@@ -363,6 +355,23 @@ function form_cookie_set_multi_drop_down_element_value(
 		element.name,
 		move_left_right_delimiter );
 
+	return true;
+}
+
+function form_cookie_set_drop_down_element_selected( element, value )
+{
+	for( var i = 0; i < element.options.length; i++ )
+	{
+		if ( element.options[ i ].value == value )
+		{
+			element.options[ i ].selected = true;
+			return true;
+		}
+	}
+
+	// For [Fill] button support.
+	field = timlib_string_initial_capital( value );
+	element.options[ 3 ] = new Option( field, value, false, true );
 	return true;
 }
 

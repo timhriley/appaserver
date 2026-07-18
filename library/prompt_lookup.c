@@ -139,7 +139,10 @@ PROMPT_LOOKUP *prompt_lookup_new(
 		prompt_lookup_omit_delete_button(
 			prompt_lookup->
 				prompt_lookup_input->
-				folder_operation_list );
+				folder_operation_list,
+			prompt_lookup->
+				prompt_lookup_input->
+				row_security_role_update_list );
 
 	prompt_lookup->include_chart_buttons =
 		prompt_lookup_include_chart_buttons(
@@ -466,6 +469,18 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 					count_list );
 	}
 
+	prompt_lookup_input->row_security_role_update_list =
+		/* --------------------------------- */
+		/* Returns null if not participating */
+		/* --------------------------------- */
+		row_security_role_update_list_fetch(
+			application_name,
+			role_name,
+			folder_name,
+			prompt_lookup_input->
+				role->
+				override_row_restrictions );
+
 	prompt_lookup_input->folder_row_level_restriction =
 		/* -------------- */
 		/* Safely returns */
@@ -557,9 +572,19 @@ boolean prompt_lookup_omit_insert_button(
 }
 
 boolean prompt_lookup_omit_delete_button(
-		LIST *folder_operation_list )
+		LIST *folder_operation_list,
+		ROW_SECURITY_ROLE_UPDATE_LIST *
+			row_security_role_update_list )
 {
-	return !folder_operation_delete_boolean( folder_operation_list );
+	boolean omit_delete_button = 0;
+
+	if ( !folder_operation_delete_boolean( folder_operation_list ) )
+		omit_delete_button = 1;
+	else
+	if ( row_security_role_update_list )
+		omit_delete_button = 1;
+
+	return omit_delete_button;
 }
 
 char *prompt_lookup_title_string(
