@@ -556,7 +556,12 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 				attribute_name );
 	}
 
-	if ( !post_dictionary_file->filename_string ) return NULL;
+	if ( !post_dictionary_file->filename_string
+	||   !*post_dictionary_file->filename_string )
+	{
+		free( post_dictionary_file );
+		return NULL;
+	}
 
 	post_dictionary_file->filename =
 		/* -------------- */
