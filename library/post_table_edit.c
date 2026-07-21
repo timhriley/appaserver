@@ -249,6 +249,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 			/* ----------------------------- */
 			/* Not expecting a spooled file. */
 			/* ----------------------------- */
+			(char *)0 /* WIDGET_UPLOAD_RECALL_PREFIX */,
 			(char *)0 /* appliction_name */,
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );

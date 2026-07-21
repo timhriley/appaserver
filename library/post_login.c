@@ -209,6 +209,7 @@ DICTIONARY *post_login_input_dictionary( void )
 
 	post_dictionary =
 		post_dictionary_stdin_new(
+			(char *)0 /* WIDGET_UPLOAD_RECALL_PREFIX */,
 			(char *)0 /* application_name */,
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );

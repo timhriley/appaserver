@@ -53,7 +53,7 @@
 
 #define WIDGET_ENCRYPT_COMPARE_LABEL		"compare"
 
-#define WIDGET_UPLOAD_RECALL_SUFFIX		"_recall"
+#define WIDGET_UPLOAD_RECALL_PREFIX		"rrecall_"
 
 enum widget_type {	table_open		/*  0 */,
 			table_heading		/*  1 */,
@@ -1258,7 +1258,6 @@ typedef struct
 	/* -------------- */
 	char *application_name;
 	char *session_key;
-	char *widget_name;
 	int tab_order;
 	char *post_change_javascript;
 } WIDGET_UPLOAD;
@@ -1278,19 +1277,9 @@ WIDGET_UPLOAD *widget_upload_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *widget_upload_prompt_frame_html(
-		const char *widget_upload_recall_suffix,
-		char *widget_name,
-		int tab_order );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
 char *widget_upload_prompt_frame_html_string(
-		const char *widget_upload_recall_suffix,
-		char *widget_container_key,
+		char *widget_name,
+		char *recall_widget_name,
 		int tab_order );
 
 /* Process */

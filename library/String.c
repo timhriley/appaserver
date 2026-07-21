@@ -2326,7 +2326,7 @@ void string_free( char *string )
 }
 
 char *string_skip_prefix(
-		const char *prefix,
+		char *prefix,
 		char *string )
 {
 	if ( !string )
@@ -2345,8 +2345,8 @@ char *string_skip_prefix(
 			message );
 	}
 
-	if ( string_strncmp( string, (char *)prefix ) == 0 )
-		return string + strlen( prefix );
+	if ( string_strncmp( string, prefix ) == 0 )
+		return string + string_strlen( prefix );
 	else
 		return string;
 }

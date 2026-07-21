@@ -323,6 +323,7 @@ POST_CONTACT_INPUT *post_contact_input_new( char *argv_0 )
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			POST_CONTACT_APPLICATION,
 			post_contact_input->
 				appaserver_parameter->

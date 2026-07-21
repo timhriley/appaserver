@@ -445,6 +445,7 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			application_name,
 			post_prompt_insert_input->
 				appaserver_parameter->

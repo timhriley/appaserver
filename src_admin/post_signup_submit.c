@@ -37,7 +37,10 @@ POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input_new( void )
 		/* Safely returns */
 		/* -------------- */
 		post_dictionary_stdin_new(
+			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
+			/* ---------------------------------- */
+			(char *)0 /* WIDGET_UPLOAD_RECALL_PREFIX */,
 			(char *)0 /* application_name */,
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );

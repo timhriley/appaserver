@@ -16,24 +16,41 @@
 
 typedef struct
 {
+	boolean recall_boolean;
+	char *filename_string;
 	FILENAME *filename;
-	char *specification;
+	char *attribute_name;
 	char *specification_key;
+	char *specification;
 } POST_DICTIONARY_FILE;
 
 /* Usage */
 /* ----- */
 POST_DICTIONARY_FILE *post_dictionary_file_new(
+		const char *widget_select_operator,
+		char *widget_upload_recall_prefix,
 		char *application_name,
 		char *upload_directory,
+		LIST *upload_filename_list,
 		char *post_dictionary_apache_key,
-		char *post_dictionary_attribute_name,
-		char *post_dictionary_filename );
+		char *input,
+		char *post_dictionary_attribute_name );
 
 /* Process */
 /* ------- */
 POST_DICTIONARY_FILE *post_dictionary_file_calloc(
 		void );
+
+boolean post_dictionary_file_recall_boolean(
+		char *widget_upload_recall_prefix,
+		char *post_dictionary_attribute_name );
+
+/* Returns parameter or component of parameter */
+/* ------------------------------------------- */
+char *post_dictionary_file_attribute_name(
+		char *widget_upload_recall_prefix,
+		char *post_dictionary_attribute_name,
+		boolean post_dictionary_file_recall_boolean );
 
 /* Returns heap memory */
 /* ------------------ */
@@ -56,10 +73,10 @@ char *post_dictionary_file_specification(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *post_dictionary_filename(
+char *post_dictionary_filename_string(
 		LIST *upload_filename_list,
-		char *post_dictionary_attribute_name,
-		char *input );
+		char *input,
+		char *post_dictionary_attribute_name );
 
 /* Usage */
 /* ----- */
@@ -82,6 +99,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 		/* ---------------------------------- */
 		/* Used when expecting a spooled file */
 		/* ---------------------------------- */
+		char *widget_upload_recall_prefix,
 		char *application_name,
 		char *upload_directory,
 		LIST *upload_filename_list );
@@ -97,6 +115,7 @@ POST_DICTIONARY *post_dictionary_calloc(
 /* Safely returns */
 /* -------------- */
 DICTIONARY *post_dictionary_fetch(
+		char *widget_upload_recall_prefix,
 		char *application_name,
 		char *upload_directory,
 		LIST *upload_filename_list,

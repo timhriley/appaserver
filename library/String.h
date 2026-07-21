@@ -921,7 +921,7 @@ void string_free(
 /* Returns string or component of string */
 /* ------------------------------------- */
 char *string_skip_prefix(
-		const char *prefix,
+		char *prefix,
 		char *string );
 
 /* Usage */

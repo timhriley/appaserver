@@ -61,6 +61,7 @@ int main( int argc, char **argv )
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			(char *)0 /* WIDGET_UPLOAD_RECALL_PREFIX */,
 			(char *)0 /* application_name */,
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );

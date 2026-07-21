@@ -109,6 +109,7 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 
 	post_prompt_process->post_dictionary =
 		post_dictionary_stdin_new(
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			application_name,
 			post_prompt_process->
 				appaserver_parameter->

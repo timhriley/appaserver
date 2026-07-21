@@ -3750,7 +3750,7 @@ WIDGET_UPLOAD *widget_upload_new( char *widget_name )
 		/* Returns heap memory */
 		/* ------------------- */
 		widget_upload_recall_widget_name(
-			WIDGET_UPLOAD_RECALL_SUFFIX,
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			widget_name );
 
 	return widget_upload;
@@ -3773,17 +3773,25 @@ WIDGET_UPLOAD *widget_upload_calloc( void )
 	return widget_upload;
 }
 
-char *widget_upload_prompt_frame_html(
+char *widget_upload_prompt_frame_html_string(
 		char *widget_name,
 		char *recall_widget_name,
 		int tab_order )
 {
+	char html_string[ STRING_4K ];
+	char *ptr = html_string;
+	char *post_change_javascript;
+	char *text_html_string;
+
 	if ( !widget_name
 	||   !recall_widget_name )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message, "parameter is empty." );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3791,50 +3799,6 @@ char *widget_upload_prompt_frame_html(
 			__LINE__,
 			message );
 	}
-
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	widget_upload_prompt_frame_html_string(
-		widget_upload_recall_suffix,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		widget_container_key(
-			widget_name,
-			0 /* row_number */ ),
-		tab_order );
-}
-
-char *widget_upload_prompt_frame_html_string(
-		const char *widget_upload_recall_suffix,
-		char *widget_container_key,
-		int tab_order )
-{
-	char html_string[ STRING_4K ];
-	char *ptr = html_string;
-	char *recall_widget_name;
-	char *post_change_javascript;
-	char *text_html_string;
-
-	if ( !widget_container_key )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: container_key is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	recall_widget_name =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		widget_upload_recall_widget_name(
-			widget_upload_recall_suffix,
-			widget_container_key );
 
 	post_change_javascript =
 		/* --------------------- */
@@ -3845,8 +3809,8 @@ char *widget_upload_prompt_frame_html_string(
 
 	ptr += sprintf( ptr,
 		"<input name=%s id=%s %s %s %s onChange=\"%s\"",
-		widget_container_key,
-		widget_container_key,
+		widget_name,
+		widget_name,
 		"type=file",
 		"accept=\"*\"",
 		"value=\"\"",
@@ -4253,9 +4217,9 @@ char *widget_container_upload_html(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		widget_upload_prompt_frame_html(
-			WIDGET_UPLOAD_RECALL_SUFFIX,
+		widget_upload_prompt_frame_html_string(
 			widget_upload->widget_name,
+			widget_upload->recall_widget_name,
 			widget_upload->tab_order );
 	}
 	else
@@ -8016,7 +7980,7 @@ void widget_container_list_validate_date_unset( LIST *widget_container_list )
 }
 
 char *widget_upload_recall_widget_name(
-		const char *recall_suffix,
+		const char *recall_prefix,
 		char *widget_name )
 {
 	char name[ 128 ];
@@ -8039,10 +8003,10 @@ char *widget_upload_recall_widget_name(
 
 	snprintf(
 		name,
-		sizeof ( _name ),
+		sizeof ( name ),
 		"%s%s",
-		widget_name,
-		recall_suffix );
+		recall_prefix,
+		widget_name );
 
 	return strdup( name );
 }

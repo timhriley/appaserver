@@ -234,10 +234,11 @@ char *recall_save_keystrokes_javascript(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_key )
 {
-	char javascript[ STRING_64K ];
+	char javascript[ STRING_4K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
+	char *component_string;
 
 	if ( !form_name
 	||   !recall_save_cookie_key )
@@ -281,13 +282,13 @@ char *recall_save_keystrokes_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_64K )
+			STRING_4K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
+				STRING_4K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -296,19 +297,17 @@ char *recall_save_keystrokes_javascript(
 				message );
 		}
 
-		if ( !got_one )
-		{
-			got_one = 1;
-		}
-		else
-		{
-			ptr += sprintf( ptr, "%c", recall_delimiter );
-		}
+		component_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			recall_widget_component_string(
+				RECALL_DELIMITER,
+				widget_container,
+				got_one );
 
-		ptr += sprintf(
-			ptr,
-			"%s",
-			widget_container->widget_name );
+		ptr += sprintf( ptr, "%s", component_string );
+		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
 
@@ -403,10 +402,11 @@ char *recall_save_keystrokes_multi_javascript(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_multi_key )
 {
-	char javascript[ STRING_64K ];
+	char javascript[ STRING_4K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
+	char *component_string;
 
 	if ( !form_name
 	||   !recall_save_cookie_multi_key )
@@ -450,13 +450,13 @@ char *recall_save_keystrokes_multi_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_64K )
+			STRING_4K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
+				STRING_4K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -465,19 +465,17 @@ char *recall_save_keystrokes_multi_javascript(
 				message );
 		}
 
-		if ( !got_one )
-		{
-			got_one = 1;
-		}
-		else
-		{
-			ptr += sprintf( ptr, "%c", recall_delimiter );
-		}
+		component_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			recall_widget_component_string(
+				RECALL_DELIMITER,
+				widget_container,
+				got_one );
 
-		ptr += sprintf(
-			ptr,
-			"%s",
-			widget_container->widget_name );
+		ptr += sprintf( ptr, "%s", component_string );
+		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
 
@@ -559,10 +557,11 @@ char *recall_load_keystrokes_javascript(
 		LIST *widget_container_list,
 		char *recall_save_cookie_key )
 {
-	char javascript[ STRING_64K ];
+	char javascript[ STRING_4K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
+	char *component_string;
 
 	if ( !form_name
 	||   !recall_save_cookie_key )
@@ -602,13 +601,13 @@ char *recall_load_keystrokes_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_64K )
+			STRING_4K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
+				STRING_4K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -617,19 +616,17 @@ char *recall_load_keystrokes_javascript(
 				message );
 		}
 
-		if ( !got_one )
-		{
-			got_one = 1;
-		}
-		else
-		{
-			ptr += sprintf( ptr, "%c", recall_delimiter );
-		}
+		component_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			recall_widget_component_string(
+				RECALL_DELIMITER,
+				widget_container,
+				got_one );
 
-		ptr += sprintf(
-			ptr,
-			"%s",
-			widget_container->widget_name );
+		ptr += sprintf( ptr, "%s", component_string );
+		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
 
@@ -655,10 +652,11 @@ char *recall_load_keystrokes_multi_javascript(
 		LIST *widget_container_list,
 		char *recall_save_cookie_multi_key )
 {
-	char javascript[ STRING_64K ];
+	char javascript[ STRING_4K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
+	char *component_string;
 
 	if ( !recall_delimiter
 	||   !widget_multi_left_right_delimiter
@@ -700,13 +698,13 @@ char *recall_load_keystrokes_multi_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_64K )
+			STRING_4K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
+				STRING_4K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -715,19 +713,17 @@ char *recall_load_keystrokes_multi_javascript(
 				message );
 		}
 
-		if ( !got_one )
-		{
-			got_one = 1;
-		}
-		else
-		{
-			ptr += sprintf( ptr, "%c", recall_delimiter );
-		}
+		component_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			recall_widget_component_string(
+				RECALL_DELIMITER,
+				widget_container,
+				got_one );
 
-		ptr += sprintf(
-			ptr,
-			"%s",
-			widget_container->widget_name );
+		ptr += sprintf( ptr, "%s", component_string );
+		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
 
@@ -997,7 +993,7 @@ boolean recall_ignore_boolean(
 
 char *recall_save_display( RECALL_SAVE *recall_save )
 {
-	char display[ STRING_64K ];
+	char display[ STRING_4K ];
 
 	if ( !recall_save ) return "NULL";
 
@@ -1022,7 +1018,7 @@ char *recall_save_display( RECALL_SAVE *recall_save )
 
 char *recall_load_display( RECALL_LOAD *recall_load )
 {
-	char display[ STRING_64K ];
+	char display[ STRING_4K ];
 
 	if ( !recall_load ) return "NULL";
 
@@ -1045,7 +1041,7 @@ char *recall_load_display( RECALL_LOAD *recall_load )
 	return strdup( display );
 }
 
-char *recall_save_widget_name( WIDGET_CONTAINER *widget_container )
+char *recall_widget_name( WIDGET_CONTAINER *widget_container )
 {
 	char *widget_name;
 
@@ -1065,11 +1061,36 @@ char *recall_save_widget_name( WIDGET_CONTAINER *widget_container )
 			message );
 	}
 
-	if ( widget_container->widget_type == upload_filename )
+	if ( widget_container->widget_type == upload )
 		widget_name = widget_container->upload->recall_widget_name;
 	else
 		widget_name = widget_container->widget_name;
 
 	return widget_name;
+}
+
+char *recall_widget_component_string(
+		const char recall_delimiter,
+		WIDGET_CONTAINER *widget_container,
+		boolean got_one )
+{
+	static char component_string[ 128 ];
+	char *ptr = component_string;
+
+	if ( got_one )
+	{
+		ptr += sprintf( ptr, "%c", recall_delimiter );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s",
+		/* ------------------------------ */
+		/* Returns component of parameter */
+		/* ------------------------------ */
+		recall_widget_name(
+			widget_container ) );
+
+	return component_string;
 }
 

@@ -9,6 +9,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "widget.h"
 
 #define RECALL_BUTTON_LABEL		"Recall"
 #define RECALL_DELIMITER		'~'
@@ -78,14 +79,6 @@ char *recall_save_keystrokes_multi_javascript(
 		LIST *widget_container_list,
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_multi_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns component of parameter */
-/* ------------------------------ */
-char *recall_save_widget_name(
-		WIDGET_CONTAINER *widget_container );
 
 /* Usage */
 /* ----- */
@@ -261,5 +254,23 @@ boolean recall_ignore_boolean(
 		enum widget_type widget_type,
 		boolean recall_boolean,
 		boolean multi_drop_down_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *recall_widget_component_string(
+		const char recall_delimiter,
+		WIDGET_CONTAINER *widget_container,
+		boolean got_one );
+
+/* Usage */
+/* ----- */
+
+/* Returns component of parameter */
+/* ------------------------------ */
+char *recall_widget_name(
+		WIDGET_CONTAINER *widget_container );
 
 #endif

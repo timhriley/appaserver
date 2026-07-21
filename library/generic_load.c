@@ -1053,6 +1053,7 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			application_name,
 			appaserver_parameter_upload_directory(),
 			generic_load_insert_upload_filename_list() );

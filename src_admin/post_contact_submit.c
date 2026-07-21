@@ -15,6 +15,7 @@
 #include "session.h"
 #include "security.h"
 #include "environ.h"
+#include "widget.h"
 #include "post.h"
 #include "file.h"
 #include "post_contact_receive.h"
@@ -273,6 +274,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			APPLICATION_ADMIN_NAME,
 			post_contact_submit_input->
 				appaserver_parameter->

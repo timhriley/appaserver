@@ -427,6 +427,7 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
+			WIDGET_UPLOAD_RECALL_PREFIX,
 			application_name,
 			post_table_insert_input->
 				appaserver_parameter->

@@ -357,6 +357,7 @@ POST_CHOOSE_ISA_INPUT *post_choose_isa_input_new(
 		/* Safely returns */
 		/* -------------- */
 		post_dictionary_stdin_new(
+			(char *)0 /* WIDGET_UPLOAD_RECALL_PREFIX */,
 			(char *)0 /* application_name */,
 			(char *)0 /* upload_directory */,
 			(LIST *)0 /* upload_filename_list */ );
