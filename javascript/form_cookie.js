@@ -193,15 +193,16 @@ form_cookie.prototype.store_multi = function(
 					element,
 					multi_select_remember_delimiter );
 
-//				escaped_value = escape( value );
 
 // alert( 'store_multi(): for element = ' + element_name + ', value = (' + value + ')' );
-
-//				this.cookie[ element_name ] = escaped_value;
 				this.cookie[ element_name ] = value;
 			}
 		}
 	}
+
+// alert( 'executing cookie.display()' );
+// this.cookie.display();
+
 	this.cookie.store();
 	return true;
 }
@@ -251,6 +252,9 @@ form_cookie.prototype.store_non_multi = function( form, element_name_list )
 			this.cookie[ element_name ] = value;
 		}
 	}
+
+// alert( 'executing cookie.display()' );
+// this.cookie.display();
 
 	this.cookie.store();
 	return true;

@@ -2373,7 +2373,7 @@ char *widget_text_html_string(
 		/* --------------------- */
 		char *prevent_carrot_javascript )
 {
-	char html[ 1024 ];
+	char html[ STRING_4K ];
 	char *ptr = html;
 
 	if ( !widget_container_name )
@@ -3803,7 +3803,7 @@ char *widget_upload_prompt_frame_html_string(
 		char *widget_container_key,
 		int tab_order )
 {
-	char html[ 512 ];
+	char html[ STRING_4K ];
 	char *ptr = html;
 
 	if ( !widget_container_key )
