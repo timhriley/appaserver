@@ -379,3 +379,22 @@ function form_cookie_set_drop_down_element_selected( element, value )
 	return true;
 }
 
+function form_cookie_upload_copy( element, recall_widget_name )
+{
+	var recall_element;
+	var basename_array;
+
+	recall_element = document.getElementById( recall_widget_name );
+
+	if ( !recall_element )
+	{
+		alert( 'ERROR: getElementById() failed' );
+		return false;
+	}
+
+	// Element.value is a DOS filespecification, so isolate the basename.
+	basename_array = element.value.split( '\\' );
+	recall_element.value = basename_array[ basename_array.length - 1 ];
+
+	return true;
+}

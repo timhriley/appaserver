@@ -2368,10 +2368,7 @@ char *widget_text_html_string(
 		char *widget_text_value_string,
 		char *replace_on_change_javascript,
 		boolean autocomplete_off,
-		/* --------------------- */
-		/* Expect program memory */
-		/* --------------------- */
-		char *prevent_carrot_javascript )
+		const char *prevent_carrot_javascript )
 {
 	char html[ STRING_4K ];
 	char *ptr = html;
@@ -3748,6 +3745,14 @@ WIDGET_UPLOAD *widget_upload_new( char *widget_name )
 	widget_upload = widget_upload_calloc();
 	widget_upload->widget_name = widget_name;
 
+	widget_upload->recall_widget_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		widget_upload_recall_widget_name(
+			WIDGET_UPLOAD_RECALL_SUFFIX,
+			widget_name );
+
 	return widget_upload;
 }
 
@@ -3770,13 +3775,15 @@ WIDGET_UPLOAD *widget_upload_calloc( void )
 
 char *widget_upload_prompt_frame_html(
 		char *widget_name,
+		char *recall_widget_name,
 		int tab_order )
 {
-	if ( !widget_name )
+	if ( !widget_name
+	||   !recall_widget_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "widget_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3790,6 +3797,7 @@ char *widget_upload_prompt_frame_html(
 	/* Returns heap memory */
 	/* ------------------- */
 	widget_upload_prompt_frame_html_string(
+		widget_upload_recall_suffix,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -3800,11 +3808,15 @@ char *widget_upload_prompt_frame_html(
 }
 
 char *widget_upload_prompt_frame_html_string(
+		const char *widget_upload_recall_suffix,
 		char *widget_container_key,
 		int tab_order )
 {
-	char html[ STRING_4K ];
-	char *ptr = html;
+	char html_string[ STRING_4K ];
+	char *ptr = html_string;
+	char *recall_widget_name;
+	char *post_change_javascript;
+	char *text_html_string;
 
 	if ( !widget_container_key )
 	{
@@ -3816,10 +3828,29 @@ char *widget_upload_prompt_frame_html_string(
 		exit( 1 );
 	}
 
-	ptr += sprintf(
-		ptr,
-		"<input name=\"%s\" type=file accept=\"*\" value=\"\"",
-		widget_container_key );
+	recall_widget_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		widget_upload_recall_widget_name(
+			widget_upload_recall_suffix,
+			widget_container_key );
+
+	post_change_javascript =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		widget_upload_post_change_javascript(
+			recall_widget_name );
+
+	ptr += sprintf( ptr,
+		"<input name=%s id=%s %s %s %s onChange=\"%s\"",
+		widget_container_key,
+		widget_container_key,
+		"type=file",
+		"accept=\"*\"",
+		"value=\"\"",
+		post_change_javascript );
 
 	if ( tab_order > 0 )
 	{
@@ -3835,7 +3866,30 @@ char *widget_upload_prompt_frame_html_string(
 
 	ptr += sprintf( ptr, ">" );
 
-	return strdup( html );
+	text_html_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		widget_text_html_string(
+			1024 /* attribute_width_max_length */,
+			20 /* widget_text_display_size */,
+			0 /* tab_order */,
+			1 /* viewonly */,
+			(char *)0 /* background_color */,
+			recall_widget_name /* widget_container_name */,
+			(char *)0 /* widget_text_value_string */,
+			(char *)0 /* widget_text_replace_javascript */,
+			1 /* widget_text_autocomplete_off */,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			widget_text_prevent_carrot_javascript(
+				0 /* not prevent_carrot_boolean */ ) );
+
+	ptr += sprintf( ptr, "%s", text_html_string );
+	free( text_html_string );
+
+	return strdup( html_string );
 }
 
 char *widget_upload_edit_frame_html(
@@ -4200,6 +4254,7 @@ char *widget_container_upload_html(
 		/* Returns heap memory */
 		/* ------------------- */
 		widget_upload_prompt_frame_html(
+			WIDGET_UPLOAD_RECALL_SUFFIX,
 			widget_upload->widget_name,
 			widget_upload->tab_order );
 	}
@@ -7958,5 +8013,66 @@ void widget_container_list_validate_date_unset( LIST *widget_container_list )
 		}
 
 	} while ( list_next( widget_container_list ) );
+}
+
+char *widget_upload_recall_widget_name(
+		const char *recall_suffix,
+		char *widget_name )
+{
+	char name[ 128 ];
+
+	if ( !widget_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"widget_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		name,
+		sizeof ( _name ),
+		"%s%s",
+		widget_name,
+		recall_suffix );
+
+	return strdup( name );
+}
+
+char *widget_upload_post_change_javascript( char *recall_widget_name )
+{
+	static char javascript[ 192 ];
+
+	if ( !recall_widget_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"recall_widget_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		javascript,
+		sizeof ( javascript ),
+		"form_cookie_upload_copy( this, '%s' )",
+		recall_widget_name );
+
+	return javascript;
 }
 

@@ -178,7 +178,9 @@ char *recall_save_keystrokes_open(
 			message );
 	}
 
-	sprintf(open,
+	snprintf(
+		open,
+		sizeof ( open ),
 		"keystrokes_save(%s,'%s','%s','%s','",
 		form_name,
 		recall_save_cookie_key,
@@ -1041,5 +1043,33 @@ char *recall_load_display( RECALL_LOAD *recall_load )
 		recall_load->javascript );
 
 	return strdup( display );
+}
+
+char *recall_save_widget_name( WIDGET_CONTAINER *widget_container )
+{
+	char *widget_name;
+
+	if ( !widget_container )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( widget_container->widget_type == upload_filename )
+		widget_name = widget_container->upload->recall_widget_name;
+	else
+		widget_name = widget_container->widget_name;
+
+	return widget_name;
 }
 

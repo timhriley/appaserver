@@ -53,6 +53,8 @@
 
 #define WIDGET_ENCRYPT_COMPARE_LABEL		"compare"
 
+#define WIDGET_UPLOAD_RECALL_SUFFIX		"_recall"
+
 enum widget_type {	table_open		/*  0 */,
 			table_heading		/*  1 */,
 			table_row		/*  2 */,
@@ -1125,10 +1127,7 @@ char *widget_text_html_string(
 		char *widget_text_value_string,
 		char *widget_text_replace_javascript,
 		boolean widget_text_autocomplete_off,
-		/* --------------------- */
-		/* Expect program memory */
-		/* --------------------- */
-		char *widget_text_prevent_carrot_javascript );
+		const char *widget_text_prevent_carrot_javascript );
 
 /* Usage */
 /* ----- */
@@ -1252,6 +1251,11 @@ char *widget_encrypt_html_string(
 
 typedef struct
 {
+	char *widget_name;
+	char *recall_widget_name;
+
+	/* Set externally */
+	/* -------------- */
 	char *application_name;
 	char *session_key;
 	char *widget_name;
@@ -1275,7 +1279,18 @@ WIDGET_UPLOAD *widget_upload_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *widget_upload_prompt_frame_html(
+		const char *widget_upload_recall_suffix,
 		char *widget_name,
+		int tab_order );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *widget_upload_prompt_frame_html_string(
+		const char *widget_upload_recall_suffix,
+		char *widget_container_key,
 		int tab_order );
 
 /* Process */
@@ -1283,9 +1298,17 @@ char *widget_upload_prompt_frame_html(
 
 /* Returns heap memory */
 /* ------------------- */
-char *widget_upload_prompt_frame_html_string(
-		char *widget_container_key,
-		int tab_order );
+char *widget_upload_recall_widget_name(
+		const char *widget_upload_recall_suffix,
+		char *widget_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *widget_upload_post_change_javascript(
+		char *widget_upload_recall_widget_name );
 
 /* Usage */
 /* ----- */
@@ -1753,35 +1776,52 @@ WIDGET_CONTAINER *widget_container_ajax_new(
 void widget_container_list_validate_date_unset(
 		LIST *widget_container_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 WIDGET_CONTAINER *widget_container_name_seek(
 		char *widget_name,
 		LIST *widget_container_list );
 
+/* Usage */
+/* ----- */
 int widget_container_tab_order(
 		void );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
 char *widget_container_tab_order_html(
 		int widget_container_tab_order );
 
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* --------------------- */
 char *widget_container_background_color_html(
 		char *background_color );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
 char *widget_container_javascript_html(
 		char *javascript_replace );
 
+/* Usage */
+/* ----- */
+
 /* Returns data or heap memory */
 /* --------------------------- */
 char *widget_container_number_commas_string(
 		char *widget_name,
 		char *data );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */

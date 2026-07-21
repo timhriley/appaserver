@@ -82,6 +82,14 @@ char *recall_save_keystrokes_multi_javascript(
 /* Usage */
 /* ----- */
 
+/* Returns component of parameter */
+/* ------------------------------ */
+char *recall_save_widget_name(
+		WIDGET_CONTAINER *widget_container );
+
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* --------------------- */
 char *recall_save_keystrokes_open(
