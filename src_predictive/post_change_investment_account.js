@@ -42,11 +42,7 @@ function post_change_investment_account( row )
 		timlib_get_drop_down_element_value(
 			element.options );
 
-	if ( element_value == 'undefined' )
-	{
-		alert( 'ERROR: value undefined for Investment Classification' );
-		return false;
-	}
+	if ( element_value == 'undefined' ) return false;
 
 	if ( element_value != 'certificate' )
 	{
