@@ -6,11 +6,13 @@ feeder_load_event
 feeder_phrase
 feeder_row
 financial_institution
+fixed_asset
 investment_account
 investment_classification
 investment_purpose
 journal
-fixed_asset
+process
+process_parameter
 subclassification
 tax_form
 tax_form_line
