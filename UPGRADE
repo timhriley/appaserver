@@ -1,7 +1,12 @@
 ${APPASERVER_HOME}/UPGRADE
 --------------------------
 
-1) $ cd $APPASERVER_HOME
-2) $ git pull
-3) $ make touch && make
-4) $ appaserver-upgrade
+$ cd $APPASERVER_HOME
+
+Either:
+$ git pull
+$ make touch && make
+$ appaserver-upgrade
+
+Or:
+$ git_pull_make.sh
