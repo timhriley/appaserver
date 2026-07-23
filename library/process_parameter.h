@@ -31,19 +31,6 @@
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
-#define PROCESS_SET_PARAMETER_TABLE	"process_set_parameter"
-
-#define PROCESS_SET_PARAMETER_SELECT	"process_set,"			\
-					"table_name,"			\
-					"column_name,"			\
-					"drop_down_prompt,"		\
-					"prompt,"			\
-					"display_order,"		\
-					"drop_down_multi_select_yn,"	\
-					"drillthru_yn,"			\
-					"populate_drop_down_process,"	\
-					"populate_helper_process"
-
 #define PROCESS_PARAMETER_PROCESS_GROUP_TABLE				\
 		"process_group"
 
@@ -184,23 +171,6 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 /* ------- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
 		void );
-
-/* Usage */
-/* ----- */
-PROCESS_PARAMETER_DROP_DOWN_PROMPT *
-	process_parameter_drop_down_prompt_set_member(
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		LIST *member_name_list );
-
-/* Process */
-/* ------- */
-
-/* Returns either parameter */
-/* ------------------------ */
-char *process_parameter_drop_down_prompt_set_member_name(
-		char *process_set_default_prompt,
-		char *prompt_display_text );
 
 typedef struct
 {
@@ -348,7 +318,7 @@ PROCESS_PARAMETER_YES_NO *process_parameter_yes_no_calloc(
 
 typedef struct
 {
-	char *process_or_set_name;
+	char *process_name;
 	char *folder_name;
 	char *attribute_name;
 	char *drop_down_prompt_name;
@@ -403,17 +373,6 @@ LIST *process_parameter_folder_name_list(
 
 /* Usage */
 /* ----- */
-
-/* Either prepends or appends to process_parameter_list */
-/* ---------------------------------------------------- */
-LIST *process_parameter_set_member_append(
-		LIST *process_parameter_list,
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		LIST *member_name_list );
-
-/* Usage */
-/* ----- */
 LIST *process_parameter_drop_down_prompt_list(
 		LIST *process_parameter_list );
 
@@ -445,14 +404,12 @@ boolean process_parameter_date_boolean(
 /* Usage */
 /* ----- */
 boolean process_parameter_drillthru_boolean(
-		char *process_name,
-		char *process_set_name );
+		char *process_name );
 
 /* Usage */
 /* ----- */
 LIST *process_parameter_list(
 		char *process_name,
-		char *process_set_name,
 		boolean is_drillthru );
 
 /* Usage */
@@ -468,35 +425,11 @@ char *process_parameter_system_string(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *process_parameter_set_system_string(
-		const char *process_set_parameter_select,
-		const char *process_set_parameter_table,
-		char *process_parameter_set_where );
-
-/* Usage */
-/* ----- */
-
 /* Returns static memory */
 /* --------------------- */
 char *process_parameter_where(
 		char *process_name,
 		boolean is_drillthru );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *process_parameter_set_where(
-		char *process_set_name,
-		boolean is_drillthru );
-
-/* Usage */
-/* ----- */
-LIST *process_parameter_set_list(
-		char *process_set_name );
 
 #endif
 

@@ -52,11 +52,8 @@ PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name,
 		char *process_name,
-		char *process_set_name,
 		PROCESS *process,
-		PROCESS_SET *process_set,
 		boolean has_drillthru,
 		POST_DICTIONARY *post_dictionary,
 		MENU *menu,
@@ -70,7 +67,7 @@ PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *prompt_process_not_drillthru_title_string(
-		char *process_or_set_name );
+		char *process_name );
 
 typedef struct
 {
@@ -95,9 +92,8 @@ PROMPT_PROCESS_IS_DRILLTHRU *
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name,
+		char *process_name,
 		PROCESS *process,
-		PROCESS_SET *process_set,
 		MENU *menu,
 		LIST *prompt_process_javascript_filename_list );
 
@@ -110,16 +106,14 @@ PROMPT_PROCESS_IS_DRILLTHRU *
 /* Returns static memory */
 /* --------------------- */
 char *prompt_process_is_drillthru_title_string(
-		char *process_or_set_name );
+		char *process_name );
 
 typedef struct
 {
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
 	char *process_name;
-	char *process_set_name;
 	PROCESS *process;
-	PROCESS_SET *process_set;
 	LIST *javascript_filename_list;
 	PROMPT_PROCESS_IS_DRILLTHRU *prompt_process_is_drillthru;
 	PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru;
@@ -136,7 +130,7 @@ PROMPT_PROCESS *prompt_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name,
+		char *process_name,
 		boolean has_drillthru,
 		boolean is_drillthru,
 		POST_DICTIONARY *post_dictionary,
@@ -153,8 +147,7 @@ PROMPT_PROCESS *prompt_process_calloc(
 
 
 LIST *prompt_process_javascript_filename_list(
-		PROCESS *process,
-		PROCESS_SET *process_set );
+		PROCESS *process );
 
 /* Returns either document_form_html */
 /* --------------------------------- */
@@ -167,14 +160,13 @@ char *prompt_process_html(
 /* Usage */
 /* ----- */
 
-/* Returns either's notepad */
-/* ------------------------ */
+/* Returns component of parameter or null */
+/* -------------------------------------- */
 char *prompt_process_notepad(
-		PROCESS *process,
-		PROCESS_SET *process_set );
+		PROCESS *process );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -183,7 +175,7 @@ char *prompt_process_output_system_string(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name,
+		char *process_name,
 		char *dictionary_separate_send_string,
 		boolean has_drillthru,
 		boolean is_drillthru,

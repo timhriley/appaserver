@@ -57,7 +57,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name );
+		char *process_name );
 
 /* Usage */
 /* ----- */
@@ -104,7 +104,7 @@ MENU_ITEM *menu_item_horizontal_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name );
+		char *process_name );
 
 /* Usage */
 /* ----- */
@@ -238,7 +238,7 @@ MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc(
 
 typedef struct
 {
-	LIST *role_process_or_set_name_list;
+	LIST *role_process_name_list;
 	LIST *menu_item_list;
 	char *html;
 } MENU_VERTICAL_PROCESS_GROUP;
@@ -251,8 +251,7 @@ MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 		char *login_name,
 		char *role_name,
 		char *group_name,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list );
+		LIST *role_process_list );
 
 /* Process */
 /* ------- */
@@ -261,7 +260,7 @@ MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_calloc(
 
 typedef struct
 {
-	LIST *role_process_or_set_name_list;
+	LIST *role_process_name_list;
 	LIST *menu_item_list;
 	char *menu_item_heading_span_tag;
 	char *html;
@@ -275,8 +274,7 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 		char *login_name,
 		char *role_name,
 		char *group_name,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list );
+		LIST *role_process_list );
 
 /* Process */
 /* ------- */
@@ -304,12 +302,11 @@ MENU_VERTICAL *menu_vertical_new(
 		LIST *role_folder_lookup_list,
 		LIST *role_folder_insert_list,
 		LIST *role_process_list,
-		LIST *role_process_set_member_list,
 		LIST *appaserver_user_role_name_list,
 		LIST *role_folder_subschema_name_list,
 		LIST *role_folder_subschema_missing_folder_name_list,
-		LIST *role_process_or_set_group_name_list,
-		LIST *role_process_or_set_missing_group_name_list );
+		LIST *role_process_group_name_list,
+		LIST *role_process_missing_group_name_list );
 
 /* Process */
 /* ------- */
@@ -363,12 +360,11 @@ MENU_HORIZONTAL *menu_horizontal_new(
 		LIST *role_folder_lookup_list,
 		LIST *role_folder_insert_list,
 		LIST *role_process_list,
-		LIST *role_process_set_member_list,
 		LIST *appaserver_user_role_name_list,
 		LIST *role_folder_subschema_name_list,
 		LIST *role_folder_subschema_missing_folder_name_list,
-		LIST *role_process_or_set_group_name_list,
-		LIST *role_process_or_set_missing_group_name_list );
+		LIST *role_process_group_name_list,
+		LIST *role_process_missing_group_name_list );
 
 /* Process */
 /* ------- */
@@ -413,8 +409,8 @@ typedef struct
 	LIST *appaserver_user_role_name_list;
 	LIST *role_folder_subschema_name_list;
 	LIST *role_folder_subschema_missing_folder_name_list;
-	LIST *role_process_or_set_group_name_list;
-	LIST *role_process_or_set_missing_group_name_list;
+	LIST *role_process_group_name_list;
+	LIST *role_process_missing_group_name_list;
 	MENU_VERTICAL *menu_vertical;
 	MENU_HORIZONTAL *menu_horizontal;
 	char *html;

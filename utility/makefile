@@ -41,7 +41,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security_entity.o				\
 		${LIBRARY}/entity.o					\
-		${LIBRARY}/process_generic.o				\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\

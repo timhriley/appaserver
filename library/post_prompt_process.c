@@ -97,9 +97,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			post_prompt_process->
 				session_process->
 				process_name,
-			post_prompt_process->
-				session_process->
-				process_set_name,
 			is_drillthru );
 
 	post_prompt_process->process_parameter_upload_filename_list =
@@ -186,32 +183,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 					application_name ) );
 
 		return post_prompt_process;
-	}
-
-	if ( post_prompt_process->session_process->process_set_name )
-	{
-		post_prompt_process->process_set =
-			process_set_fetch(
-				post_prompt_process->
-					session_process->
-					process_set_name,
-				(char *)0 /* role_name */,
-				(char *)0 /* document_root */,
-				(char *)0 /* relative_source_directory */,
-				0 /* not fetch_process_set_member_..._list */ );
-
-		post_prompt_process->session_process->process_name =
-			/* -------------------------------------------- */
-			/* Returns component of non_prefixed_dictionary */
-			/* -------------------------------------------- */
-			post_prompt_process_name(
-				PROCESS_SET_DEFAULT_PROMPT,
-				post_prompt_process->
-					process_set->
-					prompt_display_text,
-				post_prompt_process->
-					dictionary_separate_prompt_process->
-					non_prefixed_dictionary );
 	}
 
 	post_prompt_process->application_relative_source_directory =
@@ -488,61 +459,6 @@ char *post_prompt_process_command_line(
 	/* Returns heap memory */
 	/* ------------------- */
 	string_escape_dollar( command_line );
-}
-
-char *post_prompt_process_name(
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		DICTIONARY *non_prefixed_dictionary )
-{
-	char key[ 128 ];
-	char *data;
-
-	if ( !process_set_default_prompt )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(key,
-		"%s_0",
-		process_set_default_prompt );
-
-	if ( ( data =
-		dictionary_get(
-			key,
-			non_prefixed_dictionary ) ) )
-	{
-		return data;
-	}
-
-	if ( !prompt_display_text && !*prompt_display_text )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: prompt_display_text is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(key,
-		"%s_0",
-		prompt_display_text );
-
-	if ( ( data =
-		dictionary_get(
-			key,
-			non_prefixed_dictionary ) ) )
-	{
-		return data;
-	}
-
-	return (char *)0;
 }
 
 char *post_prompt_process_system_string(

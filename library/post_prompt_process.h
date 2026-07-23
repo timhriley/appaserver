@@ -35,7 +35,6 @@ typedef struct
 	LIST *folder_attribute_name_list_attribute_list;
 	DICTIONARY_SEPARATE_PROMPT_PROCESS *dictionary_separate_prompt_process;
 	char *prompt_process_output_system_string;
-	PROCESS_SET *process_set;
 	char *application_relative_source_directory;
 	PROCESS *process;
 	char *command_line;
@@ -65,13 +64,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 /* ------- */
 POST_PROMPT_PROCESS *post_prompt_process_calloc(
 		void );
-
-/* Returns component of non_prefixed_dictionary */
-/* -------------------------------------------- */
-char *post_prompt_process_name(
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		DICTIONARY *non_prefixed_dictionary );
 
 /* Usage */
 /* ----- */

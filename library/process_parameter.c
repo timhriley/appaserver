@@ -327,7 +327,7 @@ LIST *process_parameter_drop_down_prompt_data_system_list(
 
 	list = list_new();
 
-	while ( string_input( input, pipe, 1024 ) )
+	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			list,
@@ -615,22 +615,6 @@ char *process_parameter_system_string(
 	return strdup( system_string );
 }
 
-char *process_parameter_set_system_string(
-		const char *process_set_parameter_select,
-		const char *process_set_parameter_table,
-		char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh '%s' %s \"%s\" display_order",
-		process_set_parameter_select,
-		process_set_parameter_table,
-		where );
-
-	return strdup( system_string );
-}
-
 PROCESS_PARAMETER *process_parameter_parse(
 		char *application_name,
 		char *login_name,
@@ -638,7 +622,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 		DICTIONARY *drillthru_dictionary,
 		char *input )
 {
-	char process_or_set_name[ 128 ];
+	char process_name[ 128 ];
 	char folder_name[ 128 ];
 	char attribute_name[ 128 ];
 	char drop_down_prompt_name[ 128 ];
@@ -649,18 +633,18 @@ PROCESS_PARAMETER *process_parameter_parse(
 	process_parameter = process_parameter_calloc();
 
 	/* ------------------------------------------------------------ */
-	/* See PROCESS_PARAMETER_SELECT or PROCESS_SET_PARAMETER_SELECT */
+	/* See PROCESS_PARAMETER_SELECT					*/
 	/* ------------------------------------------------------------ */
 	/* Note: all of the primary keys have at least a null string	*/
 	/* placeholder.							*/
 	/* ------------------------------------------------------------ */
-	piece( process_or_set_name, SQL_DELIMITER, input, 0 );
+	piece( process_name, SQL_DELIMITER, input, 0 );
 	piece( folder_name, SQL_DELIMITER, input, 1 );
 	piece( attribute_name, SQL_DELIMITER, input, 2 );
 	piece( drop_down_prompt_name, SQL_DELIMITER, input, 3 );
 	piece( prompt_name, SQL_DELIMITER, input, 4 );
 
-	process_parameter->process_or_set_name = strdup( process_or_set_name );
+	process_parameter->process_name = strdup( process_name );
 	process_parameter->folder_name = strdup( folder_name );
 	process_parameter->attribute_name = strdup( attribute_name );
 
@@ -803,20 +787,6 @@ char *process_parameter_where(
 	sprintf(parameter_where,
 		"process = '%s' and ifnull(drillthru_yn,'n') = '%c'",
 		process_name,
-		(is_drillthru) ? 'y' : 'n' );
-
-	return parameter_where;
-}
-
-char *process_parameter_set_where(
-		char *process_set_name,
-		boolean is_drillthru )
-{
-	static char parameter_where[ 512 ];
-
-	sprintf(parameter_where,
-		"process_set = '%s' and ifnull(drillthru_yn,'n') = '%c'",
-		process_set_name,
 		(is_drillthru) ? 'y' : 'n' );
 
 	return parameter_where;
@@ -1119,7 +1089,7 @@ boolean process_parameter_drop_down_fetch_mto1(
 LIST *process_parameter_upload_filename_list(
 		LIST *process_parameter_list )
 {
-	LIST *list = {0};
+	LIST *list = list_new();
 	PROCESS_PARAMETER *process_parameter;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1133,8 +1103,6 @@ LIST *process_parameter_upload_filename_list(
 			process_parameter_prompt->
 			upload_filename_boolean )
 		{
-			if ( !list ) list = list_new();
-
 			list_set(
 				list,
 				process_parameter->
@@ -1144,13 +1112,19 @@ LIST *process_parameter_upload_filename_list(
 
 	} while ( list_next( process_parameter_list ) );
 
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
 	return list;
 }
 
 LIST *process_parameter_folder_name_list(
 		LIST *process_parameter_list )
 {
-	LIST *list = {0};
+	LIST *list = list_new();
 	PROCESS_PARAMETER *process_parameter;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1161,14 +1135,18 @@ LIST *process_parameter_folder_name_list(
 
 		if ( strcmp( process_parameter->folder_name, "null" ) != 0 )
 		{
-			if ( !list ) list = list_new();
-
 			list_set(
 				list,
 				process_parameter->folder_name );
 		}
 
 	} while ( list_next( process_parameter_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
@@ -1194,17 +1172,15 @@ boolean process_parameter_date_boolean( LIST *process_parameter_list )
 	return 0;
 }
 
-boolean process_parameter_drillthru_boolean(
-		char *process_name,
-		char *process_set_name )
+boolean process_parameter_drillthru_boolean( char *process_name )
 {
 	char *system_string;
 
-	if ( !process_name && !process_set_name )
+	if ( !process_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "both parameters are empty." );
+		sprintf(message, "process_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1213,112 +1189,30 @@ boolean process_parameter_drillthru_boolean(
 			message );
 	}
 
-	if ( process_name )
-	{
-		system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			process_parameter_system_string(
-				"count(1)" /* select */,
-				PROCESS_PARAMETER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				process_parameter_where(
-					process_name,
-					1 /* is_drillthru */ ) );
-	}
-	else
-	{
-		system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			process_parameter_set_system_string(
-				"count(1)" /* select */,
-				PROCESS_SET_PARAMETER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				process_parameter_set_where(
-					process_set_name,
-					1 /* is_drillthru */ ) );
-	}
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		process_parameter_system_string(
+			"count(1)" /* select */,
+			PROCESS_PARAMETER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			process_parameter_where(
+				process_name,
+				1 /* is_drillthru */ ) );
 
 	return (boolean)atoi( string_pipe_fetch( system_string ) );
-}
-
-PROCESS_PARAMETER_DROP_DOWN_PROMPT *
-	process_parameter_drop_down_prompt_set_member(
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		LIST *member_name_list )
-{
-	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
-	char *drop_down_prompt_name;
-
-	if ( !process_set_default_prompt
-	||   !list_length( member_name_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	drop_down_prompt_name =
-		/* ------------------------ */
-		/* Returns either parameter */
-		/* ------------------------ */
-		process_parameter_drop_down_prompt_set_member_name(
-			process_set_default_prompt,
-			prompt_display_text );
-
-	if ( !drop_down_prompt_name )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_parameter_drop_down_prompt_set_member_name() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	process_parameter_drop_down_prompt =
-		process_parameter_drop_down_prompt_new(
-			drop_down_prompt_name );
-
-	process_parameter_drop_down_prompt->data_list =
-		process_parameter_drop_down_prompt_member_data_list(
-			drop_down_prompt_name,
-			member_name_list );
-
-	return process_parameter_drop_down_prompt;
-}
-
-char *process_parameter_drop_down_prompt_set_member_name(
-		char *process_set_process_label,
-		char *prompt_display_text )
-{
-	if ( prompt_display_text && *prompt_display_text )
-		return prompt_display_text;
-	else
-		return process_set_process_label;
 }
 
 LIST *process_parameter_drop_down_prompt_member_data_list(
 		char *drop_down_prompt_name,
 		LIST *member_name_list )
 {
-	LIST *member_data_list;
+	LIST *member_data_list = list_new();
 
-	if ( !list_rewind( member_name_list ) ) return (LIST *)0;
-
-	member_data_list = list_new();
-
+	if ( list_rewind( member_name_list ) )
 	do {
 		list_set(
 			member_data_list,
@@ -1328,6 +1222,12 @@ LIST *process_parameter_drop_down_prompt_member_data_list(
 
 	} while ( list_next( member_name_list ) );
 
+	if ( !list_length( member_data_list ) )
+	{
+		list_free( member_data_list );
+		member_data_list = NULL;
+	}
+
 	return member_data_list;
 }
 
@@ -1336,57 +1236,13 @@ char *process_parameter_drop_down_prompt_primary_where(
 {
 	static char where[ 256 ];
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"drop_down_prompt = '%s'",
 		drop_down_prompt_name );
 
 	return where;
-}
-
-LIST *process_parameter_set_member_append(
-		LIST *process_parameter_list,
-		char *process_set_default_prompt,
-		char *prompt_display_text,
-		LIST *member_name_list )
-{
-	PROCESS_PARAMETER *process_parameter;
-
-	if ( !process_parameter_list
-	||   !process_set_default_prompt )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_length( member_name_list ) ) return (LIST *)0;
-
-	process_parameter = process_parameter_calloc();
-
-	if ( ( process_parameter->process_parameter_drop_down_prompt =
-		process_parameter_drop_down_prompt_set_member(
-			process_set_default_prompt,
-			prompt_display_text,
-			member_name_list ) ) )
-	{
-		if ( !prompt_display_text )
-		{
-			list_set_head(
-				process_parameter_list,
-				process_parameter );
-		}
-		else
-		{
-			list_set(
-				process_parameter_list,
-				process_parameter );
-		}
-	}
-
-	return process_parameter_list;
 }
 
 PROCESS_PARAMETER_ATTRIBUTE *process_parameter_attribute_fetch(
@@ -1441,7 +1297,7 @@ PROCESS_PARAMETER_ATTRIBUTE *process_parameter_attribute_calloc( void )
 LIST *process_parameter_drop_down_prompt_data_option_list( LIST *data_list )
 {
 	PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *data;
-	LIST *option_list = {0};
+	LIST *option_list = list_new();
 
 	if ( list_rewind( data_list ) )
 	do {
@@ -1463,8 +1319,6 @@ LIST *process_parameter_drop_down_prompt_data_option_list( LIST *data_list )
 				message );
 		}
 
-		if ( !option_list ) option_list = list_new();
-
 		list_set(
 			option_list,
 			widget_drop_down_option_new(
@@ -1473,21 +1327,26 @@ LIST *process_parameter_drop_down_prompt_data_option_list( LIST *data_list )
 
 	} while ( list_next( data_list ) );
 
+	if ( !list_length( option_list ) )
+	{
+		list_free( option_list );
+		option_list = NULL;
+	}
+
 	return option_list;
 }
 
 LIST *process_parameter_list(
 		char *process_name,
-		char *process_set_name,
 		boolean is_drillthru )
 {
 	char *system_string;
 
-	if ( !process_name && !process_set_name )
+	if ( !process_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "both parameters are empty." );
+		sprintf(message, "process_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1496,38 +1355,19 @@ LIST *process_parameter_list(
 			message );
 	}
 
-	if ( process_name )
-	{
-		system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			process_parameter_system_string(
-				PROCESS_PARAMETER_SELECT,
-				PROCESS_PARAMETER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				process_parameter_where(
-					process_name,
-					is_drillthru ) );
-	}
-	else
-	{
-		system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			process_parameter_set_system_string(
-				PROCESS_SET_PARAMETER_SELECT,
-				PROCESS_SET_PARAMETER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				process_parameter_set_where(
-					process_set_name,
-					is_drillthru ) );
-	}
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		process_parameter_system_string(
+			PROCESS_PARAMETER_SELECT,
+			PROCESS_PARAMETER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			process_parameter_where(
+				process_name,
+				is_drillthru ) );
 
 	return
 	process_parameter_system_list(
@@ -1540,7 +1380,7 @@ LIST *process_parameter_list(
 
 LIST *process_parameter_date_name_list( LIST *process_parameter_list )
 {
-	LIST *list = {0};
+	LIST *list = list_new();
 	PROCESS_PARAMETER *process_parameter;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1554,8 +1394,6 @@ LIST *process_parameter_date_name_list( LIST *process_parameter_list )
 			process_parameter_prompt->
 			date_boolean )
 		{
-			if ( !list ) list = list_new();
-
 			list_set(
 				list,
 				process_parameter->
@@ -1565,12 +1403,18 @@ LIST *process_parameter_date_name_list( LIST *process_parameter_list )
 
 	} while ( list_next( process_parameter_list ) );
 
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
 	return list;
 }
 
 LIST *process_parameter_drop_down_prompt_list( LIST *process_parameter_list )
 {
-	LIST *list = {0};
+	LIST *list = list_new();
 	PROCESS_PARAMETER *process_parameter;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1583,8 +1427,6 @@ LIST *process_parameter_drop_down_prompt_list( LIST *process_parameter_list )
 			process_parameter->drop_down_prompt_name,
 			"null" ) != 0 )
 		{
-			if ( !list ) list = list_new();
-
 			list_set(
 				list,
 				process_parameter->drop_down_prompt_name );
@@ -1647,55 +1489,7 @@ LIST *process_parameter_drop_down_prompt_data_in_clause_list(
 		process_parameter_drop_down_prompt_data_table,
 		where );
 
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d: system_string=[%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-system_string );
-msg( (char *)0, message );
-}
 	return list_pipe_fetch( system_string );
-}
-
-LIST *process_parameter_set_list( char *process_set_name )
-{
-	char *system_string;
-
-	if ( !process_set_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "process_set_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		process_parameter_set_system_string(
-			PROCESS_SET_PARAMETER_SELECT,
-			PROCESS_SET_PARAMETER_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			process_set_primary_where( process_set_name )
-				/* process_parameter_set_where */ );
-
-	return
-	process_parameter_system_list(
-		(char *)0 /* application_name */,
-		(char *)0 /* login_name */,
-		(char *)0 /* role_name */,
-		(DICTIONARY *)0 /* drillthru_dictionary */,
-		system_string );
 }
 
 PROCESS_PARAMETER_YES_NO *process_parameter_yes_no_fetch(

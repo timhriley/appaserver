@@ -50,92 +50,9 @@
 					"html_help_file_anchor,"	\
 					"execution_count,"		\
 					"post_change_javascript,"	\
-					"process_set_display,"		\
 					"process_group,"		\
 					"preprompt_help_text,"		\
 					"javascript_filename"
-
-#define PROCESS_SET_SELECT		"notepad,"			\
-					"html_help_file_anchor,"	\
-					"post_change_javascript,"	\
-					"prompt_display_text,"		\
-					"process_group,"		\
-					"preprompt_help_text,"		\
-					"javascript_filename"
-
-#define PROCESS_SET_TABLE		"process_set"
-
-#define PROCESS_SET_DEFAULT_PROMPT	"Process"
-
-typedef struct
-{
-	char *process_set_name;
-	char *notepad;
-	char *html_help_file_anchor;
-	char *post_change_javascript;
-	char *prompt_display_text;
-	char *process_group;
-	char *preprompt_help_text;
-	char *javascript_filename;
-	JAVASCRIPT *javascript;
-	LIST *member_name_list;
-} PROCESS_SET;
-
-/* Usage */
-/* ----- */
-PROCESS_SET *process_set_fetch(
-		char *process_set_name,
-		char *role_name,
-		char *document_root_directory,
-		char *application_relative_source_directory,
-		boolean fetch_process_set_member_name_list );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *process_set_primary_where(
-		char *process_set_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_set_system_string(
-		char *process_set_select,
-		char *process_set_table,
-		char *where );
-
-/* Usage */
-/* ----- */
-PROCESS_SET *process_set_parse(
-		char *process_set_name,
-		char *role_name,
-		char *document_root_directory,
-		char *application_relative_source_directory,
-		boolean fetch_process_set_member_name_list,
-		char *input );
-
-/* Process */
-/* ------- */
-LIST *process_set_member_name_list(
-		char *role_process_set_member_table,
-		char *process_set_primary_where,
-		char *role_name );
-
-/* Usage */
-/* ----- */
-PROCESS_SET *process_set_new(
-		char *process_set_name );
-
-/* Process */
-/* ------- */
-PROCESS_SET *process_set_calloc(
-		void );
-
-/* Usage */
-/* ----- */
-char *process_set_process_where(
-		LIST *process_set_member_name_list );
 
 typedef struct
 {
@@ -145,7 +62,6 @@ typedef struct
 	char *html_help_file_anchor;
 	int execution_count;
 	char *post_change_javascript;
-	char *process_set_display;
 	char *process_group;
 	char *preprompt_help_text;
 	char *javascript_filename;
@@ -255,14 +171,6 @@ void process_replace_dictionary_command_line(
 		const char *dictionary_attribute_datum_delimiter,
 		const char *dictionary_element_delimiter,
 		const char *process_dictionary_placeholder );
-
-char *process_set_name_fetch(
-		char *process_or_set_name );
-
-char *process_dictionary_process_member(
-		char *process_set_name,
-		DICTIONARY *parsed_decoded_post_dictionary,
-		char *from_starting_label );
 
 LIST *process_role_process_name_list(
 		char *role_primary_where );

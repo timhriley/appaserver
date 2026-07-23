@@ -11,8 +11,6 @@ investment_account
 investment_classification
 investment_purpose
 journal
-process
-process_parameter
 subclassification
 tax_form
 tax_form_line

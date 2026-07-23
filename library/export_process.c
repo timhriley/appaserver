@@ -120,7 +120,6 @@ EXPORT_PROCESS_SHELL *export_process_shell_new(
 		export_process_shell->process_parameter_list =
 			process_parameter_list(
 				process_name,
-				(char *)0 /* process_set_name */,
 				0 /* not is_drillthru */ );
 
 		export_process_output_prompt(
@@ -1116,7 +1115,6 @@ EXPORT_PROCESS_FILE *export_process_file_new(
 		export_process_file->process_parameter_list =
 			process_parameter_list(
 				process_name,
-				(char *)0 /* process_set_name */,
 				0 /* not is_drillthru */ );
 	
 		export_process_output_prompt(

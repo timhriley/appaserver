@@ -495,153 +495,12 @@ ROLE_PROCESS *role_process_parse(
 	return role_process;
 }
 
-FILE *role_process_set_member_input_pipe( char *system_string )
-{
-	if ( !system_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "system_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return popen( system_string, "r" );
-}
-
-LIST *role_process_set_member_list(
-			char *role_name,
-			boolean fetch_process_set )
-{
-	if ( role_name && fetch_process_set )
-		return NULL;
-	else
-		return NULL;
-
-#ifdef NOT_DEFINED
-	LIST *list = list_new();
-	char input[ 256 ];
-	FILE *input_pipe;
-
-	input_pipe =
-		role_process_set_member_input_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			role_process_set_member_system_string(
-				ROLE_PROCESS_SET_MEMBER_SELECT,
-				ROLE_PROCESS_SET_MEMBER_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				role_primary_where( role_name ) ) );
-
-	while( string_input( input, input_pipe, 256 ) )
-	{
-		list_set(
-			list,
-			role_process_set_member_parse(
-				role_name,
-				fetch_process_set,
-				input ) );
-	}
-
-	pclose( input_pipe );
-
-	return list;
-#endif
-}
-
-char *role_process_set_member_system_string(
-			char *select,
-			char *table,
-			char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !select
-	||   !table
-	||   !where )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\" select",
-		select,
-		table,
-		where );
-
-	return strdup( system_string );
-}
-
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_parse(
-			char *role_name,
-			boolean fetch_process_set,
-			char *input )
-{
-	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-	char process_name[ 128 ];
-	char process_set_name[ 128 ];
-
-	if ( !role_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "role_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-
-	/* See ROLE_PROCESS_SET_MEMBER_SELECT */
-	/* ---------------------------------- */
-	piece( process_name, SQL_DELIMITER, input, 0 );
-	piece( process_set_name, SQL_DELIMITER, input, 1 );
-
-	role_process_set_member =
-		role_process_set_member_new(
-			strdup( process_name ),
-			strdup( process_set_name ),
-			role_name );
-
-	if ( fetch_process_set )
-	{
-		role_process_set_member->process_set =
-			process_set_fetch(
-				role_process_set_member->
-					process_set_name,
-				(char *)0 /* role_name */,
-				(char *)0 /* document_root_directory */,
-				(char *)0 /* relative_source_directory */,
-				0 /* not fetch_process_set_..._name_list */ );
-	}
-
-	return role_process_set_member;
-}
-
-LIST *role_process_or_set_name_list(
-			char *process_group,
-			LIST *role_process_list,
-			LIST *role_process_set_member_list )
+LIST *role_process_name_list(
+		char *process_group,
+		LIST *role_process_list )
 {
 	LIST *name_list = list_new();
+	ROLE_PROCESS *role_process;
 
 	if ( !process_group )
 	{
@@ -657,305 +516,131 @@ LIST *role_process_or_set_name_list(
 	}
 
 	if ( list_rewind( role_process_list ) )
-	{
-		ROLE_PROCESS *role_process;
+	do {
+		role_process =
+			list_get(
+				role_process_list );
 
-		do {
-			role_process =
-				list_get(
-					role_process_list );
+		if ( !role_process->process )
+		{
+			char message[ 128 ];
 
-			if ( !role_process->process )
-			{
-				char message[ 128 ];
+			sprintf(message,
+				"role_process->process is empty." );
 
-				sprintf(message,
-					"role_process->process is empty." );
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
+		if ( !role_process->process->process_group )
+			continue;
 
-			if ( !role_process->process->process_group )
-				continue;
-
-			if ( string_strcmp(
-				role_process->
-					process->
-					process_group,
-				process_group ) == 0 )
-			{
-				list_set_string_in_order(
-					name_list,
-					role_process->process_name );
-			}
-
-		} while ( list_next( role_process_list ) );
-	}
-
-	if ( list_rewind( role_process_set_member_list ) )
-	{
-		ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-
-		do {
-			role_process_set_member =
-				list_get(
-					role_process_set_member_list );
-
-			if ( !role_process_set_member->process_set )
-			{
-				char message[ 128 ];
-
-				sprintf(message, "process_set is empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( !role_process_set_member->
-				process_set->
-				process_group )
-			{
-				continue;
-			}
-
-			if ( string_strcmp(
-				role_process_set_member->
-					process_set->
-					process_group,
-				process_group ) == 0 )
-			{
-				list_set_string_in_order(
-					name_list,
-					role_process_set_member->
-						process_set_name );
-			}
-
-		} while ( list_next( role_process_set_member_list ) );
-	}
-
-	if ( !list_length( name_list ) )
-		return (LIST *)0;
-	else
-		return name_list;
-}
-
-LIST *role_process_or_set_missing_group_name_list(
-			LIST *role_process_list,
-			LIST *role_process_set_member_list )
-{
-	LIST *name_list = {0};
-
-	if ( list_rewind( role_process_list ) )
-	{
-		ROLE_PROCESS *role_process;
-
-		do {
-			role_process = list_get( role_process_list );
-
-			if ( !role_process->process )
-			{
-				char message[ 128 ];
-
-				sprintf(message,
-					"role_process->process empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( role_process->process->process_group ) continue;
-
-			if ( !name_list ) name_list = list_new();
-
-			list_set(
+		if ( string_strcmp(
+			role_process->
+				process->
+				process_group,
+			process_group ) == 0 )
+		{
+			list_set_string_in_order(
 				name_list,
 				role_process->process_name );
+		}
 
-		} while ( list_next( role_process_list ) );
-	}
+	} while ( list_next( role_process_list ) );
 
-	if ( list_rewind( role_process_set_member_list ) )
+	if ( !list_length( name_list ) )
 	{
-		ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-
-		do {
-			role_process_set_member =
-				list_get(
-					role_process_set_member_list );
-
-			if ( !role_process_set_member->process_set )
-			{
-				char message[ 128 ];
-
-				sprintf(message,
-			"role_process_set_member->process_set is empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( role_process_set_member->
-				process_set->
-				process_group )
-			{
-				continue;
-			}
-
-			if ( !name_list ) name_list = list_new();
-
-			list_set(
-				name_list,
-				role_process_set_member->process_set_name );
-
-		} while ( list_next( role_process_set_member_list ) );
+		list_free( name_list );
+		name_list = NULL;
 	}
 
 	return name_list;
 }
 
-LIST *role_process_or_set_group_name_list(
-			LIST *role_process_list,
-			LIST *role_process_set_member_list )
+LIST *role_process_missing_group_name_list( LIST *role_process_list )
 {
-	LIST *name_list = {0};
+	LIST *name_list = list_new();
+	ROLE_PROCESS *role_process;
 
 	if ( list_rewind( role_process_list ) )
+	do {
+		role_process = list_get( role_process_list );
+
+		if ( !role_process->process )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"role_process->process empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( role_process->process->process_group ) continue;
+
+		list_set(
+			name_list,
+			role_process->process_name );
+
+	} while ( list_next( role_process_list ) );
+
+
+	if ( !list_length( name_list ) )
 	{
-		ROLE_PROCESS *role_process;
-
-		do {
-			role_process = list_get( role_process_list );
-
-			if ( !role_process->process )
-			{
-				char message[ 128 ];
-
-				sprintf(message,
-					"role_process->process is empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( !role_process->process->process_group ) continue;
-
-			if ( !name_list ) name_list = list_new();
-
-			list_string_in_order(
-				name_list,
-				role_process->process->process_group );
-
-		} while ( list_next( role_process_list ) );
+		list_free( name_list );
+		name_list = NULL;
 	}
 
-	if ( list_rewind( role_process_set_member_list ) )
-	{
-		ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-
-		do {
-			role_process_set_member =
-				list_get(
-					role_process_set_member_list );
-
-			if ( !role_process_set_member->process_set )
-			{
-				char message[ 128 ];
-
-				sprintf(message, "process_set is empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( !role_process_set_member->
-				process_set->
-				process_group )
-			{
-				continue;
-			}
-
-			if ( !name_list ) name_list = list_new();
-
-			list_string_in_order(
-				name_list,
-				role_process_set_member->
-					process_set->
-					process_group );
-
-		} while ( list_next( role_process_set_member_list ) );
-	}
-
-	return list_unique_list( (LIST *)0, name_list );
+	return name_list;
 }
 
-LIST *role_process_set_member_process_name_list(
-			char *process_group,
-			LIST *role_process_set_member_list )
+LIST *role_process_group_name_list( LIST *role_process_list )
 {
-	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-	LIST *name_list = {0};
+	ROLE_PROCESS *role_process;
+	LIST *name_list = list_new();
 
-	if ( list_rewind( role_process_set_member_list ) )
+	if ( list_rewind( role_process_list ) )
+	do {
+		role_process = list_get( role_process_list );
+
+		if ( !role_process->process )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"role_process->process is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !role_process->process->process_group ) continue;
+
+		list_string_in_order(
+			name_list,
+			role_process->process->process_group );
+
+	} while ( list_next( role_process_list ) );
+
+
+	if ( !list_length( name_list ) )
 	{
-		do {
-			role_process_set_member =
-				list_get(
-					role_process_set_member_list );
-
-			if ( !role_process_set_member->process_set )
-			{
-				char message[ 128 ];
-
-				sprintf(message, "process_set is empty." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( !role_process_set_member->
-				process_set->
-				process_group )
-			{
-				continue;
-			}
-
-			if ( string_strcmp(
-				process_group,
-				role_process_set_member->
-					process_set->
-					process_group ) == 0 )
-			{
-				if ( !name_list ) name_list = list_new();
-
-				list_string_in_order(
-					name_list,
-					role_process_set_member->
-						process_name );
-			}
-
-		} while ( list_next( role_process_set_member_list ) );
+		list_free( name_list );
+		name_list = NULL;
+	}
+	else
+	{
+		name_list = list_unique_list( (LIST *)0, name_list );
 	}
 
 	return name_list;
@@ -1213,59 +898,6 @@ boolean role_process_exists(
 	} while ( list_next( role_process_list ) );
 
 	return 0;
-}
-
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_new(
-		char *process_name,
-		char *process_set_name,
-		char *role_name )
-{
-	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-
-	if ( !process_name
-	||   !process_set_name
-	||   !role_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	role_process_set_member = role_process_set_member_calloc();
-
-	role_process_set_member->process_name = process_name;
-	role_process_set_member->process_set_name = process_set_name;
-	role_process_set_member->role_name = role_name;
-
-	return role_process_set_member;
-}
-
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_calloc( void )
-{
-	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
-
-	if ( ! ( role_process_set_member =
-			calloc( 1,
-				sizeof ( ROLE_PROCESS_SET_MEMBER ) ) ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "calloc() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return role_process_set_member;
 }
 
 LIST *role_name_list( const char *role_table )

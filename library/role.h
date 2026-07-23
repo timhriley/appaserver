@@ -18,66 +18,11 @@
 #define ROLE_NAME_COLUMN		"role"
 #define ROLE_LOGIN_NAME_COLUMN		"login_name"
 
-#define ROLE_PROCESS_SET_MEMBER_SELECT	"process,process_set"
-#define ROLE_PROCESS_SET_MEMBER_TABLE	"role_process_set_member"
-
 #define ROLE_ATTRIBUTE_EXCLUDE_TABLE	"column_exclude"
 #define ROLE_ATTRIBUTE_EXCLUDE_SELECT	"column_name,permission"
 
 #define ROLE_PROCESS_SELECT		"process"
 #define ROLE_PROCESS_TABLE		"role_process"
-
-typedef struct
-{
-	char *process_name;
-	char *role_name;
-	char *process_set_name;
-	PROCESS_SET *process_set;
-} ROLE_PROCESS_SET_MEMBER;
-
-/* Usage */
-/* ----- */
-LIST *role_process_set_member_list(
-		char *role_name,
-		boolean fetch_process_set );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *role_process_set_member_system_string(
-		char *role_process_set_member_select,
-		char *role_process_set_member_table,
-		char *where );
-
-FILE *role_process_set_member_input_pipe(
-		char *role_process_set_member_system_string );
-
-/* Usage */
-/* ----- */
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_parse(
-		char *role_name,
-		boolean fetch_process_set,
-		char *input );
-
-/* Usage */
-/* ----- */
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_new(
-		char *process_name,
-		char *process_set_name,
-		char *role_name );
-
-/* Process */
-/* ------- */
-ROLE_PROCESS_SET_MEMBER *role_process_set_member_calloc(
-		void );
-
-/* Public */
-/* ------ */
-LIST *role_process_set_member_process_name_list(
-		char *process_group,
-		LIST *role_process_set_member_list );
 
 typedef struct
 {
@@ -227,21 +172,24 @@ ROLE_PROCESS *role_process_new(
 ROLE_PROCESS *role_process_calloc(
 		void );
 
-/* Public */
-/* ------ */
-LIST *role_process_or_set_group_name_list(
-		LIST *role_process_list,
-		LIST *role_process_set_member_list );
+/* Usage */
+/* ----- */
+LIST *role_process_group_name_list(
+		LIST *role_process_list );
 
-LIST *role_process_or_set_name_list(
+/* Usage */
+/* ----- */
+LIST *role_process_name_list(
 		char *process_group,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list );
+		LIST *role_process_list );
 
-LIST *role_process_or_set_missing_group_name_list(
-		LIST *role_process_list,
-		LIST *role_process_set_member_list );
+/* Usage */
+/* ----- */
+LIST *role_process_missing_group_name_list(
+		LIST *role_process_list );
 
+/* Usage */
+/* ----- */
 boolean role_process_exists(
 		char *process_name,
 		LIST *role_process_list );

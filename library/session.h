@@ -348,7 +348,6 @@ typedef struct
 {
 	char *role_name;
 	char *process_name;
-	char *process_set_name;
 	SESSION *session;
 } SESSION_PROCESS;
 
@@ -376,7 +375,6 @@ SESSION_PROCESS *session_process_calloc(
 
 boolean session_process_valid(
 		char *process_name,
-		LIST *role_process_list,
-		LIST *role_process_set_list );
+		LIST *role_process_list );
 
 #endif

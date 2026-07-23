@@ -210,7 +210,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name )
+		char *process_name )
 {
 	MENU_ITEM *menu_item;
 
@@ -218,7 +218,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
-	||   !process_or_set_name )
+	||   !process_name )
 	{
 		char message[ 128 ];
 
@@ -239,7 +239,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 		/* --------------------- */
 		menu_item_span_tag(
 			MENU_ITEM_VERTICAL_CLASS_NAME,
-			process_or_set_name /* item */ );
+			process_name /* item */ );
 
 	menu_item->action_string =
 		/* --------------------- */
@@ -257,7 +257,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 		/* Returns static memory */
 		/* --------------------- */
 		menu_item_href_string(
-			process_or_set_name /* item */,
+			process_name /* item */,
 			menu_item->action_string );
 
 	menu_item->anchor_tag =
@@ -286,7 +286,7 @@ MENU_ITEM *menu_item_horizontal_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name )
+		char *process_name )
 {
 	MENU_ITEM *menu_item;
 
@@ -294,7 +294,7 @@ MENU_ITEM *menu_item_horizontal_process_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
-	||   !process_or_set_name )
+	||   !process_name )
 	{
 		char message[ 128 ];
 
@@ -315,7 +315,7 @@ MENU_ITEM *menu_item_horizontal_process_new(
 		/* --------------------- */
 		menu_item_span_tag(
 			MENU_ITEM_HORIZONTAL_CLASS_NAME,
-			process_or_set_name /* item */ );
+			process_name /* item */ );
 
 	menu_item->action_string =
 		/* --------------------- */
@@ -333,7 +333,7 @@ MENU_ITEM *menu_item_horizontal_process_new(
 		/* Returns static memory */
 		/* --------------------- */
 		menu_item_href_string(
-			process_or_set_name /* item */,
+			process_name /* item */,
 			menu_item->action_string );
 
 	menu_item->anchor_tag =
@@ -441,10 +441,9 @@ MENU *menu_new( char *application_name,
 		appaserver_user_role_name_list(
 			login_name );
 
-	menu->role_process_or_set_group_name_list =
-		role_process_or_set_group_name_list(
-			menu->role_process_list,
-			(LIST *)0 /* role_process_set_member_list */ );
+	menu->role_process_group_name_list =
+		role_process_group_name_list(
+			menu->role_process_list );
 
 	menu->role_folder_subschema_name_list =
 		role_folder_subschema_name_list(
@@ -454,10 +453,9 @@ MENU *menu_new( char *application_name,
 		role_folder_subschema_missing_folder_name_list(
 			menu->role_folder_lookup_list );
 
-	menu->role_process_or_set_missing_group_name_list =
-		role_process_or_set_missing_group_name_list(
-			menu->role_process_list,
-			(LIST *)0 /* role_process_set_member_list */ );
+	menu->role_process_missing_group_name_list =
+		role_process_missing_group_name_list(
+			menu->role_process_list );
 
 	if ( !application_menu_horizontal_boolean )
 	{
@@ -471,12 +469,11 @@ MENU *menu_new( char *application_name,
 			menu->role_folder_lookup_list,
 			menu->role_folder_insert_list,
 			menu->role_process_list,
-			(LIST *)0 /* role_process_set_member_list */,
 			menu->appaserver_user_role_name_list,
 			menu->role_folder_subschema_name_list,
 			menu->role_folder_subschema_missing_folder_name_list,
-			menu->role_process_or_set_group_name_list,
-			menu->role_process_or_set_missing_group_name_list );
+			menu->role_process_group_name_list,
+			menu->role_process_missing_group_name_list );
 	}
 	else
 	{
@@ -490,12 +487,11 @@ MENU *menu_new( char *application_name,
 			menu->role_folder_lookup_list,
 			menu->role_folder_insert_list,
 			menu->role_process_list,
-			(LIST *)0 /* role_process_set_member_list */,
 			menu->appaserver_user_role_name_list,
 			menu->role_folder_subschema_name_list,
 			menu->role_folder_subschema_missing_folder_name_list,
-			menu->role_process_or_set_group_name_list,
-			menu->role_process_or_set_missing_group_name_list );
+			menu->role_process_group_name_list,
+			menu->role_process_missing_group_name_list );
 	}
 
 	menu->html =
@@ -1255,13 +1251,13 @@ char *menu_item_vertical_folder_html(
 }
 
 char *menu_item_vertical_process_html(
-		char *process_or_set_name,
+		char *process_name,
 		char *action_string )
 {
 	char html[ 1024 ];
 	char buffer[ 256 ];
 
-	if ( !process_or_set_name || !action_string )
+	if ( !process_name || !action_string )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1274,7 +1270,7 @@ char *menu_item_vertical_process_html(
 	sprintf(html,
 		"<tr><td colspan=3><a class=vertical_menu %s>%s</a>",
 		action_string,
-		string_initial_capital( buffer, process_or_set_name ) );
+		string_initial_capital( buffer, process_name ) );
 
 	return strdup( html );
 }
@@ -1349,11 +1345,10 @@ MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 		char *login_name,
 		char *role_name,
 		char *group_name,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list )
+		LIST *role_process_list )
 {
 	MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group;
-	char *process_or_set_name;
+	char *process_name;
 
 	if ( !application_name
 	||   !session_key
@@ -1374,27 +1369,26 @@ MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 
 	menu_vertical_process_group = menu_vertical_process_group_calloc();
 
-	menu_vertical_process_group->role_process_or_set_name_list =
-		role_process_or_set_name_list(
+	menu_vertical_process_group->role_process_name_list =
+		role_process_name_list(
 			group_name,
-			role_process_list,
-			role_process_set_member_list );
+			role_process_list );
 
 	if ( !list_rewind(
 		menu_vertical_process_group->
-			role_process_or_set_name_list ) )
+			role_process_name_list ) )
 	{
 		free( menu_vertical_process_group );
-		return (MENU_VERTICAL_PROCESS_GROUP *)0;
+		return NULL;
 	}
 
 	menu_vertical_process_group->menu_item_list = list_new();
 
 	do {
-		process_or_set_name =
+		process_name =
 			list_get(
 				menu_vertical_process_group->
-					role_process_or_set_name_list );
+					role_process_name_list );
 
 		list_set(
 			menu_vertical_process_group->menu_item_list,
@@ -1403,11 +1397,11 @@ MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 				session_key,
 				login_name,
 				role_name,
-				process_or_set_name ) );
+				process_name ) );
 
 	} while ( list_next( 
 			menu_vertical_process_group->
-				role_process_or_set_name_list ) );
+				role_process_name_list ) );
 
 	if ( !list_length(
 		menu_vertical_process_group->
@@ -1451,12 +1445,11 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 		char *login_name,
 		char *role_name,
 		char *group_name,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list )
+		LIST *role_process_list )
 {
 
 	MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group;
-	char *process_or_set_name;
+	char *process_name;
 
 	if ( !application_name
 	||   !session_key
@@ -1478,15 +1471,14 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 	menu_horizontal_process_group =
 		menu_horizontal_process_group_calloc();
 
-	menu_horizontal_process_group->role_process_or_set_name_list =
-		role_process_or_set_name_list(
+	menu_horizontal_process_group->role_process_name_list =
+		role_process_name_list(
 			group_name,
-			role_process_list,
-			role_process_set_member_list );
+			role_process_list );
 
 	if ( !list_rewind(
 		menu_horizontal_process_group->
-			role_process_or_set_name_list ) )
+			role_process_name_list ) )
 	{
 		free( menu_horizontal_process_group );
 		return (MENU_HORIZONTAL_PROCESS_GROUP *)0;
@@ -1495,10 +1487,10 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 	menu_horizontal_process_group->menu_item_list = list_new();
 
 	do {
-		process_or_set_name =
+		process_name =
 			list_get(
 				menu_horizontal_process_group->
-					role_process_or_set_name_list );
+					role_process_name_list );
 
 		list_set(
 			menu_horizontal_process_group->menu_item_list,
@@ -1507,11 +1499,11 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 				session_key,
 				login_name,
 				role_name,
-				process_or_set_name ) );
+				process_name ) );
 
 	} while ( list_next(
 			menu_horizontal_process_group->
-				role_process_or_set_name_list ) );
+				role_process_name_list ) );
 
 	if ( !list_length(
 		menu_horizontal_process_group->
@@ -1559,6 +1551,7 @@ MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 	}
 
 	list_free( menu_horizontal_process_group->menu_item_list );
+
 	return menu_horizontal_process_group;
 }
 
@@ -2038,18 +2031,17 @@ MENU_VERTICAL *menu_vertical_new(
 		LIST *role_folder_lookup_list,
 		LIST *role_folder_insert_list,
 		LIST *role_process_list,
-		LIST *role_process_set_member_list,
 		LIST *appaserver_user_role_name_list,
 		LIST *role_folder_subschema_name_list,
 		LIST *role_folder_subschema_missing_folder_name_list,
-		LIST *role_process_or_set_group_name_list,
-		LIST *role_process_or_set_missing_group_name_list )
+		LIST *role_process_group_name_list,
+		LIST *role_process_missing_group_name_list )
 {
 	MENU_VERTICAL *menu_vertical = menu_vertical_calloc();
 	char *subschema_name;
 	char *folder_name;
 	char *group_name;
-	char *process_or_set_name;
+	char *process_name;
 
 	if ( list_rewind( role_folder_subschema_name_list ) )
 	{
@@ -2115,14 +2107,14 @@ MENU_VERTICAL *menu_vertical_new(
 
 	}
 
-	if ( list_rewind( role_process_or_set_group_name_list ) )
+	if ( list_rewind( role_process_group_name_list ) )
 	{
 		menu_vertical->menu_vertical_process_group_list = list_new();
 
 		do {
 			group_name =
 				list_get(
-					role_process_or_set_group_name_list );
+					role_process_group_name_list );
 
 			list_set(
 				menu_vertical->menu_vertical_process_group_list,
@@ -2132,20 +2124,19 @@ MENU_VERTICAL *menu_vertical_new(
 					login_name,
 					role_name,
 					group_name,
-					role_process_list,
-					role_process_set_member_list ) );
+					role_process_list ) );
 
-		} while ( list_next( role_process_or_set_group_name_list ) );
+		} while ( list_next( role_process_group_name_list ) );
 	}
 
-	if ( list_rewind( role_process_or_set_missing_group_name_list ) )
+	if ( list_rewind( role_process_missing_group_name_list ) )
 	{
 		menu_vertical->menu_item_process_list = list_new();
 
 		do {
-			process_or_set_name =
+			process_name =
 			    list_get(
-				 role_process_or_set_missing_group_name_list );
+				 role_process_missing_group_name_list );
 
 			list_set(
 				menu_vertical->
@@ -2155,10 +2146,10 @@ MENU_VERTICAL *menu_vertical_new(
 					session_key,
 					login_name,
 					role_name,
-					process_or_set_name ) );
+					process_name ) );
 
 		} while ( list_next(
-			      role_process_or_set_missing_group_name_list ) );
+			      role_process_missing_group_name_list ) );
 	}
 
 	if ( list_length( appaserver_user_role_name_list ) > 1 )
@@ -2197,18 +2188,17 @@ MENU_HORIZONTAL *menu_horizontal_new(
 		LIST *role_folder_lookup_list,
 		LIST *role_folder_insert_list,
 		LIST *role_process_list,
-		LIST *role_process_set_member_list,
 		LIST *appaserver_user_role_name_list,
 		LIST *role_folder_subschema_name_list,
 		LIST *role_folder_subschema_missing_folder_name_list,
-		LIST *role_process_or_set_group_name_list,
-		LIST *role_process_or_set_missing_group_name_list )
+		LIST *role_process_group_name_list,
+		LIST *role_process_missing_group_name_list )
 {
 	MENU_HORIZONTAL *menu_horizontal = menu_horizontal_calloc();
 	char *subschema_name;
 	char *folder_name;
 	char *group_name;
-	char *process_or_set_name;
+	char *process_name;
 
 	if ( !application_name
 	||   !session_key
@@ -2339,7 +2329,7 @@ MENU_HORIZONTAL *menu_horizontal_new(
 		            role_folder_subschema_missing_folder_name_list ) );
 	}
 
-	if ( list_rewind( role_process_or_set_group_name_list ) )
+	if ( list_rewind( role_process_group_name_list ) )
 	{
 		menu_horizontal->
 			menu_horizontal_process_group_list =
@@ -2348,7 +2338,7 @@ MENU_HORIZONTAL *menu_horizontal_new(
 		do {
 			group_name =
 				list_get(
-					role_process_or_set_group_name_list );
+					role_process_group_name_list );
 
 			list_set(
 				menu_horizontal->
@@ -2359,20 +2349,19 @@ MENU_HORIZONTAL *menu_horizontal_new(
 					login_name,
 					role_name,
 					group_name,
-					role_process_list,
-					role_process_set_member_list ) );
+					role_process_list ) );
 
-		} while ( list_next( role_process_or_set_group_name_list ) );
+		} while ( list_next( role_process_group_name_list ) );
 	}
 
-	if ( list_rewind( role_process_or_set_missing_group_name_list ) )
+	if ( list_rewind( role_process_missing_group_name_list ) )
 	{
 		menu_horizontal->menu_item_horizontal_process_list = list_new();
 
 		do {
-			process_or_set_name =
+			process_name =
 			    list_get(
-				 role_process_or_set_missing_group_name_list );
+				 role_process_missing_group_name_list );
 
 			list_set(
 				menu_horizontal->
@@ -2382,10 +2371,10 @@ MENU_HORIZONTAL *menu_horizontal_new(
 					session_key,
 					login_name,
 					role_name,
-					process_or_set_name ) );
+					process_name ) );
 
 		} while ( list_next(
-			      role_process_or_set_missing_group_name_list ) );
+			      role_process_missing_group_name_list ) );
 	}
 
 	if ( list_length( appaserver_user_role_name_list ) > 1 )

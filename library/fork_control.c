@@ -78,8 +78,8 @@ FORK_CONTROL_PROCESS *fork_control_process_new( char *command_line )
 }
 
 void fork_control_process_set(
-			LIST *fork_control_process_list,
-			char *command_line )
+		LIST *fork_control_process_list,
+		char *command_line )
 {
 	FORK_CONTROL_PROCESS *fork_control_process;
 
@@ -99,8 +99,8 @@ void fork_control_process_set(
 }
 
 void fork_control_execute(
-			int parallel_count,
-			LIST *process_list )
+		int parallel_count,
+		LIST *process_list )
 {
 	int process_count = 0;
 	FORK_CONTROL_PROCESS *fork_control_process;
@@ -184,9 +184,9 @@ FORK_CONTROL_PROCESS *fork_control_process_next( LIST *process_list )
 }
 
 void fork_control_process_execute(
-				enum fork_control_process_state *state,
-				pid_t *running_process_id,
-				char *command_line )
+		enum fork_control_process_state *state,
+		pid_t *running_process_id,
+		char *command_line )
 {
 	if ( ( *running_process_id = fork() ) == 0 )
 	{
@@ -206,8 +206,8 @@ void fork_control_process_execute(
 }
 
 FORK_CONTROL_PROCESS *fork_control_process_seek(
-			LIST *process_list,
-			pid_t done_process_id )
+		LIST *process_list,
+		pid_t done_process_id )
 {
 	FORK_CONTROL_PROCESS *fork_control_process;
 
@@ -228,8 +228,7 @@ FORK_CONTROL_PROCESS *fork_control_process_seek(
 	return NULL;
 }
 
-boolean fork_control_process_pending_boolean(
-				LIST *process_list )
+boolean fork_control_process_pending_boolean( LIST *process_list )
 {
 	FORK_CONTROL_PROCESS *fork_control_process;
 

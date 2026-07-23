@@ -26,7 +26,6 @@ EXECUTABLES=								\
 		export_application					\
 		export_table						\
 		export_process						\
-		export_process_set					\
 		export_subschema					\
 		grant_select_to_user					\
 		rename_table						\
@@ -77,7 +76,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security_entity.o				\
 		${LIBRARY}/entity.o					\
-		${LIBRARY}/process_generic.o				\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\
@@ -373,17 +371,6 @@ export_subschema: export_subschema.c ${APPASERVER_LIBRARY}		\
 		${LIBRARY}/export_process.o				\
 		${LIBRARY}/shell_script.o				\
 		-o export_subschema
-
-export_process_set: export_process_set.c ${APPASERVER_LIBRARY}		\
-	${LIBRARY}/export_process_set.o					\
-	${LIBRARY}/shell_script.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		export_process_set.c					\
-		${LIBRARY}/export_process_set.o				\
-		${LIBRARY}/shell_script.o				\
-		-o export_process_set
 
 grant_select_to_user: grant_select_to_user.c				\
 		${APPASERVER_LIBRARY}					\

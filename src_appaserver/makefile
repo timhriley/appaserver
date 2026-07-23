@@ -88,7 +88,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security_entity.o				\
 		${LIBRARY}/entity.o					\
-		${LIBRARY}/process_generic.o				\
 		${LIBRARY}/output_medium.o				\
 		${LIBRARY}/units.o					\
 		${LIBRARY}/accumulate_boolean.o				\
@@ -490,64 +489,6 @@ output_google_chart: output_google_chart.c				\
 		${LIBRARY}/chart.o					\
 		-o output_google_chart
 
-generic_gracechart: generic_gracechart.c				\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_grace.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_gracechart.c					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_grace.o			\
-		-o generic_gracechart
-
-generic_high_average_low: generic_high_average_low.c			\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_whisker.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_high_average_low.c				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_whisker.o			\
-		-o generic_high_average_low
-
-generic_overlay_output: generic_overlay_output.c			\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/scatterplot.o				\
-		${LIBRARY}/regression.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_overlay_output.c				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/scatterplot.o				\
-		${LIBRARY}/regression.o					\
-		-o generic_overlay_output
-
-generic_googlechart: generic_googlechart.c				\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/google.o					\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/process_generic_google.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/google.o					\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/process_generic_google.o			\
-		generic_googlechart.c					\
-		-o generic_googlechart
-
 output_histogram: output_histogram.c					\
 		${APPASERVER_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
@@ -580,16 +521,6 @@ output_group: output_group.c						\
 		${LIBRARY}/html.o					\
 		output_group.c						\
 		-o output_group -lm
-
-generic_histogram: generic_histogram.c					\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/process_generic_histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_histogram.c					\
-		${LIBRARY}/process_generic_histogram.o			\
-		-o generic_histogram
 
 drop_application: drop_application.c					\
 	${APPASERVER_LIBRARY}						\
@@ -685,115 +616,6 @@ post_prompt_lookup: post_prompt_lookup.c ${APPASERVER_LIBRARY}		\
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_prompt_lookup		\
 	${CGI_HOME}
-
-generic_output_text_file: generic_output_text_file.c			\
-			${APPASERVER_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_text_file.c				\
-		-o generic_output_text_file
-
-generic_statistics_report: generic_statistics_report.c			\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/process_generic_statistic.o			\
-		${LIBRARY}/html.o					\
-		${LIBRARY}/statistic.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_statistics_report.c				\
-		${LIBRARY}/process_generic_statistic.o			\
-		${LIBRARY}/html.o					\
-		${LIBRARY}/statistic.o					\
-		-o generic_statistics_report -lm
-
-generic_output_annual_periods: generic_output_annual_periods.c		\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_annual_periods.c				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		-o generic_output_annual_periods
-
-generic_output_annual_comparison: generic_output_annual_comparison.c	\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_annual_comparison.c			\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		-o generic_output_annual_comparison
-
-generic_output_exceedance: generic_output_exceedance.c			\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_exceedance.c				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		-o generic_output_exceedance
-
-generic_output_multi_datatype_exceedance:				\
-	generic_output_multi_datatype_exceedance.c			\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_multi_datatype_exceedance.c		\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		-o generic_output_multi_datatype_exceedance
-
-generic_daily_moving_average: generic_daily_moving_average.c		\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_moving.o			\
-		${LIBRARY}/process_generic_grace.o			\
-		${LIBRARY}/google.o					\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/html.o					\
-		${LIBRARY}/spreadsheet.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_daily_moving_average.c				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		${LIBRARY}/process_generic_moving.o			\
-		${LIBRARY}/process_generic_grace.o			\
-		${LIBRARY}/google.o					\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/html.o					\
-		${LIBRARY}/spreadsheet.o				\
-		-o generic_daily_moving_average
-
-generic_output_merged_datasets: generic_output_merged_datasets.c	\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		generic_output_merged_datasets.c			\
-		${LIBRARY}/google_graph.o				\
-		${LIBRARY}/grace.o					\
-		${LIBRARY}/histogram.o					\
-		-o generic_output_merged_datasets
 
 post_choose_isa: post_choose_isa.c					\
 		${APPASERVER_LIBRARY}					\

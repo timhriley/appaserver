@@ -79,8 +79,6 @@ LIST *rename_column_update_statement_list(
 		const char *row_security_role_update_table,
 		const char *role_attribute_exclude_table,
 		const char *process_parameter_table,
-		const char *process_set_parameter_table,
-		const char *process_generic_value_table,
 		char *old_attribute_name,
 		char *new_attribute_name );
 

@@ -519,9 +519,25 @@ SESSION_PROCESS *session_process_integrity_exit(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name )
+		char *process_name )
 {
 	SESSION_PROCESS *session_process;
+
+	if ( !process_name || !*process_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"process_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( !session_sql_injection_strcmp_okay(
 		application_name,
@@ -566,13 +582,10 @@ SESSION_PROCESS *session_process_integrity_exit(
 	if ( !session_process_valid(
 		security_sql_injection_escape(
 			SECURITY_ESCAPE_CHARACTER_STRING,
-			process_or_set_name ),
+			process_name ),
 		role_process_list(
 			session_process->role_name,
-			0 /* not fetch_process */ ),
-		role_process_set_member_list(
-			session_process->role_name,
-			0 /* not fetch_process_set */ ) ) )
+			0 /* not fetch_process */ ) ) )
 	{
 		char message[ 128 ];
 
@@ -580,7 +593,7 @@ SESSION_PROCESS *session_process_integrity_exit(
 			message,
 			sizeof ( message ),
 			"session_process_valid(%s) returned false.",
-			process_or_set_name );
+			process_name );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -589,25 +602,16 @@ SESSION_PROCESS *session_process_integrity_exit(
 			message );
 	}
 
-	session_process->process_name =
-		process_name_fetch(
-			process_or_set_name );
-
-	if ( !session_process->process_name )
-	{
-		session_process->process_set_name = process_or_set_name;
-	}
+	session_process->process_name = process_name;
 
 	return session_process;
 }
 
 boolean session_process_valid(
-		char *process_or_set_name,
-		LIST *role_process_list,
-		LIST *role_process_set_member_list )
+		char *process_name,
+		LIST *role_process_list )
 {
 	ROLE_PROCESS *role_process;
-	ROLE_PROCESS_SET_MEMBER *role_process_set_member;
 
 	if ( list_rewind( role_process_list ) )
 	do {
@@ -617,25 +621,11 @@ boolean session_process_valid(
 
 		if ( string_strcmp(
 				role_process->process_name,
-				process_or_set_name ) == 0 )
+				process_name ) == 0 )
 		{
 			return 1;
 		}
 	} while ( list_next( role_process_list ) );
-
-	if ( list_rewind( role_process_set_member_list ) )
-	do {
-		role_process_set_member =
-			list_get(
-				role_process_set_member_list );
-
-		if ( string_strcmp(
-				role_process_set_member->process_set_name,
-				process_or_set_name ) == 0 )
-		{
-			return 1;
-		}
-	} while ( list_next( role_process_set_member_list ) );
 
 	return 0;
 }

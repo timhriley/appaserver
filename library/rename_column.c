@@ -15,7 +15,6 @@
 #include "role.h"
 #include "foreign_attribute.h"
 #include "process_parameter.h"
-#include "process_generic.h"
 #include "rename_column.h"
 
 RENAME_COLUMN *rename_column_new(
@@ -106,8 +105,6 @@ RENAME_COLUMN *rename_column_new(
 			ROW_SECURITY_ROLE_UPDATE_TABLE,
 			ROLE_ATTRIBUTE_EXCLUDE_TABLE,
 			PROCESS_PARAMETER_TABLE,
-			PROCESS_SET_PARAMETER_TABLE,
-			PROCESS_GENERIC_VALUE_TABLE,
 			old_attribute_name,
 			new_attribute_name );
 
@@ -300,8 +297,6 @@ LIST *rename_column_update_statement_list(
 		const char *row_security_role_update_table,
 		const char *role_attribute_exclude_table,
 		const char *process_parameter_table,
-		const char *process_set_parameter_table,
-		const char *process_generic_value_table,
 		char *old_attribute_name,
 		char *new_attribute_name )
 {
@@ -393,46 +388,6 @@ LIST *rename_column_update_statement_list(
 			old_attribute_name,
 			new_attribute_name,
 			"attribute" ) );
-
-	list_set(
-		statement_list,
-		rename_column_update_statement(
-			process_set_parameter_table,
-			old_attribute_name,
-			new_attribute_name,
-			"attribute" ) );
-
-	list_set(
-		statement_list,
-		rename_column_update_statement(
-			process_generic_value_table,
-			old_attribute_name,
-			(new_attribute_name) ? new_attribute_name : "",
-			"datatype_attribute" ) );
-
-	list_set(
-		statement_list,
-		rename_column_update_statement(
-			process_generic_value_table,
-			old_attribute_name,
-			(new_attribute_name) ? new_attribute_name : "",
-			"date_attribute" ) );
-
-	list_set(
-		statement_list,
-		rename_column_update_statement(
-			process_generic_value_table,
-			old_attribute_name,
-			(new_attribute_name) ? new_attribute_name : "",
-			"time_attribute" ) );
-
-	list_set(
-		statement_list,
-		rename_column_update_statement(
-			process_generic_value_table,
-			old_attribute_name,
-			new_attribute_name,
-			"value_attribute" ) );
 
 	return statement_list;
 }

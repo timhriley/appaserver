@@ -705,7 +705,6 @@ void delete_database_execute_delete_row_list_pipe(
 				(LIST *)0 /* primary_data_list */,
 				0 /* row */,
 				(char *)0 /* process_name */,
-				(PROCESS_SET *)0,
 				(char *)0 /* one2m_folder_name_for_processes */,
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );
@@ -756,7 +755,6 @@ void delete_database_execute_delete_row_list_pipe(
 				(LIST *)0 /* primary_data_list */,
 				0 /* row */,
 				(char *)0 /* process_name */,
-				(PROCESS_SET *)0,
 				(char *)0 /* one2m_folder_name_for_processes */,
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );

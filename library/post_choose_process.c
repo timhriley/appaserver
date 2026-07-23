@@ -46,7 +46,7 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *process_or_set_name )
+		char *process_name )
 {
 	POST_CHOOSE_PROCESS *post_choose_process;
 
@@ -56,7 +56,7 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
-	||   !process_or_set_name )
+	||   !process_name )
 	{
 		char message[ 128 ];
 
@@ -84,7 +84,7 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 			session_key,
 			login_name,
 			role_name,
-			process_or_set_name );
+			process_name );
 
 	if ( post_choose_process->session_process->process_name )
 	{
@@ -119,10 +119,7 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 			process_parameter_drillthru_boolean(
 				post_choose_process->
 					session_process->
-					process_name,
-				post_choose_process->
-					session_process->
-					process_set_name );
+					process_name );
 
 		post_choose_process->prompt_process_output_system_string =
 			/* ------------------- */
@@ -133,7 +130,7 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 				session_key,
 				login_name,
 				role_name,
-				process_or_set_name,
+				process_name,
 				(char *)0 /* dictionary_..._send_string() */,
 				post_choose_process->
 					process_parameter_drillthru_boolean,
@@ -167,11 +164,11 @@ boolean post_choose_process_no_parameters( char *process_name )
 }
 
 char *post_choose_process_action_string(
-			char *post_choose_process_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name )
+		char *post_choose_process_executable,
+		char *application_name,
+		char *session_key,
+		char *login_name,
+		char *role_name )
 {
 	static char action_string[ 256 ];
 
@@ -221,12 +218,12 @@ char *post_choose_process_action_string(
 }
 
 char *post_choose_process_href_string(
-			char *process_or_set_name,
-			char *post_choose_process_action_string )
+		char *process_name,
+		char *post_choose_process_action_string )
 {
 	static char href_string[ 256 ];
 
-	if ( !process_or_set_name
+	if ( !process_name
 	||   !post_choose_process_action_string )
 	{
 		char message[ 128 ];
@@ -243,7 +240,7 @@ char *post_choose_process_href_string(
 	sprintf(href_string,
 		"href=\"%s+%s\"",
 		post_choose_process_action_string,
-		process_or_set_name );
+		process_name );
 
 	return href_string;
 }

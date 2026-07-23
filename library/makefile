@@ -159,7 +159,6 @@ APPASERVER_LIBRARY=						\
 		create_table.o					\
 		export_subschema.o				\
 		export_process.o				\
-		export_process_set.o				\
 		clone_folder.o					\
 		select_statement.o				\
 		execute_select.o				\
@@ -196,7 +195,6 @@ APPASERVER_LIBRARY=						\
 		application_delete.o				\
 		application_clone.o				\
 		spool.o						\
-		process_generic.o				\
 		vertical_new_checkbox.o				\
 		vertical_new_prompt.o				\
 		vertical_new_filename.o				\
@@ -584,42 +582,6 @@ drillthru.o: drillthru.c drillthru.h
 drilldown.o: drilldown.c drilldown.h
 	${CC} ${CFLAGS} -c drilldown.c
 
-process_generic.o: process_generic.c process_generic.h
-	${CC} ${CFLAGS} -c process_generic.c
-
-process_generic_statistic.o: process_generic_statistic.c		\
-	process_generic_statistic.h
-	${CC} ${CFLAGS} -c process_generic_statistic.c
-
-process_generic_annual.o: process_generic_annual.c			\
-	process_generic_annual.h
-	${CC} ${CFLAGS} -c process_generic_annual.c
-
-process_generic_grace.o: process_generic_grace.c			\
-	process_generic_grace.h						\
-	process_generic.o
-	${CC} ${CFLAGS} -c process_generic_grace.c
-
-process_generic_whisker.o: process_generic_whisker.c			\
-	process_generic_whisker.h					\
-	process_generic.o
-	${CC} ${CFLAGS} -c process_generic_whisker.c
-
-process_generic_histogram.o: process_generic_histogram.c		\
-	process_generic_histogram.h					\
-	process_generic.o
-	${CC} ${CFLAGS} -c process_generic_histogram.c
-
-process_generic_moving.o: process_generic_moving.c			\
-	process_generic_moving.h					\
-	process_generic.o
-	${CC} ${CFLAGS} -c process_generic_moving.c
-
-process_generic_google.o: process_generic_google.c			\
-	process_generic_google.h					\
-	process_generic.o
-	${CC} ${CFLAGS} -c process_generic_google.c
-
 folder_menu.o: folder_menu.c folder_menu.h
 	${CC} ${CFLAGS} -c folder_menu.c
 
@@ -824,9 +786,6 @@ export_subschema.o: export_subschema.c export_subschema.h
 
 export_process.o: export_process.c export_process.h
 	${CC} ${CFLAGS} -c export_process.c
-
-export_process_set.o: export_process_set.c export_process_set.h
-	${CC} ${CFLAGS} -c export_process_set.c
 
 clone_folder.o: clone_folder.c clone_folder.h
 	${CC} ${CFLAGS} -c clone_folder.c

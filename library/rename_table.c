@@ -17,7 +17,6 @@
 #include "folder_attribute.h"
 #include "process_parameter.h"
 #include "folder_operation.h"
-#include "process_generic.h"
 #include "create_table.h"
 #include "rename_table.h"
 
@@ -127,10 +126,7 @@ RENAME_TABLE *rename_table_new(
 			FOREIGN_ATTRIBUTE_TABLE,
 			FOLDER_ROW_LEVEL_RESTRICTION_TABLE,
 			PROCESS_PARAMETER_TABLE,
-			PROCESS_SET_PARAMETER_TABLE,
 			FOLDER_OPERATION_TABLE,
-			PROCESS_GENERIC_TABLE,
-			PROCESS_GENERIC_VALUE_TABLE,
 			old_folder_name,
 			new_folder_name );
 
@@ -324,10 +320,7 @@ LIST *rename_table_update_statement_list(
 		const char *foreign_attribute_table,
 		const char *folder_row_level_restriction_table,
 		const char *process_parameter_table,
-		const char *process_set_parameter_table,
 		const char *folder_operation_table,
-		const char *process_generic_table,
-		const char *process_generic_value_table,
 		char *old_folder_name,
 		char *new_folder_name )
 {
@@ -423,50 +416,10 @@ LIST *rename_table_update_statement_list(
 	list_set(
 		statement_list,
 		rename_table_update_statement(
-			process_set_parameter_table,
-			old_folder_name,
-			new_folder_name,
-			FOLDER_PRIMARY_KEY ) );
-
-	list_set(
-		statement_list,
-		rename_table_update_statement(
 			folder_operation_table,
 			old_folder_name,
 			new_folder_name,
 			FOLDER_PRIMARY_KEY ) );
-
-	list_set(
-		statement_list,
-		rename_table_update_statement(
-			process_generic_table,
-			old_folder_name,
-			new_folder_name,
-			PROCESS_GENERIC_VALUE_FOLDER_PRIMARY_KEY ) );
-
-	list_set(
-		statement_list,
-		rename_table_update_statement(
-			process_generic_value_table,
-			old_folder_name,
-			new_folder_name,
-			PROCESS_GENERIC_VALUE_FOLDER_PRIMARY_KEY ) );
-
-	list_set(
-		statement_list,
-		rename_table_update_statement(
-			process_generic_value_table,
-			old_folder_name,
-			new_folder_name,
-			"datatype_folder" ) );
-
-	list_set(
-		statement_list,
-		rename_table_update_statement(
-			process_generic_value_table,
-			old_folder_name,
-			new_folder_name,
-			"foreign_folder" ) );
 
 	return statement_list;
 }
