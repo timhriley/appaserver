@@ -27,8 +27,7 @@ int main( int argc, char **argv )
 	group_sum( delimiter );
 	
 	return 0;
-
-} /* main() */
+}
 
 
 void group_sum( char delimiter )
@@ -91,6 +90,5 @@ void group_sum( char delimiter )
 			delimiter,
 			sum );
 	}
-
-} /* group_sum() */
+}
 

@@ -58,7 +58,6 @@ ENTITY *entity_new(
 	entity = entity_calloc();
 
 	entity->entity_contact_key_boolean = contact_key_boolean;
-
 	entity->full_name = full_name;
 	entity->contact_key = contact_key;
 

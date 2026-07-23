@@ -1,7 +1,7 @@
 /* --------------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_system/create_empty_application.c		*/
 /* --------------------------------------------------------------------	*/
-/* If process_name is "process" then outputs the generated password.	*/
+/* If process_name is "process" then it outputs the generated password.	*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
