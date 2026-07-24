@@ -582,9 +582,6 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 			attribute_name,
 			post_dictionary_file->recall_boolean );
 
-	if ( post_dictionary_file->recall_boolean )
-		return post_dictionary_file;
-
 	post_dictionary_file->specification_key =
 		/* ------------------ */
 		/* Returns heap memory */
@@ -604,15 +601,27 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 				filename->
 				return_string /* heap memory */  );
 
-	/* [Recall] may retrieve another application’s filename */
-	/* ---------------------------------------------------- */
-	if ( !file_exists_boolean(
-		post_dictionary_file->specification ) )
-			return NULL;
+	if ( post_dictionary_file->recall_boolean )
+	{
+		/* [Recall] may retrieve another application’s filename */
+		/* ---------------------------------------------------- */
+		if ( !file_exists_boolean(
+			post_dictionary_file->specification ) )
+		{
+			free( post_dictionary_file->filename );
+			free( post_dictionary_file->specification_key );
+			free( post_dictionary_file->specification );
+			free( post_dictionary_file );
 
-	post_dictionary_file_write(
-		apache_key,
-		post_dictionary_file->specification );
+			return NULL;
+		}
+	}
+	else
+	{
+		post_dictionary_file_write(
+			apache_key,
+			post_dictionary_file->specification );
+	}
 
 	return post_dictionary_file;
 }
