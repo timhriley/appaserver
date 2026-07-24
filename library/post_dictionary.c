@@ -604,6 +604,12 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 				filename->
 				return_string /* heap memory */  );
 
+	/* [Recall] may retrieve another application’s filename */
+	/* ---------------------------------------------------- */
+	if ( !file_exists_boolean(
+		post_dictionary_file->specification ) )
+			return NULL;
+
 	post_dictionary_file_write(
 		apache_key,
 		post_dictionary_file->specification );
