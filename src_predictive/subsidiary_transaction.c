@@ -294,7 +294,7 @@ char *subsidiary_transaction_execute(
 				insert_transaction->transaction_amount,
 				0 /* check_number */,
 				insert_transaction->memo,
-				insert_transaction->lock_boolean,
+				1 /* lock_boolean */,
 				insert_transaction->journal_list,
 				fund_boolean,
 				contact_key_boolean,
