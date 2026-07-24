@@ -78,6 +78,9 @@ void investment_transaction_output(
 						memo,
 					investment_transaction->
 						transaction_binary->
+						lock_boolean,
+					investment_transaction->
+						transaction_binary->
 						journal_list,
 					investment_transaction->
 						predictive_fund_boolean,

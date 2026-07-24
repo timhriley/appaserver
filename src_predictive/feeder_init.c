@@ -531,6 +531,9 @@ void feeder_init_transaction_insert(
 				memo,
 			feeder_init_transaction->
 				transaction->
+				lock_boolean,
+			feeder_init_transaction->
+				transaction->
 				journal_list,
 			fund_boolean,
 			contact_key_boolean,
