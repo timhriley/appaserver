@@ -117,6 +117,9 @@ int main( int argc, char **argv )
 						memo,
 					insert_expense->
 						transaction_binary->
+						lock_boolean,
+					insert_expense->
+						transaction_binary->
 						journal_list,
 					insert_expense->
 						insert_expense_input->

@@ -743,8 +743,7 @@ void post_insert(	char *application_name,
 	post_payroll_transaction_insert(
 			application_name,
 			payroll_posting->employee_work_period_list );
-
-} /* post_payroll_insert() */
+}
 
 void post_payroll_payroll_posting_insert(
 			char *application_name,
@@ -874,12 +873,11 @@ void post_payroll_insert(
 	} while( list_next( employee_work_period_list ) );
 
 	pclose( output_pipe );
-
-} /* post_payroll_insert() */
+}
 
 void post_payroll_transaction_insert(
-			char *application_name,
-			LIST *employee_work_period_list )
+		char *application_name,
+		LIST *employee_work_period_list )
 {
 	FILE *transaction_output_pipe;
 	FILE *debit_account_pipe = {0};
@@ -1180,8 +1178,7 @@ void post_payroll_transaction_insert(
 		federal_unemployment_tax_payable_account,
 		state_unemployment_tax_payable_account,
 		propagate_transaction_date_time );
-
-} /* post_payroll_transaction_insert() */
+}
 
 void post_payroll_propagate(
 			char *application_name,

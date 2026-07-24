@@ -247,6 +247,10 @@ void close_nominal_accounts_do(
 			close_nominal_do->
 				close_transaction->
 				transaction->
+				lock_boolean,
+			close_nominal_do->
+				close_transaction->
+				transaction->
 				journal_list,
 			fund_boolean,
 			contact_key_boolean,

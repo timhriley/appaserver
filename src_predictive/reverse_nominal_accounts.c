@@ -278,6 +278,10 @@ void reverse_nominal_accounts_do(
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->
+				lock_boolean,
+			reverse_nominal_do->
+				reverse_transaction->
+				transaction->
 				journal_list,
 			fund_boolean,
 			contact_key_boolean,

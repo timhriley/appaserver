@@ -617,8 +617,7 @@ void post_change_purchase_order_insert_FOB_destination(
 			0 /* check_number */,
 			1 /* lock_transaction */ );
 	}
-
-} /* post_change_purchase_order_insert_FOB_destination() */
+}
 
 void post_change_purchase_order_insert_title_passage_null(
 			PURCHASE_ORDER *purchase_order,
@@ -651,8 +650,7 @@ void post_change_purchase_order_insert_title_passage_null(
 		purchase_order->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
-
-} /* post_change_purchase_order_insert_title_passage_null() */
+}
 
 void post_change_purchase_order_update(
 			PURCHASE_ORDER *purchase_order,

@@ -29,14 +29,14 @@
 				"transaction_amount,"		\
 				"check_number,"			\
 				"memo,"				\
-				"transaction_lock_yn"
+				"transaction_lock_y"
 
 #define TRANSACTION_INSERT	"full_name,"			\
 				"transaction_date_time,"	\
 				"transaction_amount,"		\
 				"check_number,"			\
 				"memo,"				\
-				"transaction_lock_yn"
+				"transaction_lock_y"
 
 typedef struct
 {
@@ -44,13 +44,13 @@ typedef struct
 	char *full_name;
 	char *contact_key /* optional */;
 	char *transaction_date_time;
-	boolean transaction_lock_boolean;
-
-	/* Set externally */
-	/* -------------- */
 	double transaction_amount;
 	int check_number;
 	char *memo;
+	boolean lock_boolean;
+
+	/* Set externally */
+	/* -------------- */
 	LIST *journal_list;
 	char *rental_property_street_address;
 } TRANSACTION;
@@ -158,6 +158,7 @@ char *transaction_insert(
 		double transaction_amount,
 		int check_number,
 		char *memo,
+		boolean lock_boolean,
 		LIST *journal_list,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
@@ -165,9 +166,6 @@ char *transaction_insert(
 
 /* Process */
 /* ------- */
-FILE *transaction_insert_pipe_open(
-		const char *transaction_table,
-		char *insert_column_string );
 
 /* Returns static memory */
 /* --------------------- */
@@ -179,6 +177,12 @@ char *transaction_check_number(
 char *transaction_memo(
 		char *memo );
 
+/* Safely returns */
+/* -------------- */
+FILE *transaction_insert_pipe_open(
+		const char *transaction_table,
+		char *insert_column_string );
+
 /* Usage */
 /* ----- */
 void transaction_insert_pipe(
@@ -189,7 +193,7 @@ void transaction_insert_pipe(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		const char transaction_lock_yn,
+		const char *transaction_lock_y,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		FILE *pipe_open );
@@ -208,7 +212,7 @@ char *transaction_insert_data_string(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		const char transaction_lock_yn,
+		const char *transaction_lock_y,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -455,7 +459,7 @@ char *transaction_insert_column_string(
 
 /* Returns program memory */
 /* ---------------------- */
-char transaction_lock_yn(
-		void );
+const char *transaction_lock_y(
+		boolean lock_boolean );
 
 #endif

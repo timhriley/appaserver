@@ -220,7 +220,7 @@ TRANSACTION *transaction_parse(
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer )
-		transaction->transaction_lock_boolean =
+		transaction->lock_boolean =
 			(*buffer == 'y');
 
 	if ( fetch_journal_list )
@@ -317,14 +317,18 @@ char *transaction_insert(
 		double transaction_amount,
 		int check_number,
 		char *memo,
+		boolean lock_boolean,
 		LIST *journal_list,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		boolean insert_journal_list_boolean )
 {
-	FILE *pipe_open;
-	char *race_free_date_time;
 	char *insert_column_string;
+	char *insert_check_number;
+	char *insert_memo;
+	const char *lock_y;
+	char *race_free_date_time;
+	FILE *pipe_open;
 
 	if ( !full_name )
 	{
@@ -382,6 +386,30 @@ char *transaction_insert(
 			fund_boolean,
 			contact_key_boolean );
 
+	insert_check_number =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_check_number( check_number );
+
+	/* --------------------- */
+	/* Returns static memory */
+	/* --------------------- */
+	insert_memo = transaction_memo( memo );
+
+	/* ---------------------- */
+	/* Returns program memory */
+	/* ---------------------- */
+	lock_y = transaction_lock_y( lock_boolean );
+
+	pipe_open =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		transaction_insert_pipe_open(
+			TRANSACTION_TABLE,
+			insert_column_string );
+
 	race_free_date_time =
 		transaction_race_free_date_time(
 			TRANSACTION_TABLE,
@@ -389,29 +417,15 @@ char *transaction_insert(
 			TRANSACTION_SEMAPHORE_KEY,
 			transaction_date_time );
 
-	pipe_open =
-		transaction_insert_pipe_open(
-			TRANSACTION_TABLE,
-			insert_column_string );
-
 	transaction_insert_pipe(
 		fund_name,
 		full_name,
 		contact_key,
 		race_free_date_time,
 		transaction_amount,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_check_number( check_number ),
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		transaction_memo( memo ),
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		transaction_lock_yn(),
+		insert_check_number,
+		insert_memo,
+		lock_y,
 		fund_boolean,
 		contact_key_boolean,
 		pipe_open );
@@ -449,7 +463,7 @@ void transaction_insert_pipe(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		const char transaction_lock_yn,
+		const char *transaction_lock_y,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		FILE *pipe_open )
@@ -479,7 +493,7 @@ void transaction_insert_pipe(
 			transaction_amount,
 			transaction_check_number,
 			transaction_memo,
-			transaction_lock_yn,
+			transaction_lock_y,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -985,6 +999,7 @@ void transaction_list_insert(
 				transaction->transaction_amount,
 				transaction->check_number,
 				transaction->memo,
+				transaction->lock_boolean,
 				transaction->journal_list,
 				fund_boolean,
 				contact_key_boolean,
@@ -1372,6 +1387,7 @@ char *transaction_stamp_insert(
 			transaction->transaction_amount,
 			transaction->check_number,
 			transaction->memo,
+			transaction->lock_boolean,
 			transaction->journal_list,
 			fund_boolean,
 			contact_key_boolean,
@@ -1645,7 +1661,7 @@ char *transaction_insert_data_string(
 		double transaction_amount,
 		char *transaction_check_number,
 		char *transaction_memo,
-		const char transaction_lock_yn,
+		const char *transaction_lock_y,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -1670,13 +1686,13 @@ char *transaction_insert_data_string(
 	snprintf(
 		data_string,
 		sizeof ( data_string ),
-		"%s^%s^%.2lf^%s^%s^%c",
+		"%s^%s^%.2lf^%s^%s^%s",
 	 	full_name,
 		transaction_race_free_date_time,
 		transaction_amount,
 		transaction_check_number,
 		transaction_memo,
-		transaction_lock_yn );
+		transaction_lock_y );
 
 	optional_column =
 		optional_column_new(
@@ -1738,8 +1754,15 @@ char *transaction_select_string(
 	return strdup( string );
 }
 
-char transaction_lock_yn( void )
+const char *transaction_lock_y( boolean lock_boolean )
 {
-	return 'y';
+	const char *lock_y;
+
+	if ( lock_boolean )
+		lock_y = "y";
+	else
+		lock_y = "";
+
+	return lock_y;
 }
 
