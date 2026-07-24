@@ -393,7 +393,8 @@ typedef struct
 FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		boolean checking_boolean,
 		char *entity_self_full_name,
-		char *entity_self_street_address );
+		char *entity_self_contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -419,7 +420,8 @@ char *feeder_init_passthru_insert_sql(
 		const char *feeder_phrase_table,
 		char *account_name,
 		char *entity_self_full_name,
-		char *entity_self_street_address,
+		char *entity_self_contact_key,
+		boolean entity_contact_key_boolean,
 		char *feeder_init_passthru_feeder_phrase );
 
 /* Usage */

@@ -21,12 +21,12 @@
 FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		boolean checking_boolean,
 		char *entity_self_full_name,
-		char *entity_self_contact_key )
+		char *entity_self_contact_key,
+		boolean contact_key_boolean )
 {
 	FEEDER_INIT_PASSTHRU *feeder_init_passthru;
 
-	if ( !entity_self_full_name
-	||   !entity_self_contact_key )
+	if ( !entity_self_full_name )
 	{
 		char message[ 128 ];
 
@@ -84,6 +84,7 @@ FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 			feeder_init_passthru->account_name,
 			entity_self_full_name,
 			entity_self_contact_key,
+			contact_key_boolean,
 			feeder_init_passthru->feeder_phrase );
 
 	return feeder_init_passthru;
@@ -163,6 +164,7 @@ char *feeder_init_passthru_insert_sql(
 		char *account_name,
 		char *entity_self_full_name,
 		char *entity_self_contact_key,
+		boolean contact_key_boolean,
 		char *passthru_feeder_phrase )
 {
 	char *attribute_name_list_string;
@@ -172,7 +174,6 @@ char *feeder_init_passthru_insert_sql(
 
 	if ( !account_name
 	||   !entity_self_full_name
-	||   !entity_self_contact_key
 	||   !passthru_feeder_phrase )
 	{
 		char message[ 128 ];
@@ -215,13 +216,16 @@ char *feeder_init_passthru_insert_sql(
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
 
-	list_set(
-		insert_datum_list,
-		insert_datum_new(
-			"contact_key" /* attribute_name */,
-			entity_self_contact_key /* datum */,
-			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+	if ( contact_key_boolean )
+	{
+		list_set(
+			insert_datum_list,
+			insert_datum_new(
+				"contact_key" /* attribute_name */,
+				entity_self_contact_key /* datum */,
+				0 /* primary_key_index */,
+				0 /* not attribute_is_number */ ) );
+	}
 
 	attribute_name_list_string =
 		/* --------------------------- */
@@ -283,7 +287,6 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 
 	if ( !exchange_minimum_date_string
 	||   !entity_self_full_name
-	||   !entity_self_contact_key
 	||   !debit_journal
 	||   !credit_journal )
 	{
@@ -650,8 +653,7 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 
 	if ( !exchange_minimum_date_string
 	||   !account_name
-	||   !entity_self_full_name
-	||   !entity_self_contact_key )
+	||   !entity_self_full_name )
 	{
 		char message[ 128 ];
 
@@ -1150,7 +1152,10 @@ FEEDER_INIT *feeder_init_new(
 			feeder_init->
 				feeder_init_input->
 				entity_self->
-				contact_key );
+				contact_key,
+			feeder_init->
+				feeder_init_input->
+				entity_contact_key_boolean );
 
 	feeder_init->feeder_load_event =
 		/* -------------- */
