@@ -69,12 +69,26 @@ SECURITY_ENTITY *security_entity_new(
 	}
 
 	security_entity->appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		appaserver_user_login_fetch(
 			login_name,
 			0 /* not fetch_role_name_list */ );
+
+	if ( !security_entity->appaserver_user )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	table_name =
 		/* ----------------------------- */

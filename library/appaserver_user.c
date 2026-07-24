@@ -97,6 +97,8 @@ APPASERVER_USER *appaserver_user_login_fetch(
 			APPASERVER_USER_TABLE,
 			where );
 
+	free( select_string );
+
 	input =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -104,25 +106,9 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		string_system_input(
 			system_string );
 
-	if ( !input )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"string_system_string_fetch(%s) returned empty.",
-			system_string );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	free( select_string );
 	free( system_string );
+
+	if ( !input ) return NULL;
 
 	return
 	appaserver_user_parse(
@@ -270,12 +256,26 @@ char *appaserver_user_date_format_string(
 	}
 
 	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		appaserver_user_login_fetch(
 			login_name,
 			0 /* not fetch_role_name_list */ );
+
+	if ( !appaserver_user )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( appaserver_user->user_date_format )
 	{
@@ -407,12 +407,26 @@ LIST *appaserver_user_role_name_list( char *login_name )
 	}
 
 	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		appaserver_user_login_fetch(
 			login_name,
 			1 /* fetch_role_name_list */ );
+
+	if ( !appaserver_user )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	return appaserver_user->role_appaserver_user_name_list;
 }

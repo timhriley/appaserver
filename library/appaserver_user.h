@@ -47,9 +47,6 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 APPASERVER_USER *appaserver_user_login_fetch(
 		char *login_name,
 		boolean fetch_role_name_list );

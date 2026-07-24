@@ -481,12 +481,26 @@ enum date_convert_format_enum date_convert_login_name_enum(
 	}
 
 	appaserver_user =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		appaserver_user_login_fetch(
 			login_name,
 			0 /* fetch_role_name_list */ );
+
+	if ( !appaserver_user )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_user_login_fetch(%s) returned empty.",
+			login_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( appaserver_user->user_date_format
 	&&   *appaserver_user->user_date_format )
