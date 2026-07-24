@@ -69,6 +69,7 @@ fi
 if [ "$select" = "*" -o "$select" = "select" ]
 then
 	select=`attribute_list $table | joinlines.e ','`
+	echo "$select"
 fi
 
 if [ "$order" = "select" ]

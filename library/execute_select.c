@@ -161,6 +161,9 @@ EXECUTE_SELECT *execute_select_new(
 	{
 		execute_select->column_name_list =
 			execute_select_asterisk_name_list(
+				execute_select->
+					role->
+					role_attribute_exclude_list,
 				list_first(
 					execute_select->folder_name_list
 						/* folder_name */ ) );
@@ -181,6 +184,14 @@ EXECUTE_SELECT *execute_select_new(
 				__LINE__,
 				message );
 		}
+
+		execute_select->statement =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			execute_select_asterisk_statement(
+				statement,
+				execute_select->column_name_list );
 	}
 
 	execute_select->html_heading_string =
@@ -590,10 +601,10 @@ char *execute_select_html_heading_string( LIST *column_name_list )
 }
 
 LIST *execute_select_column_name_list(
-			char **error_message,
-			char *role_name,
-			LIST *role_attribute_exclude_list,
-			char *statement )
+		char **error_message,
+		char *role_name,
+		LIST *role_attribute_exclude_list,
+		char *statement )
 {
 	int state = EXECUTE_BEGIN_STATE;
 	char column_name[ 256 ];
@@ -711,8 +722,12 @@ LIST *execute_select_column_name_list(
 		return column_name_list;
 }
 
-LIST *execute_select_asterisk_name_list( char *folder_name )
+LIST *execute_select_asterisk_name_list(
+		LIST *role_attribute_exclude_list,
+		char *folder_name )
 {
+	LIST *exclude_attribute_name_list;
+
 	if ( !folder_name )
 	{
 		char message[ 128 ];
@@ -726,12 +741,18 @@ LIST *execute_select_asterisk_name_list( char *folder_name )
 			message );
 	}
 
+	exclude_attribute_name_list =
+		role_attribute_exclude_lookup_name_list(
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
+			role_attribute_exclude_list );
+
 	return
 	folder_attribute_name_list(
 		(char *)0 /* folder_name */,
 		folder_attribute_list(
 			folder_name,
-			(LIST *)0 /* exclude_attribute_name_list */,
+			exclude_attribute_name_list,
 			0 /* not fetch_attribute */,
 			0 /* not cache_boolean */ ) );
 }
@@ -1006,3 +1027,56 @@ char *execute_select_error_filename( char *session_key )
 	return error_filename;
 }
 
+char *execute_select_asterisk_statement(
+		char *statement,
+		LIST *column_name_list )
+{
+	char *display_delimited;
+	char buffer[ STRING_64K ];
+	char *strcpy;
+	char *search_replace;
+
+	if ( !statement
+	||   !list_length( column_name_list ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	display_delimited =
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		list_display_delimited(
+			column_name_list, ',' );
+
+	strcpy =
+		/* ------------------- */
+		/* Returns destination */
+		/* ------------------- */
+		string_strcpy(
+			buffer /* destination */,
+			statement /* source */,
+			sizeof ( buffer ) /* buffer_size */ );
+
+	search_replace =
+		/* -------------------------- */
+		/* Returns source_destination */
+		/* -------------------------- */
+		string_search_replace(
+			strcpy /* source_destination */,
+			"*" /* search_string */,
+			display_delimited /* replace_string */ );
+
+	return strdup( search_replace );
+}

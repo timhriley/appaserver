@@ -149,7 +149,17 @@ LIST *execute_select_column_name_list(
 /* Usage */
 /* ----- */
 LIST *execute_select_asterisk_name_list(
+		LIST *role_attribute_exclude_list,
 		char *folder_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *execute_select_asterisk_statement(
+		char *statement,
+		LIST *column_name_list );
 
 /* Usage */
 /* ----- */

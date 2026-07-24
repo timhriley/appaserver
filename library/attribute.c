@@ -912,7 +912,13 @@ void attribute_folder_name_list_stdout( char *folder_name )
 				0 /* not fetch_attribute */,
 				0 /* not cache_boolean */ ) );
 
-	attribute_name_list_sort_stdout( name_list );
+	printf( "%s\n",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		list_delimited_string(
+			name_list,
+			'\n' /* delimiter */ ) );
 }
 
 void attribute_name_list_stdout(
