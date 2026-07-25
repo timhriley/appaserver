@@ -128,8 +128,7 @@ POST_PROMPT_LOOKUP *post_prompt_lookup_new(
 						post_prompt_lookup_input->
 						relation_mto1_isa_list )
 						/* relation_mto1...length */,
-				(char *)0
-				/* row_security_role_update_list_where */ );
+				(char *)0 /* attribute_not_null */ );
 
 		post_prompt_lookup->include_name_list =
 			post_prompt_lookup_include_name_list(

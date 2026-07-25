@@ -7,11 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
 #include "String.h"
 #include "list.h"
 #include "piece.h"
 #include "sql.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "folder.h"
@@ -20,7 +20,6 @@
 #include "name_arg.h"
 #include "folder.h"
 #include "folder_attribute.h"
-#include "appaserver.h"
 
 void setup_arg(	NAME_ARG *arg, int argc, char **argv );
 
@@ -36,7 +35,6 @@ void fetch_parameters(
 		NAME_ARG *arg );
 
 char *select_multiple_table_names(
-		char *application_name,
 		char *multi_folder_name_list_string );
 
 int main( int argc, char **argv )
@@ -50,11 +48,11 @@ int main( int argc, char **argv )
 	char *quick_yes_no = {0};
 	char *maxrows = {0};
 	long maxrows_long = 0L;
-	char *where_clause;
-	char system_string[ STRING_SYSTEM_BUFFER ];
+	char *where_clause = {0};
+	char system_string[ STRING_64K ];
 	char order_by_clause[ 4096 ];
 	char group_by_clause[ 4096 ];
-	char where_clause_escaped[ STRING_WHERE_BUFFER ];
+	char *where_clause_escaped;
 	FOLDER *folder;
 	char sql_executable[ 128 ];
 	long row_access_count = 0L;
@@ -172,29 +170,30 @@ int main( int argc, char **argv )
 		order_clause = "none";
 	}
 
-	/* Set final where clause */
-	/* ---------------------- */
 	if ( string_strncmp( where_clause, "where " ) == 0 )
 	{
-		strcpy( where_clause_escaped, where_clause + 6 );
-	}
-	else
-	{
-		strcpy( where_clause_escaped, where_clause );
+		string_strcpy(
+			where_clause,
+			where_clause + 6,
+			0 /* buffer size; zero for no check */ );
 	}
 
-	escape_dollar_sign( where_clause_escaped );
+	where_clause_escaped =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_escape_dollar(
+			where_clause );
 
-	if ( !*where_clause_escaped )
-	{
-		strcpy( where_clause_escaped, "1 = 1" );
-	}
+	if ( !*where_clause_escaped ) where_clause_escaped = "1 = 1";
 
 	/* Set group by clause */
 	/* ------------------- */
 	if ( group_clause && *group_clause )
 	{
-		sprintf(group_by_clause, 
+		snprintf(
+			group_by_clause, 
+			sizeof ( group_by_clause ),
 		 	"group by %s",
 		 	group_clause );
 	}
@@ -207,14 +206,18 @@ int main( int argc, char **argv )
 	/* ------------------- */
 	if ( string_strcmp( order_clause, "select" ) == 0 )
 	{
-		sprintf(order_by_clause, 
+		snprintf(
+			order_by_clause, 
+			sizeof ( order_by_clause ),
 		 	"order by %s",
 		 	select );
 	}
 	else
 	if ( order_clause && string_strcmp( order_clause, "none" ) != 0 )
 	{
-		sprintf(order_by_clause, 
+		snprintf(
+			order_by_clause, 
+			sizeof ( order_by_clause ),
 		 	"order by %s",
 		 	order_clause );
 	}
@@ -238,7 +241,6 @@ int main( int argc, char **argv )
 
 	table_name =
 		select_multiple_table_names(
-			application_name,
 			folder_name
 				/* multi_folder_name_list_string */ );
 
@@ -271,7 +273,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 	 	"echo \"select %s				 "
 		" 	from %s					 "
 		" 	where %s				 "
@@ -288,7 +292,10 @@ int main( int argc, char **argv )
 
 	input_pipe = popen( system_string, "r" );
 
-	while( string_input( input_buffer, input_pipe, STRING_INPUT_BUFFER ) )
+	while( string_input(
+			input_buffer,
+			input_pipe,
+			sizeof ( input_buffer ) ) )
 	{
 		row_access_count++;
 
@@ -323,15 +330,16 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void fetch_parameters(	char **application_name,
-			char **folder_name,
-			char **select,
-			char **where_clause,
-			char **order_clause,
-			char **group_clause,
-			char **quick_yes_no,
-			char **maxrows,
-			NAME_ARG *arg )
+void fetch_parameters(
+		char **application_name,
+		char **folder_name,
+		char **select,
+		char **where_clause,
+		char **order_clause,
+		char **group_clause,
+		char **quick_yes_no,
+		char **maxrows,
+		NAME_ARG *arg )
 {
 	*application_name = fetch_arg( arg, "application" );
 	*folder_name = fetch_arg( arg, "folder" );
@@ -385,36 +393,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ins_all( arg, argc, argv );
 }
 
-char *get_multible_table_names(	char *application_name,
-				char *multi_folder_name_list_string )
-{
-	char multi_table_name[ 1024 ];
-	char *ptr = multi_table_name;
-	char folder_name[ 128 ];
-	char *table_name;
-	int i;
-
-	for(	i = 0;
-		piece(	folder_name,
-			',',
-			multi_folder_name_list_string,
-			i );
-		i++ )
-	{
-		if ( i ) ptr += sprintf( ptr, "," );
-
-		/* Returns static memory */
-		/* --------------------- */
-		table_name = folder_table_name( application_name, folder_name );
-
-		ptr += sprintf( ptr, "%s", table_name );
-	}
-
-	return strdup( multi_table_name );
-}
-
 char *select_multiple_table_names(
-		char *application_name,
 		char *multi_folder_name_list_string )
 {
 	char multi_table_name[ 1024 ];
@@ -436,8 +415,7 @@ char *select_multiple_table_names(
 			/* ---------------------- */
 			/* Returns static memory */
 			/* ---------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name );
 
 		ptr += sprintf( ptr, "%s", table_name );

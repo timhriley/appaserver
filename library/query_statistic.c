@@ -450,8 +450,8 @@ QUERY_STATISTIC *query_statistic_new(
 			folder_attribute_append_isa_list,
 			security_entity_where,
 			query_dictionary,
-			(char *)0
-				/* row_security_role_update_list_where */ );
+			(char *)0 /* attribute_not_null */,
+			(char *)0 /* join_where */ );
 
 	query_statistic->query_system_string =
 		/* ------------------- */

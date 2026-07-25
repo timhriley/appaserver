@@ -30,7 +30,7 @@ char *query_system_string(
 		char *order_string,
 		int max_rows )
 {
-	char system_string[ STRING_SYSTEM_BUFFER ];
+	char system_string[ STRING_4K ];
 
 	if ( !select_string || !*select_string )
 	{
@@ -58,13 +58,13 @@ char *query_system_string(
 		strlen( select_string ) +
 		strlen( from_string ) +
 		strlen( where_string ) +
-		128 >= STRING_SYSTEM_BUFFER )
+		128 >= STRING_4K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_SYSTEM_BUFFER );
+			STRING_4K );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -73,7 +73,9 @@ char *query_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.e	application=%s"
 		"		select=\"%s\""
 		"		folder=%s"
@@ -787,7 +789,12 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 			security_entity_where,
 			query_dictionary,
 			(row_security_role_update_list)
-				? row_security_role_update_list->where
+				? row_security_role_update_list->
+					attribute_not_null
+				: (char *)0,
+			(row_security_role_update_list)
+				? row_security_role_update_list->
+					join_where
 				: (char *)0 );
 
 	query_table_edit->query_order_string =
@@ -1027,7 +1034,8 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		LIST *folder_attribute_append_isa_list,
 		char *security_entity_where,
 		DICTIONARY *query_dictionary,
-		char *row_security_role_update_list_where )
+		char *attribute_not_null,
+		char *row_security_role_update_list_join_where )
 {
 	QUERY_TABLE_EDIT_WHERE *query_table_edit_where;
 
@@ -1061,8 +1069,7 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			folder_name,
 			query_table_edit_where->
 				relation_mto1_isa_list_length,
-			row_security_role_update_list_where
-				/* attribute_not_null */ );
+			attribute_not_null );
 
 	query_table_edit_where->query_drop_down_list =
 		/* -------------- */
@@ -1104,7 +1111,7 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			query_dictionary /* dictionary */,
 			list_length( relation_mto1_isa_list )
 				/* relation_mto1_isa_list_length */,
-			row_security_role_update_list_where );
+			attribute_not_null );
 
 	query_table_edit_where->query_isa =
 		/* -------------- */
@@ -1129,7 +1136,7 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			query_table_edit_where->
 				query_isa->
 				join_where,
-			row_security_role_update_list_where );
+			row_security_role_update_list_join_where );
 
 	return query_table_edit_where;
 }
@@ -1142,9 +1149,9 @@ char *query_table_edit_where_string(
 		char *query_drop_down_relation_where,
 		char *query_attribute_list_where,
 		char *query_isa_join_where,
-		char *row_security_role_update_list_where )
+		char *row_security_role_update_list_join_where )
 {
-	char string[ STRING_WHERE_BUFFER ];
+	char string[ STRING_64K ];
 	char *ptr = string;
 
 	*ptr = '\0';
@@ -1163,13 +1170,13 @@ char *query_table_edit_where_string(
 	{
 		if (	strlen( string ) +
 			strlen( query_attribute_list_where ) +
-			5 >= STRING_WHERE_BUFFER )
+			5 >= STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_WHERE_BUFFER );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -1192,13 +1199,13 @@ char *query_table_edit_where_string(
 	{
 		if (	strlen( string ) +
 			strlen( query_isa_join_where ) +
-			5 >= STRING_WHERE_BUFFER )
+			5 >= STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_WHERE_BUFFER );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -1221,13 +1228,13 @@ char *query_table_edit_where_string(
 	{
 		if (	strlen( string ) +
 			strlen( security_entity_where ) +
-			5 >= STRING_WHERE_BUFFER )
+			5 >= STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_WHERE_BUFFER );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -1244,17 +1251,17 @@ char *query_table_edit_where_string(
 			security_entity_where );
 	}
 
-	if ( row_security_role_update_list_where )
+	if ( row_security_role_update_list_join_where )
 	{
 		if (	strlen( string ) +
-			strlen( row_security_role_update_list_where ) +
-			5 >= STRING_WHERE_BUFFER )
+			strlen( row_security_role_update_list_join_where ) +
+			5 >= STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_WHERE_BUFFER );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -1268,9 +1275,9 @@ char *query_table_edit_where_string(
 		ptr += sprintf(
 			ptr,
 			"%s",
-			row_security_role_update_list_where );
+			row_security_role_update_list_join_where );
 
-		free( row_security_role_update_list_where );
+		free( row_security_role_update_list_join_where );
 	}
 
 	if ( ptr == string )
@@ -2139,7 +2146,12 @@ char *query_from_string(
 		exit( 1 );
 	}
 
-	ptr += sprintf( ptr, "%s", folder_name );
+	ptr += sprintf( ptr,
+		"%s",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_table_name( folder_name ) );
 
 	if ( list_length( relation_mto1_isa_list ) )
 	{
@@ -2298,7 +2310,7 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *dictionary,
 		int relation_mto1_isa_list_length,
-		char *row_security_role_update_list_where )
+		char *attribute_not_null )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
 	char *table_name;
@@ -2324,7 +2336,7 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 		query_attribute_list_table_name(
 			application_name,
 			relation_mto1_isa_list_length,
-			row_security_role_update_list_where,
+			attribute_not_null,
 			folder_attribute->folder_name );
 
 	query_attribute_list->query_date_time_between_list =
@@ -2370,7 +2382,7 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 			query_attribute_list_table_name(
 				application_name,
 				relation_mto1_isa_list_length,
-				row_security_role_update_list_where,
+				attribute_not_null,
 				folder_attribute->folder_name );
 
 		list_set(
@@ -4735,8 +4747,7 @@ QUERY_DROP_DOWN_WHERE *query_drop_down_where_new(
 				    /* folder_attribute_append_isa_list */,
 				dictionary,
 				0 /* relation_mto1_isa_list_length */,
-				(char *)0
-				    /* row_security_role_update_list_where */ );
+				(char *)0 /* attribute_not_null */ );
 
 	query_drop_down_where->string =
 		/* --------------------------- */
@@ -5726,8 +5737,8 @@ QUERY_SPREADSHEET *query_spreadsheet_new(
 			folder_attribute_append_isa_list,
 			security_entity_where,
 			query_dictionary,
-			(char *)0
-				/* row_security_role_update_list_where */ );
+			(char *)0 /* attribute_not_null */,
+			(char *)0 /* join_where */ );
 
 	query_spreadsheet->query_order_string =
 		/* ----------------------------------------------- */
@@ -6112,8 +6123,8 @@ QUERY_CHART *query_chart_new(
 			folder_attribute_append_isa_list,
 			security_entity_where,
 			query_dictionary,
-			(char *)0
-				/* row_security_role_update_list_where */ );
+			(char *)0 /* attribute_not_null */,
+			(char *)0 /* join_where */ );
 
 	query_chart->order_name_list =
 		/* -------------- */
@@ -6683,7 +6694,8 @@ QUERY_PRIMARY_KEY *query_primary_key_fetch(
 			folder_attribute_append_isa_list,
 			security_entity_where,
 			query_dictionary,
-			(char *)0 /* row_security_role_update_list_where */ );
+			(char *)0 /* attribute_not_null */,
+			(char *)0 /* join_where */ );
 
 	query_primary_key->query_system_string =
 		/* ------------------- */
@@ -7157,11 +7169,11 @@ char *query_cell_display( QUERY_CELL *query_cell )
 char *query_attribute_list_table_name(
 		char *application_name,
 		int relation_mto1_isa_list_length,
-		char *row_security_role_update_list_where,
+		char *attribute_not_null,
 		char *folder_name )
 {
 	if ( !relation_mto1_isa_list_length
-	&&   !row_security_role_update_list_where )
+	&&   !attribute_not_null )
 	{
 		return (char *)0;
 	}

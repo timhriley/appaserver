@@ -357,8 +357,7 @@ char *string_escape_quote_dollar(
 		"'$" /* character_array */ );
 }
 
-char *string_escape_dollar(
-		char *source )
+char *string_escape_dollar( char *source )
 {
 	char destination[ STRING_65K ];
 
@@ -1164,7 +1163,6 @@ char *string_escape_character_array(
 	char local_source[ STRING_65K ];
 
 	if ( !destination
-	||   !source
 	||   !character_array )
 	{
 		fprintf(stderr,
@@ -1175,7 +1173,7 @@ char *string_escape_character_array(
 		exit( 1 );
 	}
 
-	if ( strlen( source ) > STRING_64K )
+	if ( string_strlen( source ) > STRING_64K )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: source exceeded max length=%d\n",
@@ -1186,7 +1184,7 @@ char *string_escape_character_array(
 		exit( 1 );
 	}
 
-	strcpy( local_source, source );
+	string_strcpy( local_source, source, sizeof ( local_source ) );
 
 	while ( *character_array )
 	{

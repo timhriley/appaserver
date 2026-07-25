@@ -44,7 +44,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 {
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 	char folder_name[ 128 ];
-	char attribute_not_null[ 128 ];
+	char buffer[ 128 ];
 
 	if ( !input || !*input ) return NULL;
 
@@ -57,10 +57,15 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	piece( folder_name, SQL_DELIMITER, input, 0 );
 	row_security_role_update->folder_name = strdup( folder_name );
 
-	piece( attribute_not_null, SQL_DELIMITER, input, 1 );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer )
+		row_security_role_update->attribute_not_null =
+			strdup( buffer );
 
-	row_security_role_update->attribute_not_null =
-		strdup( attribute_not_null );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer )
+		row_security_role_update->no_override_boolean =
+			( *buffer == 'y' );
 
 	row_security_role_update->relation_one2m_recursive_list =
 		relation_one2m_recursive_list(
@@ -136,8 +141,6 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 			message );
 	}
 
-	if ( role_override_row_restrictions ) return NULL;
-
 	row_security_role_update_list = row_security_role_update_list_calloc();
 	row_security_role_update_list->list = list_new(); 
 
@@ -163,7 +166,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 				row_security_role_update_list->
 					role_folder_lookup_in_clause ) );
 
-	while ( string_input( input, input_pipe, 256 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			row_security_role_update_list->list,
@@ -189,6 +192,17 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 
 	if ( row_security_role_update_list->row_security_role_update )
 	{
+		if (	role_override_row_restrictions
+		&&	!row_security_role_update_list->
+				row_security_role_update->
+				no_override_boolean )
+		{
+			list_free( row_security_role_update_list->list );
+			free( row_security_role_update_list );
+
+			return NULL;
+		}
+
 		row_security_role_update_list->attribute_not_null =
 			row_security_role_update_list->
 				row_security_role_update->
@@ -231,6 +245,17 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 			message );
 	}
 
+	if (	role_override_row_restrictions
+	&&	!row_security_role_update_list->
+			row_security_role_update_relation->
+			no_override_boolean )
+	{
+		list_free( row_security_role_update_list->list );
+		free( row_security_role_update_list );
+
+		return NULL;
+	}
+
 	row_security_role_update_list->attribute_not_null =
 		row_security_role_update_list->
 			row_security_role_update_relation->
@@ -241,11 +266,11 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 			row_security_role_update_relation->
 			relation_one2m->one_folder_name;
 
-	row_security_role_update_list->where =
+	row_security_role_update_list->join_where =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		row_security_role_update_list_where(
+		row_security_role_update_list_join_where(
 			application_name,
 			folder_name,
 			row_security_role_update_list->
@@ -283,7 +308,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 	return row_security_role_update_list;
 }
 
-char *row_security_role_update_list_where(
+char *row_security_role_update_list_join_where(
 			char *application_name,
 			char *folder_name,
 			char *one_folder_name,

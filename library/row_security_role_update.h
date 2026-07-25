@@ -13,7 +13,8 @@
 #include "relation_one2m.h"
 
 #define ROW_SECURITY_ROLE_UPDATE_SELECT		"table_name,"		\
-						"column_not_null"
+						"column_not_null,"	\
+						"no_override_yn"
 
 #define ROW_SECURITY_ROLE_UPDATE_TABLE		"row_security_role_update"
 
@@ -22,7 +23,11 @@ typedef struct
 	char *role_name;
 	char *folder_name;
 	char *attribute_not_null;
+	boolean no_override_boolean;
 	LIST *relation_one2m_recursive_list;
+
+	/* Set externally */
+	/* -------------- */
 	RELATION_ONE2M *relation_one2m;
 } ROW_SECURITY_ROLE_UPDATE;
 
@@ -79,7 +84,7 @@ typedef struct
 	ROW_SECURITY_ROLE_UPDATE *
 		row_security_role_update_relation;
 	char *from;
-	char *where;
+	char *join_where;
 } ROW_SECURITY_ROLE_UPDATE_LIST;
 
 /* Usage */
@@ -101,7 +106,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 
 /* Returns heap memory */
 /* ------------------- */
-char *row_security_role_update_list_where(
+char *row_security_role_update_list_join_where(
 		char *application_name,
 		char *folder_name,
 		char *one_folder_name,

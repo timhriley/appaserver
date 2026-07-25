@@ -746,7 +746,7 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *dictionary,
 		int relation_mto1_isa_list_length,
-		char *row_security_role_update_list_where );
+		char *attribute_not_null );
 
 /* Process */
 /* ------- */
@@ -758,7 +758,7 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_calloc(
 char *query_attribute_list_table_name(
 		char *application_name,
 		int relation_mto1_isa_list_length,
-		char *row_security_role_update_list_where,
+		char *attribute_not_null,
 		char *folder_name );
 
 /* Returns heap memory or null.			*/
@@ -890,7 +890,8 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		LIST *folder_attribute_append_isa_list,
 		char *security_entity_where,
 		DICTIONARY *query_dictionary,
-		char *row_security_role_update_list_where );
+		char *attribute_not_null,
+		char *row_security_role_update_list_join_where );
 
 /* Process */
 /* ------- */
@@ -906,6 +907,7 @@ char *query_table_edit_where_drop_down_where(
 		char *query_drop_down_relation_where,
 		char *query_isa_drop_down_list_where );
 
+/* ------------------------------------ */
 /* Returns heap memory or null. 	*/
 /* Note: frees each non-static where.	*/
 /* ------------------------------------ */
@@ -917,7 +919,7 @@ char *query_table_edit_where_string(
 		char *query_drop_down_relation_where,
 		char *query_attribute_list_where,
 		char *query_isa_join_where,
-		char *row_security_role_update_list_where );
+		char *row_security_role_update_list_join_where );
 
 /* Usage */
 /* ----- */

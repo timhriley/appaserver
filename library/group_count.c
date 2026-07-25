@@ -894,8 +894,7 @@ char *group_count_title_string( char *folder_name )
 	return title_string;
 }
 
-char *group_count_sub_title_string(
-		char *query_table_edit_where_string )
+char *group_count_sub_title_string( char *query_table_edit_where_string )
 {
 	char sub_title_string[ STRING_WHERE_BUFFER ];
 

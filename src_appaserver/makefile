@@ -22,7 +22,7 @@ EXECUTABLES=								\
 		output_choose_role					\
 		output_table_edit					\
 		post_login						\
-		select							\
+		select.e						\
 		post_prompt_insert					\
 		post_prompt_lookup					\
 		output_prompt_process					\
@@ -187,7 +187,7 @@ clean:
 	sql								\
 	sql_quick							\
 	get_folder_data							\
-	select.e							\
+	select								\
 	view_pdf_files							\
 	get_table_name							\
 	table_name							\
@@ -326,19 +326,17 @@ sql.e: sql.c ${APPASERVER_LIBRARY}
 	ln sql.e sql_quick.e
 	ln sql.e sql_quick
 
-select: select.c ${APPASERVER_LIBRARY}					\
+select.e: select.c ${APPASERVER_LIBRARY}				\
 	${LIBRARY}/name_arg.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		select.c						\
 		${LIBRARY}/name_arg.o					\
-		-o select
+		-o select.e
 	touch get_folder_data
 	/bin/rm -f get_folder_data
-	ln select get_folder_data
-	/bin/rm -f select.e
-	ln select select.e
+	ln select.e get_folder_data
 
 synchronize_mysql_produce: synchronize_mysql_produce.c			\
 			${APPASERVER_LIBRARY}

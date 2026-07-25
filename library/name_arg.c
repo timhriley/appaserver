@@ -10,7 +10,7 @@
 #include "name_arg.h"
 #include "piece.h"
 #include "filename.h"
-#include "timlib.h"
+#include "String.h"
 
 void set_comment( NAME_ARG *arg, char *comment )
 {
@@ -100,42 +100,41 @@ char *fetch_arg( NAME_ARG *arg, char *option )
         struct command_line_args *this_arg;
         struct valid_option *v_option, *find_option();
 
-        if ( go_head( arg->command_list_arg ) )
-	{
-                do {
-                        this_arg =
-				(struct command_line_args *)
-                              		retrieve_item_ptr(
-						arg->command_list_arg );
+        if ( list_rewind( arg->command_list_arg ) )
+        do {
+       		this_arg =
+			(struct command_line_args *)
+                       		retrieve_item_ptr(
+					arg->command_list_arg );
 
-                        if ( timlib_strncmp(
-					option,
-					this_arg->option ) == 0 )
+		if ( string_strncmp(
+			option,
+			this_arg->option ) == 0 )
+		{
+                	if ( !*this_arg->value )
 			{
-                                if ( !*this_arg->value )
-				{
-					return (char *)0;
-				}
-				else
-				{
-                                	return this_arg->value;
-				}
+				return (char *)0;
 			}
-
-                } while ( next_item( arg->command_list_arg ) );
-	}
+			else
+			{
+                               	return this_arg->value;
+			}
+		}
+	} while ( list_next( arg->command_list_arg ) );
 
         /* Check if default value exists */
         /* ----------------------------- */
-        v_option = find_option(arg,option);
-        if (v_option)
-                if (v_option->default_value)
-                        return v_option->default_value;
+        v_option = find_option( arg, option);
+
+        if ( v_option
+        &&   v_option->default_value )
+	{
+        	return v_option->default_value;
+	}
 
         exit_usage(arg);
 
 	return (char *)0;
-
 }
 
 NAME_ARG *name_arg_new( char *argv_0 )
@@ -171,7 +170,6 @@ void free_arg( NAME_ARG *arg )
 	destroy_list( arg->valid_option );
 	/* destroy_list( arg->comments ); */
 	free( arg );
-
 }
 
 
@@ -197,14 +195,13 @@ void insert_argv( NAME_ARG *arg, int argc, char **argv )
 {
         while (--argc)
 	{
-                if (instr( "=", *++argv, 1 ) != -1 )
+                if ( string_instr( "=", *++argv, 1 ) != -1 )
                 {
                         ins_arg(arg,*argv);
                         *argv = ( char * )0;
 			arg->did_any = 1;
                 }
 	}
-
 }
 
 
@@ -269,10 +266,7 @@ void ins_arg( NAME_ARG *arg, char *this_arg )
         } /* if */
 
         exit_usage( arg );
-
 }
-
-
 
 struct valid_option *find_ticket( NAME_ARG *arg, int ticket )
 {
@@ -310,7 +304,6 @@ struct valid_option *find_option( NAME_ARG *arg, char *option )
         return (struct valid_option *)0;
 
 }
-
 
 void exit_usage( NAME_ARG *arg )
 {

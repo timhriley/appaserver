@@ -207,7 +207,7 @@ int string_strcasecmp(
 char *string_strcpy(
 		char *destination,
 		char *source,
-		unsigned int buffer_size );
+		unsigned int buffer_size /* zero for no check */ );
 
 /* Usage */
 /* ----- */
