@@ -16,12 +16,13 @@
 
 #define BUFFER_SIZE	256
 
+/* Usage: table_count.e [application] */
+
 void table_count_show_tables(
 		FILE *sql_pipe );
 
 void table_count_stdin(
-		FILE *sql_pipe,
-		char *application_name );
+		FILE *sql_pipe );
 
 void table_count_output(
 		FILE *sql_pipe,
@@ -32,13 +33,15 @@ int main( int argc, char **argv )
 {
 	FILE *sql_pipe;
 
+	/* Stub */
+	/* ---- */
+	if ( argv ){}
+
 	sql_pipe = popen( "sql_timeout.sh 1 | sed 's/\\^/=/'", "w" );
 
 	if ( argc == 2 )
 	{
-		table_count_stdin(
-			sql_pipe,
-			argv[ 1 ] /* application_name */ );
+		table_count_stdin( sql_pipe );
 	}
 	else
 	{
@@ -62,9 +65,7 @@ void table_count_output(
 	fflush( sql_pipe );
 }
 
-void table_count_stdin(
-		FILE *sql_pipe,
-		char *application_name )
+void table_count_stdin( FILE *sql_pipe )
 {
 	char folder_name[ 128 ];
 
@@ -76,8 +77,7 @@ void table_count_stdin(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 		       		folder_name ) );
 	}
 }

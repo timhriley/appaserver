@@ -12,7 +12,7 @@
 typedef struct
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *attribute_database_datatype;
 	char *execute_system_string;
 	LIST *update_statement_list;
@@ -45,7 +45,7 @@ RENAME_COLUMN *rename_column_calloc(
 char *rename_column_execute_system_string(
 		char *old_attribute_name,
 		char *new_attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype );
 
 /* Usage */

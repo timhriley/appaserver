@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "sql.h"
 #include "shell_script.h"
+#include "appaserver.h"
 #include "folder.h"
 #include "role_folder.h"
 #include "foreign_attribute.h"
@@ -48,19 +49,17 @@ RENAME_TABLE *rename_table_new(
 
 	rename_table = rename_table_calloc();
 
-	rename_table->old_folder_table_name =
+	rename_table->old_appaserver_table_name =
 		strdup(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				old_folder_name ) );
 
-	rename_table->new_folder_table_name =
+	rename_table->new_appaserver_table_name =
 		strdup(
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				new_folder_name ) );
 
 	rename_table->execute_system_string =
@@ -68,8 +67,8 @@ RENAME_TABLE *rename_table_new(
 		/* Returns static memory */
 		/* --------------------- */
 		rename_table_execute_system_string(
-			rename_table->old_folder_table_name,
-			rename_table->new_folder_table_name );
+			rename_table->old_appaserver_table_name,
+			rename_table->new_appaserver_table_name );
 
 	rename_table->drop_index_name =
 		/* --------------------------- */
@@ -77,7 +76,7 @@ RENAME_TABLE *rename_table_new(
 		/* --------------------------- */
 		rename_table_drop_index_name(
 			SQL_DELIMITER,
-			rename_table->old_folder_table_name );
+			rename_table->old_appaserver_table_name );
 
 	if ( !rename_table->drop_index_name )
 	{
@@ -87,7 +86,7 @@ RENAME_TABLE *rename_table_new(
 			message,
 			sizeof ( message ),
 			"rename_table_drop_index_name(%s) returned empty.",
-			rename_table->old_folder_table_name );
+			rename_table->old_appaserver_table_name );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -101,7 +100,7 @@ RENAME_TABLE *rename_table_new(
 		/* Returns static memory */
 		/* --------------------- */
 		rename_table_drop_index_system_string(
-			rename_table->new_folder_table_name,
+			rename_table->new_appaserver_table_name,
 			rename_table->drop_index_name );
 
 	primary_key_list =
@@ -115,7 +114,7 @@ RENAME_TABLE *rename_table_new(
 		create_table_primary_index_system_string(
 			CREATE_TABLE_UNIQUE_SUFFIX,
 			primary_key_list,
-			rename_table->new_folder_table_name );
+			rename_table->new_appaserver_table_name );
 
 	rename_table->update_statement_list =
 		rename_table_update_statement_list(
@@ -174,13 +173,13 @@ RENAME_TABLE *rename_table_calloc( void )
 }
 
 char *rename_table_execute_system_string(
-		char *old_folder_table_name,
-		char *new_folder_table_name )
+		char *old_appaserver_table_name,
+		char *new_appaserver_table_name )
 {
 	static char system_string[ 256 ];
 
-	if ( !old_folder_table_name
-	||   !new_folder_table_name )
+	if ( !old_appaserver_table_name
+	||   !new_appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -197,8 +196,8 @@ char *rename_table_execute_system_string(
 		"echo \"alter table %s rename as %s\" | "
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
-		old_folder_table_name,
-		new_folder_table_name );
+		old_appaserver_table_name,
+		new_appaserver_table_name );
 
 	return system_string;
 }
@@ -488,12 +487,12 @@ char *rename_table_update_statement(
 }
 
 char *rename_table_drop_index_system_string(
-		char *new_folder_table_name,
+		char *new_appaserver_table_name,
 		char *drop_index_name )
 {
 	static char system_string[ 256 ];
 
-	if ( !new_folder_table_name
+	if ( !new_appaserver_table_name
 	||   !drop_index_name )
 	{
 		char message[ 128 ];
@@ -517,7 +516,7 @@ char *rename_table_drop_index_system_string(
 		"echo \"alter table %s drop index %s;\" | "
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
-		new_folder_table_name,
+		new_appaserver_table_name,
 		drop_index_name );
 
 	return system_string;
@@ -525,18 +524,18 @@ char *rename_table_drop_index_system_string(
 
 char *rename_table_show_index_system_string(
 		const char sql_delimiter,
-		char *old_folder_table_name )
+		char *old_appaserver_table_name )
 {
 	static char system_string[ 128 ];
 
-	if ( !old_folder_table_name )
+	if ( !old_appaserver_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"old_folder_table_name is empty." );
+			"old_appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -552,7 +551,7 @@ char *rename_table_show_index_system_string(
 		"sql.e '%c' | "
 		"head -1 | "
 		"piece.e %c 2",
-		old_folder_table_name,
+		old_appaserver_table_name,
 		sql_delimiter,
 		sql_delimiter );
 
@@ -561,16 +560,16 @@ char *rename_table_show_index_system_string(
 
 char *rename_table_drop_index_name(
 		const char sql_delimiter,
-		char *old_folder_table_name )
+		char *old_appaserver_table_name )
 {
-	if ( !old_folder_table_name )
+	if ( !old_appaserver_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"old_folder_table_name is empty." );
+			"old_appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -589,6 +588,6 @@ char *rename_table_drop_index_name(
 		/* --------------------- */
 		rename_table_show_index_system_string(
 			sql_delimiter,
-			old_folder_table_name ) );
+			old_appaserver_table_name ) );
 }
 

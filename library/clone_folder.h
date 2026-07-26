@@ -14,7 +14,7 @@
 typedef struct
 {
 	LIST *sql_statement_list;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *delete_statement;
 	LIST *folder_attribute_list;
 	LIST *folder_attribute_name_list;
@@ -48,7 +48,7 @@ CLONE_FOLDER *clone_folder_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *clone_folder_delete_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *clone_folder_where );
 
 /* Safely returns */

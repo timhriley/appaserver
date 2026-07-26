@@ -179,20 +179,18 @@ RECTIFICATION_ATTRIBUTE *rectification_attribute_seek(
 typedef struct
 {
 	char *folder_name;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	LIST *rectification_attribute_list;
 } RECTIFICATION_FOLDER;
 
 /* Usage */
 /* ----- */
 LIST *rectification_folder_list(
-		char *application_name,
 		LIST *folder_list );
 
 /* Usage */
 /* ----- */
 RECTIFICATION_FOLDER *rectification_folder_new(
-		char *application_name,
 		char *folder_name,
 		LIST *folder_attribute_list );
 
@@ -201,10 +199,10 @@ RECTIFICATION_FOLDER *rectification_folder_new(
 RECTIFICATION_FOLDER *rectification_folder_calloc(
 		void );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 RECTIFICATION_FOLDER *rectification_folder_seek(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *rectification_folder_list );
 
 typedef struct

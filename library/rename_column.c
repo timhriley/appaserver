@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_error.h"
+#include "appaserver.h"
 #include "shell_script.h"
 #include "attribute.h"
 #include "folder_attribute.h"
@@ -54,12 +55,11 @@ RENAME_COLUMN *rename_column_new(
 			new_attribute_name,
 			1 /* fetch_attribute */ );
 
-	rename_column->folder_table_name =
+	rename_column->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	rename_column->attribute_database_datatype =
@@ -93,7 +93,7 @@ RENAME_COLUMN *rename_column_new(
 		rename_column_execute_system_string(
 			old_attribute_name,
 			new_attribute_name,
-			rename_column->folder_table_name,
+			rename_column->appaserver_table_name,
 			rename_column->attribute_database_datatype );
 
 	rename_column->update_statement_list =
@@ -153,14 +153,14 @@ RENAME_COLUMN *rename_column_calloc( void )
 char *rename_column_execute_system_string(
 		char *old_attribute_name,
 		char *new_attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype )
 {
 	static char system_string[ 256 ];
 
 	if ( !old_attribute_name
 	||   !new_attribute_name
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !attribute_database_datatype )
 	{
 		char message[ 128 ];
@@ -180,7 +180,7 @@ char *rename_column_execute_system_string(
 		"echo \"alter table %s change %s %s %s;\" | "
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
-		folder_table_name,
+		appaserver_table_name,
 		old_attribute_name,
 		new_attribute_name,
 		attribute_database_datatype );

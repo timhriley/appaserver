@@ -521,7 +521,6 @@ LIST *query_statistic_select_list(
 	list_set(
 		select_list,
 		query_select_new(
-			application_name,
 			relation_mto1_isa_list_length,
 			(char *)0 /* attribute_not_null */,
 			folder_name,
@@ -546,7 +545,6 @@ LIST *query_statistic_select_list(
 		list_set(
 			select_list,
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				(char *)0 /* attribute_not_null */,
 				folder_name,
@@ -573,7 +571,6 @@ LIST *query_statistic_select_list(
 		list_set(
 			select_list,
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				(char *)0 /* attribute_not_null */,
 				folder_name,

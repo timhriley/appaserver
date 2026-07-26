@@ -16,7 +16,7 @@
 typedef struct
 {
 	SESSION_PROCESS *session_process;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *execute_system_string;
 	LIST *delete_statement_list;
 	char *shell_script;
@@ -51,7 +51,7 @@ DROP_COLUMN *drop_column_calloc(
 /* --------------------- */
 char *drop_column_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */

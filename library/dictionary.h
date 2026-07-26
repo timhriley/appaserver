@@ -174,7 +174,7 @@ LIST *dictionary_data_list(
 /* ----- */
 DICTIONARY *dictionary_row_fetch(
 		LIST *attribute_name_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *where );
 
 /* Process */
@@ -189,7 +189,7 @@ char *dictionary_select_attribute_string(
 /* ------------------- */
 char *dictionary_system_string(
 		char *dictionary_select_attribute_string,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *where );
 
 DICTIONARY *dictionary_parse(

@@ -9,6 +9,7 @@
 #include <string.h>
 #include "folder_attribute.h"
 #include "attribute.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "shell_script.h"
 #include "relation.h"
@@ -48,12 +49,11 @@ ALTER_DATATYPE *alter_datatype_new(
 			attribute_name,
 			1 /* fetch_attribute */ );
 
-	alter_datatype->folder_table_name =
+	alter_datatype->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	alter_datatype->attribute_database_datatype =
@@ -86,7 +86,7 @@ ALTER_DATATYPE *alter_datatype_new(
 		/* --------------------- */
 		alter_datatype_execute_system_string(
 			attribute_name,
-			alter_datatype->folder_table_name,
+			alter_datatype->appaserver_table_name,
 			alter_datatype->attribute_database_datatype );
 
 	alter_datatype->shell_script =
@@ -96,7 +96,6 @@ ALTER_DATATYPE *alter_datatype_new(
 		alter_datatype_shell_script(
 			application_name,
 			alter_datatype->folder_attribute,
-			alter_datatype->folder_table_name,
 			alter_datatype->execute_system_string );
 
 	alter_datatype->process_filespecification =
@@ -134,7 +133,7 @@ ALTER_DATATYPE *alter_datatype_calloc( void )
 
 char *alter_datatype_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype )
 {
 	static char system_string[ 256 ];
@@ -145,7 +144,7 @@ char *alter_datatype_execute_system_string(
 		"echo \"alter table %s modify %s %s;\" |"
 		"tee_appaserver.sh |"
 		"sql.e 2>&1",
-		folder_table_name,
+		appaserver_table_name,
 		attribute_name,
 		attribute_database_datatype );
 
@@ -155,7 +154,6 @@ char *alter_datatype_execute_system_string(
 char *alter_datatype_shell_script(
 		char *application_name,
 		FOLDER_ATTRIBUTE *folder_attribute,
-		char *folder_table_name,
 		char *alter_datatype_execute_system_string )
 {
 	char shell_script[ 65536 ];
@@ -166,7 +164,6 @@ char *alter_datatype_shell_script(
 	if ( !application_name
 	||   !folder_attribute
 	||   !folder_attribute->attribute
-	||   !folder_table_name
 	||   !alter_datatype_execute_system_string )
 	{
 		char message[ 128 ];

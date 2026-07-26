@@ -742,7 +742,6 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
-		char *application_name,
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *dictionary,
 		int relation_mto1_isa_list_length,
@@ -756,7 +755,6 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_calloc(
 /* Returns static memory or null */
 /* ----------------------------- */
 char *query_attribute_list_table_name(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name );
@@ -1108,7 +1106,6 @@ LIST *query_select_primary_list(
 /* Safely returns */
 /* -------------- */
 QUERY_SELECT *query_select_new(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name,
@@ -1125,7 +1122,6 @@ QUERY_SELECT *query_select_calloc(
 /* Returns heap memory or attribute_name */
 /* ------------------------------------- */
 char *query_select_full_attribute_name(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name,
@@ -1446,7 +1442,6 @@ char *query_extract_key(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_table_name(
-		char *application_name,
 		char *folder_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null );
@@ -1488,7 +1483,7 @@ char *query_key_order_string(
 /* ----- */
 DICTIONARY *query_fetch_dictionary(
 		LIST *select_name_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		LIST *primary_data_list );
 
@@ -1519,9 +1514,8 @@ char *query_system_string(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory.				*/
-/* Note: folder_table_name() is not used here.	*/
-/* -------------------------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *query_from_string(
 		char *folder_name,
 		LIST *relation_mto1_isa_list,
@@ -1531,7 +1525,7 @@ char *query_from_string(
 /* ----- */
 
 LIST *query_primary_delimited_list(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		LIST *foreign_key_list,
 		LIST *foreign_data_list );
@@ -1542,7 +1536,7 @@ LIST *query_primary_delimited_list(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_data_where(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *where_attribute_name_list,
 		LIST *where_attribute_data_list,
 		LIST *folder_attribute_list );
@@ -1841,7 +1835,7 @@ char *query_dictionary_select_string(
 /* ------------------- */
 char *query_dictionary_system_string(
 		char *query_dictionary_select_string,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *query_drop_down_datum_list_where );
 
 #endif

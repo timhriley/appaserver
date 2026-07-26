@@ -685,18 +685,18 @@ char *create_table_additional_unique_name(
 
 char *create_table_unique_index_name(
 		char *create_table_unique_suffix,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	static char unique_name[ 128 ];
 
-	if ( !folder_table_name )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"folder_table_name is empty." );
+			"appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -715,14 +715,14 @@ char *create_table_unique_index_name(
 			unique_name,
 			sizeof ( unique_name ),
 			"%s_%s",
-			folder_table_name,
+			appaserver_table_name,
 			create_table_unique_suffix );
 	}
 	else
 	{
 		string_strcpy(
 			unique_name,
-			folder_table_name,
+			appaserver_table_name,
 			sizeof ( unique_name ) /* buffer_size */ );
 	}
 

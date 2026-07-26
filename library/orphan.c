@@ -407,8 +407,7 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name ) );
 
 	orphan_subquery->one_table_name =
@@ -416,8 +415,7 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				relation_mto1->one_folder->folder_name ) );
 	
 

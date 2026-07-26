@@ -240,7 +240,6 @@ QUERY_SELECT *query_select_calloc( void )
 }
 
 QUERY_SELECT *query_select_new(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name,
@@ -267,7 +266,6 @@ QUERY_SELECT *query_select_new(
 		/* Returns heap memory or attribute_name */
 		/* ------------------------------------- */
 		query_select_full_attribute_name(
-			application_name,
 			relation_mto1_isa_list_length,
 			attribute_not_null,
 			folder_name,
@@ -277,7 +275,6 @@ QUERY_SELECT *query_select_new(
 }
 
 char *query_select_full_attribute_name(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name,
@@ -305,7 +302,6 @@ char *query_select_full_attribute_name(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		query_table_name(
-			application_name,
 			folder_name,
 			relation_mto1_isa_list_length,
 			attribute_not_null ),
@@ -371,7 +367,6 @@ LIST *query_select_table_edit_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				attribute_not_null,
 				folder_attribute->folder_name,
@@ -384,7 +379,6 @@ LIST *query_select_table_edit_list(
 		list_set(
 			query_select_list,
 			query_select_new(
-				(char *)0 /* application_name */,
 				0 /* relation_mto1_is_list_length */,
 				(char *)0 /* attribute_not_null */,
 				(char *)0 /* folder_name */,
@@ -410,7 +404,6 @@ LIST *query_select_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				(char *)0 /* application_name */,
 				0 /* relation_mto1_isa_list_length */,
 				(char *)0 /* attribute_not_null */,
 				(char *)0 /* folder_name */,
@@ -1065,7 +1058,6 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		query_table_name(
-			application_name,
 			folder_name,
 			query_table_edit_where->
 				relation_mto1_isa_list_length,
@@ -1106,7 +1098,6 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		/* Safely returns */
 		/* -------------- */
 		query_attribute_list_new(
-			application_name,
 			folder_attribute_append_isa_list,
 			query_dictionary /* dictionary */,
 			list_length( relation_mto1_isa_list )
@@ -2306,7 +2297,6 @@ char *query_dictionary_extract(
 }
 
 QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
-		char *application_name,
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *dictionary,
 		int relation_mto1_isa_list_length,
@@ -2334,7 +2324,6 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 		/* Returns static memory or null */
 		/* ----------------------------- */
 		query_attribute_list_table_name(
-			application_name,
 			relation_mto1_isa_list_length,
 			attribute_not_null,
 			folder_attribute->folder_name );
@@ -2380,7 +2369,6 @@ QUERY_ATTRIBUTE_LIST *query_attribute_list_new(
 			/* Returns static memory or null */
 			/* ----------------------------- */
 			query_attribute_list_table_name(
-				application_name,
 				relation_mto1_isa_list_length,
 				attribute_not_null,
 				folder_attribute->folder_name );
@@ -3572,7 +3560,6 @@ char *query_drop_down_relation_where(
 }
 
 char *query_table_name(
-		char *application_name,
 		char *folder_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null )
@@ -3589,8 +3576,7 @@ char *query_table_name(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name ) );
 	}
 }
@@ -4719,7 +4705,6 @@ QUERY_DROP_DOWN_WHERE *query_drop_down_where_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		query_table_name(
-			application_name,
 			one_folder_name,
 			0 /* relation_mto1_isa_list_length */,
 			(char *)0 /* attribute_not_null */ );
@@ -4742,7 +4727,6 @@ QUERY_DROP_DOWN_WHERE *query_drop_down_where_new(
 			/* Safely returns */
 			/* -------------- */
 			query_attribute_list_new(
-				application_name,
 				one_folder_attribute_list
 				    /* folder_attribute_append_isa_list */,
 				dictionary,
@@ -5190,7 +5174,7 @@ LIST *query_cell_primary_data_list( LIST *query_row_cell_list )
 }
 
 char *query_data_where(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *where_attribute_name_list,
 		LIST *where_attribute_data_list,
 		LIST *folder_attribute_list )
@@ -5261,7 +5245,7 @@ char *query_data_where(
 
 		if ( ptr != where ) ptr += sprintf( ptr, " and " );
 
-		if ( folder_table_name )
+		if ( appaserver_table_name )
 		{
 			if ( folder_attribute
 			&&   attribute_is_date_time(
@@ -5274,7 +5258,7 @@ char *query_data_where(
 			{
 				ptr += sprintf( ptr,
 						"substr(%s.%s,1,16) = '%s'",
-						folder_table_name,
+						appaserver_table_name,
 						attribute_name,
 						escaped_data );
 			}
@@ -5282,7 +5266,7 @@ char *query_data_where(
 			{
 				ptr += sprintf( ptr,
 				 		"%s.%s = '%s'",
-				 		folder_table_name,
+				 		appaserver_table_name,
 				 		attribute_name,
 				 		escaped_data );
 			}
@@ -5383,7 +5367,7 @@ char *query_cell_list_delimited_string(
 }
 
 LIST *query_primary_delimited_list(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		LIST *foreign_key_list,
 		LIST *foreign_data_list )
@@ -5394,7 +5378,7 @@ LIST *query_primary_delimited_list(
 		"select.sh %s %s \"%s\"",
 		list_display_delimited(
 			primary_key_list, ',' ),
-		folder_table_name,
+		appaserver_table_name,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -5978,7 +5962,6 @@ LIST *query_chart_select_list(
 		/* Safely returns */
 		/* -------------- */
 		query_select_new(
-			application_name,
 			relation_mto1_isa_list_length,
 			(char *)0 /* attribute_not_null */,
 			folder_name,
@@ -5989,7 +5972,6 @@ LIST *query_chart_select_list(
 		list_set(
 			select_list,
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				(char *)0 /* attribute_not_null */,
 				folder_name,
@@ -6007,7 +5989,6 @@ LIST *query_chart_select_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				(char *)0 /* application_name */,
 				0 /* relation_mto1_isa_list_length */,
 				(char *)0 /* attribute_not_null */,
 				(char *)0 /* folder_name */,
@@ -6101,10 +6082,9 @@ QUERY_CHART *query_chart_new(
 			query_chart->select_list );
 
 	query_chart->query_from_string =
-		/* -------------------------------------------- */
-		/* Returns heap memory.				*/
-		/* Note: folder_table_name() is not used here.	*/
-		/* -------------------------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		query_from_string(
 			folder_name,
 			relation_mto1_isa_list,
@@ -6449,7 +6429,6 @@ LIST *query_group_select_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				(char *)0 /* attribute_not_null */,
 				folder_name,
@@ -6460,7 +6439,6 @@ LIST *query_group_select_list(
 	list_set(
 		select_list,
 		query_select_new(
-			(char *)0 /* application_name */,
 			0 /* relation_mto1_isa_list_length */,
 			(char *)0 /* attribute_not_null */,
 			(char *)0 /* folder_name */,
@@ -6470,7 +6448,6 @@ LIST *query_group_select_list(
 	list_set(
 		select_list,
 		query_select_new(
-			(char *)0 /* application_name */,
 			0 /* relation_mto1_isa_list_length */,
 			(char *)0 /* attribute_not_null */,
 			(char *)0 /* folder_name */,
@@ -6493,7 +6470,6 @@ LIST *query_group_select_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				(char *)0 /* application_name */,
 				0 /* relation_mto1_isa_list_length */,
 				(char *)0 /* attribute_not_null */,
 				(char *)0 /* folder_name */,
@@ -6579,7 +6555,6 @@ LIST *query_select_primary_list(
 			/* Safely returns */
 			/* -------------- */
 			query_select_new(
-				application_name,
 				relation_mto1_isa_list_length,
 				(char *)0 /* attribute_not_null */,
 				folder_attribute->folder_name,
@@ -6592,7 +6567,6 @@ LIST *query_select_primary_list(
 		list_set(
 			query_select_list,
 			query_select_new(
-				(char *)0 /* application_name */,
 				0 /* relation_mto1_isa_list_length */,
 				(char *)0 /* attribute_not_null */,
 				(char *)0 /* folder_name */,
@@ -7167,7 +7141,6 @@ char *query_cell_display( QUERY_CELL *query_cell )
 }
 
 char *query_attribute_list_table_name(
-		char *application_name,
 		int relation_mto1_isa_list_length,
 		char *attribute_not_null,
 		char *folder_name )
@@ -7182,8 +7155,7 @@ char *query_attribute_list_table_name(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 }
 
@@ -7667,8 +7639,7 @@ QUERY_DICTIONARY *query_dictionary_fetch(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name ),
 			query_dictionary->query_drop_down_datum_list_where );
 
@@ -7729,13 +7700,13 @@ char *query_dictionary_select_string(
 
 char *query_dictionary_system_string(
 		char *query_dictionary_select_string,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *query_drop_down_datum_list_where )
 {
 	char system_string[ 1024 ];
 
 	if ( !query_dictionary_select_string
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !query_drop_down_datum_list_where )
 	{
 		char message[ 128 ];
@@ -7752,7 +7723,7 @@ char *query_dictionary_system_string(
 	sprintf(system_string,
 		"select.sh %s %s \"%s\"",
 		query_dictionary_select_string,
-		folder_table_name,
+		appaserver_table_name,
 		query_drop_down_datum_list_where );
 
 	return strdup( system_string );
@@ -7968,7 +7939,7 @@ char *query_prompt_target_frame(
 
 DICTIONARY *query_fetch_dictionary(
 		LIST *select_name_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		LIST *primary_data_list )
 {
@@ -7981,7 +7952,7 @@ DICTIONARY *query_fetch_dictionary(
 	char *primary_datum;
 
 	if ( !list_length( select_name_list )
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !list_rewind( primary_key_list )
 	||   !list_rewind( primary_data_list ) )
 	{
@@ -8071,7 +8042,7 @@ DICTIONARY *query_fetch_dictionary(
 		/* ------------------- */
 		appaserver_system_string(
 			select,
-			folder_table_name,
+			appaserver_table_name,
 			where );
 
 	dictionary =

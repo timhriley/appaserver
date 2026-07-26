@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "appaserver.h"
 #include "folder_attribute.h"
 #include "attribute.h"
 #include "appaserver_error.h"
@@ -48,12 +49,11 @@ ADD_COLUMN *add_column_new(
 			attribute_name,
 			1 /* fetch_attribute */ );
 
-	add_column->folder_table_name =
+	add_column->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	add_column->attribute_database_datatype =
@@ -76,7 +76,7 @@ ADD_COLUMN *add_column_new(
 		/* --------------------- */
 		add_column_execute_system_string(
 			attribute_name,
-			add_column->folder_table_name,
+			add_column->appaserver_table_name,
 			add_column->attribute_database_datatype );
 
 	add_column->shell_script =
@@ -86,7 +86,7 @@ ADD_COLUMN *add_column_new(
 		add_column_shell_script(
 			application_name,
 			add_column->folder_attribute,
-			add_column->folder_table_name,
+			add_column->appaserver_table_name,
 			add_column->execute_system_string );
 
 	add_column->process_filespecification =
@@ -124,7 +124,7 @@ ADD_COLUMN *add_column_calloc( void )
 
 char *add_column_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype )
 {
 	static char system_string[ 256 ];
@@ -133,7 +133,7 @@ char *add_column_execute_system_string(
 		"echo \"alter table %s add %s %s;\" | "
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
-		folder_table_name,
+		appaserver_table_name,
 		attribute_name,
 		attribute_database_datatype );
 
@@ -143,7 +143,7 @@ char *add_column_execute_system_string(
 char *add_column_shell_script(
 		char *application_name,
 		FOLDER_ATTRIBUTE *folder_attribute,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *add_column_execute_system_string )
 {
 	char shell_script[ 65536 ];
@@ -154,7 +154,7 @@ char *add_column_shell_script(
 	if ( !application_name
 	||   !folder_attribute
 	||   !folder_attribute->attribute
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !add_column_execute_system_string )
 	{
 		char message[ 128 ];

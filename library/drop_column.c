@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "application.h"
@@ -67,12 +68,11 @@ DROP_COLUMN *drop_column_new(
 			DROP_COLUMN_EXECUTABLE
 				/* process_or_set_name */ );
 
-	drop_column->folder_table_name =
+	drop_column->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	drop_column->execute_system_string =
@@ -81,7 +81,7 @@ DROP_COLUMN *drop_column_new(
 		/* --------------------- */
 		drop_column_execute_system_string(
 			attribute_name,
-			drop_column->folder_table_name );
+			drop_column->appaserver_table_name );
 
 	drop_column->delete_statement_list =
 		drop_column_delete_statement_list(
@@ -202,12 +202,12 @@ char *drop_column_href_string(
 
 char *drop_column_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	static char system_string[ 512 ];
 
 	if ( !attribute_name
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -226,7 +226,7 @@ char *drop_column_execute_system_string(
 		"echo \"alter table %s drop %s;\"	|"
 		"tee_appaserver.sh			|"
 		"sql.e 2>&1 				 ",
-		 folder_table_name,
+		 appaserver_table_name,
 		 attribute_name );
 
 	return system_string;

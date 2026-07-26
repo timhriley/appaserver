@@ -12,7 +12,7 @@
 typedef struct
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *attribute_database_datatype;
 	char *execute_system_string;
 	char *shell_script;
@@ -42,7 +42,7 @@ ADD_COLUMN *add_column_calloc(
 /* --------------------- */
 char *add_column_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype );
 
 /* Usage */
@@ -64,7 +64,7 @@ char *add_column_process_filespecification(
 char *add_column_shell_script(
 		char *application_name,
 		FOLDER_ATTRIBUTE *folder_attribute,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *add_column_execute_system_string );
 
 /* Process */

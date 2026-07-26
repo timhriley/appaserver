@@ -2584,7 +2584,7 @@ char *dictionary_attribute_name_list_string(
 
 DICTIONARY *dictionary_row_fetch(
 		LIST *attribute_name_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *where )
 {
 	char *select_string;
@@ -2592,7 +2592,7 @@ DICTIONARY *dictionary_row_fetch(
 	char *input;
 
 	if ( !list_length( attribute_name_list )
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !where )
 	{
 		char message[ 128 ];
@@ -2619,7 +2619,7 @@ DICTIONARY *dictionary_row_fetch(
 		/* ------------------- */
 		dictionary_system_string(
 			select_string,
-			folder_table_name,
+			appaserver_table_name,
 			where );
 
 	if ( ! ( input =
@@ -2674,13 +2674,13 @@ char *dictionary_select_attribute_string( LIST *attribute_name_list )
 
 char *dictionary_system_string(
 		char *select_string,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *where )
 {
 	char system_string[ 1024 ];
 
 	if ( !select_string
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !where )
 	{
 		char message[ 128 ];
@@ -2697,7 +2697,7 @@ char *dictionary_system_string(
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
 		select_string,
-		folder_table_name,
+		appaserver_table_name,
 		where );
 
 	return strdup( system_string );

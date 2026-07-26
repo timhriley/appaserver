@@ -656,8 +656,7 @@ DRILLDOWN *drilldown_new(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				folder_table_name(
-					application_name,
+				appaserver_table_name(
 					drilldown_base_folder_name ),
 				drilldown->
 					drilldown_input->

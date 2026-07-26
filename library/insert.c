@@ -968,8 +968,7 @@ INSERT_FOLDER *insert_folder_new(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	insert_folder->insert_datum_sql_statement =
@@ -1060,13 +1059,13 @@ INSERT_FOLDER *insert_folder_calloc( void )
 }
 
 char *insert_folder_sql_statement_string(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_name_list_string,
 		char *value_list_string )
 {
 	char sql_statement_string[ STRING_65K ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !attribute_name_list_string
 	||   !value_list_string )
 	{
@@ -1081,7 +1080,7 @@ char *insert_folder_sql_statement_string(
 			message );
 	}
 
-	if (	strlen( folder_table_name ) +
+	if (	strlen( appaserver_table_name ) +
 		strlen( attribute_name_list_string ) +
 		strlen( value_list_string ) + 26 >= STRING_65K )
 	{
@@ -1102,7 +1101,7 @@ char *insert_folder_sql_statement_string(
 		sql_statement_string,
 		sizeof ( sql_statement_string ),
 		"insert into %s (%s) values (%s);",
-		folder_table_name,
+		appaserver_table_name,
 		attribute_name_list_string,
 		value_list_string );
 
@@ -2049,18 +2048,18 @@ char *insert_datum_value_list_string( LIST *insert_datum_list )
 }
 
 char *insert_datum_sql_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *insert_datum_list )
 {
 	char *attribute_name_list_string;
 	char *value_list_string;
 	char *sql_statement_string;
 
-	if ( !folder_table_name )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "folder_table_name is empty." );
+		sprintf(message, "appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2090,7 +2089,7 @@ char *insert_datum_sql_statement(
 		/* Returns heap memory */
 		/* ------------------- */
 		insert_folder_sql_statement_string(
-			folder_table_name,
+			appaserver_table_name,
 			attribute_name_list_string,
 			value_list_string );
 

@@ -56,7 +56,7 @@ typedef struct
 {
 	char *one_folder_name;
 	LIST *relation_foreign_key_list;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	LIST *foreign_delimited_list;
 } GENERIC_LOAD_RELATION;
 
@@ -148,7 +148,7 @@ char *generic_load_orphan_input_system(
 /* Returns static memory */
 /* --------------------- */
 char *generic_load_orphan_select_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *relation_foreign_key_list,
 		LIST *foreign_data_list );
 
@@ -242,7 +242,7 @@ typedef struct
 	LIST *relation_mto1_list;
 	GENERIC_LOAD_RELATION_LIST *generic_load_relation_list;
 	GENERIC_LOAD_ORPHAN_LIST *generic_load_orphan_list;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	LIST *generic_load_row_list;
 	char *system_string;
 } GENERIC_LOAD_INSERT;
@@ -291,7 +291,7 @@ LIST *generic_load_row_list(
 		DICTIONARY *position_dictionary,
 		DICTIONARY *constant_dictionary,
 		LIST *folder_attribute_list,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Process */
 /* ------- */
@@ -307,7 +307,7 @@ GENERIC_LOAD_ROW *generic_load_row_new(
 		DICTIONARY *position_dictionary,
 		DICTIONARY *constant_dictionary,
 		LIST *folder_attribute_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *input );
 
 /* Process */
@@ -318,7 +318,7 @@ GENERIC_LOAD_ROW *generic_load_row_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *generic_load_row_insert_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *generic_load_attribute_name_list_string,
 		char *generic_load_attribute_value_list_string );
 

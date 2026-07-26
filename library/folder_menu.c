@@ -220,14 +220,14 @@ FOLDER_MENU_COUNT *folder_menu_count_calloc( void )
 }
 
 unsigned long folder_menu_count_fetch(
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	char system_string[ 1024 ];
 	char *results;
 
 	sprintf(system_string,
 		"echo 'select count(1) from %s;' | sql_timeout.sh 1",
-		folder_table_name );
+		appaserver_table_name );
 
 	results = string_pipe_fetch( system_string );
 

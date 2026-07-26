@@ -98,6 +98,8 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 				post_dictionary_attribute->datum
 					/* in/out */ );
 		}
+
+		free( post_dictionary_attribute );
 	}
 
 	return post_dictionary;

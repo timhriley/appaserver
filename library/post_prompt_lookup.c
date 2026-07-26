@@ -114,7 +114,6 @@ POST_PROMPT_LOOKUP *post_prompt_lookup_new(
 			/* Safely returns */
 			/* -------------- */
 			query_attribute_list_new(
-				application_name,
 				post_prompt_lookup->
 					post_prompt_lookup_input->
 					folder_attribute_append_isa_list,

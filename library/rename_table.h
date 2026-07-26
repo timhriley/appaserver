@@ -9,8 +9,8 @@
 
 typedef struct
 {
-	char *old_folder_table_name;
-	char *new_folder_table_name;
+	char *old_appaserver_table_name;
+	char *new_appaserver_table_name;
 	char *execute_system_string;
 	char *drop_index_name;
 	char *drop_index_system_string;
@@ -39,7 +39,7 @@ RENAME_TABLE *rename_table_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *rename_table_drop_index_system_string(
-		char *new_folder_table_name,
+		char *new_appaserver_table_name,
 		char *rename_table_drop_index_name );
 
 /* Usage */
@@ -48,8 +48,8 @@ char *rename_table_drop_index_system_string(
 /* Returns static memory */
 /* --------------------- */
 char *rename_table_execute_system_string(
-		char *old_folder_table_name,
-		char *new_folder_table_name );
+		char *old_appaserver_table_name,
+		char *new_appaserver_table_name );
 
 /* Usage */
 /* ----- */
@@ -113,7 +113,7 @@ char *rename_table_system_string(
 /* --------------------------- */
 char *rename_table_drop_index_name(
 		const char sql_delimiter,
-		char *old_folder_table_name );
+		char *old_appaserver_table_name );
 
 /* Usage */
 /* ----- */
@@ -122,6 +122,6 @@ char *rename_table_drop_index_name(
 /* --------------------- */
 char *rename_table_show_index_system_string(
 		const char sql_delimiter,
-		char *old_folder_table_name );
+		char *old_appaserver_table_name );
 
 #endif

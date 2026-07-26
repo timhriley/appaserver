@@ -562,7 +562,6 @@ RECTIFICATION_ATTRIBUTE *rectification_attribute_seek(
 }
 
 LIST *rectification_folder_list(
-		char *application_name,
 		LIST *folder_list )
 {
 	LIST *list = list_new();
@@ -577,7 +576,6 @@ LIST *rectification_folder_list(
 			list_set(
 				list,
 				rectification_folder_new(
-					application_name,
 					folder->folder_name,
 					folder->folder_attribute_list ) );
 		}
@@ -594,7 +592,6 @@ LIST *rectification_folder_list(
 }
 
 RECTIFICATION_FOLDER *rectification_folder_new(
-		char *application_name,
 		char *folder_name,
 		LIST *folder_attribute_list )
 {
@@ -619,13 +616,12 @@ RECTIFICATION_FOLDER *rectification_folder_new(
 
 	rectification_folder->folder_name = folder_name;
 
-	rectification_folder->folder_table_name =
+	rectification_folder->appaserver_table_name =
 		strdup(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name ) );
 
 	rectification_folder->rectification_attribute_list =
@@ -911,7 +907,6 @@ RECTIFICATION *rectification_fetch(
 
 	rectification->rectification_folder_list =
 		rectification_folder_list(
-			application_name,
 			rectification->folder_list );
 
 	if ( !list_rewind( rectification->rectification_folder_list ) )
@@ -940,7 +935,7 @@ RECTIFICATION *rectification_fetch(
 
 		rectification_table =
 			rectification_table_seek(
-				rectification_folder->folder_table_name,
+				rectification_folder->appaserver_table_name,
 				rectification->rectification_table_list );
 
 		if ( !rectification_table )
@@ -1270,16 +1265,16 @@ RECTIFICATION_MISMATCH *rectification_mismatch_no_folder_new(
 }
 
 RECTIFICATION_FOLDER *rectification_folder_seek(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *rectification_folder_list )
 {
 	RECTIFICATION_FOLDER *rectification_folder;
 
-	if ( !folder_table_name )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "folder_table_name is empty." );
+		sprintf(message, "appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1295,8 +1290,8 @@ RECTIFICATION_FOLDER *rectification_folder_seek(
 				rectification_folder_list );
 
 		if ( strcmp(
-			rectification_folder->folder_table_name,
-			folder_table_name ) == 0 )
+			rectification_folder->appaserver_table_name,
+			appaserver_table_name ) == 0 )
 		{
 			return rectification_folder;
 		}

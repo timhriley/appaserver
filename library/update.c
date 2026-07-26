@@ -3369,13 +3369,13 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_calloc( void )
 }
 
 LIST *update_one2m_row_list_fetch_list(
-			char *folder_table_name,
-			LIST *primary_key_list,
-			char *update_where_list_string )
+		char *appaserver_table_name,
+		LIST *primary_key_list,
+		char *update_where_list_string )
 {
 	char system_string[ 1024 ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !list_length( primary_key_list )
 	||   !update_where_list_string )
 	{
@@ -3393,7 +3393,7 @@ LIST *update_one2m_row_list_fetch_list(
 		/* Returns heap memory or "" */
 		/* ------------------------- */
 		list_display_delimited( primary_key_list, ',' ),
-		folder_table_name,
+		appaserver_table_name,
 		update_where_list_string );
 
 	return list_pipe_fetch( system_string );

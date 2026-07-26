@@ -236,12 +236,12 @@ char *delete_where(
 }
 
 char *delete_sql_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *delete_where )
 {
 	char sql_statement[ 2048 ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !delete_where )
 	{
 		char message[ 128 ];
@@ -259,7 +259,7 @@ char *delete_sql_statement(
 		sql_statement,
 		sizeof ( sql_statement ),
 		"delete from %s where %s;",
-		folder_table_name,
+		appaserver_table_name,
 		delete_where );
 
 	return strdup( sql_statement );
@@ -363,8 +363,7 @@ DELETE_ROOT *delete_root_new(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				folder_name ),
 			delete_root->delete_where );
 
@@ -590,7 +589,7 @@ DELETE_ONE2M *delete_one2m_new(
 			appaserver_error_filename,
 			appaserver_parameter_mount_point,
 			delete_one2m->table_name
-				/* many_folder_table_name */,
+				/* many_appaserver_table_name */,
 			post_change_process,
 			delete_one2m->query_fetch->row_list,
 			delete_one2m->relation_one2m_list );
@@ -674,8 +673,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			one_folder_name );
 
 	delete_mto1_isa->query_cell_list =
@@ -1147,7 +1145,7 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		char *appaserver_update_state,
 		char *update_preupdate_prefix,
 		char *appaserver_error_filename,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list,
 		char *query_cell_where_string,
@@ -1158,7 +1156,7 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 	if ( !appaserver_update_state
 	||   !update_preupdate_prefix
 	||   !appaserver_error_filename
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !list_length( query_row_cell_list )
 	||   !query_cell_where_string
 	||   !set_null_query_cell )
@@ -1181,7 +1179,7 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		delete_one2m_update_cell_sql_statement(
-			folder_table_name,
+			appaserver_table_name,
 			set_null_query_cell->attribute_name
 				/* set_null_attribute_name */,
 			query_cell_where_string );
@@ -1225,13 +1223,13 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_calloc( void )
 }
 
 char *delete_one2m_update_cell_sql_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *set_null_attribute_name,
 		char *query_cell_where_string )
 {
 	char update_sql_statement[ 512 ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !set_null_attribute_name
 	||   !query_cell_where_string )
 	{
@@ -1248,7 +1246,7 @@ char *delete_one2m_update_cell_sql_statement(
 
 	sprintf(update_sql_statement,
 		"update %s set %s = null where %s;",
-		folder_table_name,
+		appaserver_table_name,
 		set_null_attribute_name,
 		query_cell_where_string );
 
@@ -1334,7 +1332,7 @@ char *delete_one2m_update_cell_command_line(
 
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		char *appaserver_error_filename,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list )
@@ -1345,7 +1343,7 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 	DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell;
 
 	if ( !appaserver_error_filename
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !list_rewind( set_null_query_cell_list )
 	||   !list_length( query_row_cell_list ) )
 	{
@@ -1384,7 +1382,7 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 				APPASERVER_UPDATE_STATE,
 				UPDATE_PREUPDATE_PREFIX,
 				appaserver_error_filename,
-				folder_table_name,
+				appaserver_table_name,
 				post_change_process,
 				query_row_cell_list,
 				where_string,
@@ -1427,7 +1425,7 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_calloc( void )
 DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 		char *appaserver_error_filename,
 		char *folder_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
 		LIST *query_fetch_row_list )
@@ -1438,7 +1436,7 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 
 	if ( !appaserver_error_filename
 	||   !folder_name
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !list_length( set_null_query_cell_list )
 	||   !list_rewind( query_fetch_row_list ) )
 	{
@@ -1467,7 +1465,7 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 			/* -------------- */
 			delete_one2m_update_row_new(
 				appaserver_error_filename,
-				folder_table_name,
+				appaserver_table_name,
 				set_null_query_cell_list,
 				post_change_process,
 				query_row->cell_list );
@@ -1510,7 +1508,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
-		char *many_folder_table_name,
+		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list,
 		LIST *relation_one2m_list )
@@ -1521,7 +1519,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 	||   !role_name
 	||   !appaserver_error_filename
 	||   !appaserver_parameter_mount_point
-	||   !many_folder_table_name
+	||   !many_appaserver_table_name
 	||   !list_length( query_row_cell_list ) )
 	{
 		char message[ 128 ];
@@ -1550,7 +1548,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		delete_sql_statement(
-			many_folder_table_name,
+			many_appaserver_table_name,
 			delete_one2m_row->delete_where );
 
 	if ( post_change_process )
@@ -1618,7 +1616,7 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
-		char *many_folder_table_name,
+		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_fetch_row_list,
 		LIST *relation_one2m_list )
@@ -1631,7 +1629,7 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 	||   !role_name
 	||   !appaserver_error_filename
 	||   !appaserver_parameter_mount_point
-	||   !many_folder_table_name
+	||   !many_appaserver_table_name
 	||   !list_rewind( query_fetch_row_list ) )
 	{
 		char message[ 128 ];
@@ -1662,7 +1660,7 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 				update_null_boolean,
 				appaserver_error_filename,
 				appaserver_parameter_mount_point,
-				many_folder_table_name,
+				many_appaserver_table_name,
 				post_change_process,
 				query_row->cell_list,
 				relation_one2m_list );
@@ -1976,8 +1974,7 @@ char *delete_one2m_table_name(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			many_folder_name ) );
 }
 

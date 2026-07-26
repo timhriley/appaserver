@@ -187,33 +187,19 @@ FOLDER *folder_parse(
 }
 
 unsigned long folder_row_count(
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	char system_string[ 1024 ];
 	char *pipe_fetch;
 
 	sprintf(system_string,
 		"echo \"select count(1) from %s;\" | sql_timeout.sh 1",
-		folder_table_name );
+		appaserver_table_name );
 
 	if ( ( pipe_fetch = string_pipe_fetch( system_string ) ) )
 		return strtoul( pipe_fetch, NULL, 10 );
 	else
 		return 0;
-}
-
-char *folder_table_name(
-		char *application_name,
-		char *folder_name )
-{
-	if ( application_name ){}
-
-	return
-	/* --------------------- */
-	/* Returns static memory */
-	/* --------------------- */
-	application_table_name(
-		folder_name );
 }
 
 FOLDER *folder_fetch(

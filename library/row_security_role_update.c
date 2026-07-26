@@ -340,16 +340,14 @@ char *row_security_role_update_list_join_where(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name ) );
 
 	one_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			one_folder_name );
 
 	do {

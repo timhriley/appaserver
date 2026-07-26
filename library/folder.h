@@ -156,7 +156,7 @@ char *folder_role_where_string(
 /* Usage */
 /* ----- */
 unsigned long folder_row_count(
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */
@@ -183,15 +183,6 @@ boolean folder_no_initial_capital(
 /* ----- */
 LIST *folder_name_list(
 		LIST *folder_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *folder_table_name(
-		char *application_name,
-		char *folder_name );
 
 /* Usage */
 /* ----- */

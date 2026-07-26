@@ -494,7 +494,7 @@ AJAX_SERVER *ajax_server_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			query_data_where(
-				(char *)0 /* folder_table_name */,
+				(char *)0 /* appaserver_table_name */,
 				ajax_server->
 					relation_mto1_to_one->
 					relation_foreign_key_list

@@ -175,7 +175,7 @@ LIST *attribute_extract_float_list(
 /* Returns attribute_name or heap memory */
 /* ------------------------------------- */
 char *attribute_full_attribute_name(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_name );
 
 boolean attribute_is_date(

@@ -47,7 +47,7 @@ DROP_TABLE *drop_table_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *drop_table_execute_system_string(
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */

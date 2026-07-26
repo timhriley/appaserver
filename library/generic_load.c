@@ -778,7 +778,7 @@ LIST *generic_load_row_list(
 		DICTIONARY *position_dictionary,
 		DICTIONARY *constant_dictionary,
 		LIST *folder_attribute_list,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	LIST *list;
 	int row_number = 0;
@@ -789,7 +789,7 @@ LIST *generic_load_row_list(
 	||   !dictionary_length( position_dictionary )
 	||   !dictionary_length( constant_dictionary )
 	||   !list_length( folder_attribute_list )
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -824,7 +824,7 @@ LIST *generic_load_row_list(
 				position_dictionary,
 				constant_dictionary,
 				folder_attribute_list,
-				folder_table_name,
+				appaserver_table_name,
 				input ) );
 	}
 
@@ -837,7 +837,7 @@ GENERIC_LOAD_ROW *generic_load_row_new(
 		DICTIONARY *position_dictionary,
 		DICTIONARY *constant_dictionary,
 		LIST *folder_attribute_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *input )
 {
 	GENERIC_LOAD_ROW *generic_load_row;
@@ -847,7 +847,7 @@ GENERIC_LOAD_ROW *generic_load_row_new(
 	if ( !dictionary_length( position_dictionary )
 	||   !dictionary_length( constant_dictionary )
 	||   !list_length( folder_attribute_list )
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !input )
 	{
 		char message[ 128 ];
@@ -901,7 +901,7 @@ GENERIC_LOAD_ROW *generic_load_row_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		generic_load_row_insert_statement(
-			folder_table_name,
+			appaserver_table_name,
 			attribute_name_list_string,
 			attribute_value_list_string );
 
@@ -934,13 +934,13 @@ GENERIC_LOAD_ROW *generic_load_row_calloc( void )
 }
 
 char *generic_load_row_insert_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_name_list_string,
 		char *attribute_value_list_string )
 {
 	char statement[ 2048 ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !attribute_name_list_string
 	||   !attribute_value_list_string )
 	{
@@ -957,7 +957,7 @@ char *generic_load_row_insert_statement(
 
 	sprintf(statement,
 		"insert into %s (%s) values (%s)",
-		folder_table_name,
+		appaserver_table_name,
 		attribute_name_list_string,
 		attribute_value_list_string );
 
@@ -1111,12 +1111,11 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 				folder_attribute_primary_key_list
 				/* many_folder_primary_key_list */ );
 
-	generic_load_insert->folder_table_name =
+	generic_load_insert->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	if ( list_length(
@@ -1179,7 +1178,7 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 			generic_load_insert->
 				folder->
 				folder_attribute_list,
-			generic_load_insert->folder_table_name );
+			generic_load_insert->appaserver_table_name );
 
 	return generic_load_insert;
 }
@@ -1929,13 +1928,12 @@ GENERIC_LOAD_RELATION *generic_load_relation_new(
 	generic_load_relation->relation_foreign_key_list =
 		relation_foreign_key_list;
 
-	generic_load_relation->folder_table_name =
+	generic_load_relation->appaserver_table_name =
 		strdup(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				one_folder_name ) );
 
 	generic_load_relation->foreign_delimited_list = list_new();
@@ -2098,7 +2096,7 @@ GENERIC_LOAD_ORPHAN *generic_load_orphan_new(
 	if ( !generic_load_relation
 	||   !generic_load_relation->one_folder_name
 	||   !list_length( generic_load_relation->relation_foreign_key_list )
-	||   !generic_load_relation->folder_table_name
+	||   !generic_load_relation->appaserver_table_name
 	||   !list_rewind( generic_load_relation->foreign_delimited_list ) )
 	{
 		char message[ 128 ];
@@ -2153,7 +2151,7 @@ GENERIC_LOAD_ORPHAN *generic_load_orphan_new(
 			/* Returns static memory */
 			/* --------------------- */
 			generic_load_orphan_select_statement(
-				generic_load_relation->folder_table_name,
+				generic_load_relation->appaserver_table_name,
 				generic_load_relation->
 					relation_foreign_key_list,
 				foreign_data_list );
@@ -2233,7 +2231,7 @@ char *generic_load_orphan_input_system( char *select_statement )
 }
 
 char *generic_load_orphan_select_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *relation_foreign_key_list,
 		LIST *foreign_data_list )
 {
@@ -2243,7 +2241,7 @@ char *generic_load_orphan_select_statement(
 	char *foreign_key;
 	char *foreign_data;
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !list_length( relation_foreign_key_list )
 	||   !list_length( foreign_data_list )
 	||   list_length( relation_foreign_key_list ) !=
@@ -2264,7 +2262,7 @@ char *generic_load_orphan_select_statement(
 		sprintf(
 			ptr,
 			"select 1 from %s where ",
-			folder_table_name );
+			appaserver_table_name );
 
 	list_rewind( foreign_data_list );
 	list_rewind( relation_foreign_key_list );

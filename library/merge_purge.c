@@ -508,7 +508,7 @@ MERGE_PURGE_DELETE *merge_purge_delete_calloc( void )
 
 char *merge_purge_delete_statement(
 		LIST *delete_string_list,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *folder_attribute_list,
 		LIST *folder_attribute_key_list )
 {
@@ -517,7 +517,7 @@ char *merge_purge_delete_statement(
 	char *where;
 
 	if ( !list_length( delete_string_list )
-	||   !folder_table_name
+	||   !appaserver_table_name
 	||   !list_length( folder_attribute_list )
 	||   !list_length( folder_attribute_key_list ) )
 	{
@@ -545,7 +545,7 @@ char *merge_purge_delete_statement(
 		sprintf(
 			ptr,
 			"delete from %s where %s;",
-			folder_table_name,
+			appaserver_table_name,
 			where );
 
 	return strdup( delete_statement );

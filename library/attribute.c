@@ -360,7 +360,7 @@ ATTRIBUTE *attribute_fetch( char *attribute_name )
 }
 
 char *attribute_full_attribute_name(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_name )
 {
 	if ( !attribute_name )
@@ -373,13 +373,13 @@ char *attribute_full_attribute_name(
 		exit( 1 );
 	}
 
-	if ( folder_table_name && *folder_table_name )
+	if ( appaserver_table_name && *appaserver_table_name )
 	{
 		char full_attribute_name[ 128 ];
 
 		sprintf(full_attribute_name,
 			"%s.%s",
-			folder_table_name,
+			appaserver_table_name,
 			attribute_name );
 
 		return strdup( full_attribute_name );

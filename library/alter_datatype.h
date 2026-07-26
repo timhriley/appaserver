@@ -12,7 +12,7 @@
 typedef struct
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *attribute_database_datatype;
 	char *execute_system_string;
 	char *shell_script;
@@ -42,7 +42,7 @@ ALTER_DATATYPE *alter_datatype_calloc(
 /* --------------------- */
 char *alter_datatype_execute_system_string(
 		char *attribute_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_database_datatype );
 
 /* Usage */
@@ -64,7 +64,6 @@ char *alter_datatype_process_filespecification(
 char *alter_datatype_shell_script(
 		char *application_name,
 		FOLDER_ATTRIBUTE *folder_attribute,
-		char *folder_table_name,
 		char *alter_datatype_execute_system_string );
 
 /* Usage */

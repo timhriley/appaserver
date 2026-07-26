@@ -38,7 +38,7 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		char *appaserver_update_state,
 		char *update_preupdate_prefix,
 		char *appaserver_error_filename,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list,
 		char *query_cell_where_string,
@@ -55,9 +55,9 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *delete_one2m_update_cell_sql_statement(
-			char *folder_table_name,
-			char *set_null_attribute_name,
-			char *query_cell_where_string );
+		char *appaserver_table_name,
+		char *set_null_attribute_name,
+		char *query_cell_where_string );
 
 /* Usage */
 /* ----- */
@@ -85,7 +85,7 @@ typedef struct
 /* -------------- */
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		char *appaserver_error_filename,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list );
@@ -109,7 +109,7 @@ typedef struct
 DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 		char *appaserver_error_filename,
 		char *folder_name,
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
 		LIST *query_fetch_row_list );
@@ -135,7 +135,7 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
-		char *many_folder_table_name,
+		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_fetch_row_list,
 		LIST *relation_one2m_list );
@@ -186,7 +186,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 		boolean update_null_boolean,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
-		char *many_folder_table_name,
+		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list,
 		LIST *relation_one2m_list );
@@ -499,7 +499,7 @@ char *delete_where(
 /* Returns heap memory */
 /* ------------------- */
 char *delete_sql_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *delete_where );
 
 /* Usage */

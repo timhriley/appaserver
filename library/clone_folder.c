@@ -53,12 +53,11 @@ CLONE_FOLDER *clone_folder_new(
 
 	clone_folder->sql_statement_list = list_new();
 
-	clone_folder->folder_table_name =
+	clone_folder->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	if ( delete_boolean )
@@ -68,7 +67,7 @@ CLONE_FOLDER *clone_folder_new(
 			/* Returns static memory */
 			/* --------------------- */
 			clone_folder_delete_statement(
-				clone_folder->folder_table_name,
+				clone_folder->appaserver_table_name,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -136,7 +135,7 @@ CLONE_FOLDER *clone_folder_new(
 		/* ------------------- */
 		appaserver_system_string(
 			clone_folder->select,
-			clone_folder->folder_table_name,
+			clone_folder->appaserver_table_name,
 			clone_folder->where );
 
 	clone_folder->input_pipe =
@@ -158,7 +157,7 @@ CLONE_FOLDER *clone_folder_new(
 			clone_folder->sql_statement_list,
 			insert_folder_string_sql_statement(
 				SQL_DELIMITER,
-				clone_folder->folder_table_name,
+				clone_folder->appaserver_table_name,
 				clone_folder->select
 					/* attribute_name_list_string */,
 				input /* delimited_string */ ) );
@@ -324,12 +323,12 @@ char *clone_folder_filename(
 }
 
 char *clone_folder_delete_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *clone_folder_where )
 {
 	static char statement[ 512 ];
 
-	if ( !folder_table_name
+	if ( !appaserver_table_name
 	||   !clone_folder_where )
 	{
 		char message[ 128 ];
@@ -345,7 +344,7 @@ char *clone_folder_delete_statement(
 
 	sprintf(statement,
 		"delete from %s where %s;",
-		folder_table_name,
+		appaserver_table_name,
 		clone_folder_where );
 
 	return statement;

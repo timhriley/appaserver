@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
+#include "appaserver.h"
 #include "relation_mto1.h"
 #include "appaserver_error.h"
 #include "query_isa.h"
@@ -156,13 +157,11 @@ char *query_isa_where_join(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			folder_table_name(
-				application_name,
+			appaserver_table_name(
 				many_folder_name ) );
 
 	one_table_name =
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			one_folder_name );
 
 	do {

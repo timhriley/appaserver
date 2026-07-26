@@ -55,7 +55,7 @@ INSERT_DATUM *insert_datum_calloc(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *insert_datum_sql_statement(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		LIST *insert_datum_list );
 
 /* Usage */
@@ -153,7 +153,7 @@ char *insert_folder_value_list_string(
 /* Returns heap memory */
 /* ------------------- */
 char *insert_folder_sql_statement_string(
-		char *folder_table_name,
+		char *appaserver_table_name,
 		char *attribute_name_list_string,
 		char *value_list_string );
 
