@@ -521,7 +521,6 @@ char *string_system_input(
 
 /* Usage */
 /* ----- */
-
 LIST *string_pipe_list(
 		char *system_string );
 

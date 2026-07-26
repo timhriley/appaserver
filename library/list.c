@@ -2857,3 +2857,17 @@ void list_display_stream(
 
 	}  while ( list_next( list ) );
 }
+
+void list_system_string_list_execute( LIST *system_string_list )
+{
+	char *system_string;
+
+	if ( list_rewind( system_string_list ) )
+	do {
+		system_string = list_get( system_string_list );
+
+		if ( system( system_string ) ){}
+
+	} while ( list_next( system_string_list ) );
+}
+

@@ -42,10 +42,13 @@ int main( int argc, char **argv )
 
 	appaserver_error_argv_append_file( argc, argv, application_name );
 
-	document_process_output(
-		application_name,
-		(LIST *)0 /* javascript_filename_list */,
-		process_name );
+	if ( *process_name )
+	{
+		document_process_output(
+			application_name,
+			(LIST *)0 /* javascript_filename_list */,
+			process_name );
+	}
 
 	if ( !*folder_name
 	||   strcmp( folder_name, "folder" ) == 0 )
@@ -83,9 +86,13 @@ int main( int argc, char **argv )
 	if ( execute_boolean )
 	{
 		if ( system( create_table->shell_script_filespecification ) ){}
-		process_increment_count( process_name );
-		printf( "<h3>Create table %s complete</h3>\n",
-			folder_name );
+
+		if ( *process_name )
+		{
+			process_increment_count( process_name );
+			printf( "<h3>Create table %s complete</h3>\n",
+				folder_name );
+		}
 	}
 	else
 	{
@@ -97,7 +104,7 @@ int main( int argc, char **argv )
 			create_table->shell_script_filespecification );
 	}
 
-	document_close();
+	if ( *process_name ) document_close();
 
 	return 0;
 }

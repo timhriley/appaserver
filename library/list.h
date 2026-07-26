@@ -896,4 +896,7 @@ void list_display_stream(
 		LIST *list,
 		FILE *stream );
 
+void list_system_string_list_execute(
+		LIST *system_string_list );
+
 #endif

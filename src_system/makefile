@@ -21,6 +21,7 @@ EXECUTABLES=								\
 		clone_folder						\
 		delete_folder_row					\
 		drilldown						\
+		clone_application					\
 		create_application					\
 		drop_column						\
 		export_application					\
@@ -164,6 +165,14 @@ clone_folder: clone_folder.c ${APPASERVER_LIBRARY}			\
 		${LIBRARY}/html.o					\
 		-o clone_folder
 
+create_application: create_application.c				\
+		${APPASERVER_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${APPASERVER_LIBRARY}					\
+		create_application.c					\
+		-o create_application
+
 attribute_list: attribute_list.c 					\
 		${APPASERVER_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -288,7 +297,7 @@ drilldown: drilldown.c							\
 		${LIBRARY}/form_table_edit.o				\
 		-o drilldown
 
-create_application: create_application.c				\
+clone_application: clone_application.c				\
 		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/application_clone.o				\
 		${LIBRARY}/application_create.o				\
@@ -299,14 +308,14 @@ create_application: create_application.c				\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
-		create_application.c					\
+		clone_application.c					\
 		${LIBRARY}/application_clone.o				\
 		${LIBRARY}/application_create.o				\
 		${LIBRARY}/application_backup.o				\
 		${LIBRARY}/application_data.o				\
 		${LIBRARY}/application_upload.o				\
 		${LIBRARY}/application_login.o				\
-		-o create_application
+		-o clone_application
 
 drop_column: drop_column.c						\
 		${APPASERVER_LIBRARY}					\

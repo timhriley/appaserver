@@ -63,6 +63,7 @@ grep '^insert' < $input_export_entity
 grep '^insert' < $input_export_vendor
 grep '^insert' < $input_export_financial_institution
 ) |
+grep -vi 'tim riley' |
 gzip > $deploy_filename
 
 rm	$input_mysqldump			\

@@ -47,7 +47,14 @@ int main( int argc, char **argv )
 		heading_delimiter = ',';
 	}
 
-	heading_list = list_string2list( argv[ 2 ], heading_delimiter );
+	if ( !*argv[ 2 ] )
+	{
+		heading_list = list_string_new( "" );
+	}
+	else
+	{
+		heading_list = list_string2list( argv[ 2 ], heading_delimiter );
+	}
 
 	if ( argc < 4 )
 		delimiter = '^';

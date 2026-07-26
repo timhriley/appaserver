@@ -1,8 +1,6 @@
 /* --------------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_system/create_application.c			*/
 /* --------------------------------------------------------------------	*/
-/* This process creates a new application that is a clone of the	*/
-/* existing application.						*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
@@ -13,42 +11,99 @@
 #include <ctype.h>
 #include "boolean.h"
 #include "String.h"
-#include "document.h"
-#include "application.h"
-#include "process.h"
-#include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "environ.h"
-#include "security.h"
-#include "application_clone.h"
+#include "document.h"
+#include "application.h"
 
-#define NON_TEMPLATE_APPLICATION_OKAY 0
-
-int main( int argc, char **argv )
+typedef struct
 {
-	char *current_application_name;
-	char *login_name;
-	char *process_name;
-	char *application_title;
-	char *destination_application_name;
-	boolean execute;
-	APPASERVER_PARAMETER *appaserver_parameter;
-	APPLICATION_CLONE *application_clone;
+	LIST *table_name_list;
+	LIST *folder_name_list;
+	LIST *missing_name_list;
+	LIST *command_line_list;
+} CREATE_APPLICATION;
 
-	current_application_name = environ_exit_application_name( argv[ 0 ] );
+/* Usage */
+/* ----- */
 
-	if ( !NON_TEMPLATE_APPLICATION_OKAY
-	&&   strcmp(	current_application_name,
-			APPLICATION_TEMPLATE_NAME ) != 0
-	&&   strcmp(	current_application_name,
-			APPLICATION_ADMIN_NAME ) != 0 )
+/* Safely returns */
+/* -------------- */
+CREATE_APPLICATION *create_application_new(
+		void );
+
+/* Process */
+/* ------- */
+CREATE_APPLICATION *create_application_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+LIST *create_application_table_name_list(
+		void );
+
+/* Usage */
+/* ----- */
+LIST *create_application_folder_name_list(
+		void );
+
+/* Usage */
+/* ----- */
+LIST *create_application_missing_name_list(
+		LIST *create_application_table_name_list,
+		LIST *create_application_folder_name_list );
+
+/* Usage */
+/* ----- */
+LIST *create_application_command_line_list(
+		LIST *create_application_missing_name_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *create_application_command_line(
+		char *missing_name );
+
+CREATE_APPLICATION *create_application_new( void )
+{
+	CREATE_APPLICATION *create_application;
+
+	create_application = create_application_calloc();
+
+	create_application->table_name_list =
+		create_application_table_name_list();
+
+	create_application->folder_name_list =
+		create_application_folder_name_list();
+
+	create_application->missing_name_list =
+		create_application_missing_name_list(
+			create_application->table_name_list,
+			create_application->folder_name_list );
+
+	create_application->command_line_list =
+		create_application_command_line_list(
+			create_application->missing_name_list );
+
+	return create_application;
+}
+
+CREATE_APPLICATION *create_application_calloc( void )
+{
+	CREATE_APPLICATION *create_application;
+
+	if ( ! ( create_application =
+			calloc( 1,
+				sizeof ( CREATE_APPLICATION ) ) ) )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message,
-			"current_application_name must be %s or %s.",
-			APPLICATION_TEMPLATE_NAME,
-			APPLICATION_ADMIN_NAME );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -57,169 +112,127 @@ int main( int argc, char **argv )
 			message );
 	}
 
+	return create_application;
+}
+
+LIST *create_application_table_name_list( void )
+{
+	char *system_string =
+		"table_list '' | "			\
+		"grep -v appaserver_application | "	\
+		"grep -v appaserver_table | "		\
+		"grep -v appaserver_column";
+
+	return
+	string_pipe_list( system_string );
+}
+
+LIST *create_application_folder_name_list( void )
+{
+	char *system_string =
+		"folder_list.sh | "		\
+		"grep -v application | "	\
+		"grep -v table | "		\
+		"grep -v column";
+
+	return
+	string_pipe_list( system_string );
+}
+
+LIST *create_application_missing_name_list(
+		LIST *table_name_list,
+		LIST *folder_name_list )
+{
+	return
+	list_subtract(
+		folder_name_list /* list */,
+		table_name_list /* subtract_this */ );
+}
+
+LIST *create_application_command_line_list(
+		LIST *missing_name_list )
+{
+	LIST *list = list_new();
+	char *missing_name;
+
+	if ( list_rewind( missing_name_list ) )
+	do {
+		missing_name = list_get( missing_name_list );
+
+		list_set(
+			list,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			create_application_command_line(
+				missing_name ) );
+
+	} while ( list_next( missing_name_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+
+char *create_application_command_line( char *missing_name )
+{
+	char command_line[ 128 ];
+
+	snprintf(
+		command_line,
+		sizeof ( command_line ),
+		"create_table '' %s y",
+		missing_name );
+
+	return strdup( command_line );
+}
+
+int main( int argc, char **argv )
+{
+	char *application_name;
+	char *process_name;
+	boolean execute_boolean;
+	CREATE_APPLICATION *create_application;
+
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
 	appaserver_error_stderr( argc, argv );
 
-	if ( argc != 6 )
+	if ( argc != 3 )
 	{
 		fprintf(stderr,
-	"Usage: %s login process destination_application title execute_yn\n",
+			"Usage: %s process execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	destination_application_name = argv[ 3 ];
-	application_title = argv[ 4 ];
-	execute = ( *argv[ 5 ] == 'y' );
+	process_name = argv[ 1 ];
+	execute_boolean = ( *argv[ 2 ] == 'y' );
 
 	document_process_output(
-		current_application_name,
+		application_name,
 		(LIST *)0 /* javascript_filename_list */,
 		process_name /* title_string */ );
 
-	if ( !*destination_application_name
-	||   strcmp(	destination_application_name,
-			"destination_application" ) == 0 )
+	/* Safely returns */
+	/* -------------- */
+	create_application = create_application_new();
+
+	if ( execute_boolean )
 	{
-		printf(
-		"<h3>Please enter a destination application name.</h3>\n" );
+		list_system_string_list_execute(
+			create_application->command_line_list
+				/* system_string_list */ );
 
-		/* ------------------------ */
-		/* Both </body> and </html> */
-		/* ------------------------ */
-		document_close();
-		exit( 0 );
-	}
-
-	appaserver_parameter =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		appaserver_parameter_new();
-
-	application_clone =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		application_clone_new(
-			current_application_name,
-			login_name,
-			/* ---------------------------- */
-			/* Returns heap memory or datum */
-			/* ---------------------------- */
-			security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-				destination_application_name ),
-			(char *)0 /* application_clone_sql_gz_filename */,
-			security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-				application_title ),
-			0 /* not application_clone_post_signup_boolean */,
-			appaserver_parameter->document_root,
-			appaserver_parameter->data_directory,
-			appaserver_parameter->upload_directory,
-			appaserver_parameter->log_directory,
-			appaserver_parameter->mount_point );
-
-	if (	application_clone->
-			application_create->
-			application_name_invalid
-	||	application_clone->
-			application_create->
-			application_log_exists_boolean )
-	{
-		char message[ 128 ];
-
-		sprintf(message,
-			"application_clone_new(%s) returned invalid.",
-			destination_application_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-	else
-	if ( execute )
-	{
-		environment_set(
-			"DATABASE",
-			destination_application_name );
-
-		if ( !application_create_execute(
-			1 /* execute_boolean */,
-			application_clone->application_create ) )
-		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"application_create_execute() returned false." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		if ( application_clone->gz_system_string )
-		{
-			if ( system( application_clone->gz_system_string ) ){}
-		}
-		else
-		if ( application_clone->database_system_string )
-		{
-			if ( system(
-				application_clone->
-					database_system_string ) ){}
-		}
-
-		if ( system(
-			application_clone->
-				application_system_string ) ){}
-
-		if ( system(
-			application_clone->
-				insert_user_system_string ) ){}
-
-		if ( system(
-			application_clone->
-				insert_role_system_string ) ){}
-
-		process_execution_count_increment( process_name );
-		printf( "<h3>Process complete.</h3>\n" );
+		printf( "<h3>Process complete</h3>\n" );
 	}
 	else
 	{
-		printf( "<h3>Will execute:</h3>\n" );
-
-		application_create_execute(
-			0 /* not execute_boolean */,
-			application_clone->application_create );
-
-		if ( application_clone->gz_system_string )
-		{
-			printf(	"<p>%s\n",
-				application_clone->gz_system_string );
-		}
-		else
-		{
-			printf(	"<p>%s\n",
-				application_clone->database_system_string );
-		}
-
-		printf(	"<p>%s\n",
-			application_clone->application_system_string );
-
-		printf(	"<p>%s\n",
-			application_clone->insert_user_system_string );
-
-		printf(	"<p>%s\n",
-			application_clone->insert_role_system_string );
+		list_html_display( create_application->command_line_list );
 	}
 
 	document_close();
