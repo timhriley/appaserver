@@ -19,6 +19,9 @@ int main( int argc, char **argv )
 			"Usage: %s role_name\n",
 			argv[ 0 ] );
 
+		fprintf(stderr,
+			"Set role_name = '' for all tables\n" );
+
 		exit( 1 );
 	}
 

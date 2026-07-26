@@ -380,29 +380,25 @@ char *folder_role_where_string(
 	LIST *list;
 	char *in_clause;
 
-	if ( !role_name_list_string )
+	if ( !role_name_list_string || !*role_name_list_string )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "role_name_list_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		strcpy( where_string, "1 = 1" );
 	}
-
-	list = string_list( role_name_list_string );
-	in_clause = string_in_clause( list );
-
-	sprintf(where_string,
+	else
+	{
+		list = string_list( role_name_list_string );
+		in_clause = string_in_clause( list );
+	
+		snprintf(
+			where_string,
+			sizeof ( where_string ),
 		"%s <> 'null' and %s in (select %s from %s where role in (%s))",
-		folder_primary_key,
-		folder_primary_key,
-		folder_primary_key,
-		role_folder_table,
-		in_clause );
+			folder_primary_key,
+			folder_primary_key,
+			folder_primary_key,
+			role_folder_table,
+			in_clause );
+	}
 
 	return where_string;
 }
