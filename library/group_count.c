@@ -368,14 +368,29 @@ char *group_relation_piece_commas_double_string(
 {
 	static char string[ 128 ];
 	char *ptr = string;
-	int i;
 	int offset = 3;
+
+	if ( !name_list_length )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"name_list_length is zero." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	/* First one is percent that gets two decimal places. */
 	/* -------------------------------------------------- */
 	ptr += sprintf( ptr, "piece_commas_double.e 2" );
 
-	for ( i = 0; i < name_list_length; i++ )
+	while ( name_list_length-- )
 	{
 		/* Each float name displays sum,average */
 		/* ------------------------------------ */
