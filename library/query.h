@@ -1735,7 +1735,6 @@ typedef struct
 {
 	LIST *select_list;
 	char *query_select_list_string;
-	LIST *query_select_name_list;
 	char *query_from_string;
 	char *query_group_by_string;
 	char *order_string;
@@ -1791,6 +1790,14 @@ char *query_group_order_string(
 /* ------------------- */
 char *query_group_percent_expression(
 		unsigned long group_count_row_count );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_group_sum_expression(
+		char *float_attribute_name );
 
 /* Usage */
 /* ----- */

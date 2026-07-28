@@ -213,6 +213,7 @@ char *group_relation_csv_heading_string(
 	static char heading_string[ 512 ];
 	char *ptr = heading_string;
 	char destination[ 128 ];
+	char *attribute_name;
 
 	if ( !list_rewind( foreign_key_list ) )
 	{
@@ -243,16 +244,18 @@ char *group_relation_csv_heading_string(
 		"count,percent" );
 
 	if ( list_rewind( folder_attribute_float_name_list ) )
-	{
-		do {
-			ptr += sprintf(
-				ptr,
-				",Avg(%s)",
-				(char *)list_get(
-					folder_attribute_float_name_list ) );
+	do {
+		attribute_name =
+			list_get(
+				folder_attribute_float_name_list );
 
-		} while ( list_next( folder_attribute_float_name_list ) );
-	}
+		ptr += sprintf(
+			ptr,
+			",Sum(%s),Avg(%s)",
+			attribute_name,
+			attribute_name );
+
+	} while ( list_next( folder_attribute_float_name_list ) );
 
 	return heading_string;
 }
@@ -286,18 +289,18 @@ char *group_relation_csv_heading_system_string(
 }
 
 char *group_relation_html_table_system_string(
-		char sql_delimiter,
+		const char sql_delimiter,
 		int html_table_queue_top_bottom,
 		LIST *folder_attribute_float_name_list,
 		LIST *foreign_key_list,
 		char *group_relation_title )
 {
+	char *piece_commas_double_string;
 	char system_string[ 1024 ];
 	char *html_heading_string;
 	char *html_justify_string;
 
-	if ( !sql_delimiter
-	||   !foreign_key_list
+	if ( !foreign_key_list
 	||   !group_relation_title )
 	{
 		char message[ 128 ];
@@ -310,6 +313,15 @@ char *group_relation_html_table_system_string(
 			__LINE__,
 			message );
 	}
+
+	piece_commas_double_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		group_relation_piece_commas_double_string(
+			sql_delimiter,
+			list_length( folder_attribute_float_name_list )
+				/* folder_attribute_float_name_list_length */ );
 
 	html_heading_string =
 		/* --------------------- */
@@ -327,16 +339,53 @@ char *group_relation_html_table_system_string(
 			list_length( foreign_key_list )
 				/* foreign_key_list_length */ );
 
-	sprintf(system_string,
-		"queue_top_bottom_lines.e %d 		|"
-		"html_table.e '^^%s' '%s' '%c' '%s'	 ",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"queue_top_bottom_lines.e %d 			|"
+		"string_initial_capital.e '%c' 0		|"
+		/* ----------------------------------------- */
+		/* The count column has zero decimal places. */
+		/* ----------------------------------------- */
+		"piece_commas_double.e 1 0 '%c'			|"
+		"%s						|"
+		"html_table.e '^^%s' '%s' '%c' '%s'		",
 		html_table_queue_top_bottom,
+		sql_delimiter,
+		sql_delimiter,
+		piece_commas_double_string,
 		group_relation_title,
 		html_heading_string,
 		sql_delimiter,
 		html_justify_string );
 
 	return strdup( system_string );
+}
+
+char *group_relation_piece_commas_double_string(
+		const char sql_delimiter,
+		int name_list_length )
+{
+	static char string[ 128 ];
+	char *ptr = string;
+	int i;
+	int offset = 3;
+
+	/* First one is percent that gets two decimal places. */
+	/* -------------------------------------------------- */
+	ptr += sprintf( ptr, "piece_commas_double.e 2" );
+
+	for ( i = 0; i < name_list_length; i++ )
+	{
+		/* Each float name displays sum,average */
+		/* ------------------------------------ */
+		ptr += sprintf( ptr, ",%d,%d", offset, offset + 1 );
+		offset += 2;
+	}
+
+	ptr += sprintf( ptr, " 2 '%c'", sql_delimiter );
+
+	return string;
 }
 
 char *group_relation_html_heading_string(
@@ -346,6 +395,7 @@ char *group_relation_html_heading_string(
 	static char heading_string[ 512 ];
 	char *ptr = heading_string;
 	char *tmp;
+	char *attribute_name;
 
 	if ( !list_length( foreign_key_list ) )
 	{
@@ -373,16 +423,18 @@ char *group_relation_html_heading_string(
 	free( tmp );
 
 	if ( list_rewind( folder_attribute_float_name_list ) )
-	{
-		do {
-			ptr += sprintf(
-				ptr,
-				",average<br>%s",
-				(char *)list_get(
-					folder_attribute_float_name_list ) );
+	do {
+		attribute_name =
+			list_get(
+				folder_attribute_float_name_list );
 
-		} while ( list_next( folder_attribute_float_name_list ) );
-	}
+		ptr += sprintf(
+			ptr,
+			",sum<br>%s,average<br>%s",
+			attribute_name,
+			attribute_name );
+
+	} while ( list_next( folder_attribute_float_name_list ) );
 
 	return heading_string;
 }
@@ -415,17 +467,16 @@ char *group_relation_html_justify_string( int foreign_key_list_length )
 }
 
 char *group_relation_csv_output_system_string(
-		char sql_delimiter,
+		const char sql_delimiter,
 		char *output_filename )
 {
 	char system_string[ 1024 ];
 
-	if ( !sql_delimiter
-	||   !output_filename )
+	if ( !output_filename )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "output_filename is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -434,7 +485,9 @@ char *group_relation_csv_output_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"double_quote_comma_delimited.e '%c' >> %s",
 		sql_delimiter,
 		output_filename );

@@ -83,6 +83,7 @@ void piece_commas_double(
 					buffer,
 					offset ) )
 			{
+/*
 				fprintf( stderr,
 "Warning %s for line=%d: There are less than %d delimiters (%c) in: (%s)\n",
 					argv_0,
@@ -90,6 +91,7 @@ void piece_commas_double(
 				 	offset,
 					delimiter,
 				 	buffer );
+*/
 				continue;
 			}
 

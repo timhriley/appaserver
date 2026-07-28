@@ -483,13 +483,10 @@ char *query_select_list_string(
 
 LIST *query_select_name_list( LIST *query_select_list )
 {
-	LIST *name_list;
+	LIST *name_list = list_new();
 	QUERY_SELECT *query_select;
 
-	if ( !list_rewind( query_select_list ) ) return (LIST *)0;
-
-	name_list = list_new();
-
+	if ( list_rewind( query_select_list ) )
 	do {
 		query_select = list_get( query_select_list );
 
@@ -506,6 +503,12 @@ LIST *query_select_name_list( LIST *query_select_list )
 		list_set( name_list, query_select->attribute_name );
 
 	} while ( list_next( query_select_list ) );
+
+	if ( !list_length( name_list ) )
+	{
+		list_free( name_list );
+		name_list = NULL;
+	}
 
 	return name_list;
 }
@@ -6305,10 +6308,6 @@ QUERY_GROUP *query_group_new(
 			query_group->select_list,
 		(LIST *)0 /* common_name_list */ );
 
-	query_group->query_select_name_list =
-		query_select_name_list(
-			query_group->select_list );
-
 	query_group->query_from_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -6476,6 +6475,21 @@ LIST *query_group_select_list(
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
+				query_group_sum_expression(
+					float_attribute_name ) ) );
+
+		list_set(
+			select_list,
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			query_select_new(
+				0 /* relation_mto1_isa_list_length */,
+				(char *)0 /* attribute_not_null */,
+				(char *)0 /* folder_name */,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
 				query_group_average_expression(
 					float_attribute_name ) ) );
 
@@ -6493,9 +6507,24 @@ char *query_group_percent_expression( unsigned long group_count_row_count )
 {
 	char expression[ 128 ];
 
-	sprintf(expression,
+	snprintf(
+		expression,
+		sizeof ( expression ),
 		"(count(1) / %ld) * 100.0",
 		group_count_row_count );
+
+	return strdup( expression );
+}
+
+char *query_group_sum_expression( char *float_attribute_name )
+{
+	char expression[ 128 ];
+
+	snprintf(
+		expression,
+		sizeof ( expression ),
+		"sum(%s)",
+		float_attribute_name );
 
 	return strdup( expression );
 }
@@ -6504,7 +6533,9 @@ char *query_group_average_expression( char *float_attribute_name )
 {
 	char expression[ 128 ];
 
-	sprintf(expression,
+	snprintf(
+		expression,
+		sizeof ( expression ),
 		"avg(%s)",
 		float_attribute_name );
 

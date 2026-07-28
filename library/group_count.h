@@ -101,7 +101,7 @@ char *group_relation_csv_heading_system_string(
 /* Returns heap memory */
 /* ------------------- */
 char *group_relation_html_table_system_string(
-		char sql_delimiter,
+		const char sql_delimiter,
 		int html_table_queue_top_bottom,
 		LIST *folder_attribute_float_name_list,
 		LIST *foreign_key_list,
@@ -109,6 +109,12 @@ char *group_relation_html_table_system_string(
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *group_relation_piece_commas_double_string(
+		const char sql_delimiter,
+		int folder_attribute_float_name_list_length );
 
 /* Returns static memory */
 /* --------------------- */
@@ -127,7 +133,7 @@ char *group_relation_html_justify_string(
 /* Returns heap memory */
 /* ------------------- */
 char *group_relation_csv_output_system_string(
-		char sql_delimiter,
+		const char sql_delimiter,
 		char *output_filename );
 
 /* Usage */
