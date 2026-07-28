@@ -1759,7 +1759,7 @@ const char *transaction_lock_y( boolean lock_boolean )
 	const char *lock_y;
 
 	if ( lock_boolean )
-		lock_y = "y";
+		lock_y = "Y";
 	else
 		lock_y = "";
 

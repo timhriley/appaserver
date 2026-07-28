@@ -205,10 +205,9 @@ char *account_balance_date_where(
 /* Driver */
 /* ------ */
 void account_balance_update(
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
 		ACCOUNT_BALANCE *account_balance_fetch,
-		ACCOUNT_BALANCE *account_balance_next );
+		ACCOUNT_BALANCE *account_balance_next,
+		char *account_balance_update_system_string );
 
 /* Usage */
 /* ----- */
@@ -249,6 +248,8 @@ typedef struct
 	ACCOUNT_BALANCE *account_balance_fetch;
 	ACCOUNT_BALANCE *account_balance_prior;
 	ACCOUNT_BALANCE *account_balance_next;
+	char *account_balance_update_system_string;
+	char *investment_account_primary_where;
 } ACCOUNT_BALANCE_TRIGGER;
 
 /* Usage */

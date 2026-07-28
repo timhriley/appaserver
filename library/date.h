@@ -219,9 +219,11 @@ char *date_yesterday_yyyy_mm_dd_string(
 DATE *date_today_new(
 		int utc_offset );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or "" */
+/* ------------------------- */
 char *date_now_yyyy_mm_dd(
+		int utc_offset );
+char *date_now_ymd(
 		int utc_offset );
 
 /* Returns heap memory */

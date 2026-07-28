@@ -255,18 +255,21 @@ INVESTMENT_ACCOUNT *investment_account_new(
 char *investment_account_update(
 		const char *investment_account_table,
 		char *primary_where,
-		double balance )
+		double balance,
+		char *date )
 {
-	char *update_statement;
+	char *balance_update_statement;
+	char *date_update_statement;
 	SPOOL *spool;
 	LIST *list;
 	char *error_string;
 
-	if  ( !primary_where )
+	if  ( !primary_where
+	||    !date )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "primary_where is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -275,25 +278,41 @@ char *investment_account_update(
 			message );
 	}
 
-	update_statement =
+	balance_update_statement =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		investment_account_update_statement(
+		investment_account_update_balance_statement(
 			investment_account_table,
+			INVESTMENT_ACCOUNT_BALANCE_COLUMN,
 			primary_where,
 			balance );
 
-	/* Safely returns */
-	/* -------------- */
+	date_update_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_update_date_statement(
+			investment_account_table,
+			INVESTMENT_ACCOUNT_DATE_COLUMN,
+			primary_where,
+			date );
+
 	spool =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		spool_new(
 			"sql.e 2>&1",
 			0 /* not capture_stderr_boolean */ );
 
 	fprintf(spool->output_pipe,
 		"%s\n",
-		update_statement );
+		balance_update_statement );
+
+	fprintf(spool->output_pipe,
+		"%s\n",
+		date_update_statement );
 
 	pclose( spool->output_pipe );
 	list = spool_list( spool->output_filename );
@@ -302,8 +321,9 @@ char *investment_account_update(
 	return error_string;
 }
 
-char *investment_account_update_statement(
+char *investment_account_update_balance_statement(
 		const char *investment_account_table,
+		const char *investment_account_balance_column,
 		char *investment_account_primary_where,
 		double balance )
 {
@@ -312,9 +332,30 @@ char *investment_account_update_statement(
 	snprintf(
 		statement,
 		sizeof ( statement ),
-		"update %s set balance_latest = %.2lf where %s;",
+		"update %s set %s = %.2lf where %s;",
 		investment_account_table,
+		investment_account_balance_column,
 		balance,
+		investment_account_primary_where );
+
+	return strdup( statement );
+}
+
+char *investment_account_update_date_statement(
+		const char *investment_account_table,
+		const char *investment_account_date_column,
+		char *investment_account_primary_where,
+		char *date )
+{
+	char statement[ 1024 ];
+
+	snprintf(
+		statement,
+		sizeof ( statement ),
+		"update %s set %s = '%s' where %s;",
+		investment_account_table,
+		investment_account_date_column,
+		date,
 		investment_account_primary_where );
 
 	return strdup( statement );

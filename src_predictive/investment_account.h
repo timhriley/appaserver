@@ -13,6 +13,11 @@
 
 #define INVESTMENT_ACCOUNT_TABLE	"investment_account"
 
+#define INVESTMENT_ACCOUNT_BALANCE_COLUMN				\
+					"balance_latest"
+
+#define INVESTMENT_ACCOUNT_DATE_COLUMN	"as_of_date"
+
 #define INVESTMENT_ACCOUNT_SELECT	"full_name,"			\
 					"account_number,"		\
 					"investment_classification,"	\
@@ -138,17 +143,27 @@ double investment_account_liability_sum(
 char *investment_account_update(
 		const char *investment_account_table,
 		char *investment_account_primary_where,
-		double balance );
+		double balance,
+		char *date );
 
 /* Process */
 /* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *investment_account_update_statement(
+char *investment_account_update_balance_statement(
 		const char *investment_account_table,
+		const char *investment_account_balance_column,
 		char *investment_account_primary_where,
 		double balance );
+
+/* Returns heap memory */
+/* ------------------- */
+char *investment_account_update_date_statement(
+		const char *investment_account_table,
+		const char *investment_account_date_column,
+		char *investment_account_primary_where,
+		char *date );
 
 /* Driver */
 /* ------ */

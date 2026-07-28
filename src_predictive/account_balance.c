@@ -421,33 +421,35 @@ void account_balance_update_spool(
 }
 
 void account_balance_update(
-		boolean fund_boolean,
-		boolean contact_key_boolean,
 		ACCOUNT_BALANCE *account_balance_fetch,
-		ACCOUNT_BALANCE *account_balance_next )
+		ACCOUNT_BALANCE *account_balance_next,
+		char *system_string )
 {
-	char *system_string;
 	SPOOL *spool;
 	LIST *list;
 	char *error_string;
+
+	if ( !system_string )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"system_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( !account_balance_fetch
 	&&   !account_balance_next )
 	{
 		return;
 	}
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_balance_update_system_string(
-			ACCOUNT_BALANCE_TABLE,
-			ACCOUNT_BALANCE_PRIMARY_KEY,
-			PREDICTIVE_FUND_COLUMN,
-			ENTITY_CONTACT_KEY_COLUMN,
-			fund_boolean,
-			contact_key_boolean );
 
 	spool =
 		/* -------------- */
@@ -1061,6 +1063,30 @@ ACCOUNT_BALANCE_TRIGGER *account_balance_trigger_new(
 				account_balance_next
 				/* account_balance_current in/out */ );
 	}
+
+	account_balance_trigger->account_balance_update_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_balance_update_system_string(
+			ACCOUNT_BALANCE_TABLE,
+			ACCOUNT_BALANCE_PRIMARY_KEY,
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean );
+
+	account_balance_trigger->investment_account_primary_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		investment_account_primary_where(
+			fund_name,
+			full_name,
+			contact_key,
+			account_number,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean );
 
 	return account_balance_trigger;
 }

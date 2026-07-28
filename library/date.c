@@ -1672,6 +1672,15 @@ DATE *date_today_new( int utc_offset )
 	return date_now( utc_offset );
 }
 
+char *date_now_ymd( int utc_offset )
+{
+	return
+	/* ------------------------- */
+	/* Returns heap memory or "" */
+	/* ------------------------- */
+	date_now_yyyy_mm_dd( utc_offset );
+}
+
 char *date_now_yyyy_mm_dd( int utc_offset )
 {
 	DATE *date = date_now_new( utc_offset );

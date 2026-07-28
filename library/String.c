@@ -589,9 +589,22 @@ char *string_commas_money( double d )
 
 char *string_commas_dollar( double d )
 {
-	/* Returns static memory */
-	/* --------------------- */
-	return string_commas_double( d, 2 );
+	char *commas_double;
+
+	commas_double =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_commas_double( d, 2 );
+
+	if ( d <= -0.01 )
+	{
+		sprintf(commas_double,
+			"(%s)",
+			commas_double + 1 );
+	}
+
+	return commas_double;
 }
 
 char *string_commas_float(

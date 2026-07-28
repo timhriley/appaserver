@@ -9,10 +9,11 @@
 #include <stdlib.h>
 #include "environ.h"
 #include "piece.h"
+#include "date.h"
 #include "list.h"
 #include "document.h"
-#include "inventory.h"
 #include "appaserver_error.h"
+#include "investment_account.h"
 #include "account_balance.h"
 
 void post_change_account_balance_insert_update_delete(
@@ -83,6 +84,8 @@ void post_change_account_balance_insert_update_delete(
 		char *date )
 {
 	ACCOUNT_BALANCE_TRIGGER *account_balance_trigger;
+	ACCOUNT_BALANCE *account_balance;
+	char *error_string;
 
 	account_balance_trigger =
 		/* -------------- */
@@ -96,9 +99,34 @@ void post_change_account_balance_insert_update_delete(
 			date );
 
 	account_balance_update(
-		account_balance_trigger->predictive_fund_boolean,
-		account_balance_trigger->entity_contact_key_boolean,
 		account_balance_trigger->account_balance_fetch,
-		account_balance_trigger->account_balance_next );
+		account_balance_trigger->account_balance_next,
+		account_balance_trigger->account_balance_update_system_string );
+
+	account_balance =
+		account_balance_latest(
+			fund_name,
+			/* ------------------------- */
+			/* Returns heap memory or "" */
+			/* ------------------------- */
+			date_now_ymd( date_utc_offset() ) /* as_of_date */,
+			account_balance_trigger->predictive_fund_boolean,
+			account_balance_trigger->entity_contact_key_boolean,
+			full_name,
+			contact_key,
+			account_number );
+
+	error_string =
+		investment_account_update(
+			INVESTMENT_ACCOUNT_TABLE,
+			account_balance_trigger->
+				investment_account_primary_where,
+			account_balance->balance,
+			account_balance->date_string /* date */ );
+
+	if ( error_string )
+	{
+		printf( "<h3>%s</h3>\n", error_string );
+	}
 }
 
