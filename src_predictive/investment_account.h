@@ -20,7 +20,7 @@
 
 #define INVESTMENT_ACCOUNT_SELECT	"full_name,"			\
 					"account_number,"		\
-					"investment_classification,"	\
+					"investment_medium,"		\
 					"investment_purpose,"		\
 					"certificate_maturity_months,"	\
 					"certificate_maturity_date,"	\
@@ -39,7 +39,7 @@ typedef struct
 	char *full_name;
 	char *contact_key;
 	char *account_number;
-	char *investment_classification;
+	char *investment_medium;
 	char *investment_purpose;
 	int certificate_maturity_months;
 	char *certificate_maturity_date;

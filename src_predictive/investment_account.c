@@ -77,7 +77,7 @@ INVESTMENT_ACCOUNT *investment_account_parse(
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
-		investment_account->investment_classification =
+		investment_account->investment_medium =
 			strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );

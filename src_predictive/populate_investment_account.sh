@@ -31,7 +31,7 @@ parameter_where="$1"
 
 table="investment_account"
 
-select="concat( full_name, '^', account_number, ' [', investment_classification, ']' )"
+select="concat( full_name, '^', account_number, ' [', investment_medium, ']' )"
 
 if [ "$parameter_where" = "where" -o "$parameter_where" = "" ]
 then
