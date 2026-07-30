@@ -606,8 +606,7 @@ LIST *fixed_service_work_primary_key_list(
 	return list;
 }
 
-void fixed_service_work_trigger(
-		char *application_name,
+FIXED_SERVICE_WORK *fixed_service_work_trigger(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -616,7 +615,7 @@ void fixed_service_work_trigger(
 		char *begin_work_date_time,
 		char *state )
 {
-	FIXED_SERVICE_WORK *fixed_service_work;
+	FIXED_SERVICE_WORK *fixed_service_work = {0};
 
 	if ( !full_name
 	||   !sale_date_time
@@ -638,7 +637,7 @@ void fixed_service_work_trigger(
 			message );
 	}
 
-	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
+	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return NULL;
 
 	if ( strcmp(
 		state,
@@ -672,40 +671,8 @@ void fixed_service_work_trigger(
 				begin_work_date_time,
 				fund_boolean,
 				contact_key_boolean );
-
-		if ( !fixed_service_work )
-		{
-			char message[ 1024 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"fixed_service_work_fetch(%s,%s,%s,%s) returned empty.",
-				full_name,
-				sale_date_time,
-				service_name,
-				begin_work_date_time );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-
-		fixed_service_work_update(
-			fixed_service_work->update_string_list,
-			fixed_service_work->sale_update_system_string );
 	}
 	
-	fixed_service_sale_trigger(
-		application_name,
-		fund_name,
-		full_name,
-		contact_key,
-		sale_date_time,
-		service_name,
-		state );
+	return fixed_service_work;
 }
 

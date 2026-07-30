@@ -497,7 +497,6 @@ FIXED_SERVICE_SALE *fixed_service_sale_trigger(
 				fund_boolean,
 				contact_key_boolean,
 				1 /* fixed_service_work_boolean */ );
-	
 	}
 
 	return fixed_service_sale;
@@ -578,8 +577,8 @@ LIST *fixed_service_sale_update_string_list(
 		char *service_name,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		double fixed_service_work_hours,
-		double fixed_service_sale_net_revenue )
+		double work_hours,
+		double net_revenue )
 {
 	char *primary_data_string;
 	char *update_string;
@@ -625,7 +624,7 @@ LIST *fixed_service_sale_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"work_hours" /* column_name */,
-			fixed_service_work_hours /* money */,
+			work_hours /* money */,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
@@ -635,10 +634,11 @@ LIST *fixed_service_sale_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"net_revenue" /* column_name */,
-			fixed_service_sale_net_revenue /* money */,
+			net_revenue /* money */,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
+
 	free( primary_data_string );
 
 	return list;

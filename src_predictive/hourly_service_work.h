@@ -22,18 +22,13 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *sale_date_time;
-	char *service_name;
-	char *service_description;
 	char *begin_work_date_time;
 	char *end_work_date_time;
 	char *work_description;
 	char *activity;
 	char *appaserver_full_name;
 	char *appaserver_street_address;
-	double work_hours; /* for parse */
+	double work_hours; /* from parse */
 	double sale_work_hours; /* for update */
 } HOURLY_SERVICE_WORK;
 
@@ -42,21 +37,19 @@ typedef struct
 LIST *hourly_service_work_list(
 		const char *hourly_service_work_select,
 		const char *hourly_service_work_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *service_description );
+		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 HOURLY_SERVICE_WORK *hourly_service_work_parse(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		char *string_input );
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -64,11 +57,6 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 /* Safely returns */
 /* -------------- */
 HOURLY_SERVICE_WORK *hourly_service_work_new(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
 		char *begin_work_date_time );
 
 /* Process */
@@ -81,12 +69,15 @@ HOURLY_SERVICE_WORK *hourly_service_work_calloc(
 HOURLY_SERVICE_WORK *hourly_service_work_fetch(
 		const char *hourly_service_work_select,
 		const char *hourly_service_work_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *service_description,
-		char *begin_work_date_time );
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -94,42 +85,19 @@ HOURLY_SERVICE_WORK *hourly_service_work_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *hourly_service_work_primary_where(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *service_description,
-		char *begin_work_date_time );
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 double hourly_service_work_hours(
 		LIST *hourly_service_work_list );
-
-/* Usage */
-/* ----- */
-HOURLY_SERVICE_WORK *hourly_service_work_seek(
-		LIST *hourly_service_work_list,
-		char *begin_work_date_time );
-
-/* Usage */
-/* ----- */
-void hourly_service_work_update(
-		const char *hourly_service_work_table,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		char *begin_work_date_time,
-		double sale_work_hours );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *hourly_service_sale_update_system_string(
-		const char *hourly_service_work_table );
 
 #endif

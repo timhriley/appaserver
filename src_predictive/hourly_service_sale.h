@@ -37,7 +37,7 @@ typedef struct
 	double hourly_service_sale_net_revenue; /* for update */
 	LIST *update_string_list;
 	LIST *primary_key_list;
-	LIST *sale_update_system_string;
+	char *sale_update_system_string;
 } HOURLY_SERVICE_SALE;
 
 /* Usage */
@@ -190,7 +190,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_trigger(
 /* ----- */
 void hourly_service_sale_update(
 		LIST *hourly_service_sale_update_string_list,
-		LIST *sale_update_system_string );
+		char *sale_update_system_string );
 
 #endif
 

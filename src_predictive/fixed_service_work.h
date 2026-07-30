@@ -93,12 +93,6 @@ LIST *fixed_service_work_primary_key_list(
 
 /* Usage */
 /* ----- */
-void fixed_service_work_update(
-		LIST *update_string_list,
-		char *sale_update_system_string );
-
-/* Usage */
-/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -148,10 +142,9 @@ char *fixed_service_work_primary_data_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Driver */
-/* ------ */
-void fixed_service_work_trigger(
-		char *application_name,
+/* Usage */
+/* ----- */
+FIXED_SERVICE_WORK *fixed_service_work_trigger(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -159,5 +152,11 @@ void fixed_service_work_trigger(
 		char *service_name,
 		char *begin_work_date_time,
 		char *state );
+
+/* Usage */
+/* ----- */
+void fixed_service_work_update(
+		LIST *update_string_list,
+		char *sale_update_system_string );
 
 #endif
