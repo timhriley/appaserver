@@ -748,8 +748,7 @@ void dictionary_set(
 	if ( !d ) return;
 	if ( !d->hash_table ) return;
 	if ( !key ) return;
-
-	if ( !datum ) datum = strdup( "" );
+	if ( !datum ) return;
 
 	hash_table_set( d->hash_table, key, datum );
 }

@@ -91,7 +91,7 @@ POST_TABLE_INSERT *post_table_insert_new(
 				post_table_insert_input->
 				dictionary_separate->
 				prompt_dictionary,
-			APPASERVER_USER_FULL_NAME,
+			APPASERVER_USER_FULL_NAME_COLUMN,
 			post_table_insert->
 				post_table_insert_input->
 				insert_appaserver_user->
@@ -102,7 +102,7 @@ POST_TABLE_INSERT *post_table_insert_new(
 				post_table_insert_input->
 				dictionary_separate->
 				prompt_dictionary,
-			APPASERVER_USER_STREET_ADDRESS,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			post_table_insert->
 				post_table_insert_input->
 				insert_appaserver_user->
@@ -471,7 +471,7 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 
 	post_table_insert_input->insert_appaserver_user =
 		insert_appaserver_user(
-			APPASERVER_USER_FULL_NAME,
+			APPASERVER_USER_FULL_NAME_COLUMN,
 			login_name,
 			post_table_insert_input->
 				role_attribute_exclude_insert_name_list,

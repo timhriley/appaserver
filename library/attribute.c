@@ -903,7 +903,10 @@ void attribute_name_list_sort_stdout( LIST *attribute_name_list )
 
 void attribute_folder_name_list_stdout( char *folder_name )
 {
-	LIST *name_list =
+	LIST *name_list;
+	char *delimited_string;
+
+	name_list =
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
 			folder_attribute_list(
@@ -912,13 +915,17 @@ void attribute_folder_name_list_stdout( char *folder_name )
 				0 /* not fetch_attribute */,
 				0 /* not cache_boolean */ ) );
 
-	printf( "%s\n",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+	delimited_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		list_delimited_string(
 			name_list,
-			'\n' /* delimiter */ ) );
+			'\n' /* delimiter */ );
+
+	if ( delimited_string )
+		printf( "%s\n",
+			delimited_string );
 }
 
 void attribute_name_list_stdout(

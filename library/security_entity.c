@@ -13,6 +13,7 @@
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "appaserver_user.h"
 #include "entity.h"
 #include "security_entity.h"
 
@@ -97,7 +98,6 @@ SECURITY_ENTITY *security_entity_new(
 		security_entity_table_name(
 			folder_name );
 
-
 	security_entity->where =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -122,8 +122,8 @@ char *security_entity_where(
 		/* Returns static memory */
 		/* --------------------- */
 		entity_primary_where(
-			ENTITY_FULL_NAME_COLUMN,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_FULL_NAME_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			table_name,
 			full_name,
 			contact_key,

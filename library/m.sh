@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_group
+	cd ../src_system
+	make delete_folder_row
 fi
 

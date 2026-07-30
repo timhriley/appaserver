@@ -16,8 +16,6 @@
 					"end_work_date_time,"		\
 					"work_description,"		\
 					"activity,"			\
-					"appaserver_full_name,"		\
-					"appaserver_street_address,"	\
 					"work_hours"
 
 typedef struct
@@ -30,6 +28,9 @@ typedef struct
 	char *appaserver_street_address;
 	double work_hours; /* from parse */
 	double sale_work_hours; /* for update */
+	LIST *primary_key_list;
+	LIST *update_string_list;
+	char *sale_update_system_string;
 } HOURLY_SERVICE_WORK;
 
 /* Usage */
@@ -49,6 +50,14 @@ LIST *hourly_service_work_list(
 /* Usage */
 /* ----- */
 HOURLY_SERVICE_WORK *hourly_service_work_parse(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -81,10 +90,18 @@ HOURLY_SERVICE_WORK *hourly_service_work_fetch(
 
 /* Usage */
 /* ----- */
+LIST *hourly_service_work_primary_key_list(
+		const char *sale_begin_work_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
 char *hourly_service_work_primary_where(
+		const char *sale_begin_work_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -99,5 +116,55 @@ char *hourly_service_work_primary_where(
 /* ----- */
 double hourly_service_work_hours(
 		LIST *hourly_service_work_list );
+
+/* Usage */
+/* ----- */
+LIST *hourly_service_work_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		double sale_work_hours );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *hourly_service_work_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+HOURLY_SERVICE_WORK *hourly_service_work_trigger(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *begin_work_date_time,
+		char *state );
+
+/* Usage */
+/* ----- */
+void hourly_service_work_update(
+		LIST *hourly_service_work_update_string_list,
+		char *sale_update_system_string );
 
 #endif

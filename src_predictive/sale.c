@@ -117,14 +117,12 @@ SALE *sale_trigger_new(
 				sale->sale_fetch->fixed_service_sale_list );
 	}
 
-/*
 	if ( sale->sale_fetch->hourly_service_sale_boolean )
 	{
 		sale->hourly_service_sale_total =
 			hourly_service_sale_total(
 				sale->sale_fetch->hourly_service_sale_list );
 	}
-*/
 
 	sale->gross_revenue =
 		SALE_GROSS_REVENUE(

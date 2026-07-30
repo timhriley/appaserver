@@ -381,7 +381,7 @@ char *fixed_service_work_primary_where(
 {
 	static char where[ 320 ];
 	char *service_sale_primary_where;
-	char *injection_escape;
+	char *escape;
 
 	if ( !full_name
 	||   !sale_date_time
@@ -416,12 +416,11 @@ char *fixed_service_work_primary_where(
 			fund_boolean,
 			contact_key_boolean );
 
-	injection_escape =
+	escape =
 		/* --------------------- */
 		/* Returns heap memory */
 		/* --------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
+		security_escape(
 			begin_work_date_time /* datum */ );
 
 	snprintf(
@@ -430,9 +429,9 @@ char *fixed_service_work_primary_where(
 		"%s and %s = '%s'",
 		service_sale_primary_where,
 		sale_begin_work_column,
-		injection_escape );
+		escape );
 
-	free( injection_escape );
+	free( escape );
 
 	return where;
 }
@@ -449,7 +448,7 @@ char *fixed_service_work_primary_data_string(
 		boolean contact_key_boolean )
 {
 	char *sale_primary_data_string;
-	char *injection_escape;
+	char *escape;
 	char work_primary_data_string[ 1024 ];
 
 	if ( !full_name
@@ -485,12 +484,11 @@ char *fixed_service_work_primary_data_string(
 			fund_boolean,
 			contact_key_boolean );
 
-	injection_escape =
+	escape =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
+		security_escape(
 			begin_work_date_time /* datum */ );
 
 	snprintf(
@@ -499,9 +497,9 @@ char *fixed_service_work_primary_data_string(
 		"%s%c%s",
 		sale_primary_data_string,
 		sql_delimiter,
-		injection_escape );
+		escape );
 
-	free( injection_escape );
+	free( escape );
 
 	return strdup( work_primary_data_string );
 }
@@ -576,14 +574,14 @@ LIST *fixed_service_work_update_string_list(
 
 void fixed_service_work_update(
 		LIST *update_string_list,
-		char *sale_update_system_string )
+		char *update_system_string )
 {
 	/* Borrow sale_update() */
 	/* -------------------- */
 	(void)sale_update(
-		(char *)0 /* application_name for transaction_update */,
+		(char *)0 /* application_name for update_statement_execute */,
 		update_string_list,
-		sale_update_system_string,
+		update_system_string,
 		(SALE_TRANSACTION *)0,
 		(SALE_LOSS_TRANSACTION*)0 );
 }

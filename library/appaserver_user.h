@@ -11,17 +11,17 @@
 #include "list.h"
 #include "security.h"
 
-#define APPASERVER_USER_TABLE		"appaserver_user"
+#define APPASERVER_USER_TABLE			"appaserver_user"
 
-#define APPASERVER_USER_SELECT		"full_name,"		\
-					"login_name,"		\
-					"password,"		\
-					"user_date_format,"	\
-					"deactivated_yn"
+#define APPASERVER_USER_SELECT			"full_name,"		\
+						"login_name,"		\
+						"password,"		\
+						"user_date_format,"	\
+						"deactivated_yn"
 
-#define APPASERVER_USER_FULL_NAME	"appaserver_full_name"
-#define APPASERVER_USER_STREET_ADDRESS	"appaserver_street_address"
-#define APPASERVER_USER_LOGIN_NAME	"login_name"
+#define APPASERVER_USER_FULL_NAME_COLUMN	"appaserver_full_name"
+#define APPASERVER_USER_CONTACT_KEY_COLUMN	"appaserver_contact_key"
+#define APPASERVER_USER_LOGIN_NAME		"login_name"
 
 typedef struct
 {

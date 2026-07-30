@@ -13,24 +13,18 @@
 #include "sale.h"
 #include "hourly_service_sale.h"
 
-void hourly_service_sale_trigger(
-		char *application_name,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		char *state );
-
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
 	char *full_name;
-	char *street_address;
+	char *contact_key;
 	char *sale_date_time;
 	char *service_name;
 	char *service_description;
 	char *state;
+	HOURLY_SERVICE_SALE *hourly_service_sale;
+	SALE *sale;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -39,146 +33,69 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address sale_date_time service_name description state\n",
+"Usage: %s fund_name full_name contact_key sale_date_time service_name description state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
-	sale_date_time = argv[ 3 ];
-	service_name = argv[ 4 ];
-	service_description = argv[ 5 ];
-	state = argv[ 6 ];
+	fund_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	contact_key = argv[ 3 ];
+	sale_date_time = argv[ 4 ];
+	service_name = argv[ 5 ];
+	service_description = argv[ 6 ];
+	state = argv[ 7 ];
 
-	/* If change 1:m full_name or street address. */
-	/* ------------------------------------------ */
+	/* If only changed 1:m primary key */
+	/* ------------------------------- */
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
-
-	/* If change 1:m sale_date_time. */
-	/* ----------------------------- */
 	if ( strcmp( service_name, "service_name" ) == 0 ) exit( 0 );
-
-	hourly_service_sale_trigger(
-		application_name,
-		full_name,
-		street_address,
-		sale_date_time,
-		service_name,
-		service_description,
-		state );
-
-	return 0;
-}
-
-void hourly_service_sale_trigger(
-		char *application_name,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		char *state )
-{
-	HOURLY_SERVICE_SALE *hourly_service_sale;
-	SALE *sale;
-
-	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
-
 	if ( strcmp(
-		state,
-		APPASERVER_INSERT_STATE ) == 0
-	||   strcmp(
-		state,
-		APPASERVER_UPDATE_STATE ) == 0 )
-	{
-		hourly_service_sale =
-			hourly_service_sale_fetch(
-				HOURLY_SERVICE_SALE_SELECT,
-				HOURLY_SERVICE_SALE_TABLE,
-				full_name,
-				street_address,
-				sale_date_time,
-				service_name,
-				service_description );
+		service_description,
+		"service_description" ) == 0 )
+			exit( 0 );
 
-		hourly_service_sale_update(
-			HOURLY_SERVICE_SALE_TABLE,
+	hourly_service_sale =
+		hourly_service_sale_trigger(
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			sale_date_time,
 			service_name,
 			service_description,
-			hourly_service_sale->
-				hourly_service_sale_estimated_revenue,
-			hourly_service_sale->
-				hourly_service_work_hours,
-			hourly_service_sale->net_revenue );
+			state );
+
+	if ( hourly_service_sale )
+	{
+		hourly_service_sale_update(
+			hourly_service_sale->update_string_list,
+			hourly_service_sale->sale_update_system_string );
 	}
 
 	sale =
 		sale_trigger_new(
+			fund_name,
 			full_name,
-			street_address,
+			contact_key,
 			sale_date_time,
 			state,
+			(char *)0 /* preupdate_fund_name */,
 			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_street_address */,
+			(char *)0 /* preupdate_contact_key */,
 			(char *)0 /* preupdate_uncollectible_date_time */ );
 
-	if ( !sale ) return;
-
-	sale_update(
-		SALE_TABLE,
-		full_name,
-		street_address,
-		sale_date_time,
-		sale->sale_fetch->inventory_sale_boolean,
-		sale->sale_fetch->specific_inventory_sale_boolean,
-		sale->sale_fetch->fixed_service_sale_boolean,
-		sale->sale_fetch->hourly_service_sale_boolean,
-		sale->inventory_sale_total,
-		sale->specific_inventory_sale_total,
-		sale->fixed_service_sale_total,
-		sale->hourly_service_sale_total,
-		sale->gross_revenue,
-		sale->sales_tax,
-		sale->invoice_amount,
-		sale->customer_payment_total,
-		sale->amount_due,
-		sale->sale_transaction );
-	
-	if ( sale->sale_transaction )
+	if ( sale )
 	{
-		subsidiary_transaction_execute(
-			application_name,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				delete_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				insert_transaction,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				update_template,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				update_null_sql,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				predictive_fund_boolean,
-			sale->
-				sale_transaction->
-				subsidiary_transaction->
-				entity_contact_key_boolean );
+		(void)sale_update(
+			application_name /* for update_statement_execute */,
+			sale->update_string_list,
+			sale->update_system_string,
+			sale->sale_transaction,
+			(SALE_LOSS_TRANSACTION*)0 );
 	}
-}
 
+	return 0;
+}

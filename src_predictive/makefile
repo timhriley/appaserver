@@ -148,12 +148,12 @@ SALE_LIBRARY=								\
 		customer_payment.o					\
 		customer_payment_transaction.o				\
 		subsidiary_transaction.o				\
-		subsidiary_transaction_state.o
+		subsidiary_transaction_state.o				\
+		hourly_service_sale.o					\
+		hourly_service_work.o
 #		self_tax.o						\
 #		inventory_sale.o					\
 #		specific_inventory_sale.o				\
-#		hourly_service_sale.o					\
-#		hourly_service_work.o					\
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -196,10 +196,10 @@ EXECUTABLES=	trial_balance_output					\
 		generate_invoice					\
 		post_change_customer_sale				\
 		post_change_fixed_service_sale				\
-		post_change_fixed_service_work
-#		hourly_service_sale_trigger				\
+		post_change_fixed_service_work				\
+		hourly_service_sale_trigger				\
+		post_change_hourly_service_work
 #		post_change_customer_payment				\
-#		post_change_hourly_service_work				\
 #		post_accrual						\
 #		depreciate_fixed_assets					\
 #		post_change_vendor_payment				\
@@ -969,12 +969,14 @@ fixed_asset_purchase.o: fixed_asset_purchase.c				\
 		-c fixed_asset_purchase.c
 
 fixed_service_sale.o: fixed_service_sale.c				\
-		fixed_service_sale.h
+		fixed_service_sale.h					\
+		fixed_service_work.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c fixed_service_sale.c
 
 hourly_service_sale.o: hourly_service_sale.c				\
-		hourly_service_sale.h
+		hourly_service_sale.h					\
+		hourly_service_work.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c hourly_service_sale.c
 
