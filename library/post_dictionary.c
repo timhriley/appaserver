@@ -343,7 +343,7 @@ char *post_dictionary_attribute_apache_marker( char *input )
 			message,
 			sizeof ( message ),
 			"apache_marker is too big for buffer of size %lu.",
-			sizeof ( apache_marker ) - 1 );
+			(unsigned long)sizeof ( apache_marker ) - 1 );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

@@ -411,19 +411,22 @@ double hourly_service_sale_net_revenue(
 }
 
 char *hourly_service_sale_primary_where(
+		const char *hourly_service_sale_service_column,
+		const char *hourly_service_sale_description_column,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *service_description )
+		char *service_description,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
 	static char where[ 512 ];
 	char *primary_where;
-	char *tmp1;
-	char *tmp2;
+	char *security_escape_name;
+	char *security_escape_description;
 
 	if ( !full_name
-	||   !street_address
 	||   !sale_date_time
 	||   !service_name
 	||   !service_description )
@@ -447,30 +450,35 @@ char *hourly_service_sale_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		sale_primary_where(
+			fund_name,
 			full_name,
-			street_address,
-			sale_date_time );
+			contact_key,
+			sale_date_time,
+			fund_boolean,
+			contact_key_boolean );
 
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s and service_name = '%s' and service_description = '%s'",
+		"%s and %s = '%s' and %s = '%s'",
 		primary_where,
-		(tmp1 =
+		hourly_service_sale_service_column,
+		(security_escape_name =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			security_escape(
 				service_name ) ),
-		(tmp2 =
+		hourly_service_sale_description_column,
+		(security_escape_description =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			security_escape(
 				service_description ) ) );
 
-	free( tmp1 );
-	free( tmp2 );
+	free( security_escape_name );
+	free( security_escape_description );
 
 	return where;
 }
@@ -513,6 +521,8 @@ HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		hourly_service_sale_primary_where(
+			HOURLY_SERVICE_SALE_SERVICE_COLUMN,
+			HOURLY_SERVICE_SALE_DESCRIPTION_COLUMN,
 			full_name,
 			street_address,
 			sale_date_time,

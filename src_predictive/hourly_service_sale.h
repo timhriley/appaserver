@@ -23,9 +23,6 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *sale_date_time;
 	char *service_name;
 	char *service_description;
 	double estimated_hours;
@@ -38,23 +35,36 @@ typedef struct
 	LIST *hourly_service_work_list;
 	double hourly_service_work_hours; /* for update */
 	double hourly_service_sale_net_revenue; /* for update */
+	LIST *update_string_list;
+	LIST *primary_key_list;
+	LIST *sale_update_system_string;
 } HOURLY_SERVICE_SALE;
 
 /* Usage */
 /* ----- */
-LIST *hourly_service_sale_list(
+HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
 		const char *hourly_service_sale_select,
 		const char *hourly_service_sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
-		char *sale_date_time );
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean hourly_service_work_boolean );
 
 /* Usage */
 /* ----- */
 HOURLY_SERVICE_SALE *hourly_service_sale_parse(
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean hourly_service_work_boolean,
 		char *input );
 
 /* Usage */
@@ -63,9 +73,6 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 /* Safely returns */
 /* -------------- */
 HOURLY_SERVICE_SALE *hourly_service_sale_new(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
 		char *service_name,
 		char *service_description );
 
@@ -76,14 +83,24 @@ HOURLY_SERVICE_SALE *hourly_service_sale_calloc(
 
 /* Usage */
 /* ----- */
-HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
+LIST *hourly_service_sale_list(
 		const char *hourly_service_sale_select,
 		const char *hourly_service_sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
-		char *service_name,
-		char *service_description );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean hourly_service_work_boolean );
+
+/* Usage */
+/* ----- */
+LIST *hourly_service_sale_primary_key_list(
+		const char *sale_service_name_column,
+		const char *sale_service_description_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -91,25 +108,35 @@ HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *hourly_service_sale_primary_where(
+		const char *sale_service_name_column,
+		const char *sale_service_description_column,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *service_description );
+		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
-double hourly_service_sale_estimated_revenue(
-		double estimated_hours,
-		double hourly_rate,
-		double discount_amount );
+#define HOURLY_SERVICE_SALE_ESTIMATED_REVENUE(			\
+		estimated_hours,				\
+		hourly_rate,					\
+		discount_amount )				\
+	( ( estimated_hours * hourly_rate ) -			\
+	  	discount_amount )
+
 
 /* Usage */
 /* ----- */
-double hourly_service_sale_net_revenue(
-		double hourly_service_work_list_hours,
-		double hourly_rate,
-		double discount_amount );
+#define HOURLY_SERVICE_SALE_NET_REVENUE(			\
+		hourly_service_work_hours,			\
+		hourly_rate,					\
+		discount_amount )				\
+	( ( hourly_service_work_hours * hourly_rate ) -		\
+	  	discount_amount )
 
 /* Usage */
 /* ----- */
@@ -118,31 +145,52 @@ double hourly_service_sale_total(
 
 /* Usage */
 /* ----- */
-HOURLY_SERVICE_SALE *hourly_service_sale_seek(
-		LIST *hourly_service_sale_list,
-		char *service_name,
-		char *service_description );
-
-/* Usage */
-/* ----- */
-void hourly_service_sale_update(
-		const char *hourly_service_sale_table,
+LIST *hourly_service_sale_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
+		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		double hourly_service_sale_estimated_revenue,
 		double hourly_service_work_hours,
 		double hourly_service_sale_net_revenue );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *hourly_service_sale_update_system_string(
-		const char *hourly_service_sale_table );
+char *hourly_service_sale_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+HOURLY_SERVICE_SALE *hourly_service_sale_trigger(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *service_name,
+		char *service_description,
+		char *state );
+
+/* Usage */
+/* ----- */
+void hourly_service_sale_update(
+		LIST *hourly_service_sale_update_string_list,
+		LIST *sale_update_system_string );
 
 #endif
 

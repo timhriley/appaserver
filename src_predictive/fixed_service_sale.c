@@ -131,7 +131,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 				fixed_service_sale->fixed_service_work_list );
 
 		fixed_service_sale->fixed_service_sale_net_revenue =
-			fixed_service_sale_net_revenue(
+			FIXED_SERVICE_SALE_NET_REVENUE(
 				fixed_service_sale->fixed_price,
 				fixed_service_sale->discount_amount );
 
@@ -296,14 +296,6 @@ double fixed_service_sale_total( LIST *fixed_service_sale_list )
 	return total;
 }
 
-double fixed_service_sale_net_revenue(
-		double fixed_rate,
-		double discount_amount )
-{
-	return
-	fixed_rate - discount_amount;
-}
-
 FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
@@ -392,7 +384,7 @@ char *fixed_service_sale_primary_where(
 {
 	static char where[ 288 ];
 	char *primary_where;
-	char *injection_escape;
+	char *escape;
 
 	if ( !full_name
 	||   !sale_date_time
@@ -430,21 +422,19 @@ char *fixed_service_sale_primary_where(
 		"%s and %s = '%s'",
 		primary_where,
 		sale_service_name_column,
-		( injection_escape =
+		( escape =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
+			security_escape(
 				service_name ) ) );
 
-	free( injection_escape );
+	free( escape );
 
 	return where;
 }
 
-void fixed_service_sale_trigger(
-		char *application_name,
+FIXED_SERVICE_SALE *fixed_service_sale_trigger(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -452,8 +442,7 @@ void fixed_service_sale_trigger(
 		char *service_name,
 		char *state )
 {
-	FIXED_SERVICE_SALE *fixed_service_sale;
-	SALE *sale;
+	FIXED_SERVICE_SALE *fixed_service_sale = {0};
 
 	if ( !full_name
 	||   !sale_date_time
@@ -474,7 +463,7 @@ void fixed_service_sale_trigger(
 			message );
 	}
 
-	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return;
+	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return NULL;
 
 	if ( strcmp(
 		state,
@@ -509,49 +498,9 @@ void fixed_service_sale_trigger(
 				contact_key_boolean,
 				1 /* fixed_service_work_boolean */ );
 	
-		if ( !fixed_service_sale )
-		{
-			char message[ 1024 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"fixed_service_sale_fetch(%s,%s) returned empty.",
-				full_name,
-				sale_date_time );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		fixed_service_sale_update(
-			fixed_service_sale->update_string_list,
-			fixed_service_sale->sale_update_system_string );
 	}
-	
-	sale =
-		sale_trigger_new(
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			state,
-			(char *)0 /* preupdate_fund_name */,
-			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_contact_key */,
-			(char *)0 /* preupdate_uncollectible_date_time */ );
 
-	if ( !sale ) return;
-
-	(void)sale_update(
-		application_name /* for transaction_update */,
-		sale->update_string_list,
-		sale->update_system_string,
-		sale->sale_transaction,
-		(SALE_LOSS_TRANSACTION *)0 );
+	return fixed_service_sale;
 }
 
 char *fixed_service_sale_primary_data_string(
@@ -565,7 +514,7 @@ char *fixed_service_sale_primary_data_string(
 		boolean contact_key_boolean )
 {
 	char *primary_data_string;
-	char *injection_escape;
+	char *escape;
 	char service_sale_primary_data_string[ 1024 ];
 
 	if ( !full_name
@@ -599,12 +548,11 @@ char *fixed_service_sale_primary_data_string(
 			fund_boolean,
 			contact_key_boolean );
 
-	injection_escape =
+	escape =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		security_sql_injection_escape(
-			SECURITY_ESCAPE_CHARACTER_STRING,
+		security_escape(
 			service_name /* datum */ );
 
 	snprintf(
@@ -613,10 +561,10 @@ char *fixed_service_sale_primary_data_string(
 		"%s%c%s",
 		primary_data_string,
 		sql_delimiter,
-		injection_escape );
+		escape );
 
 	free( primary_data_string );
-	free( injection_escape );
+	free( escape );
 
 	return strdup( service_sale_primary_data_string );
 }

@@ -37,13 +37,14 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *fixed_service_sale_list(
+FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
+		char *service_name,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		boolean fixed_service_work_boolean );
@@ -60,6 +61,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 		boolean fixed_service_work_boolean,
 		char *input );
 
+
 /* Usage */
 /* ----- */
 
@@ -75,17 +77,17 @@ FIXED_SERVICE_SALE *fixed_service_sale_calloc(
 
 /* Usage */
 /* ----- */
-FIXED_SERVICE_SALE *fixed_service_sale_fetch(
+LIST *fixed_service_sale_list(
 		const char *fixed_service_sale_select,
 		const char *fixed_service_sale_table,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
-		char *service_name,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		boolean fixed_service_work_boolean );
+
 
 /* Usage */
 /* ----- */
@@ -93,12 +95,6 @@ LIST *fixed_service_sale_primary_key_list(
 		const char *sale_service_name_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
-void fixed_service_sale_update(
-		LIST *update_string_list,
-		char *sale_update_system_string );
 
 /* Usage */
 /* ----- */
@@ -117,9 +113,10 @@ char *fixed_service_sale_primary_where(
 
 /* Usage */
 /* ----- */
-double fixed_service_sale_net_revenue(
-		double fixed_price,
-		double discount_amount );
+#define FIXED_SERVICE_SALE_NET_REVENUE(				\
+		fixed_price,					\
+		discount_amount )				\
+	( fixed_price - discount_amount )
 
 /* Usage */
 /* ----- */
@@ -155,16 +152,21 @@ char *fixed_service_sale_primary_data_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Driver */
-/* ------ */
-void fixed_service_sale_trigger(
-		char *application_name,
+/* Usage */
+/* ----- */
+FIXED_SERVICE_SALE *fixed_service_sale_trigger(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
 		char *state );
+
+/* Usage */
+/* ----- */
+void fixed_service_sale_update(
+		LIST *update_string_list,
+		char *sale_update_system_string );
 
 #endif
 
