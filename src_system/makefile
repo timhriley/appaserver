@@ -18,6 +18,7 @@ EXECUTABLES=								\
 		add_column						\
 		alter_column_datatype					\
 		attribute_list						\
+		foreign_key						\
 		clone_folder						\
 		delete_folder_row					\
 		drilldown						\
@@ -180,6 +181,14 @@ attribute_list: attribute_list.c 					\
 		${APPASERVER_LIBRARY}					\
 		attribute_list.c					\
 		-o attribute_list
+
+foreign_key: foreign_key.c 						\
+		${APPASERVER_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${APPASERVER_LIBRARY}					\
+		foreign_key.c						\
+		-o foreign_key
 
 alter_column_datatype: alter_column_datatype.c				\
 		${APPASERVER_LIBRARY}					\

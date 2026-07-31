@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "entity.h"
 #include "role.h"
+#include "appaserver_user.h"
 #include "role_appaserver_user.h"
 
 LIST *role_appaserver_user_name_list(
@@ -47,8 +48,8 @@ LIST *role_appaserver_user_name_list(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
-				ENTITY_FULL_NAME_COLUMN,
-				ENTITY_CONTACT_KEY_COLUMN,
+				APPASERVER_USER_FULL_NAME_COLUMN,
+				APPASERVER_USER_CONTACT_KEY_COLUMN,
 				(char *)0 /* folder_name */,
 				full_name,
 				contact_key,

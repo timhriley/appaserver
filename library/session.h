@@ -19,7 +19,7 @@
 
 
 #define SESSION_SELECT				"session,"		\
-						"full_name,"		\
+						"appaserver_full_name,"	\
 						"login_date,"		\
 						"login_time,"		\
 						"last_access_date,"	\
@@ -34,7 +34,7 @@
 						"last_access_time,"	\
 						"http_user_agent,"	\
 						"remote_ip_address,"	\
-						"full_name"
+						"appaserver_full_name"
 
 typedef struct
 {

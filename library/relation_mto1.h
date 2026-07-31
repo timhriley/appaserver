@@ -74,6 +74,12 @@ RELATION_MTO1 *relation_mto1_seek(
 
 /* Usage */
 /* ----- */
+LIST *relation_mto1_seek_list(
+		char *one_folder_name,
+		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
 RELATION_MTO1 *relation_mto1_ajax_fill_seek(
 		LIST *relation_mto1_to_one_list );
 

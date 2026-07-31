@@ -387,7 +387,7 @@ SESSION *session_fetch(
 		/* ------------------- */
 		entity_select_string(
 			SESSION_SELECT /* ENTITY_SELECT */,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			contact_key_boolean );
 
 	session =
@@ -1230,7 +1230,7 @@ char *session_insert_system_string(
 		/* ------------------- */
 		entity_insert_column_string(
 			session_insert /* ENTITY_INSERT */,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			contact_key_boolean );
 
 	snprintf(

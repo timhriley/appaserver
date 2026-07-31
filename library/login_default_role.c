@@ -12,6 +12,7 @@
 #include "appaserver.h"
 #include "role.h"
 #include "entity.h"
+#include "appaserver_user.h"
 #include "login_default_role.h"
 
 char *login_default_role_name(
@@ -48,8 +49,8 @@ char *login_default_role_name(
 			/* Returns static memory */
 			/* --------------------- */
 			entity_primary_where(
-				ENTITY_FULL_NAME_COLUMN,
-				ENTITY_CONTACT_KEY_COLUMN,
+				APPASERVER_USER_FULL_NAME_COLUMN,
+				APPASERVER_USER_CONTACT_KEY_COLUMN,
 				(char *)0 /* folder_name */,
 				full_name,
 				contact_key,

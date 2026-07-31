@@ -77,7 +77,7 @@ APPASERVER_USER *appaserver_user_login_fetch(
 		/* ------------------- */
 		entity_select_string(
 			APPASERVER_USER_SELECT /* ENTITY_SELECT */,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			contact_key_boolean );
 
 	where =
@@ -462,7 +462,7 @@ APPASERVER_USER *appaserver_user_fetch(
 		/* ------------------- */
 		entity_select_string(
 			APPASERVER_USER_SELECT /* ENTITY_SELECT */,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			contact_key_boolean );
 
 	input =
@@ -480,8 +480,8 @@ APPASERVER_USER *appaserver_user_fetch(
 				/* Returns static memory */
 				/* --------------------- */
 				entity_primary_where(
-					ENTITY_FULL_NAME_COLUMN,
-					ENTITY_CONTACT_KEY_COLUMN,
+					APPASERVER_USER_FULL_NAME_COLUMN,
+					APPASERVER_USER_CONTACT_KEY_COLUMN,
 					(char *)0 /* folder_name */,
 					full_name,
 					contact_key,

@@ -13,7 +13,7 @@
 
 #define APPASERVER_USER_TABLE			"appaserver_user"
 
-#define APPASERVER_USER_SELECT			"full_name,"		\
+#define APPASERVER_USER_SELECT			"appaserver_full_name,"	\
 						"login_name,"		\
 						"password,"		\
 						"user_date_format,"	\

@@ -17,7 +17,6 @@
 #include "folder.h"
 #include "choose_role.h"
 #include "execute_system_string.h"
-#include "appaserver_user.h"
 #include "login_default_role.h"
 #include "entity.h"
 #include "frameset.h"

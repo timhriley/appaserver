@@ -69,6 +69,13 @@ fi
 if [ "$select" = "*" -o "$select" = "select" ]
 then
 	select=`attribute_list $table | joinlines.e ','`
+	
+	if [ "$select" = "" ]
+	then
+		echo "ERROR: no columns for $table" 1>&2
+		exit 1
+	fi
+
 	echo "$select"
 fi
 
