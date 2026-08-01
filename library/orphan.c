@@ -428,6 +428,18 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 			orphan_subquery->many_table_name,
 			orphan_subquery->one_table_name );
 
+	if ( DEBUG_MODE )
+	{
+		fprintf(stderr,
+			"%s/%s/%d: relation=[%s->%s; subquery=[%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			orphan_subquery->many_table_name,
+			orphan_subquery->one_table_name,
+			orphan_subquery->string );
+	}
+
 	orphan_subquery->system_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -438,6 +450,22 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 	orphan_subquery->orphan_data_list =
 		list_pipe(
 			orphan_subquery->system_string );
+
+	if ( DEBUG_MODE )
+	{
+		if ( list_length( orphan_subquery->orphan_data_list ) )
+		{
+			fprintf(stderr,
+			"%s/%s/%d: orphan_data_list=[\n%s\n]\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				list_display_delimited(
+					orphan_subquery->orphan_data_list,
+					'\n' ) );
+		}
+	}
+
 	return orphan_subquery;
 }
 
@@ -583,10 +611,6 @@ ORPHAN_FOLDER *orphan_folder_new(
 			orphan_folder->
 				orphan_folder_input->
 				relation_mto1_isa_list ) );
-
-/*
-orphan_subquery_string_stdout( orphan_folder->orphan_subquery_list );
-*/
 
 	if ( !delete_boolean )
 	{
@@ -752,7 +776,6 @@ ORPHAN *orphan_new(
 
 	orphan = orphan_calloc();
 
-
 	orphan->orphan_folder_list =
 		orphan_folder_list(
 			application_name,
@@ -779,19 +802,6 @@ ORPHAN *orphan_calloc( void )
 	}
 
 	return orphan;
-}
-
-void orphan_subquery_string_stdout( LIST *orphan_subquery_list )
-{
-	ORPHAN_SUBQUERY *orphan_subquery;
-
-	if ( list_rewind( orphan_subquery_list ) )
-	do {
-		orphan_subquery = list_get( orphan_subquery_list );
-
-		printf( "%s\n", orphan_subquery->string );
-
-	} while ( list_next( orphan_subquery_list ) );
 }
 
 char *orphan_subquery_string(
@@ -830,7 +840,7 @@ char *orphan_subquery_string(
 
 	ptr += sprintf(
 		ptr,
-		"where not exists ( select 1 from %s where ",
+		"where not exists (select 1 from %s where ",
 		one_table_name );
 
 	list_rewind(
@@ -857,9 +867,7 @@ char *orphan_subquery_string(
 		else
 			ptr += sprintf( ptr, " and " );
 
-		ptr +=
-			sprintf(
-				ptr,
+		ptr += sprintf( ptr,
 				"%s.%s = %s.%s",
 				one_table_name,
 				primary_key,
@@ -873,7 +881,25 @@ char *orphan_subquery_string(
 
 	} while ( list_next( relation_mto1->relation_foreign_key_list ) );
 
-	ptr += sprintf( ptr, " );" );
+	ptr += sprintf( ptr, ")" );
+
+	/* Joining with nulls in the subquery is producing false positives. */
+	/* ---------------------------------------------------------------- */
+	list_rewind( relation_mto1->relation_foreign_key_list );
+
+	do {
+		foreign_key =
+			list_get(
+				relation_mto1->relation_foreign_key_list );
+
+		ptr += sprintf( ptr,
+				" and %s.%s is not null",
+				many_table_name,
+				foreign_key );
+
+	} while ( list_next( relation_mto1->relation_foreign_key_list ) );
+
+	ptr += sprintf( ptr, ";" );
 
 	return strdup( string );
 }

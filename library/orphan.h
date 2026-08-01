@@ -4,8 +4,7 @@
 /* No warranty and Freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ORPHAN_H
-#define ORPHAN_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -278,6 +277,3 @@ ORPHAN *orphan_calloc(
 /* ------ */
 void orphan_clean_output(
 		boolean stdout_boolean );
-
-#endif
-

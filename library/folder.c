@@ -645,7 +645,8 @@ LIST *folder_fetch_name_list(
 	char *system_string;
 	char *where_string;
 
-	where_string = "table_name <> 'null'";
+	where_string =
+		"table_name in (select distinct table_name from role_table)";
 
 	system_string =
 		/* ------------------- */
