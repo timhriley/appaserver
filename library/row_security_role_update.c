@@ -85,49 +85,14 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	return row_security_role_update;
 }
 
-FILE *row_security_role_update_input_pipe( char *system_string )
-{
-	if ( !system_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: system_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return popen( system_string, "r" );
-}
-
-char *row_security_role_update_system_string(
-			char *select,
-			char *table,
-			char *role_folder_lookup_in_clause )
-{
-	static char system_string[ 256 ];
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\"",
-		select,
-		table,
-		role_folder_lookup_in_clause );
-
-	return system_string;
-}
-
 ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
-		char *application_name,
 		char *role_name,
 		char *folder_name,
 		boolean role_override_row_restrictions )
 {
 	ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list;
-	FILE *input_pipe;
-	char input[ 256 ];
 
-	if ( !application_name
-	||   !role_name
+	if ( !role_name
 	||   !folder_name )
 	{
 		char message[ 128 ];
@@ -142,44 +107,16 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 	}
 
 	row_security_role_update_list = row_security_role_update_list_calloc();
-	row_security_role_update_list->list = list_new(); 
 
-	row_security_role_update_list->role_folder_lookup_in_clause =
+	row_security_role_update_list->cache_list =
 		/* --------------------- */
-		/* Returns static memory */
+		/* Returns static LIST * */
 		/* --------------------- */
-		role_folder_lookup_in_clause(
-			ROLE_FOLDER_TABLE,
-			APPASERVER_LOOKUP_STATE,
-			APPASERVER_UPDATE_STATE,
-			FOLDER_PRIMARY_KEY,
+		row_security_role_update_list_cache_list(
 			role_name );
 
-	input_pipe =
-		row_security_role_update_input_pipe(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			row_security_role_update_system_string(
-				ROW_SECURITY_ROLE_UPDATE_SELECT,
-				ROW_SECURITY_ROLE_UPDATE_TABLE,
-				row_security_role_update_list->
-					role_folder_lookup_in_clause ) );
-
-	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	if ( !list_length( row_security_role_update_list->cache_list ) )
 	{
-		list_set(
-			row_security_role_update_list->list,
-			row_security_role_update_parse(
-				role_name,
-				input ) );
-	}
-
-	pclose( input_pipe );
-
-	if ( !list_length( row_security_role_update_list->list ) )
-	{
-		list_free( row_security_role_update_list->list );
 		free( row_security_role_update_list );
 		return NULL;
 	}
@@ -188,7 +125,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 		row_security_role_update =
 			row_security_role_update_seek(
 				folder_name,
-				row_security_role_update_list->list );
+				row_security_role_update_list->cache_list );
 
 	if ( row_security_role_update_list->row_security_role_update )
 	{
@@ -197,7 +134,6 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 				row_security_role_update->
 				no_override_boolean )
 		{
-			list_free( row_security_role_update_list->list );
 			free( row_security_role_update_list );
 
 			return NULL;
@@ -215,7 +151,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 		row_security_role_update_relation =
 			row_security_role_update_relation_seek(
 				folder_name,
-				row_security_role_update_list->list );
+				row_security_role_update_list->cache_list );
 
 	if ( !row_security_role_update_list->row_security_role_update_relation )
 	{
@@ -250,7 +186,7 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 			row_security_role_update_relation->
 			no_override_boolean )
 	{
-		list_free( row_security_role_update_list->list );
+		list_free( row_security_role_update_list->cache_list );
 		free( row_security_role_update_list );
 
 		return NULL;
@@ -271,7 +207,6 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		row_security_role_update_list_join_where(
-			application_name,
 			folder_name,
 			row_security_role_update_list->
 				row_security_role_update_relation->
@@ -309,10 +244,9 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 }
 
 char *row_security_role_update_list_join_where(
-			char *application_name,
-			char *folder_name,
-			char *one_folder_name,
-			LIST *foreign_key_list )
+		char *folder_name,
+		char *one_folder_name,
+		LIST *foreign_key_list )
 {
 	char where[ 1024 ];
 	char *ptr = where;
@@ -320,8 +254,7 @@ char *row_security_role_update_list_join_where(
 	char table_name[ 128 ];
 	char *one_table_name;
 
-	if ( !application_name
-	||   !folder_name
+	if ( !folder_name
 	||   !one_folder_name
 	||   !list_rewind( foreign_key_list ) )
 	{
@@ -387,8 +320,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_seek(
 			message );
 	}
 
-	if ( !list_rewind( list ) ) return (ROW_SECURITY_ROLE_UPDATE *)0;
-
+	if ( list_rewind( list ) )
 	do {
 		row_security_role_update = list_get( list );
 
@@ -401,7 +333,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_seek(
 
 	} while ( list_next( list ) );
 
-	return (ROW_SECURITY_ROLE_UPDATE *)0;
+	return NULL;
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
@@ -427,30 +359,31 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 	do {
 		row_security_role_update = list_get( list );
 
-		if ( row_security_role_update_relation_set(
-			row_security_role_update /* in/out */,
-			folder_name ) )
+		if ( ( row_security_role_update->relation_one2m =
+			row_security_role_update_relation_one2m(
+				row_security_role_update->
+					relation_one2m_recursive_list,
+				folder_name ) ) )
 		{
 			return row_security_role_update;
 		}
 
 	} while ( list_next( list ) );
 
-	return (ROW_SECURITY_ROLE_UPDATE *)0;
+	return NULL;
 }
 
-boolean row_security_role_update_relation_set(
-		ROW_SECURITY_ROLE_UPDATE *row_security_role_update,
+RELATION_ONE2M *row_security_role_update_relation_one2m(
+		LIST *relation_one2m_recursive_list,
 		char *folder_name )
 {
 	RELATION_ONE2M *relation_one2m;
 
-	if ( !row_security_role_update
-	||   !folder_name )
+	if ( !folder_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "folder_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -459,22 +392,18 @@ boolean row_security_role_update_relation_set(
 			message );
 	}
 
-	if ( list_rewind(
-		row_security_role_update->
-			relation_one2m_recursive_list ) )
+	if ( list_rewind( relation_one2m_recursive_list ) )
 	do {
-
 		relation_one2m =
-			list_get(
-				row_security_role_update->
-					relation_one2m_recursive_list );
+			list_get( relation_one2m_recursive_list );
 
-		if ( !relation_one2m->many_folder_name )
+		if ( !relation_one2m->many_folder_name
+		||   !relation_one2m->relation )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-				"relation_one2m->many_folder_name is empty." );
+				"relation_one2m is incomplete." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -487,15 +416,60 @@ boolean row_security_role_update_relation_set(
 			folder_name,
 			relation_one2m->many_folder_name ) == 0 )
 		{
-			row_security_role_update->relation_one2m =
-				relation_one2m;
-			return 1;
+			return relation_one2m;
 		}
 
-	} while ( list_next(
-			row_security_role_update->
-				relation_one2m_recursive_list ) );
+	} while ( list_next( relation_one2m_recursive_list ) );
 
-	return 0;
+	return NULL;
+}
+
+LIST *row_security_role_update_list_cache_list( char *role_name )
+{
+	char *in_clause;
+	static LIST *list;
+	FILE *input_pipe;
+	char input[ 256 ];
+
+	if ( list ) return list;
+
+	in_clause =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_folder_lookup_in_clause(
+			ROLE_FOLDER_TABLE,
+			APPASERVER_LOOKUP_STATE,
+			APPASERVER_UPDATE_STATE,
+			FOLDER_PRIMARY_KEY,
+			role_name );
+
+	input_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_input_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_system_string(
+				ROW_SECURITY_ROLE_UPDATE_SELECT,
+				ROW_SECURITY_ROLE_UPDATE_TABLE,
+				in_clause ) );
+
+	list = list_new();
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	{
+		list_set(
+			list,
+			row_security_role_update_parse(
+				role_name,
+				input ) );
+	}
+
+	pclose( input_pipe );
+
+	return list;
 }
 

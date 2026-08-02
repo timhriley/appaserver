@@ -347,7 +347,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 			/* Returns null if not participating */
 			/* --------------------------------- */
 			row_security_role_update_list_fetch(
-				application_name,
 				role_name,
 				folder_name,
 				table_edit_input->

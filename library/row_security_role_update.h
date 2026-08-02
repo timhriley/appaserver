@@ -52,32 +52,17 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_seek(
 /* ----- */
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 		char *folder_name,
-		LIST *list );
+		LIST *row_security_role_update_list );
 
 /* Usage */
 /* ----- */
-boolean row_security_role_update_relation_set(
-		ROW_SECURITY_ROLE_UPDATE *
-			row_security_role_update /* in/out */,
+RELATION_ONE2M *row_security_role_update_relation_one2m(
+		LIST *relation_one2m_recursive_list,
 		char *folder_name );
-
-/* Public */
-/* ------ */
-
-/* Returns static memory */
-/* --------------------- */
-char *row_security_role_update_system_string(
-		char *row_security_role_update_select,
-		char *row_security_role_update_table,
-		char *role_folder_lookup_in_clause );
-
-FILE *row_security_role_update_input_pipe(
-		char *row_security_role_update_system_string );
 
 typedef struct
 {
-	char *role_folder_lookup_in_clause;
-	LIST *list;
+	LIST *cache_list;
 	ROW_SECURITY_ROLE_UPDATE *
 		row_security_role_update;
 	char *attribute_not_null;
@@ -93,7 +78,6 @@ typedef struct
 /* Returns null if not participating */
 /* --------------------------------- */
 ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
-		char *application_name,
 		char *role_name,
 		char *folder_name,
 		boolean role_override_row_restrictions );
@@ -107,9 +91,16 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 /* Returns heap memory */
 /* ------------------- */
 char *row_security_role_update_list_join_where(
-		char *application_name,
 		char *folder_name,
 		char *one_folder_name,
 		LIST *foreign_key_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns static LIST * */
+/* --------------------- */
+LIST *row_security_role_update_list_cache_list(
+		char *role_name );
 
 #endif

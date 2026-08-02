@@ -4,8 +4,7 @@
 /* No warrancy and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef TABLE_EDIT_H
-#define TABLE_EDIT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -425,5 +424,3 @@ LIST *table_edit_heading_name_list(
 			row_security_regular_widget_list,
 		ROW_SECURITY_VIEWONLY_WIDGET_LIST *
 			row_security_viewonly_widget_list );
-
-#endif
