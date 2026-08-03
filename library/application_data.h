@@ -58,7 +58,7 @@ char *application_data_create_directory_system_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *application_data_textlive_link_system_string(
+char *application_data_texlive_link_system_string(
 		const char *application_data_texlive_directory,
 		char *application_data_directory,
 		char *appaserver_parameter_mount_point );

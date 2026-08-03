@@ -142,20 +142,21 @@ void latex_tex2pdf(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"pdflatex %s 1>/dev/null 2>&1",
-		tex_filename );
-
-/*
-	sprintf( system_string,
 		 "pdflatex %s 1>&2",
 		 tex_filename );
-*/
 
 	/* ------------------------------------ */
 	/* Need to run it four times because	*/
 	/* header widths may need adjustments.	*/
 	/* ------------------------------------ */
 	if ( system( system_string ) ){}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"pdflatex %s 1>/dev/null 2>&1",
+		tex_filename );
+
 	if ( system( system_string ) ){}
 	if ( system( system_string ) ){}
 	if ( system( system_string ) ){}
@@ -1264,13 +1265,10 @@ LIST *latex_column_float_list(
 		boolean dollar_sign_boolean )
 {
 	char *heading_string;
-	LIST *list;
+	LIST *list = list_new();
 	LATEX_COLUMN *latex_column;
 
-	if ( !list_rewind( heading_string_list ) ) return NULL;
-
-	list = list_new();
-
+	if ( list_rewind( heading_string_list ) )
 	do {
 		heading_string = list_get( heading_string_list );
 
@@ -1288,6 +1286,12 @@ LIST *latex_column_float_list(
 
 	} while ( list_next( heading_string_list ) );
 
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
 	return list;
 }
 
@@ -1297,13 +1301,10 @@ LIST *latex_column_text_list(
 		boolean right_justify_boolean )
 {
 	char *heading_string;
-	LIST *list;
+	LIST *list = list_new();
 	LATEX_COLUMN *latex_column;
 
-	if ( !list_rewind( heading_string_list ) ) return NULL;
-
-	list = list_new();
-
+	if ( list_rewind( heading_string_list ) )
 	do {
 		heading_string = list_get( heading_string_list );
 
@@ -1320,6 +1321,12 @@ LIST *latex_column_text_list(
 		first_column_boolean = 0;
 
 	} while ( list_next( heading_string_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }

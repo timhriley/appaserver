@@ -10,6 +10,7 @@
 #include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "journal.h"
 #include "sale.h"
 #include "hourly_service_sale.h"
 #include "hourly_service_work.h"

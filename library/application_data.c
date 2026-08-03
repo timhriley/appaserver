@@ -58,7 +58,7 @@ APPLICATION_DATA *application_data_new(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		application_data_textlive_link_system_string(
+		application_data_texlive_link_system_string(
 			".texlive2019",
 			application_data->directory,
 			mount_point );
@@ -67,7 +67,7 @@ APPLICATION_DATA *application_data_new(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		application_data_textlive_link_system_string(
+		application_data_texlive_link_system_string(
 			".texlive2021",
 			application_data->directory,
 			mount_point );
@@ -157,7 +157,7 @@ char *application_data_delete_system_string(
 	return strdup( system_string );
 }
 
-char *application_data_textlive_link_system_string(
+char *application_data_texlive_link_system_string(
 		const char *texlive_directory,
 		char *application_data_directory,
 		char *appaserver_parameter_mount_point )

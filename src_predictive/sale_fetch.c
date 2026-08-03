@@ -705,18 +705,20 @@ SALE_FETCH *sale_fetch_new(
 				1 /* fixed_service_work_boolean */ );
 	}
 
-/*
 	if ( sale_fetch->hourly_service_sale_boolean )
 	{
 		sale_fetch->hourly_service_sale_list =
 			hourly_service_sale_list(
 				HOURLY_SERVICE_SALE_SELECT,
 				HOURLY_SERVICE_SALE_TABLE,
+				fund_name,
 				full_name,
-				street_address,
-				sale_date_time );
+				contact_key,
+				sale_date_time,
+				sale_fetch->predictive_fund_boolean,
+				sale_fetch->entity_contact_key_boolean,
+				1 /* hourly_service_work_boolean */ );
 	}
-*/
 
 	if ( sale_fetch->payment_list_boolean )
 	{

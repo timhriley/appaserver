@@ -14,6 +14,7 @@
 #include "column.h"
 #include "piece.h"
 #include "sql.h"
+#include "predictive.h"
 #include "entity_self.h"
 #include "customer.h"
 #include "invoice.h"
@@ -168,15 +169,6 @@ INVOICE *invoice_new(
 	return invoice;
 }
 
-double invoice_line_item_extended_price(
-		double quantity,
-		double retail_price,
-		double discount_amount )
-{
-	return
-	quantity * retail_price - discount_amount;
-}
-
 INVOICE_LINE_ITEM *invoice_line_item_calloc( void )
 {
 	INVOICE_LINE_ITEM *invoice_line_item;
@@ -221,7 +213,7 @@ INVOICE_LINE_ITEM *invoice_line_item_new(
 	invoice_line_item->discount_amount = discount_amount;
 
 	invoice_line_item->extended_price =
-		invoice_line_item_extended_price(
+		INVOICE_LINE_ITEM_EXTENDED_PRICE(
 			quantity,
 			retail_price,
 			discount_amount );
@@ -930,6 +922,7 @@ double invoice_line_item_discount_total( LIST *line_item_list )
 }
 
 char *invoice_line_item_system_string(
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
 		char *sale_date_time )
@@ -953,7 +946,10 @@ char *invoice_line_item_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"invoice_select.sh \"%s\" \"%s\" \"%s\"",
+		"invoice_select.sh \"%s\" \"%s\" \"%s\" \"%s\"",
+		(fund_name)
+			? fund_name
+			: "",
 		customer_full_name,
 		(customer_contact_key)
 			? customer_contact_key
@@ -964,6 +960,7 @@ char *invoice_line_item_system_string(
 }
 
 LIST *invoice_line_item_list(
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
 		char *sale_date_time )
@@ -988,12 +985,19 @@ LIST *invoice_line_item_list(
 			message );
 	}
 
-
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		invoice_line_item_system_string(
+			/* ------------------------- */
+			/* Returns parameter or null */
+			/* ------------------------- */
+			predictive_fund_name(
+				fund_name,
+				predictive_fund_boolean(
+					PREDICTIVE_FUND_TABLE,
+					PREDICTIVE_FUND_COLUMN ) ),
 			customer_full_name,
 			customer_contact_key,
 			sale_date_time );

@@ -878,6 +878,7 @@ typedef struct
 	char *tex_anchor_html;
 	char *pdf_anchor_html;
 	char *appaserver_link_working_directory;
+	char *filespecification;
 } STATEMENT_LINK;
 
 /* Usage */
@@ -907,6 +908,12 @@ char *statement_link_tex_prompt(
 /* --------------------- */
 char *statement_link_pdf_prompt(
 		char *process_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_link_filespecification(
+		char *tex_filename,
+		char *appaserver_link_working_directory );
 
 typedef struct
 {

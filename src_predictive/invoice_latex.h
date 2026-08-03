@@ -218,7 +218,6 @@ LIST *invoice_latex_table_cell_list(
 /* Returns heap memory */
 /* ------------------- */
 char *invoice_latex_table_display(
-		char *latex_table_caption_display,
 		char *self_invoice_latex_entity_display,
 		char *customer_invoice_latex_entity_display,
 		char *latex_table_head_display,
@@ -257,8 +256,8 @@ INVOICE_LATEX *invoice_latex_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *invoice_latex_document_header(
 		void );
 

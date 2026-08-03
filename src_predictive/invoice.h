@@ -32,6 +32,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *invoice_line_item_list(
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
 		char *sale_date_time );
@@ -58,10 +59,13 @@ INVOICE_LINE_ITEM *invoice_line_item_new(
 INVOICE_LINE_ITEM *invoice_line_item_calloc(
 		void );
 
-double invoice_line_item_extended_price(
-		double quantity,
-		double retail_price,
-		double discount_amount );
+/* Usage */
+/* ----- */
+#define INVOICE_LINE_ITEM_EXTENDED_PRICE(			\
+		quantity,					\
+		retail_price,					\
+		discount_amount )				\
+	( ( quantity * retail_price ) - discount_amount )
 
 /* Usage */
 /* ----- */
@@ -94,6 +98,7 @@ double invoice_line_item_discount_total(
 /* Returns heap memory */
 /* ------------------- */
 char *invoice_line_item_system_string(
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
 		char *sale_date_time );

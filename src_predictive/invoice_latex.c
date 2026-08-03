@@ -45,9 +45,9 @@ INVOICE_LATEX *invoice_latex_new(
 	invoice_latex->invoice = invoice;
 
 	invoice_latex->document_header =
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		invoice_latex_document_header();
 
 	invoice_latex->statement_link =
@@ -84,6 +84,9 @@ INVOICE_LATEX *invoice_latex_new(
 			STATEMENT_LOGO_FILENAME_KEY );
 
 	invoice_latex->latex =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		latex_new(
 			invoice_latex->
 				statement_link->
@@ -94,25 +97,14 @@ INVOICE_LATEX *invoice_latex_new(
 			0 /* not statement_pdf_landscape_boolean */,
 			invoice_latex->statement_caption_logo_filename );
 
-	if ( !invoice_latex->latex )
-	{
-		char message[ 256 ];
-
-		sprintf(message,
-			"latex_new(%s,%s) returned empty.",
-			invoice_latex->
-				statement_link->
-				tex_filename,
-			invoice_latex->
-				statement_link->
-				appaserver_link_working_directory );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	invoice_latex->title =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		invoice_latex_title(
+			invoice->title,
+			invoice_latex->statement_caption_logo_filename,
+			invoice->date_string );
 
 	invoice_latex->invoice_latex_table =
 		/* -------------- */
@@ -249,7 +241,6 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		invoice_latex_table_display(
-			invoice_latex_table->latex_table->caption_display,
 			invoice_latex_table->
 				self_invoice_latex_entity->
 				display,
@@ -619,7 +610,6 @@ LIST *invoice_latex_table_cell_list(
 }
 
 char *invoice_latex_table_display(
-		char *latex_table_caption_display,
 		char *self_invoice_latex_entity_display,
 		char *customer_invoice_latex_entity_display,
 		char *latex_table_head_display,
@@ -633,8 +623,7 @@ char *invoice_latex_table_display(
 	/* ----------------------------------------- */
 	char display[ STRING_770K ];
 
-	if ( !latex_table_caption_display
-	||   !self_invoice_latex_entity_display
+	if ( !self_invoice_latex_entity_display
 	||   !customer_invoice_latex_entity_display
 	||   !latex_table_head_display
 	||   !latex_table_end_longtable
@@ -664,14 +653,13 @@ char *invoice_latex_table_display(
 	snprintf(
 		display,
 		sizeof ( display ),
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-		latex_table_caption_display,
+		"%s\n%s\n%s\n%s\n%s\n%s\n",
 		self_invoice_latex_entity_display,
 		customer_invoice_latex_entity_display,
 		latex_table_head_display,
 		row_list_display,
-		latex_table_end_longtable,
-		invoice_latex_summary_display );
+		invoice_latex_summary_display,
+		latex_table_end_longtable );
 
 	free( row_list_display );
 
@@ -683,6 +671,7 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 	FILE *output_file;
 
 	if ( !invoice_latex
+	||   !invoice_latex->title
 	||   !invoice_latex->statement_link
 	||   !invoice_latex->invoice->customer )
 	{
@@ -704,7 +693,7 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 		appaserver_output_file(
 			invoice_latex->
 				statement_link->
-				tex_filename );
+				filespecification );
 
 	fprintf(output_file,
 		"%s\n",
@@ -726,6 +715,20 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 
 	fclose( output_file );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: appaserver_link_working_directory=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+		invoice_latex->
+			statement_link->
+			appaserver_link_working_directory );
+msg( (char *)0, message );
+}
 	latex_tex2pdf(
 		invoice_latex->
 			statement_link->
@@ -745,6 +748,32 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 
 char *invoice_latex_document_header( void )
 {
+	static char header[ 512 ];
+
+	snprintf(
+		header,
+		sizeof ( header ),
+		"\\documentclass[a4paper]{report}\n"
+		"\\usepackage{graphics}\n"
+		"\\usepackage{fancyhdr}\n"
+		"\\usepackage[labelformat=empty]{caption}\n"
+		"\\usepackage{longtable}\n"
+		"\\usepackage[\n"
+		"	margin=1.5cm,\n"
+		"	vmargin=1.5cm,\n"
+		"	nohead]{geometry}\n"
+		"\\pagestyle{fancy}\n"
+		"\\fancyhf{}\n"
+		"\\cfoot{%s (PredictBooks.com)}\n"
+		"\\rfoot{Page \\thepage}\n"
+		"\\begin{document}",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		date_now_yyyy_mm_dd_hhmm(
+			date_utc_offset() ) );
+
+#ifdef NOT_DEFINED
 	return
 	"\\documentclass{letter}\n"
 	"\\usepackage{longtable}\n"
@@ -752,6 +781,8 @@ char *invoice_latex_document_header( void )
 	"\\usepackage[	margin=1in,\n"
 	"		nohead]{geometry}\n"
 	"\\begin{document}\n";
+#endif
+	return header;
 }
 
 char *invoice_latex_title(
@@ -846,7 +877,7 @@ char *invoice_latex_entity_heading( char *full_name )
 	snprintf(
 		heading,
 		sizeof ( heading ),
-		"\\begin{tablular}[t]{l}\n"
+		"\\begin{tabular}[t]{l}\n"
 		"\\bf %s:\n"
 		"\\end{tabular}\n",
 		full_name );
@@ -877,7 +908,6 @@ char *invoice_latex_entity_city_state_zip(
 			__LINE__,
 			message );
 	}
-
 
 	ptr += sprintf(
 		ptr,
@@ -914,7 +944,7 @@ char *invoice_latex_entity_display(
 		char *escape_street_address,
 		char *invoice_latex_entity_city_state_zip )
 {
-	char display[ STRING_64K ];
+	char display[ STRING_4K ];
 	char *ptr = display;
 
 	if ( !entity_full_name
@@ -1364,8 +1394,8 @@ char *invoice_latex_summary_empty_display(
 char *invoice_latex_table_description_size( boolean discount_boolean )
 {
 	if ( discount_boolean )
-		return "p{3.2in}";
+		return "5.0cm";
 	else
-		return "p{4.2in}";
+		return "5.5cm";
 }
 

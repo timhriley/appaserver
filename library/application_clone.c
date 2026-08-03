@@ -444,7 +444,10 @@ char *application_clone_insert_default_system_string(
 
 	if ( contact_key_boolean )
 	{
-		field = "full_name,contact_key,role";
+		field =
+			"appaserver_full_name,"
+			"contact_key,"
+			"role";
 
 		snprintf(
 			system_string,
@@ -464,7 +467,9 @@ char *application_clone_insert_default_system_string(
 	}
 	else
 	{
-		field = "full_name,role";
+		field =
+			"appaserver_full_name,"
+			"role";
 
 		snprintf(
 			system_string,
@@ -514,7 +519,9 @@ char *application_clone_insert_entity_system_string(
 
 	if ( contact_key_boolean )
 	{
-		field = "full_name,contact_key";
+		field =
+			"full_name,"
+			"contact_key";
 
 		snprintf(
 			system_string,
@@ -585,7 +592,10 @@ char *application_clone_insert_role_system_string(
 
 	if ( contact_key_boolean )
 	{
-		field = "full_name,contact_key,role";
+		field =
+			"appaserver_full_name,"
+			"appaserver_contact_key,"
+			"role";
 
 		ptr += sprintf( ptr,
 			"echo \"%s^%s^%s\" | "
@@ -615,7 +625,9 @@ char *application_clone_insert_role_system_string(
 	}
 	else
 	{
-		field = "full_name,role";
+		field =
+			"appaserver_full_name,"
+			"role";
 
 		ptr += sprintf( ptr,
 			"echo \"%s^%s\" | "
@@ -680,8 +692,8 @@ char *application_clone_insert_user_system_string(
 
 	if ( contact_key_boolean )
 	{
-		field =	"full_name,"
-			"contact_key,"
+		field =	"appaserver_full_name,"
+			"appaserver_contact_key,"
 			"login_name,"
 			"password,"
 			"user_date_format";
@@ -706,7 +718,7 @@ char *application_clone_insert_user_system_string(
 	}
 	else
 	{
-		field =	"full_name,"
+		field =	"appaserver_full_name,"
 			"login_name,"
 			"password,"
 			"user_date_format";

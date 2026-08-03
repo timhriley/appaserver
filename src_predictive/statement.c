@@ -605,6 +605,16 @@ STATEMENT_LINK *statement_link_new(
 			data_directory,
 			application_name );
 
+	statement_link->filespecification =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_link_filespecification(
+			statement_link->
+				tex_filename,
+			statement_link->
+				appaserver_link_working_directory );
+
 	return statement_link;
 }
 
@@ -5081,3 +5091,29 @@ char *statement_account_label( ACCOUNT_JOURNAL *account_journal_latest )
 				account_name ) );
 }
 
+char *statement_link_filespecification(
+		char *tex_filename,
+		char *working_directory )
+{
+	char specification[ 1024 ];
+
+	if ( !tex_filename
+	||   !working_directory )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		specification,
+		sizeof ( specification ),
+		"%s/%s",
+		working_directory,
+		tex_filename );
+
+	return strdup( specification );
+}

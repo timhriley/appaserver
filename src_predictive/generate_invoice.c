@@ -19,6 +19,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *fund_name;
 	char *customer_full_name;
 	char *customer_contact_key;
 	char *sale_date_time;
@@ -36,10 +37,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-		"Usage: %s process full_name contact_key sale_date_time\n",
+	"Usage: %s process fund_name full_name contact_key sale_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -47,9 +48,10 @@ int main( int argc, char **argv )
 	workorder_boolean = ( strcmp( argv[ 0 ], "generate_workorder" ) == 0 );
 
 	process_name = argv[ 1 ];
-	customer_full_name = argv[ 2 ];
-	customer_contact_key = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
+	fund_name = argv[ 2 ];
+	customer_full_name = argv[ 3 ];
+	customer_contact_key = argv[ 4 ];
+	sale_date_time = argv[ 5 ];
 
 	document_process_output(
 		application_name,
@@ -58,6 +60,7 @@ int main( int argc, char **argv )
 
 	line_item_list =
 		invoice_line_item_list(
+			fund_name,
 			customer_full_name,
 			customer_contact_key,
 			sale_date_time );

@@ -1429,7 +1429,9 @@ char *journal_display( JOURNAL *journal )
 		string_initial_capital(
 			buffer3,
 			journal->account_name ),
-		journal->transaction_date_time,
+		(journal->transaction_date_time)
+			? journal->transaction_date_time
+			: "",
 		buffer1,
 		buffer2 );
 
