@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make generate_invoice
+	cd ../src_system
+	make fix_orphans
 fi
 
