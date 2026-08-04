@@ -161,31 +161,6 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 {
 	INVOICE_LATEX_TABLE *invoice_latex_table;
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: entity_self->entity=[%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	(unsigned int)(long)entity_self->entity );
-msg( (char *)0, message );
-}
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: customer->entity=[%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	(unsigned int)(long)customer->entity );
-msg( (char *)0, message );
-}
-
 	if ( !invoice_table_title
 	||   !entity_self
 	||   !entity_self->entity
@@ -766,35 +741,30 @@ char *invoice_latex_document_header( void )
 	snprintf(
 		header,
 		sizeof ( header ),
-		"\\documentclass[a4paper]{report}\n"
-		"\\usepackage{graphics}\n"
-		"\\usepackage{fancyhdr}\n"
-		"\\usepackage[labelformat=empty]{caption}\n"
-		"\\usepackage{longtable}\n"
-		"\\usepackage[\n"
-		"	margin=1.5cm,\n"
-		"	vmargin=1.5cm,\n"
-		"	nohead]{geometry}\n"
-		"\\pagestyle{fancy}\n"
-		"\\fancyhf{}\n"
-		"\\cfoot{%s (PredictBooks.com)}\n"
-		"\\rfoot{Page \\thepage}\n"
-		"\\begin{document}",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		date_now_yyyy_mm_dd_hhmm(
-			date_utc_offset() ) );
+		"%s\n"
+		"%s\n"
+		"%s\n"
+		"%s",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		latex_documentclass(
+			0 /* not landscape_boolean */ ),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		latex_usepackage(),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		latex_footer_declaration(
+			date_now16( date_utc_offset() ),
+			LATEX_PBJ ),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		latex_begin_document() );
 
-#ifdef NOT_DEFINED
-	return
-	"\\documentclass{letter}\n"
-	"\\usepackage{longtable}\n"
-	"\\usepackage{graphics}\n"
-	"\\usepackage[	margin=1in,\n"
-	"		nohead]{geometry}\n"
-	"\\begin{document}\n";
-#endif
 	return header;
 }
 

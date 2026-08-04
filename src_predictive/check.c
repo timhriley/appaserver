@@ -360,8 +360,10 @@ CHECK *check_new(
 
 char *check_list_documentclass( void )
 {
-	return
+	return latex_documentclass( 0 /* not landscape */ );
+/*
 "\\documentclass{report}";
+*/
 }
 
 char *check_list_usepackage( void )
@@ -401,8 +403,7 @@ char *check_list_end_document( void )
 "\\end{document}";
 }
 
-char *check_dollar_text(
-			double amount_due )
+char *check_dollar_text( double amount_due )
 {
 	static char text[ 128 ];
 

@@ -55,11 +55,10 @@ LATEX *latex_new(
 		latex_documentclass(
 			landscape_boolean );
 
-	latex->usepackage =
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		latex_usepackage();
+	/* ---------------------- */
+	/* Returns program memory */
+	/* ---------------------- */
+	latex->usepackage = latex_usepackage();
 
 	latex->footer_declaration =
 		/* --------------------- */
@@ -1146,7 +1145,7 @@ char *latex_footer_declaration(
 		char *date_now16,
 		char *latex_pbj )
 {
-	static char footer_declaration[ 256 ];
+	static char footer_declaration[ 128 ];
 
 	if ( !date_now16
 	||   !latex_pbj )
@@ -1162,7 +1161,9 @@ char *latex_footer_declaration(
 			message );
 	}
 
-	sprintf(footer_declaration,
+	snprintf(
+		footer_declaration,
+		sizeof ( footer_declaration ),
 		"\\pagestyle{fancy}\n"
 		"\\fancyhf{}\n"
 		"\\cfoot{%s (%s)}\n"
