@@ -1408,7 +1408,8 @@ LATEX_TABLE *income_statement_latex_table(
 	/* Safely returns */
 	/* -------------- */
 	latex_table_new(
-		statement_caption_combined /* title */,
+		statement_caption_combined /* report_title */,
+		(char *)0 /* table_title */,
 		latex_column_list,
 		latex_row_list );
 }

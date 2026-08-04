@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "entity_self.h"
 #include "customer.h"
+#include "sale_fetch.h"
 
 #define INVOICE_LINE_ITEM_QUANTITY_DECIMAL_COUNT	4
 
@@ -105,12 +106,15 @@ char *invoice_line_item_system_string(
 
 typedef struct
 {
+	double sale_invoice_amount;
+	double sale_payment_total;
+	double sale_amount_due;
+	double customer_past_due;
 	boolean invoice_line_item_description_boolean;
 	boolean invoice_line_item_discount_boolean;
 	int invoice_line_item_quantity_decimal_count;
-	double invoice_line_item_extended_total;
 	double invoice_line_item_discount_total;
-	double invoice_amount;
+	double invoice_line_item_extended_total;
 	double amount_due;
 } INVOICE_SUMMARY;
 
@@ -121,20 +125,19 @@ typedef struct
 /* -------------- */
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_past_due );
+		double sale_invoice_amount,
+		double sale_payment_total,
+		double sale_amount_due,
+		double customer_past_due /* negative value */ );
 
 /* Process */
 /* ------- */
 INVOICE_SUMMARY *invoice_summary_calloc(
 		void );
 
-double invoice_summary_invoice_amount(
-		double invoice_line_item_extended_total,
-		double invoice_line_item_discount_total );
-
 double invoice_summary_amount_due(
-		double customer_payable_balance,
-		double invoice_summary_invoice_amount );
+		double sale_amount_due,
+		double customer_past_due );
 
 typedef struct
 {
@@ -142,11 +145,11 @@ typedef struct
 	LIST *invoice_line_item_list;
 	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
-	CUSTOMER *customer;
-	char *use_key;
-	char *title;
+	char *report_title;
+	char *table_title;
 	char *date_string;
 	char *amount_due_label;
+	SALE_FETCH *sale_fetch;
 	INVOICE_SUMMARY *invoice_summary;
 } INVOICE;
 
@@ -156,11 +159,10 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 INVOICE *invoice_new(
-		char *invoice_key,
-		char *transaction_date_time_string,
-		char *invoice_date_time_string,
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
+		char *sale_date_time,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list );
 
@@ -169,28 +171,41 @@ INVOICE *invoice_new(
 INVOICE *invoice_calloc(
 		void );
 
-/* Returns first non-empty parameter */
-/* --------------------------------- */
-char *invoice_use_key(
-		char *invoice_key,
-		char *transaction_date_time_string,
-		char *invoice_date_time_string );
-
-/* Returns static memory */
-/* --------------------- */
-char *invoice_title(
-		char *customer_full_name,
-		enum invoice_enum invoice_enum,
-		char *invoice_use_key );
-
 /* Returns static memory */
 /* --------------------- */
 char *invoice_date_string(
-		char *invoice_date_time_string );
+		char *sale_date_time );
 
 /* Returns program memory */
 /* ---------------------- */
 char *invoice_amount_due_label(
+		enum invoice_enum invoice_enum );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *invoice_report_title(
+		char *customer_full_name,
+		enum invoice_enum invoice_enum );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *invoice_table_title(
+		char *customer_full_name,
+		char *sale_date_time,
+		enum invoice_enum invoice_enum );
+
+/* Usage */
+/* ----- */
+
+/* Returns program memory */
+/* ---------------------- */
+char *invoice_prompt(
 		enum invoice_enum invoice_enum );
 
 /* Driver */

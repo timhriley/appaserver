@@ -975,7 +975,9 @@ TAX_FORM_LINE_LATEX_TABLE *
 			tax_form_line_latex_table_caption(
 				tax_form_name,
 				statement_caption_title,
-				statement_caption_sub_title ),
+				statement_caption_sub_title )
+					/* report_title */,
+			(char *)0 /* table_title */,
 			column_list,
 			row_list );
 
@@ -1296,7 +1298,8 @@ LATEX_TABLE *tax_form_account_latex_table(
 	/* Safely returns */
 	/* -------------- */
 	latex_table_new(
-		caption /* title */,
+		caption /* report_title */,
+		(char *)0 /* table_title */,
 		latex_column_list,
 		latex_row_list );
 }
@@ -1625,7 +1628,8 @@ LATEX_TABLE *tax_form_entity_latex_table(
 	/* Safely returns */
 	/* -------------- */
 	latex_table_new(
-		caption /* title */,
+		caption /* report_title */,
+		(char *)0 /* table_title */,
 		latex_column_list,
 		latex_row_list );
 }

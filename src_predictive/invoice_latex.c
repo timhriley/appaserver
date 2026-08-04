@@ -27,7 +27,8 @@ INVOICE_LATEX *invoice_latex_new(
 	||   !data_directory
 	||   !invoice
 	||   !invoice->entity_self
-	||   !invoice->customer )
+	||   !invoice->sale_fetch
+	||   !invoice->sale_fetch->customer )
 	{
 		char message[ 128 ];
 
@@ -102,7 +103,7 @@ INVOICE_LATEX *invoice_latex_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		invoice_latex_title(
-			invoice->title,
+			invoice->report_title,
 			invoice_latex->statement_caption_logo_filename,
 			invoice->date_string );
 
@@ -112,9 +113,9 @@ INVOICE_LATEX *invoice_latex_new(
 		/* -------------- */
 		invoice_latex_table_new(
 			invoice->invoice_enum,
-			invoice->title,
+			invoice->table_title,
 			invoice->entity_self,
-			invoice->customer,
+			invoice->sale_fetch->customer,
 			invoice->invoice_line_item_list,
 			invoice->amount_due_label,
 			invoice->invoice_summary );
@@ -151,7 +152,7 @@ INVOICE_LATEX *invoice_latex_calloc( void )
 
 INVOICE_LATEX_TABLE *invoice_latex_table_new(
 		enum invoice_enum invoice_enum,
-		char *invoice_title,
+		char *invoice_table_title,
 		ENTITY_SELF *entity_self,
 		CUSTOMER *customer,
 		LIST *invoice_line_item_list,
@@ -160,14 +161,41 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 {
 	INVOICE_LATEX_TABLE *invoice_latex_table;
 
-	if ( !invoice_title
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: entity_self->entity=[%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	(unsigned int)(long)entity_self->entity );
+msg( (char *)0, message );
+}
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: customer->entity=[%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	(unsigned int)(long)customer->entity );
+msg( (char *)0, message );
+}
+
+	if ( !invoice_table_title
 	||   !entity_self
+	||   !entity_self->entity
 	||   !customer
+	||   !customer->entity
 	||   !invoice_summary )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "parameter is empty or incompletet." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -214,7 +242,8 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 		/* Safely returns */
 		/* -------------- */
 		latex_table_new(
-			invoice_title,
+			(char *)0 /* report_title */,
+			invoice_table_title,
 			invoice_latex_table->column_list,
 			invoice_latex_table->row_list );
 
@@ -229,11 +258,10 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 			invoice_summary->
 				invoice_line_item_discount_boolean,
 			invoice_summary->
-				invoice_line_item_extended_total,
-			invoice_summary->
 				invoice_line_item_discount_total,
-			invoice_summary->invoice_amount,
-			customer->past_due,
+			invoice_summary->sale_invoice_amount,
+			invoice_summary->sale_payment_total,
+			invoice_summary->customer_past_due,
 			invoice_summary->amount_due );
 
 	invoice_latex_table->display =
@@ -672,8 +700,7 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 
 	if ( !invoice_latex
 	||   !invoice_latex->title
-	||   !invoice_latex->statement_link
-	||   !invoice_latex->invoice->customer )
+	||   !invoice_latex->statement_link )
 	{
 		char message[ 128 ];
 
@@ -715,20 +742,6 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 
 	fclose( output_file );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: appaserver_link_working_directory=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-		invoice_latex->
-			statement_link->
-			appaserver_link_working_directory );
-msg( (char *)0, message );
-}
 	latex_tex2pdf(
 		invoice_latex->
 			statement_link->
@@ -786,14 +799,14 @@ char *invoice_latex_document_header( void )
 }
 
 char *invoice_latex_title(
-		char *invoice_caption,
+		char *invoice_report_title,
 		char *logo_filename,
 		char *date_string )
 {
 	char title[ 1024 ];
 	char *ptr = title;
 
-	if ( !invoice_caption
+	if ( !invoice_report_title
 	||   !date_string )
 	{
 		char message[ 128 ];
@@ -810,7 +823,7 @@ char *invoice_latex_title(
 	ptr += sprintf(
 		ptr,
 "\\begin{center}{\\Large \\bf %s} \\end{center}\n",
-	 	invoice_caption );
+	 	invoice_report_title );
 
 	if ( file_exists_boolean( logo_filename ) )
 	{
@@ -1084,11 +1097,11 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
 		char *amount_due_label,
 		boolean description_boolean,
 		boolean discount_boolean,
-		double extended_price_total,
 		double discount_total,
-		double invoice_amount,
-		double customer_payable_balance,
-		double amount_due )
+		double sale_invoice_amount,
+		double sale_payment_total,
+		double customer_past_due,
+		double invoice_summary_amount_due )
 {
 	INVOICE_LATEX_SUMMARY *invoice_latex_summary;
 
@@ -1101,7 +1114,7 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
 		invoice_latex_summary_extended_display(
 			description_boolean,
 			discount_boolean,
-			extended_price_total );
+			sale_invoice_amount );
 
 	invoice_latex_summary->discount_display =
 		/* --------------------------- */
@@ -1112,33 +1125,33 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
 			discount_boolean,
 			discount_total );
 
-	invoice_latex_summary->amount_display =
+	invoice_latex_summary->payment_total_display =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		invoice_latex_summary_amount_display(
+		invoice_latex_summary_payment_total_display(
 			description_boolean,
 			discount_boolean,
-			invoice_amount );
+			sale_payment_total );
 
-	invoice_latex_summary->payable_display =
+	invoice_latex_summary->past_due_display =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		invoice_latex_summary_payable_display(
+		invoice_latex_summary_past_due_display(
 			description_boolean,
 			discount_boolean,
-			customer_payable_balance );
+			customer_past_due );
 
-	invoice_latex_summary->due_display =
+	invoice_latex_summary->amount_due_display =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		invoice_latex_summary_due_display(
+		invoice_latex_summary_amount_due_display(
 			amount_due_label,
 			description_boolean,
 			discount_boolean,
-			amount_due );
+			invoice_summary_amount_due );
 
 	invoice_latex_summary->display =
 		/* ------------------- */
@@ -1147,9 +1160,9 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
 		invoice_latex_summary_display(
 			invoice_latex_summary->extended_display,
 			invoice_latex_summary->discount_display,
-			invoice_latex_summary->amount_display,
-			invoice_latex_summary->payable_display,
-			invoice_latex_summary->due_display );
+			invoice_latex_summary->payment_total_display,
+			invoice_latex_summary->past_due_display,
+			invoice_latex_summary->amount_due_display );
 
 	return invoice_latex_summary;
 }
@@ -1182,14 +1195,14 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_calloc( void )
 char *invoice_latex_summary_extended_display(
 		boolean description_boolean,
 		boolean discount_boolean,
-		double extended_price_total )
+		double invoice_amount )
 {
 	char display[ 1024 ];
 
 	snprintf(
 		display,
 		sizeof ( display ),
-		"\\bf Extended total &%s \\bf %s \\\\",
+		"\\bf Invoice amount &%s \\bf %s \\\\",
 		/* ------------------------------------ */
 		/* Returns same static memory each time */
 		/* ------------------------------------ */
@@ -1200,7 +1213,7 @@ char *invoice_latex_summary_extended_display(
 		/* Returns static memory */
 		/* ----------------------*/
 		string_commas_dollar(
-			extended_price_total ) );
+			invoice_amount ) );
 
 	return strdup( display );
 }
@@ -1233,42 +1246,14 @@ char *invoice_latex_summary_discount_display(
 	return strdup( display );
 }
 
-char *invoice_latex_summary_amount_display(
+char *invoice_latex_summary_payment_total_display(
 		boolean description_boolean,
 		boolean discount_boolean,
-		double invoice_amount )
+		double payment_total )
 {
 	char display[ 1024 ];
 
-	if ( float_virtually_same( invoice_amount, 0.0 ) ) return NULL;
-
-	snprintf(
-		display,
-		sizeof ( display ),
-		"\\bf Invoice amount &%s \\bf %s \\\\",
-		/* ------------------------------------ */
-		/* Returns same static memory each time */
-		/* ------------------------------------ */
-		invoice_latex_summary_empty_display(
-			description_boolean,
-			discount_boolean ),
-		/* ----------------------*/
-		/* Returns static memory */
-		/* ----------------------*/
-		string_commas_dollar(
-			invoice_amount ) );
-
-	return strdup( display );
-}
-
-char *invoice_latex_summary_payable_display(
-		boolean description_boolean,
-		boolean discount_boolean,
-		double customer_payable_balance )
-{
-	char display[ 1024 ];
-
-	if ( float_virtually_same( customer_payable_balance, 0.0 ) )
+	if ( float_virtually_same( payment_total, 0.0 ) )
 		return NULL;
 
 	snprintf(
@@ -1285,12 +1270,12 @@ char *invoice_latex_summary_payable_display(
 		/* Returns static memory */
 		/* ----------------------*/
 		string_commas_dollar(
-			customer_payable_balance ) );
+			payment_total ) );
 
 	return strdup( display );
 }
 
-char *invoice_latex_summary_due_display(
+char *invoice_latex_summary_amount_due_display(
 		char *amount_due_label,
 		boolean description_boolean,
 		boolean discount_boolean,
@@ -1334,18 +1319,45 @@ char *invoice_latex_summary_due_display(
 	return strdup( display );
 }
 
+char *invoice_latex_summary_past_due_display(
+		boolean description_boolean,
+		boolean discount_boolean,
+		double past_due )
+{
+	char display[ 1024 ];
+
+	if ( float_virtually_same( past_due, 0.0 ) ) return NULL;
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"\\bf Past due &%s \\bf \\$%s \\\\",
+		/* ------------------------------------ */
+		/* Returns same static memory each time */
+		/* ------------------------------------ */
+		invoice_latex_summary_empty_display(
+			description_boolean,
+			discount_boolean ),
+		/* ----------------------*/
+		/* Returns static memory */
+		/* ----------------------*/
+		string_commas_dollar(
+			past_due ) );
+
+	return strdup( display );
+}
 
 char *invoice_latex_summary_display(
 		char *extended_display,
 		char *discount_display,
-		char *amount_display,
-		char *payable_display,
-		char *due_display )
+		char *payment_total_display,
+		char *past_due_display,
+		char *amount_due_display )
 {
 	char display[ STRING_64K ];
 
 	if ( !extended_display
-	||   !due_display )
+	||   !amount_due_display )
 	{
 		char message[ 128 ];
 
@@ -1367,9 +1379,9 @@ char *invoice_latex_summary_display(
 		"%s\n%s\n%s\n%s\n%s",
 		extended_display,
 		(discount_display) ? discount_display : "",
-		(amount_display) ? amount_display : "",
-		(payable_display) ? payable_display : "",
-		due_display );
+		(payment_total_display) ? payment_total_display : "",
+		(past_due_display) ? past_due_display : "",
+		amount_due_display );
 
 	return strdup( display );
 }

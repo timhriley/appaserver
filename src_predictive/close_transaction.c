@@ -191,7 +191,9 @@ LIST *close_transaction_journal_list(
 double close_transaction_amount( LIST *journal_list )
 {
 	return
-	journal_debit_sum( journal_list );
+	journal_debit_sum(
+		(char *)0 /* before_transaction_date_time */,
+		journal_list );
 }
 
 LIST *close_transaction_nominal_journal_list(

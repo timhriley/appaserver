@@ -292,16 +292,19 @@ char *journal_tax_form_where(
 /* Usage */
 /* ----- */
 double journal_debit_sum(
+		char *before_transaction_date_time,
 		LIST *journal_list );
 
 /* Usage */
 /* ----- */
 double journal_credit_sum(
+		char *before_transaction_date_time,
 		LIST *journal_list );
 
 /* Usage */
 /* ----- */
 double journal_debit_credit_sum_difference(
+		char *before_transaction_date_time,
 		boolean element_accumulate_debit,
 		LIST *journal_list );
 

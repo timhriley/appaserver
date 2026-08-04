@@ -1667,13 +1667,10 @@ double journal_account_list_debit_sum(
 		LIST *journal_list,
 		LIST *account_name_list )
 {
-	double sum;
+	double sum = 0.0;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
@@ -1696,13 +1693,10 @@ double journal_account_list_credit_sum(
 		LIST *journal_list,
 		LIST *account_name_list )
 {
-	double sum;
+	double sum = 0.0;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
@@ -1721,17 +1715,24 @@ double journal_account_list_credit_sum(
 	return sum;
 }
 
-double journal_debit_sum( LIST *journal_list )
+double journal_debit_sum(
+		char *before_transaction_date_time,
+		LIST *journal_list )
 {
-	double sum;
+	double sum = 0.0;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
+
+		if (	before_transaction_date_time
+		&&	string_strcmp(
+				journal->transaction_date_time,
+				before_transaction_date_time ) >= 0 )
+		{
+			continue;
+		}
 
 		if ( journal->debit_amount ) sum += journal->debit_amount;
 
@@ -1740,17 +1741,24 @@ double journal_debit_sum( LIST *journal_list )
 	return sum;
 }
 
-double journal_credit_sum( LIST *journal_list )
+double journal_credit_sum(
+		char *before_transaction_date_time,
+	       	LIST *journal_list )
 {
-	double sum;
+	double sum = 0.0;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
+
+		if (	before_transaction_date_time
+		&&	string_strcmp(
+				journal->transaction_date_time,
+				before_transaction_date_time ) >= 0 )
+		{
+			continue;
+		}
 
 		if ( journal->credit_amount ) sum += journal->credit_amount;
 
@@ -2354,6 +2362,7 @@ char *journal_primary_where(
 }
 
 double journal_debit_credit_sum_difference(
+		char *before_transaction_date_time,
 		boolean element_accumulate_debit,
 		LIST *journal_list )
 {
@@ -2363,10 +2372,12 @@ double journal_debit_credit_sum_difference(
 
 	debit_sum =
 		journal_debit_sum(
+			before_transaction_date_time,
 			journal_list );
 
 	credit_sum =
 		journal_credit_sum(
+			before_transaction_date_time,
 			journal_list );
 
 	if ( element_accumulate_debit )

@@ -161,6 +161,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 	{
 		close_nominal_do->journal_debit_sum =
 			journal_debit_sum(
+				(char *)0 /* before_transaction_date_time */,
 				close_nominal_do->
 					close_transaction->
 					transaction->
@@ -168,6 +169,7 @@ CLOSE_NOMINAL_DO *close_nominal_do_fetch(
 
 		close_nominal_do->journal_credit_sum =
 			journal_credit_sum(
+				(char *)0 /* before_transaction_date_time */,
 				close_nominal_do->
 					close_transaction->
 					transaction->

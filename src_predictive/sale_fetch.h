@@ -55,12 +55,12 @@ typedef struct
 	char *uncollectible_date_time;
 	char *arrived_date;
 	char *transaction_date_time;
+	CUSTOMER *customer;
 	LIST *inventory_sale_list;
 	LIST *specific_inventory_sale_list;
 	LIST *fixed_service_sale_list;
 	LIST *hourly_service_sale_list;
 	LIST *customer_payment_list;
-	CUSTOMER *customer;
 	ENTITY_SELF *entity_self;
 	double self_tax_state_sales_tax_rate;
 	LIST *primary_key_list;
@@ -74,7 +74,8 @@ SALE_FETCH *sale_fetch_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *sale_date_time );
+		char *sale_date_time,
+		boolean customer_entity_boolean );
 
 /* Process */
 /* ------- */

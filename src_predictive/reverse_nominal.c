@@ -141,6 +141,7 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch(
 
 	reverse_nominal_do->journal_debit_sum =
 		journal_debit_sum(
+			(char *)0 /* before_transaction_date_time */,
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->
@@ -148,6 +149,7 @@ REVERSE_NOMINAL_DO *reverse_nominal_do_fetch(
 
 	reverse_nominal_do->journal_credit_sum =
 		journal_credit_sum(
+			(char *)0 /* before_transaction_date_time */,
 			reverse_nominal_do->
 				reverse_transaction->
 				transaction->

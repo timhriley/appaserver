@@ -17,6 +17,7 @@
 #include "predictive.h"
 #include "entity_self.h"
 #include "customer.h"
+#include "sale.h"
 #include "invoice.h"
 
 INVOICE *invoice_calloc( void )
@@ -40,34 +41,21 @@ INVOICE *invoice_calloc( void )
 }
 
 INVOICE *invoice_new(
-		char *invoice_key,
-		char *transaction_date_time_string,
-		char *invoice_date_time_string,
+		char *fund_name,
 		char *customer_full_name,
 		char *customer_contact_key,
+		char *sale_date_time,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list )
 {
 	INVOICE *invoice;
 
-	if ( !invoice_date_time_string )
+	if ( !customer_full_name
+	||   !sale_date_time )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "invoice_date_time_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !customer_full_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "customer_full_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -103,53 +91,29 @@ INVOICE *invoice_new(
 			message );
 	}
 
-	if ( ! ( invoice->customer =
-			customer_fetch(
-				customer_full_name,
-				customer_contact_key,
-				invoice->entity_contact_key_boolean,
-				1 /* fetch_entity_boolean */,
-				1 /* fetch_past_due_boolean */ ) ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"customer_fetch(%s) returned empty.",
-			customer_full_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	invoice->use_key =
-		/* --------------------------------- */
-		/* Returns first non-empty parameter */
-		/* --------------------------------- */
-		invoice_use_key(
-			invoice_key,
-			transaction_date_time_string,
-			invoice_date_time_string );
-
-	invoice->title =
+	invoice->report_title =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		invoice_title(
+		invoice_report_title(
 			customer_full_name,
-			invoice_enum,
-			invoice->use_key );
+			invoice_enum );
+
+	invoice->table_title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		invoice_table_title(
+			customer_full_name,
+			sale_date_time,
+			invoice_enum );
 
 	invoice->date_string =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		invoice_date_string(
-			invoice_date_time_string );
+			sale_date_time );
 
 	invoice->amount_due_label =
 		/* ---------------------- */
@@ -158,13 +122,47 @@ INVOICE *invoice_new(
 		invoice_amount_due_label(
 			invoice_enum );
 
+	invoice->sale_fetch =
+		sale_fetch_new(
+			SALE_SELECT,
+			SALE_TABLE,
+			fund_name,
+			customer_full_name,
+			customer_contact_key,
+			sale_date_time,
+			1 /* customer_entity_boolean */ );
+
+	if ( !invoice->sale_fetch )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"sale_fetch(%s) returned empty.",
+			sale_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	invoice->invoice_summary =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		invoice_summary_new(
 			invoice_line_item_list,
-			invoice->customer->past_due );
+			invoice->sale_fetch->invoice_amount,
+			invoice->sale_fetch->payment_total,
+			invoice->sale_fetch->amount_due,
+			invoice->
+				sale_fetch->
+				customer->
+				past_due
+					/* negative value */ );
 
 	return invoice;
 }
@@ -457,10 +455,10 @@ void invoice_html_output(
 	}
 
 	if ( !invoice
-	||   !invoice->use_key
 	||   !invoice->date_string
 	||   !invoice->entity_self
-	||   !invoice->customer
+	||   !invoice->sale_fetch
+	||   !invoice->sale_fetch->customer
 	||   !invoice->invoice_summary )
 	{
 		char message[ 128 ];
@@ -477,7 +475,7 @@ void invoice_html_output(
 	invoice_html_output_style( output_stream );
 
 	invoice_html_output_table_open(
-		invoice->title,
+		invoice->report_title,
 		output_stream );
 
 	invoice_html_output_self(
@@ -492,7 +490,7 @@ void invoice_html_output(
 		output_stream );
 
 	invoice_html_output_customer(
-		invoice->customer,
+		invoice->sale_fetch->customer,
 		invoice->
 			invoice_summary->
 			invoice_line_item_description_boolean,
@@ -535,7 +533,7 @@ void invoice_html_output(
 		invoice->
 			invoice_summary->
 			invoice_line_item_extended_total,
-		invoice->customer->past_due,
+		invoice->sale_fetch->customer->past_due,
 		invoice->invoice_summary->amount_due,
 		invoice->amount_due_label,
 		output_stream );
@@ -543,42 +541,11 @@ void invoice_html_output(
 	invoice_html_output_table_close( output_stream );
 }
 
-char *invoice_use_key(
-		char *invoice_key,
-		char *transaction_date_time_string,
-		char *invoice_date_time_string )
+char *invoice_date_string( char *sale_date_time )
 {
-	char *key;
+	static char date_string[ 16 ];
 
-	if ( invoice_key && *invoice_key )
-		key = invoice_key;
-	else
-	if ( transaction_date_time_string && *transaction_date_time_string )
-		key = transaction_date_time_string;
-	else
-		key = invoice_date_time_string;
-
-	if ( !key )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "key is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return key;
-}
-
-char *invoice_date_string( char *invoice_date_time_string )
-{
-	static char date_string[ 128 ];
-
-	column(	date_string, 0, invoice_date_time_string );
+	column(	date_string, 0, sale_date_time );
 
 	return date_string;
 }
@@ -606,16 +573,16 @@ int invoice_line_item_quantity_decimal_count(
 }
 
 void invoice_html_output_table_open(
-		char *invoice_title,
+		char *report_title,
 		FILE *output_stream )
 {
 	char title_buffer[ 128 ];
 
-	if ( !invoice_title )
+	if ( !report_title )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "invoice_title is empty." );
+		sprintf(message, "report_title is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -624,7 +591,7 @@ void invoice_html_output_table_open(
 			message );
 	}
 
-	strcpy( title_buffer, invoice_title );
+	strcpy( title_buffer, report_title );
 	string_search_replace( title_buffer, " ", "&nbsp;" );
 
 	fprintf(output_stream,
@@ -634,16 +601,15 @@ void invoice_html_output_table_open(
 		title_buffer );
 }
 
-char *invoice_title(
+char *invoice_table_title(
 		char *customer_full_name,
-		enum invoice_enum invoice_enum,
-		char *invoice_use_key )
+		char *sale_date_time,
+		enum invoice_enum invoice_enum )
 {
-	static char title[ 256 ];
-	char *prompt;
+	static char table_title[ 256 ];
 
 	if ( !customer_full_name
-	||   !invoice_use_key )
+	||   !sale_date_time )
 	{
 		char message[ 128 ];
 
@@ -656,6 +622,56 @@ char *invoice_title(
 			message );
 	}
 
+	snprintf(
+		table_title,
+		sizeof ( table_title ),
+		"%s %s for %s",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		invoice_prompt( invoice_enum ),
+		sale_date_time,
+		customer_full_name );
+
+	return table_title;
+}
+
+char *invoice_report_title(
+		char *customer_full_name,
+		enum invoice_enum invoice_enum )
+{
+	static char title[ 256 ];
+
+	if ( !customer_full_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "customer_full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		title,
+		sizeof ( title ),
+		"%s prepared for %s",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		invoice_prompt( invoice_enum ),
+		customer_full_name );
+
+	return title;
+}
+
+char *invoice_prompt( enum invoice_enum invoice_enum )
+{
+	char *prompt;
+
 	if ( invoice_enum == invoice_workorder )
 		prompt = "Workorder";
 	else
@@ -665,15 +681,7 @@ char *invoice_title(
 	/* Must be invoice_enum == invoice_due */
 		prompt = "Invoice Due";
 
-	snprintf(
-		title,
-		sizeof ( title ),
-		"%s %s for %s",
-		prompt,
-		invoice_use_key,
-		customer_full_name );
-
-	return title;
+	return prompt;
 }
 
 void invoice_html_output_self(
@@ -826,31 +834,28 @@ char *invoice_amount_due_label( enum invoice_enum invoice_enum )
 		return "Amount Due";
 }
 
-double invoice_summary_invoice_amount(
-		double extended_total,
-		double discount_total )
-{
-	return
-	extended_total -
-	discount_total;
-}
-
 double invoice_summary_amount_due(
-		double customer_past_due,
-		double invoice_amount )
+		double sale_amount_due,
+		double customer_past_due /* negative value */ )
 {
-	return
-	invoice_amount +
-	customer_past_due;
+	return sale_amount_due - customer_past_due;
 }
 
 INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double customer_past_due )
+		double sale_invoice_amount,
+		double sale_payment_total,
+		double sale_amount_due,
+		double customer_past_due /* negative value */ )
 {
 	INVOICE_SUMMARY *invoice_summary;
 
 	invoice_summary = invoice_summary_calloc();
+
+	invoice_summary->sale_invoice_amount = sale_invoice_amount;
+	invoice_summary->sale_payment_total = sale_payment_total;
+	invoice_summary->sale_amount_due = sale_amount_due;
+	invoice_summary->customer_past_due = customer_past_due;
 
 	invoice_summary->invoice_line_item_description_boolean =
 		invoice_line_item_description_boolean(
@@ -864,23 +869,18 @@ INVOICE_SUMMARY *invoice_summary_new(
 		invoice_line_item_quantity_decimal_count(
 			invoice_line_item_list );
 
-	invoice_summary->invoice_line_item_extended_total =
-		invoice_line_item_extended_total(
-			invoice_line_item_list );
-
 	invoice_summary->invoice_line_item_discount_total =
 		invoice_line_item_discount_total(
 			invoice_line_item_list );
 
-	invoice_summary->invoice_amount =
-		invoice_summary_invoice_amount(
-			invoice_summary->invoice_line_item_extended_total,
-			invoice_summary->invoice_line_item_discount_total );
+	invoice_summary->invoice_line_item_extended_total =
+		invoice_line_item_extended_total(
+			invoice_line_item_list );
 
 	invoice_summary->amount_due =
 		invoice_summary_amount_due(
-			customer_past_due,
-			invoice_summary->invoice_amount );
+			sale_amount_due,
+			customer_past_due );
 
 	return invoice_summary;
 }

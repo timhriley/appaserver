@@ -138,6 +138,7 @@ PAYPAL_LIBRARY= 							\
 		paypal_spreadsheet_load_event.o
 
 SALE_LIBRARY=								\
+		${LIBRARY}/preupdate_change.o				\
 		sale.o							\
 		sale_fetch.o						\
 		customer.o						\
@@ -735,76 +736,64 @@ post_change_account_balance: post_change_account_balance.c		\
 
 post_change_customer_sale: post_change_customer_sale.c			\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		post_change_customer_sale.c				\
 		-o post_change_customer_sale
 
 hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		hourly_service_sale_trigger.c				\
 		-o hourly_service_sale_trigger
 
 post_change_fixed_service_sale:						\
 	post_change_fixed_service_sale.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		post_change_fixed_service_sale.c			\
 		-o post_change_fixed_service_sale
 
 post_change_hourly_service_work:					\
 	post_change_hourly_service_work.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		post_change_hourly_service_work.c			\
 		-o post_change_hourly_service_work
 
 post_change_fixed_service_work:						\
 	post_change_fixed_service_work.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		post_change_fixed_service_work.c			\
 		-o post_change_fixed_service_work
 
 post_change_customer_payment: post_change_customer_payment.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o
+		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		${LIBRARY}/preupdate_change.o				\
 		post_change_customer_payment.c				\
 		-o post_change_customer_payment
 
@@ -870,16 +859,16 @@ inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
 
 generate_invoice: generate_invoice.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${SALE_LIBRARY}							\
 	invoice.o							\
-	invoice_latex.o							\
-	customer.o
+	invoice_latex.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		generate_invoice.c					\
 		invoice.o						\
 		invoice_latex.o						\
-		customer.o						\
+		${SALE_LIBRARY}						\
 		-o generate_invoice
 	touch generate_workorder
 	rm generate_workorder

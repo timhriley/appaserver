@@ -20,9 +20,9 @@ typedef struct
 {
 	char *extended_display;
 	char *discount_display;
-	char *amount_display;
-	char *payable_display;
-	char *due_display;
+	char *payment_total_display;
+	char *past_due_display;
+	char *amount_due_display;
 	char *display;
 } INVOICE_LATEX_SUMMARY;
 
@@ -35,11 +35,11 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
 		char *amount_due_label,
 		boolean invoice_line_item_description_boolean,
 		boolean invoice_line_item_discount_boolean,
-		double invoice_line_item_extended_price_total,
 		double invoice_line_item_discount_total,
-		double invoice_latex_summary_invoice_amount,
-		double customer_payable_balance,
-		double amount_due );
+		double sale_invoice_amount,
+		double sale_payment_total,
+		double customer_past_due,
+		double invoice_summary_amount_due );
 
 /* Process */
 /* ------- */
@@ -51,7 +51,7 @@ INVOICE_LATEX_SUMMARY *invoice_latex_summary_calloc(
 char *invoice_latex_summary_extended_display(
 		boolean invoice_line_item_description_boolean,
 		boolean invoice_line_item_discount_boolean,
-		double extended_price_total );
+		double invoice_amount );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -62,35 +62,34 @@ char *invoice_latex_summary_discount_display(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *invoice_latex_summary_amount_display(
+char *invoice_latex_summary_payment_total_display(
 		boolean invoice_line_item_description_boolean,
 		boolean invoice_line_item_discount_boolean,
-		double invoice_amount );
+		double sale_payment_total );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *invoice_latex_summary_payable_display(
+char *invoice_latex_summary_past_due_display(
 		boolean invoice_line_item_description_boolean,
 		boolean invoice_line_item_discount_boolean,
-		double customer_payable_balance );
+		double customer_past_due );
 
 /* Returns heap memory */
 /* ------------------- */
-char *invoice_latex_summary_due_display(
+char *invoice_latex_summary_amount_due_display(
 		char *amount_due_label,
 		boolean invoice_line_item_description_boolean,
 		boolean invoice_line_item_discount_boolean,
 		double invoice_summary_amount_due );
-
 
 /* Returns heap memory */
 /* ------------------- */
 char *invoice_latex_summary_display(
 		char *invoice_latex_summary_extended_display,
 		char *invoice_latex_summary_discount_display,
-		char *invoice_latex_summary_amount_display,
-		char *invoice_latex_summary_payable_display,
-		char *invoice_latex_summary_due_display );
+		char *invoice_latex_summary_payment_total_display,
+		char *invoice_latex_summary_past_due_display,
+		char *invoice_latex_summary_amount_due_display );
 
 /* Usage */
 /* ----- */
@@ -169,7 +168,7 @@ typedef struct
 /* -------------- */
 INVOICE_LATEX_TABLE *invoice_latex_table_new(
 		enum invoice_enum invoice_enum,
-		char *invoice_title,
+		char *invoice_table_title,
 		ENTITY_SELF *entity_self,
 		CUSTOMER *customer,
 		LIST *invoice_line_item_list,
@@ -267,7 +266,7 @@ char *invoice_latex_document_header(
 /* Returns heap memory */
 /* ------------------- */
 char *invoice_latex_title(
-		char *invoice_caption,
+		char *invoice_report_title,
 		char *statement_caption_logo_filename,
 		char *invoice_date_string );
 

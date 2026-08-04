@@ -402,7 +402,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 LATEX_TABLE *latex_table_new(
-		char *title,
+		char *report_title,
+		char *table_title,
 		LIST *latex_column_list,
 		LIST *latex_row_list );
 
@@ -425,7 +426,17 @@ char *latex_table_begin_longtable(
 /* Returns heap memory */
 /* ------------------- */
 char *latex_table_caption_display(
-		char *title );
+		char *report_title,
+		char *table_title );
+
+/* Usage */
+/* ----- */
+
+/* Returns either parameter */
+/* ------------------------ */
+char *latex_table_caption_string(
+		char *report_title,
+		char *table_title );
 
 /* Usage */
 /* ----- */

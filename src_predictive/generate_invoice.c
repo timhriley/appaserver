@@ -70,12 +70,10 @@ int main( int argc, char **argv )
 		/* Safely returns */
 		/* -------------- */
 		invoice_new(
-			(char *)0 /* invoice_key */,
-			(char *)0 /* transaction_date_time_string */,
-			sale_date_time
-				/* invoice_date_time_string */,
+			fund_name,
 			customer_full_name,
 			customer_contact_key,
+			sale_date_time,
 			(workorder_boolean)
 				? invoice_workorder
 				: invoice_due,

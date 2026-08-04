@@ -560,7 +560,9 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 
 		trial_balance_latex->latex_table =
 			latex_table_new(
-				statement->statement_caption->combined,
+				statement->statement_caption->combined
+					/* report_title */,
+				(char *)0 /* table_title */,
 				trial_balance_latex->
 					trial_balance_subclass_display_latex->
 					column_list,
@@ -579,7 +581,9 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 
 		trial_balance_latex->latex_table =
 			latex_table_new(
-				statement->statement_caption->combined,
+				statement->statement_caption->combined
+					/* report_title */,
+				(char *)0 /* table_title */,
 				trial_balance_latex->
 					trial_balance_subclass_omit_latex->
 					column_list,

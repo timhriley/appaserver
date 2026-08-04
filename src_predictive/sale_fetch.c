@@ -415,7 +415,8 @@ SALE_FETCH *sale_fetch_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *sale_date_time )
+		char *sale_date_time,
+		boolean customer_entity_boolean )
 {
 	char *select;
 	char *where;
@@ -592,6 +593,31 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch->uncollectible_date_time_boolean,
 		input );
 
+	if ( ! ( sale_fetch->customer =
+		   customer_fetch(
+			full_name,
+			contact_key,
+			sale_fetch->entity_contact_key_boolean,
+			customer_entity_boolean /* fetch_entity_boolean */,
+			1 /* fetch_past_due_boolean */,
+			sale_fetch->transaction_date_time
+				/* before_transaction_date_time */ ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"customer_fetch(%s) returned empty.",
+			full_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 #ifdef NOT_DEFINED
 
 	if ( sale_fetch->inventory_sale_boolean )
@@ -619,29 +645,6 @@ SALE_FETCH *sale_fetch_new(
 	if (	sale_fetch->inventory_sale_boolean
 	||	sale_fetch->specific_inventory_sale_boolean )
 	{
-		if ( ! ( sale_fetch->customer =
-			   customer_fetch(
-				full_name,
-				street_address,
-				0 /* not fetch_entity_boolean */,
-				0 /* not fetch_payable_balance_boolean */ ) ) )
-		{
-			char message[ 256 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"customer_fetch(%s/%s) returned empty.",
-				full_name,
-				street_address );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		if ( !sale_fetch->customer->sales_tax_exempt_boolean )
 		{
 			if ( ! ( sale_fetch->entity_self =

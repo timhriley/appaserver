@@ -978,7 +978,8 @@ LATEX_TABLE *budget_latex_table(
 
 	return
 	latex_table_new(
-		budget_sub_title /* title */,
+		budget_sub_title /* report_title */,
+		(char *)0 /* table_title */,
 		latex_column_list,
 		latex_row_list );
 }

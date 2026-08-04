@@ -31,7 +31,8 @@ CUSTOMER *customer_fetch(
 		char *customer_contact_key,
 		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_past_due_boolean );
+		boolean fetch_past_due_boolean,
+		char *before_transaction_date_time );
 
 /* Usage */
 /* ----- */
@@ -41,6 +42,7 @@ CUSTOMER *customer_parse(
 		boolean entity_contact_key_boolean,
 		boolean fetch_entity_boolean,
 		boolean fetch_past_due_boolean,
+		char *before_transaction_date_time,
 		char *input );
 
 /* Usage */
@@ -64,7 +66,8 @@ double customer_past_due(
 		const char *account_receivable_key,
 		char *customer_full_name,
 		char *customer_contact_key,
-		boolean entity_contact_key_boolean );
+		boolean entity_contact_key_boolean,
+		char *before_transaction_date_time );
 
 #endif
 

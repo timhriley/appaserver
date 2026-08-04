@@ -72,7 +72,8 @@ SALE *sale_trigger_new(
 			fund_name,
 			full_name,
 			contact_key,
-			sale_date_time );
+			sale_date_time,
+			0 /* not customer_entity_boolean */ );
 
 	/* May be deleted */
 	/* -------------- */

@@ -22,7 +22,8 @@ CUSTOMER *customer_fetch(
 		char *customer_contact_key,
 		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
-		boolean fetch_past_due_boolean )
+		boolean fetch_past_due_boolean,
+		char *before_transaction_date_time )
 {
 	char *where;
 	char *system_string;
@@ -74,6 +75,7 @@ CUSTOMER *customer_fetch(
 		contact_key_boolean,
 		fetch_entity_boolean,
 		fetch_past_due_boolean,
+		before_transaction_date_time,
 		input );
 }
 
@@ -83,6 +85,7 @@ CUSTOMER *customer_parse(
 		boolean contact_key_boolean,
 		boolean fetch_entity_boolean,
 		boolean fetch_past_due_boolean,
+		char *before_transaction_date_time,
 		char *input )
 {
 	char buffer[ 128 ];
@@ -148,7 +151,8 @@ CUSTOMER *customer_parse(
 				ACCOUNT_RECEIVABLE_KEY,
 				customer_full_name,
 				customer_contact_key,
-				contact_key_boolean );
+				contact_key_boolean,
+				before_transaction_date_time );
 	}
 
 	return customer;
@@ -206,7 +210,8 @@ double customer_past_due(
 		const char *account_receivable_key,
 		char *customer_full_name,
 		char *customer_contact_key,
-		boolean contact_key_boolean )
+		boolean contact_key_boolean,
+		char *before_transaction_date_time )
 {
 
 	double payable_balance;
@@ -231,6 +236,7 @@ double customer_past_due(
 
 	payable_balance =
 		journal_debit_credit_sum_difference(
+			before_transaction_date_time,
 			0 /* not element_accumulate_debit */,
 			list );
 
@@ -252,6 +258,7 @@ double customer_past_due(
 
 	receivable_balance =
 		journal_debit_credit_sum_difference(
+			before_transaction_date_time,
 			1 /* element_accumulate_debit */,
 			list );
 

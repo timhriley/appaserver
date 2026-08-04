@@ -735,18 +735,18 @@ void latex_cell_list_free( LIST *latex_cell_list )
 }
 
 LATEX_TABLE *latex_table_new(
-		char *title,
+		char *report_title,
+		char *table_title,
 		LIST *latex_column_list,
 		LIST *latex_row_list )
 {
 	LATEX_TABLE *latex_table;
 
-	if ( !title
-	||   !list_length( latex_column_list ) )
+	if ( !list_length( latex_column_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "latex_column_list is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -778,7 +778,8 @@ LATEX_TABLE *latex_table_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		latex_table_caption_display(
-			title );
+			report_title,
+			table_title );
 
 	latex_table->latex_column_header_text_line =
 		/* ------------------- */
@@ -1208,16 +1209,19 @@ char *latex_table_begin_longtable( void )
 	return "\\begin{longtable}";
 }
 
-char *latex_table_caption_display( char *title )
+char *latex_table_caption_string(
+		char *report_title,
+		char *table_title )
 {
-	char buffer[ 128 ];
-	char caption_display[ 256 ];
-
-	if ( !title )
+	if ( !report_title
+	&&   !table_title )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message, "title is empty." );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1226,11 +1230,31 @@ char *latex_table_caption_display( char *title )
 			message );
 	}
 
-	sprintf(caption_display,
+	if ( table_title )
+		return table_title;
+	else
+		return report_title;
+}
+
+char *latex_table_caption_display(
+		char *report_title,
+		char *table_title )
+{
+	char buffer[ 256 ];
+	char caption_display[ 288 ];
+
+	snprintf(
+		caption_display,
+		sizeof ( caption_display ),
 		"\\caption {%s}\\\\ \\hline",
 		string_initial_capital(
 			buffer,
-			title ) );
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			latex_table_caption_string(
+				report_title,
+				table_title ) ) );
 
 	return strdup( caption_display );
 }
