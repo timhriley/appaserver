@@ -21,9 +21,6 @@
 
 /* #define FEEDER_DEBUG_MODE 1 */
 
-#define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
-					"feeder_load_transaction_days_ago"
-
 #define FEEDER_MATCH_DEFAULT_DAYS_AGO	366
 
 #define FEEDER_DESCRIPTION_SIZE		140
@@ -56,7 +53,6 @@ typedef struct
 	char *account_uncleared_checks_string;
 	LIST *feeder_phrase_list;
 	LIST *feeder_row_exist_list;
-	int match_days_ago;
 	char *match_minimum_date;
 	LIST *feeder_matched_journal_list;
 	LIST *feeder_row_list;
@@ -95,17 +91,11 @@ FEEDER *feeder_fetch(
 FEEDER *feeder_calloc(
 		void );
 
-/* Safely returns */
-/* -------------- */
-int feeder_match_days_ago(
-		const char *feeder_load_transaction_days_ago,
-		const int feeder_match_default_days_ago );
-
 /* Returns heap memory or "" */
 /* ------------------------- */
 char *feeder_match_minimum_date(
 		char *exchange_minimum_date_string,
-		int feeder_match_days_ago );
+		const int feeder_match_default_days_ago );
 
 /* Driver */
 /* ------ */

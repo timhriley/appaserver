@@ -115,21 +115,13 @@ feeder_load_row_list_raw_display(
 			FEEDER_PHRASE_TABLE,
 			feeder->entity_contact_key_boolean );
 
-	feeder->match_days_ago =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		feeder_match_days_ago(
-			FEEDER_LOAD_TRANSACTION_DAYS_AGO,
-			FEEDER_MATCH_DEFAULT_DAYS_AGO );
-
 	feeder->match_minimum_date =
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
 		feeder_match_minimum_date(
 			exchange_minimum_date_string,
-			feeder->match_days_ago );
+			FEEDER_MATCH_DEFAULT_DAYS_AGO );
 
 	feeder->feeder_row_exist_list =
 		feeder_row_exist_list(
@@ -515,7 +507,7 @@ void feeder_process(
 
 char *feeder_match_minimum_date(
 		char *exchange_minimum_date_string,
-		int feeder_match_days_ago )
+		const int feeder_match_default_days_ago )
 {
 	DATE *date;
 
@@ -557,7 +549,7 @@ char *feeder_match_minimum_date(
 	date =
 		date_decrement_days(
 			date,
-			(double)feeder_match_days_ago );
+			(double)feeder_match_default_days_ago );
 
 	return
 	/* ------------------------- */
