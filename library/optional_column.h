@@ -27,7 +27,7 @@ typedef struct
 OPTIONAL_COLUMN *optional_column_new(
 		const char delimiter,
 		char *base_string,
-		char *component /* column or datum */,
+		char *component /* column or datum (stack memory) */,
 		boolean escape_boolean,
 		boolean set_boolean );
 
@@ -55,6 +55,28 @@ OPTIONAL_COLUMN *optional_column_money_new(
 		const char delimiter,
 		char *base_string,
 		double money,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+OPTIONAL_COLUMN *optional_column_integer_new(
+		const char delimiter,
+		char *base_string,
+		int integer,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+OPTIONAL_COLUMN *optional_column_text_new(
+		const char delimiter,
+		char *base_string,
+		char *text,
 		boolean set_boolean );
 
 #endif

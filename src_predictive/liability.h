@@ -70,6 +70,7 @@ typedef struct
 	char *account_where;
 	LIST *journal_system_list;
 	double journal_credit_debit_difference_sum;
+	double amount;
 	char *string_in_clause;
 	char *entity_where;
 	LIABILITY_ACCOUNT_LIST *liability_account_list;

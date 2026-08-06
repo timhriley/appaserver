@@ -119,6 +119,8 @@ RECEIVABLE *receivable_fetch(
 		return NULL;
 	}
 
+	receivable->amount = receivable->journal_debit_credit_difference_sum;
+
 	receivable->receivable_account_list =
 		receivable_account_list_new(
 			receivable->journal_system_list );

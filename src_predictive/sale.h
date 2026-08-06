@@ -183,6 +183,30 @@ char *sale_update_string(
 /* Usage */
 /* ----- */
 
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *sale_update_integer_string(
+		const char sql_delimiter,
+		char *sale_primary_data_string,
+		const char *column_name,
+		int integer,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *sale_update_text_string(
+		const char sql_delimiter,
+		char *sale_primary_data_string,
+		const char *column_name,
+		char *text,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *sale_primary_data_string(

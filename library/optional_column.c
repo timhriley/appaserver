@@ -14,7 +14,7 @@
 OPTIONAL_COLUMN *optional_column_new(
 		const char delimiter,
 		char *base_string,
-		char *component,
+		char *component /* stack memory */,
 		boolean escape_boolean,
 		boolean set_boolean )
 {
@@ -166,7 +166,67 @@ OPTIONAL_COLUMN *optional_column_money_new(
 	optional_column_new(
 		delimiter,
 		base_string,
-		component /* column or datum */,
+		component /* column or datum (stack memory) */,
+		0 /* not escape_boolean */,
+		set_boolean );
+}
+
+OPTIONAL_COLUMN *optional_column_integer_new(
+		const char delimiter,
+		char *base_string,
+		int integer,
+		boolean set_boolean )
+{
+	char component[ 32 ];
+
+	if ( !base_string )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"base_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		component,
+		sizeof ( component ),
+		"%d",
+		integer );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	optional_column_new(
+		delimiter,
+		base_string,
+		component /* column or datum (stack memory) */,
+		0 /* not escape_boolean */,
+		set_boolean );
+}
+
+OPTIONAL_COLUMN *optional_column_text_new(
+		const char delimiter,
+		char *base_string,
+		char *text,
+		boolean set_boolean )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	optional_column_new(
+		delimiter,
+		base_string,
+		text /* column or datum (stack memory) */,
 		0 /* not escape_boolean */,
 		set_boolean );
 }

@@ -102,6 +102,8 @@ LIABILITY *liability_entity_fetch(
 		return NULL;
 	}
 
+	liability->amount = liability->journal_credit_debit_difference_sum;
+
 	liability->liability_account_list =
 		liability_account_list_new(
 			liability->journal_system_list );
@@ -219,6 +221,8 @@ LIABILITY *liability_account_fetch(
 		free( liability );
 		return NULL;
 	}
+
+	liability->amount = liability->journal_credit_debit_difference_sum;
 
 	liability->liability_account_list =
 		liability_account_list_new(

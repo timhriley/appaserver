@@ -54,6 +54,7 @@ typedef struct
 {
 	LIST *journal_system_list;
 	double journal_debit_credit_difference_sum;
+	double amount;
 	RECEIVABLE_ACCOUNT_LIST *receivable_account_list;
 } RECEIVABLE;
 
