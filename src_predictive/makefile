@@ -143,6 +143,9 @@ SALE_LIBRARY=								\
 		sale_fetch.o						\
 		customer.o						\
 		customer_accrual.o					\
+		receivable.o						\
+		check.o							\
+		liability.o						\
 		fixed_service_sale.o					\
 		fixed_service_work.o					\
 		sale_transaction.o					\
@@ -422,16 +425,12 @@ import_predictbooks: import_predictbooks.c				\
 
 populate_print_checks_entity: populate_print_checks_entity.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	liability.o							\
-	receivable.o							\
-	check.o
+	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
+		${SALE_LIBRARY}						\
 		populate_print_checks_entity.c				\
-		liability.o						\
-		receivable.o						\
-		check.o							\
 		-o populate_print_checks_entity
 
 journal_trigger: journal_trigger.c					\
@@ -446,16 +445,12 @@ journal_trigger: journal_trigger.c					\
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	liability.o							\
-	receivable.o							\
-	check.o
+	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
+		${SALE_LIBRARY}						\
 		pay_liabilities_process.c				\
-		liability.o						\
-		receivable.o						\
-		check.o							\
 		-o pay_liabilities_process
 
 liability_prepaid: liability_prepaid.c					\

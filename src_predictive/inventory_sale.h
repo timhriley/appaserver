@@ -18,13 +18,8 @@
 						"extended_price,"	\
 						"cost_of_goods_sold"
 
-#define INVENTORY_SALE_INVENTORY_COLUMN		"inventory_name"
-
 typedef struct
 {
-	char *full_name;
-	char *contact_key;
-	char *sale_date_time;
 	char *inventory_name;
 	int quantity;
 	double retail_price;
@@ -32,6 +27,10 @@ typedef struct
 	double extended_price;
 	double cost_of_goods_sold;
 	double sale_extended_price;
+	char *primary_data_string;
+	char *update_string;
+	LIST *primary_key_list;
+	char *update_system_string;
 } INVENTORY_SALE;
 
 /* Usage */
@@ -43,14 +42,12 @@ LIST *inventory_sale_list(
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 INVENTORY_SALE *inventory_sale_parse(
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		char *input );
 
 /* Usage */
@@ -59,15 +56,38 @@ INVENTORY_SALE *inventory_sale_parse(
 /* Safely returns */
 /* -------------- */
 INVENTORY_SALE *inventory_sale_new(
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		char *inventory_name );
 
 /* Process */
 /* ------- */
 INVENTORY_SALE *inventory_sale_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+INVENTORY_SALE *inventory_sale_fetch(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_primary_where(
+		const char *sale_inventory_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -81,33 +101,42 @@ double inventory_sale_CGS_total(
 
 /* Usage */
 /* ----- */
-INVENTORY_SALE *inventory_sale_seek(
-		LIST *inventory_sale_list,
-		char *inventory_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_update_string(
+		char *inventory_sale_primary_data_string,
+		double sale_extended_price );
 
 /* Usage */
 /* ----- */
-void inventory_sale_update(
-		const char *inventory_sale_table,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *inventory_name,
-		double sale_extended_price,
-		boolean entity_contact_key_boolean );
-
-/* Process */
-/* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_update_system_string(
-		const char *inventory_sale_table );
+		const char *inventory_sale_table,
+		LIST *inventory_sale_primary_key_list );
 
 /* Usage */
 /* ----- */
 LIST *inventory_sale_primary_key_list(
-		const char *inventory_sale_inventory_column,
+		const char *sale_inventory_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_primary_data_string(
+		const char delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
 /* Usage */
