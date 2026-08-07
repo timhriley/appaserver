@@ -142,6 +142,7 @@ SALE_LIBRARY=								\
 		sale.o							\
 		sale_fetch.o						\
 		customer.o						\
+		customer_accrual.o					\
 		fixed_service_sale.o					\
 		fixed_service_work.o					\
 		sale_transaction.o					\
@@ -151,9 +152,9 @@ SALE_LIBRARY=								\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
 		hourly_service_sale.o					\
-		hourly_service_work.o
+		hourly_service_work.o					\
+		inventory_sale.o
 #		self_tax.o						\
-#		inventory_sale.o					\
 #		specific_inventory_sale.o				\
 
 INVESTMENT_LIBRARY=							\
@@ -1289,4 +1290,10 @@ insert_feeder.o:							\
 	insert_feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c insert_feeder.c
+
+customer_accrual.o:							\
+	customer_accrual.c						\
+	customer_accrual.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c customer_accrual.c
 

@@ -12,6 +12,7 @@
 #include "appaserver_error.h"
 #include "date.h"
 #include "sql.h"
+#include "entity.h"
 #include "sale.h"
 #include "inventory_sale.h"
 
@@ -395,5 +396,41 @@ LIST *inventory_sale_primary_key_list(
 	list_set( list, inventory_sale_inventory_column );
 
 	return list;
+}
+
+char *inventory_sale_join(
+		const char *inventory_sale_table,
+		const char *foreign_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char *sale_date_time_column,
+		boolean contact_key_boolean )
+{
+	char sale_join[ 1024 ];
+	char *join;
+
+
+	join =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_join(
+			inventory_sale_table /* ENTITY_TABLE */,
+			foreign_table,
+			entity_full_name_column,
+			entity_contact_key_column,
+			contact_key_boolean );
+
+	snprintf(
+		sale_join,
+		sizeof ( sale_join ),
+		"%s and %s.%s = %s.%s",
+		join,
+		inventory_sale_table,
+		sale_date_time_column,
+		foreign_table,
+		sale_date_time_column );
+
+	return strdup( sale_join );
 }
 

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef INVENTORY_SALE_H
-#define INVENTORY_SALE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -111,5 +110,16 @@ LIST *inventory_sale_primary_key_list(
 		const char *inventory_sale_inventory_column,
 		boolean entity_contact_key_boolean );
 
-#endif
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_join(
+		const char *inventory_sale_table,
+		const char *foreign_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char *sale_date_time_column,
+		boolean entity_contact_key_boolean );
 

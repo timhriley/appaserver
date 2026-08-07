@@ -954,3 +954,68 @@ char *entity_table_name_column(
 
 	return table_name_column;
 }
+
+char *entity_join(
+		const char *entity_table,
+		const char *foreign_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean contact_key_boolean )
+{
+	char join[ 2048 ];
+	char *ptr = join;
+	char entity_column[ 512 ];
+	char foreign_column[ 512 ];
+
+	strcpy(
+		entity_column,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_table_name_column(
+			entity_full_name_column,
+			(char *)entity_table ) );
+
+	strcpy(
+		foreign_column,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_table_name_column(
+			entity_full_name_column,
+			(char *)foreign_table ) );
+
+	ptr += sprintf( ptr,
+		"%s = %s",
+		entity_column,
+		foreign_column );
+
+	if ( contact_key_boolean )
+	{
+		strcpy(
+			entity_column,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_table_name_column(
+				entity_contact_key_column,
+				(char *)entity_table ) );
+
+		strcpy(
+			foreign_column,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_table_name_column(
+				entity_contact_key_column,
+				(char *)foreign_table ) );
+
+		ptr += sprintf( ptr,
+			" and %s = %s",
+			entity_column,
+			foreign_column );
+	}
+
+	return strdup( join );
+}
+

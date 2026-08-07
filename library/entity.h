@@ -99,6 +99,18 @@ char *entity_primary_where(
 
 /* Returns heap memory */
 /* ------------------- */
+char *entity_join(
+		const char *entity_table,
+		const char *foreign_table,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
 char *entity_escape_full_name(
 		char *full_name );
 
@@ -155,7 +167,7 @@ ENTITY *entity_full_name_seek(
 /* ----- */
 ENTITY *entity_getset(
 		boolean entity_contact_key_boolean,
-		LIST *entity_list,
+		LIST *entity_list /* in/out */,
 		char *full_name,
 		char *contact_key,
 		boolean strdup_boolean );
