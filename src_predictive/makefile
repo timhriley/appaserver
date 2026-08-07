@@ -156,9 +156,9 @@ SALE_LIBRARY=								\
 		subsidiary_transaction_state.o				\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
-		inventory_sale.o
+		inventory_sale.o					\
+		specific_inventory_sale.o
 #		self_tax.o						\
-#		specific_inventory_sale.o				\
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\

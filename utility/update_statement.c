@@ -16,7 +16,7 @@ Output:	Update statements
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "list.h"
 #include "name_arg.h"
@@ -26,32 +26,39 @@ Output:	Update statements
 #define SMALL_BUFFER		4096
 #define DEFAULT_DELIMITER	"|"
 
-void output_update_statements(	char *table_name,
-				LIST *primary_key_comma_list,
-				char *argv_0,
-				boolean update_single_carrot_delimiter,
-				char delimiter );
+void output_update_statements(
+		char *table_name,
+		LIST *primary_key_comma_list,
+		char *argv_0,
+		boolean update_single_carrot_delimiter,
+		char delimiter );
 
-boolean exists_single_carrot_delimiters( char *input_buffer );
+boolean exists_single_carrot_delimiters(
+		char *input_buffer );
 
-char *get_carrot_new_data( char *input_buffer );
+char *get_carrot_new_data(
+		char *input_buffer );
 
-char *get_carrot_data_fieldname( char *input_buffer );
+char *get_carrot_data_fieldname(
+		char *input_buffer );
 
 void output_update_single_carrot_delimiters(
-				char *input_buffer,
-				char *table_name,
-				LIST *primary_key_comma_list,
-				char *argv_0 );
+		char *input_buffer,
+		char *table_name,
+		LIST *primary_key_comma_list,
+		char *argv_0 );
 
-void output_original_format(	char *input_buffer,
-				char delimiter,
-				char *table_name,
-				LIST *primary_key_comma_list );
+void output_original_format(
+		char *input_buffer,
+		char delimiter,
+		char *table_name,
+		LIST *primary_key_comma_list );
 
-char *fix_any_quotes( char *d );
+char *fix_any_quotes(
+		char *d );
 
-char get_primary_key_data_delimiter( char *primary_key_data_buffer );
+char get_primary_key_data_delimiter(
+		char *primary_key_data_buffer );
 
 int main( int argc, char **argv )
 {
@@ -141,23 +148,25 @@ int main( int argc, char **argv )
 		string2list( primary_key_comma_list_string, ',' );
 
 	output_update_statements(
-				table_name,
-				primary_key_comma_list,
-				argv[ 0 ],
-				update_single_carrot_delimiter,
-				*delimiter_string );
+		table_name,
+		primary_key_comma_list,
+		argv[ 0 ],
+		update_single_carrot_delimiter,
+		*delimiter_string );
+
 	return 0;
 }
 
-void output_update_statements(	char *table_name,
-				LIST *primary_key_comma_list,
-				char *argv_0,
-				boolean update_single_carrot_delimiter,
-				char delimiter )
+void output_update_statements(
+		char *table_name,
+		LIST *primary_key_comma_list,
+		char *argv_0,
+		boolean update_single_carrot_delimiter,
+		char delimiter )
 {
 	char input_buffer[ BIG_BUFFER ];
 
-	while( timlib_get_line( input_buffer, stdin, BIG_BUFFER ) )
+	while( string_input( input_buffer, stdin, BIG_BUFFER ) )
 	{
 		if ( !*input_buffer ) continue;
 		if ( *input_buffer == '#' ) continue;
@@ -165,19 +174,20 @@ void output_update_statements(	char *table_name,
 		if ( update_single_carrot_delimiter )
 		{
 			output_update_single_carrot_delimiters(
-						input_buffer,
-						table_name,
-						primary_key_comma_list,
-						argv_0 );
+				input_buffer,
+				table_name,
+				primary_key_comma_list,
+				argv_0 );
 		}
 		else
 		{
-			output_original_format(	input_buffer,
-						delimiter,
-						table_name,
-						primary_key_comma_list );
+			output_original_format(
+				input_buffer,
+				delimiter,
+				table_name,
+				primary_key_comma_list );
 		}
-	} /* while( get_line() */
+	}
 }
 
 char *fix_any_quotes( char *d )
@@ -229,10 +239,11 @@ char get_primary_key_data_delimiter( char *primary_key_data_buffer )
 /* primary_key_data_buffer					 */
 /* ------------------------------------------------------------- */
 
-void output_original_format(	char *input_buffer,
-				char delimiter,
-				char *table_name,
-				LIST *primary_key_comma_list )
+void output_original_format(
+		char *input_buffer,
+		char delimiter,
+		char *table_name,
+		LIST *primary_key_comma_list )
 {
 	char primary_key_data_buffer[ SMALL_BUFFER ];
 	char primary_key_data_delimiter;
@@ -271,7 +282,7 @@ void output_original_format(	char *input_buffer,
 		if ( p > 1 ) printf( "," );
 
 		if ( *new_data 
-		&&   strcmp( new_data, "NULL" ) != 0
+		&&   strcasecmp( new_data, "NULL" ) != 0
 		&&   strcmp( new_data, "/" ) != 0
 		&&   strcmp( new_data, "is_null" ) != 0 )
 		{
@@ -336,10 +347,11 @@ void output_original_format(	char *input_buffer,
 
 }
 
-void output_update_single_carrot_delimiters(	char *input_buffer,
-						char *table_name,
-						LIST *primary_key_comma_list,
-						char *argv_0 )
+void output_update_single_carrot_delimiters(
+		char *input_buffer,
+		char *table_name,
+		LIST *primary_key_comma_list,
+		char *argv_0 )
 {
 	char primary_key_data[ SMALL_BUFFER ];
 	char *data_fieldname;
@@ -361,7 +373,7 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 	new_data = get_carrot_new_data( input_buffer );
 
 	if ( *new_data 
-	&&   strcmp( new_data, "NULL" ) != 0
+	&&   strcasecmp( new_data, "NULL" ) != 0
 	&&   strcmp( new_data, "/" ) != 0
 	&&   strcmp( new_data, "is_null" ) != 0 )
 	{
@@ -409,7 +421,6 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 	printf( ";\n" );
 
 	fflush( stdout );
-
 }
 
 boolean exists_single_carrot_delimiters( char *input_buffer )

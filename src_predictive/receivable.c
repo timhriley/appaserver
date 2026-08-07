@@ -119,7 +119,9 @@ RECEIVABLE *receivable_fetch(
 		return NULL;
 	}
 
-	receivable->amount = receivable->journal_debit_credit_difference_sum;
+	receivable->expected =
+		receivable_expected(
+			receivable->journal_debit_credit_difference_sum );
 
 	receivable->receivable_account_list =
 		receivable_account_list_new(
@@ -323,5 +325,10 @@ RECEIVABLE_ACCOUNT_LIST *receivable_account_list_calloc( void )
 	}
 
 	return receivable_account_list;
+}
+
+double receivable_expected( double journal_debit_credit_difference_sum )
+{
+	return journal_debit_credit_difference_sum;
 }
 

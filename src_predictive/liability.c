@@ -102,7 +102,9 @@ LIABILITY *liability_entity_fetch(
 		return NULL;
 	}
 
-	liability->amount = liability->journal_credit_debit_difference_sum;
+	liability->due =
+		liability_due(
+			liability->journal_credit_debit_difference_sum );
 
 	liability->liability_account_list =
 		liability_account_list_new(
@@ -222,7 +224,9 @@ LIABILITY *liability_account_fetch(
 		return NULL;
 	}
 
-	liability->amount = liability->journal_credit_debit_difference_sum;
+	liability->due =
+		liability_due(
+			liability->journal_credit_debit_difference_sum );
 
 	liability->liability_account_list =
 		liability_account_list_new(
@@ -1756,3 +1760,9 @@ LIST *liability_payment_entity_list(
 
 	return entity_list;
 }
+
+double liability_due( double journal_credit_debit_difference_sum )
+{
+	return journal_credit_debit_difference_sum;
+}
+
