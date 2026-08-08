@@ -447,7 +447,7 @@ char *inventory_sale_primary_where(
 	return strdup( where );
 }
 
-INVENTORY_SALE *inventory_sale_fetch(
+INVENTORY_SALE *inventory_sale_trigger(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
