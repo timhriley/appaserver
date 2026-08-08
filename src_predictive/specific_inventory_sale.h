@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SPECIFIC_INVENTORY_SALE_H
-#define SPECIFIC_INVENTORY_SALE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -13,7 +12,7 @@
 #define SPECIFIC_INVENTORY_SALE_TABLE	"specific_inventory_sale"
 
 #define SPECIFIC_INVENTORY_SALE_SELECT	"inventory_name,"		\
-					"serial_label,"			\
+					"serial_key,"			\
 					"retail_price,"			\
 					"discount_amount,"		\
 					"extended_price,"		\
@@ -21,32 +20,33 @@
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *sale_date_time;
 	char *inventory_name;
-	char *serial_label;
+	char *serial_key;
 	double retail_price;
 	double discount_amount;
 	double extended_price;
 	double cost_of_goods_sold;
 	double sale_extended_price;
+	LIST *update_string_list;
+	LIST *primary_key_list;
+	char *sale_update_system_string;
 } SPECIFIC_INVENTORY_SALE;
 
 /* Usage */
 /* ----- */
 LIST *specific_inventory_sale_list(
+		const char *specific_inventory_sale_select,
 		const char *specific_inventory_sale_table,
+		char *fund_name,
 		char *full_name,
-		char *street_address,
-		char *sale_date_time );
+		char *contact_key,
+		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 SPECIFIC_INVENTORY_SALE *specific_inventory_sale_parse(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
 		char *input );
 
 /* Usage */
@@ -55,16 +55,42 @@ SPECIFIC_INVENTORY_SALE *specific_inventory_sale_parse(
 /* Safely returns */
 /* -------------- */
 SPECIFIC_INVENTORY_SALE *specific_inventory_sale_new(
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
 		char *inventory_name,
-		char *serial_label );
+		char *serial_key );
 
 /* Process */
 /* ------- */
 SPECIFIC_INVENTORY_SALE *specific_inventory_sale_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+SPECIFIC_INVENTORY_SALE *specific_inventory_sale_trigger(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		char *serial_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *specific_inventory_sale_primary_where(
+		const char *sale_inventory_column,
+		const char *sale_serial_key_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		char *serial_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -78,29 +104,39 @@ double specific_inventory_sale_CGS_total(
 
 /* Usage */
 /* ----- */
-SPECIFIC_INVENTORY_SALE *specific_inventory_sale_seek(
-		LIST *specific_inventory_sale_list,
+LIST *specific_inventory_sale_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
 		char *inventory_name,
-		char *serial_label );
+		char *serial_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		double sale_extended_price );
 
 /* Usage */
 /* ----- */
-void specific_inventory_sale_update(
-		const char *specific_inventory_sale_table,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time,
-		char *inventory_name,
-		char *serial_label,
-		double sale_extended_price );
+LIST *specific_inventory_sale_primary_key_list(
+		const char *sale_inventory_column,
+		const char *sale_serial_key_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
-/* Process */
-/* ------- */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *specific_inventory_sale_update_system_string(
-		const char *specific_inventory_sale_table );
-
-#endif
+char *specific_inventory_sale_primary_data_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		char *inventory_name,
+		char *serial_key,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 

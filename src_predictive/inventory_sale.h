@@ -130,7 +130,7 @@ LIST *inventory_sale_primary_key_list(
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_primary_data_string(
-		const char delimiter,
+		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,

@@ -96,6 +96,7 @@ char *operation_row_checked_command_line(
 		char *update_results_string,
 		char *update_error_string,
 		DICTIONARY *operation_row_list_dictionary,
+		int row_number,
 		DICTIONARY *dictionary_single_row,
 		char *operation_name,
 		char *process_command_line,

@@ -35,6 +35,7 @@
 #define PROCESS_TARGET_FRAME_PLACEHOLDER	"$target_frame"
 #define PROCESS_PRIMARY_PLACEHOLDER		"$primary_data_list"
 #define PROCESS_ROW_COUNT_PLACEHOLDER		"$operation_row_count"
+#define PROCESS_ROW_NUMBER_PLACEHOLDER		"$operation_row_number"
 #define PROCESS_DICTIONARY_PLACEHOLDER		"$dictionary"
 #define PROCESS_WHERE_PLACEHOLDER		"$where"
 #define PROCESS_FOLDER_NAME_PLACEHOLDER		"folder"
@@ -160,10 +161,10 @@ void process_replace_pid_command_line(
 		pid_t process_id,
 		const char *process_pid_placeholder );
 
-void process_replace_row_count_command_line(
+void process_replace_integer_command_line(
 		char *command_line,
-		int operation_row_checked_count,
-		const char *process_row_count_placeholder );
+		int integer,
+		const char *process_placeholder );
 
 void process_replace_dictionary_command_line(
 		char *command_line,

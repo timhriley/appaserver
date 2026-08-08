@@ -60,7 +60,7 @@ boolean operation_semaphore_group_first_time(
 /* Usage */
 /* ----- */
 int operation_semaphore_row_current(
-			char *filename );
+		char *filename );
 
 /* Usage */
 /* ----- */

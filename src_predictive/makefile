@@ -203,7 +203,9 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
-		post_change_hourly_service_work
+		post_change_hourly_service_work				\
+		specific_inventory_sale_trigger
+#		post_change_inventory_sale				\
 #		post_change_customer_payment				\
 #		post_accrual						\
 #		depreciate_fixed_assets					\
@@ -220,7 +222,6 @@ EXECUTABLES=	trial_balance_output					\
 #		post_change_employee_work_day				\
 #		post_change_fixed_asset					\
 #		post_change_inventory_purchase				\
-#		post_change_inventory_sale				\
 #		post_change_inventory_purchase_return			\
 #		post_change_inventory_sale_return			\
 #		post_change_prepaid_asset_accrual			\
@@ -679,20 +680,25 @@ inventory_balance_detail:						\
 		-o inventory_balance_detail
 
 post_change_inventory_sale: post_change_inventory_sale.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		post_change_inventory_sale.c				\
-		-o post_change_inventory_sale
-
-post_change_specific_inventory_sale:					\
-	post_change_specific_inventory_sale.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_specific_inventory_sale.c			\
-		-o post_change_specific_inventory_sale
+		${SALE_LIBRARY}						\
+		post_change_inventory_sale.c				\
+		-o post_change_inventory_sale
+
+specific_inventory_sale_trigger:					\
+	specific_inventory_sale_trigger.c				\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${SALE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		specific_inventory_sale_trigger.c			\
+		-o specific_inventory_sale_trigger
 
 post_change_purchase_order: post_change_purchase_order.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}

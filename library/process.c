@@ -301,21 +301,21 @@ LIST *process_delimited_list( char *command_line )
 	return list_fetch_pipe( command_line );
 }
 
-void process_replace_row_count_command_line(
+void process_replace_integer_command_line(
 		char *command_line,
-		int operation_row_checked_count,
-		const char *process_row_count_placeholder )
+		int integer,
+		const char *process_placeholder )
 {
-	char row_count_string[ 128 ];
+	char integer_string[ 128 ];
 
-	sprintf(row_count_string,
+	sprintf(integer_string,
 		"%d",
-		operation_row_checked_count );
+		integer );
 
 	string_replace_command_line(
 		command_line /* in/out */,
-		row_count_string,
-		(char *)process_row_count_placeholder );
+		integer_string,
+		(char *)process_placeholder );
 }
 
 void process_replace_dictionary_command_line(

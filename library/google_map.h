@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit Appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef GOOGLE_MAP_H
-#define GOOGLE_MAP_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -32,10 +31,8 @@ typedef struct
 
 /* Returns heap memory */
 /* ------------------- */
-char *google_map_key(	char *google_map_key_label );
-
-/* Process */
-/* ------- */
+char *google_map_key(
+		char *google_map_key_label );
 
 /* Usage */
 /* ----- */
@@ -43,13 +40,10 @@ char *google_map_key(	char *google_map_key_label );
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_initialize_javascript(
-			char *google_map_canvas_label,
-			char *google_map_center_latitude,
-			char *google_map_center_longitude,
-			int google_map_starting_zoom );
-
-/* Process */
-/* ------- */
+		char *google_map_canvas_label,
+		char *google_map_center_latitude,
+		char *google_map_center_longitude,
+		int google_map_starting_zoom );
 
 /* Usage */
 /* ----- */
@@ -57,10 +51,7 @@ char *google_map_initialize_javascript(
 /* Returns program memory */
 /* ---------------------- */
 char *google_map_script_open_tag(
-			void );
-
-/* Process */
-/* ------- */
+		void );
 
 /* Usage */
 /* ----- */
@@ -68,10 +59,7 @@ char *google_map_script_open_tag(
 /* Returns program memory */
 /* ---------------------- */
 char *google_map_script_close_tag(
-			void );
-
-/* Process */
-/* ------- */
+		void );
 
 /* Usage */
 /* ----- */
@@ -79,10 +67,7 @@ char *google_map_script_close_tag(
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_body_html(
-			char *google_map_canvas_label );
-
-/* Process */
-/* ------- */
+		char *google_map_canvas_label );
 
 /* Usage */
 /* ----- */
@@ -90,14 +75,11 @@ char *google_map_body_html(
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_canvas_style_html(
-			char *google_map_canvas_label,
-			int absolute_position_top,
-			int absolute_position_left,
-			int google_map_width,
-			int google_map_height );
-
-/* Process */
-/* ------- */
+		char *google_map_canvas_label,
+		int absolute_position_top,
+		int absolute_position_left,
+		int google_map_width,
+		int google_map_height );
 
 /* Usage */
 /* ----- */
@@ -105,10 +87,7 @@ char *google_map_canvas_style_html(
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_loader_script_html(
-			char *google_map_key );
-
-/* Process */
-/* ------- */
+		char *google_map_key );
 
 /* Usage */
 /* ----- */
@@ -116,10 +95,7 @@ char *google_map_loader_script_html(
 /* Returns program memory */
 /* ---------------------- */
 char *google_map_create_marker_javascript(
-			void );
-
-/* Process */
-/* ------- */
+		void );
 
 /* Usage */
 /* ----- */
@@ -127,10 +103,7 @@ char *google_map_create_marker_javascript(
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_click_message(
-			char *message );
-
-/* Process */
-/* ------- */
+		char *message );
 
 typedef struct
 {
@@ -145,14 +118,14 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 GOOGLE_MAP_POINT *google_map_point_latitude_longitude_new(
-			char *latitude_string,
-			char *longitude_string,
-			char *google_map_click_message );
+		char *latitude_string,
+		char *longitude_string,
+		char *google_map_click_message );
 
 /* Process */
 /* ------- */
 GOOGLE_MAP_POINT *google_map_point_calloc(
-			void );
+		void );
 
 /* Usage */
 /* ----- */
@@ -160,47 +133,32 @@ GOOGLE_MAP_POINT *google_map_point_calloc(
 /* Safely returns */
 /* -------------- */
 GOOGLE_MAP_POINT *google_map_point_utm_new(
-			char *utm_easting_string,
-			char *utm_northing_string,
-			char *google_map_click_message );
-
-/* Process */
-/* ------- */
+		char *utm_easting_string,
+		char *utm_northing_string,
+		char *google_map_click_message );
 
 /* Usage */
 /* ----- */
 double google_map_point_nad83(
-			char *latitude_longitude );
-
-/* Process */
-/* ------- */
+		char *latitude_longitude );
 
 /* Usage */
 /* ----- */
 double google_map_point_degrees_minutes(
-			char *latitude_longitude );
-
-/* Process */
-/* ------- */
+		char *latitude_longitude );
 
 /* Usage */
 /* ----- */
 double google_map_point_degrees_minutes_seconds(
-			char *latitude_longitude );
-
-/* Process */
-/* ------- */
+		char *latitude_longitude );
 
 /* Usage */
 /* ----- */
 void google_map_point_cs2cs(
-			double *latitude_nad83,
-			double *longitude_nad83,
-			char *utm_easting_string,
-			char *utm_northing_string );
-
-/* Process */
-/* ------- */
+		double *latitude_nad83,
+		double *longitude_nad83,
+		char *utm_easting_string,
+		char *utm_northing_string );
 
 /* Usage */
 /* ----- */
@@ -208,11 +166,8 @@ void google_map_point_cs2cs(
 /* Returns static memory */
 /* --------------------- */
 char *google_map_point_cs2cs_system_string(
-			char *utm_easting_string,
-			char *utm_northing_string );
-
-/* Process */
-/* ------- */
+		char *utm_easting_string,
+		char *utm_northing_string );
 
 /* Usage */
 /* ----- */
@@ -220,11 +175,6 @@ char *google_map_point_cs2cs_system_string(
 /* Returns heap memory */
 /* ------------------- */
 char *google_map_point_javascript(
-			double latitude_nad83,
-			double longitude_nad83,
-			char *google_map_click_message );
-
-/* Process */
-/* ------- */
-
-#endif
+		double latitude_nad83,
+		double longitude_nad83,
+		char *google_map_click_message );

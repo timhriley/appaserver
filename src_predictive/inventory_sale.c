@@ -325,7 +325,7 @@ char *inventory_sale_join(
 }
 
 char *inventory_sale_primary_data_string(
-		const char delimiter,
+		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -360,7 +360,7 @@ char *inventory_sale_primary_data_string(
 		/* Returns heap memory */
 		/* ------------------- */
 		sale_primary_data_string(
-			delimiter,
+			sql_delimiter,
 			fund_name,
 			full_name,
 			contact_key,
@@ -372,7 +372,7 @@ char *inventory_sale_primary_data_string(
 		/* Safely returns */
 		/* -------------- */
 		optional_column_new(
-			delimiter,
+			sql_delimiter,
 			primary_data_string /* base */,
 			inventory_name /* component */,
 			1 /* escape_boolean */,
