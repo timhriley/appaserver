@@ -16,6 +16,7 @@ Output:	Update statements
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "timlib.h"
 #include "String.h"
 #include "piece.h"
 #include "list.h"
