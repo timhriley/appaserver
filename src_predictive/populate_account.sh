@@ -95,6 +95,12 @@ then
 elif [ "$many_table" = "close_equity" -a "$related_column" = "equity_account" ]
 then
 	subclassification_where="account.subclassification = 'equity'"
+elif [ "$many_table" = "specific_inventory" -a "$related_column" = "inventory_account" ]
+then
+	subclassification_where="account.subclassification = 'inventory'"
+elif [ "$many_table" = "specific_inventory" -a "$related_column" = "cost_of_goods_sold_account" ]
+then
+	subclassification_where="account.subclassification = 'cost_of_goods_sold'"
 else
 	subclassification_where="1 = 1"
 fi
