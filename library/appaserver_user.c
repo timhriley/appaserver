@@ -359,8 +359,7 @@ char *appaserver_user_date_convert_string(
 	return date_convert->return_date_string;
 }
 
-APPASERVER_USER *appaserver_user_new(
-		char *full_name )
+APPASERVER_USER *appaserver_user_new( char *full_name )
 {
 	APPASERVER_USER *appaserver_user;
 
