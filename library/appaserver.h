@@ -170,5 +170,10 @@ boolean appaserver_table_column_boolean(
 		const char *table_name,
 		const char *column_name );
 
+/* Usage */
+/* ----- */
+boolean appaserver_table_boolean(
+		const char *table_name );
+
 #endif
 

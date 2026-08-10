@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include "boolean.h"
 #include "String.h"
+#include "appaserver.h"
 #include "document.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
@@ -60,6 +61,12 @@ int main( int argc, char **argv )
 		/* ------------------------ */
 		document_close();
 		exit( 0 );
+	}
+
+	if ( appaserver_table_boolean( folder_name ) )
+	{
+		printf( "<h3>Warning: %s exists</h3>\n",
+			folder_name );
 	}
 
 	appaserver_parameter =

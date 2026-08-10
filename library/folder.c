@@ -724,15 +724,14 @@ boolean folder_column_boolean(
 	char system_string[ 1024 ];
 	int result;
 
-	if ( !table_name
-	||   !column_name )
+	if ( !table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -746,7 +745,7 @@ boolean folder_column_boolean(
 		sizeof ( system_string ),
 		"table_column_exists.sh %s %s",
 		table_name,
-		column_name );
+		(column_name) ? column_name : "" );
 
 	result = system( system_string );
 

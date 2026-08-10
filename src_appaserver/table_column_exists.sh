@@ -7,16 +7,25 @@
 # No warranty and freely available software. Visit appaserver.org
 # -------------------------------------------------------------------------
 
-if [ "$#" -ne 2 ]
+if [ "$#" -lt 1 ]
 then
-	echo "Usage: `basename.e $0 n` table column" 1>&2
+	echo "Usage: `basename.e $0 n` table [column]" 1>&2
 	exit 1
 fi
 
 table=$1
-column=$2
 
-where="table_name = '$table' and column_name = '$column'"
+if [ "$#" -eq 2 ]
+then
+	column=$2
+fi
+
+if [ "$#" -eq 2 -a column != "" ]
+then
+	where="table_name = '$table' and column_name = '$column'"
+else
+	where="table_name = '$table'"
+fi
 
 result=$(select.sh 'count(1)' table_column "$where")
 

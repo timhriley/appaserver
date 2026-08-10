@@ -157,8 +157,8 @@ SALE_LIBRARY=								\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
 		inventory_sale.o					\
-		specific_inventory_sale.o
-#		self_tax.o						\
+		specific_inventory_sale.o				\
+		specific_inventory_purchase.o
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -204,7 +204,8 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
 		post_change_hourly_service_work				\
-		specific_inventory_sale_trigger
+		specific_inventory_sale_trigger				\
+		specific_inventory_purchase_trigger
 #		post_change_inventory_sale				\
 #		post_change_customer_payment				\
 #		post_accrual						\
@@ -584,14 +585,16 @@ post_change_inventory_sale_return:					\
 		post_change_inventory_sale_return.c			\
 		-o post_change_inventory_sale_return
 
-post_change_specific_inventory_purchase:				\
-	post_change_specific_inventory_purchase.c			\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
+specific_inventory_purchase_trigger:					\
+	specific_inventory_purchase_trigger.c				\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_specific_inventory_purchase.c		\
-		-o post_change_specific_inventory_purchase
+		${SALE_LIBRARY}						\
+		specific_inventory_purchase_trigger.c			\
+		-o specific_inventory_purchase_trigger
 
 post_change_supply_purchase: post_change_supply_purchase.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
