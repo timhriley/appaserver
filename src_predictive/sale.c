@@ -84,7 +84,7 @@ SALE *sale_trigger_new(
 	}
 
 /*
-	if ( sale->sale_fetch->inventory_sale_boolean )
+	if ( sale->sale_fetch->inventory_total_boolean )
 	{
 		sale->inventory_sale_total =
 			inventory_sale_total(
@@ -97,7 +97,7 @@ SALE *sale_trigger_new(
 
 */
 
-	if ( sale->sale_fetch->specific_inventory_sale_boolean )
+	if ( sale->sale_fetch->specific_inventory_total_boolean )
 	{
 		sale->specific_inventory_sale_total =
 			specific_inventory_sale_total(
@@ -111,14 +111,14 @@ SALE *sale_trigger_new(
 					sale_fetch->
 					specific_inventory_sale_list );
 	}
-	if ( sale->sale_fetch->fixed_service_sale_boolean )
+	if ( sale->sale_fetch->fixed_service_total_boolean )
 	{
 		sale->fixed_service_sale_total =
 			fixed_service_sale_total(
 				sale->sale_fetch->fixed_service_sale_list );
 	}
 
-	if ( sale->sale_fetch->hourly_service_sale_boolean )
+	if ( sale->sale_fetch->hourly_service_total_boolean )
 	{
 		sale->hourly_service_sale_total =
 			hourly_service_sale_total(
@@ -219,10 +219,10 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->predictive_fund_boolean,
 			sale->sale_fetch->entity_contact_key_boolean,
 			sale->sale_fetch->shipping_charge_boolean,
-			sale->sale_fetch->inventory_sale_boolean,
-			sale->sale_fetch->specific_inventory_sale_boolean,
-			sale->sale_fetch->fixed_service_sale_boolean,
-			sale->sale_fetch->hourly_service_sale_boolean,
+			sale->sale_fetch->inventory_total_boolean,
+			sale->sale_fetch->specific_inventory_total_boolean,
+			sale->sale_fetch->fixed_service_total_boolean,
+			sale->sale_fetch->hourly_service_total_boolean,
 			sale->sale_fetch->sales_tax_boolean,
 			sale->shipping_charge,
 			sale->inventory_sale_total,
@@ -658,10 +658,10 @@ LIST *sale_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		boolean shipping_charge_boolean,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean fixed_service_sale_boolean,
-		boolean hourly_service_sale_boolean,
+		boolean inventory_total_boolean,
+		boolean specific_inventory_total_boolean,
+		boolean fixed_service_total_boolean,
+		boolean hourly_service_total_boolean,
 		boolean sales_tax_boolean,
 		double shipping_charge,
 		double inventory_sale_total,
@@ -713,7 +713,7 @@ LIST *sale_update_string_list(
 			primary_data_string,
 			"inventory_sale_total" /* column_name */,
 			inventory_sale_total /* money */,
-			inventory_sale_boolean /* set_boolean */ );
+			inventory_total_boolean /* set_boolean */ );
 
 	list_set( list, update_string );
 
@@ -726,7 +726,7 @@ LIST *sale_update_string_list(
 			primary_data_string,
 			"specific_inventory_sale_total" /* column_name */,
 			specific_inventory_sale_total /* money */,
-			specific_inventory_sale_boolean /* set_boolean */ );
+			specific_inventory_total_boolean /* set_boolean */ );
 
 	list_set( list, update_string );
 
@@ -739,7 +739,7 @@ LIST *sale_update_string_list(
 			primary_data_string,
 			"fixed_service_sale_total" /* column_name */,
 			fixed_service_sale_total /* money */,
-			fixed_service_sale_boolean /* set_boolean */ );
+			fixed_service_total_boolean /* set_boolean */ );
 
 	list_set( list, update_string );
 
@@ -752,7 +752,7 @@ LIST *sale_update_string_list(
 			primary_data_string,
 			"hourly_service_sale_total" /* column_name */,
 			hourly_service_sale_total /* money */,
-			hourly_service_sale_boolean /* set_boolean */ );
+			hourly_service_total_boolean /* set_boolean */ );
 
 	list_set( list, update_string );
 

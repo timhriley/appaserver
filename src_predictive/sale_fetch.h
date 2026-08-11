@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SALE_FETCH_H
-#define SALE_FETCH_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -167,6 +166,4 @@ LIST *sale_fetch_primary_key_list(
 		const char *sale_date_time_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
-
-#endif
 
