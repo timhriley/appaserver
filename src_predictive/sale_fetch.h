@@ -24,10 +24,10 @@ typedef struct
 	boolean cash_account_boolean;
 	boolean shipping_charge_boolean;
 	boolean instructions_boolean;
-	boolean inventory_sale_boolean;
-	boolean specific_inventory_sale_boolean;
-	boolean fixed_service_sale_boolean;
-	boolean hourly_service_sale_boolean;
+	boolean inventory_total_boolean;
+	boolean specific_inventory_total_boolean;
+	boolean fixed_service_total_boolean;
+	boolean hourly_service_total_boolean;
 	boolean sales_tax_boolean;
 	boolean payment_list_boolean;
 	boolean title_passage_rule_boolean;
@@ -91,16 +91,16 @@ boolean sale_fetch_shipping_charge_boolean(
 boolean sale_fetch_instructions_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_inventory_sale_boolean(
+boolean sale_fetch_inventory_total_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_specific_inventory_sale_boolean(
+boolean sale_fetch_specific_inventory_total_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_fixed_service_sale_boolean(
+boolean sale_fetch_fixed_service_total_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_hourly_service_sale_boolean(
+boolean sale_fetch_hourly_service_total_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_sales_tax_boolean(
@@ -130,10 +130,10 @@ char *sale_fetch_select(
 		boolean sale_fetch_cash_account_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
-		boolean sale_fetch_inventory_sale_boolean,
-		boolean sale_fetch_specific_inventory_sale_boolean,
-		boolean sale_fetch_fixed_service_sale_boolean,
-		boolean sale_fetch_hourly_service_sale_boolean,
+		boolean sale_fetch_inventory_total_boolean,
+		boolean sale_fetch_specific_inventory_total_boolean,
+		boolean sale_fetch_fixed_service_total_boolean,
+		boolean sale_fetch_hourly_service_total_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
 		boolean sale_fetch_shipped_date_time_boolean,
@@ -147,10 +147,10 @@ void sale_fetch_parse(
 		boolean sale_fetch_cash_account_boolean,
 		boolean sale_fetch_shipping_charge_boolean,
 		boolean sale_fetch_instructions_boolean,
-		boolean sale_fetch_inventory_sale_boolean,
-		boolean sale_fetch_specific_inventory_sale_boolean,
-		boolean sale_fetch_fixed_service_sale_boolean,
-		boolean sale_fetch_hourly_service_sale_boolean,
+		boolean sale_fetch_inventory_total_boolean,
+		boolean sale_fetch_specific_inventory_total_boolean,
+		boolean sale_fetch_fixed_service_total_boolean,
+		boolean sale_fetch_hourly_service_total_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
 		boolean sale_fetch_shipped_date_time_boolean,
