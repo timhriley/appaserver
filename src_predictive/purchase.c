@@ -50,18 +50,37 @@ PURCHASE *purchase_fetch(
 }
 
 PURCHASE *purchase_new(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean contact_key_boolean )
 {
 	PURCHASE *purchase;
+
+	if ( !full_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	purchase = purchase_calloc();
 
 	purchase->vendor_entity =
 		entity_new(
 			full_name,
-			street_address ),
+			contact_key,
+			contact_key_boolean ),
 
 	purchase->purchase_date_time = purchase_date_time;
 
@@ -82,27 +101,6 @@ PURCHASE *purchase_calloc( void )
 		exit( 1 );
 	}
 	return purchase;
-}
-
-PURCHASE *purchase_seek(
-			LIST *purchase_list,
-			char *purchase_date_time )
-{
-	PURCHASE *purchase;
-
-	if ( !list_rewind( purchase_list ) ) return (PURCHASE *)0;
-
-	do {
-		purchase = list_get( purchase_list );
-
-		if ( strcmp(	purchase->purchase_date_time,
-				purchase_date_time ) == 0 )
-		{
-			return purchase;
-		}
-
-	} while( list_next( purchase_list ) );
-	return (PURCHASE *)0;
 }
 
 FILE *purchase_update_open( void )

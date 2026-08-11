@@ -72,9 +72,9 @@ ENTITY *entity_parse(
 /* Safely returns */
 /* -------------- */
 ENTITY *entity_new(
-		boolean entity_contact_key_boolean,
 		char *full_name,
-		char *contact_key );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */

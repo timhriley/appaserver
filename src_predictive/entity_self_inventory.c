@@ -15,24 +15,45 @@
 #include "sql.h"
 #include "entity_self.h"
 
-ENTITY_SELF *entity_self_new(	char *full_name,
-				char *street_address )
+ENTITY_SELF *entity_self_new(
+		char *full_name,
+		char *contact_key,
+		boolean contact_key_boolean )
 {
-	ENTITY_SELF *s;
+	ENTITY_SELF *entity_self;
 
-	if ( ! ( s = calloc( 1, sizeof( ENTITY_SELF ) ) ) )
+	entity_self = entity_self_calloc();
+
+	entity_self->entity =
+		entity_new(
+			full_name,
+			contact_key,
+			contact_key_boolean );
+
+	return entity_self;
+}
+
+ENTITY_SELF *entity_self_calloc( void )
+{
+	ENTITY_SELF *entity_self;
+
+	if ( ! ( entity_self = calloc( 1, sizeof( ENTITY_SELF ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	s->entity = entity_new( full_name, street_address );
+	entity_self->entity =
+		entity_new(
+			full_name,
+			contact_key,
+			contact_key_boolean );
 
-	return s;
+	return entity_self;
 }
 
 char *entity_self_select( void )

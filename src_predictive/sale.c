@@ -95,6 +95,8 @@ SALE *sale_trigger_new(
 				sale->sale_fetch->inventory_sale_list );
 	}
 
+*/
+
 	if ( sale->sale_fetch->specific_inventory_sale_boolean )
 	{
 		sale->specific_inventory_sale_total =
@@ -109,8 +111,6 @@ SALE *sale_trigger_new(
 					sale_fetch->
 					specific_inventory_sale_list );
 	}
-*/
-
 	if ( sale->sale_fetch->fixed_service_sale_boolean )
 	{
 		sale->fixed_service_sale_total =

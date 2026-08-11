@@ -37,9 +37,9 @@ ENTITY *entity_calloc( void )
 }
 
 ENTITY *entity_new(
-		boolean contact_key_boolean,
 		char *full_name,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	ENTITY *entity;
 
@@ -57,9 +57,9 @@ ENTITY *entity_new(
 
 	entity = entity_calloc();
 
-	entity->entity_contact_key_boolean = contact_key_boolean;
 	entity->full_name = full_name;
 	entity->contact_key = contact_key;
+	entity->entity_contact_key_boolean = contact_key_boolean;
 
 	return entity;
 }
@@ -138,17 +138,17 @@ ENTITY *entity_getset(
 		{
 			entity =
 				entity_new(
-					contact_key_boolean,
 					strdup( full_name ),
-					strdup( contact_key ) );
+					strdup( contact_key ),
+					contact_key_boolean );
 		}
 		else
 		{
 			entity =
 				entity_new(
-					contact_key_boolean,
 					full_name,
-					contact_key );
+					contact_key,
+					contact_key_boolean );
 		}
 
 		list_set( entity_list, entity );
@@ -258,9 +258,9 @@ ENTITY *entity_parse(
 		/* Safely returns */
 		/* -------------- */
 		entity_new(
-			contact_key_boolean,
 			strdup( full_name ),
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	if ( *buffer ) entity->street_address = strdup( buffer );
@@ -607,9 +607,9 @@ LIST *entity_full_contact_list(
 			/* Safely returns */
 			/* -------------- */
 			entity_new(
-				contact_key_boolean,
 				list_get( full_name_list ),
-				list_get( contact_key_list ) );
+				list_get( contact_key_list ),
+				contact_key_boolean );
 
 		list_set( entity_list, entity );
 		list_next( contact_key_list );
@@ -632,14 +632,14 @@ ENTITY *entity_full_name_entity(
 		/* Safely returns */
 		/* -------------- */
 		entity_new(
-			contact_key_boolean,
 			strdup( full_name ),
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			entity_fetch_contact_key(
 				contact_key_boolean,
-				full_name ) );
+				full_name ),
+			contact_key_boolean );
 
 	return entity;
 }

@@ -16,32 +16,64 @@
 #include "inventory_purchase.h"
 
 INVENTORY_PURCHASE *inventory_purchase_new(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *inventory_name )
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		char *inventory_name,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	INVENTORY_PURCHASE *h =
-		(INVENTORY_PURCHASE *)
-			calloc( 1, sizeof( INVENTORY_PURCHASE ) );
-	if ( !h )
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( !full_name
+	||   !purchase_date_time
+	||   !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_purchase = inventory_purchase_calloc();
+
+	inventory_purchase->vendor_entity =
+		entity_new(
+			full_name,
+			contact_key,
+			contact_key_boolean );
+
+	inventory_purchase->purchase_date_time = purchase_date_time;
+	inventory_purchase->inventory_name = inventory_name;
+
+	return inventory_purchase;
+}
+
+INVENTORY_PURCHASE *inventory_purchase_calloc( void )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( ! ( inventory_purchase =
+			calloc( 1, sizeof( INVENTORY_PURCHASE ) ) ) )
 	{
 		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 "Error in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit(1 );
 	}
 
-	h->vendor_entity =
-		entity_new(
-			full_name,
-			street_address );
-
-	h->purchase_date_time = purchase_date_time;
-	h->inventory_name = inventory_name;
-	return h;
+	return inventory_purchase;
 }
 
 double inventory_purchase_total(

@@ -323,9 +323,9 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
 		/* Safely returns */
 		/* -------------- */
 		entity_new(
-			contact_key_boolean,
 			strdup( full_name ),
-			contact_key );
+			contact_key,
+			contact_key_boolean );
 
 	return liability_account_entity;
 }

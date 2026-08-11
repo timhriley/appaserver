@@ -975,8 +975,7 @@ char *invoice_latex_entity_display(
 	return strdup( display );
 }
 
-INVOICE_LATEX_ENTITY *invoice_latex_entity_new(
-		ENTITY *entity )
+INVOICE_LATEX_ENTITY *invoice_latex_entity_new( ENTITY *entity )
 {
 	INVOICE_LATEX_ENTITY *invoice_latex_entity;
 

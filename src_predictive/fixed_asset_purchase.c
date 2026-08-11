@@ -113,7 +113,8 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	fixed_asset_purchase->vendor_entity =
 		entity_new(
 			strdup( full_name ),
-			strdup( street_address ) );
+			strdup( contact_key ),
+			contact_key_boolean );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	if ( *piece_buffer )

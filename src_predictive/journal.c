@@ -729,9 +729,9 @@ LIST *journal_account_distinct_entity_list(
 			/* Safely returns */
 			/* -------------- */
 			entity_new(
-				contact_key_boolean,
 				strdup( full_name ),
-				contact_key );
+				contact_key,
+				contact_key_boolean );
 
 		if ( !list ) list = list_new();
 

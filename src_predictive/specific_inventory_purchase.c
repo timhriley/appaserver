@@ -38,7 +38,8 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_new(
 	h->vendor_entity =
 		entity_new(
 			full_name,
-			street_address );
+			contact_key,
+			contact_key_boolean );
 
 	h->purchase_date_time = purchase_date_time;
 

@@ -114,9 +114,9 @@ void tax_form_entity_getset(
 		/* Safely returns */
 		/* -------------- */
 		entity_new(
-			0 /* not entity_contact_key_boolean */,
 			full_name,
-			(char *)0 /* contact_key */ );
+			(char *)0 /* contact_key */,
+			0 /* not entity_contact_key_boolean */ );
 
 	tax_form_entity->total = journal_amount;
 

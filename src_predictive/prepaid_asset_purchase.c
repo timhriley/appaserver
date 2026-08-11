@@ -35,7 +35,7 @@ PREPAID_ASSET_PURCHASE *prepaid_asset_purchase_new(
 	}
 
 	prepaid_asset_purchase->vendor_entity =
-		entity_new( full_name, street_address );
+		entity_new( full_name, contact_key, contact_key_boolean );
 
 	prepaid_asset_purchase->asset_name = asset_name;
 	prepaid_asset_purchase->purchase_date_time = purchase_date_time;
@@ -63,7 +63,7 @@ PREPAID_ASSET_ACCRUAL *prepaid_asset_accrual_new(
 	}
 
 	prepaid_asset_accrual->vendor_entity =
-		entity_new( full_name, street_address );
+		entity_new( full_name, contact_key, contact_key_boolean );
 
 	prepaid_asset_accrual->asset_name = asset_name;
 	prepaid_asset_accrual->purchase_date_time = purchase_date_time;

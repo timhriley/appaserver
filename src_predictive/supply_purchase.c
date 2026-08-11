@@ -40,7 +40,8 @@ SUPPLY_PURCHASE *supply_purchase_new(
 	supply_purchase->vendor_entity =
 		entity_new(
 			full_name,
-			street_address );
+			contact_key,
+			contact_key_boolean );
 
 	supply_purchase->supply =
 		supply_fetch(
