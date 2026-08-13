@@ -7,8 +7,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "list.h"
-#include "boolean.h"
 #include "appaserver_error.h"
 #include "journal.h"
 #include "account_journal.h"

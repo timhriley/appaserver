@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SALE_H
-#define SALE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -85,6 +84,7 @@ SALE *sale_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *sale_primary_where(
+		const char *sale_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -241,4 +241,3 @@ char *sale_update_system_string(
 		const char *sale_table,
 		LIST *sale_primary_key_list );
 
-#endif

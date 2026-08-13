@@ -194,6 +194,7 @@ LIST *inventory_sale_list(
 		/* Returns static memory */
 		/* --------------------- */
 		sale_primary_where(
+			SALE_DATE_TIME_COLUMN,
 			fund_name,
 			full_name,
 			contact_key,
@@ -420,6 +421,7 @@ char *inventory_sale_primary_where(
 		/* Returns static memory */
 		/* --------------------- */
 		sale_primary_where(
+			SALE_DATE_TIME_COLUMN,
 			fund_name,
 			full_name,
 			contact_key,

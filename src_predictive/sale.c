@@ -247,6 +247,7 @@ SALE *sale_trigger_new(
 }
 
 char *sale_primary_where(
+		const char *sale_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -307,9 +308,10 @@ char *sale_primary_where(
 	snprintf(
 		where,
 		sizeof ( where ),
-		"%s and %s and sale_date_time = '%s'",
+		"%s and %s and %s = '%s'",
 		fund_where,
 		primary_where,
+		sale_date_time_column,
 		escape_date_time );
 
 	return where;

@@ -1,73 +1,46 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/purchase.h				*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PURCHASE_H
-#define PURCHASE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
-#include "transaction.h"
-#include "entity.h"
+#include "purchase_fetch.h"
 
-/* Constants */
-/* --------- */
-#define PURCHASE_MEMO		"Purchase Order"
-#define PURCHASE_TABLE		"purchase"
+#define PURCHASE_TABLE			"purchase"
 
-#define Purchase_amount_due(						\
-			purchase_amount,				\
-			vendor_payment_total )				\
-	( purchase_amount - vendor_payment_total )
+#define PURCHASE_SELECT			"full_name,"			\
+					"purchasee_date_time,"		\
+					"sales_tax,"			\
+					"freight_in,"			\
+					"fixed_asset_total,"		\
+					"supply_total,"			\
+					"invoice_amount,"		\
+					"transaction_date_time"
 
-/* Enumerated types */
-/* ---------------- */
+#define PURCHASE_DATE_TIME_COLUMN	"purchase_date_time"
+#define PURCHASE_MEMO			"Purchase Order"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	ENTITY *vendor_entity;
+	char *fund_name;
+	char *full_name;
+	char *contact_key;
 	char *purchase_date_time;
-	double sales_tax;
-	double freight_in;
-	char *title_passage_rule_string;
-	char *shipped_date;
-	char *arrived_date_time;
-
-	/* Process */
-	/* ------- */
-	LIST *fixed_asset_purchase_list;
-	LIST *inventory_purchase_list;
-	LIST *specific_inventory_purchase_list;
-	LIST *supply_purchase_list;
-	LIST *prepaid_asset_purchase_list;
-	LIST *vendor_payment_list;
-	double fixed_asset_purchase_total;
-	double inventory_purchase_total;
-	double specific_inventory_purchase_total;
-	double supply_purchase_total;
-	double prepaid_asset_purchase_total;
-	double purchase_invoice_amount;
-	double vendor_payment_total;
-	double purchase_amount_due;
-	char *transaction_date_time;
-	TRANSACTION *purchase_transaction;
-	char *program_name;
-	char *property_street_address;
+	PURCHASE_FETCH *purchase_fetch;
 } PURCHASE;
 
-/* Operations */
-/* ---------- */
-PURCHASE *purchase_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+PURCHASE *purchase_trigger_new(
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		char *state,
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key );
 
 /* --------------------------------- */
 /* Allocates purchase->vendor_entity */
@@ -117,12 +90,19 @@ char *purchase_system_string(
 			char *where,
 			char *order );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
 char *purchase_primary_where(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+		const char *purchase_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 double purchase_fetch_amount_due(
 			char *full_name,
@@ -178,32 +158,31 @@ PURCHASE *purchase_steady_state(
 			PURCHASE *purchase );
 
 double purchase_cost_basis(
-			double purchase_cost,
-			double sales_tax,
-			double freight_in,
-			double fixed_asset_purchase_total,
-			double inventory_purchase_total,
-			double specific_inventory_purchase_total,
-			double supply_purchase_total,
-			double prepaid_asset_purchase_total );
+		double purchase_cost,
+		double sales_tax,
+		double freight_in,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double prepaid_asset_purchase_total );
 
 double purchase_total(
-			double fixed_asset_purchase_total,
-			double inventory_purchase_total,
-			double specific_inventory_purchase_total,
-			double supply_purchase_total,
-			double prepaid_asset_purchase_total );
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double prepaid_asset_purchase_total );
 
 double purchase_invoice_amount(
-			double fixed_asset_purchase_total,
-			double inventory_purchase_total,
-			double specific_inventory_purchase_total,
-			double supply_purchase_total,
-			double prepaid_asset_purchase_total,
-			double sales_tax,
-			double freight_in );
+		double sales_tax,
+		double freight_in,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double prepaid_asset_purchase_total );
 
 boolean purchase_is_participating(
 			void );
 
-#endif

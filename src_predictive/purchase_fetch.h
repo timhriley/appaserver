@@ -23,9 +23,9 @@ typedef struct
 	boolean arrived_date_time_boolean;
 	boolean inventory_total_boolean;
 	boolean prepaid_asset_total_boolean;
+	boolean purchase_return_boolean;
 	boolean program_boolean;
 	boolean property_address_boolean;
-	char *select;
 	char *purchase_primary_where;
 	double sales_tax;
 	double freight_in;
@@ -48,6 +48,7 @@ typedef struct
 	LIST *specific_inventory_purchase_list;
 	LIST *supply_purchase_list;
 	LIST *prepaid_asset_purchase_list;
+	LIST *purchase_return_list;
 	LIST *primary_key_list;
 } PURCHASE_FETCH;
 
@@ -65,4 +66,68 @@ PURCHASE_FETCH *purchase_fetch_new(
 /* ------- */
 PURCHASE_FETCH *purchase_fetch_calloc(
 		void );
+
+boolean purchase_fetch_title_passage_rule_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_shipped_date_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_arrived_date_time_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_inventory_total_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_specific_inventory_total_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_prepaid_asset_total_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_return_total_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_program_name_boolean(
+		LIST *folder_attribute_list );
+
+boolean purchase_fetch_property_address_boolean(
+		LIST *folder_attribute_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *purchase_fetch_select(
+		const char *purchase_select,
+		boolean purchase_fetch_title_passage_rule_boolean,
+		boolean purchase_fetch_shipped_date_boolean,
+		boolean purchase_fetch_arrived_date_time_boolean,
+		boolean purchase_fetch_inventory_total_boolean,
+		boolean purchase_fetch_specific_inventory_total_boolean,
+		boolean purchase_fetch_prepaid_asset_total_boolean,
+		boolean purchase_fetch_return_total_boolean,
+		boolean purchase_fetch_program_name_boolean,
+		boolean purchase_fetch_property_address_boolean );
+
+/* Usage */
+/* ----- */
+void purchase_fetch_parse(
+		PURCHASE_FETCH *purchase_fetch_calloc /* in/out */,
+		boolean purchase_fetch_title_passage_rule_boolean,
+		boolean purchase_fetch_shipped_date_boolean,
+		boolean purchase_fetch_arrived_date_time_boolean,
+		boolean purchase_fetch_inventory_total_boolean,
+		boolean purchase_fetch_specific_inventory_total_boolean,
+		boolean purchase_fetch_prepaid_asset_total_boolean,
+		boolean purchase_fetch_return_total_boolean,
+		char *string_system_input );
+
+/* Usage */
+/* ----- */
+LIST *purchase_fetch_primary_key_list(
+		const char *predictive_fund_column,
+		const char *entity_full_name_column,
+		const char *entity_contact_key_column,
+		const char *purchase_date_time_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 

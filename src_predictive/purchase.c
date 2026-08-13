@@ -1,13 +1,12 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/purchase.c				*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "list.h"
 #include "sql.h"
@@ -19,13 +18,13 @@
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
-#include "vendor_payment.h"
 #include "inventory_purchase.h"
 #include "specific_inventory_purchase.h"
 #include "fixed_asset_purchase.h"
 #include "supply_purchase.h"
 #include "prepaid_asset_purchase.h"
 #include "predictive.h"
+#include "sale.h"
 #include "purchase.h"
 
 PURCHASE *purchase_fetch(
@@ -247,27 +246,28 @@ PURCHASE *purchase_parse( char *input )
 	return purchase;
 }
 
-/* Safely returns heap memory */
-/* -------------------------- */
 char *purchase_primary_where(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+		const char *purchase_date_time_column,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	char where[ 1024 ];
-
-	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "purchase_date_time = '%s'	",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 entity_escape_full_name( full_name ),
-		 street_address,
-		 purchase_date_time );
-
-	return strdup( where );
+	return
+	/* --------------------- */
+	/* Returns static memory */
+	/* --------------------- */
+	sale_primary_where(
+		purchase_date_time_column
+			/* SALE_DATE_TIME_COLUMN */,
+		fund_name,
+		full_name,
+		contact_key,
+		sale_date_time,
+		fund_boolean,
+		contact_key_boolean );
 }
 
 double purchase_fetch_amount_due(
@@ -505,14 +505,14 @@ PURCHASE *purchase_steady_state(
 }
 
 double purchase_cost_basis(
-			double purchase_cost,
-			double sales_tax,
-			double freight_in,
-			double fixed_asset_purchase_total,
-			double inventory_purchase_total,
-			double specific_inventory_purchase_total,
-			double supply_purchase_total,
-			double prepaid_asset_purchase_total )
+		double fixed_asset_cost,
+		double sales_tax,
+		double freight_in,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double prepaid_asset_purchase_total )
 {
 	double extra_total;
 	double total;
