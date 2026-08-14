@@ -71,21 +71,19 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 }
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
-		char *input,
 		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery )
+		boolean fetch_last_recovery,
+		char *input )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char piece_buffer[ 1024 ];
+	char buffer[ 1024 ];
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
-	if ( !input || !*input ) return (FIXED_ASSET_PURCHASE *)0;
+	if ( !input || !*input ) return NULL;
 
-	/* See attribute_list fixed_asset_purchase */
-	/* --------------------------------------- */
+	/* See FIXED_ASSET_PURCHASE_SELECT */
+	/* ------------------------------- */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_label, SQL_DELIMITER, input, 1 );
 
@@ -238,13 +236,14 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 }
 
 char *fixed_asset_purchase_system_string(
-		char *fixed_asset_purchase_table,
+		char *select_string,
+		const char *fixed_asset_purchase_table,
 		char *where,
 		char *order )
 {
-	char system_string[ 2048 ];
+	char system_string[ 1024 ];
 
-	if ( !fixed_asset_purchase_table
+	if ( !select_string
 	||   !where )
 	{
 		fprintf(stderr,
@@ -255,27 +254,55 @@ char *fixed_asset_purchase_system_string(
 		exit( 1 );
 	}
 
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" \"%s\"",
-		 fixed_asset_purchase_table,
-		 where,
-		 (order) ? order : "" );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh '%s' %s \"%s\" \"%s\"",
+		select,
+		fixed_asset_purchase_table,
+		where,
+		(order) ? order : "" );
 
 	return strdup( system_string );
 }
 
-LIST *fixed_asset_purchase_list_fetch(
-		char *where,
+LIST *fixed_asset_purchase_list(
+		const char *fixed_asset_purchase_select,
+		const char *fixed_asset_purchase_table,
+		char *purchase_primary_where,
+		boolean entity_contact_key_boolean,
 		boolean fetch_last_depreciation,
 		boolean fetch_last_recovery )
 {
-	return fixed_asset_purchase_system_list(
-			fixed_asset_purchase_system_string(
-				FIXED_ASSET_PURCHASE_TABLE,
-				where,
-				"service_placement_date" /* order */ ),
+	char *select_string;
+	char *system_string;
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			fixed_asset_purchase_select,
+			ENTITY_CONTACT_KEY_COLUMN,
+			entity_contact_key_boolean );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		fixed_asset_purchase_system_string(
+			(char *)fixed_asset_purchase_select
+				/* select_string */,
+			fixed_asset_purchase_table,
+			purchase_primary_where,
+			"service_placement_date"
+				/* order */ );
+
+	return
+	fixed_asset_purchase_system_list(
 		fetch_last_depreciation,
-		fetch_last_recovery );
+		fetch_last_recovery,
+		system_string );
 }
 
 FILE *fixed_asset_purchase_input_pipe( char *system_string )
@@ -301,9 +328,9 @@ LIST *fixed_asset_purchase_system_list(
 		list_set(
 			list,
 			fixed_asset_purchase_parse(
-				input,
 				fetch_last_depreciation,
-				fetch_last_recovery ) );
+				fetch_last_recovery ),
+				input );
 	}
 
 	pclose( input_pipe );
@@ -362,8 +389,11 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 {
 	return
 	fixed_asset_purchase_parse(
-		string_pipe_fetch(
+		string_system_input(
+			/* Returns heap memory */
+			/* ------------------- */
 			fixed_asset_purchase_system_string(
+				FIXED_ASSET_PURCHASE_SELECT,
 				FIXED_ASSET_PURCHASE_TABLE,
 				/* --------------------- */
 				/* Returns static memory */

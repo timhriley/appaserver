@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "entity.h"
 #include "predictive.h"
@@ -55,7 +56,7 @@ PURCHASE_FETCH *purchase_fetch_new(
 		/* Safely returns */
 		/* -------------- */
 		folder_fetch(
-			purchase_table /* folder_name */,
+			(char *)purchase_table /* folder_name */,
 			(LIST *)0 /* role_attribute_exclude_name_list */,
 			1 /* fetch_folder_attribute_list */,
 			0 /* not fetch_attribute */,
@@ -63,39 +64,39 @@ PURCHASE_FETCH *purchase_fetch_new(
 
 	purchase_fetch->title_passage_rule_boolean =
 		purchase_fetch_title_passage_rule_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->shipped_date_boolean =
 		purchase_fetch_shipped_date_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->arrived_date_time_boolean =
 		purchase_fetch_arrived_date_time_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->inventory_total_boolean =
 		purchase_fetch_inventory_total_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->specific_inventory_total_boolean =
 		purchase_fetch_specific_inventory_total_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->prepaid_asset_total_boolean =
 		purchase_fetch_prepaid_asset_total_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->return_total_boolean =
 		purchase_fetch_return_total_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->program_name_boolean =
 		purchase_fetch_program_name_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	purchase_fetch->property_address_boolean =
 		purchase_fetch_property_address_boolean(
-			purchase_folder->folder->folder_attribute_list );
+			purchase_fetch->folder_fetch->folder_attribute_list );
 
 	select =
 		/* ------------------- */
@@ -141,7 +142,7 @@ PURCHASE_FETCH *purchase_fetch_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			purchase_table,
+			(char *)purchase_table,
 			select,
 			purchase_fetch->purchase_primary_where );
 
@@ -159,12 +160,12 @@ PURCHASE_FETCH *purchase_fetch_new(
 		purchase_fetch /* in/out */,
 		purchase_fetch->title_passage_rule_boolean,
 		purchase_fetch->shipped_date_boolean,
-		purchase_fetch->arrived_date_time_boolean(),
+		purchase_fetch->arrived_date_time_boolean,
 		purchase_fetch->inventory_total_boolean,
 		purchase_fetch->specific_inventory_total_boolean,
 		purchase_fetch->prepaid_asset_total_boolean,
 		purchase_fetch->return_total_boolean,
-		purchase_fetch->program_boolean,
+		purchase_fetch->program_name_boolean,
 		purchase_fetch->property_address_boolean,
 		input );
 
@@ -287,7 +288,7 @@ void purchase_fetch_parse(
 		boolean specific_inventory_total_boolean,
 		boolean prepaid_asset_total_boolean,
 		boolean purchase_return_boolean,
-		boolean program_boolean,
+		boolean program_name_boolean,
 		boolean property_address_boolean,
 		char *input )
 {

@@ -4,20 +4,18 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FIXED_ASSET_PURCHASE_H
-#define FIXED_ASSET_PURCHASE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
-#include "entity.h"
 #include "fixed_asset.h"
 #include "recovery.h"
 #include "depreciation.h"
 
 #define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
 
-#define FIXED_ASSET_PURCHASE_PRIMARY_KEY \
-					"asset_name,"		\
+#define FIXED_ASSET_PURCHASE_PRIMARY_KEY				    \
+					"asset_name,"			    \
 					"serial_label"
 
 #define FIXED_ASSET_PURCHASE_SELECT	"asset_name,"			    \
@@ -45,7 +43,6 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_label;
-	ENTITY *vendor_entity;
 	char *purchase_date_time;
 	char *service_placement_date;
 	double fixed_asset_cost;
@@ -74,8 +71,11 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *fixed_asset_purchase_list_fetch(
-		char *fixed_asset_purchase_depreciation_where,
+LIST *fixed_asset_purchase_list(
+		const char *fixed_asset_purchase_select,
+		const char *fixed_asset_purchase_table,
+		char *purchase_primary_where,
+		boolean entity_contact_key_boolean,
 		boolean fetch_last_depreciation,
 		boolean fetch_last_recovery );
 
@@ -85,14 +85,6 @@ LIST *fixed_asset_purchase_system_list(
 		char *fixed_asset_purchase_system_string,
 		boolean fetch_last_depreciation,
 		boolean fetch_last_recovery );
-
-/* Process */
-/* ------- */
-FILE *fixed_asset_purchase_input_pipe(
-		char *fixed_asset_purchase_system_string );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -105,9 +97,9 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 /* Usage */
 /* ----- */
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
-		char *input,
 		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery );
+		boolean fetch_last_recovery,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -226,51 +218,65 @@ double fixed_asset_purchase_cost_basis(
 double fixed_asset_purchase_tax_adjusted_basis(
 		double fixed_asset_cost );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *fixed_asset_purchase_system_string(
-		char *fixed_asset_purchase_table,
+		char *select_string,
+		const char *fixed_asset_purchase_table,
 		char *where,
 		char *order );
 
+/* Usage */
+/* ----- */
 double fixed_asset_purchase_total(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_depreciation_display(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_recovery_display(
 		LIST *fixed_asset_purchase_list );
 
-void fixed_asset_purchase_finance_fetch_update(
-		char *asset_name,
-		char *serial_label );
-
-void fixed_asset_purchase_cost_fetch_update(
-		char *asset_name,
-		char *serial_label );
-
+/* Usage */
+/* ----- */
 LIST *fixed_asset_purchase_list_cost_recover(
 		LIST *fixed_asset_purchase_list,
 		int tax_year );
 
+/* Usage */
+/* ----- */
 LIST *fixed_asset_purchase_cost_recovery_list(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_list_add_depreciation_amount(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_list_subtract_recovery_amount(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_subtract_recovery_amount(
 		FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_negate_depreciation_amount(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
 void fixed_asset_purchase_negate_recovery_amount(
 		LIST *fixed_asset_purchase_list );
-
-#endif
 

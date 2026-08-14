@@ -158,6 +158,7 @@ SALE_LIBRARY=								\
 		inventory_sale.o					\
 		specific_inventory_sale.o				\
 		purchase.o						\
+		purchase_fetch.o					\
 		purchase_transaction.o					\
 		supply_purchase.o					\
 		fixed_asset_purchase.o					\
@@ -1119,6 +1120,10 @@ subclassification.o: subclassification.c subclassification.h
 purchase.o: purchase.c purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c purchase.c
+
+purchase_fetch.o: purchase_fetch.c purchase_fetch.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase_fetch.c
 
 work.o: work.c work.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

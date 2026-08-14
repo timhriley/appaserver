@@ -22,10 +22,13 @@ typedef struct
 	boolean shipped_date_boolean;
 	boolean arrived_date_time_boolean;
 	boolean inventory_total_boolean;
+	boolean specific_inventory_total_boolean;
 	boolean prepaid_asset_total_boolean;
-	boolean purchase_return_boolean;
-	boolean program_boolean;
+	boolean return_total_boolean;
+	boolean program_name_boolean;
 	boolean property_address_boolean;
+	boolean predictive_fund_boolean;
+	boolean entity_contact_key_boolean;
 	char *purchase_primary_where;
 	double sales_tax;
 	double freight_in;
@@ -119,6 +122,8 @@ void purchase_fetch_parse(
 		boolean purchase_fetch_specific_inventory_total_boolean,
 		boolean purchase_fetch_prepaid_asset_total_boolean,
 		boolean purchase_fetch_return_total_boolean,
+		boolean purchase_fetch_program_name_boolean,
+		boolean purchase_fetch_property_address_boolean,
 		char *string_system_input );
 
 /* Usage */
