@@ -8,12 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "timlib.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "piece.h"
-#include "boolean.h"
-#include "list.h"
 #include "sql.h"
+#include "security.h"
 #include "fixed_asset.h"
 
 FIXED_ASSET *fixed_asset_calloc( void )
@@ -61,27 +60,27 @@ FIXED_ASSET *fixed_asset_new( char *asset_name )
 FIXED_ASSET *fixed_asset_parse( char *input )
 {
 	char asset_name[ 128 ];
-	char piece_buffer[ 128 ];
+	char buffer[ 128 ];
 	FIXED_ASSET *fixed_asset;
 
-	if ( !input ) return (FIXED_ASSET *)0;
+	if ( !input || !*input ) return NULL;
 
-	/* See attribute_list fixed_asset */
-	/* ------------------------------ */
+	/* See FIXED_ASSET_SELECT */
+	/* ---------------------- */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 
 	fixed_asset =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		fixed_asset_new(
 			strdup( asset_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	fixed_asset->account_name = strdup( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) fixed_asset->asset_account_name = strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	fixed_asset->activity_energy_kilowatt_draw = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	fixed_asset->activity_depreciation_per_hour = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) fixed_asset->credit_account_name = strdup( buffer );
 
 	return fixed_asset;
 }
@@ -93,11 +92,12 @@ FIXED_ASSET *fixed_asset_fetch( char *asset_name )
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		string_pipe_input(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			fixed_asset_system_string(
+		string_system_input(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_system_string(
+				FIXED_ASSET_SELECT,
 				FIXED_ASSET_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
@@ -108,38 +108,17 @@ FIXED_ASSET *fixed_asset_fetch( char *asset_name )
 
 char *fixed_asset_primary_where( char *asset_name )
 {
-	static char where[ 256 ];
+	static char where[ 128 ];
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"asset_name = '%s'",
 		/* --------------------- */
-		/* Returns static memory */
+		/* Returns heap memory */
 		/* --------------------- */
-		fixed_asset_name_escape( asset_name ) );
+		security_escape( asset_name ) );
 
 	return where;
-}
-
-char *fixed_asset_system_string(
-		char *fixed_asset_table,
-		char *where )
-{
-	static char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\"",
-		fixed_asset_table,
-		where );
-
-	return system_string;
-}
-
-char *fixed_asset_name_escape( char *asset_name )
-{
-	static char escape[ 128 ];
-
-	return string_escape_quote(
-		escape,
-		asset_name );
 }
 

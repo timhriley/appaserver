@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SALE_TRANSACTION_H
-#define SALE_TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -41,7 +40,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *shipped_date_time,
 		char *arrived_date,
 		char *prior_transaction_date_time,
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_total,
@@ -68,7 +67,7 @@ char *sale_transaction_date_time(
 /* ----- */
 LIST *sale_transaction_journal_list(
 		char *feeder_account,
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_total,
@@ -85,7 +84,7 @@ double sale_transaction_debit_sum(
 		double specific_inventory_sale_CGS_total );
 
 double sale_transaction_credit_sum(
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
 		double sale_gross_revenue,
@@ -108,4 +107,3 @@ double sale_transaction_inventory_total(
 ACCOUNT *sale_transaction_debit_account(
 		char *feeder_account );
 
-#endif

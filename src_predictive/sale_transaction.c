@@ -36,7 +36,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *shipped_date_time,
 		char *arrived_date,
 		char *prior_transaction_date_time,
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_total,
@@ -100,7 +100,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		sale_transaction->journal_list =
 			sale_transaction_journal_list(
 				feeder_account,
-				shipping_charge,
+				shipping_revenue,
 				inventory_sale_total,
 				inventory_sale_CGS_total,
 				specific_inventory_sale_total,
@@ -240,7 +240,7 @@ char *sale_transaction_date_time(
 
 LIST *sale_transaction_journal_list(
 		char *feeder_account,
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_total,
@@ -265,7 +265,7 @@ LIST *sale_transaction_journal_list(
 
 	credit_sum =
 		sale_transaction_credit_sum(
-			shipping_charge,
+			shipping_revenue,
 			inventory_sale_total,
 			specific_inventory_sale_total,
 			sale_gross_revenue,
@@ -408,11 +408,11 @@ LIST *sale_transaction_journal_list(
 
 	list_set( list, journal );
 
-	if ( shipping_charge )
+	if ( shipping_revenue )
 	{
-		ACCOUNT *shipping_revenue;
+		ACCOUNT *account;
 
-		shipping_revenue =
+		account =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
@@ -425,9 +425,9 @@ LIST *sale_transaction_journal_list(
 			/* Safely returns */
 			/* -------------- */
 			journal_account_new(
-				shipping_charge /* journal_amount */,
+				shipping_revenue /* journal_amount */,
 				(ACCOUNT *)0 /* debit_account */,
-				shipping_revenue /* credit_account */ );
+				account /* credit_account */ );
 
 		list_set( list, journal );
 	}
@@ -465,14 +465,14 @@ double sale_transaction_debit_sum(
 }
 
 double sale_transaction_credit_sum(
-		double shipping_charge,
+		double shipping_revenue,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
 		double sale_gross_revenue,
 		double sale_sales_tax )
 {
 	return
-	shipping_charge +
+	shipping_revenue +
 	inventory_sale_total +
 	specific_inventory_sale_total +
 	sale_gross_revenue +

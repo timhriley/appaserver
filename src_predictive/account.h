@@ -49,7 +49,10 @@
 #define ACCOUNT_FEDERAL_TAX_PAYABLE		"federal_tax_payable"
 #define ACCOUNT_FEDERAL_UNEMPLOYMENT_PAYABLE	"federal_unemployment_payable"
 #define ACCOUNT_INVENTORY_KEY			"inventory"
-#define ACCOUNT_FREIGHT_IN_KEY			"freight_in"
+#define ACCOUNT_FREIGHT_IN_EXPENSE_KEY		"freight_in"
+#define ACCOUNT_SUPPLY_EXPENSE_KEY		"supply_expense"
+#define ACCOUNT_FIXED_ASSET_KEY			"fixed_asset"
+#define ACCOUNT_PREPAID_ASSET_KEY		"prepaid_asset"
 #define ACCOUNT_MEDICARE_PAYABLE_KEY		"medicare_payable"
 #define ACCOUNT_PAYROLL_PAYABLE_KEY		"payroll_payable"
 #define ACCOUNT_PAYROLL_TAX_KEY			"payroll_tax"
@@ -140,8 +143,8 @@ char *account_primary_where(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_key_fetch(
 		const char *hard_coded_account_key,
 		const char *calling_function_name );
@@ -364,8 +367,8 @@ char *account_system_string(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_drawing(
 		const char *account_drawing_key,
 		const char *calling_function_name );
@@ -373,8 +376,44 @@ ACCOUNT *account_drawing(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+ACCOUNT *account_freight_in_expense(
+		const char *account_freight_in_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+ACCOUNT *account_supply_expense(
+		const char *account_supply_expense_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+ACCOUNT *account_fixed_asset(
+		const char *account_fixed_asset_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+ACCOUNT *account_prepaid_asset(
+		const char *account_prepaid_asset_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_depreciation(
 		const char *account_depreciation_key,
 		const char *calling_function_name );
@@ -382,8 +421,8 @@ ACCOUNT *account_depreciation(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_accumulated_depreciation(
 		const char *account_accumulated_key,
 		const char *calling_function_name );
@@ -391,8 +430,8 @@ ACCOUNT *account_accumulated_depreciation(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_sales_tax_payable(
 		const char *account_sales_tax_payable_key,
 		const char *calling_function_name );
@@ -400,8 +439,8 @@ ACCOUNT *account_sales_tax_payable(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_revenue(
 		const char *account_revenue_key,
 		const char *calling_function_name );
@@ -409,8 +448,8 @@ ACCOUNT *account_revenue(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_receivable(
 		const char *account_receivable_key,
 		const char *calling_function_name );
@@ -418,8 +457,8 @@ ACCOUNT *account_receivable(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_payable(
 		const char *account_payable_key,
 		const char *calling_function_name );
@@ -427,8 +466,8 @@ ACCOUNT *account_payable(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_uncleared_checks(
 		const char *account_uncleared_checks_key,
 		const char *calling_function_name );
@@ -436,8 +475,8 @@ ACCOUNT *account_uncleared_checks(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_shipping_revenue(
 		const char *account_shipping_revenue_key,
 		const char *calling_function_name );
@@ -445,8 +484,8 @@ ACCOUNT *account_shipping_revenue(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_gain(
 		const char *account_gain_key,
 		const char *calling_function_name );
@@ -454,8 +493,8 @@ ACCOUNT *account_gain(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_loss(
 		const char *account_loss_key,
 		const char *calling_function_name );
@@ -463,8 +502,8 @@ ACCOUNT *account_loss(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_fees_expense(
 		const char *account_fees_expense_key,
 		const char *calling_function_name );
@@ -472,8 +511,8 @@ ACCOUNT *account_fees_expense(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_sales_tax_expense(
 		const char *account_sales_tax_expense_key,
 		const char *calling_function_name );
@@ -481,8 +520,8 @@ ACCOUNT *account_sales_tax_expense(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_equity(
 		const char *account_equity_key,
 		const char *calling_function_name );
@@ -490,8 +529,8 @@ ACCOUNT *account_equity(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_credit_card_passthru(
 		const char *account_passthru_key,
 		const char *calling_function_name );
@@ -499,8 +538,8 @@ ACCOUNT *account_credit_card_passthru(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_cost_of_goods_sold(
 		const char *account_CGS_key,
 		const char *calling_function_name );
@@ -508,8 +547,8 @@ ACCOUNT *account_cost_of_goods_sold(
 /* Usage */
 /* ----- */
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 ACCOUNT *account_inventory(
 		const char *account_inventory_key,
 		const char *calling_function_name );

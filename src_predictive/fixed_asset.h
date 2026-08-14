@@ -4,35 +4,35 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FIXED_ASSET_H
-#define FIXED_ASSET_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
+
+#define FIXED_ASSET_SELECT	"fixed_asset,"		\
+				"asset_account,"	\
+				"credit_account"
 
 #define FIXED_ASSET_TABLE	"fixed_asset"
 
 typedef struct
 {
 	char *asset_name;
-	char *account_name;
+	char *asset_account_name;
+	char *credit_account_name;
+/*
+	char *cost_recovery_period_string;
+	char *cost_recovery_method;
+	char *cost_recovery_conversion;
 	double activity_energy_kilowatt_draw;
 	double activity_depreciation_per_hour;
+*/
 } FIXED_ASSET;
 
 /* Usage */
 /* ----- */
 FIXED_ASSET *fixed_asset_fetch(
 		char *asset_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *fixed_asset_system_string(
-		char *fixed_asset_table,
-		char *fixed_asset_primary_where );
 
 /* Usage */
 /* ----- */
@@ -41,6 +41,9 @@ FIXED_ASSET *fixed_asset_parse(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 FIXED_ASSET *fixed_asset_new(
 		char *asset_name );
 
@@ -56,14 +59,4 @@ FIXED_ASSET *fixed_asset_calloc(
 /* --------------------- */
 char *fixed_asset_primary_where(
 		char *asset_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *fixed_asset_name_escape(
-		char *asset_name );
-
-#endif
 

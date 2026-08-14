@@ -602,6 +602,58 @@ char *account_closing_entry_string(
 	return closing_entry_string;
 }
 
+ACCOUNT *account_fixed_asset(
+		const char *account_fixed_asset_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_fixed_asset_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_prepaid_asset(
+		const char *account_prepaid_asset_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_prepaid_asset_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_freight_in_expense(
+		const char *account_freight_in_expense_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_freight_in_expense_key,
+		calling_function_name );
+}
+
+ACCOUNT *account_supply_expense(
+		const char *account_supply_expense_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_supply_expense_key,
+		calling_function_name );
+}
+
 ACCOUNT *account_drawing(
 		const char *account_drawing_key,
 		const char *calling_function_name )

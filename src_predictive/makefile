@@ -150,7 +150,6 @@ SALE_LIBRARY=								\
 		fixed_service_work.o					\
 		sale_transaction.o					\
 		sale_loss_transaction.o					\
-		customer_payment.o					\
 		customer_payment_transaction.o				\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
@@ -158,7 +157,14 @@ SALE_LIBRARY=								\
 		hourly_service_work.o					\
 		inventory_sale.o					\
 		specific_inventory_sale.o				\
-		specific_inventory_purchase.o
+		purchase.o						\
+		purchase_transaction.o					\
+		supply_purchase.o					\
+		fixed_asset_purchase.o					\
+		prepaid_asset_purchase.o				\
+		inventory_purchase.o					\
+		specific_inventory_purchase.o				\
+		customer_payment.o
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -918,6 +924,12 @@ sale_transaction.o:							\
 	sale_transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c sale_transaction.c
+
+purchase_transaction.o:							\
+	purchase_transaction.c						\
+	purchase_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase_transaction.c
 
 depreciation.o: depreciation.c depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

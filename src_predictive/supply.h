@@ -1,57 +1,50 @@
-/* ------------------------------------------------------------ */
-/* $APPASERVER_HOME/src_predictive/supply.h			*/
-/* ------------------------------------------------------------ */
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* ------------------------------------------------------------ */
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/src_predictive/supply.h				*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
 
-#ifndef SUPPLY_H
-#define SUPPLY_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
 
-/* Constants */
-/* --------- */
+#define SUPPLY_SELECT		"supply_name,"	\
+				"account"
+
 #define SUPPLY_TABLE		"supply"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *supply_name;
 	char *account_name;
 } SUPPLY;
 
-/* Operations */
-/* ---------- */
-SUPPLY *supply_new(
-			char *supply_name );
-
-SUPPLY *supply_parse(
-			char *input );
-
+/* Usage */
+/* ----- */
 SUPPLY *supply_fetch(
-			char *supply_name );
+		char *supply_name );
 
-/* Returns static memory */
-/* --------------------- */
-char *supply_system_string(
-			char *where );
+/* Usage */
+/* ----- */
+SUPPLY *supply_parse(
+		char *input );
 
-/* Returns static memory */
-/* --------------------- */
-char *supply_name_escape(
-			char *supply_name );
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+SUPPLY *supply_new(
+		char *supply_name );
+
+/* Process */
+/* ------- */
+SUPPLY *supply_calloc(
+		void );
 
 /* Returns static memory */
 /* --------------------- */
 char *supply_primary_where(
-			char *supply_name );
-
-
-#endif
+		char *supply_name );
 
