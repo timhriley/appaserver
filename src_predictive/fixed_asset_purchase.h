@@ -9,8 +9,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "fixed_asset.h"
-#include "recovery.h"
-#include "depreciation.h"
 
 #define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
 
@@ -61,12 +59,6 @@ typedef struct
 	double finance_accumulated_depreciation;
 	double tax_adjusted_basis;
 	FIXED_ASSET *fixed_asset;
-	double fixed_asset_purchase_list_total;
-	DEPRECIATION *last_depreciation;
-	DEPRECIATION *depreciation;
-	RECOVERY *last_recovery;
-	RECOVERY *recovery;
-	TRANSACTION *depreciation_transaction;
 } FIXED_ASSET_PURCHASE;
 
 /* Usage */
