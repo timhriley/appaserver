@@ -8,6 +8,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "purchase_transaction.h"
 #include "purchase_fetch.h"
 
 #define PURCHASE_TABLE			"purchase"
@@ -22,15 +23,20 @@
 					"transaction_date_time"
 
 #define PURCHASE_DATE_TIME_COLUMN	"purchase_date_time"
+#define PURCHASE_ASSET_COLUMN		"asset_name"
 #define PURCHASE_MEMO			"Purchase Order"
 
 typedef struct
 {
-	char *fund_name;
-	char *full_name;
-	char *contact_key;
-	char *purchase_date_time;
 	PURCHASE_FETCH *purchase_fetch;
+	double fixed_asset_purchase_total;
+	double inventory_purchase_total;
+	double specific_inventory_purchase_total;
+	double supply_purchase_total;
+	double prepaid_asset_purchase_total;
+	double return_total;
+	double invoice_amount;
+	PURCHASE_TRANSACTION *purchase_transaction;
 } PURCHASE;
 
 /* Usage */
@@ -43,14 +49,6 @@ PURCHASE *purchase_trigger_new(
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key );
-
-/* Usage */
-/* ----- */
-PURCHASE *purchase_new(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time );
 
 /* Process */
 /* ------- */

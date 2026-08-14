@@ -27,10 +27,14 @@
 #include "sale.h"
 #include "purchase.h"
 
-PURCHASE *purchase_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+PURCHASE *purchase_trigger_new(
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		char *state,
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key )
 {
 	char system_string[ 1024 ];
 
@@ -48,44 +52,6 @@ PURCHASE *purchase_fetch(
 	return purchase_parse( pipe2string( system_string ) );
 }
 
-PURCHASE *purchase_new(
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		boolean contact_key_boolean )
-{
-	PURCHASE *purchase;
-
-	if ( !full_name
-	||   !purchase_date_time )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	purchase = purchase_calloc();
-
-	purchase->vendor_entity =
-		entity_new(
-			full_name,
-			contact_key,
-			contact_key_boolean ),
-
-	purchase->purchase_date_time = purchase_date_time;
-
-	return purchase;
-}
-
 PURCHASE *purchase_calloc( void )
 {
 	PURCHASE *purchase;
@@ -93,78 +59,13 @@ PURCHASE *purchase_calloc( void )
 	if ( ! ( purchase = calloc( 1, sizeof( PURCHASE ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 	return purchase;
-}
-
-FILE *purchase_update_open( void )
-{
-	char *key;
-	char system_string[ 1024 ];
-
-	key = "full_name,street_address,purchase_date_time";
-
-	sprintf( system_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 PURCHASE_TABLE,
-		 key );
-
-	return popen( system_string, "w" );
-}
-
-void purchase_update(
-			double fixed_asset_purchase_total,
-			double invoice_amount,
-			double vendor_payment_total,
-			double amount_due,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	FILE *update_pipe = purchase_update_open();
-
-	fprintf(update_pipe,
-		"%s^%s^%s^fixed_asset_purchase_total^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		fixed_asset_purchase_total );
-
-	fprintf(update_pipe,
-		"%s^%s^%s^invoice_amount^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		invoice_amount );
-
-	fprintf(update_pipe,
-		"%s^%s^%s^vendor_payment_total^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		vendor_payment_total );
-
-	fprintf(update_pipe,
-		"%s^%s^%s^amount_due^%.2lf\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		amount_due );
-
-	fprintf(update_pipe,
-		"%s^%s^%s^transaction_date_time^%s\n",
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		transaction_date_time );
-
-	pclose( update_pipe );
 }
 
 PURCHASE *purchase_parse( char *input )

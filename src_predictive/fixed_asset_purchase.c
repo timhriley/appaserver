@@ -8,12 +8,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
+#include "appaserver.h"
+#include "appaserver_error.h"
 #include "piece.h"
+#include "entity.h"
 #include "sql.h"
-#include "environ.h"
-#include "account.h"
+#include "security.h"
+#include "sale.h"
 #include "fixed_asset.h"
-#include "purchase.h"
 #include "fixed_asset_purchase.h"
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_calloc( void )
@@ -36,12 +38,13 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_calloc( void )
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 		char *asset_name,
-		char *serial_label )
+		char *serial_key,
+		boolean fetch_fixed_asset_boolean )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
 	if ( !asset_name
-	||   !serial_label )
+	||   !serial_key )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -54,23 +57,23 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 	fixed_asset_purchase = fixed_asset_purchase_calloc();
 
 	fixed_asset_purchase->asset_name = asset_name;
-	fixed_asset_purchase->serial_label = serial_label;
+	fixed_asset_purchase->serial_key = serial_key;
 
-	fixed_asset_purchase->fixed_asset =
-		fixed_asset_fetch(
-			fixed_asset_purchase->asset_name );
+	if ( fetch_fixed_asset_boolean )
+	{
+		fixed_asset_purchase->fixed_asset =
+			fixed_asset_fetch(
+				fixed_asset_purchase->asset_name );
+	}
 
 	return fixed_asset_purchase;
 }
 
-FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
-		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery,
-		char *input )
+FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 {
 	char asset_name[ 128 ];
-	char serial_label[ 128 ];
-	char buffer[ 1024 ];
+	char serial_key[ 128 ];
+	char buffer[ 128 ];
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
 	if ( !input || !*input ) return NULL;
@@ -78,7 +81,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	/* See FIXED_ASSET_PURCHASE_SELECT */
 	/* ------------------------------- */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
-	piece( serial_label, SQL_DELIMITER, input, 1 );
+	piece( serial_key, SQL_DELIMITER, input, 1 );
 
 	fixed_asset_purchase =
 		/* -------------- */
@@ -86,144 +89,90 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 		/* -------------- */
 		fixed_asset_purchase_new(
 			strdup( asset_name ),
-			strdup( serial_label ) );
+			strdup( serial_key ),
+			0 /* not fetch_fixed_asset_boolean */ );
 
-	if ( !fixed_asset_purchase->fixed_asset )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: fixed_asset_purchase->fixed_asset is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
-
-	fixed_asset_purchase->vendor_entity =
-		entity_new(
-			strdup( full_name ),
-			strdup( contact_key ),
-			contact_key_boolean );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	if ( *piece_buffer )
-		fixed_asset_purchase->purchase_date_time =
-			strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer )
 		fixed_asset_purchase->service_placement_date =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer )
 		fixed_asset_purchase->fixed_asset_cost =
-			atof( piece_buffer );
+			atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer )
 		fixed_asset_purchase->units_produced_so_far =
-			atoi( piece_buffer );
+			atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer )
 		fixed_asset_purchase->disposal_date =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 9 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer )
 		fixed_asset_purchase->recovery_class_year_string =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 10 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer )
 		fixed_asset_purchase->recovery_method =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 11 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	if ( *buffer )
 		fixed_asset_purchase->recovery_convention =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 12 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 9 );
+	if ( *buffer )
 		fixed_asset_purchase->recovery_system =
-			strdup( piece_buffer );
+			strdup( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 13 );
-	if ( *piece_buffer )
-		fixed_asset_purchase->depreciation_method =
-			depreciation_method_evaluate( piece_buffer );
+/*
+	piece( buffer, SQL_DELIMITER, input, 10 );
+	if ( *buffer )
+		fixed_asset_purchase->depreciation_method_resolve =
+			depreciation_method_resolve( buffer );
+*/
 
-	piece( piece_buffer, SQL_DELIMITER, input, 14 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 11 );
+	if ( *buffer )
 		fixed_asset_purchase->estimated_useful_life_years =
-			atoi( piece_buffer );
+			atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 15 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 12 );
+	if ( *buffer )
 		fixed_asset_purchase->estimated_useful_life_units =
-			atoi( piece_buffer );
+			atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 16 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 13 );
+	if ( *buffer )
 		fixed_asset_purchase->estimated_residual_value =
-			atoi( piece_buffer );
+			atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 17 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 14 );
+	if ( *buffer )
 		fixed_asset_purchase->declining_balance_n =
-			atof( piece_buffer );
+			atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 18 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 15 );
+	if ( *buffer )
 		fixed_asset_purchase->cost_basis =
-			atof( piece_buffer );
+			atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 19 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 16 );
+	if ( *buffer )
 		fixed_asset_purchase->finance_accumulated_depreciation =
-			atof( piece_buffer );
+			atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 20 );
-	if ( *piece_buffer )
+	piece( buffer, SQL_DELIMITER, input, 17 );
+	if ( *buffer )
 		fixed_asset_purchase->tax_adjusted_basis =
-			atof( piece_buffer );
-
-	if ( fetch_last_depreciation )
-	{
-		fixed_asset_purchase->last_depreciation =
-			depreciation_fetch(
-				fixed_asset_purchase->
-					fixed_asset->
-					asset_name,
-				fixed_asset_purchase->
-					serial_label,
-				depreciation_prior_depreciation_date(
-					DEPRECIATION_TABLE,
-					fixed_asset_purchase->
-						fixed_asset->
-						asset_name,
-					fixed_asset_purchase->
-						serial_label,
-					(char *)0
-					    /* depreciation_date */ ) );
-	}
-
-	if ( fetch_last_recovery )
-	{
-		fixed_asset_purchase->last_recovery =
-			recovery_fetch(
-				fixed_asset_purchase->
-					fixed_asset->
-					asset_name,
-				fixed_asset_purchase->
-					serial_label,
-				recovery_prior_tax_year(
-					RECOVERY_TABLE ) );
-	}
+			atof( buffer );
 
 	return fixed_asset_purchase;
 }
@@ -251,7 +200,7 @@ char *fixed_asset_purchase_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"select.sh '%s' %s \"%s\" \"%s\"",
-		select,
+		select_string,
 		fixed_asset_purchase_table,
 		where,
 		(order) ? order : "" );
@@ -263,12 +212,13 @@ LIST *fixed_asset_purchase_list(
 		const char *fixed_asset_purchase_select,
 		const char *fixed_asset_purchase_table,
 		char *purchase_primary_where,
-		boolean entity_contact_key_boolean,
-		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery )
+		boolean entity_contact_key_boolean )
 {
 	char *select_string;
 	char *system_string;
+	char input[ 2048 ];
+	FILE *input_pipe;
+	LIST *list = list_new();
 
 	select_string =
 		/* ------------------- */
@@ -284,129 +234,133 @@ LIST *fixed_asset_purchase_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		fixed_asset_purchase_system_string(
-			(char *)fixed_asset_purchase_select
-				/* select_string */,
+			select_string,
 			fixed_asset_purchase_table,
 			purchase_primary_where,
 			"service_placement_date"
 				/* order */ );
 
-	return
-	fixed_asset_purchase_system_list(
-		fetch_last_depreciation,
-		fetch_last_recovery,
-		system_string );
-}
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
 
-FILE *fixed_asset_purchase_input_pipe( char *system_string )
-{
-	return popen( system_string, "r" );
-}
-
-LIST *fixed_asset_purchase_system_list(
-		char *system_string,
-		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery )
-{
-	char input[ 2048 ];
-	FILE *input_pipe;
-	LIST *list = list_new();
-
-	input_pipe =
-		fixed_asset_purchase_input_pipe(
-			system_string );
-
-	while ( string_input( input, input_pipe, 2048 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			list,
 			fixed_asset_purchase_parse(
-				fetch_last_depreciation,
-				fetch_last_recovery ),
-				input );
+				input ) );
 	}
 
 	pclose( input_pipe );
 
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
 	return list;
 }
 
-FILE *fixed_asset_purchase_update_pipe(
-		char *table,
-		char *primary_key )
-{
-	char system_string[ 1024 ];
-
-	sprintf( system_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 table,
-		 primary_key );
-
-	return popen( system_string, "w" );
-}
-
-void fixed_asset_purchase_update_execute(
-		FILE *update_pipe,
-		double cost_basis,
-		double finance_accumulated_depreciation,
-		double tax_adjusted_basis,
+FIXED_ASSET_PURCHASE *fixed_asset_purchase_trigger_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
 		char *asset_name,
-		char *serial_label )
+		char *serial_key,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
-	char *escape = fixed_asset_name_escape( asset_name );
+	char *select_string;
+	char *primary_where;
+	char *where;
+	char *system_string;
+	char *input;
 
-	fprintf(update_pipe,
-		"%s^%s^cost_basis^%.2lf\n",
-		escape,
-		serial_label,
-		cost_basis );
+	if ( !full_name
+	||   !purchase_date_time
+	||   !asset_name
+	||   !serial_key )
+	{
+		char message[ 1024 ];
 
-	fprintf(update_pipe,
-		"%s^%s^finance_accumulated_depreciation^%.2lf\n",
-		escape,
-		serial_label,
-		finance_accumulated_depreciation );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
 
-	fprintf(update_pipe,
-		"%s^%s^tax_adjusted_basis^%.2lf\n",
-		escape,
-		serial_label,
-		tax_adjusted_basis );
-}
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
-FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
-		char *asset_name,
-		char *serial_label,
-		boolean fetch_last_depreciation,
-		boolean fetch_last_recovery )
-{
-	return
-	fixed_asset_purchase_parse(
-		string_system_input(
-			/* Returns heap memory */
-			/* ------------------- */
-			fixed_asset_purchase_system_string(
-				FIXED_ASSET_PURCHASE_SELECT,
-				FIXED_ASSET_PURCHASE_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				fixed_asset_purchase_primary_where(
-					asset_name,
-					serial_label ),
-				(char *)0 /* order */ ) ),
-		fetch_last_depreciation,
-		fetch_last_recovery );
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		entity_select_string(
+			FIXED_ASSET_PURCHASE_SELECT,
+			ENTITY_CONTACT_KEY_COLUMN,
+			contact_key_boolean );
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		purchase_primary_where(
+			PURCHASE_DATE_TIME_COLUMN,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			fund_boolean,
+			contact_key_boolean );
+
+	where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		fixed_asset_purchase_primary_where(
+			asset_name,
+			serial_key,
+			primary_where );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			select_string,
+			FIXED_ASSET_PURCHASE_TABLE,
+			where );
+
+	free( where );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	input = string_system_input( system_string );
+
+	free( system_string );
+
+	return fixed_asset_purchase_parse( input );
 }
 
 char *fixed_asset_purchase_primary_where(
 		char *asset_name,
-		char *serial_label )
+		char *serial_key,
+		char *purchase_primary_where )
 {
-	static char where[ 256 ];
+	char *asset_escape;
+	char *serial_escape;
+	char where[ 1024 ];
 
 	if ( !asset_name
-	||   !serial_label )
+	||   !serial_key
+	||   !purchase_primary_where )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -416,28 +370,31 @@ char *fixed_asset_purchase_primary_where(
 		exit( 1 );
 	}
 
-	sprintf( where,
-		 "asset_name = '%s' and		"
-		 "serial_label = '%s' 		",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 fixed_asset_name_escape( asset_name ),
-		 serial_label );
+	/* Returns heap memory */
+	/* ------------------- */
+	asset_escape = security_escape( asset_name );
+	serial_escape = security_escape( serial_key );
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and asset_name = '%s' and serial_label = '%s'",
+		purchase_primary_where,
+		asset_escape,
+		serial_escape );
+
+	free( asset_escape );
+	free( serial_escape );
 
 	return strdup( where );
 }
 
-double fixed_asset_purchase_total(
-		LIST *fixed_asset_purchase_list )
+double fixed_asset_purchase_total( LIST *fixed_asset_purchase_list )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	double purchase_total;
+	double purchase_total = {0};
 
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return 0.0;
-
-	purchase_total = 0.0;
-
+	if ( list_rewind( fixed_asset_purchase_list ) )
 	do {
 		fixed_asset_purchase = list_get( fixed_asset_purchase_list );
 		purchase_total += fixed_asset_purchase->fixed_asset_cost;
@@ -447,712 +404,77 @@ double fixed_asset_purchase_total(
 	return purchase_total;
 }
 
-LIST *fixed_asset_purchase_depreciation_list(
-		LIST *fixed_asset_purchase_list,
-		char *depreciation_date )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	ENTITY_SELF *entity_self;
-	char *depreciation_expense;
-	char *accumulated_depreciation;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
-
-	entity_self =
-		entity_self_fetch(
-			0 /* not fetch_entity_boolean */ );
-
-	if ( !entity_self )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	depreciation_expense =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_depreciation_string(
-			ACCOUNT_DEPRECIATION_KEY,
-			__FUNCTION__ );
-
-	accumulated_depreciation =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_accumulated_depreciation_string(
-			ACCOUNT_ACCUMULATED_KEY,
-			__FUNCTION__ );
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		fixed_asset_purchase->depreciation =
-			depreciation_evaluate(
-				fixed_asset_purchase->fixed_asset->asset_name,
-				fixed_asset_purchase->serial_label,
-				fixed_asset_purchase->depreciation_method,
-				fixed_asset_purchase->service_placement_date,
-				/* ------------------------------------ */
-				/* Returns last_depreciation->		*/
-				/*	   depreciation_date or null	*/
-				/* ------------------------------------ */
-				fixed_asset_purchase_prior_depreciation_date(
-					fixed_asset_purchase->
-						last_depreciation ),
-				depreciation_date,
-				fixed_asset_purchase->cost_basis,
-				fixed_asset_purchase->units_produced_so_far,
-				fixed_asset_purchase->estimated_residual_value,
-				fixed_asset_purchase->
-					estimated_useful_life_years,
-				fixed_asset_purchase->
-					estimated_useful_life_units,
-				fixed_asset_purchase->declining_balance_n,
-				fixed_asset_purchase->
-					finance_accumulated_depreciation
-					/* prior_accumulated_depreciation */ );
-
-		if ( !fixed_asset_purchase->depreciation ) continue;
-
-		fixed_asset_purchase->
-			depreciation_transaction =
-				depreciation_transaction(
-					entity_self->full_name,
-					entity_self->street_address,
-					depreciation_date,
-					fixed_asset_purchase->
-						depreciation->
-						amount,
-					depreciation_expense,
-					accumulated_depreciation );
-
-		if ( !fixed_asset_purchase->
-			depreciation_transaction )
-		{
-			continue;
-		}
-
-	} while ( list_next( fixed_asset_purchase_list ) );
-
-	return fixed_asset_purchase_list;
-}
-
-void fixed_asset_purchase_list_update(
-		LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		fixed_asset_purchase_update( fixed_asset_purchase );
-
-	} while( list_next( fixed_asset_purchase_list ) );
-}
-
-void fixed_asset_purchase_depreciation_display(
-		LIST *fixed_asset_purchase_depreciation_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	FILE *output_pipe;
-	char system_string[ 1024 ];
-	char *heading;
-	char *justification;
-	char buffer[ 128 ];
-	char cost[ 16 ];
-	char prior_accumulated[ 16 ];
-	char depreciation[ 16 ];
-	char post_accumulated[ 16 ];
-
-	if ( !list_rewind( fixed_asset_purchase_depreciation_list ) ) return;
-
-	heading =
-"Asset,Serial,Service,Cost,Prior Accumulated,Depreciation,Post Accumulated";
-
-	justification = "left,left,left,right";
-
-	sprintf(system_string,
-		"html_table.e '' '%s' '^' '%s'",
-		heading,
-		justification );
-
-	fflush( stdout );
-	output_pipe = popen( system_string, "w" );
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_depreciation_list );
-
-		if ( !fixed_asset_purchase->depreciation ) continue;
-
-		strcpy( cost,
-			/* --------------------- */
-			/* Returns static memory */
-			/* Doesn't trim pennies  */
-			/* --------------------- */
-			commas_in_money(
-				fixed_asset_purchase->
-					cost_basis ) );
-
-		strcpy(	prior_accumulated,
-			commas_in_money(
-				fixed_asset_purchase->
-					finance_accumulated_depreciation ) );
-
-		strcpy(	depreciation,
-			commas_in_money(
-				fixed_asset_purchase->
-					depreciation->
-					amount ) );
-
-		strcpy(	post_accumulated,
-			commas_in_money(
-				fixed_asset_purchase->
-					finance_accumulated_depreciation +
-				fixed_asset_purchase->
-					depreciation->
-					amount ) );
-
-		fprintf(output_pipe,
-			"%s^%s^%s^%s^%s^%s^%s\n",
-			format_initial_capital(
-				buffer,
-				fixed_asset_purchase->
-					fixed_asset->
-					asset_name ),
-			fixed_asset_purchase->serial_label,
-			fixed_asset_purchase->service_placement_date,
-			cost,
-			prior_accumulated,
-			depreciation,
-			post_accumulated );
-
-	} while( list_next( fixed_asset_purchase_depreciation_list ) );
-
-	pclose( output_pipe );
-}
-
-void fixed_asset_purchase_finance_fetch_update(
-		char *asset_name,
-		char *serial_label )
-{
-	char system_string[ 1024 ];
-	char set[ 512 ];
-
-	sprintf(set,
-		"finance_accumulated_depreciation = 			"
-		"( select sum( depreciation_amount )			"
-		"	  from %s					"
-		"	  where %s.asset_name = %s.asset_name		"
-		"	    and %s.serial_label = %s.serial_label )	",
-		DEPRECIATION_TABLE,
-		FIXED_ASSET_PURCHASE_TABLE,
-		DEPRECIATION_TABLE,
-		FIXED_ASSET_PURCHASE_TABLE,
-		DEPRECIATION_TABLE );
-
-	sprintf(system_string,
-		"echo \"update %s set %s where %s;\" | sql",
-		FIXED_ASSET_PURCHASE_TABLE,
-		set,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		fixed_asset_purchase_primary_where(
-			asset_name,
-			serial_label ) );
-
-	if ( system( system_string ) ){}
-}
-
-void fixed_asset_purchase_cost_fetch_update(
-		char *asset_name,
-		char *serial_label )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"recovery_adjusted_basis_fetch_update.sh \"%s\" \"%s\"",
-		asset_name,
-		serial_label );
-
-	if ( system( system_string ) ){};
-}
-
-LIST *fixed_asset_purchase_list_cost_recover(
-		LIST *fixed_asset_purchase_list,
-		int tax_year )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( !fixed_asset_purchase->fixed_asset )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty fixed_asset.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		fixed_asset_purchase->recovery =
-			recovery_evaluate(
-				fixed_asset_purchase->fixed_asset->asset_name,
-				fixed_asset_purchase->serial_label,
-				tax_year,
-				fixed_asset_purchase->cost_basis,
-				fixed_asset_purchase->
-					service_placement_date
-					/* service_placement_date_string */,
-				fixed_asset_purchase->
-					disposal_date
-					/* disposal_date_string */,
-				fixed_asset_purchase->
-					recovery_class_year_string,
-				fixed_asset_purchase->
-					recovery_method,
-				fixed_asset_purchase->
-					recovery_convention,
-				fixed_asset_purchase->
-					recovery_system );
-
-	} while ( list_next( fixed_asset_purchase_list ) );
-
-	return fixed_asset_purchase_list;
-}
-
-LIST *fixed_asset_purchase_cost_recovery_list(
-		LIST *fixed_asset_purchase_list )
-{
-	LIST *recovery_list;
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
-
-	recovery_list = list_new();
-
-	do {
-		fixed_asset_purchase = list_get( fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->recovery
-		&&   fixed_asset_purchase->recovery->amount )
-		{
-			list_set(
-				recovery_list,
-				fixed_asset_purchase->recovery );
-		}
-
-	} while ( list_next( fixed_asset_purchase_list ) );
-
-	return recovery_list;
-}
-
-void fixed_asset_purchase_recovery_display(
-		LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *heading;
-	char *justification;
-	char buffer[ 128 ];
-	char cost[ 128 ];
-	char prior_adjusted[ 128 ];
-	char amount[ 128 ];
-	char adjusted_basis[ 128 ];
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
-
-	heading =
-"Asset,Serial,Service,Cost,Prior Adjusted,Amount,Rate,Adjusted Basis";
-
-	justification = "left,left,right";
-
-	sprintf( sys_string,
-		 "html_table.e '' '%s' '^' '%s'",
-		 heading,
-		 justification );
-
-	fflush( stdout );
-	output_pipe = popen( sys_string, "w" );
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( !fixed_asset_purchase->recovery ) continue;
-
-		strcpy(	cost,
-			/* --------------------- */
-			/* Returns static memory */
-			/* Doesn't trim pennies  */
-			/* --------------------- */
-			commas_in_money(
-				fixed_asset_purchase->cost_basis ) );
-
-		strcpy(	prior_adjusted,
-			commas_in_money(
-				fixed_asset_purchase->tax_adjusted_basis ) );
-
-		strcpy(	amount,
-			commas_in_money(
-				fixed_asset_purchase->
-					recovery->
-					amount ) );
-
-		sprintf(adjusted_basis,
-			"%s",
-			commas_in_money(
-				fixed_asset_purchase->
-					tax_adjusted_basis -
-				fixed_asset_purchase->
-					recovery->
-					amount ) );
-		fprintf(output_pipe,
-			"%s^%s^%s^%s^%s^%s^%.5lf^%s\n",
-			format_initial_capital(
-				buffer,
-				fixed_asset_purchase->
-					fixed_asset->
-					asset_name ),
-			fixed_asset_purchase->
-				serial_label,
-			fixed_asset_purchase->
-				service_placement_date,
-			cost,
-			prior_adjusted,
-			amount,
-			fixed_asset_purchase->
-				recovery->
-				rate,
-			adjusted_basis );
-
-	} while( list_next( fixed_asset_purchase_list ) );
-
-	pclose( output_pipe );
-}
-
-void fixed_asset_purchase_list_add_depreciation_amount(
-			LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->depreciation )
-		{
-			fixed_asset_purchase->
-				finance_accumulated_depreciation +=
-					fixed_asset_purchase->
-						depreciation->
-						amount;
-		}
-
-	} while( list_next( fixed_asset_purchase_list ) );
-}
-
-void fixed_asset_purchase_list_subtract_recovery_amount(
-			LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->recovery )
-		{
-			fixed_asset_purchase_subtract_recovery_amount(
-				fixed_asset_purchase );
-
-		}
-
-	} while( list_next( fixed_asset_purchase_list ) );
-}
-
-void fixed_asset_purchase_subtract_recovery_amount(
-		FIXED_ASSET_PURCHASE *fixed_asset_purchase )
-{
-	if ( fixed_asset_purchase->recovery )
-	{
-		fixed_asset_purchase->
-			tax_adjusted_basis -=
-				fixed_asset_purchase->
-					recovery->
-					amount;
-	}
-}
-
-void fixed_asset_purchase_negate_depreciation_amount(
-		LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( list_rewind( fixed_asset_purchase_list ) )
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->depreciation )
-		{
-			fixed_asset_purchase->
-				finance_accumulated_depreciation -=
-					fixed_asset_purchase->
-						depreciation->
-						amount;
-		}
-
-	} while( list_next( fixed_asset_purchase_list ) );
-}
-
-void fixed_asset_purchase_list_negate_recovery_amount(
-		LIST *fixed_asset_purchase_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( list_rewind( fixed_asset_purchase_list ) )
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->recovery )
-		{
-			fixed_asset_purchase->
-				tax_adjusted_basis +=
-					fixed_asset_purchase->
-						recovery->
-						amount;
-		}
-
-	} while( list_next( fixed_asset_purchase_list ) );
-}
-
-char *fixed_asset_purchase_depreciation_where( char *depreciation_date )
-{
-	char where[ 1024 ];
-
-	if ( !depreciation_date )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: depreciation_date is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-	"ifnull(finance_accumulated_depreciation,0) -		"
-	"ifnull(estimated_residual_value,0) < cost_basis	"
-	" and disposal_date is null				"
-	" and not %s						",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		depreciation_subquery_exists_where(
-			DEPRECIATION_TABLE,
-			FIXED_ASSET_PURCHASE_TABLE,
-			depreciation_date ) );
-
-	return strdup( where );
-}
-
-char *fixed_asset_purchase_depreciation_date( void )
+double fixed_asset_purchase_cost_basis(
+		double fixed_asset_cost,
+		PURCHASE *purchase_trigger_new )
 {
 	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	date_now_yyyy_mm_dd( date_utc_offset() );
+	purchase_cost_basis(
+		fixed_asset_cost,
+		purchase_trigger_new->purchase_fetch->sales_tax,
+		purchase_trigger_new->purchase_fetch->freight_in,
+		purchase_trigger_new->fixed_asset_purchase_total,
+		purchase_trigger_new->inventory_purchase_total,
+		purchase_trigger_new->specific_inventory_purchase_total,
+		purchase_trigger_new->supply_purchase_total,
+		purchase_trigger_new->prepaid_asset_purchase_total );
 }
 
-void fixed_asset_purchase_update(
-		FIXED_ASSET_PURCHASE *fixed_asset_purchase )
+LIST *fixed_asset_purchase_primary_key_list(
+		const char *purchase_asset_column,
+		const char *sale_serial_key_column,
+		LIST *purchase_primary_key_list /* out */ )
 {
-	FILE *update_pipe;
+	list_set(
+		purchase_primary_key_list,
+		(char *)purchase_asset_column );
 
-	if ( !fixed_asset_purchase )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: fixed_asset_purchase is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	list_set(
+		purchase_primary_key_list,
+		(char *)sale_serial_key_column );
 
-	update_pipe =
-		fixed_asset_purchase_update_pipe(
-			FIXED_ASSET_PURCHASE_TABLE,
-			FIXED_ASSET_PURCHASE_PRIMARY_KEY );
-
-	fixed_asset_purchase_update_execute(
-		update_pipe,
-		fixed_asset_purchase->cost_basis,
-		fixed_asset_purchase->finance_accumulated_depreciation,
-		fixed_asset_purchase->tax_adjusted_basis,
-		fixed_asset_purchase->fixed_asset->asset_name,
-		fixed_asset_purchase->serial_label );
-
-	pclose( update_pipe );
+	return purchase_primary_key_list;
 }
 
-double fixed_asset_purchase_cost_basis( double fixed_asset_cost )
+LIST *fixed_asset_purchase_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		double cost_basis )
 {
-	return fixed_asset_cost;
+	char *primary_data_string;
+	char *update_string;
+	LIST *list = list_new();
+
+	primary_data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		sale_primary_data_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time /* sale_date_time */,
+			fund_boolean,
+			contact_key_boolean );
+
+	update_string =
+		/* ------------------------------------------------ */
+		/* Returns heap memory or null (if not set_boolean) */
+		/* ------------------------------------------------ */
+		sale_update_string(
+			sql_delimiter,
+			primary_data_string,
+			"cost_basis" /* column_name */,
+			cost_basis /* money */,
+			1 /* set_boolean */ );
+
+	list_set( list, update_string );
+
+	return list;
 }
-
-double fixed_asset_purchase_tax_adjusted_basis( double fixed_asset_cost )
-{
-	return fixed_asset_cost;
-}
-
-char *fixed_asset_purchase_prior_depreciation_date(
-		DEPRECIATION *last_depreciation )
-{
-	if ( last_depreciation )
-		return last_depreciation->depreciation_date;
-	else
-		return (char *)0;
-}
-
-LIST *fixed_asset_purchase_depreciation_list_extract(
-		LIST *fixed_asset_purchase_depreciation_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	LIST *depreciation_list;
-
-	if ( !list_rewind( fixed_asset_purchase_depreciation_list ) )
-		return (LIST *)0;
-
-	depreciation_list = list_new();
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_depreciation_list );
-
-		if ( fixed_asset_purchase->depreciation
-		&&   fixed_asset_purchase->depreciation_transaction )
-		{
-			fixed_asset_purchase->
-				depreciation->
-				transaction_date_time =
-					fixed_asset_purchase->
-						depreciation_transaction->
-						transaction_date_time;
-
-			list_set(
-				depreciation_list,
-				fixed_asset_purchase->depreciation );
-		}
-
-	} while ( list_next( fixed_asset_purchase_depreciation_list ) );
-
-	return depreciation_list;
-}
-
-LIST *fixed_asset_purchase_transaction_list_extract(
-		LIST *fixed_asset_purchase_depreciation_list )
-{
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	LIST *transaction_list;
-
-	if ( !list_rewind( fixed_asset_purchase_depreciation_list ) )
-		return (LIST *)0;
-
-	transaction_list = list_new();
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_depreciation_list );
-
-		if ( fixed_asset_purchase->depreciation_transaction )
-		{
-			list_set(
-				transaction_list,
-				fixed_asset_purchase->
-					depreciation_transaction );
-		}
-
-	} while ( list_next( fixed_asset_purchase_depreciation_list ) );
-
-	return transaction_list;
-}
-
-void fixed_asset_purchase_transaction_list_insert(
-		LIST *transaction_list_extract )
-{
-	/* May reset transaction->transaction_date_time */
-	/* -------------------------------------------- */
-	transaction_list_insert(
-		transaction_list_extract,
-		1 /* insert_journal_list_boolean */ );
-}
-
-void fixed_asset_purchase_depreciation_list_insert(
-		LIST *depreciation_list_extract )
-{
-	depreciation_list_insert( depreciation_list_extract );
-}
-
-void fixed_asset_purchase_depreciation_insert(
-		LIST *fixed_asset_purchase_depreciation_list )
-{
-	LIST *transaction_list_extract;
-
-	transaction_list_extract =
-		fixed_asset_purchase_transaction_list_extract(
-			fixed_asset_purchase_depreciation_list );
-
-	if ( list_length( transaction_list_extract ) )
-	{
-		LIST *depreciation_list_extract;
-
-		/* May reset transaction->transaction_date_time */
-		/* -------------------------------------------- */
-		fixed_asset_purchase_transaction_list_insert(
-			transaction_list_extract );
-
-		depreciation_list_extract =
-			fixed_asset_purchase_depreciation_list_extract(
-				fixed_asset_purchase_depreciation_list );
-
-		fixed_asset_purchase_depreciation_list_insert(
-			depreciation_list_extract );
-	}
-
-	transaction_list_html_display( transaction_list_extract );
-}
-
