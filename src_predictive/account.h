@@ -51,6 +51,7 @@
 #define ACCOUNT_INVENTORY_KEY			"inventory"
 #define ACCOUNT_FREIGHT_IN_EXPENSE_KEY		"freight_in"
 #define ACCOUNT_SUPPLY_EXPENSE_KEY		"supply_expense"
+#define ACCOUNT_SERVICE_EXPENSE_KEY		"service_expense"
 #define ACCOUNT_FIXED_ASSET_KEY			"fixed_asset"
 #define ACCOUNT_PREPAID_ASSET_KEY		"prepaid_asset"
 #define ACCOUNT_MEDICARE_PAYABLE_KEY		"medicare_payable"

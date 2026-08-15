@@ -40,12 +40,13 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *prior_transaction_date_time,
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total,
-		double invoice_amount );
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total,
+		double purchase_invoice_amount );
 
 /* Process */
 /* ------- */
@@ -65,28 +66,30 @@ char *purchase_transaction_date_time(
 LIST *purchase_transaction_journal_list(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total,
-		double invoice_amount );
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total,
+		double purchase_invoice_amount );
 
 /* Process */
 /* ------- */
 double purchase_transaction_debit_sum(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total );
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total );
 
 double purchase_transaction_difference(
 		double purchase_transaction_debit_sum,
-		double invoice_amount );
+		double purchase_invoice_amount );
 
 double purchase_transaction_inventory_total(
-		double inventory_total,
-		double specific_inventory_total );
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total );

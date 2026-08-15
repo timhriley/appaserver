@@ -209,6 +209,14 @@ PURCHASE_FETCH *purchase_fetch_new(
 
 
 /*
+	purchase_fetch->service_purchase_list =
+		service_purchase_list(
+			SERVICE_PURCHASE_SELECT,
+			SERVICE_PURCHASE_TABLE,
+			purchase_fetch->purchase_primary_where );
+*/
+
+/*
 	if ( purchase_fetch->prepaid_asset_total_boolean )
 	{
 		purchase_fetch->prepaid_asset_purchase_list =
@@ -222,7 +230,7 @@ PURCHASE_FETCH *purchase_fetch_new(
 /*
 	if ( purchase_fetch->return_total_boolean )
 	{
-		purchase_fetch->return_list(
+		purchase_fetch->return_list =
 			purchase_return_list(
 				INVENTORY_PURCHASE_RETURN_TABLE,
 				SPECIFIC_INVENTORY_PURCHASE_RETURN_TABLE,

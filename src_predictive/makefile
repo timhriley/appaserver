@@ -163,8 +163,8 @@ SALE_LIBRARY=								\
 		fixed_asset_purchase.o					\
 		specific_inventory_purchase.o				\
 		purchase.o						\
-		supply_purchase.o					\
 		inventory_purchase.o					\
+		supply_purchase.o					\
 		prepaid_asset_purchase.o
 
 INVESTMENT_LIBRARY=							\

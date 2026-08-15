@@ -15,7 +15,9 @@
 #include "sql.h"
 #include "security.h"
 #include "sale.h"
+#include "specific_inventory_sale.h"
 #include "purchase.h"
+#include "inventory_purchase.h"
 #include "fixed_asset_purchase.h"
 #include "specific_inventory_purchase.h"
 
@@ -42,6 +44,7 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_new(
 			message );
 	}
 
+	specific_inventory_purchase = specific_inventory_purchase_calloc();
 	specific_inventory_purchase->inventory_name = inventory_name;
 	specific_inventory_purchase->serial_key = serial_key;
 
@@ -279,7 +282,7 @@ LIST *specific_inventory_purchase_primary_key_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	list_set( primary_key_list, sale_serial_key_column );
+	list_set( primary_key_list, (char *)sale_serial_key_column );
 
 	return primary_key_list;
 }
@@ -320,10 +323,10 @@ LIST *specific_inventory_purchase_update_string_list(
 	}
 
 	primary_data_string =
-		/* -------------------- */
-		/* Borrow SALE’s	*/
-		/* Returns heap memory	*/
-		/* -------------------- */
+		/* ------------------------------------ */
+		/* Borrow SPECIFIC_INVENTORY_SALE’s	*/
+		/* Returns heap memory			*/
+		/* ------------------------------------ */
 		specific_inventory_sale_primary_data_string(
 			sql_delimiter,
 			fund_name,
@@ -332,8 +335,8 @@ LIST *specific_inventory_purchase_update_string_list(
 			purchase_date_time /* sale_date_time */,
 			inventory_name,
 			serial_key,
-			predictive_fund_boolean,
-			entity_contact_key_boolean );
+			fund_boolean,
+			contact_key_boolean );
 
 	update_string =
 		/* ------------------------------------------------ */
@@ -379,7 +382,7 @@ char *specific_inventory_purchase_primary_where(
 {
 	char *primary_where;
 	char *escape;
-	char purchase_primary_where[ 256 ];
+	char where[ 256 ];
 
 	primary_where =
 		/* ------------------- */
@@ -396,17 +399,17 @@ char *specific_inventory_purchase_primary_where(
 	escape = security_escape( serial_key );
 
 	snprintf(
-		purchase_primary_where,
-		sizeof ( purchase_primary_where ),
+		where,
+		sizeof ( where ),
 		"%s and %s = '%s'",
 		primary_where,
-		sale_serial_key,
-		security_escape() );
+		sale_serial_key_column,
+		escape );
 
 	free( primary_where );
 	free( escape );
 
-	return strdup( purchase_primary_where );
+	return strdup( where );
 }
 
 LIST *specific_inventory_purchase_list(
@@ -441,8 +444,8 @@ LIST *specific_inventory_purchase_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			specific_inventory_purchase_select,
-			specific_inventory_purchase_table,
+			(char *)specific_inventory_purchase_select,
+			(char *)specific_inventory_purchase_table,
 			purchase_primary_where );
 
 	/* Safely returns */
@@ -451,7 +454,7 @@ LIST *specific_inventory_purchase_list(
 
 	free( system_string );
 
-	while ( string_input( input[], input_pipe, sizeof ( input ) ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		specific_inventory_purchase  =
 			/* -------------- */

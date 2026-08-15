@@ -517,3 +517,33 @@ LIST *fixed_asset_purchase_update_string_list(
 
 	return list;
 }
+
+#ifdef NOT_DEFINED
+char *purchase_asset_account_name(
+			LIST *fixed_asset_purchase_list )
+{
+	double highest_cost = 0.0;
+	char *asset_account_name = {0};
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (char *)0;
+
+	do {
+		fixed_asset_purchase =
+			list_get( 
+				fixed_asset_purchase_list );
+
+		if ( fixed_asset_purchase->fixed_asset_cost > highest_cost )
+		{
+			asset_account_name =
+				fixed_asset_purchase->
+					fixed_asset->
+					account_name;
+
+			highest_cost = fixed_asset_purchase->fixed_asset_cost;
+		}
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	return asset_account_name;
+}
+#endif

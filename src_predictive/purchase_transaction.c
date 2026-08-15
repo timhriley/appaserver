@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/purchase_transaction.c			*/
+/* $APPASERVER_HOME/src_predictive/purchase_transaction.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -36,12 +36,13 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *prior_transaction_date_time,
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total,
-		double invoice_amount )
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total,
+		double purchase_invoice_amount )
 {
 	PURCHASE_TRANSACTION *purchase_transaction;
 
@@ -62,15 +63,15 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 			message );
 	}
 
-	if ( invoice_amount < 0.0 )
+	if ( purchase_invoice_amount < 0.0 )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"invalid invoice_amount=%.2lf.",
-			invoice_amount );
+			"invalid purchase_invoice_amount=%.2lf.",
+			purchase_invoice_amount );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -79,7 +80,8 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 			message );
 	}
 
-	if ( float_money_virtually_same( invoice_amount, 0.0 ) ) return NULL;
+	if ( float_money_virtually_same( purchase_invoice_amount, 0.0 ) )
+		return NULL;
 
 	purchase_transaction = purchase_transaction_calloc();
 
@@ -98,12 +100,13 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 			purchase_transaction_journal_list(
 				sales_tax,
 				freight_in,
-				fixed_asset_total,
-				inventory_total,
-				specific_inventory_total,
-				supply_total,
-				prepaid_asset_total,
-				invoice_amount );
+				fixed_asset_purchase_total,
+				inventory_purchase_total,
+				specific_inventory_purchase_total,
+				supply_purchase_total,
+				service_purchase_total,
+				prepaid_asset_purchase_total,
+				purchase_invoice_amount );
 	}
 
 	purchase_transaction->subsidiary_transaction_state =
@@ -154,7 +157,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 				/* update_date_time_column */,
 			purchase_transaction->journal_list
 				/* insert_journal_list */,
-			invoice_amount
+			purchase_invoice_amount
 				/* foreign_amount */,
 			PURCHASE_MEMO /* transaction_memo */,
 			purchase_transaction->
@@ -229,12 +232,13 @@ char *purchase_transaction_date_time(
 LIST *purchase_transaction_journal_list(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total,
-		double invoice_amount )
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total,
+		double purchase_invoice_amount )
 {
 	LIST *list = list_new();
 	double debit_sum;
@@ -247,16 +251,17 @@ LIST *purchase_transaction_journal_list(
 		purchase_transaction_debit_sum(
 			sales_tax,
 			freight_in,
-			fixed_asset_total,
-			inventory_total,
-			specific_inventory_total,
-			supply_total,
-			prepaid_asset_total );
+			fixed_asset_purchase_total,
+			inventory_purchase_total,
+			specific_inventory_purchase_total,
+			supply_purchase_total,
+			service_purchase_total,
+			prepaid_asset_purchase_total );
 
 	difference =
 		purchase_transaction_difference(
 			debit_sum,
-			invoice_amount );
+			purchase_invoice_amount );
 
 	if ( !float_money_virtually_same( difference, 0.0 ) )
 	{
@@ -267,7 +272,7 @@ LIST *purchase_transaction_journal_list(
 			sizeof ( message ),
 		"debit_sum=%.2lf != credit_sum=%.2lf",
 			debit_sum,
-			invoice_amount );
+			purchase_invoice_amount );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -308,7 +313,7 @@ LIST *purchase_transaction_journal_list(
 		list_set( list, journal );
 	}
 
-	if ( fixed_asset_total )
+	if ( fixed_asset_purchase_total )
 	{
 		account =
 			account_freight_in_expense(
@@ -317,7 +322,7 @@ LIST *purchase_transaction_journal_list(
 
 		journal =
 			journal_account_new(
-				fixed_asset_total /* journal_amount */,
+				fixed_asset_purchase_total /* journal_amount */,
 				account /* debit_account */,
 				(ACCOUNT *)0 /* credit_account */ );
 
@@ -326,8 +331,8 @@ LIST *purchase_transaction_journal_list(
 
 	transaction_inventory_total =
 		purchase_transaction_inventory_total(
-			inventory_total,
-			specific_inventory_total );
+			inventory_purchase_total,
+			specific_inventory_purchase_total );
 
 	if ( transaction_inventory_total )
 	{
@@ -352,7 +357,7 @@ LIST *purchase_transaction_journal_list(
 		list_set( list, journal );
 	}
 
-	if ( supply_total )
+	if ( supply_purchase_total )
 	{
 		account =
 			/* -------------- */
@@ -367,14 +372,36 @@ LIST *purchase_transaction_journal_list(
 			/* Safely returns */
 			/* -------------- */
 			journal_account_new(
-				supply_total /* journal_amount */,
+				supply_purchase_total /* journal_amount */,
 				(ACCOUNT *)0 /* debit_account */,
 				account /* credit_account */ );
 
 		list_set( list, journal );
 	}
 
-	if ( prepaid_asset_total )
+	if ( service_purchase_total )
+	{
+		account =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			account_inventory(
+				ACCOUNT_SERVICE_EXPENSE_KEY,
+				__FUNCTION__ );
+
+		journal =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			journal_account_new(
+				service_purchase_total /* journal_amount */,
+				(ACCOUNT *)0 /* debit_account */,
+				account /* credit_account */ );
+
+		list_set( list, journal );
+	}
+
+	if ( prepaid_asset_purchase_total )
 	{
 		account =
 			/* -------------- */
@@ -389,7 +416,8 @@ LIST *purchase_transaction_journal_list(
 			/* Safely returns */
 			/* -------------- */
 			journal_account_new(
-				prepaid_asset_total /* journal_amount */,
+				prepaid_asset_purchase_total
+					/* journal_amount */,
 				(ACCOUNT *)0 /* debit_account */,
 				account /* credit_account */ );
 
@@ -409,7 +437,7 @@ LIST *purchase_transaction_journal_list(
 		/* Safely returns */
 		/* -------------- */
 		journal_account_new(
-			invoice_amount,
+			purchase_invoice_amount,
 			(ACCOUNT *)0 /* debit_account */,
 			account /* credit_account */ );
 
@@ -421,29 +449,31 @@ LIST *purchase_transaction_journal_list(
 double purchase_transaction_debit_sum(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_total,
-		double inventory_total,
-		double specific_inventory_total,
-		double supply_total,
-		double prepaid_asset_total )
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total,
+		double service_purchase_total,
+		double prepaid_asset_purchase_total )
 {
 	return
 	sales_tax +
 	freight_in +
-	fixed_asset_total +
-	inventory_total +
-	specific_inventory_total +
-	supply_total +
-	prepaid_asset_total;
+	fixed_asset_purchase_total +
+	inventory_purchase_total +
+	specific_inventory_purchase_total +
+	supply_purchase_total +
+	service_purchase_total +
+	prepaid_asset_purchase_total;
 }
 
 double purchase_transaction_difference(
 		double purchase_transaction_debit_sum,
-		double invoice_amount )
+		double purchase_invoice_amount )
 {
 	return
 	purchase_transaction_debit_sum -
-	invoice_amount;
+	purchase_invoice_amount;
 }
 
 double purchase_transaction_inventory_total(
