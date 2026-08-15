@@ -405,19 +405,58 @@ double fixed_asset_purchase_total( LIST *fixed_asset_purchase_list )
 }
 
 double fixed_asset_purchase_cost_basis(
-		double fixed_asset_cost,
-		PURCHASE *purchase_trigger_new )
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		double fixed_asset_cost )
 {
-	return
-	purchase_cost_basis(
-		fixed_asset_cost,
-		purchase_trigger_new->purchase_fetch->sales_tax,
-		purchase_trigger_new->purchase_fetch->freight_in,
-		purchase_trigger_new->fixed_asset_purchase_total,
-		purchase_trigger_new->inventory_purchase_total,
-		purchase_trigger_new->specific_inventory_purchase_total,
-		purchase_trigger_new->supply_purchase_total,
-		purchase_trigger_new->prepaid_asset_purchase_total );
+	double cost_basis = {0};
+	PURCHASE *purchase;
+
+	if ( !full_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	purchase =
+		purchase_trigger_new(
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			APPASERVER_UPDATE_STATE,
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */ );
+
+	if ( purchase )
+	{
+		cost_basis =
+			purchase_cost_basis(
+				fixed_asset_cost,
+				purchase->purchase_fetch->sales_tax,
+				purchase->purchase_fetch->freight_in,
+				purchase->fixed_asset_purchase_total,
+				purchase->inventory_purchase_total,
+				purchase->specific_inventory_purchase_total,
+				purchase->supply_purchase_total,
+				purchase->prepaid_asset_purchase_total );
+	}
+
+	return cost_basis;
 }
 
 LIST *fixed_asset_purchase_primary_key_list(

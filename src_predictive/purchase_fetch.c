@@ -9,6 +9,8 @@
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "folder_attribute.h"
+#include "optional_column.h"
 #include "entity.h"
 #include "sql.h"
 #include "piece.h"
@@ -292,7 +294,7 @@ void purchase_fetch_parse(
 		boolean inventory_total_boolean,
 		boolean specific_inventory_total_boolean,
 		boolean prepaid_asset_total_boolean,
-		boolean purchase_return_boolean,
+		boolean return_total_boolean,
 		boolean program_name_boolean,
 		boolean property_address_boolean,
 		char *input )
@@ -437,7 +439,7 @@ void purchase_fetch_parse(
 					atof( buffer );
 	}
 
-	if ( purchase_return_total_boolean )
+	if ( return_total_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
@@ -569,7 +571,7 @@ char *purchase_fetch_select(
 		boolean specific_inventory_total_boolean,
 		boolean prepaid_asset_total_boolean,
 		boolean return_total_boolean,
-		boolean program_boolean,
+		boolean program_name_boolean,
 		boolean property_address_boolean )
 {
 	OPTIONAL_COLUMN *optional_column;
@@ -641,7 +643,7 @@ char *purchase_fetch_select(
 			optional_column->return_string /* base_string */,
 			"purchase_return_total" /* component */,
 			0 /* not escape_boolean */,
-			purchase_return_boolean /* set_boolean */ );
+			return_total_boolean /* set_boolean */ );
 
 	free( optional_column->prior_return_string );
 

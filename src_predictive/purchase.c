@@ -28,6 +28,7 @@
 #include "purchase.h"
 
 PURCHASE *purchase_trigger_new(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
@@ -36,20 +37,64 @@ PURCHASE *purchase_trigger_new(
 		char *preupdate_full_name,
 		char *preupdate_contact_key )
 {
-	char system_string[ 1024 ];
+	PURCHASE *purchase;
 
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" ''",
-		 PURCHASE_TABLE,
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 purchase_primary_where(
-			full_name,
-			street_address,
-			purchase_date_time ) );
+PURCHASE *purchase_calloc(
+	void );
 
-	return purchase_parse( pipe2string( system_string ) );
+PURCHASE_FETCH *purchase_fetch_new(
+	PURCHASE_SELECT,
+	PURCHASE_TABLE,
+	fund_name,
+	full_name,
+	contact_key,
+	purchase_date_time );
+
+double fixed_asset_purchase_total(
+	purchase_fetch_new()->fixed_asset_purchase_list );
+
+if ( purchase_fetch_new()->inventory_total_boolean )
+{
+	double inventory_purchase_total(
+		purchase_fetch_new()->inventory_purchase_list );
+}
+
+if ( purchase_fetch_new()->
+		specific_inventory_purchase_total_boolean )
+{
+	double specific_inventory_purchase_total(
+		purchase_fetch_new()->specific_inventory_purchase_list );
+}
+
+double supply_purchase_total(
+	purchase_fetch_new()->supply_purchase_list );
+
+double service_purchase_total(
+	purchase_fetch_new()->service_purchase_list );
+
+if ( purchase_fetch_new()->prepaid_asset_purchase_boolean )
+{
+	double prepaid_asset_purchase_total(
+		purchase_fetch_new()->prepaid_asset_purchase_list );
+}
+
+if ( purchase_fetch_new()->return_total_boolean )
+{
+	double purchase_return_total(
+		purchase_fetch_new()->purchase_return_list );
+}
+
+double purchase_invoice_amount(
+	double purchase_fetch_new()->sales_tax,
+	double purchase_fetch_new()->freight_in,
+	double fixed_asset_purchase_total(),
+	double inventory_purchase_total(),
+	double specific_inventory_purchase_total(),
+	double supply_purchase_total(),
+	double service_purchase_total(),
+	double prepaid_asset_purchase_total() );
+
+	return purchase;
 }
 
 PURCHASE *purchase_calloc( void )
@@ -65,6 +110,7 @@ PURCHASE *purchase_calloc( void )
 			 __LINE__ );
 		exit( 1 );
 	}
+
 	return purchase;
 }
 

@@ -43,6 +43,7 @@ typedef struct
 /* Usage */
 /* ----- */
 PURCHASE *purchase_trigger_new(
+		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,

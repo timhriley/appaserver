@@ -43,6 +43,7 @@ typedef struct
 	double supply_total;
 	double service_total;
 	double prepaid_asset_total;
+	double purchase_return_total;
 	double invoice_amount;
 	char *transaction_date_time;
 	char *program_name;

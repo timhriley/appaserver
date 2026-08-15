@@ -153,19 +153,19 @@ SALE_LIBRARY=								\
 		customer_payment_transaction.o				\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
+		customer_payment.o					\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
 		inventory_sale.o					\
 		specific_inventory_sale.o				\
 		purchase_fetch.o					\
 		purchase_transaction.o					\
-		supply_purchase.o					\
 		fixed_asset_purchase.o					\
-		prepaid_asset_purchase.o				\
-		inventory_purchase.o					\
 		specific_inventory_purchase.o				\
 		purchase.o						\
-		customer_payment.o
+		supply_purchase.o					\
+		inventory_purchase.o					\
+		prepaid_asset_purchase.o
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
