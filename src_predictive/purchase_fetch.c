@@ -10,6 +10,8 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "entity.h"
+#include "sql.h"
+#include "piece.h"
 #include "predictive.h"
 #include "sale_fetch.h"
 #include "fixed_asset_purchase.h"
@@ -29,7 +31,6 @@ PURCHASE_FETCH *purchase_fetch_new(
 	char *select;
 	char *system_string;
 	char *input;
-	char *primary_where;
 	PURCHASE_FETCH *purchase_fetch;
 
 	if ( !full_name
@@ -103,7 +104,7 @@ PURCHASE_FETCH *purchase_fetch_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		purchase_fetch_select(
-			PURCHASE_SELECT,
+			purchase_select,
 			purchase_fetch->title_passage_rule_boolean,
 			purchase_fetch->shipped_date_boolean,
 			purchase_fetch->arrived_date_time_boolean,
@@ -173,7 +174,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 		fixed_asset_purchase_list(
 			FIXED_ASSET_PURCHASE_SELECT,
 			FIXED_ASSET_PURCHASE_TABLE,
-			purchase_fetch->purchase_primary_where );
+			purchase_fetch->purchase_primary_where,
+			purchase_fetch->entity_contact_key_boolean );
 
 /*
 	if ( purchase_fetch->inventory_total_boolean )
@@ -195,11 +197,14 @@ PURCHASE_FETCH *purchase_fetch_new(
 				purchase_fetch->purchase_primary_where );
 	}
 
+/*
 	purchase_fetch->supply_purchase_list =
 		supply_purchase_list(
 			SUPPLY_PURCHASE_SELECT,
 			SUPPLY_PURCHASE_TABLE,
-			purchase_primary_where() );
+			purchase_fetch->purchase_primary_where );
+*/
+
 
 /*
 	if ( purchase_fetch->prepaid_asset_total_boolean )
@@ -334,12 +339,15 @@ void purchase_fetch_parse(
 	if ( *buffer ) purchase_fetch->supply_total = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer ) purchase_fetch->invoice_amount = atof( buffer );
+	if ( *buffer ) purchase_fetch->service_total = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer ) purchase_fetch->invoice_amount = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) purchase_fetch->transaction_date_time = strdup( buffer );
 
-	optional_piece_offset = 8;
+	optional_piece_offset = 9;
 
 	if ( title_passage_rule_boolean )
 	{

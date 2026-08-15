@@ -122,8 +122,11 @@ char *fixed_asset_purchase_primary_where(
 /* Usage */
 /* ----- */
 double fixed_asset_purchase_cost_basis(
-		double fixed_asset_cost,
-		PURCHASE *purchase_trigger_new );
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		double fixed_asset_cost );
 
 /* Usage */
 /* ----- */

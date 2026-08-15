@@ -41,6 +41,7 @@ typedef struct
 	double inventory_total;
 	double specific_inventory_total;
 	double supply_total;
+	double service_total;
 	double prepaid_asset_total;
 	double invoice_amount;
 	char *transaction_date_time;

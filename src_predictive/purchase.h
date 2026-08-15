@@ -19,6 +19,7 @@
 					"freight_in,"			\
 					"fixed_asset_total,"		\
 					"supply_total,"			\
+					"service_total,"		\
 					"invoice_amount,"		\
 					"transaction_date_time"
 

@@ -157,7 +157,6 @@ SALE_LIBRARY=								\
 		hourly_service_work.o					\
 		inventory_sale.o					\
 		specific_inventory_sale.o				\
-		purchase.o						\
 		purchase_fetch.o					\
 		purchase_transaction.o					\
 		supply_purchase.o					\
@@ -165,6 +164,7 @@ SALE_LIBRARY=								\
 		prepaid_asset_purchase.o				\
 		inventory_purchase.o					\
 		specific_inventory_purchase.o				\
+		purchase.o						\
 		customer_payment.o
 
 INVESTMENT_LIBRARY=							\
