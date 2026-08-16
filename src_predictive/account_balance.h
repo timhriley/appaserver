@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ACCOUNT_BALANCE_H
-#define ACCOUNT_BALANCE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -298,5 +297,3 @@ ACCOUNT_BALANCE_PROCESS *account_balance_process_new(
 /* ------- */
 ACCOUNT_BALANCE_PROCESS *account_balance_process_calloc(
 		void );
-
-#endif
