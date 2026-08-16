@@ -75,33 +75,11 @@ char *purchase_primary_where(
 
 /* Usage */
 /* ----- */
-double purchase_cost_basis(
-		double cost,
-		double sales_tax,
-		double freight_in,
+double purchase_cost_basis_total(
 		double fixed_asset_purchase_total,
 		double inventory_purchase_total,
 		double specific_inventory_purchase_total,
-		double supply_purchase_total,
-		double prepaid_asset_purchase_total );
-
-/* Process */
-/* ------- */
-double purchase_extra_total(
-		double sales_tax,
-		double freight_in );
-
-double purchase_percent_of_total(
-		double cost,
-		double purchase_total );
-
-double purchase_extra_allocated(
-		double purchase_extra_total,
-		double perchange_percent_of_total );
-
-double purchase_calculate_cost_basis(
-		double cost,
-		double purchase_extra_allocated );
+		double supply_purchase_total );
 
 /* Usage */
 /* ----- */

@@ -160,6 +160,7 @@ SALE_LIBRARY=								\
 		specific_inventory_sale.o				\
 		purchase_fetch.o					\
 		purchase_transaction.o					\
+		cost_basis.o						\
 		fixed_asset_purchase.o					\
 		specific_inventory_purchase.o				\
 		purchase.o						\
@@ -969,6 +970,10 @@ fixed_asset.o: fixed_asset.c						\
 		fixed_asset_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c fixed_asset.c
+
+cost_basis.o: cost_basis.c cost_basis.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c cost_basis.c
 
 fixed_asset_purchase.o: fixed_asset_purchase.c				\
 		fixed_asset_purchase.h

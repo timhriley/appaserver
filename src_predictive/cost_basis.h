@@ -38,6 +38,23 @@ COST_BASIS *cost_basis_new(
 COST_BASIS *cost_basis_calloc(
 		void );
 
+double cost_basis_extra_total(
+		double sales_tax,
+		double freight_in );
+
+double cost_basis_percent_total(
+		double cost_basis_fixed_asset_percent_total,
+		double cost_basis_inventory_percent_total,
+		double cost_basis_specific_inventory_percent_total );
+
+double cost_basis_sales_tax_expense(
+		double sales_tax,
+		double cost_basis_percent_total );
+
+double cost_basis_freight_in_expense(
+		double freight_in,
+		double cost_basis_percent_total );
+
 /* Usage */
 /* ----- */
 double cost_basis_percent_of_total(
@@ -46,7 +63,7 @@ double cost_basis_percent_of_total(
 
 /* Usage */
 /* ----- */
-double purchase_extra_allocated(
+double cost_basis_extra_allocated(
 		double cost_basis_extra_total,
 		double cost_basis_percent_of_total );
 
@@ -63,14 +80,15 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_extra_allocated;
 	double cost_basis_amount;
+	COST_BASIS *cost_basis;
 } COST_BASIS_FIXED_ASSET;
 
 /* Usage */
 /* ----- */
 LIST *cost_basis_fixed_asset_list(
-		double cost_basis_extra_total,
 		LIST *fixed_asset_purchase_list,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Usage */
 /* ----- */
@@ -78,11 +96,11 @@ LIST *cost_basis_fixed_asset_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
-		double cost_basis_extra_total,
 		char *asset_name,
 		char *serial_key,
 		double fixed_asset_cost,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Process */
 /* ------- */
@@ -108,14 +126,15 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_extra_allocated;
 	double cost_basis_amount;
+	COST_BASIS *cost_basis;
 } COST_BASIS_INVENTORY;
 
 /* Usage */
 /* ----- */
 LIST *cost_basis_inventory_list(
-		double cost_basis_extra_total,
 		LIST *inventory_purchase_list,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Usage */
 /* ----- */
@@ -123,10 +142,10 @@ LIST *cost_basis_inventory_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
-		double cost_basis_extra_total,
 		char *inventoryasset_name,
 		double extended_cost,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Process */
 /* ------- */
@@ -152,14 +171,15 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_extra_allocated;
 	double cost_basis_amount;
+	COST_BASIS *cost_basis;
 } COST_BASIS_SPECIFIC_INVENTORY;
 
 /* Usage */
 /* ----- */
 LIST *cost_basis_specific_inventory_list(
-		double cost_basis_extra_total,
 		LIST *specific_inventory_purchase_list,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Usage */
 /* ----- */
@@ -167,11 +187,11 @@ LIST *cost_basis_specific_inventory_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
-		double cost_basis_extra_total,
 		char *inventory_name,
 		char *serial_key,
 		double unit_cost,
-		double purchase_total );
+		double purchase_total,
+		double cost_basis_extra_total );
 
 /* Process */
 /* ------- */

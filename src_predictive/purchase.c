@@ -219,54 +219,17 @@ char *purchase_primary_where(
 		contact_key_boolean );
 }
 
-double purchase_cost_basis(
-		double cost,
-		double sales_tax,
-		double freight_in,
+double purchase_cost_basis_total(
 		double fixed_asset_purchase_total,
 		double inventory_purchase_total,
 		double specific_inventory_purchase_total,
-		double supply_purchase_total,
-		double prepaid_asset_purchase_total )
+		double supply_purchase_total )
 {
-	double total;
-	double extra_total;
-	double percent_of_total;
-	double extra_allocated;
-	double cost_basis;
-
-	total =
-		purchase_total(
-			fixed_asset_purchase_total,
-			inventory_purchase_total,
-			specific_inventory_purchase_total,
-			supply_purchase_total,
-			0 /* service_purchase_total */,
-			prepaid_asset_purchase_total );
-
-	if ( float_money_virtually_same( total, 0.0 ) ) return 0.0;
-
-	extra_total =
-		purchase_extra_total(
-			sales_tax,
-			freight_in );
-
-	percent_of_total =
-		purchase_percent_of_total(
-			cost,
-			total );
-
-	extra_allocated =
-		purchase_extra_allocated(
-			extra_total,
-			percent_of_total );
-
-	cost_basis =
-		purchase_calculate_cost_basis(
-			cost,
-			extra_allocated );
-
-	return cost_basis;
+	return
+	fixed_asset_purchase_total +
+	inventory_purchase_total +
+	specific_inventory_purchase_total +
+	supply_purchase_total;
 }
 
 double purchase_total(
@@ -294,40 +257,5 @@ double purchase_invoice_amount(
 {
 	return
 	sales_tax + freight_in - purchase_return_total + purchase_total;
-}
-
-double purchase_extra_total(
-		double sales_tax,
-		double freight_in )
-{
-	return
-	sales_tax + freight_in;
-}
-
-double purchase_extra_allocated(
-		double purchase_extra_total,
-		double purchase_percent_of_total )
-{
-	return
-	purchase_extra_total *
-	purchase_percent_of_total;
-}
-
-double purchase_calculate_cost_basis(
-		double cost,
-		double purchase_extra_allocated )
-{
-	return
-	cost + purchase_extra_allocated;
-}
-
-double purchase_percent_of_total(
-		double cost,
-		double purchase_total )
-{
-	if ( float_money_virtually_same( purchase_total, 0.0 ) )
-		return 0.0;
-	else
-		return cost / purchase_total;
 }
 
