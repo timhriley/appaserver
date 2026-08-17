@@ -11,7 +11,6 @@
 
 typedef struct
 {
-	double extra_total;
 	LIST *cost_basis_fixed_asset_list;
 	double cost_basis_fixed_asset_percent_total;
 	LIST *cost_basis_inventory_list;
@@ -26,12 +25,12 @@ typedef struct
 /* Usage */
 /* ----- */
 COST_BASIS *cost_basis_new(
-		double sales_tax,
-		double freight_in,
+		double purchase_sales_tax,
+		double purchase_freight_in,
 		LIST *fixed_asset_purchase_list,
 		LIST *inventory_purchase_list,
 		LIST *specific_inventory_purchase_list,
-		double purchase_total );
+		double purchase_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -48,30 +47,39 @@ double cost_basis_percent_total(
 		double cost_basis_specific_inventory_percent_total );
 
 double cost_basis_sales_tax_expense(
-		double sales_tax,
-		double cost_basis_percent_total );
+		double purchase_sales_tax,
+		double cost_basis_fixed_asset_tax_capitalized );
 
 double cost_basis_freight_in_expense(
-		double freight_in,
-		double cost_basis_percent_total );
+		double purchase_freight_in,
+		double cost_basis_fixed_asset_freight_capitalized,
+		double cost_basis_inventory_freight_capitalized,
+		double cost_basis_specific_inventory_freight_capitalized );
 
 /* Usage */
 /* ----- */
 double cost_basis_percent_of_total(
 		double cost,
-		double purchase_total );
-
-/* Usage */
-/* ----- */
-double cost_basis_extra_allocated(
-		double cost_basis_extra_total,
-		double cost_basis_percent_of_total );
+		double purchase_cost_basis_total );
 
 /* Usage */
 /* ----- */
 double cost_basis_amount(
 		double cost,
-		double cost_basis_extra_allocated );
+		double cost_basis_tax_capitalized,
+		double cost_basis_freight_capitalized );
+
+/* Usage */
+/* ----- */
+double cost_basis_tax_capitalized(
+		double sales_tax,
+		double cost_basis_percent_of_total );
+
+/* Usage */
+/* ----- */
+double cost_basis_freight_capitalized(
+		double freight_in,
+		double cost_basis_percent_of_total );
 
 typedef struct
 {
@@ -109,9 +117,13 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_calloc(
 
 /* Usage */
 /* ----- */
-double cost_basis_fixed_asset_percent_total(
+double cost_basis_fixed_asset_tax_capitalized(
 		LIST *cost_basis_fixed_asset_list );
 
+/* Usage */
+/* ----- */
+double cost_basis_fixed_asset_freight_capitalized(
+		LIST *cost_basis_fixed_asset_list );
 
 /* Usage */
 /* ----- */
@@ -154,9 +166,8 @@ COST_BASIS_INVENTORY *cost_basis_inventory_calloc(
 
 /* Usage */
 /* ----- */
-double cost_basis_inventory_percent_total(
+double cost_basis_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list );
-
 
 /* Usage */
 /* ----- */
@@ -169,7 +180,7 @@ typedef struct
 	char *inventory_name;
 	char *serial_key;
 	double cost_basis_percent_of_total;
-	double cost_basis_extra_allocated;
+	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
 	COST_BASIS *cost_basis;
 } COST_BASIS_SPECIFIC_INVENTORY;
@@ -177,9 +188,9 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *cost_basis_specific_inventory_list(
+		double freight_in,
 		LIST *specific_inventory_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -187,11 +198,11 @@ LIST *cost_basis_specific_inventory_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
+		double freight_in,
 		char *inventory_name,
 		char *serial_key,
 		double unit_cost,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -200,13 +211,28 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_calloc(
 
 /* Usage */
 /* ----- */
-double cost_basis_specific_inventory_percent_total(
-		LIST *cost_basis_specific_inventory_list );
+double cost_basis_specific_inventory_freight_capitalized(
+		LIST *cost_basis_inventory_list );
 
 /* Usage */
 /* ----- */
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_seek(
-		LIST *cost_basis_specific_inventory_list,
 		char *inventory_name,
-		char *serial_key );
+		char *serial_key,
+		LIST *cost_basis_specific_inventory_list );
+
+/* Driver */
+/* ------ */
+COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
+		char *inventory_name,
+		char *serial_key,
+		double purchase_sales_tax,
+		double purchase_freight_in,
+		LIST *fixed_asset_purchase_list,
+		LIST *inventory_purchase_list,
+		LIST *specific_inventory_purchase_list,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total );
 
