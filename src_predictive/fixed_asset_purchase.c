@@ -15,6 +15,7 @@
 #include "sql.h"
 #include "security.h"
 #include "sale.h"
+#include "cost_basis.h"
 #include "fixed_asset.h"
 #include "fixed_asset_purchase.h"
 

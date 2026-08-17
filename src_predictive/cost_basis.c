@@ -25,59 +25,61 @@ COST_BASIS *cost_basis_new(
 {
 	COST_BASIS *cost_basis;
 
-	if ( !purchase_cost_basis_total ) return NULL;
+	if ( float_money_virtually_same( purchase_cost_basis_total, 0.0 ) )
+		return NULL;
 
 	cost_basis = cost_basis_calloc();
 
 	cost_basis->cost_basis_fixed_asset_list =
 		cost_basis_fixed_asset_list(
+			sales_tax,
+			freight_in,
 			fixed_asset_purchase_list,
-			purchase_total,
-			cost_basis->extra_total );
+			purchase_cost_basis_total );
 
-	cost_basis->cost_basis_fixed_asset_percent_total =
-		cost_basis_fixed_asset_percent_total(
+	cost_basis->cost_basis_fixed_asset_tax_capitalized =
+		cost_basis_fixed_asset_tax_capitalized(
+			cost_basis->cost_basis_fixed_asset_list );
+
+	cost_basis->cost_basis_fixed_asset_freight_capitalized =
+		cost_basis_fixed_asset_freight_capitalized(
 			cost_basis->cost_basis_fixed_asset_list );
 
 	cost_basis->cost_basis_inventory_list =
 		cost_basis_inventory_list(
+			freight_in,
 			inventory_purchase_list,
-			purchase_total,
-			cost_basis->extra_total );
+			purchase_cost_basis_total );
 
-	cost_basis->cost_basis_inventory_percent_total =
-		cost_basis_inventory_percent_total(
+	cost_basis->cost_basis_inventory_freight_capitalized =
+		cost_basis_inventory_freight_capitalized(
 			cost_basis->cost_basis_inventory_list );
 
 	cost_basis->cost_basis_specific_inventory_list =
 		cost_basis_specific_inventory_list(
+			freight_in,
 			specific_inventory_purchase_list,
-			purchase_total,
-			cost_basis->extra_total );
+			purchase_cost_basis_total );
 
-	cost_basis->cost_basis_specific_inventory_percent_total =
-		cost_basis_specific_inventory_percent_total(
+	cost_basis->cost_basis_specific_inventory_freight_capitalized =
+		cost_basis_specific_inventory_freight_capitalized(
 			cost_basis->cost_basis_specific_inventory_list );
-
-	cost_basis->percent_total =
-		cost_basis_percent_total(
-			cost_basis->
-				cost_basis_fixed_asset_percent_total,
-			cost_basis->
-				cost_basis_inventory_percent_total,
-			cost_basis->
-				cost_basis_specific_inventory_percent_total );
 
 	cost_basis->sales_tax_expense =
 		cost_basis_sales_tax_expense(
 			sales_tax,
 			cost_basis->
-				cost_basis_fixed_asset_tax_capitalized;
+				cost_basis_fixed_asset_tax_capitalized );
 
 	cost_basis->freight_in_expense =
 		cost_basis_freight_in_expense(
 			freight_in,
-			cost_basis->percent_total );
+			cost_basis->
+			    cost_basis_fixed_asset_freight_capitalized,
+			cost_basis->
+			    cost_basis_inventory_freight_capitalized,
+			cost_basis->
+			    cost_basis_specific_inventory_freight_capitalized );
 
 	return cost_basis;
 }
@@ -125,9 +127,10 @@ double cost_basis_amount(
 }
 
 LIST *cost_basis_fixed_asset_list(
+		double sales_tax,
+		double freight_in,
 		LIST *fixed_asset_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	LIST *list = list_new();
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
@@ -141,11 +144,12 @@ LIST *cost_basis_fixed_asset_list(
 
 		cost_basis_fixed_asset =
 			cost_basis_fixed_asset_new(
+				sales_tax,
+				freight_in,
 				fixed_asset_purchase->asset_name,
 				fixed_asset_purchase->serial_key,
 				fixed_asset_purchase->fixed_asset_cost,
-				purchase_total,
-				cost_basis_extra_total );
+				purchase_cost_basis_total );
 
 		list_set( list, cost_basis_fixed_asset );
 
@@ -161,11 +165,12 @@ LIST *cost_basis_fixed_asset_list(
 }
 
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
+		double sales_tax,
+		double freight_in,
 		char *asset_name,
 		char *serial_key,
 		double fixed_asset_cost,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
 
@@ -176,11 +181,17 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
 	cost_basis_fixed_asset->cost_basis_percent_of_total =
 		cost_basis_percent_of_total(
 			fixed_asset_cost,
-			purchase_total );
+			purchase_cost_basis_total );
 
-	cost_basis_fixed_asset->cost_basis_extra_allocated =
-		cost_basis_extra_allocated(
-			cost_basis_extra_total,
+	cost_basis_fixed_asset->cost_basis_tax_capitalized =
+		cost_basis_tax_capitalized(
+			sales_tax,
+			cost_basis_fixed_asset->
+				cost_basis_percent_of_total );
+
+	cost_basis_fixed_asset->cost_basis_freight_capitalized =
+		cost_basis_freight_capitalized(
+			freight_in,
 			cost_basis_fixed_asset->
 				cost_basis_percent_of_total );
 
@@ -188,7 +199,9 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
 		cost_basis_amount(
 			fixed_asset_cost,
 			cost_basis_fixed_asset->
-				cost_basis_extra_allocated );
+				cost_basis_tax_capitalized,
+			cost_basis_fixed_asset->
+				cost_basis_freight_capitalized );
 
 	return cost_basis_fixed_asset;
 }
@@ -218,11 +231,11 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_calloc( void )
 	return cost_basis_fixed_asset;
 }
 
-double cost_basis_fixed_asset_percent_total(
+double cost_basis_fixed_asset_freight_capitalized(
 		LIST *cost_basis_fixed_asset_list )
 {
 	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
-	double total = 0.0;
+	double freight_capitalized = 0.0;
 
 	if ( list_rewind( cost_basis_fixed_asset_list ) )
 	do {
@@ -230,13 +243,13 @@ double cost_basis_fixed_asset_percent_total(
 			 list_get(
 				cost_basis_fixed_asset_list );
 
-		total +=
+		freight_capitalized +=
 			cost_basis_fixed_asset->
-				cost_basis_percent_of_total;
+				cost_basis_freight_capitalized;
 
 	} while ( list_next( cost_basis_fixed_asset_list ) );
 
-	return total;
+	return freight_capitalized;
 }
 
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_seek(
@@ -270,13 +283,16 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_seek(
 }
 
 LIST *cost_basis_inventory_list(
+		double freight_in,
 		LIST *inventory_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 	LIST *list = list_new();
+
+	if ( float_money_virtually_same( purchase_cost_basis_total, 0.0 ) )
+		return NULL;
 
 	if ( list_rewind( inventory_purchase_list ) )
 	do {
@@ -286,10 +302,10 @@ LIST *cost_basis_inventory_list(
 
 		cost_basis_inventory =
 			cost_basis_inventory_new(
+				freight_in,
 				inventory_purchase->inventory_name,
 				inventory_purchase->extended_cost,
-				purchase_total,
-				cost_basis_extra_total );
+				purchase_cost_basis_total );
 
 		list_set( list, cost_basis_inventory );
 
@@ -305,10 +321,10 @@ LIST *cost_basis_inventory_list(
 }
 
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
+		double freight_in,
 		char *inventory_name,
 		double extended_cost,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 
@@ -318,19 +334,20 @@ COST_BASIS_INVENTORY *cost_basis_inventory_new(
 	cost_basis_inventory->cost_basis_percent_of_total =
 		cost_basis_percent_of_total(
 			extended_cost,
-			purchase_total );
+			purchase_cost_basis_total );
 
-	cost_basis_inventory->cost_basis_extra_allocated =
-		cost_basis_extra_allocated(
-			cost_basis_extra_total,
+	cost_basis_inventory->cost_basis_freight_capitalized =
+		cost_basis_freight_capitalized(
+			freight_in,
 			cost_basis_inventory->
 				cost_basis_percent_of_total );
 
 	cost_basis_inventory->cost_basis_amount =
 		cost_basis_amount(
 			extended_cost,
+			0.0 /* cost_basis_tax_capitalized */,
 			cost_basis_inventory->
-				cost_basis_extra_allocated );
+				cost_basis_freight_capitalized );
 
 	return cost_basis_inventory;
 }
@@ -360,11 +377,11 @@ COST_BASIS_INVENTORY *cost_basis_inventory_calloc( void )
 	return cost_basis_inventory;
 }
 
-double cost_basis_inventory_percent_total(
+double cost_basis_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list )
 {
 	COST_BASIS_INVENTORY *cost_basis_inventory;
-	double total = 0.0;
+	double freight_capitalized = 0.0;
 
 	if ( list_rewind( cost_basis_inventory_list ) )
 	do {
@@ -372,13 +389,13 @@ double cost_basis_inventory_percent_total(
 			 list_get(
 				cost_basis_inventory_list );
 
-		total +=
+		freight_capitalized +=
 			cost_basis_inventory->
-				cost_basis_percent_of_total;
+				cost_basis_freight_capitalized;
 
 	} while ( list_next( cost_basis_inventory_list ) );
 
-	return total;
+	return freight_capitalized;
 }
 
 COST_BASIS_INVENTORY *cost_basis_inventory_seek(
@@ -408,13 +425,16 @@ COST_BASIS_INVENTORY *cost_basis_inventory_seek(
 }
 
 LIST *cost_basis_specific_inventory_list(
+		double freight_in,
 		LIST *specific_inventory_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 	LIST *list = list_new();
+
+	if ( float_money_virtually_same( purchase_cost_basis_total, 0.0 ) )
+		return NULL;
 
 	if ( list_rewind( specific_inventory_purchase_list ) )
 	do {
@@ -424,11 +444,11 @@ LIST *cost_basis_specific_inventory_list(
 
 		cost_basis_specific_inventory =
 			cost_basis_specific_inventory_new(
+				freight_in,
 				specific_inventory_purchase->inventory_name,
 				specific_inventory_purchase->serial_key,
 				specific_inventory_purchase->unit_cost,
-				purchase_total,
-				cost_basis_extra_total );
+				purchase_cost_basis_total );
 
 		list_set( list, cost_basis_specific_inventory );
 
@@ -444,11 +464,11 @@ LIST *cost_basis_specific_inventory_list(
 }
 
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
+		double freight_in,
 		char *inventory_name,
 		char *serial_key,
 		double unit_cost,
-		double purchase_total,
-		double cost_basis_extra_total )
+		double purchase_cost_basis_total )
 {
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 
@@ -460,6 +480,12 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
 		cost_basis_percent_of_total(
 			unit_cost,
 			purchase_cost_basis_total );
+
+	cost_basis_specific_inventory->cost_basis_freight_capitalized =
+		cost_basis_freight_capitalized(
+			freight_in,
+			cost_basis_specific_inventory->
+				cost_basis_percent_of_total );
 
 	cost_basis_specific_inventory->cost_basis_amount =
 		cost_basis_amount(
@@ -496,11 +522,11 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_calloc( void )
 	return cost_basis_specific_inventory;
 }
 
-double cost_basis_specific_inventory_percent_total(
+double cost_basis_specific_inventory_freight_capitalized(
 		LIST *cost_basis_specific_inventory_list )
 {
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
-	double total = 0.0;
+	double freight_capitalized = 0.0;
 
 	if ( list_rewind( cost_basis_specific_inventory_list ) )
 	do {
@@ -508,13 +534,13 @@ double cost_basis_specific_inventory_percent_total(
 			 list_get(
 				cost_basis_specific_inventory_list );
 
-		total +=
+		freight_capitalized +=
 			cost_basis_specific_inventory->
-				cost_basis_percent_of_total;
+				cost_basis_freight_capitalized;
 
 	} while ( list_next( cost_basis_specific_inventory_list ) );
 
-	return total;
+	return freight_capitalized;
 }
 
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_seek(
@@ -629,6 +655,9 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
 			specific_inventory_purchase_total,
 			supply_purchase_total );
 
+	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+		return NULL;
+
 	cost_basis =
 		cost_basis_new(
 			purchase_sales_tax,
@@ -638,7 +667,21 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
 			specific_inventory_purchase_list,
 			cost_basis_total );
 
-	if ( !cost_basis ) return NULL;
+	if ( !cost_basis )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_new() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	cost_basis_specific_inventory =
 		cost_basis_specific_inventory_seek(
@@ -647,10 +690,186 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
 			cost_basis->
 				cost_basis_specific_inventory_list );
 
-	if ( !cost_basis_specific_inventory ) return NULL;
+	if ( !cost_basis_specific_inventory )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+		"cost_basis_specific_inventory_seek(%s,%s) returned empty.",
+			inventory_name,
+			serial_key );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	cost_basis_specific_inventory->cost_basis = cost_basis;
 
 	return cost_basis_specific_inventory;
+}
+
+COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
+		char *asset_name,
+		char *serial_key,
+		double purchase_sales_tax,
+		double purchase_freight_in,
+		LIST *fixed_asset_purchase_list,
+		LIST *inventory_purchase_list,
+		LIST *specific_inventory_purchase_list,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total )
+{
+	double cost_basis_total;
+	COST_BASIS *cost_basis;
+	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
+
+	cost_basis_total =
+		purchase_cost_basis_total(
+			fixed_asset_purchase_total,
+			inventory_purchase_total,
+			specific_inventory_purchase_total,
+			supply_purchase_total );
+
+	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+		return NULL;
+
+	cost_basis =
+		cost_basis_new(
+			purchase_sales_tax,
+			purchase_freight_in,
+			fixed_asset_purchase_list,
+			inventory_purchase_list,
+			specific_inventory_purchase_list,
+			cost_basis_total );
+
+	if ( !cost_basis )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_new() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	cost_basis_fixed_asset =
+		cost_basis_fixed_asset_seek(
+			asset_name,
+			serial_key,
+			cost_basis->cost_basis_fixed_asset_list );
+
+	if ( !cost_basis_fixed_asset )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_fixed_asset_seek(%s,%s) returned empty.",
+			asset_name,
+			serial_key );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	cost_basis_fixed_asset->cost_basis = cost_basis;
+
+	return cost_basis_fixed_asset;
+}
+
+COST_BASIS_INVENTORY *cost_basis_inventory_fetch(
+		char *inventory_name,
+		double purchase_sales_tax,
+		double purchase_freight_in,
+		LIST *fixed_asset_purchase_list,
+		LIST *inventory_purchase_list,
+		LIST *specific_inventory_purchase_list,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total )
+{
+	double cost_basis_total;
+	COST_BASIS *cost_basis;
+	COST_BASIS_INVENTORY *cost_basis_inventory;
+
+	cost_basis_total =
+		purchase_cost_basis_total(
+			fixed_asset_purchase_total,
+			inventory_purchase_total,
+			specific_inventory_purchase_total,
+			supply_purchase_total );
+
+	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+		return NULL;
+
+	cost_basis =
+		cost_basis_new(
+			purchase_sales_tax,
+			purchase_freight_in,
+			fixed_asset_purchase_list,
+			inventory_purchase_list,
+			specific_inventory_purchase_list,
+			cost_basis_total );
+
+	if ( !cost_basis )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_new() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	cost_basis_inventory =
+		cost_basis_inventory_seek(
+			inventory_name,
+			cost_basis->cost_basis_inventory_list );
+
+	if ( !cost_basis_inventory )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_inventory_seek(%s) returned empty.",
+			inventory_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	cost_basis_inventory->cost_basis = cost_basis;
+
+	return cost_basis_inventory;
 }
 

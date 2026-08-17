@@ -12,12 +12,12 @@
 typedef struct
 {
 	LIST *cost_basis_fixed_asset_list;
-	double cost_basis_fixed_asset_percent_total;
+	double cost_basis_fixed_asset_tax_capitalized;
+	double cost_basis_fixed_asset_freight_capitalized;
 	LIST *cost_basis_inventory_list;
-	double cost_basis_inventory_percent_total;
+	double cost_basis_inventory_freight_capitalized;
 	LIST *cost_basis_specific_inventory_list;
-	double cost_basis_specific_inventory_percent_total;
-	double percent_total;
+	double cost_basis_specific_inventory_freight_capitalized;
 	double sales_tax_expense;
 	double freight_in_expense;
 } COST_BASIS;
@@ -86,17 +86,22 @@ typedef struct
 	char *asset_name;
 	char *serial_key;
 	double cost_basis_percent_of_total;
-	double cost_basis_extra_allocated;
+	double cost_basis_tax_capitalized;
+	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
+
+	/* Set externally */
+	/* -------------- */
 	COST_BASIS *cost_basis;
 } COST_BASIS_FIXED_ASSET;
 
 /* Usage */
 /* ----- */
 LIST *cost_basis_fixed_asset_list(
+		double sales_tax,
+		double freight_in,
 		LIST *fixed_asset_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -104,11 +109,12 @@ LIST *cost_basis_fixed_asset_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
+		double sales_tax,
+		double freight_in,
 		char *asset_name,
 		char *serial_key,
 		double fixed_asset_cost,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -128,25 +134,43 @@ double cost_basis_fixed_asset_freight_capitalized(
 /* Usage */
 /* ----- */
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_seek(
-		LIST *cost_basis_fixed_asset_list,
 		char *asset_name,
-		char *serial_key );
+		char *serial_key,
+		LIST *cost_basis_fixed_asset_list );
+
+/* Usage */
+/* ----- */
+COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
+		char *asset_name,
+		char *serial_key,
+		double purchase_sales_tax,
+		double purchase_freight_in,
+		LIST *fixed_asset_purchase_list,
+		LIST *inventory_purchase_list,
+		LIST *specific_inventory_purchase_list,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total );
 
 typedef struct
 {
 	char *inventory_name;
 	double cost_basis_percent_of_total;
-	double cost_basis_extra_allocated;
+	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
+
+	/* Set externally */
+	/* -------------- */
 	COST_BASIS *cost_basis;
 } COST_BASIS_INVENTORY;
 
 /* Usage */
 /* ----- */
 LIST *cost_basis_inventory_list(
+		double freight_in,
 		LIST *inventory_purchase_list,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -154,10 +178,10 @@ LIST *cost_basis_inventory_list(
 /* Safely returns */
 /* -------------- */
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
-		char *inventoryasset_name,
+		double freight_in,
+		char *inventory_name,
 		double extended_cost,
-		double purchase_total,
-		double cost_basis_extra_total );
+		double purchase_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -172,8 +196,22 @@ double cost_basis_inventory_freight_capitalized(
 /* Usage */
 /* ----- */
 COST_BASIS_INVENTORY *cost_basis_inventory_seek(
-		LIST *cost_basis_inventory_list,
-		char *inventory_name );
+		char *inventory_name,
+		LIST *cost_basis_inventory_list );
+
+/* Driver */
+/* ------ */
+COST_BASIS_INVENTORY *cost_basis_inventory_fetch(
+		char *inventory_name,
+		double purchase_sales_tax,
+		double purchase_freight_in,
+		LIST *fixed_asset_purchase_list,
+		LIST *inventory_purchase_list,
+		LIST *specific_inventory_purchase_list,
+		double fixed_asset_purchase_total,
+		double inventory_purchase_total,
+		double specific_inventory_purchase_total,
+		double supply_purchase_total );
 
 typedef struct
 {
@@ -182,6 +220,9 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
+
+	/* Set externally */
+	/* -------------- */
 	COST_BASIS *cost_basis;
 } COST_BASIS_SPECIFIC_INVENTORY;
 
