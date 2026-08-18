@@ -31,7 +31,7 @@ COST_BASIS *cost_basis_new(
 		LIST *fixed_asset_purchase_list,
 		LIST *inventory_purchase_list,
 		LIST *specific_inventory_purchase_list,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Process */
 /* ------- */
