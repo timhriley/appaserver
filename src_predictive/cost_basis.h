@@ -8,6 +8,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "purchase.h"
 
 typedef struct
 {
@@ -89,9 +90,7 @@ typedef struct
 	double cost_basis_tax_capitalized;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-
-	/* Set externally */
-	/* -------------- */
+	PURCHASE *purchase;
 	COST_BASIS *cost_basis;
 } COST_BASIS_FIXED_ASSET;
 
@@ -141,17 +140,12 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_seek(
 /* Usage */
 /* ----- */
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
 		char *asset_name,
-		char *serial_key,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total );
+		char *serial_key );
 
 typedef struct
 {
@@ -159,9 +153,7 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-
-	/* Set externally */
-	/* -------------- */
+	PURCHASE *purchase;
 	COST_BASIS *cost_basis;
 } COST_BASIS_INVENTORY;
 
@@ -199,19 +191,14 @@ COST_BASIS_INVENTORY *cost_basis_inventory_seek(
 		char *inventory_name,
 		LIST *cost_basis_inventory_list );
 
-/* Driver */
-/* ------ */
+/* Usage */
+/* ----- */
 COST_BASIS_INVENTORY *cost_basis_inventory_fetch(
-		char *inventory_name,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total );
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		char *inventory_name );
 
 typedef struct
 {
@@ -220,9 +207,7 @@ typedef struct
 	double cost_basis_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-
-	/* Set externally */
-	/* -------------- */
+	PURCHASE *purchase;
 	COST_BASIS *cost_basis;
 } COST_BASIS_SPECIFIC_INVENTORY;
 
@@ -262,18 +247,12 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_seek(
 		char *serial_key,
 		LIST *cost_basis_specific_inventory_list );
 
-/* Driver */
-/* ------ */
+/* Usage */
+/* ----- */
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
 		char *inventory_name,
-		char *serial_key,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total );
-
+		char *serial_key );

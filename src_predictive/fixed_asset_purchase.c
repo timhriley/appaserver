@@ -39,8 +39,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_calloc( void )
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 		char *asset_name,
-		char *serial_key,
-		boolean fetch_fixed_asset_boolean )
+		char *serial_key )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
@@ -59,13 +58,6 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 
 	fixed_asset_purchase->asset_name = asset_name;
 	fixed_asset_purchase->serial_key = serial_key;
-
-	if ( fetch_fixed_asset_boolean )
-	{
-		fixed_asset_purchase->fixed_asset =
-			fixed_asset_fetch(
-				fixed_asset_purchase->asset_name );
-	}
 
 	return fixed_asset_purchase;
 }
@@ -90,8 +82,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 		/* -------------- */
 		fixed_asset_purchase_new(
 			strdup( asset_name ),
-			strdup( serial_key ),
-			0 /* not fetch_fixed_asset_boolean */ );
+			strdup( serial_key ) );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
@@ -279,6 +270,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_trigger_new(
 	char *where;
 	char *system_string;
 	char *input;
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
 	if ( !full_name
 	||   !purchase_date_time
@@ -347,7 +339,63 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_trigger_new(
 
 	free( system_string );
 
-	return fixed_asset_purchase_parse( input );
+	if ( !input ) return NULL;
+
+	fixed_asset_purchase = fixed_asset_purchase_parse( input );
+
+	fixed_asset_purchase->cost_basis_fixed_asset =
+		cost_basis_fixed_asset_fetch(
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			asset_name,
+			serial_key );
+
+	if ( !fixed_asset_purchase->cost_basis_fixed_asset )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"cost_basis_fixed_asset_fetch(%s,%s) returned empty.",
+			asset_name,
+			serial_key );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fixed_asset_purchase->update_string_list =
+		fixed_asset_purchase_update_string_list(
+			SQL_DELIMITER,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			fund_boolean,
+			contact_key_boolean,
+			fixed_asset_purchase->
+				cost_basis_fixed_asset->
+				cost_basis_amount );
+
+	fixed_asset_purchase->primary_key_list =
+		fixed_asset_purchase_primary_key_list(
+			PURCHASE_ASSET_COLUMN,
+			SALE_SERIAL_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	fixed_asset_purchase->update_system_string =
+		fixed_asset_purchase_update_system_string(
+			FIXED_ASSET_PURCHASE_TABLE,
+			fixed_asset_purchase->primary_key_list );
+
+	return fixed_asset_purchase;
 }
 
 char *fixed_asset_purchase_primary_where(
@@ -405,75 +453,32 @@ double fixed_asset_purchase_total( LIST *fixed_asset_purchase_list )
 	return purchase_total;
 }
 
-double fixed_asset_purchase_cost_basis(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		double fixed_asset_cost )
-{
-	double cost_basis = {0};
-	PURCHASE *purchase;
-
-	if ( !full_name
-	||   !purchase_date_time )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	purchase =
-		purchase_trigger_new(
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			APPASERVER_UPDATE_STATE,
-			(char *)0 /* preupdate_fund_name */,
-			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_contact_key */ );
-
-	if ( purchase )
-	{
-		cost_basis =
-			purchase_cost_basis(
-				fixed_asset_cost,
-				purchase->purchase_fetch->sales_tax,
-				purchase->purchase_fetch->freight_in,
-				purchase->fixed_asset_purchase_total,
-				purchase->inventory_purchase_total,
-				purchase->specific_inventory_purchase_total,
-				purchase->supply_purchase_total,
-				purchase->prepaid_asset_purchase_total );
-	}
-
-	return cost_basis;
-}
-
 LIST *fixed_asset_purchase_primary_key_list(
 		const char *purchase_asset_column,
 		const char *sale_serial_key_column,
-		LIST *purchase_primary_key_list /* out */ )
+		boolean fund_boolean,
+		boolean contact_key_boolean )
 {
+	LIST *list;
+
+	list =
+		purchase_fetch_primary_key_list(
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			PURCHASE_DATE_TIME_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
 	list_set(
-		purchase_primary_key_list,
+		list,
 		(char *)purchase_asset_column );
 
 	list_set(
-		purchase_primary_key_list,
+		list,
 		(char *)sale_serial_key_column );
 
-	return purchase_primary_key_list;
+	return list;
 }
 
 LIST *fixed_asset_purchase_update_string_list(
@@ -484,7 +489,7 @@ LIST *fixed_asset_purchase_update_string_list(
 		char *purchase_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		double cost_basis )
+		double cost_basis_amount )
 {
 	char *primary_data_string;
 	char *update_string;
@@ -511,12 +516,26 @@ LIST *fixed_asset_purchase_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"cost_basis" /* column_name */,
-			cost_basis /* money */,
+			cost_basis_amount /* money */,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
 
 	return list;
+}
+
+char *fixed_asset_purchase_update_system_string(
+		const char *fixed_asset_purchase_table,
+		LIST *primary_key_list )
+{
+	return
+	/* -------------------	*/
+	/* Borrow SALE’s	*/
+	/* Returns heap memory  */
+	/* -------------------	*/
+	sale_update_system_string(
+		fixed_asset_purchase_table,
+		primary_key_list );
 }
 
 #ifdef NOT_DEFINED

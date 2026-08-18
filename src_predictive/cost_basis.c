@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "String.h"
 #include "float.h"
@@ -632,56 +633,61 @@ double cost_basis_freight_capitalized(
 }
 
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
 		char *inventory_name,
-		char *serial_key,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total )
+		char *serial_key )
 {
+	PURCHASE *purchase;
 	double cost_basis_total;
 	COST_BASIS *cost_basis;
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 
+	purchase =
+		purchase_trigger_new(
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			APPASERVER_UPDATE_STATE,
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */ );
+
+	if ( !purchase ) return NULL;
+
 	cost_basis_total =
 		purchase_cost_basis_total(
-			fixed_asset_purchase_total,
-			inventory_purchase_total,
-			specific_inventory_purchase_total,
-			supply_purchase_total );
+			purchase->fixed_asset_purchase_total,
+			purchase->inventory_purchase_total,
+			purchase->specific_inventory_purchase_total,
+			purchase->supply_purchase_total );
 
 	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
 		return NULL;
 
 	cost_basis =
 		cost_basis_new(
-			purchase_sales_tax,
-			purchase_freight_in,
-			fixed_asset_purchase_list,
-			inventory_purchase_list,
-			specific_inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				sales_tax,
+			purchase->
+				purchase_fetch->
+				freight_in,
+			purchase->
+				purchase_fetch->
+				fixed_asset_purchase_list,
+			purchase->
+				purchase_fetch->
+				inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				specific_inventory_purchase_list,
 			cost_basis_total );
 
-	if ( !cost_basis )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"cost_basis_new() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	if ( !cost_basis ) return NULL;
 
 	cost_basis_specific_inventory =
 		cost_basis_specific_inventory_seek(
@@ -690,80 +696,70 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
 			cost_basis->
 				cost_basis_specific_inventory_list );
 
-	if ( !cost_basis_specific_inventory )
-	{
-		char message[ 1024 ];
+	if ( !cost_basis_specific_inventory ) return NULL;
 
-		snprintf(
-			message,
-			sizeof ( message ),
-		"cost_basis_specific_inventory_seek(%s,%s) returned empty.",
-			inventory_name,
-			serial_key );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	cost_basis_specific_inventory->purchase = purchase;
 	cost_basis_specific_inventory->cost_basis = cost_basis;
 
 	return cost_basis_specific_inventory;
 }
 
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
 		char *asset_name,
-		char *serial_key,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total )
+		char *serial_key )
 {
+	PURCHASE *purchase;
 	double cost_basis_total;
 	COST_BASIS *cost_basis;
 	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
 
+	purchase =
+		purchase_trigger_new(
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			APPASERVER_UPDATE_STATE,
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */ );
+
+	if ( !purchase ) return NULL;
+
 	cost_basis_total =
 		purchase_cost_basis_total(
-			fixed_asset_purchase_total,
-			inventory_purchase_total,
-			specific_inventory_purchase_total,
-			supply_purchase_total );
+			purchase->fixed_asset_purchase_total,
+			purchase->inventory_purchase_total,
+			purchase->specific_inventory_purchase_total,
+			purchase->supply_purchase_total );
 
 	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
 		return NULL;
 
 	cost_basis =
 		cost_basis_new(
-			purchase_sales_tax,
-			purchase_freight_in,
-			fixed_asset_purchase_list,
-			inventory_purchase_list,
-			specific_inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				sales_tax,
+			purchase->
+				purchase_fetch->
+				freight_in,
+			purchase->
+				purchase_fetch->
+				fixed_asset_purchase_list,
+			purchase->
+				purchase_fetch->
+				inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				specific_inventory_purchase_list,
 			cost_basis_total );
 
-	if ( !cost_basis )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"cost_basis_new() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	if ( !cost_basis ) return NULL;
 
 	cost_basis_fixed_asset =
 		cost_basis_fixed_asset_seek(
@@ -771,103 +767,78 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
 			serial_key,
 			cost_basis->cost_basis_fixed_asset_list );
 
-	if ( !cost_basis_fixed_asset )
-	{
-		char message[ 1024 ];
+	if ( !cost_basis_fixed_asset ) return NULL;
 
-		snprintf(
-			message,
-			sizeof ( message ),
-			"cost_basis_fixed_asset_seek(%s,%s) returned empty.",
-			asset_name,
-			serial_key );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-
+	cost_basis_fixed_asset->purchase = purchase;
 	cost_basis_fixed_asset->cost_basis = cost_basis;
 
 	return cost_basis_fixed_asset;
 }
 
 COST_BASIS_INVENTORY *cost_basis_inventory_fetch(
-		char *inventory_name,
-		double purchase_sales_tax,
-		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list,
-		LIST *inventory_purchase_list,
-		LIST *specific_inventory_purchase_list,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total )
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		char *inventory_name )
 {
+	PURCHASE *purchase;
 	double cost_basis_total;
 	COST_BASIS *cost_basis;
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 
+	purchase =
+		purchase_trigger_new(
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			APPASERVER_UPDATE_STATE,
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */ );
+
+	if ( !purchase ) return NULL;
+
 	cost_basis_total =
 		purchase_cost_basis_total(
-			fixed_asset_purchase_total,
-			inventory_purchase_total,
-			specific_inventory_purchase_total,
-			supply_purchase_total );
+			purchase->fixed_asset_purchase_total,
+			purchase->inventory_purchase_total,
+			purchase->specific_inventory_purchase_total,
+			purchase->supply_purchase_total );
 
 	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
 		return NULL;
 
 	cost_basis =
 		cost_basis_new(
-			purchase_sales_tax,
-			purchase_freight_in,
-			fixed_asset_purchase_list,
-			inventory_purchase_list,
-			specific_inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				sales_tax,
+			purchase->
+				purchase_fetch->
+				freight_in,
+			purchase->
+				purchase_fetch->
+				fixed_asset_purchase_list,
+			purchase->
+				purchase_fetch->
+				inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				specific_inventory_purchase_list,
 			cost_basis_total );
 
-	if ( !cost_basis )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"cost_basis_new() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	if ( !cost_basis ) return NULL;
 
 	cost_basis_inventory =
 		cost_basis_inventory_seek(
 			inventory_name,
 			cost_basis->cost_basis_inventory_list );
 
-	if ( !cost_basis_inventory )
-	{
-		char message[ 1024 ];
+	if ( !cost_basis_inventory ) return NULL;
 
-		snprintf(
-			message,
-			sizeof ( message ),
-			"cost_basis_inventory_seek(%s) returned empty.",
-			inventory_name );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	cost_basis_inventory->purchase = purchase;
 	cost_basis_inventory->cost_basis = cost_basis;
 
 	return cost_basis_inventory;

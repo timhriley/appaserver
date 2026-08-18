@@ -211,6 +211,7 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
+		fixed_asset_purchase_trigger				\
 		post_change_hourly_service_work				\
 		specific_inventory_sale_trigger				\
 		specific_inventory_purchase_trigger
@@ -592,6 +593,17 @@ post_change_inventory_sale_return:					\
 		${SOURCE_LIBRARY}					\
 		post_change_inventory_sale_return.c			\
 		-o post_change_inventory_sale_return
+
+fixed_asset_purchase_trigger:						\
+	fixed_asset_purchase_trigger.c					\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
+	${SALE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${SALE_LIBRARY}						\
+		fixed_asset_purchase_trigger.c				\
+		-o fixed_asset_purchase_trigger
 
 specific_inventory_purchase_trigger:					\
 	specific_inventory_purchase_trigger.c				\

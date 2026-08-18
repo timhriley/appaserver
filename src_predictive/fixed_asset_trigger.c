@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/post_change_fixed_asset_purchase.c	*/
+/* $APPASERVER_HOME/src_predictive/fixed_asset_trigger.c		*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
@@ -7,16 +7,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "environ.h"
 #include "piece.h"
 #include "column.h"
 #include "list.h"
 #include "appaserver_error.h"
 #include "fixed_asset_purchase.h"
-
-void post_change_fixed_asset_purchase_insert_update(
-		FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
 int main( int argc, char **argv )
 {

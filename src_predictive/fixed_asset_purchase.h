@@ -9,7 +9,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "purchase.h"
-#include "fixed_asset.h"
+#include "cost_basis.h"
 
 #define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
 
@@ -36,6 +36,8 @@
 
 typedef struct
 {
+	/* Input attributes */
+	/* ---------------- */
 	char *asset_name;
 	char *serial_key;
 	char *purchase_date_time;
@@ -55,7 +57,13 @@ typedef struct
 	double cost_basis;
 	double finance_accumulated_depreciation;
 	double tax_adjusted_basis;
-	FIXED_ASSET *fixed_asset;
+
+	/* Output attributes */
+	/* ----------------- */
+	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
+	LIST *update_string_list;
+	LIST *primary_key_list;
+	char *update_system_string;
 } FIXED_ASSET_PURCHASE;
 
 /* Usage */
@@ -101,8 +109,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 /* -------------- */
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 		char *asset_name,
-		char *serial_key,
-		boolean fetch_fixed_asset_boolean );
+		char *serial_key );
 
 /* Process */
 /* ------- */
@@ -121,15 +128,6 @@ char *fixed_asset_purchase_primary_where(
 
 /* Usage */
 /* ----- */
-double fixed_asset_purchase_cost_basis(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		double fixed_asset_cost );
-
-/* Usage */
-/* ----- */
 double fixed_asset_purchase_total(
 		LIST *fixed_asset_purchase_list );
 
@@ -138,7 +136,8 @@ double fixed_asset_purchase_total(
 LIST *fixed_asset_purchase_primary_key_list(
 		const char *purchase_asset_column,
 		const char *sale_serial_key_column,
-		LIST *purchase_primary_key_list /* out */ );
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -150,4 +149,14 @@ LIST *fixed_asset_purchase_update_string_list(
 		char *purchase_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		double fixed_asset_purchase_cost_basis );
+		double cost_basis_amount );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *fixed_asset_purchase_update_system_string(
+		const char *fixed_asset_purchase_table,
+		LIST *fixed_asset_purchase_primary_key_list );
+
