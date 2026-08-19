@@ -36,9 +36,9 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *prior_transaction_date_time,
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
 		double supply_purchase_total,
 		double service_purchase_total,
 		double prepaid_asset_purchase_total,
@@ -100,9 +100,9 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 			purchase_transaction_journal_list(
 				sales_tax,
 				freight_in,
-				fixed_asset_purchase_total,
-				inventory_purchase_total,
-				specific_inventory_purchase_total,
+				fixed_asset_purchase_list_total,
+				inventory_purchase_list_total,
+				specific_inventory_purchase_list_total,
 				supply_purchase_total,
 				service_purchase_total,
 				prepaid_asset_purchase_total,
@@ -232,9 +232,9 @@ char *purchase_transaction_date_time(
 LIST *purchase_transaction_journal_list(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
 		double supply_purchase_total,
 		double service_purchase_total,
 		double prepaid_asset_purchase_total,
@@ -251,9 +251,9 @@ LIST *purchase_transaction_journal_list(
 		purchase_transaction_debit_sum(
 			sales_tax,
 			freight_in,
-			fixed_asset_purchase_total,
-			inventory_purchase_total,
-			specific_inventory_purchase_total,
+			fixed_asset_purchase_list_total,
+			inventory_purchase_list_total,
+			specific_inventory_purchase_list_total,
 			supply_purchase_total,
 			service_purchase_total,
 			prepaid_asset_purchase_total );
@@ -313,7 +313,7 @@ LIST *purchase_transaction_journal_list(
 		list_set( list, journal );
 	}
 
-	if ( fixed_asset_purchase_total )
+	if ( fixed_asset_purchase_list_total )
 	{
 		account =
 			account_freight_in_expense(
@@ -322,7 +322,8 @@ LIST *purchase_transaction_journal_list(
 
 		journal =
 			journal_account_new(
-				fixed_asset_purchase_total /* journal_amount */,
+				fixed_asset_purchase_list_total
+					/* journal_amount */,
 				account /* debit_account */,
 				(ACCOUNT *)0 /* credit_account */ );
 
@@ -331,8 +332,8 @@ LIST *purchase_transaction_journal_list(
 
 	transaction_inventory_total =
 		purchase_transaction_inventory_total(
-			inventory_purchase_total,
-			specific_inventory_purchase_total );
+			inventory_purchase_list_total,
+			specific_inventory_purchase_list_total );
 
 	if ( transaction_inventory_total )
 	{
@@ -449,9 +450,9 @@ LIST *purchase_transaction_journal_list(
 double purchase_transaction_debit_sum(
 		double sales_tax,
 		double freight_in,
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
 		double supply_purchase_total,
 		double service_purchase_total,
 		double prepaid_asset_purchase_total )
@@ -459,9 +460,9 @@ double purchase_transaction_debit_sum(
 	return
 	sales_tax +
 	freight_in +
-	fixed_asset_purchase_total +
-	inventory_purchase_total +
-	specific_inventory_purchase_total +
+	fixed_asset_purchase_list_total +
+	inventory_purchase_list_total +
+	specific_inventory_purchase_list_total +
 	supply_purchase_total +
 	service_purchase_total +
 	prepaid_asset_purchase_total;

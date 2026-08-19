@@ -140,3 +140,8 @@ char *fixed_asset_purchase_list_update_system_string(
 double fixed_asset_purchase_list_total(
 		LIST *fixed_asset_purchase_list );
 
+/* Usage */
+/* ----- */
+LIST *fixed_asset_purchase_list_update_string_list(
+		LIST *fixed_asset_purchase_list );
+

@@ -30,16 +30,19 @@
 typedef struct
 {
 	PURCHASE_FETCH *purchase_fetch;
-	double fixed_asset_purchase_total;
-	double inventory_purchase_total;
-	double specific_inventory_purchase_total;
-	double supply_purchase_total;
-	double service_purchase_total;
-	double prepaid_asset_purchase_total;
-	double return_total;
+	double fixed_asset_purchase_list_total;
+	double inventory_purchase_list_total;
+	double specific_inventory_purchase_list_total;
+	double supply_purchase_list_total;
+	double service_purchase_list_total;
+	double prepaid_asset_purchase_list_total;
+	double return_list_total;
 	double total;
 	double invoice_amount;
+	PURCHASE_CALCULATE *purchase_calculate;
 	PURCHASE_TRANSACTION *purchase_transaction;
+	char *update_system_string;
+	LIST *update_string_list;
 } PURCHASE;
 
 /* Usage */
@@ -76,20 +79,20 @@ char *purchase_primary_where(
 /* Usage */
 /* ----- */
 double purchase_cost_basis_total(
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total );
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
+		double supply_purchase_list_total );
 
 /* Usage */
 /* ----- */
 double purchase_total(
-		double fixed_asset_purchase_total,
-		double inventory_purchase_total,
-		double specific_inventory_purchase_total,
-		double supply_purchase_total,
-		double service_purchase_total,
-		double prepaid_asset_purchase_total );
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
+		double supply_purchase_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total );
 
 /* Usage */
 /* ----- */
@@ -97,5 +100,31 @@ double purchase_invoice_amount(
 		double sales_tax,
 		double freight_in,
 		double purchase_total,
-		double purchase_return_total );
+		double purchase_return_list_total );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *purchase_update_system_string(
+		const char *purchase_table,
+		LIST *purchase_fetch_primary_key_list );
+
+/* Usage */
+/* ----- */
+LIST *purchase_update_string_list(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		double fixed_asset_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
+		double supply_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total,
+		double return_list_total,
+		double purchase_invoice_amount );

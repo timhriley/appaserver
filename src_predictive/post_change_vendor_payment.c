@@ -202,7 +202,7 @@ void post_change_vendor_payment_insert_update(
 					     vendor_payment_list ) ) );
 
 	purchase_update(
-		purchase->fixed_asset_purchase_total,
+		purchase->fixed_asset_purchase_list_total,
 		purchase->purchase_invoice_amount,
 		purchase->vendor_payment_total,
 		purchase->purchase_amount_due,
@@ -274,7 +274,7 @@ void post_change_vendor_payment_predelete(
 	}
 
 	purchase_update(
-		purchase->fixed_asset_purchase_total,
+		purchase->fixed_asset_purchase_list_total,
 		purchase->purchase_invoice_amount,
 		purchase->vendor_payment_total,
 		purchase->purchase_amount_due,

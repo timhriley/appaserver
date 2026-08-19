@@ -115,3 +115,8 @@ char *specific_inventory_purchase_list_update_system_string(
 double specific_inventory_purchase_list_total(
 		LIST *specific_inventory_purchase_list );
 
+/* Usage */
+/* ----- */
+LIST *specific_inventory_purchase_list_update_string_list(
+		LIST *specific_inventory_purchase_list );
+

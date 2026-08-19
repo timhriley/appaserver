@@ -16,6 +16,7 @@
 #include "sql.h"
 #include "predictive.h"
 #include "sale.h"
+#include "purchase.h"
 #include "inventory_sale.h"
 #include "inventory_purchase.h"
 
@@ -386,3 +387,29 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_calloc( void )
 	return inventory_purchase_list;
 }
 
+LIST *inventory_purchase_list_update_string_list(
+		LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+	LIST *update_string_list = list_new();
+
+	if ( list_rewind( inventory_purchase_list ) )
+	do {
+		inventory_purchase =
+			list_get(
+				inventory_purchase_list );
+
+		list_set_list(
+			update_string_list,
+			inventory_purchase->update_string_list );
+
+	} while ( list_next( inventory_purchase_list ) );
+
+	if ( !list_length( update_string_list ) )
+	{
+		list_free( update_string_list );
+		update_string_list = NULL;
+	}
+
+	return update_string_list;
+}

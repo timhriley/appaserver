@@ -363,6 +363,33 @@ FIXED_ASSET_PURCHASE_LIST *inventory_purchase_list_calloc( void )
 	return fixed_asset_purchase_list;
 }
 
+LIST *fixed_assset_purchase_list_update_string_list(
+		LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	LIST *update_string_list = list_new();
+
+	if ( list_rewind( fixed_asset_purchase_list ) )
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		list_set(
+			update_string_list,
+			fixed_asset_purchase->update_string );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	if ( !list_length( update_string_list ) )
+	{
+		list_free( update_string_list );
+		update_string_list = NULL;
+	}
+
+	return update_string_list;
+}
+
 #ifdef NOT_DEFINED
 char *purchase_asset_account_name(
 			LIST *fixed_asset_purchase_list )

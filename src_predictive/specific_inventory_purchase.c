@@ -340,3 +340,29 @@ SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list_calloc(
 	return specific_inventory_purchase_list;
 }
 
+LIST *specific_inventory_purchase_list_update_string_list(
+		LIST *specific_inventory_purchase_list )
+{
+	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
+	LIST *update_string_list = list_new();
+
+	if ( list_rewind( specific_inventory_purchase_list ) )
+	do {
+		specific_inventory_purchase =
+			list_get(
+				specific_inventory_purchase_list );
+
+		list_set(
+			update_string_list,
+			specific_inventory_purchase->update_string );
+
+	} while ( list_next( specific_inventory_purchase_list ) );
+
+	if ( !list_length( update_string_list ) )
+	{
+		list_free( update_string_list );
+		update_string_list = NULL;
+	}
+
+	return update_string_list;
+}
