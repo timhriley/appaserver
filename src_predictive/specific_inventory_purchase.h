@@ -28,7 +28,7 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
-	COST_BASIS_INVENTORY *cost_basis_inventory;
+	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 	char *update_string;
 } SPECIFIC_INVENTORY_PURCHASE;
 

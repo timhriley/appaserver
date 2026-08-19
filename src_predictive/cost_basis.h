@@ -8,7 +8,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "purchase.h"
 
 typedef struct
 {
@@ -84,14 +83,10 @@ double cost_basis_freight_capitalized(
 
 typedef struct
 {
-	char *asset_name;
-	char *serial_key;
 	double cost_basis_percent_of_total;
 	double cost_basis_tax_capitalized;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-	PURCHASE *purchase;
-	COST_BASIS *cost_basis;
 } COST_BASIS_FIXED_ASSET;
 
 /* Usage */
@@ -100,7 +95,7 @@ LIST *cost_basis_fixed_asset_list(
 		double sales_tax,
 		double freight_in,
 		LIST *fixed_asset_purchase_list,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -110,10 +105,8 @@ LIST *cost_basis_fixed_asset_list(
 COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
 		double sales_tax,
 		double freight_in,
-		char *asset_name,
-		char *serial_key,
 		double fixed_asset_cost,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -130,31 +123,11 @@ double cost_basis_fixed_asset_tax_capitalized(
 double cost_basis_fixed_asset_freight_capitalized(
 		LIST *cost_basis_fixed_asset_list );
 
-/* Usage */
-/* ----- */
-COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_seek(
-		char *asset_name,
-		char *serial_key,
-		LIST *cost_basis_fixed_asset_list );
-
-/* Usage */
-/* ----- */
-COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_fetch(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *asset_name,
-		char *serial_key );
-
 typedef struct
 {
-	char *inventory_name;
 	double cost_basis_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-	PURCHASE *purchase;
-	COST_BASIS *cost_basis;
 } COST_BASIS_INVENTORY;
 
 /* Usage */
@@ -162,7 +135,7 @@ typedef struct
 LIST *cost_basis_inventory_list(
 		double freight_in,
 		LIST *inventory_purchase_list,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -171,9 +144,8 @@ LIST *cost_basis_inventory_list(
 /* -------------- */
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
 		double freight_in,
-		char *inventory_name,
 		double extended_cost,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -185,30 +157,11 @@ COST_BASIS_INVENTORY *cost_basis_inventory_calloc(
 double cost_basis_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list );
 
-/* Usage */
-/* ----- */
-COST_BASIS_INVENTORY *cost_basis_inventory_seek(
-		char *inventory_name,
-		LIST *cost_basis_inventory_list );
-
-/* Usage */
-/* ----- */
-COST_BASIS_INVENTORY *cost_basis_inventory_fetch(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *inventory_name );
-
 typedef struct
 {
-	char *inventory_name;
-	char *serial_key;
 	double cost_basis_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
-	PURCHASE *purchase;
-	COST_BASIS *cost_basis;
 } COST_BASIS_SPECIFIC_INVENTORY;
 
 /* Usage */
@@ -216,7 +169,7 @@ typedef struct
 LIST *cost_basis_specific_inventory_list(
 		double freight_in,
 		LIST *specific_inventory_purchase_list,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Usage */
 /* ----- */
@@ -225,10 +178,8 @@ LIST *cost_basis_specific_inventory_list(
 /* -------------- */
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
 		double freight_in,
-		char *inventory_name,
-		char *serial_key,
 		double unit_cost,
-		double purchase_cost_basis_total );
+		double purchase_calculate_cost_basis_total );
 
 /* Process */
 /* ------- */
@@ -239,20 +190,3 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_calloc(
 /* ----- */
 double cost_basis_specific_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list );
-
-/* Usage */
-/* ----- */
-COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_seek(
-		char *inventory_name,
-		char *serial_key,
-		LIST *cost_basis_specific_inventory_list );
-
-/* Usage */
-/* ----- */
-COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_fetch(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *inventory_name,
-		char *serial_key );
