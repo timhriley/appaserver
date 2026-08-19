@@ -8,6 +8,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "cost_basis.h"
 
 #define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
 
@@ -34,21 +35,13 @@ typedef struct
 	double cost_basis;
 	int quantity_on_hand;
 	double average_unit_cost;
-	LIST *update_string_list;
-	LIST *primary_key_list;
-	char *update_system_string;
-} INVENTORY_PURCHASE;
+	double inventory_purchase_extended_cost;
 
-/* Usage */
-/* ----- */
-INVENTORY_PURCHASE *inventory_purchase_trigger_new(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *inventory_name,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
+	/* Set externally */
+	/* -------------- */
+	COST_BASIS_INVENTORY *cost_basis_inventory;
+	LIST *update_string_list;
+} INVENTORY_PURCHASE;
 
 /* Usage */
 /* ----- */
@@ -70,29 +63,10 @@ INVENTORY_PURCHASE *inventory_purchase_calloc(
 
 /* Usage */
 /* ----- */
-LIST *inventory_purchase_list(
-		const char *inventory_purchase_select,
-		const char *inventory_purchase_table,
-		char *purchase_primary_where );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *inventory_purchase_primary_where(
-		const char *sale_inventory_column,
-		char *inventory_name,
-		char *purchase_primary_where );
-
-/* Usage */
-/* ----- */
-double inventory_purchase_cost_basis(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		double unit_cost );
+#define INVENTORY_PURCHASE_EXTENDED_COST(			\
+		ordered_quantity,				\
+		unit_cost )					\
+	( (double)ordered_quantity * unit_cost )
 
 /* Usage */
 /* ----- */
@@ -103,13 +77,40 @@ LIST *inventory_purchase_update_string_list(
 		char *contact_key,
 		char *purchase_date_time,
 		char *inventory_name,
+		double extended_cost,
+		double cost_basis,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		double inventory_purchase_cost_basis );
+		double inventory_purchase_extended_cost,
+		double cost_basis_amount );
+
+typedef struct
+{
+	LIST *list;
+	LIST *primary_key_list;
+	char *update_system_string;
+} INVENTORY_PURCHASE_LIST;
 
 /* Usage */
 /* ----- */
-LIST *inventory_purchase_primary_key_list(
+
+/* Safely returns */
+/* -------------- */
+INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
+		const char *inventory_purchase_select,
+		const char *inventory_purchase_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *purchase_primary_where );
+
+/* Process */
+/* ------- */
+INVENTORY_PURCHASE_LIST *inventory_purchase_list_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+LIST *inventory_purchase_list_primary_key_list(
 		const char *sale_inventory_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
@@ -119,12 +120,12 @@ LIST *inventory_purchase_primary_key_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *inventory_purchase_update_system_string(
+char *inventory_purchase_list_update_system_string(
 		const char *inventory_purchase_table,
-		LIST *inventory_purchase_primary_key_list );
+		LIST *inventory_purchase_list_primary_key_list );
 
 /* Usage */
 /* ----- */
-double inventory_purchase_total(
+double inventory_purchase_list_total(
 		LIST *inventory_purchase_list );
 
