@@ -12,13 +12,11 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "piece.h"
+#include "float.h"
 #include "sql.h"
-#include "security.h"
+#include "predictive.h"
 #include "sale.h"
 #include "specific_inventory_sale.h"
-#include "purchase.h"
-#include "inventory_purchase.h"
-#include "fixed_asset_purchase.h"
 #include "specific_inventory_purchase.h"
 
 SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_new(
@@ -70,7 +68,7 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_calloc( void )
 	return specific_inventory_purchase;
 }
 
-double specific_inventory_purchase_total(
+double specific_inventory_purchase_list_total(
 		LIST *specific_inventory_purchase_list )
 {
 	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
@@ -90,129 +88,7 @@ double specific_inventory_purchase_total(
 	return total;
 }
 
-SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_trigger_new(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *inventory_name,
-		char *serial_key,
-		boolean fund_boolean,
-		boolean contact_key_boolean )
-{
-	char *primary_where;
-	char *where;
-	char *system_string;
-	char *input;
-	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
-
-	if ( !full_name
-	||   !purchase_date_time
-	||   !inventory_name
-	||   !serial_key )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	primary_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		purchase_primary_where(
-			PURCHASE_DATE_TIME_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			fund_boolean,
-			contact_key_boolean );
-
-	where =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		specific_inventory_purchase_primary_where(
-			SALE_INVENTORY_COLUMN,
-			SALE_SERIAL_KEY_COLUMN,
-			inventory_name,
-			serial_key,
-			primary_where );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			SPECIFIC_INVENTORY_PURCHASE_SELECT,
-			SPECIFIC_INVENTORY_PURCHASE_TABLE,
-			where );
-
-	free( where );
-
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	input = string_system_input( system_string );
-
-	free( system_string );
-
-	if ( !input ) return NULL;
-
-	specific_inventory_purchase =
-		specific_inventory_purchase_parse(
-			input );
-
-	specific_inventory_purchase->cost_basis =
-		specific_inventory_purchase_cost_basis(
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			specific_inventory_purchase->unit_cost );
-
-	specific_inventory_purchase->update_string_list =
-		specific_inventory_purchase_update_string_list(
-			SQL_DELIMITER,
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			inventory_name,
-			serial_key,
-			fund_boolean,
-			contact_key_boolean,
-			specific_inventory_purchase->cost_basis );
-
-	specific_inventory_purchase->primary_key_list =
-		specific_inventory_purchase_primary_key_list(
-			SALE_INVENTORY_COLUMN,
-			SALE_SERIAL_KEY_COLUMN,
-			fund_boolean,
-			contact_key_boolean );
-
-	specific_inventory_purchase->update_system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		specific_inventory_purchase_update_system_string(
-			SPECIFIC_INVENTORY_PURCHASE_TABLE,
-			specific_inventory_purchase->primary_key_list );
-
-	return specific_inventory_purchase;
-}
-
-char *specific_inventory_purchase_update_system_string(
+char *specific_inventory_purchase_list_update_system_string(
 		const char *specific_inventory_purchase_table,
 		LIST *purchase_primary_key_list )
 {
@@ -225,7 +101,6 @@ char *specific_inventory_purchase_update_system_string(
 	sale_update_system_string(
 		specific_inventory_purchase_table,
 		purchase_primary_key_list );
-
 }
 
 SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_parse( char *input )
@@ -251,9 +126,7 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_parse( char *input )
 			strdup( serial_key ) );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer )
-		specific_inventory_purchase->unit_cost =
-			atof( buffer );
+	if ( *buffer ) specific_inventory_purchase->unit_cost = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
@@ -261,33 +134,26 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_parse( char *input )
 			atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer )
-		specific_inventory_purchase->cost_basis =
-			atof( buffer );
+	if ( *buffer ) specific_inventory_purchase->unit_cost = atof( buffer );
 
 	return specific_inventory_purchase;
 }
 
-LIST *specific_inventory_purchase_primary_key_list(
+LIST *specific_inventory_purchase_list_primary_key_list(
 		const char *sale_inventory_column,
 		const char *sale_serial_key_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
-	LIST *primary_key_list;
-
-	primary_key_list =
-		inventory_purchase_primary_key_list(
-			sale_inventory_column,
-			fund_boolean,
-			contact_key_boolean );
-
-	list_set( primary_key_list, (char *)sale_serial_key_column );
-
-	return primary_key_list;
+	return
+	specific_inventory_sale_primary_key_list(
+		sale_inventory_column,
+		sale_serial_key_column,
+		fund_boolean,
+		contact_key_boolean );
 }
 
-LIST *specific_inventory_purchase_update_string_list(
+char *specific_inventory_purchase_update_string(
 		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
@@ -295,13 +161,13 @@ LIST *specific_inventory_purchase_update_string_list(
 		char *purchase_date_time,
 		char *inventory_name,
 		char *serial_key,
+		double cost_basis,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		double cost_basis )
+		double cost_basis_amount )
 {
 	char *primary_data_string;
 	char *update_string;
-	LIST *list = list_new();
 
 	if ( !full_name
 	||   !purchase_date_time
@@ -320,6 +186,13 @@ LIST *specific_inventory_purchase_update_string_list(
 			__FUNCTION__,
 			__LINE__,
 			message );
+	}
+
+	if ( float_virtually_same(
+		cost_basis,
+		cost_basis_amount ) )
+	{
+		return NULL;
 	}
 
 	primary_data_string =
@@ -346,82 +219,24 @@ LIST *specific_inventory_purchase_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"cost_basis" /* column_name */,
-			cost_basis /* money */,
+			cost_basis_amount /* money */,
 			1 /* set_boolean */ );
 
-	list_set( list, update_string );
-
-	return list;
+	return update_string;
 }
 
-double specific_inventory_purchase_cost_basis(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		double unit_cost )
-{
-	return
-	/* ----------------------------- */
-	/* Borrow FIXED_ASSET_PURCHASE’s */
-	/* ----------------------------- */
-	fixed_asset_purchase_cost_basis(
-		fund_name,
-		full_name,
-		contact_key,
-		purchase_date_time,
-		unit_cost /* fixed_asset_cost */ );
-}
-
-char *specific_inventory_purchase_primary_where(
-		const char *sale_inventory_column,
-		const char *sale_serial_key_column,
-		char *inventory_name,
-		char *serial_key,
-		char *purchase_primary_where )
-{
-	char *primary_where;
-	char *escape;
-	char where[ 256 ];
-
-	primary_where =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		inventory_purchase_primary_where(
-			sale_inventory_column,
-			inventory_name,
-			purchase_primary_where );
-
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	escape = security_escape( serial_key );
-
-	snprintf(
-		where,
-		sizeof ( where ),
-		"%s and %s = '%s'",
-		primary_where,
-		sale_serial_key_column,
-		escape );
-
-	free( primary_where );
-	free( escape );
-
-	return strdup( where );
-}
-
-LIST *specific_inventory_purchase_list(
+SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list_new(
 		const char *specific_inventory_purchase_select,
 		const char *specific_inventory_purchase_table,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *purchase_primary_where )
 {
 	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
+	SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list;
 	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
-	LIST *list = list_new();
 
 	if ( !purchase_primary_where )
 	{
@@ -454,26 +269,74 @@ LIST *specific_inventory_purchase_list(
 
 	free( system_string );
 
+	specific_inventory_purchase_list =
+		specific_inventory_purchase_list_calloc();
+
+	specific_inventory_purchase_list->list = list_new();
+
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		specific_inventory_purchase  =
+		specific_inventory_purchase =
 			/* -------------- */
 			/* Should succeed */
 			/* -------------- */
-			specific_inventory_purchase_parse(
-				input );
+			specific_inventory_purchase_parse( input );
 
-		list_set( list, specific_inventory_purchase );
+		list_set(
+			specific_inventory_purchase_list->list,
+			specific_inventory_purchase );
 	}
 
 	pclose( input_pipe );
 
-	if ( !list_length( list ) )
+	specific_inventory_purchase_list->primary_key_list =
+		specific_inventory_purchase_list_primary_key_list(
+			SALE_INVENTORY_COLUMN,
+			SALE_SERIAL_KEY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	specific_inventory_purchase_list->update_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		specific_inventory_purchase_list_update_system_string(
+			specific_inventory_purchase_table,
+			specific_inventory_purchase_list->primary_key_list );
+
+	if ( !list_length( specific_inventory_purchase_list->list ) )
 	{
-		list_free( list );
-		list = NULL;
+		list_free( specific_inventory_purchase_list->list );
+		specific_inventory_purchase_list->list = NULL;
 	}
 
-	return list;
+	return specific_inventory_purchase_list;
+}
+
+SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list_calloc(
+		void )
+{
+	SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list;
+
+	if ( ! ( specific_inventory_purchase_list =
+			calloc(
+			   1,
+			   sizeof ( SPECIFIC_INVENTORY_PURCHASE_LIST ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return specific_inventory_purchase_list;
 }
 
