@@ -8,7 +8,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "purchase.h"
 #include "cost_basis.h"
 
 #define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
@@ -16,7 +15,6 @@
 #define FIXED_ASSET_PURCHASE_SELECT	"asset_name,"			    \
 					"serial_key,"			    \
 					"full_name,"			    \
-					"purchase_date_time,"		    \
 					"service_placement_date,"	    \
 					"fixed_asset_cost,"		    \
 					"units_produced_so_far,"	    \
@@ -36,11 +34,8 @@
 
 typedef struct
 {
-	/* Input attributes */
-	/* ---------------- */
 	char *asset_name;
 	char *serial_key;
-	char *purchase_date_time;
 	char *service_placement_date;
 	double fixed_asset_cost;
 	int units_produced_so_far;
@@ -58,44 +53,11 @@ typedef struct
 	double finance_accumulated_depreciation;
 	double tax_adjusted_basis;
 
-	/* Output attributes */
-	/* ----------------- */
+	/* Set externally */
+	/* -------------- */
 	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
-	LIST *update_string_list;
-	LIST *primary_key_list;
-	char *update_system_string;
+	char *update_string;
 } FIXED_ASSET_PURCHASE;
-
-/* Usage */
-/* ----- */
-LIST *fixed_asset_purchase_list(
-		const char *fixed_asset_purchase_select,
-		const char *fixed_asset_purchase_table,
-		char *purchase_primary_where,
-		boolean entity_contact_key_boolean );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *fixed_asset_purchase_system_string(
-		char *entity_select_string,
-		const char *fixed_asset_purchase_table,
-		char *purchase_primary_where,
-		char *order );
-
-/* Usage */
-/* ----- */
-FIXED_ASSET_PURCHASE *fixed_asset_purchase_trigger_new(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		char *asset_name,
-		char *serial_key,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -119,21 +81,46 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *fixed_asset_purchase_primary_where(
-		char *asset_name,
-		char *serial_key,
+/* Returns heap memory or null */
+/* --------------------------- */
+char *fixed_asset_purchase_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		double cost_basis,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		double cost_basis_amount );
+
+typedef struct
+{
+	LIST *list;
+	LIST *primary_key_list;
+	char *update_system_string;
+} FIXED_ASSET_PURCHASE_LIST;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list_new(
+		const char *fixed_asset_purchase_select,
+		const char *fixed_asset_purchase_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *purchase_primary_where );
 
-/* Usage */
-/* ----- */
-double fixed_asset_purchase_total(
-		LIST *fixed_asset_purchase_list );
+/* Process */
+/* ------- */
+FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list_calloc(
+		void );
 
 /* Usage */
 /* ----- */
-LIST *fixed_asset_purchase_primary_key_list(
+LIST *fixed_asset_purchase_list_primary_key_list(
 		const char *purchase_asset_column,
 		const char *sale_serial_key_column,
 		boolean predictive_fund_boolean,
@@ -141,22 +128,15 @@ LIST *fixed_asset_purchase_primary_key_list(
 
 /* Usage */
 /* ----- */
-LIST *fixed_asset_purchase_update_string_list(
-		const char sql_delimiter,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		double cost_basis_amount );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *fixed_asset_purchase_update_system_string(
+char *fixed_asset_purchase_list_update_system_string(
 		const char *fixed_asset_purchase_table,
 		LIST *fixed_asset_purchase_primary_key_list );
+
+/* Usage */
+/* ----- */
+double fixed_asset_purchase_list_total(
+		LIST *fixed_asset_purchase_list );
 
