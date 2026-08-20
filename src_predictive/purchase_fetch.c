@@ -202,13 +202,17 @@ PURCHASE_FETCH *purchase_fetch_new(
 				purchase_fetch->purchase_primary_where );
 	}
 
-/*
 	purchase_fetch->supply_purchase_list =
-		supply_purchase_list(
+		supply_purchase_list_new(
 			SUPPLY_PURCHASE_SELECT,
 			SUPPLY_PURCHASE_TABLE,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			purchase_fetch->predictive_fund_boolean,
+			purchase_fetch->entity_contact_key_boolean,
 			purchase_fetch->purchase_primary_where );
-*/
 
 
 /*

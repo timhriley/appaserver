@@ -874,6 +874,46 @@ boolean sale_fetch_cash_account_boolean(
 		folder_attribute_list );
 }
 
+boolean sale_fetch_inventory_total_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"inventory_total",
+		folder_attribute_list );
+}
+
+boolean sale_fetch_specific_inventory_total_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"specific_inventory_total",
+		folder_attribute_list );
+}
+
+boolean sale_fetch_fixed_service_total_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"fixed_service_sale_total",
+		folder_attribute_list );
+}
+
+boolean sale_fetch_hourly_service_total_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"hourly_service_sale_total",
+		folder_attribute_list );
+}
+
 SALE_FETCH *sale_fetch_calloc( void )
 {
 	SALE_FETCH *sale_fetch;

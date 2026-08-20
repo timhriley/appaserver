@@ -11,6 +11,7 @@
 #include "purchase_transaction.h"
 #include "purchase_calculate.h"
 #include "purchase_fetch.h"
+#include "purchase_update.h"
 
 #define PURCHASE_TABLE			"purchase"
 
@@ -45,6 +46,7 @@ typedef struct
 	PURCHASE_TRANSACTION *purchase_transaction;
 	char *update_system_string;
 	LIST *update_string_list;
+	PURCHASE_UPDATE *purchase_update;
 } PURCHASE;
 
 /* Usage */

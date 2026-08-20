@@ -363,7 +363,7 @@ FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list_calloc( void )
 	return fixed_asset_purchase_list;
 }
 
-LIST *fixed_assset_purchase_list_update_string_list(
+LIST *fixed_asset_purchase_list_update_string_list(
 		LIST *fixed_asset_purchase_list )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;

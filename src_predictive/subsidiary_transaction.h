@@ -154,7 +154,7 @@ char *subsidiary_transaction_update_where(
 /* ------ */
 
 /* ------------------------------------ */
-/* Updates the parent table.		*/
+/* Updates the many table.		*/
 /* Returns transaction_date_time.	*/
 /* ------------------------------------ */
 char *subsidiary_transaction_execute(

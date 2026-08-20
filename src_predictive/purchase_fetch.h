@@ -13,6 +13,7 @@
 #include "fixed_asset_purchase.h"
 #include "inventory_purchase.h"
 #include "specific_inventory_purchase.h"
+#include "supply_purchase.h"
 
 typedef struct
 {
@@ -54,7 +55,7 @@ typedef struct
 	FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list;
 	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
 	SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list;
-	LIST *supply_purchase_list;
+	SUPPLY_PURCHASE_LIST *supply_purchase_list;
 	LIST *service_purchase_list;
 	LIST *prepaid_asset_purchase_list;
 	LIST *purchase_return_list;

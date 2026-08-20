@@ -96,7 +96,7 @@ PURCHASE *purchase_trigger_new(
 				purchase_fetch->
 				specific_inventory_purchase_list->
 				list /* in/out */,
-			purchase->purchase_fetch->supply_purchase_list,
+			purchase->purchase_fetch->supply_purchase_list->list,
 			purchase->purchase_fetch->service_purchase_list,
 			purchase->purchase_fetch->prepaid_asset_total_boolean,
 			purchase->purchase_fetch->prepaid_asset_purchase_list,
@@ -218,6 +218,18 @@ PURCHASE *purchase_trigger_new(
 					purchase_calculate->
 					invoice_amount );
 	}
+
+	purchase->purchase_update =
+		purchase_update_new(
+			purchase->purchase_fetch->fixed_asset_purchase_list,
+			purchase->purchase_fetch->inventory_purchase_list,
+			purchase->
+				purchase_fetch->
+				specific_inventory_purchase_list,
+			purchase->purchase_fetch->supply_purchase_list,
+			purchase->update_system_string,
+			purchase->update_string_list,
+			purchase->purchase_transaction );
 
 	return purchase;
 }

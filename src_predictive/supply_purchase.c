@@ -12,6 +12,8 @@
 #include "appaserver_error.h"
 #include "piece.h"
 #include "sql.h"
+#include "inventory_sale.h"
+#include "sale.h"
 #include "purchase.h"
 #include "supply_purchase.h"
 
@@ -154,6 +156,24 @@ SUPPLY_PURCHASE_LIST *supply_purchase_list_new(
 	return supply_purchase_list;
 }
 
+SUPPLY_PURCHASE_LIST *supply_purchase_list_calloc( void )
+{
+	SUPPLY_PURCHASE_LIST *supply_purchase_list;
+
+	if ( ! ( supply_purchase_list =
+			calloc( 1, sizeof( SUPPLY_PURCHASE_LIST ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return supply_purchase_list;
+}
+
 SUPPLY_PURCHASE *supply_purchase_parse( char *input )
 {
 	char supply_name[ 128 ];
@@ -213,4 +233,102 @@ LIST *supply_purchase_list_update_string_list( LIST *supply_purchase_list )
 	}
 
 	return list;
+}
+char *supply_purchase_update_string(
+	const char sql_delimiter,
+	char *fund_name,
+	char *full_name,
+	char *contact_key,
+	char *purchase_date_time,
+	char *supply_name,
+	boolean fund_boolean,
+	boolean contact_key_boolean,
+	double extended_cost )
+{
+	char *primary_data_string;
+	char *update_string;
+
+	if ( !full_name
+	||   !purchase_date_time
+	||   !supply_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	primary_data_string =
+		/* ---------------------------- */
+		/* Borrow INVENTORY_SALE’s	*/
+		/* Returns heap memory		*/
+		/* ---------------------------- */
+		inventory_sale_primary_data_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time /* sale_date_time */,
+			supply_name /* inventory_name */,
+			fund_boolean,
+			contact_key_boolean );
+
+	update_string =
+		/* ------------------------------------------------ */
+		/* Returns heap memory or null (if not set_boolean) */
+		/* ------------------------------------------------ */
+		sale_update_string(
+			sql_delimiter,
+			primary_data_string,
+			"extended_cost" /* column_name */,
+			extended_cost /* money */,
+			1 /* set_boolean */ );
+
+	free( primary_data_string );
+
+	return update_string;
+}
+
+LIST *supply_purchase_list_primary_key_list(
+		const char *purchase_supply_column,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	LIST *primary_key_list;
+
+	primary_key_list =
+		purchase_fetch_primary_key_list(
+			PREDICTIVE_FUND_COLUMN,
+			ENTITY_FULL_NAME_COLUMN,
+			ENTITY_CONTACT_KEY_COLUMN,
+			PURCHASE_DATE_TIME_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	list_set( primary_key_list, (char *)purchase_supply_column );
+
+	return primary_key_list;
+}
+
+char *supply_purchase_list_update_system_string(
+		const char *supply_purchase_table,
+		LIST *supply_purchase_list_primary_key_list )
+{
+	return
+	/* -------------------- */
+	/* Borrow SALE's	*/
+	/* Returns heap memory	*/
+	/* -------------------- */
+	sale_update_system_string(
+		supply_purchase_table,
+		supply_purchase_list_primary_key_list );
 }

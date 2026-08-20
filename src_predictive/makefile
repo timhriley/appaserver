@@ -160,6 +160,7 @@ SALE_LIBRARY=								\
 		specific_inventory_sale.o				\
 		purchase_fetch.o					\
 		purchase_calculate.o					\
+		purchase_update.o					\
 		purchase_transaction.o					\
 		cost_basis.o						\
 		fixed_asset_purchase.o					\
@@ -208,11 +209,15 @@ EXECUTABLES=	trial_balance_output					\
 		fixed_asset_home_trigger				\
 		import_predictbooks					\
 		generate_invoice					\
+		fixed_asset_purchase_trigger				\
+		inventory_purchase_trigger				\
+		specific_inventory_purchase_trigger			\
+		supply_purchase_trigger					\
+		service_purchase_trigger				\
 		post_change_customer_sale				\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
-		fixed_asset_purchase_trigger				\
 		post_change_hourly_service_work				\
 		specific_inventory_sale_trigger				\
 		specific_inventory_purchase_trigger
@@ -1146,6 +1151,10 @@ purchase_fetch.o: purchase_fetch.c purchase_fetch.h
 purchase_calculate.o: purchase_calculate.c purchase_calculate.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c purchase_calculate.c
+
+purchase_update.o: purchase_update.c purchase_update.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase_update.c
 
 work.o: work.c work.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

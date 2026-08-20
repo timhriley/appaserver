@@ -1,66 +1,55 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/prepaid_asset_purchase.h		*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PREPAID_ASSET_PURCHASE_H
-#define PREPAID_ASSET_PURCHASE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
-#include "entity.h"
-#include "transaction.h"
 
-/* Constants */
-/* --------- */
+#define PREPAID_ASSET_PURCHASE_TABLE	"prepaid_asset_purchase"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
+#define PREPAID_ASSET_PURCHASE_SELECT	"asset_name,"		\
+					"extended_cost,"	\
+					"accrual_period_years,"	\
+					"accumulated_accrual"
 typedef struct
 {
-	ENTITY *vendor_entity;
 	char *asset_name;
-	char *purchase_date_time;
-	char *accrual_date;
-	double accrual_amount;
-	TRANSACTION *transaction;
-} PREPAID_ASSET_ACCRUAL;
-
-typedef struct
-{
-	ENTITY *vendor_entity;
-	char *asset_name;
-	char *purchase_date_time;
-	char *asset_account_name;
-	char *expense_account_name;
-	double cost;
+	double extended_cost;
 	double accrual_period_years;
 	double accumulated_accrual;
-	LIST *accrual_list;
 } PREPAID_ASSET_PURCHASE;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+LIST *prepaid_asset_purchase_list(
+		const char *prepaid_purchase_select,
+		const char *prepaid_purchase_table,
+		char *purchase_primary_where );
+
+/* Usage */
+/* ----- */
+PREPAID_ASSET_PURCHASE *prepaid_asset_purchase_parse(
+		char *input );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
 PREPAID_ASSET_PURCHASE *prepaid_asset_purchase_new(
-			char *full_name,
-			char *street_address,
-			char *asset_name,
-			char *purchase_date_time );
+		char *asset_name );
 
-PREPAID_ASSET_ACCRUAL *prepaid_asset_accrual_new(
-			char *full_name,
-			char *street_address,
-			char *asset_name,
-			char *purchase_date_time,
-			char *accrual_date );
+/* Process */
+/* ------- */
+PREPAID_ASSET_PURCHASE *prepaid_asset_purchase_calloc(
+		void );
 
-double prepaid_asset_purchase_total(
-			LIST *prepaid_asset_purchase_list );
-
-#endif
+/* Usage */
+/* ----- */
+double prepaid_asset_purchase_list_total(
+		LIST *prepaid_asset_purchase_list );
 

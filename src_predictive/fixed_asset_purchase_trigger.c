@@ -1,8 +1,8 @@
-/* --------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/specific_inventory_purchase_trigger.c */
-/* --------------------------------------------------------------------- */
-/* No warranty and freely available software. Visit appaserver.org	 */
-/* --------------------------------------------------------------------- */
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/fixed_asset_purchase_trigger.c	*/
+/* --------------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* --------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>

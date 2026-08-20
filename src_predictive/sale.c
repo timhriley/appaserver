@@ -404,7 +404,7 @@ char *sale_update(
 	if ( sale_transaction )
 	{
 		/* ------------------------------------ */
-		/* Updates the parent table.		*/
+		/* Updates the many table.		*/
 		/* Returns transaction_date_time.	*/
 		/* ------------------------------------ */
 		transaction_date_time =

@@ -251,6 +251,27 @@ double cost_basis_fixed_asset_freight_capitalized(
 	return freight_capitalized;
 }
 
+double cost_basis_fixed_asset_tax_capitalized(
+		LIST *cost_basis_fixed_asset_list )
+{
+	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
+	double tax_capitalized = 0.0;
+
+	if ( list_rewind( cost_basis_fixed_asset_list ) )
+	do {
+		cost_basis_fixed_asset =
+			 list_get(
+				cost_basis_fixed_asset_list );
+
+		tax_capitalized +=
+			cost_basis_fixed_asset->
+				cost_basis_tax_capitalized;
+
+	} while ( list_next( cost_basis_fixed_asset_list ) );
+
+	return tax_capitalized;
+}
+
 LIST *cost_basis_inventory_list(
 		double freight_in,
 		LIST *inventory_purchase_list,
