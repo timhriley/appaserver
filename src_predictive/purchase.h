@@ -26,6 +26,7 @@
 
 #define PURCHASE_DATE_TIME_COLUMN	"purchase_date_time"
 #define PURCHASE_ASSET_COLUMN		"asset_name"
+#define PURCHASE_SUPPLY_COLUMN		"supply_name"
 #define PURCHASE_MEMO			"Purchase Order"
 
 typedef struct

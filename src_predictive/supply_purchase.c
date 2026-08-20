@@ -1,28 +1,31 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/supply_purchase.c			*/
 /* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "timlib.h"
+#include "appaserver.h"
+#include "appaserver_error.h"
 #include "piece.h"
-#include "boolean.h"
-#include "list.h"
 #include "sql.h"
-#include "environ.h"
 #include "purchase.h"
 #include "supply_purchase.h"
 
-SUPPLY_PURCHASE *supply_purchase_new(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *supply_name )
+SUPPLY_PURCHASE *supply_purchase_new( char *supply_name )
+{
+	SUPPLY_PURCHASE *supply_purchase;
+
+	supply_purchase = supply_purchase_calloc();
+	supply_purchase->supply_name = supply_name;
+
+	return supply_purchase;
+}
+
+SUPPLY_PURCHASE *supply_purchase_calloc( void )
 {
 	SUPPLY_PURCHASE *supply_purchase;
 
@@ -37,110 +40,150 @@ SUPPLY_PURCHASE *supply_purchase_new(
 		exit( 1 );
 	}
 
-	supply_purchase->vendor_entity =
-		entity_new(
-			full_name,
-			contact_key,
-			contact_key_boolean );
-
-	supply_purchase->supply =
-		supply_fetch(
-			supply_name );
-
-	supply_purchase->purchase_date_time = purchase_date_time;
-
 	return supply_purchase;
 }
 
-LIST *supply_purchase_system_list(
-			char *system_string )
+SUPPLY_PURCHASE_LIST *supply_purchase_list_new(
+		const char *supply_purchase_select,
+		const char *supply_purchase_table,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *purchase_primary_where )
 {
+	char *system_string;
 	char input[ 1024 ];
 	FILE *input_pipe;
-	LIST *list = list_new();
+	SUPPLY_PURCHASE_LIST *supply_purchase_list;
+	SUPPLY_PURCHASE *supply_purchase;
 
-	input_pipe = popen( system_string, "r" );
+	supply_purchase_list = supply_purchase_list_calloc();
+	supply_purchase_list->list = list_new();
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)supply_purchase_select,
+			(char *)supply_purchase_table,
+			purchase_primary_where );
+
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		list_set(
-			list,
-			supply_purchase_parse( input ) );
-	}
-	pclose( input_pipe );
-	return list;
-}
+		supply_purchase = supply_purchase_parse( input );
 
-char *supply_purchase_system_string( char *where )
-{
-	char system_string[ 1024 ];
+		if ( !supply_purchase )
+		{
+			char message[ 2048 ];
 
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" supply_name",
-		 SUPPLY_PURCHASE_TABLE,
-		 where );
+			pclose( input_pipe );
 
-	return strdup( system_string );
-}
+			snprintf(
+				message,
+				sizeof ( message ),
+				"supply_purchase_parse(%s) returned empty.",
+				input );
 
-LIST *supply_purchase_list_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return supply_purchase_system_list(
-		supply_purchase_system_string(
-			purchase_primary_where(
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		supply_purchase->extended_cost =
+			SUPPLY_PURCHASE_EXTENDED_COST(
+				supply_purchase->quantity,
+				supply_purchase->unit_cost );
+
+		supply_purchase->update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			supply_purchase_update_string(
+				SQL_DELIMITER,
+				fund_name,
 				full_name,
-				street_address,
-				purchase_date_time ) ) );
+				contact_key,
+				purchase_date_time,
+				supply_purchase->supply_name,
+				fund_boolean,
+				contact_key_boolean,
+				supply_purchase->extended_cost );
+
+		list_set( supply_purchase_list->list, supply_purchase );
+	}
+
+	pclose( input_pipe );
+
+	if ( !list_length( supply_purchase_list->list ) )
+	{
+		list_free( supply_purchase_list->list );
+		supply_purchase_list->list = NULL;
+
+		return supply_purchase_list;
+	}
+
+	supply_purchase_list->primary_key_list =
+		supply_purchase_list_primary_key_list(
+			PURCHASE_SUPPLY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	supply_purchase_list->update_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		supply_purchase_list_update_system_string(
+			supply_purchase_table,
+			supply_purchase_list->primary_key_list );
+
+	supply_purchase_list->update_string_list =
+		supply_purchase_list_update_string_list(
+			supply_purchase_list->list
+				/* supply_purchase_list */ );
+
+	return supply_purchase_list;
 }
 
 SUPPLY_PURCHASE *supply_purchase_parse( char *input )
 {
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char purchase_date_time[ 128 ];
 	char supply_name[ 128 ];
-	char piece_buffer[ 1024 ];
+	char buffer[ 1024 ];
 	SUPPLY_PURCHASE *supply_purchase;
 
-	if ( !input || !*input ) return (SUPPLY_PURCHASE *)0;
+	if ( !input || !*input ) return NULL;
 
-	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( supply_name, SQL_DELIMITER, input, 2 );
-	piece( purchase_date_time, SQL_DELIMITER, input, 3 );
+	piece( supply_name, SQL_DELIMITER, input, 0 );
 
-	supply_purchase =
-		supply_purchase_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( purchase_date_time ),
-			strdup( supply_name ) );
+	supply_purchase = supply_purchase_new( strdup( supply_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	supply_purchase->quantity = atoi( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) supply_purchase->quantity = atoi( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	supply_purchase->unit_cost = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) supply_purchase->unit_cost = atof( buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	supply_purchase->extended_cost = atof( piece_buffer );
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) supply_purchase->extended_cost = atof( buffer );
 
 	return supply_purchase;
 }
 
-double supply_purchase_total(
-			LIST *supply_purchase_list )
+double supply_purchase_list_total( LIST *supply_purchase_list )
 {
 	SUPPLY_PURCHASE *supply_purchase;
-	double total;
+	double total = 0.0;
 
-	if ( !list_rewind( supply_purchase_list ) ) return 0.0;
-
-	total = 0.0;
-
+	if ( list_rewind( supply_purchase_list ) )
 	do {
 		supply_purchase = list_get( supply_purchase_list );
 
@@ -151,3 +194,23 @@ double supply_purchase_total(
 	return total;
 }
 
+LIST *supply_purchase_list_update_string_list( LIST *supply_purchase_list )
+{
+	SUPPLY_PURCHASE *supply_purchase;
+	LIST *list = list_new();
+
+	if ( list_rewind( supply_purchase_list ) )
+	do {
+		supply_purchase = list_get( supply_purchase_list );
+		list_set( list, supply_purchase->update_string );
+
+	} while ( list_next( supply_purchase_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
