@@ -173,29 +173,32 @@ PURCHASE_FETCH *purchase_fetch_new(
 		input );
 
 	purchase_fetch->fixed_asset_purchase_list =
-		fixed_asset_purchase_list(
+		fixed_asset_purchase_list_new(
 			FIXED_ASSET_PURCHASE_SELECT,
 			FIXED_ASSET_PURCHASE_TABLE,
-			purchase_fetch->purchase_primary_where,
-			purchase_fetch->entity_contact_key_boolean );
+			purchase_fetch->predictive_fund_boolean,
+			purchase_fetch->entity_contact_key_boolean,
+			purchase_fetch->purchase_primary_where );
 
-/*
 	if ( purchase_fetch->inventory_total_boolean )
 	{
-		purchase_fetch->inventory_purchase_list(
-			inventory_purchase_list(
+		purchase_fetch->inventory_purchase_list =
+			inventory_purchase_list_new(
 				INVENTORY_PURCHASE_SELECT,
 				INVENTORY_PURCHASE_TABLE,
+				purchase_fetch->predictive_fund_boolean,
+				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );
 	}
-*/
 
 	if ( purchase_fetch->specific_inventory_total_boolean )
 	{
 		purchase_fetch->specific_inventory_purchase_list =
-			specific_inventory_purchase_list(
+			specific_inventory_purchase_list_new(
 				SPECIFIC_INVENTORY_PURCHASE_SELECT,
 				SPECIFIC_INVENTORY_PURCHASE_TABLE,
+				purchase_fetch->predictive_fund_boolean,
+				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );
 	}
 

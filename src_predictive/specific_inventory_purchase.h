@@ -74,6 +74,7 @@ typedef struct
 	LIST *list;
 	LIST *primary_key_list;
 	char *update_system_string;
+	LIST *update_string_list;
 } SPECIFIC_INVENTORY_PURCHASE_LIST;
 
 /* Usage */

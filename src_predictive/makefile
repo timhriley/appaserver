@@ -159,6 +159,7 @@ SALE_LIBRARY=								\
 		inventory_sale.o					\
 		specific_inventory_sale.o				\
 		purchase_fetch.o					\
+		purchase_calculate.o					\
 		purchase_transaction.o					\
 		cost_basis.o						\
 		fixed_asset_purchase.o					\
@@ -1141,6 +1142,10 @@ purchase.o: purchase.c purchase.h
 purchase_fetch.o: purchase_fetch.c purchase_fetch.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c purchase_fetch.c
+
+purchase_calculate.o: purchase_calculate.c purchase_calculate.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase_calculate.c
 
 work.o: work.c work.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

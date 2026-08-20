@@ -9,6 +9,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "purchase_transaction.h"
+#include "purchase_calculate.h"
 #include "purchase_fetch.h"
 
 #define PURCHASE_TABLE			"purchase"
@@ -78,32 +79,6 @@ char *purchase_primary_where(
 
 /* Usage */
 /* ----- */
-double purchase_cost_basis_total(
-		double fixed_asset_purchase_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_purchase_list_total );
-
-/* Usage */
-/* ----- */
-double purchase_total(
-		double fixed_asset_purchase_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_purchase_list_total,
-		double service_purchase_list_total,
-		double prepaid_asset_purchase_list_total );
-
-/* Usage */
-/* ----- */
-double purchase_invoice_amount(
-		double sales_tax,
-		double freight_in,
-		double purchase_total,
-		double purchase_return_list_total );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -120,11 +95,11 @@ LIST *purchase_update_string_list(
 		char *purchase_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		double fixed_asset_total,
+		double fixed_asset_list_total,
 		double inventory_purchase_list_total,
 		double specific_inventory_purchase_list_total,
 		double supply_list_total,
 		double service_purchase_list_total,
 		double prepaid_asset_purchase_list_total,
-		double return_list_total,
-		double purchase_invoice_amount );
+		double purchase_return_list_total,
+		double purchase_calculate_invoice_amount );

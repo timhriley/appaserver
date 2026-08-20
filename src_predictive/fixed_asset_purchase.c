@@ -338,7 +338,7 @@ char *fixed_asset_purchase_list_update_system_string(
 		primary_key_list );
 }
 
-FIXED_ASSET_PURCHASE_LIST *inventory_purchase_list_calloc( void )
+FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list_calloc( void )
 {
 	FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list;
 

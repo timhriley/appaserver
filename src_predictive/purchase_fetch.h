@@ -10,6 +10,9 @@
 #include "boolean.h"
 #include "predictive.h"
 #include "folder.h"
+#include "fixed_asset_purchase.h"
+#include "inventory_purchase.h"
+#include "specific_inventory_purchase.h"
 
 typedef struct
 {
@@ -48,10 +51,11 @@ typedef struct
 	char *transaction_date_time;
 	char *program_name;
 	char *property_street_address;
-	LIST *fixed_asset_purchase_list;
-	LIST *inventory_purchase_list;
-	LIST *specific_inventory_purchase_list;
+	FIXED_ASSET_PURCHASE_LIST *fixed_asset_purchase_list;
+	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
+	SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list;
 	LIST *supply_purchase_list;
+	LIST *service_purchase_list;
 	LIST *prepaid_asset_purchase_list;
 	LIST *purchase_return_list;
 	LIST *primary_key_list;
