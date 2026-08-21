@@ -129,6 +129,9 @@ LIST *application_name_list(
 
 /* Usage */
 /* ----- */
+
+/* Retrieve all the Mysql tables for a database */
+/* -------------------------------------------- */
 LIST *application_table_name_list(
 		void );
 

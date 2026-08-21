@@ -1,32 +1,22 @@
 /* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_appaserver/table_list.c				*/
 /* ---------------------------------------------------------------	*/
-/* This process outputs the Appaserver tables.				*/
+/* This process outputs the Mysql tables.				*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "folder.h"
+#include "application.h"
 
-int main( int argc, char **argv )
+int main( void )
 {
 	LIST *table_name_list;
 
-	if ( argc != 2 )
-	{
-		fprintf(stderr,
-			"Usage: %s role_name\n",
-			argv[ 0 ] );
-
-		fprintf(stderr,
-			"Set role_name = '' for all tables\n" );
-
-		exit( 1 );
-	}
-
-	table_name_list = folder_table_name_list( argv[ 1 ] /* role_name */ );
+	/* Retrieve all the Mysql tables for a database */
+	/* -------------------------------------------- */
+	table_name_list = application_table_name_list();
 
 	if ( list_rewind( table_name_list ) )
 	do {
