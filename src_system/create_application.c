@@ -118,6 +118,9 @@ CREATE_APPLICATION *create_application_calloc( void )
 LIST *create_application_table_name_list( void )
 {
 	char *system_string =
+		/* -------------------------- */
+		/* Appaserver table name list */
+		/* -------------------------- */
 		"table_list | "				\
 		"grep -v appaserver_application | "	\
 		"grep -v appaserver_table | "		\

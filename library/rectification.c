@@ -281,7 +281,7 @@ LIST *rectification_table_list( void )
 	LIST *list = list_new();
 	LIST *table_name_list;
 
-	table_name_list = application_table_name_list();
+	table_name_list = application_mysql_table_name_list();
 
 	if ( list_rewind( table_name_list ) )
 	do {

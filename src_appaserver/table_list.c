@@ -14,9 +14,7 @@ int main( void )
 {
 	LIST *table_name_list;
 
-	/* Retrieve all the Mysql tables for a database */
-	/* -------------------------------------------- */
-	table_name_list = application_table_name_list();
+	table_name_list = application_mysql_table_name_list();
 
 	if ( list_rewind( table_name_list ) )
 	do {

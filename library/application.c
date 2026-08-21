@@ -616,7 +616,7 @@ void application_output_ftp_prompt(
 	}
 }
 
-LIST *application_table_name_list( void )
+LIST *application_mysql_table_name_list( void )
 {
 	char *system_string;
 	system_string = "echo \"show tables;\" | sql.e";
