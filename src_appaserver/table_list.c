@@ -1,6 +1,7 @@
 /* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_appaserver/table_list.c				*/
 /* ---------------------------------------------------------------	*/
+/* This process outputs the Appaserver tables.				*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/
 

@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make feeder_upload
+	cd ../src_system
+	make create_application
 fi
 

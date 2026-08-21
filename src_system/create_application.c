@@ -222,17 +222,26 @@ int main( int argc, char **argv )
 	/* -------------- */
 	create_application = create_application_new();
 
-	if ( execute_boolean )
+	if ( list_length( create_application->command_line_list ) )
 	{
-		list_system_string_list_execute(
-			create_application->command_line_list
-				/* system_string_list */ );
-
-		printf( "<h3>Process complete</h3>\n" );
+		if ( execute_boolean )
+		{
+			list_system_string_list_execute(
+				create_application->command_line_list
+					/* system_string_list */ );
+	
+			printf( "<h3>Process complete</h3>\n" );
+		}
+		else
+		{
+			list_html_display(
+				create_application->
+					command_line_list );
+		}
 	}
 	else
 	{
-		list_html_display( create_application->command_line_list );
+		printf( "<h3>There are no tables to create.</h3>\n" );
 	}
 
 	document_close();

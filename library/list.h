@@ -298,7 +298,7 @@ int list_seek_offset(
 
 LIST *list_subtract(
 		LIST *list,
-		LIST *subtract_this );
+		LIST *subtract_list );
 
 LIST *subtract_list(
 		LIST *list,
@@ -306,11 +306,11 @@ LIST *subtract_list(
 
 LIST *list_subtract_list(
 		LIST *list,
-		LIST *subtract_this );
+		LIST *subtract_list );
 
 LIST *list_subtract_string_list(
 		LIST *list,
-		LIST *subtract_this );
+		LIST *subtract_list );
 
 char *list2comma_string(
 		LIST *list );

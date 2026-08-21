@@ -151,8 +151,8 @@ LIST *list_subtract_string(
 {
 	if ( item_exists( list, string, list_strcmp ) )
 	/* ------------------------------------------------------------ */
-	/* This function deletes the link that current is pointing to	*/
-	/* but not the data item.					*/
+	/* This function deletes the link that linktype=current is	*/
+	/* pointing to but not the data item.				*/
 	/* ------------------------------------------------------------ */
 		list_delete( list );
 
@@ -788,9 +788,9 @@ char *list2comma_string( LIST *list )
 	return list_display_delimited( list, ',' );
 }
 
-LIST *list_subtract_string_list( LIST *list, LIST *subtract_this )
+LIST *list_subtract_string_list( LIST *list, LIST *subtract_list )
 {
-	return list_subtract( list, subtract_this );
+	return list_subtract( list, subtract_list );
 }
 
 LIST *subtract_list( LIST *list, LIST *subtract_this )
@@ -798,23 +798,25 @@ LIST *subtract_list( LIST *list, LIST *subtract_this )
 	return list_subtract( list, subtract_this );
 }
 
-LIST *list_subtract_list( LIST *list, LIST *subtract_this )
+LIST *list_subtract_list( LIST *list, LIST *subtract_list )
 {
-	return list_subtract( list, subtract_this );
+	return list_subtract( list, subtract_list );
 }
 
-LIST *list_subtract( LIST *list, LIST *subtract_this )
+LIST *list_subtract( LIST *list, LIST *subtract_list )
 {
-	char *item;
+	char *string;
 	LIST *return_list = list_new();
 
 	if ( list_rewind( list ) )
 	do {
-		item = list_get( list );
+		string = list_get( list );
 
-		if ( !item_exists( subtract_this, item, list_strcmp ) )
+		if ( !list_string_boolean(
+			string,
+			subtract_list ) )
 		{
-			list_set( return_list, item );
+			list_set( return_list, string );
 		}
 	} while( list_next( list ) );
 
@@ -1157,7 +1159,7 @@ int list_item_offset( LIST *list, char *item, int (*compare_fn)() )
 	int offset = 0;
         struct LINKTYPE *save_ptr;
 
-        if ( !go_head( list ) ) return 0;
+        if ( !list_rewind( list ) ) return 0;
 
         save_ptr = list->current;
 
@@ -1904,25 +1906,27 @@ LIST *list_trim_indices( LIST *string_list )
 
 LIST *list_unique( LIST *string_list )
 {
-	LIST *new_list = list_new();
+	LIST *list = list_new();
 	char *ptr;
 
 	if ( list_reset( string_list ) )
-		do {
-			ptr = list_get( string_list );
-			list_append_unique( 
-				new_list,
-				ptr,
-				strlen( ptr ) + 1,
-				list_strcmp );
+	do {
+		ptr = list_get( string_list );
+
+		list_append_unique( 
+			list,
+			ptr,
+			strlen( ptr ) + 1,
+			list_strcmp );
 	
-		} while( next_item( string_list ) );
-	return new_list;
+	} while( next_item( string_list ) );
+
+	return list;
 }
 
 LIST *list_delimiter_string_to_integer_list(
-				char *list_string,
-				char delimiter )
+		char *list_string,
+		char delimiter )
 {
 	LIST *list = list_new();
 	char buffer[ 8192 ];
