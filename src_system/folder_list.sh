@@ -24,6 +24,7 @@ select.e				\
 	application=$application	\
 	folder=appaserver_table		\
 	select=table_name 		|
+grep -v '^null$'			|
 sort					|
 cat
 
