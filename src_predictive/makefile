@@ -168,6 +168,7 @@ SALE_LIBRARY=								\
 		purchase.o						\
 		inventory_purchase.o					\
 		supply_purchase.o					\
+		service_purchase.o					\
 		prepaid_asset_purchase.o
 
 INVESTMENT_LIBRARY=							\
@@ -209,18 +210,13 @@ EXECUTABLES=	trial_balance_output					\
 		fixed_asset_home_trigger				\
 		import_predictbooks					\
 		generate_invoice					\
-		fixed_asset_purchase_trigger				\
-		inventory_purchase_trigger				\
-		specific_inventory_purchase_trigger			\
-		supply_purchase_trigger					\
-		service_purchase_trigger				\
+		purchase_item_trigger					\
 		post_change_customer_sale				\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
 		post_change_hourly_service_work				\
-		specific_inventory_sale_trigger				\
-		specific_inventory_purchase_trigger
+		specific_inventory_sale_trigger
 #		post_change_inventory_sale				\
 #		post_change_customer_payment				\
 #		post_accrual						\
@@ -236,15 +232,6 @@ EXECUTABLES=	trial_balance_output					\
 #		load_receipt_scan					\
 #		post_change_activity_work				\
 #		post_change_employee_work_day				\
-#		post_change_fixed_asset					\
-#		post_change_inventory_purchase				\
-#		post_change_inventory_purchase_return			\
-#		post_change_inventory_sale_return			\
-#		post_change_prepaid_asset_accrual			\
-#		post_change_prepaid_asset_purchase			\
-#		post_change_purchase_order				\
-#		post_change_service_purchase				\
-#		post_change_supply_purchase				\
 #		propagate_customer_sale_accounts			\
 #		propagate_inventory_purchase_layers			\
 #		propagate_inventory_sale_layers				\
@@ -600,35 +587,16 @@ post_change_inventory_sale_return:					\
 		post_change_inventory_sale_return.c			\
 		-o post_change_inventory_sale_return
 
-fixed_asset_purchase_trigger:						\
-	fixed_asset_purchase_trigger.c					\
+purchase_item_trigger:							\
+	purchase_item_trigger.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		fixed_asset_purchase_trigger.c				\
-		-o fixed_asset_purchase_trigger
-
-specific_inventory_purchase_trigger:					\
-	specific_inventory_purchase_trigger.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	${SALE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		${SALE_LIBRARY}						\
-		specific_inventory_purchase_trigger.c			\
-		-o specific_inventory_purchase_trigger
-
-post_change_supply_purchase: post_change_supply_purchase.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_supply_purchase.c				\
-		-o post_change_supply_purchase
+		purchase_item_trigger.c					\
+		-o purchase_item_trigger
 
 post_change_activity_work:						\
 	post_change_activity_work.c					\
@@ -637,14 +605,6 @@ post_change_activity_work:						\
 		${APPASERVER_LIBRARY}					\
 		post_change_activity_work.c				\
 		-o post_change_activity_work
-
-post_change_service_purchase: post_change_service_purchase.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_service_purchase.c				\
-		-o post_change_service_purchase
 
 fixed_asset_home_trigger:						\
 	fixed_asset_home_trigger.c					\
@@ -662,24 +622,6 @@ fixed_asset_home_trigger:						\
 		subsidiary_transaction.o				\
 		subsidiary_transaction_state.o				\
 		-o fixed_asset_home_trigger
-
-post_change_prepaid_asset_purchase:					\
-	post_change_prepaid_asset_purchase.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_prepaid_asset_purchase.c			\
-		-o post_change_prepaid_asset_purchase
-
-post_change_fixed_asset:						\
-	post_change_fixed_asset.c					\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_fixed_asset.c				\
-		-o post_change_fixed_asset
 
 propagate_inventory_purchase_layers:					\
 	propagate_inventory_purchase_layers.c				\
@@ -729,14 +671,6 @@ specific_inventory_sale_trigger:					\
 		specific_inventory_sale_trigger.c			\
 		-o specific_inventory_sale_trigger
 
-post_change_purchase_order: post_change_purchase_order.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_purchase_order.c				\
-		-o post_change_purchase_order
-
 post_change_vendor_payment: post_change_vendor_payment.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -744,16 +678,6 @@ post_change_vendor_payment: post_change_vendor_payment.c		\
 		${SOURCE_LIBRARY}					\
 		post_change_vendor_payment.c				\
 		-o post_change_vendor_payment
-
-post_change_fixed_asset_home: post_change_fixed_asset_home.c		\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	subsidiary_transaction.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		subsidiary_transaction.o				\
-		post_change_fixed_asset_home.c				\
-		-o post_change_fixed_asset_home
 
 post_change_account_balance: post_change_account_balance.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
@@ -1223,6 +1147,10 @@ inventory_purchase.o: inventory_purchase.c inventory_purchase.h
 supply_purchase.o: supply_purchase.c supply_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c supply_purchase.c
+
+service_purchase.o: service_purchase.c service_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c service_purchase.c
 
 supply.o: supply.c supply.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

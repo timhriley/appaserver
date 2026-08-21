@@ -14,44 +14,29 @@
 
 #define FIXED_ASSET_PURCHASE_SELECT	"asset_name,"			    \
 					"serial_key,"			    \
-					"full_name,"			    \
-					"service_placement_date,"	    \
 					"fixed_asset_cost,"		    \
-					"units_produced_so_far,"	    \
-					"disposal_date,"		    \
-					"recovery_class_year,"		    \
-					"recovery_method,"		    \
-					"recovery_convention,"		    \
-					"recovery_system,"		    \
+					"service_placement_date,"	    \
 					"depreciation_method,"		    \
 					"estimated_useful_life_years,"	    \
-					"estimated_useful_life_units,"	    \
 					"estimated_residual_value,"	    \
 					"declining_balance_n,"		    \
 					"cost_basis,"			    \
-					"finance_accumulated_depreciation," \
-					"tax_adjusted_basis"
+					"accumulated_depreciation,"	    \
+					"disposal_date"
 
 typedef struct
 {
 	char *asset_name;
 	char *serial_key;
-	char *service_placement_date;
 	double fixed_asset_cost;
-	int units_produced_so_far;
-	char *disposal_date;
-	char *recovery_class_year_string;
-	char *recovery_method;
-	char *recovery_convention;
-	char *recovery_system;
+	char *service_placement_date;
 	/* enum depreciation_method depreciation_method_resolve; */
 	int estimated_useful_life_years;
-	int estimated_useful_life_units;
 	int estimated_residual_value;
 	double declining_balance_n;
 	double cost_basis;
-	double finance_accumulated_depreciation;
-	double tax_adjusted_basis;
+	double accumulated_depreciation;
+	char *disposal_date;
 
 	/* Set externally */
 	/* -------------- */

@@ -86,85 +86,50 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	if ( *buffer )
-		fixed_asset_purchase->service_placement_date =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer )
 		fixed_asset_purchase->fixed_asset_cost =
 			atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer )
-		fixed_asset_purchase->units_produced_so_far =
-			atoi( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer )
-		fixed_asset_purchase->disposal_date =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer )
-		fixed_asset_purchase->recovery_class_year_string =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 7 );
-	if ( *buffer )
-		fixed_asset_purchase->recovery_method =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 8 );
-	if ( *buffer )
-		fixed_asset_purchase->recovery_convention =
-			strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 9 );
-	if ( *buffer )
-		fixed_asset_purchase->recovery_system =
+		fixed_asset_purchase->service_placement_date =
 			strdup( buffer );
 
 /*
-	piece( buffer, SQL_DELIMITER, input, 10 );
+	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer )
 		fixed_asset_purchase->depreciation_method_resolve =
 			depreciation_method_resolve( buffer );
 */
 
-	piece( buffer, SQL_DELIMITER, input, 11 );
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer )
 		fixed_asset_purchase->estimated_useful_life_years =
 			atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 12 );
-	if ( *buffer )
-		fixed_asset_purchase->estimated_useful_life_units =
-			atoi( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 13 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer )
 		fixed_asset_purchase->estimated_residual_value =
 			atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 14 );
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer )
 		fixed_asset_purchase->declining_balance_n =
 			atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 15 );
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer )
 		fixed_asset_purchase->cost_basis =
 			atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 16 );
+	piece( buffer, SQL_DELIMITER, input, 9 );
 	if ( *buffer )
-		fixed_asset_purchase->finance_accumulated_depreciation =
+		fixed_asset_purchase->accumulated_depreciation =
 			atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 17 );
+	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer )
-		fixed_asset_purchase->tax_adjusted_basis =
-			atof( buffer );
+		fixed_asset_purchase->disposal_date =
+			strdup( buffer );
 
 	return fixed_asset_purchase;
 }

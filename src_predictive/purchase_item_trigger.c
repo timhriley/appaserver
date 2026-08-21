@@ -1,12 +1,10 @@
-/* --------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/specific_inventory_purchase_trigger.c */
-/* --------------------------------------------------------------------- */
-/* No warranty and freely available software. Visit appaserver.org	 */
-/* --------------------------------------------------------------------- */
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/purchase_item_trigger.c		*/
+/* --------------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* --------------------------------------------------------------------	*/
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
