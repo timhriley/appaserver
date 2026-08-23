@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_fixed_service_sale.c	*/
+/* $APPASERVER_HOME/src_predictive/fixed_service_sale_trigger.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */

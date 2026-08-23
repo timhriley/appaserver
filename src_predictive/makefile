@@ -211,8 +211,8 @@ EXECUTABLES=	trial_balance_output					\
 		import_predictbooks					\
 		generate_invoice					\
 		purchase_trigger					\
-		post_change_customer_sale				\
-		post_change_fixed_service_sale				\
+		customer_sale_trigger					\
+		fixed_service_sale_trigger				\
 		post_change_fixed_service_work				\
 		hourly_service_sale_trigger				\
 		post_change_hourly_service_work				\
@@ -688,15 +688,15 @@ post_change_account_balance: post_change_account_balance.c		\
 		post_change_account_balance.c				\
 		-o post_change_account_balance
 
-post_change_customer_sale: post_change_customer_sale.c			\
+customer_sale_trigger: customer_sale_trigger.c				\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		post_change_customer_sale.c				\
-		-o post_change_customer_sale
+		customer_sale_trigger.c					\
+		-o customer_sale_trigger
 
 hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
@@ -708,16 +708,16 @@ hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
 		hourly_service_sale_trigger.c				\
 		-o hourly_service_sale_trigger
 
-post_change_fixed_service_sale:						\
-	post_change_fixed_service_sale.c				\
+fixed_service_sale_trigger:						\
+	fixed_service_sale_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		post_change_fixed_service_sale.c			\
-		-o post_change_fixed_service_sale
+		fixed_service_sale_trigger.c				\
+		-o fixed_service_sale_trigger
 
 post_change_hourly_service_work:					\
 	post_change_hourly_service_work.c				\

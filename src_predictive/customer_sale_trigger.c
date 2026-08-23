@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_customer_sale.c		*/
+/* $APPASERVER_HOME/src_predictive/customer_sale_trigger.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
