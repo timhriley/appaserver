@@ -617,6 +617,7 @@ char *ajax_server_process_system_string(
 		(char *)0 /* role_name */,
 		(char *)0 /* state */,
 		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
 		(char *)0 /* related_column */,
 		populate_drop_down_process->process_name,
 		dictionary,

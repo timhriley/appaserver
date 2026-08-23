@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef QUERY_H
-#define QUERY_H
+#pragma once
 
 #include "list.h"
 #include "dictionary.h"
@@ -1363,6 +1362,7 @@ char *query_drop_down_process_command_line(
 		char *role_name,
 		char *state,
 		char *many_folder_name,
+		char *one_folder_name,
 		char *related_column,
 		char *populate_drop_down_process_name,
 		DICTIONARY *dictionary,
@@ -1845,4 +1845,3 @@ char *query_dictionary_system_string(
 		char *appaserver_table_name,
 		char *query_drop_down_datum_list_where );
 
-#endif

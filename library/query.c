@@ -7398,6 +7398,7 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 			role_name,
 			state,
 			many_folder_name,
+			one_folder_name,
 			related_column,
 			populate_drop_down_process_name,
 			dictionary,
@@ -7443,6 +7444,7 @@ char *query_drop_down_process_command_line(
 		char *role_name,
 		char *state,
 		char *many_folder_name,
+		char *one_folder_name,
 		char *related_column,
 		char *populate_drop_down_process_name,
 		DICTIONARY *dictionary,
@@ -7509,8 +7511,8 @@ char *query_drop_down_process_command_line(
 
 	string_replace_command_line(
 		command_line,
-		many_folder_name,
-		PROCESS_MANY_PLACEHOLDER );
+		one_folder_name,
+		PROCESS_ONE_TABLE_PLACEHOLDER );
 
 	string_replace_command_line(
 		command_line,

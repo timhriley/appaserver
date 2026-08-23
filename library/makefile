@@ -458,7 +458,7 @@ radio.o: radio.c radio.h
 button.o: button.c button.h
 	${CC} ${CFLAGS} -c button.c
 
-query.o: query.c query.h
+query.o: query.c query.h process.h
 	${CC} ${CFLAGS} -c query.c
 
 query_statistic.o: query_statistic.c query_statistic.h
