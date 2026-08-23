@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/purchase_item_trigger.c		*/
+/* $APPASERVER_HOME/src_predictive/purchase_trigger.c			*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/

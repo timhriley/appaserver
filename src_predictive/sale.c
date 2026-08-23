@@ -466,22 +466,7 @@ double sale_work_hours(
 	DATE *later_date;
 	int subtract_minutes;
 
-	if ( !begin_work_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"begin_work_date_time is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	if ( !begin_work_date_time || !*begin_work_date_time ) return 0.0;
 	if ( !end_work_date_time || !*end_work_date_time ) return 0.0;
 
 	if ( ! ( earlier_date = date_19new( begin_work_date_time ) ) )

@@ -210,7 +210,7 @@ EXECUTABLES=	trial_balance_output					\
 		fixed_asset_home_trigger				\
 		import_predictbooks					\
 		generate_invoice					\
-		purchase_item_trigger					\
+		purchase_trigger					\
 		post_change_customer_sale				\
 		post_change_fixed_service_sale				\
 		post_change_fixed_service_work				\
@@ -587,16 +587,15 @@ post_change_inventory_sale_return:					\
 		post_change_inventory_sale_return.c			\
 		-o post_change_inventory_sale_return
 
-purchase_item_trigger:							\
-	purchase_item_trigger.c						\
+purchase_trigger: purchase_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		purchase_item_trigger.c					\
-		-o purchase_item_trigger
+		purchase_trigger.c					\
+		-o purchase_trigger
 
 post_change_activity_work:						\
 	post_change_activity_work.c					\

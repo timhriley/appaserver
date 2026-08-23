@@ -49,7 +49,7 @@ hourly_service_work_select="	hourly_service.service_name,
 					substr( end_work_date_time, 1, 16 ) ),
 				work_hours,
 				hourly_service.hourly_rate,
-				'0',
+				discount_hours * hourly_service.hourly_rate,
 				work_hours * hourly_service.hourly_rate"
 
 if [ "$fund_name" = "" ]

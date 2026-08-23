@@ -119,12 +119,9 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 	if ( *buffer ) hourly_service_sale->estimated_revenue = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer ) hourly_service_sale->discount_amount = atof( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer ) hourly_service_sale->work_hours = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer ) hourly_service_sale->net_revenue = atof( buffer );
 
 	if ( hourly_service_work_boolean )
@@ -132,8 +129,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		hourly_service_sale->hourly_service_sale_estimated_revenue =
 			HOURLY_SERVICE_SALE_ESTIMATED_REVENUE(
 				hourly_service_sale->estimated_hours,
-				hourly_service_sale->hourly_rate,
-				hourly_service_sale->discount_amount );
+				hourly_service_sale->hourly_rate );
 
 		hourly_service_sale->hourly_service_work_list =
 			hourly_service_work_list(
@@ -148,16 +144,16 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 				fund_boolean,
 				contact_key_boolean );
 
-		hourly_service_sale->hourly_service_work_hours =
-			hourly_service_work_hours(
+		hourly_service_sale->hourly_service_work_list_hours =
+			hourly_service_work_list_hours(
 				hourly_service_sale->
 					hourly_service_work_list );
 
 		hourly_service_sale->hourly_service_sale_net_revenue =
 			HOURLY_SERVICE_SALE_NET_REVENUE(
-				hourly_service_sale->hourly_service_work_hours,
-				hourly_service_sale->hourly_rate,
-				hourly_service_sale->discount_amount );
+				hourly_service_sale->
+					hourly_service_work_list_hours,
+				hourly_service_sale->hourly_rate );
 
 		hourly_service_sale->update_string_list =
 			hourly_service_sale_update_string_list(
@@ -173,7 +169,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 				hourly_service_sale->
 					hourly_service_sale_estimated_revenue,
 				hourly_service_sale->
-					hourly_service_work_hours,
+					hourly_service_work_list_hours,
 				hourly_service_sale->
 					hourly_service_sale_net_revenue );
 
@@ -454,7 +450,7 @@ LIST *hourly_service_sale_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		double estimated_revenue,
-		double work_hours,
+		double work_list_hours,
 		double net_revenue )
 {
 	char *primary_data_string;
@@ -516,7 +512,7 @@ LIST *hourly_service_sale_update_string_list(
 			sql_delimiter,
 			primary_data_string,
 			"work_hours" /* column_name */,
-			work_hours /* money */,
+			work_list_hours /* money */,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );

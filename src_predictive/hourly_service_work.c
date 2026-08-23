@@ -152,10 +152,7 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 	char buffer[ 1024 ];
 	HOURLY_SERVICE_WORK *hourly_service_work;
 
-	if ( !input || !*input )
-	{
-		return NULL;
-	}
+	if ( !input || !*input ) return NULL;
 
 	/* See HOURLY_SERVICE_WORK_SELECT */
 	/* ------------------------------ */
@@ -180,12 +177,22 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 	if ( *buffer ) hourly_service_work->activity = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) hourly_service_work->discount_hours = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer ) hourly_service_work->work_hours = atof( buffer );
 
-	hourly_service_work->sale_work_hours =
-		sale_work_hours(
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer )
+		hourly_service_work->
+			appaserver_full_name =
+				strdup( buffer );
+
+	hourly_service_work->hourly_service_work_hours =
+		hourly_service_work_hours(
 			hourly_service_work->begin_work_date_time,
-			hourly_service_work->end_work_date_time );
+			hourly_service_work->end_work_date_time,
+			hourly_service_work->discount_hours );
 
 	hourly_service_work->primary_key_list =
 		hourly_service_work_primary_key_list(
@@ -205,7 +212,7 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 			hourly_service_work->begin_work_date_time,
 			fund_boolean,
 			contact_key_boolean,
-			hourly_service_work->sale_work_hours );
+			hourly_service_work->hourly_service_work_hours );
 
 	hourly_service_work->sale_update_system_string =
 		/* -------------------- */
@@ -271,7 +278,7 @@ HOURLY_SERVICE_WORK *hourly_service_work_calloc( void )
 	return hourly_service_work;
 }
 
-double hourly_service_work_hours( LIST *hourly_service_work_list )
+double hourly_service_work_list_hours( LIST *hourly_service_work_list )
 {
 	HOURLY_SERVICE_WORK *hourly_service_work;
 	double hours = 0.0;
@@ -541,7 +548,7 @@ LIST *hourly_service_work_update_string_list(
 		char *begin_work_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		double sale_work_hours )
+		double work_hours )
 {
 	char *work_primary_data_string;
 	char *update_string;
@@ -591,7 +598,7 @@ LIST *hourly_service_work_update_string_list(
 			sql_delimiter,
 			work_primary_data_string,
 			"work_hours" /* column_name */,
-			sale_work_hours /* money */,
+			work_hours /* money */,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
@@ -692,3 +699,14 @@ LIST *hourly_service_work_primary_key_list(
 	return list;
 }
 
+double hourly_service_work_hours(
+		char *begin_work_date_time,
+		char *end_work_date_time,
+		double discount_hours )
+{
+	return
+	sale_work_hours(
+		begin_work_date_time,
+		end_work_date_time ) -
+	discount_hours;
+}

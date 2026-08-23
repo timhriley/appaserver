@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef HOURLY_SERVICE_WORK_H
-#define HOURLY_SERVICE_WORK_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -16,7 +15,9 @@
 					"end_work_date_time,"		\
 					"work_description,"		\
 					"activity,"			\
-					"work_hours"
+					"discount_hours,"		\
+					"work_hours,"			\
+					"appaserver_user_full_name"
 
 typedef struct
 {
@@ -24,10 +25,10 @@ typedef struct
 	char *end_work_date_time;
 	char *work_description;
 	char *activity;
+	double discount_hours;
 	char *appaserver_full_name;
-	char *appaserver_street_address;
 	double work_hours; /* from parse */
-	double sale_work_hours; /* for update */
+	double hourly_service_work_hours; /* for update */
 	LIST *primary_key_list;
 	LIST *update_string_list;
 	char *sale_update_system_string;
@@ -97,6 +98,13 @@ LIST *hourly_service_work_primary_key_list(
 
 /* Usage */
 /* ----- */
+double hourly_service_work_hours(
+		char *begin_work_date_time,
+		char *end_work_date_time,
+		double discount_hours );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -114,7 +122,7 @@ char *hourly_service_work_primary_where(
 
 /* Usage */
 /* ----- */
-double hourly_service_work_hours(
+double hourly_service_work_list_hours(
 		LIST *hourly_service_work_list );
 
 /* Usage */
@@ -130,7 +138,7 @@ LIST *hourly_service_work_update_string_list(
 		char *begin_work_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		double sale_work_hours );
+		double hourly_service_work_hours );
 
 /* Usage */
 /* ----- */
@@ -166,5 +174,3 @@ HOURLY_SERVICE_WORK *hourly_service_work_trigger(
 void hourly_service_work_update(
 		LIST *hourly_service_work_update_string_list,
 		char *sale_update_system_string );
-
-#endif

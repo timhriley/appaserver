@@ -17,7 +17,6 @@
 					"estimated_hours,"		\
 					"hourly_rate,"			\
 					"estimated_revenue,"		\
-					"discount_amount,"		\
 					"work_hours,"			\
 					"net_revenue"
 
@@ -28,12 +27,11 @@ typedef struct
 	double estimated_hours;
 	double hourly_rate;
 	double estimated_revenue;
-	double discount_amount;
 	double work_hours; /* from parse */
 	double net_revenue; /* from parse */
 	double hourly_service_sale_estimated_revenue;
 	LIST *hourly_service_work_list;
-	double hourly_service_work_hours; /* for update */
+	double hourly_service_work_list_hours; /* for update */
 	double hourly_service_sale_net_revenue; /* for update */
 	LIST *update_string_list;
 	LIST *primary_key_list;
@@ -123,20 +121,16 @@ char *hourly_service_sale_primary_where(
 /* ----- */
 #define HOURLY_SERVICE_SALE_ESTIMATED_REVENUE(			\
 		estimated_hours,				\
-		hourly_rate,					\
-		discount_amount )				\
-	( ( estimated_hours * hourly_rate ) -			\
-	  	discount_amount )
+		hourly_rate )					\
+	( estimated_hours * hourly_rate )
 
 
 /* Usage */
 /* ----- */
 #define HOURLY_SERVICE_SALE_NET_REVENUE(			\
-		hourly_service_work_hours,			\
-		hourly_rate,					\
-		discount_amount )				\
-	( ( hourly_service_work_hours * hourly_rate ) -		\
-	  	discount_amount )
+		hourly_service_work_list_hours,			\
+		hourly_rate )					\
+	( hourly_service_work_list_hours * hourly_rate )
 
 /* Usage */
 /* ----- */
