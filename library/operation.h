@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef OPERATION_H
-#define OPERATION_H
+#pragma once
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -86,7 +85,8 @@ char *operation_row_checked_key(
 /* Returns heap memory */
 /* ------------------- */
 char *operation_row_checked_command_line(
-		const char attribute_multi_key_delimiter,
+		const char attribute_multi_key_delimiter
+			/* probably ^ */,
 		char *session_key,
 		char *login_name,
 		char *role_name,
@@ -286,6 +286,4 @@ char *operation_html(
 /* -------------- */
 OPERATION *operation_blank_new(
 		void );
-
-#endif
 

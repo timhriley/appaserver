@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef UPDATE_H
-#define UPDATE_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -990,4 +989,3 @@ void update_statement_execute(
 void update_stderr_display(
 		LIST *update_row_list );
 
-#endif

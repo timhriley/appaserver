@@ -2039,16 +2039,15 @@ boolean string_file_write(
 void string_replace_command_line(
 		char *command_line /* in/out */,
 		char *string,
-		char *placeholder )
+		const char *placeholder )
 {
 	char *double_quotes_around;
 
-	if ( !command_line
-	||   !placeholder )
+	if ( !command_line )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "command_line is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2086,7 +2085,7 @@ void string_replace_command_line(
 
 	string_with_space_search_replace(
 		command_line /* source_destination */,
-		placeholder /* search_string */,
+		(char *)placeholder /* search_string */,
 		double_quotes_around /* replace_string */ );
 }
 

@@ -59,7 +59,7 @@ typedef struct
 void string_replace_command_line(
 		char *command_line /* in/out */,
 		char *string,
-		char *placeholder );
+		const char *placeholder );
 
 /* Usage */
 /* ----- */

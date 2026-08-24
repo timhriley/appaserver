@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PROCESS_H
-#define PROCESS_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,8 +32,8 @@
 #define PROCESS_UPDATE_ERROR_PLACEHOLDER	"$update_error"
 #define PROCESS_TARGET_FRAME_PLACEHOLDER	"$target_frame"
 #define PROCESS_PRIMARY_PLACEHOLDER		"$primary_data_list"
-#define PROCESS_ROW_COUNT_PLACEHOLDER		"$operation_row_count"
-#define PROCESS_ROW_NUMBER_PLACEHOLDER		"$operation_row_number"
+#define PROCESS_ROW_COUNT_PLACEHOLDER		"$row_count"
+#define PROCESS_ROW_NUMBER_PLACEHOLDER		"$row_number"
 #define PROCESS_DICTIONARY_PLACEHOLDER		"$dictionary"
 #define PROCESS_WHERE_PLACEHOLDER		"$where"
 #define PROCESS_FOLDER_NAME_PLACEHOLDER		"folder"
@@ -153,41 +152,54 @@ DICTIONARY *process_command_line_dictionary(
 char *process_command_line_fetch(
 		char *process_name );
 
-/* Public */
-/* ------ */
-void process_replace_pid_command_line(
-		char *command_line,
-		pid_t process_id,
-		const char *process_pid_placeholder );
-
-void process_replace_integer_command_line(
-		char *command_line,
-		int integer,
-		const char *process_placeholder );
-
-void process_replace_dictionary_command_line(
-		char *command_line,
-		DICTIONARY *dictionary_single_row,
-		const char *dictionary_attribute_datum_delimiter,
-		const char *dictionary_element_delimiter,
-		const char *process_dictionary_placeholder );
-
+/* Usage */
+/* ----- */
 LIST *process_role_process_name_list(
 		char *role_primary_where );
 
+/* Usage */
+/* ----- */
 LIST *process_delimited_list(
 		char *command_line );
 
+/* Usage */
+/* ----- */
 void process_execution_count_increment(
 		char *process_name );
 
+/* Usage */
+/* ----- */
 void process_increment_count(
 		char *process_name );
+
+/* Usage */
+/* ----- */
 
 /* Returns static memory */
 /* --------------------- */
 char *process_title_heading_tag(
 		char *process_name );
 
-#endif
+/* Usage */
+/* ----- */
+void process_replace_pid_command_line(
+		char *command_line,
+		pid_t process_id,
+		const char *process_pid_placeholder );
+
+/* Usage */
+/* ----- */
+void process_replace_integer_command_line(
+		char *command_line,
+		int integer,
+		const char *process_placeholder );
+
+/* Usage */
+/* ----- */
+void process_replace_dictionary_command_line(
+		char *command_line,
+		DICTIONARY *dictionary_single_row,
+		const char *dictionary_attribute_datum_delimiter,
+		const char *dictionary_element_delimiter,
+		const char *process_dictionary_placeholder );
 
