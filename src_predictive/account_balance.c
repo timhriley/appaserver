@@ -456,10 +456,10 @@ void account_balance_update(
 		/* Safely returns */
 		/* -------------- */
 
-		/* -------------------------------------------- */
-		/* The output is in:				*/
-		/* spool_list( spool_new()->output_filename )   */
-		/* -------------------------------------------- */
+		/* ---------------------------------------------------- */
+		/* The output is in:					*/
+		/* spool_list( spool_new()->output_filespecification )  */
+		/* ---------------------------------------------------- */
 		spool_new(
 			system_string,
 			0 /* not capture_stderr_boolean */ );
@@ -483,7 +483,7 @@ void account_balance_update(
 	}
 
 	pclose( spool->output_pipe );
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 	error_string = list_string_delimited( list, "<br>" );
 	if ( error_string ) printf( "%s\n", error_string );
 }

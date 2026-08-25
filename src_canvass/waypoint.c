@@ -352,7 +352,7 @@ LIST *waypoint_utm_list(
 
 	pclose( spool->output_pipe );
 
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 
 	if (	list_length( list ) !=
 		list_length( waypoint_lonlat_list ) )

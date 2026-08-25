@@ -315,7 +315,7 @@ char *investment_account_update(
 		date_update_statement );
 
 	pclose( spool->output_pipe );
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 	error_string = list_first( list );
 
 	return error_string;
