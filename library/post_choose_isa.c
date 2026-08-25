@@ -4,10 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#include "all.h"
 #include "String.h"
 #include "appaserver_error.h"
 #include "widget.h"
@@ -92,7 +89,7 @@ POST_CHOOSE_ISA *post_choose_isa_new(
 					appaserver_form,
 				post_choose_isa->
 					post_choose_isa_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		return post_choose_isa;
 	}
@@ -144,7 +141,7 @@ POST_CHOOSE_ISA *post_choose_isa_new(
 					one_folder,
 				post_choose_isa->
 					post_choose_isa_input->
-					appaserver_error_filename,
+					appaserver_error_filespecification,
 				post_choose_isa->
 					primary_data_list );
 			
@@ -388,11 +385,11 @@ POST_CHOOSE_ISA_INPUT *post_choose_isa_input_new(
 				one_folder->
 				folder_attribute_list );
 
-	post_choose_isa_input->appaserver_error_filename =
+	post_choose_isa_input->appaserver_error_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		appaserver_error_filename(
+		appaserver_error_filespecification(
 			application_name );
 
 	return post_choose_isa_input;
@@ -498,7 +495,7 @@ POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup_new(
 		char *login_name,
 		char *role_name,
 		FOLDER *one_folder,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *primary_data_list )
 {
 	POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup;
@@ -507,7 +504,7 @@ POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup_new(
 	||   !login_name
 	||   !role_name
 	||   !one_folder
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !list_length( primary_data_list ) )
 	{
 		char message[ 128 ];
@@ -576,7 +573,7 @@ POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup_new(
 			(char *)0 /* error_string */,
 			post_choose_isa_lookup->
 				dictionary_separate_send_string,
-			appaserver_error_filename );
+			appaserver_error_filespecification );
 
 	return post_choose_isa_lookup;
 }
@@ -668,7 +665,7 @@ char *post_choose_isa_skip_system_string(
 		char *role_name,
 		char *folder_name,
 		char *folder_appaserver_form,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	char *skip_system_string;
 
@@ -677,7 +674,7 @@ char *post_choose_isa_skip_system_string(
 	||   !role_name
 	||   !folder_name
 	||   !folder_appaserver_form
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -711,7 +708,7 @@ char *post_choose_isa_skip_system_string(
 				(char *)0 /* result_string */,
 				(char *)0 /* error_string */,
 				(char *)0 /* dictionary_separate_send_string */,
-				appaserver_error_filename );
+				appaserver_error_filespecification );
 	}
 	else
 	{
@@ -726,7 +723,7 @@ char *post_choose_isa_skip_system_string(
 				role_name,
 				folder_name,
 				(char *)0 /* dictionary_separate_send_string */,
-				appaserver_error_filename );
+				appaserver_error_filespecification );
 	}
 
 	return skip_system_string;

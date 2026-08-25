@@ -286,7 +286,7 @@ char *ajax_client_list_javascript(
 				0 /* not capture_stderr_boolean */ );
 
 		pclose( spool->output_pipe );
-		list = spool_list( spool->output_filename );
+		list = spool_list( spool->output_filespecification );
 		free( system_string );
 
 		if ( list_rewind( list ) )
@@ -623,7 +623,7 @@ char *ajax_server_process_system_string(
 		dictionary,
 		(char *)0 /* query_drop_down_where_string */,
 		populate_drop_down_process->command_line,
-		(char *)0 /* appaserver_error_filename */ );
+		(char *)0 /* appaserver_error_filespecification */ );
 }
 
 char *ajax_server_folder_system_string(
@@ -698,7 +698,7 @@ LIST *ajax_server_result_list( char *system_string )
 
 	pclose( spool->output_pipe );
 
-	return spool_list( spool->output_filename );
+	return spool_list( spool->output_filespecification );
 }
 
 char *ajax_server_return_string(

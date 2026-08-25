@@ -152,7 +152,7 @@ int main( int argc, char **argv )
 					insert_folder_statement_list,
 				post_prompt_insert->
 					insert->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		fatal_duplicate_boolean =
 			post_prompt_insert_fatal_duplicate_boolean(

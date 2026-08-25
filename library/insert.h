@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef INSERT_H
-#define INSERT_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -93,17 +92,18 @@ typedef struct
 	char *application_table_name;
 	LIST *insert_datum_list;
 	char *insert_datum_sql_statement;
+	char *post_change_process_name;
+	char *post_change_process_command_line;
 	LIST *insert_datum_key_datum_list;
-	char *command_line;
+
+	/* Set externally */
+	/* -------------- */
+	char *execute_command_line;
 } INSERT_FOLDER;
 
 /* Usage */
 /* ----- */
 INSERT_FOLDER *insert_folder_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *isa_primary_key_list,
@@ -112,7 +112,6 @@ INSERT_FOLDER *insert_folder_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
-		char *appaserver_error_filename,
 		int row_number,
 		LIST *folder_attribute_name_list );
 
@@ -120,12 +119,6 @@ INSERT_FOLDER *insert_folder_new(
 /* ------- */
 INSERT_FOLDER *insert_folder_calloc(
 		void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *insert_folder_primary_data_list_string(
-		const char attribute_multi_key_delimiter,
-		LIST *insert_data_key_data_list );
 
 /* Usage */
 /* ----- */
@@ -166,10 +159,6 @@ typedef struct
 /* Usage */
 /* ----- */
 INSERT_ROW *insert_row_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -178,7 +167,6 @@ INSERT_ROW *insert_row_new(
 		DICTIONARY *dictionary_separate_row,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
-		char *appaserver_error_filename,
 		int row_number );
 
 /* Process */
@@ -196,8 +184,14 @@ typedef struct
 /* ----- */
 INSERT_FOLDER_STATEMENT *
 	insert_folder_statement_new(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
 		INSERT_FOLDER *insert_folder,
-		LIST *insert_folder_isa_list );
+		LIST *insert_folder_isa_list,
+		int row_number,
+		int row_count );
 
 /* Process */
 /* ------- */
@@ -228,10 +222,6 @@ typedef struct
 /* Usage */
 /* ----- */
 INSERT_MULTI *insert_multi_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -240,8 +230,7 @@ INSERT_MULTI *insert_multi_new(
 		DICTIONARY *prompt_dictionary /* in/out */,
 		DICTIONARY *multi_row_dictionary /* in/out */,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process,
-		char *appaserver_error_filename );
+		PROCESS *post_change_process );
 
 /* Process */
 /* ------- */
@@ -289,10 +278,6 @@ typedef struct
 /* Usage */
 /* ----- */
 INSERT_ZERO *insert_zero_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *folder_attribute_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -300,8 +285,7 @@ INSERT_ZERO *insert_zero_new(
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process,
-		char *appaserver_error_filename );
+		PROCESS *post_change_process );
 
 /* Process */
 /* ------- */
@@ -319,6 +303,10 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 INSERT_STATEMENT *insert_statement_new(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
 		INSERT_ZERO *insert_zero,
 		INSERT_MULTI *insert_multi );
 
@@ -333,6 +321,15 @@ INSERT_STATEMENT *insert_statement_calloc(
 /* Returns insert_folder_statement_list */
 /* ------------------------------------ */
 LIST *insert_statement_multi_list(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
+		LIST *insert_row_list );
+
+/* Process */
+/* ------- */
+int insert_statement_row_count(
 		LIST *insert_row_list );
 
 /* Usage */
@@ -358,7 +355,7 @@ void insert_statement_command_execute(
 
 typedef struct
 {
-	char *appaserver_error_filename;
+	char *appaserver_error_filespecification;
 	INSERT_ZERO *insert_zero;
 	INSERT_MULTI *insert_multi;
 	INSERT_STATEMENT *insert_statement;
@@ -439,18 +436,19 @@ APPASERVER_USER *insert_appaserver_user(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *insert_folder_command_line(
+/* Returns heap memory */
+/* ------------------- */
+char *insert_folder_execute_command_line(
 		char *post_change_process_command_line,
 		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
 		char *post_change_process_name,
-		char *appaserver_error_filename,
-		char *appaserver_insert_state,
-		LIST *insert_data_list,
-		char *insert_folder_primary_data_list_string );
+		char *appaserver_error_filespecification,
+		const char *appaserver_insert_state,
+		LIST *insert_datum_list,
+		LIST *insert_datum_key_datum_list,
+		int row_number,
+		int row_count );
 
-#endif

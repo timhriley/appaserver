@@ -7,8 +7,9 @@
 #ifndef MERGE_PURGE_H
 #define MERGE_PURGE_H
 
-#include <stdio.h>
+/* #include <stdio.h> */
 #include "list.h"
+#include "boolean.h"
 #include "folder_menu.h"
 #include "menu.h"
 #include "document.h"

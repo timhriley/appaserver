@@ -4,11 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include "list.h"
+#include "all.h"
 #include "sql.h"
 #include "String.h"
 #include "piece.h"
@@ -1135,7 +1131,7 @@ void merge_purge_process_execute(
 			update_row_list,
 		merge_purge_update->
 			update->
-			appaserver_error_filename );
+			appaserver_error_filespecification );
 
 	update_row_list_command_line_execute(
 		merge_purge_update->

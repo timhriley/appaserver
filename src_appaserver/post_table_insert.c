@@ -70,7 +70,7 @@ int main( int argc, char **argv )
 					insert_folder_statement_list,
 				post_table_insert->
 					insert->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 	
 		result_string =
 			post_table_insert->

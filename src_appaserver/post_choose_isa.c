@@ -94,7 +94,7 @@ int main( int argc, char **argv )
 					insert_folder_statement_list,
 				post_choose_isa->
 					insert->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		post_choose_isa->execute_system_string_table_edit =
 			/* ------------------- */
@@ -115,7 +115,7 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_choose_isa->
 					post_choose_isa_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 	}
 
 	if ( post_choose_isa->skip_system_string )

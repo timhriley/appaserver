@@ -20,6 +20,7 @@
 #include "piece.h"
 #include "query.h"
 #include "relation_copy.h"
+#include "update.h"
 #include "insert.h"
 
 INSERT *insert_new(
@@ -66,21 +67,17 @@ INSERT *insert_new(
 
 	insert = insert_calloc();
 
-	insert->appaserver_error_filename =
+	insert->appaserver_error_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		appaserver_error_filename(
+		appaserver_error_filespecification(
 			application_name );
 
 	if ( !dictionary_length( multi_row_dictionary ) )
 	{
 		insert->insert_zero =
 			insert_zero_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				folder_name,
 				root_primary_key_list,
 				folder_attribute_append_isa_list,
@@ -88,17 +85,12 @@ INSERT *insert_new(
 				relation_mto1_isa_list,
 				prompt_dictionary,
 				ignore_name_list,
-				post_change_process,
-				insert->appaserver_error_filename );
+				post_change_process );
 	}
 	else
 	{
 		insert->insert_multi =
 			insert_multi_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				folder_name,
 				root_primary_key_list,
 				folder_attribute_append_isa_list,
@@ -107,8 +99,7 @@ INSERT *insert_new(
 				prompt_dictionary /* in/out */,
 				multi_row_dictionary /* in/out */,
 				ignore_name_list,
-				post_change_process,
-				insert->appaserver_error_filename );
+				post_change_process );
 	}
 
 	if ( !insert->insert_zero && !insert->insert_multi )
@@ -122,6 +113,10 @@ INSERT *insert_new(
 		/* Safely returns */
 		/* -------------- */
 		insert_statement_new(
+			session_key,
+			login_name,
+			role_name,
+			insert->appaserver_error_filespecification,
 			insert->insert_zero,
 			insert->insert_multi );
 
@@ -242,10 +237,6 @@ INSERT_ROW *insert_row_calloc( void )
 }
 
 INSERT_ROW *insert_row_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -254,7 +245,6 @@ INSERT_ROW *insert_row_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
-		char *appaserver_error_filename,
 		int row_number )
 {
 	INSERT_ROW *insert_row;
@@ -262,14 +252,9 @@ INSERT_ROW *insert_row_new(
 	LIST *name_list;
 	char *mount_point;
 
-	if ( !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
+	if ( !folder_name
 	||   !list_length( root_primary_key_list )
-	||   !list_length( folder_attribute_append_isa_list )
-	||   !appaserver_error_filename )
+	||   !list_length( folder_attribute_append_isa_list ) )
 	{
 		char message[ 128 ];
 
@@ -297,10 +282,6 @@ INSERT_ROW *insert_row_new(
 
 	if ( ! ( insert_row->insert_folder =
 			insert_folder_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				folder_name,
 				root_primary_key_list,
 				(LIST *)0 /* isa_primary_key_list */,
@@ -309,7 +290,6 @@ INSERT_ROW *insert_row_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
-				appaserver_error_filename,
 				row_number,
 				name_list ) ) )
 	{
@@ -371,10 +351,6 @@ INSERT_ROW *insert_row_new(
 		list_set(
 			insert_row->insert_folder_isa_list,
 			insert_folder_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				relation_mto1->one_folder_name,
 				root_primary_key_list,
 				relation_mto1->
@@ -386,7 +362,6 @@ INSERT_ROW *insert_row_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
-				appaserver_error_filename,
 				row_number,
 				name_list ) );
 
@@ -543,10 +518,17 @@ void insert_statement_command_execute(
 }
 
 INSERT_FOLDER_STATEMENT *insert_folder_statement_new(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
 		INSERT_FOLDER *insert_folder,
-		LIST *insert_folder_isa_list )
+		LIST *insert_folder_isa_list,
+		int row_number,
+		int row_count )
 {
 	INSERT_FOLDER_STATEMENT *insert_folder_statement;
+	char *command_line;
 
 	if ( !insert_folder
 	||   !insert_folder->insert_datum_sql_statement )
@@ -570,58 +552,92 @@ INSERT_FOLDER_STATEMENT *insert_folder_statement_new(
 		insert_folder_statement->sql_statement_list,
 		insert_folder->insert_datum_sql_statement );
 
-	if ( insert_folder->command_line )
+	if ( insert_folder->post_change_process_command_line )
 	{
 		insert_folder_statement->command_line_list = list_new();
 
+		command_line =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			insert_folder_execute_command_line(
+				insert_folder->post_change_process_command_line,
+				session_key,
+				login_name,
+				role_name,
+				insert_folder->application_table_name
+					/* folder_name */,
+				insert_folder->post_change_process_name,
+				appaserver_error_filespecification,
+				APPASERVER_INSERT_STATE,
+				insert_folder->insert_datum_list,
+				insert_folder->insert_datum_key_datum_list,
+				row_number,
+				row_count );
+
 		list_set(
 			insert_folder_statement->command_line_list,
-			insert_folder->command_line );
+			command_line );
 	}
 
 	if ( list_rewind( insert_folder_isa_list ) )
-	{
-		do {
-			insert_folder =
-				list_get(
-					insert_folder_isa_list );
+	do {
+		insert_folder =
+			list_get(
+				insert_folder_isa_list );
 	
-			if ( !insert_folder->insert_datum_sql_statement )
-			{
-				char message[ 128 ];
+		if ( !insert_folder->insert_datum_sql_statement )
+		{
+			char message[ 128 ];
 	
-				sprintf(message,
+			sprintf(message,
 			"insert_folder->insert_datum_sql_statement is empty." );
 	
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 	
-			list_set(
-				insert_folder_statement->sql_statement_list,
-				insert_folder->insert_datum_sql_statement );
+		list_set(
+			insert_folder_statement->sql_statement_list,
+			insert_folder->insert_datum_sql_statement );
 	
-			if ( insert_folder->command_line )
+		if ( insert_folder->post_change_process_command_line )
+		{
+			if ( !insert_folder_statement->command_line_list )
 			{
-				if ( !insert_folder_statement->
-					command_line_list )
-				{
-					insert_folder_statement->
-						command_line_list =
-							list_new();
-				}
-	
-				list_set(
-					insert_folder_statement->
-						command_line_list,
-					insert_folder->command_line );
+				insert_folder_statement->
+					command_line_list =
+						list_new();
 			}
 	
-		} while ( list_next( insert_folder_isa_list ) );
-	}
+			command_line =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			insert_folder_execute_command_line(
+				insert_folder->post_change_process_command_line,
+				session_key,
+				login_name,
+				role_name,
+				insert_folder->application_table_name
+					/* folder_name */,
+				insert_folder->post_change_process_name,
+				appaserver_error_filespecification,
+				APPASERVER_INSERT_STATE,
+				insert_folder->insert_datum_list,
+				insert_folder->insert_datum_key_datum_list,
+				row_number,
+				row_count );
+
+			list_set(
+				insert_folder_statement->command_line_list,
+				command_line );
+		}
+	
+	} while ( list_next( insert_folder_isa_list ) );
 
 	return insert_folder_statement;
 }
@@ -740,10 +756,6 @@ char *insert_statement_execute(
 }
 
 INSERT_FOLDER *insert_folder_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *isa_primary_key_list,
@@ -752,7 +764,6 @@ INSERT_FOLDER *insert_folder_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
-		char *appaserver_error_filename,
 		int row_number,
 		LIST *folder_attribute_name_list )
 {
@@ -762,19 +773,28 @@ INSERT_FOLDER *insert_folder_new(
 	boolean is_number;
 	INSERT_DATUM *datum_extract;
 	char *table_name;
-	char *primary_data_list_string;
 
-	if ( !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !list_rewind( root_primary_key_list )
-	||   !appaserver_error_filename )
+	if ( !folder_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !list_rewind( root_primary_key_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "root_primary_key_list is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -995,6 +1015,12 @@ INSERT_FOLDER *insert_folder_new(
 				message );
 		}
 
+		insert_folder->post_change_process_name =
+			post_change_process->process_name;
+
+		insert_folder->post_change_process_command_line =
+			post_change_process->command_line;
+
 		insert_folder->insert_datum_key_datum_list =
 			insert_datum_key_datum_list(
 				insert_folder->insert_datum_list );
@@ -1011,31 +1037,6 @@ INSERT_FOLDER *insert_folder_new(
 			exit( 1 );
 		}
 
-		primary_data_list_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			insert_folder_primary_data_list_string(
-				ATTRIBUTE_MULTI_KEY_DELIMITER,
-				insert_folder->insert_datum_key_datum_list );
-
-		insert_folder->command_line =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			insert_folder_command_line(
-				post_change_process->command_line,
-				session_key,
-				login_name,
-				role_name,
-				folder_name,
-				post_change_process->process_name,
-				appaserver_error_filename,
-				APPASERVER_INSERT_STATE,
-				insert_folder->insert_datum_list,
-				primary_data_list_string );
-
-		free( primary_data_list_string );
 	}
 
 	return insert_folder;
@@ -1108,44 +1109,29 @@ char *insert_folder_sql_statement_string(
 	return strdup( sql_statement_string );
 }
 
-char *insert_folder_primary_data_list_string(
-		const char attribute_multi_key_delimiter,
-		LIST *insert_datum_key_datum_list )
-{
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	list_display_delimited(
-		insert_datum_key_datum_list,
-		(char)attribute_multi_key_delimiter );
-}
-
-char *insert_folder_command_line(
+char *insert_folder_execute_command_line(
 		char *post_change_process_command_line,
 		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		char *post_change_process_name,
-		char *appaserver_error_filename,
-		char *appaserver_insert_state,
+		char *process_name,
+		char *appaserver_error_filespecification,
+		const char *appaserver_insert_state,
 		LIST *insert_datum_list,
-		char *insert_folder_primary_data_list_string )
+		LIST *insert_datum_key_datum_list,
+		int row_number,
+		int row_count )
 {
-	char command_line[ STRING_64K ];
-	INSERT_DATUM *insert_datum;
-
 	if ( !post_change_process_command_line
 	||   !session_key
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !post_change_process_name
-	||   !appaserver_error_filename
-	||   !appaserver_insert_state
+	||   !process_name
+	||   !appaserver_error_filespecification
 	||   !list_length( insert_datum_list )
-	||   !insert_folder_primary_data_list_string )
+	||   !list_length( insert_datum_key_datum_list ) )
 	{
 		char message[ 128 ];
 
@@ -1158,77 +1144,37 @@ char *insert_folder_command_line(
 			message );
 	}
 
-	string_strcpy(
-		command_line,
-		post_change_process_command_line,
-		sizeof ( command_line ) );
-
-	string_replace_command_line(
-		command_line,
-		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		folder_name,
-		PROCESS_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		folder_name,
-		PROCESS_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		post_change_process_name,
-		PROCESS_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		appaserver_insert_state,
-		PROCESS_STATE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		insert_folder_primary_data_list_string,
-		PROCESS_PRIMARY_PLACEHOLDER );
-
-	list_rewind( insert_datum_list );
-
-	do {
-		insert_datum = list_get( insert_datum_list );
-
-		string_replace_command_line(
-			command_line,
-			insert_datum->datum,
-			insert_datum->attribute_name );
-
-	} while ( list_next( insert_datum_list ) );
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filename );
-
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	process_replace_command_line(
+		UPDATE_PREUPDATE_PREFIX,
+		(char *)0 /* application_name */,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		(char *)0 /* target_frame */,
+		(char *)appaserver_insert_state,
+		process_name,
+		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
+		(char *)0 /* related_column */,
+		(char *)0 /* update_results_string */,
+		(char *)0 /* update_error_string */,
+		(DICTIONARY *)0 /* operation_row_list_dictionary */,
+		(DICTIONARY *)0 /* dictionary_single_row */,
+		(char *)0 /* where_string */,
+		row_number,
+		row_count,
+		0 /* parent_process_id */,
+		insert_datum_key_datum_list /* primary_key_data_list */,
+		"y" /* execute_yn */,
+		insert_datum_list,
+		(LIST *)0 /* update_attribute_list */,
+		appaserver_error_filespecification,
+		post_change_process_command_line );
 }
 
 char *insert_datum_value_string(
@@ -1604,12 +1550,19 @@ char *insert_results_folder_display(
 	return display;
 }
 
-LIST *insert_statement_multi_list( LIST *insert_row_list )
+LIST *insert_statement_multi_list(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
+		LIST *insert_row_list )
 {
-	LIST *insert_folder_statement_list;
+	LIST *insert_folder_statement_list = list_new();
 	INSERT_ROW *insert_row;
+	int row_number = 0;
+	int row_count;
 
-	insert_folder_statement_list = list_new();
+	row_count = insert_statement_row_count( insert_row_list );
 
 	if ( list_rewind( insert_row_list ) )
 	do {
@@ -1618,8 +1571,14 @@ LIST *insert_statement_multi_list( LIST *insert_row_list )
 		list_set(
 			insert_folder_statement_list,
 			insert_folder_statement_new(
+				session_key,
+				login_name,
+				role_name,
+				appaserver_error_filespecification,
 				insert_row->insert_folder,
-				insert_row->insert_folder_isa_list ) );
+				insert_row->insert_folder_isa_list,
+				++row_number,
+				row_count ) );
 
 	} while ( list_next( insert_row_list ) );
 
@@ -1655,10 +1614,6 @@ int insert_folder_statement_sql_list_length(
 }
 
 INSERT_ZERO *insert_zero_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *folder_attribute_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -1666,23 +1621,17 @@ INSERT_ZERO *insert_zero_new(
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process,
-		char *appaserver_error_filename )
+		PROCESS *post_change_process )
 {
 	INSERT_ZERO *insert_zero;
 	LIST *name_list;
 	RELATION_MTO1 *relation_mto1;
 	char *mount_point;
 
-	if ( !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
+	if ( !folder_name
 	||   !list_length( folder_attribute_primary_key_list )
 	||   !list_length( folder_attribute_append_isa_list )
-	||   !dictionary_length( prompt_dictionary )
-	||   !appaserver_error_filename )
+	||   !dictionary_length( prompt_dictionary ) )
 	{
 		char message[ 128 ];
 
@@ -1710,10 +1659,6 @@ INSERT_ZERO *insert_zero_new(
 
 	if ( ! ( insert_zero->insert_folder =
 			insert_folder_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				folder_name,
 				folder_attribute_primary_key_list
 				   /* root_folder_attribute_primary_key_list */,
@@ -1724,7 +1669,6 @@ INSERT_ZERO *insert_zero_new(
 				(DICTIONARY *)0 /* multi_row_dictionary */,
 				ignore_name_list,
 				post_change_process,
-				appaserver_error_filename,
 				0 /* row_number */,
 				name_list ) ) )
 	{
@@ -1786,10 +1730,6 @@ INSERT_ZERO *insert_zero_new(
 		list_set(
 			insert_zero->insert_folder_isa_list,
 			insert_folder_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				relation_mto1->one_folder_name,
 				folder_attribute_primary_key_list
 					/* root_primary_key_list */,
@@ -1802,7 +1742,6 @@ INSERT_ZERO *insert_zero_new(
 				(DICTIONARY *)0 /* multi_row_dictionary */,
 				ignore_name_list,
 				post_change_process,
-				appaserver_error_filename,
 				0 /* row_number */,
 				name_list ) );
 
@@ -1832,10 +1771,6 @@ INSERT_ZERO *insert_zero_calloc( void )
 }
 
 INSERT_MULTI *insert_multi_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *root_primary_key_list,
 		LIST *folder_attribute_append_isa_list,
@@ -1844,23 +1779,17 @@ INSERT_MULTI *insert_multi_new(
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process,
-		char *appaserver_error_filename )
+		PROCESS *post_change_process )
 {
 	INSERT_MULTI *insert_multi;
 	int row_number;
 	boolean any_primary_null_boolean;
 	INSERT_ROW *insert_row;
 
-	if ( !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
+	if ( !folder_name
 	||   !list_length( root_primary_key_list )
 	||   !list_length( folder_attribute_append_isa_list )
-	||   !dictionary_length( multi_row_dictionary )
-	||   !appaserver_error_filename )
+	||   !dictionary_length( multi_row_dictionary ) )
 	{
 		char message[ 128 ];
 
@@ -1917,10 +1846,6 @@ INSERT_MULTI *insert_multi_new(
 
 		insert_row =
 			insert_row_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				folder_name,
 				root_primary_key_list,
 				folder_attribute_append_isa_list,
@@ -1929,7 +1854,6 @@ INSERT_MULTI *insert_multi_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
-				appaserver_error_filename,
 				row_number );
 
 		if ( insert_row )
@@ -2100,6 +2024,10 @@ char *insert_datum_sql_statement(
 }
 
 INSERT_STATEMENT *insert_statement_new(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
 		INSERT_ZERO *insert_zero,
 		INSERT_MULTI *insert_multi )
 {
@@ -2128,13 +2056,23 @@ INSERT_STATEMENT *insert_statement_new(
 		list_set(
 			insert_statement->insert_folder_statement_list,
 			insert_folder_statement_new(
+				session_key,
+				login_name,
+				role_name,
+				appaserver_error_filespecification,
 				insert_zero->insert_folder,
-				insert_zero->insert_folder_isa_list ) );
+				insert_zero->insert_folder_isa_list,
+				1 /* row_number */,
+				1 /* row_count */ ) );
 	}
 	else
 	{
 		insert_statement->insert_folder_statement_list =
 			insert_statement_multi_list(
+				session_key,
+				login_name,
+				role_name,
+				appaserver_error_filespecification,
 				insert_multi->insert_row_list );
 	}
 
@@ -2488,5 +2426,10 @@ char *insert_folder_statement_system_string(
 		sql_delimiter );
 
 	return strdup( system_string );
+}
+
+int insert_statement_row_count( LIST *insert_row_list )
+{
+	return list_length( insert_row_list );
 }
 

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef POST_CHOOSE_ISA_H
-#define POST_CHOOSE_ISA_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -35,7 +34,7 @@ POST_CHOOSE_ISA_LOOKUP *post_choose_isa_lookup_new(
 		char *login_name,
 		char *role_name,
 		FOLDER *one_folder,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *post_choose_isa_primary_data_list );
 
 /* Process */
@@ -50,7 +49,7 @@ typedef struct
 	POST_DICTIONARY *post_dictionary;
 	LIST *folder_attribute_date_name_list;
 	DICTIONARY_SEPARATE_PROMPT_LOOKUP *dictionary_separate;
-	char *appaserver_error_filename;
+	char *appaserver_error_filespecification;
 } POST_CHOOSE_ISA_INPUT;
 
 /* Usage */
@@ -157,6 +156,4 @@ char *post_choose_isa_skip_system_string(
 		char *role_name,
 		char *folder_name,
 		char *folder_appaserver_form,
-		char *appaserver_error_filename );
-
-#endif
+		char *appaserver_error_filespecification );

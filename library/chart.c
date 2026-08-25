@@ -347,7 +347,7 @@ LIST *chart_aggregate_fetch_list(
 
 	pclose( spool->output_pipe );
 
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 
 	fetch_list = list_new();
 
