@@ -8,11 +8,11 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include "process.h"
 #include "boolean.h"
 #include "list.h"
 #include "widget.h"
 #include "dictionary.h"
+#include "process.h"
 
 #define OPERATION_SELECT		"operation,output_yn"
 #define OPERATION_TABLE			"operation"
@@ -85,8 +85,6 @@ char *operation_row_checked_key(
 /* Returns heap memory */
 /* ------------------- */
 char *operation_row_checked_command_line(
-		const char attribute_multi_key_delimiter
-			/* probably ^ */,
 		char *session_key,
 		char *login_name,
 		char *role_name,

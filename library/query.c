@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "appaserver_error.h"
-#include "timlib.h"
 #include "sql.h"
 #include "String.h"
 #include "column.h"
@@ -18,6 +17,7 @@
 #include "appaserver.h"
 #include "appaserver_parameter.h"
 #include "attribute.h"
+#include "update.h"
 #include "prompt_lookup.h"
 #include "query.h"
 
@@ -5185,7 +5185,7 @@ char *query_data_where(
 	char where[ STRING_64K ];
 	char *ptr = where;
 	char *attribute_name;
-	char escaped_data[ STRING_64K ];
+	char *escaped_data;
 	FOLDER_ATTRIBUTE *folder_attribute = {0};
 
 	if ( !list_length( where_attribute_name_list ) ) return (char *)0;
@@ -5239,12 +5239,13 @@ char *query_data_where(
 
 		}
 
-		timlib_strcpy(
-			escaped_data,
-			list_get( where_attribute_data_list ),
-			sizeof ( escaped_data ) );
-
-		escape_single_quotes( escaped_data );
+		escaped_data =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_escape_single_quotes(
+				(char *)list_get(
+					where_attribute_data_list ) );
 
 		if ( ptr != where ) ptr += sprintf( ptr, " and " );
 
@@ -6941,7 +6942,6 @@ void query_cell_command_line_replace(
 		LIST *query_cell_list )
 {
 	QUERY_CELL *query_cell;
-	char destination[ 256 ];
 	int instr;
 
 	if ( !command_line
@@ -6966,8 +6966,10 @@ void query_cell_command_line_replace(
 					/* source_destination */,
 			query_cell->attribute_name
 					/* search */,
-			double_quotes_around(
-				destination,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_double_quotes_around(
 				query_cell->
 					select_datum )
 					/* replace */ );
@@ -7406,7 +7408,8 @@ QUERY_DROP_DOWN_PROCESS *query_drop_down_process_new(
 				query_drop_down_where->
 				string,
 			query_drop_down_process->process->command_line,
-			query_drop_down_process->appaserver_error_filename );
+			query_drop_down_process->appaserver_error_filename
+				/* appaserver_error_filespecification */);
 
 	query_drop_down_process->delimited_list =
 		list_pipe_fetch(
@@ -7450,12 +7453,8 @@ char *query_drop_down_process_command_line(
 		DICTIONARY *dictionary,
 		char *where_string,
 		char *process_command_line,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
-	char command_line[ STRING_64K ];
-	char *delimited;
-	char *escape_dollar;
-
 	if ( !process_command_line )
 	{
 		char message[ 128 ];
@@ -7469,112 +7468,37 @@ char *query_drop_down_process_command_line(
 			message );
 	}
 
-	string_strcpy(
-		command_line,
-		process_command_line,
-		sizeof ( command_line ) );
-
-	string_replace_command_line(
-		command_line,
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	process_replace_command_line(
+		UPDATE_PREUPDATE_PREFIX,
 		application_name,
-		PROCESS_APPLICATION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
 		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
 		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
 		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
+		(char *)0 /* folder_name */,
+		(char *)0 /* target_frame */,
 		state,
-		PROCESS_STATE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		many_folder_name,
-		PROCESS_MANY_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		one_folder_name,
-		PROCESS_ONE_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		related_column,
-		PROCESS_RELATED_COLUMN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
 		populate_drop_down_process_name,
-		PROCESS_NAME_PLACEHOLDER );
-
-	dictionary_replace_command_line(
-		command_line,
-		dictionary );
-
-	delimited =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		dictionary_display_delimited(
-			dictionary,
-			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
-			DICTIONARY_ELEMENT_DELIMITER );
-
-	string_replace_command_line(
-		command_line,
-		delimited,
-		PROCESS_DICTIONARY_PLACEHOLDER );
-
-	free( delimited );
-
-	string_replace_command_line(
-		command_line,
+		many_folder_name,
+		one_folder_name,
+		related_column,
+		(char *)0 /* update_results_string */,
+		(char *)0 /* update_error_string */,
+		dictionary /* operation_row_list_dictionary */,
+		dictionary /* dictionary_single_row */,
 		where_string,
-		PROCESS_WHERE_PLACEHOLDER );
-
-	escape_dollar =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		string_escape_dollar(
-			command_line /* source */ );
-
-	if ( appaserver_error_filename )
-	{
-		char destination[ STRING_65K ];
-
-		snprintf(
-			destination,
-			sizeof ( destination ),
-			"%s 2>>%s",
-			escape_dollar,
-			appaserver_error_filename );
-
-		free( escape_dollar );
-
-		return strdup( destination );
-	}
-	else
-	{
-		return escape_dollar;
-	}
+		0 /* row_number */,
+		0 /* row_count */,
+		0 /* parent_process_id */,
+		(LIST *)0 /* primary_key_data_list */,
+		(char *)0 /* execute_yn */,
+		(LIST *)0 /* insert_datum_list */,
+		(LIST *)0 /* update_attribute_list */,
+		appaserver_error_filespecification,
+		process_command_line /* input_command_line */ );
 }
 
 QUERY_DICTIONARY *query_dictionary_fetch(

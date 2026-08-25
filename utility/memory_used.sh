@@ -1,12 +1,12 @@
 :
-# $APPASERVER_HOME/utility/memory_available.sh
+# $APPASERVER_HOME/utility/memory_used.sh
 # ---------------------------------------------------------------
 # No warranty and freely available software. Visit appaserver.org
 # ---------------------------------------------------------------
 
 sleep_seconds=10
 
-free -b | grep 'Mem:' | column.e 6 | commas_in_long.e
+free -b | grep 'Mem:' | column.e 2 | commas_in_long.e
 
 if [ "$1" = "loop" ]
 then

@@ -166,7 +166,6 @@ UPDATE *update_new(
 			multi_row_dictionary,
 			file_dictionary,
 			relation_one2m_list,
-			/* relation_mto1_list, */
 			relation_mto1_isa_list,
 			folder_attribute_append_isa_list,
 			post_change_process,
@@ -278,12 +277,8 @@ UPDATE_ROOT *update_root_new(
 
 	if ( post_change_process )
 	{
-		update_root->update_where_list_primary_data_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			update_where_list_primary_data_string(
-				SQL_DELIMITER,
+		update_root->update_where_list_primary_data_list =
+			update_where_list_primary_data_list(
 				update_root->
 					update_changed_list->
 					where_list
@@ -304,7 +299,7 @@ UPDATE_ROOT *update_root_new(
 				post_change_process->process_name,
 				appaserver_error_filename,
 				update_root->
-					update_where_list_primary_data_string,
+					update_where_list_primary_data_list,
 				update_attribute_list );
 
 		update_root->update_changed_list->update_command_line =
@@ -666,12 +661,8 @@ msg( (char *)0, message );
 
 	if ( relation_mto1_isa->one_folder->post_change_process )
 	{
-		update_mto1_isa->update_where_list_primary_data_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			update_where_list_primary_data_string(
-				SQL_DELIMITER,
+		update_mto1_isa->update_where_list_primary_data_list =
+			update_where_list_primary_data_list(
 				update_mto1_isa->
 					update_changed_list->
 					where_list
@@ -697,7 +688,7 @@ msg( (char *)0, message );
 					post_change_process_name,
 				appaserver_error_filename,
 				update_mto1_isa->
-					update_where_list_primary_data_string,
+					update_where_list_primary_data_list,
 				update_mto1_isa->update_attribute_list );
 
 		update_mto1_isa->update_changed_list->update_command_line =
@@ -792,7 +783,6 @@ UPDATE_ROW_LIST *update_row_list_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		LIST *relation_one2m_list,
-		/* LIST *relation_mto1_list, */
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
@@ -845,14 +835,6 @@ UPDATE_ROW_LIST *update_row_list_new(
 		row_number <= update_row_list->dictionary_highest_index;
 		row_number++ )
 	{
-#ifdef NOT_DEFINED
-		(void)relation_copy_new(
-			multi_row_dictionary /* in/out */,
-			folder_attribute_append_isa_list,
-			relation_mto1_list,
-			row_number );
-#endif
-
 		update_row =
 			update_row_new(
 				application_name,
@@ -2470,25 +2452,12 @@ boolean update_changed_primary_key_boolean( LIST *update_changed_list )
 	return 0;
 }
 
-char *update_where_list_primary_data_string(
-		char sql_delimiter,
-		LIST *update_where_list )
+LIST *update_where_list_primary_data_list( LIST *update_where_list )
 {
 	UPDATE_WHERE *update_where;
-	char primary_data_delimited[ 1024 ];
-	char *ptr = primary_data_delimited;
-	char *datum;
+	LIST *primary_data_list = list_new();
 
-	if ( !list_rewind( update_where_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: update_where_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
+	if ( list_rewind( update_where_list ) )
 	do {
 		update_where = list_get( update_where_list );
 
@@ -2505,14 +2474,6 @@ char *update_where_list_primary_data_string(
 			exit( 1 );
 		}
 
-		if ( ptr != primary_data_delimited )
-		{
-			ptr += sprintf(
-				ptr,
-				"%c",
-				sql_delimiter );
-		}
-
 		if ( update_changed_boolean(
 			QUERY_IS_NULL,
 			update_where->
@@ -2522,27 +2483,30 @@ char *update_where_list_primary_data_string(
 				update_attribute->
 				post_datum ) )
 		{
-			datum =
+			list_set(
+				primary_data_list,
 				update_where->
 					update_attribute->
-					post_datum;
+					post_datum );
 		}
 		else
 		{
-			datum =
+			list_set(
+				primary_data_list,
 				update_where->
 					update_attribute->
-					file_datum;
+					file_datum );
 		}
-
-		ptr += sprintf(
-			ptr,
-			"%s",
-			datum );
 
 	} while ( list_next( update_where_list ) );
 
-	return strdup( primary_data_delimited );
+	if ( !list_length( primary_data_list ) )
+	{
+		list_free( primary_data_list );
+		primary_data_list = NULL;
+	}
+
+	return primary_data_list;
 }
 
 LIST *update_attribute_list(
@@ -6008,5 +5972,10 @@ void update_stderr_display( LIST *update_row_list )
 		} while ( list_next( update_row->update_changed_list_list ) );
 
 	} while ( list_next( update_row_list ) );
+}
+
+int update_row_list_count( LIST *update_row_list )
+{
+	return list_length( update_row_list );
 }
 

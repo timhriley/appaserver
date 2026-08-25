@@ -125,11 +125,7 @@ char *update_where_string(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *update_where_list_primary_data_string(
-		char sql_delimiter,
+LIST *update_where_list_primary_data_list(
 		LIST *update_where_list );
 
 typedef struct
@@ -257,7 +253,7 @@ char *update_changed_list_list_execute(
 		char *application_name,
 		boolean update_root_boolean,
 		LIST *update_changed_list_list,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 typedef struct
 {
@@ -276,7 +272,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 		char *role_name,
 		int row_number,
 		LIST *relation_one2m_list,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list );
 
@@ -309,7 +305,7 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 		LIST *many_folder_attribute_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list,
 		LIST *query_row_cell_list );
@@ -361,7 +357,7 @@ char *update_one2m_row_command_line(
 		char *role_name,
 		char *many_folder_name,
 		char *post_change_process_name,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *query_cell_primary_data_list,
 		LIST *update_one2m_row_update_attribute_list );
 
@@ -428,7 +424,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		LIST *many_folder_attribute_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list,
 		LIST *query_fetch_row_list );
@@ -464,7 +460,7 @@ UPDATE_ONE2M *update_one2m_new(
 		LIST *relation_foreign_key_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list );
 
@@ -555,7 +551,7 @@ typedef struct
 	RELATION_MTO1 *relation_mto1_isa;
 	LIST *update_attribute_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
-	char *update_where_list_primary_data_string;
+	LIST *update_where_list_primary_data_list;
 	char *update_command_line;
 	LIST *relation_one2m_list;
 	UPDATE_ONE2M_LIST *update_one2m_list;
@@ -571,7 +567,7 @@ LIST *update_mto1_isa_list(
 		char *many_folder_name,
 		int row_number,
 		LIST *relation_mto1_isa_list,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		boolean update_changed_primary_key_boolean,
 		LIST *update_attribute_list );
@@ -586,7 +582,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		char *many_folder_name,
 		int row_number,
 		RELATION_MTO1 *relation_mto1_isa,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		boolean update_changed_primary_key_boolean,
 		LIST *update_attribute_list );
@@ -688,8 +684,7 @@ typedef struct
 	LIST *folder_attribute_name_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
 	boolean update_changed_primary_key_boolean;
-	char *update_where_list_primary_data_string;
-	char *update_command_line;
+	LIST *update_where_list_primary_data_list;
 } UPDATE_ROOT;
 
 /* Usage */
@@ -703,7 +698,7 @@ UPDATE_ROOT *update_root_new(
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *update_attribute_list );
 
 /* Process */
@@ -719,7 +714,7 @@ int update_root_cell_count(
 char *update_root_execute(
 		const char *sql_executable,
 		char *update_sql_statement_string,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 typedef struct
 {
@@ -747,7 +742,7 @@ UPDATE_ROW *update_row_new(
 		PROCESS *post_change_process,
 		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		int row_number );
 
@@ -784,7 +779,7 @@ char *update_row_execute(
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
 		LIST *update_mto1_isa_list,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 /* Usage */
 /* ----- */
@@ -804,7 +799,13 @@ void update_row_display(
 /* Usage */
 /* ----- */
 void update_row_list_update_changed_list_list_set(
-		LIST *update_row_list /* in/out */ );
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *appaserver_error_filespecification,
+		LIST *update_row_list /* in/out */,
+		int update_row_list_count );
 
 /* Usage */
 /* ----- */
@@ -836,13 +837,12 @@ UPDATE_ROW_LIST *update_row_list_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		LIST *relation_one2m_list /* include_is_boolean */,
-		/* LIST *relation_mto1_list, */
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
 		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point );
 
 /* Process */
@@ -859,6 +859,11 @@ char *update_row_list_folder_name_list_string(
 		const char update_folder_name_delimiter,
 		LIST *update_row_list_folder_name_list );
 
+/* Usage */
+/* ----- */
+int update_row_list_count(
+		LIST *update_row_list );
+
 /* Driver */
 /* ------ */
 
@@ -869,7 +874,7 @@ char *update_row_list_execute(
 		char *application_name,
 		boolean update_root_boolean,
 		UPDATE_ROW_LIST *update_row_list,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 /* Usage */
 /* ----- */
@@ -896,7 +901,7 @@ typedef struct
 	LIST *relation_mto1_list;
 	LIST *relation_mto1_isa_list;
 	SECURITY_ENTITY *security_entity;
-	char *appaserver_error_filename;
+	char *appaserver_error_filespecification;
 	char *appaserver_parameter_mount_point;
 	UPDATE_ROW_LIST *update_row_list;
 	char *results_string;
@@ -951,8 +956,8 @@ char *update_command_line(
 		char *role_name,
 		char *folder_name,
 		char *post_change_process_name,
-		char *appaserver_error_filename,
-		char *update_where_list_primary_data_string,
+		char *appaserver_error_filespecification,
+		LIST *update_where_list_primary_data_list,
 		LIST *update_attribute_list );
 
 /* Usage */
@@ -962,7 +967,7 @@ char *update_command_line(
 /* --------------------- */
 char *update_system_string(
 		const char *sql_executable,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 /* Usage */
 /* ----- */

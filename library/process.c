@@ -19,6 +19,8 @@
 #include "application.h"
 #include "appaserver_parameter.h"
 #include "security.h"
+#include "insert.h"
+#include "update.h"
 #include "process_parameter.h"
 #include "dictionary.h"
 #include "process.h"
@@ -308,7 +310,9 @@ void process_replace_integer_command_line(
 {
 	char integer_string[ 128 ];
 
-	sprintf(integer_string,
+	snprintf(
+		integer_string,
+		sizeof ( integer_string ),
 		"%d",
 		integer );
 
@@ -342,23 +346,6 @@ void process_replace_dictionary_command_line(
 		(char *)process_dictionary_placeholder );
 
 	free( tmp );
-}
-
-void process_replace_pid_command_line(
-		char *command_line,
-		pid_t process_id,
-		const char *process_pid_placeholder )
-{
-	char process_id_string[ 128 ];
-
-	sprintf(process_id_string,
-		"%d",
-		(int)process_id );
-
-	string_replace_command_line(
-		command_line,
-		process_id_string,
-		(char *)process_pid_placeholder );
 }
 
 char *process_title_heading_tag( char *process_name )
@@ -528,5 +515,261 @@ char *process_command_line_fetch( char *process_name )
 			(char *)0 /* mount_point */ );
 
 	return process->command_line;
+}
+
+char *process_replace_command_line(
+		const char *update_preupdate_prefix,
+		char *application_name,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *target_frame,
+		char *state,
+		char *process_name,
+		char *many_folder_name,
+		char *one_folder_name,
+		char *related_column,
+		char *update_results_string,
+		char *update_error_string,
+		DICTIONARY *operation_row_list_dictionary,
+		DICTIONARY *dictionary_single_row,
+		char *where_string,
+		int row_number,
+		int row_count,
+		pid_t parent_process_id,
+		LIST *primary_key_data_list,
+		char *execute_yn,
+		LIST *insert_datum_list,
+		LIST *update_attribute_list,
+		char *appaserver_error_filespecification,
+		char *input_command_line )
+{
+	char command_line[ STRING_64K ];
+	INSERT_DATUM *insert_datum;
+	UPDATE_ATTRIBUTE *update_attribute;
+	char *escape_dollar;
+
+	if ( !input_command_line || !*input_command_line )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"input_command_line is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	string_strcpy(
+		command_line,
+		input_command_line,
+		STRING_64K
+			/* buffer_size */
+			/* Synchronize with string_replace_command_line() */ );
+
+	string_replace_command_line(
+		command_line,
+		application_name,
+		PROCESS_APPLICATION_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		session_key,
+		PROCESS_SESSION_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		login_name,
+		PROCESS_LOGIN_NAME_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		login_name,
+		PROCESS_LOGIN_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		role_name,
+		PROCESS_ROLE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		folder_name,
+		PROCESS_FOLDER_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		folder_name,
+		PROCESS_TABLE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		target_frame,
+		PROCESS_TARGET_FRAME_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		state,
+		PROCESS_STATE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		many_folder_name,
+		PROCESS_MANY_TABLE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		one_folder_name,
+		PROCESS_ONE_TABLE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		related_column,
+		PROCESS_RELATED_COLUMN_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		update_results_string,
+		PROCESS_UPDATE_RESULTS_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		update_error_string,
+		PROCESS_UPDATE_ERROR_PLACEHOLDER );
+
+	process_replace_integer_command_line(
+		command_line,
+		row_number,
+		PROCESS_ROW_NUMBER_PLACEHOLDER );
+
+	process_replace_integer_command_line(
+		command_line,
+		row_count,
+		PROCESS_ROW_COUNT_PLACEHOLDER );
+
+	/* Must preceed PROCESS_NAME_PLACEHOLDER */
+	/* ------------------------------------- */
+	process_replace_integer_command_line(
+		command_line,
+		(int)parent_process_id,
+		PROCESS_PID_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		process_name,
+		PROCESS_NAME_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		list_display_delimited(
+			primary_key_data_list,
+			ATTRIBUTE_MULTI_KEY_DELIMITER ),
+		PROCESS_PRIMARY_PLACEHOLDER );
+
+	process_replace_dictionary_command_line(
+		command_line,
+		operation_row_list_dictionary,
+		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
+		DICTIONARY_ELEMENT_DELIMITER,
+		PROCESS_DICTIONARY_PLACEHOLDER );
+
+	dictionary_replace_command_line(
+		command_line,
+		dictionary_single_row );
+
+	string_replace_command_line(
+		command_line,
+		where_string,
+		PROCESS_WHERE_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		execute_yn,
+		APPASERVER_EXECUTE_YN );
+
+	if ( list_rewind( insert_datum_list ) )
+	do {
+		insert_datum = list_get( insert_datum_list );
+
+		string_replace_command_line(
+			command_line,
+			insert_datum->datum,
+			insert_datum->attribute_name );
+
+	} while ( list_next( insert_datum_list ) );
+
+	if ( list_rewind( update_attribute_list ) )
+	do {
+		update_attribute = list_get( update_attribute_list );
+
+		string_with_space_search_replace(
+			command_line,
+			update_attribute->
+				folder_attribute->
+				attribute_name,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_double_quotes_around(
+				update_attribute->post_datum ) );
+
+		if ( update_changed_boolean(
+			QUERY_IS_NULL,
+			update_attribute->
+				file_datum,
+			update_attribute->
+				post_datum ) )
+		{
+			char preupdate_attribute_name[ 1024 ];
+
+			snprintf(
+				preupdate_attribute_name,
+				sizeof ( preupdate_attribute_name ),
+				"%s%s",
+				update_preupdate_prefix,
+				update_attribute->
+					folder_attribute->
+					attribute_name );
+
+			string_with_space_search_replace(
+				command_line,
+				preupdate_attribute_name,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				string_double_quotes_around(
+					update_attribute->file_datum ) );
+		}
+
+	} while ( list_next( update_attribute_list ) );
+
+	escape_dollar =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_escape_dollar(
+			command_line /* source */ );
+
+	if ( appaserver_error_filespecification )
+	{
+		sprintf(
+			command_line + strlen( command_line ),
+			"%s 2>>%s",
+			escape_dollar,
+			appaserver_error_filespecification );
+
+		free( escape_dollar );
+		return strdup( command_line );
+	}
+	else
+	{
+		return escape_dollar;
+	}
 }
 

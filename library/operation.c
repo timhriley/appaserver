@@ -17,6 +17,7 @@
 #include "folder_operation.h"
 #include "dictionary_separate.h"
 #include "security.h"
+#include "update.h"
 #include "operation.h"
 
 void operation_row_execute( char *command_line )
@@ -648,7 +649,6 @@ OPERATION_ROW_CHECKED *operation_row_checked_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		operation_row_checked_command_line(
-			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			session_key,
 			login_name,
 			role_name,
@@ -731,7 +731,6 @@ int operation_row_checked_count(
 }
  
 char *operation_row_checked_command_line(
-		const char attribute_multi_key_delimiter,
 		char *session_key,
 		char *login_name,
 		char *role_name,
@@ -750,9 +749,6 @@ char *operation_row_checked_command_line(
 		pid_t parent_process_id,
 		LIST *primary_key_data_list )
 {
-	char command_line[ STRING_16K ];
-	char *tmp;
-
 	if ( !session_key
 	||   !login_name
 	||   !role_name
@@ -777,115 +773,38 @@ char *operation_row_checked_command_line(
 			message );
 	}
 
-	string_strcpy(
-		command_line /* in/out */,
-		process_command_line,
-		STRING_16K );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		folder_name,
-		PROCESS_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		folder_name,
-		PROCESS_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		target_frame,
-		PROCESS_TARGET_FRAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		state,
-		PROCESS_STATE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		update_results_string,
-		PROCESS_UPDATE_RESULTS_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		update_error_string,
-		PROCESS_UPDATE_ERROR_PLACEHOLDER );
-
-	/* Must preceed PROCESS_NAME_PLACEHOLDER */
-	/* ------------------------------------- */
-	process_replace_pid_command_line(
-		command_line /* in/out */,
-		parent_process_id,
-		PROCESS_PID_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		operation_name,
-		PROCESS_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line /* in/out */,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		(tmp = list_display_delimited(
-			primary_key_data_list,
-			(char)attribute_multi_key_delimiter ) ),
-		PROCESS_PRIMARY_PLACEHOLDER );
-
-	free( tmp );
-
-	process_replace_integer_command_line(
-		command_line /* in/out */,
-		row_number /* integer */,
-		PROCESS_ROW_NUMBER_PLACEHOLDER );
-
-	process_replace_integer_command_line(
-		command_line /* in/out */,
-		operation_row_checked_count /* integer */,
-		PROCESS_ROW_COUNT_PLACEHOLDER );
-
-	process_replace_dictionary_command_line(
-		command_line /* in/out */,
-		operation_row_list_dictionary,
-		DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
-		DICTIONARY_ELEMENT_DELIMITER,
-		PROCESS_DICTIONARY_PLACEHOLDER );
-
-	dictionary_replace_command_line(
-		command_line /* in/out */,
-		dictionary_single_row );
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filename );
-
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	process_replace_command_line(
+		UPDATE_PREUPDATE_PREFIX,
+		(char *)0 /* application_name */,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		target_frame,
+		state,
+		operation_name /* process_name */,
+		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
+		(char *)0 /* related_column */,
+		update_results_string,
+		update_error_string,
+		operation_row_list_dictionary,
+		dictionary_single_row,
+		(char *)0 /* where_string */,
+		row_number,
+		operation_row_checked_count /* row_count */,
+		parent_process_id,
+		primary_key_data_list,
+		"y" /* execute_yn */,
+		(LIST *)0 /* insert_datum_list */,
+		(LIST *)0 /* update_attribute_list */,
+		appaserver_error_filename
+			/* appaserver_error_filespecification */,
+		process_command_line /* input_command_line */ );
 }
 
 char *operation_row_checked_execute(

@@ -1368,7 +1368,7 @@ char *query_drop_down_process_command_line(
 		DICTIONARY *dictionary,
 		char *where_string,
 		char *process_command_line,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 typedef struct
 {

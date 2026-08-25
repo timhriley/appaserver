@@ -182,24 +182,50 @@ char *process_title_heading_tag(
 
 /* Usage */
 /* ----- */
-void process_replace_pid_command_line(
-		char *command_line,
-		pid_t process_id,
-		const char *process_pid_placeholder );
 
-/* Usage */
-/* ----- */
-void process_replace_integer_command_line(
-		char *command_line,
-		int integer,
-		const char *process_placeholder );
+/* Returns heap memory */
+/* ------------------- */
+char *process_replace_command_line(
+		const char *update_preupdate_prefix,
+		char *application_name,
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *folder_name,
+		char *target_frame,
+		char *state,
+		char *process_name,
+		char *many_folder_name,
+		char *one_folder_name,
+		char *related_column,
+		char *update_results_string,
+		char *update_error_string,
+		DICTIONARY *operation_row_list_dictionary,
+		DICTIONARY *dictionary_single_row,
+		char *where_string,
+		int row_number,
+		int row_count,
+		pid_t parent_process_id,
+		LIST *primary_key_data_list,
+		char *execute_yn,
+		LIST *insert_datum_list,
+		LIST *update_attribute_list,
+		char *appaserver_error_filespecification,
+		char *input_command_line );
 
 /* Usage */
 /* ----- */
 void process_replace_dictionary_command_line(
-		char *command_line,
+		char *command_line /* in/out */,
 		DICTIONARY *dictionary_single_row,
 		const char *dictionary_attribute_datum_delimiter,
 		const char *dictionary_element_delimiter,
 		const char *process_dictionary_placeholder );
+
+/* Usage */
+/* ----- */
+void process_replace_integer_command_line(
+		char *command_line /* in/out */,
+		int integer,
+		const char *process_placeholder );
 
