@@ -349,8 +349,8 @@ char *update_one2m_row_post_datum(
 /* Returns heap memory */
 /* ------------------- */
 char *update_one2m_row_command_line(
-		char *appaserver_update_state,
-		char *update_preupdate_prefix,
+		const char *appaserver_update_state,
+		const char *update_preupdate_prefix,
 		char *post_change_process_command_line,
 		char *session_key,
 		char *login_name,
@@ -552,7 +552,6 @@ typedef struct
 	LIST *update_attribute_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
 	LIST *update_where_list_primary_data_list;
-	char *update_command_line;
 	LIST *relation_one2m_list;
 	UPDATE_ONE2M_LIST *update_one2m_list;
 } UPDATE_MTO1_ISA;
@@ -684,21 +683,18 @@ typedef struct
 	LIST *folder_attribute_name_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
 	boolean update_changed_primary_key_boolean;
+	char *process_name;
+	char *process_command_line;
 	LIST *update_where_list_primary_data_list;
 } UPDATE_ROOT;
 
 /* Usage */
 /* ----- */
 UPDATE_ROOT *update_root_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filespecification,
 		LIST *update_attribute_list );
 
 /* Process */
@@ -802,7 +798,6 @@ void update_row_list_update_changed_list_list_set(
 		char *session_key,
 		char *login_name,
 		char *role_name,
-		char *folder_name,
 		char *appaserver_error_filespecification,
 		LIST *update_row_list /* in/out */,
 		int update_row_list_count );
@@ -818,6 +813,7 @@ typedef struct
 {
 	int dictionary_highest_index;
 	LIST *list;
+	int count;
 	int cell_count;
 	LIST *folder_name_list;
 	char *folder_name_list_string;
@@ -957,8 +953,10 @@ char *update_command_line(
 		char *folder_name,
 		char *post_change_process_name,
 		char *appaserver_error_filespecification,
-		LIST *update_where_list_primary_data_list,
-		LIST *update_attribute_list );
+		LIST *primary_data_list,
+		LIST *update_attribute_list,
+		int row_number,
+		int row_count );
 
 /* Usage */
 /* ----- */

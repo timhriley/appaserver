@@ -29,11 +29,11 @@ SPOOL *spool_new(
 
 	spool = spool_calloc();
 
-	spool->output_filename =
+	spool->output_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		spool_output_filename(
+		spool_output_filespecification(
 			getpid() /* process_id */ );
 
 	spool->create_system_string =
@@ -41,7 +41,7 @@ SPOOL *spool_new(
 		/* Returns static memory */
 		/* --------------------- */
 		spool_create_system_string(
-			spool->output_filename );
+			spool->output_filespecification );
 
 	if ( system( spool->create_system_string ) ){}
 
@@ -49,7 +49,7 @@ SPOOL *spool_new(
 		spool_output_system_string(
 			system_string,
 			capture_stderr_boolean,
-			spool->output_filename );
+			spool->output_filespecification );
 
 	spool->output_pipe =
 		/* -------------- */
@@ -78,20 +78,20 @@ SPOOL *spool_calloc( void )
 	return spool;
 }
 
-char *spool_output_filename( pid_t process_id )
+char *spool_output_filespecification( pid_t process_id )
 {
-	static char output_filename[ 128 ];
+	static char output_filespecification[ 128 ];
 
 	snprintf(
-		output_filename,
-		sizeof ( output_filename ),
+		output_filespecification,
+		sizeof ( output_filespecification ),
 		"/tmp/spool_%d",
 		process_id );
 
-	return output_filename;
+	return output_filespecification;
 }
 
-char *spool_create_system_string( char *output_filename )
+char *spool_create_system_string( char *output_filespecification )
 {
 	static char create_system_string[ 512 ];
 
@@ -99,8 +99,8 @@ char *spool_create_system_string( char *output_filename )
 		create_system_string,
 		sizeof ( create_system_string ),
 		"touch %s && chmod go-rw %s",
-		output_filename,
-		output_filename );
+		output_filespecification,
+		output_filespecification );
 
 	return create_system_string;
 }
@@ -108,7 +108,7 @@ char *spool_create_system_string( char *output_filename )
 char *spool_output_system_string(
 		char *system_string, 
 		boolean capture_stderr_boolean,
-		char *output_filename )
+		char *output_filespecification )
 {
 	static char output_system_string[ 512 ];
 	char *ptr = output_system_string;
@@ -116,7 +116,7 @@ char *spool_output_system_string(
 	ptr += sprintf( ptr,
 		"%s >%s",
 		system_string,
-		output_filename );
+		output_filespecification );
 
 	if ( capture_stderr_boolean ) sprintf( ptr, " 2>&1" );
 
@@ -133,7 +133,7 @@ FILE *spool_output_pipe( char *output_system_string )
 		output_system_string );
 }
 
-LIST *spool_list( char *output_filename )
+LIST *spool_list( char *output_filespecification )
 {
 	FILE *input_file;
 	LIST *list;
@@ -144,7 +144,7 @@ LIST *spool_list( char *output_filename )
 		/* Safely returns */
 		/* -------------- */
 		appaserver_input_file(
-			output_filename );
+			output_filespecification );
 
 	list = list_file_fetch( input_file );
 
@@ -155,14 +155,14 @@ LIST *spool_list( char *output_filename )
 		/* Returns static memory */
 		/* --------------------- */
 		spool_remove_system_string(
-			output_filename );
+			output_filespecification );
 
 	if ( system( remove_system_string ) ){}
 
 	return list;
 }
 
-char *spool_remove_system_string( char *output_filename )
+char *spool_remove_system_string( char *output_filespecification )
 {
 	static char remove_system_string[ 128 ];
 
@@ -170,7 +170,7 @@ char *spool_remove_system_string( char *output_filename )
 		remove_system_string,
 		sizeof ( remove_system_string ),
 		"rm %s",
-		output_filename );
+		output_filespecification );
 
 	return remove_system_string;
 }
@@ -218,7 +218,7 @@ char *spool_pipe(
 
 	pclose( spool->output_pipe );
 
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 
 	if ( !list_length( list ) ) return NULL;
 
@@ -264,7 +264,7 @@ char *spool_data_string(
 
 	pclose( spool->output_pipe );
 
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 
 	if ( !list_length( list ) ) return NULL;
 

@@ -4,9 +4,13 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
+/*
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+*/
+
+#include "all.h"
 #include "String.h"
 #include "sql.h"
 #include "dictionary.h"
@@ -140,11 +144,11 @@ UPDATE *update_new(
 				override_row_restrictions );
 	}
 
-	update->appaserver_error_filename =
+	update->appaserver_error_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		appaserver_error_filename(
+		appaserver_error_filespecification(
 			application_name );
 
 	update->appaserver_parameter_mount_point =
@@ -171,7 +175,7 @@ UPDATE *update_new(
 			post_change_process,
 			update_root_boolean,
 			update->security_entity,
-			update->appaserver_error_filename,
+			update->appaserver_error_filespecification,
 			update->appaserver_parameter_mount_point );
 
 	if ( !update->update_row_list )
@@ -210,24 +214,16 @@ UPDATE_ROW *update_row_calloc( void )
 }
 
 UPDATE_ROOT *update_root_new(
-		char *application_name,
-		char *session_key,
-		char *login_name,
-		char *role_name,
 		char *folder_name,
 		LIST *folder_attribute_append_isa_list,
 		PROCESS *post_change_process,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
 		LIST *update_attribute_list )
 {
 	UPDATE_ROOT *update_root;
 
-	if ( !application_name
-	||   !login_name
-	||   !folder_name
+	if ( !folder_name
 	||   !list_length( folder_attribute_append_isa_list )
-	||   !appaserver_error_filename
 	||   !list_length( update_attribute_list ) )
 	{
 		char message[ 128 ];
@@ -277,33 +273,18 @@ UPDATE_ROOT *update_root_new(
 
 	if ( post_change_process )
 	{
+		update_root->process_name = post_change_process->process_name;
+
+		update_root->process_command_line =
+			post_change_process->
+				command_line;
+
 		update_root->update_where_list_primary_data_list =
 			update_where_list_primary_data_list(
 				update_root->
 					update_changed_list->
 					where_list
 					/* update_where_list */ );
-
-		update_root->update_command_line =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			update_command_line(
-				APPASERVER_UPDATE_STATE,
-				UPDATE_PREUPDATE_PREFIX,
-				post_change_process->command_line,
-				session_key,
-				login_name,
-				role_name,
-				folder_name,
-				post_change_process->process_name,
-				appaserver_error_filename,
-				update_root->
-					update_where_list_primary_data_list,
-				update_attribute_list );
-
-		update_root->update_changed_list->update_command_line =
-			update_root->update_command_line;
 	}
 
 	return update_root;
@@ -323,7 +304,7 @@ UPDATE_ROW *update_row_new(
 		PROCESS *post_change_process,
 		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		int row_number )
 {
@@ -334,7 +315,7 @@ UPDATE_ROW *update_row_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !row_number )
 	{
 		char message[ 128 ];
@@ -372,15 +353,10 @@ UPDATE_ROW *update_row_new(
 
 	update_row->update_root =
 		update_root_new(
-			application_name,
-			session_key,
-			login_name,
-			role_name,
 			folder_name,
 			folder_attribute_append_isa_list,
 			post_change_process,
 			security_entity,
-			appaserver_error_filename,
 			update_row->update_attribute_list );
 
 	if ( update_row->update_root
@@ -412,7 +388,7 @@ msg( (char *)0, message );
 				role_name,
 				row_number,
 				relation_one2m_list,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				update_row->update_root->update_changed_list );
 	}
@@ -428,7 +404,7 @@ msg( (char *)0, message );
 				folder_name /* many_folder_name */,
 				row_number,
 				relation_mto1_isa_list,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				(update_row->update_root)
 				   ? update_row->
@@ -509,12 +485,13 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		char *many_folder_name,
 		int row_number,
 		RELATION_MTO1 *relation_mto1_isa,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		boolean update_changed_primary_key_boolean,
 		LIST *update_attribute_list )
 {
 	UPDATE_MTO1_ISA *update_mto1_isa;
+	char *command_line;
 
 	if ( !application_name
 	||   !session_key
@@ -535,7 +512,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		relation_mto1_isa->
 			one_folder->
 			folder_attribute_list )
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !list_length( update_attribute_list ) )
 	{
@@ -668,7 +645,7 @@ msg( (char *)0, message );
 					where_list
 					/* update_where_list */ );
 
-		update_mto1_isa->update_command_line =
+		command_line =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -686,13 +663,16 @@ msg( (char *)0, message );
 				relation_mto1_isa->
 					one_folder->
 					post_change_process_name,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				update_mto1_isa->
-					update_where_list_primary_data_list,
-				update_mto1_isa->update_attribute_list );
+					update_where_list_primary_data_list
+					/* primary_data_list */,
+				update_mto1_isa->update_attribute_list,
+				0 /* row_number */,
+				0 /* row_count */ );
 
 		update_mto1_isa->update_changed_list->update_command_line =
-			update_mto1_isa->update_command_line;
+			command_line;
 	}
 
 #ifdef UPDATE_DEBUG_MODE
@@ -747,7 +727,7 @@ msg( (char *)0, message );
 					role_name,
 					row_number,
 					update_mto1_isa->relation_one2m_list,
-					appaserver_error_filename,
+					appaserver_error_filespecification,
 					appaserver_parameter_mount_point,
 					update_mto1_isa->update_changed_list );
 		}
@@ -788,7 +768,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 		PROCESS *post_change_process,
 		boolean update_root_boolean,
 		SECURITY_ENTITY *security_entity,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point )
 {
 	UPDATE_ROW_LIST *update_row_list;
@@ -800,7 +780,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 	||   !login_name
 	||   !role_name
 	||   !folder_name
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -850,7 +830,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 				post_change_process,
 				update_root_boolean,
 				security_entity,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				row_number );
 
@@ -865,9 +845,18 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	if ( list_length( update_row_list->list ) )
 	{
+		update_row_list->count =
+			update_row_list_count(
+				update_row_list->list );
+
 		update_row_list_update_changed_list_list_set(
+			session_key,
+			login_name,
+			role_name,
+			appaserver_error_filespecification,
 			update_row_list->list
-				/* update_row_list in/out */ );
+				/* update_row_list in/out */,
+			update_row_list->count );
 
 		update_row_list->cell_count =
 			update_row_list_cell_count(
@@ -903,7 +892,7 @@ LIST *update_mto1_isa_list(
 		char *many_folder_name,
 		int row_number,
 		LIST *relation_mto1_isa_list,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		boolean update_changed_primary_key_boolean,
 		LIST *update_attribute_list )
@@ -917,7 +906,7 @@ LIST *update_mto1_isa_list(
 	||   !login_name
 	||   !role_name
 	||   !many_folder_name
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !list_length( update_attribute_list ) )
 	{
@@ -964,7 +953,7 @@ msg( (char *)0, message );
 				many_folder_name,
 				row_number,
 				relation_mto1_isa,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				update_changed_primary_key_boolean,
 				update_attribute_list );
@@ -997,7 +986,7 @@ UPDATE_ONE2M *update_one2m_new(
 		LIST *relation_foreign_key_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list )
 {
@@ -1013,7 +1002,7 @@ UPDATE_ONE2M *update_one2m_new(
 	||   !list_length( many_folder_attribute_list )
 	||   !list_length( relation_foreign_key_list )
 	||   !list_length( relation_translate_list )
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !update_changed_list )
 	{
@@ -1158,7 +1147,7 @@ msg( (char *)0, message );
 			many_folder_attribute_list,
 			relation_translate_list,
 			many_post_change_process,
-			appaserver_error_filename,
+			appaserver_error_filespecification,
 			appaserver_parameter_mount_point,
 			update_changed_list,
 			update_one2m->query_fetch->row_list );
@@ -1221,7 +1210,7 @@ char *update_row_list_execute(
 		char *application_name,
 		boolean update_root_boolean,
 		UPDATE_ROW_LIST *update_row_list,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	char error_string[ STRING_64K ];
 	char *ptr = error_string;
@@ -1252,7 +1241,7 @@ char *update_row_list_execute(
 				application_name,
 				update_root_boolean,
 				update_row->update_changed_list_list,
-				appaserver_error_filename );
+				appaserver_error_filespecification );
 
 		if ( update_error_string )
 		{
@@ -1284,155 +1273,43 @@ char *update_command_line(
 		char *role_name,
 		char *folder_name,
 		char *process_name,
-		char *appaserver_error_filename,
-		char *primary_data_list_string,
-		LIST *update_attribute_list )
+		char *appaserver_error_filespecification,
+		LIST *primary_data_list,
+		LIST *update_attribute_list,
+		int row_number,
+		int row_count )
 {
-	char command_line[ STRING_8K ];
-	char preupdate_attribute_name[ 128 ];
-	UPDATE_ATTRIBUTE *update_attribute;
-
-	if ( !post_change_process_command_line
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !process_name
-	||   !appaserver_error_filename
-	||   !primary_data_list_string
-	||   !list_rewind( update_attribute_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	string_strcpy(
-		command_line,
-		post_change_process_command_line,
-		STRING_8K );
-
-	string_replace_command_line(
-		command_line,
-		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		folder_name,
-		PROCESS_FOLDER_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		folder_name,
-		PROCESS_TABLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		process_name,
-		PROCESS_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		(char *)appaserver_update_state,
-		PROCESS_STATE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		primary_data_list_string,
-		PROCESS_PRIMARY_PLACEHOLDER );
-
-	do {
-		update_attribute =
-			list_get(
-				update_attribute_list );
-
-		if ( !update_attribute->folder_attribute )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_attribute empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !update_attribute->file_datum )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: file_datum is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		string_with_space_search_replace(
-			command_line,
-			update_attribute->folder_attribute->attribute_name,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			string_double_quotes_around(
-				update_attribute->post_datum ) );
-
-		if ( update_changed_boolean(
-			QUERY_IS_NULL,
-			update_attribute->
-				file_datum,
-			update_attribute->
-				post_datum ) )
-		{
-			sprintf(preupdate_attribute_name,
-				"%s%s",
-				update_preupdate_prefix,
-				update_attribute->
-					folder_attribute->
-					attribute_name );
-
-			string_with_space_search_replace(
-				command_line,
-				preupdate_attribute_name,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				string_double_quotes_around(
-					update_attribute->
-						file_datum ) );
-		}
-
-	} while ( list_next( update_attribute_list ) );
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filename );
-
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	process_replace_command_line(
+		update_preupdate_prefix,
+		(char *)0 /* application_name */,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		(char *)0 /* target_frame */,
+		(char *)appaserver_update_state,
+		process_name,
+		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
+		(char *)0 /* related_column */,
+		(char *)0 /* update_results_string */,
+		(char *)0 /* update_error_string */,
+		(DICTIONARY *)0 /* operation_row_list_dictionary */,
+		(DICTIONARY *)0 /* dictionary_single_row */,
+		(char *)0 /* where_string */,
+		row_number,
+		row_count,
+		0 /* parent_process_id */,
+		primary_data_list,
+		"y" /* execute_yn */,
+		(LIST *)0 /* insert_datum_list */,
+		update_attribute_list,
+		appaserver_error_filespecification,
+		post_change_process_command_line );
 }
 
 char *update_command_line_list_execute( LIST *command_line_list )
@@ -1440,8 +1317,7 @@ char *update_command_line_list_execute( LIST *command_line_list )
 	char *message_string;
 	char *message_list_string = {0};
 
-	if ( !list_rewind( command_line_list ) ) return (char *)0;
-
+	if ( list_rewind( command_line_list ) )
 	do {
 		if ( ( message_string =
 			string_pipe_fetch(
@@ -2730,7 +2606,7 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 		LIST *many_folder_attribute_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list,
 		LIST *query_row_cell_list )
@@ -2745,7 +2621,7 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 	||   !many_folder_name
 	||   !list_length( relation_translate_list )
 	||   !list_length( many_folder_attribute_list )
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !update_changed_list
 	||   !list_length( query_row_cell_list ) )
@@ -2882,7 +2758,7 @@ msg( (char *)0, message );
 				role_name,
 				many_folder_name,
 				many_post_change_process->process_name,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				update_one2m_row->query_cell_primary_data_list,
 				update_one2m_row->update_attribute_list );
 
@@ -2933,7 +2809,7 @@ msg( (char *)0, message );
 					role_name,
 					row_number,
 					update_one2m_row->relation_one2m_list,
-					appaserver_error_filename,
+					appaserver_error_filespecification,
 					appaserver_parameter_mount_point,
 					update_one2m_row->update_changed_list );
 		}
@@ -3206,7 +3082,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		LIST *many_folder_attribute_list,
 		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list,
 		LIST *query_fetch_row_list )
@@ -3223,7 +3099,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 	||   !list_length( many_primary_key_list )
 	||   !list_length( many_folder_attribute_list )
 	||   !list_length( relation_translate_list )
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !update_changed_list
 	||   !list_rewind( query_fetch_row_list ) )
@@ -3300,7 +3176,7 @@ msg( (char *)0, message );
 				many_folder_attribute_list,
 				relation_translate_list,
 				many_post_change_process,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				update_changed_list,
 				query_row->cell_list );
@@ -3368,12 +3244,16 @@ void update_row_command_line_execute(
 		UPDATE_ONE2M_LIST *update_one2m_list,
 		LIST *update_mto1_isa_list )
 {
-	if ( update_root && update_root->update_command_line )
+	if ( update_root
+	&&   update_root->update_changed_list
+	&&   update_root->update_changed_list->update_command_line )
 	{
 		security_system(
 			SECURITY_FORK_CHARACTER,
 			SECURITY_FORK_STRING,
-			update_root->update_command_line );
+			update_root->
+				update_changed_list->
+				update_command_line );
 	}
 
 	if ( update_one2m_list )
@@ -3583,15 +3463,16 @@ char *update_sql_statement_string(
 
 char *update_system_string(
 		const char *sql_executable,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	static char system_string[ 256 ];
 
-	if ( !appaserver_error_filename )
+	if ( !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "appaserver_error_filename is empty." );
+		sprintf(message,
+			"appaserver_error_filespecification is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3604,38 +3485,34 @@ char *update_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"tee -a %s | %s 2>>%s",
-		appaserver_error_filename,
+		appaserver_error_filespecification,
 		sql_executable,
-		appaserver_error_filename );
+		appaserver_error_filespecification );
 
 	return system_string;
 }
 
 char *update_one2m_row_command_line(
-		char *appaserver_update_state,
-		char *update_preupdate_prefix,
+		const char *appaserver_update_state,
+		const char *update_preupdate_prefix,
 		char *post_change_process_command_line,
 		char *session_key,
 		char *login_name,
 		char *role_name,
 		char *many_folder_name,
 		char *post_change_process_name,
-		char *appaserver_error_filename,
-		LIST *query_cell_primary_data_list,
+		char *appaserver_error_filespecification,
+		LIST *primary_data_list,
 		LIST *update_one2m_row_update_attribute_list )
 {
-	char *display_delimited;
-
-	if ( !appaserver_update_state
-	||   !update_preupdate_prefix
-	||   !post_change_process_command_line
+	if ( !post_change_process_command_line
 	||   !session_key
 	||   !login_name
 	||   !role_name
 	||   !many_folder_name
 	||   !post_change_process_name
-	||   !appaserver_error_filename
-	||   !list_length( query_cell_primary_data_list )
+	||   !appaserver_error_filespecification
+	||   !list_length( primary_data_list )
 	||   !list_length( update_one2m_row_update_attribute_list ) )
 	{
 		char message[ 128 ];
@@ -3648,14 +3525,6 @@ char *update_one2m_row_command_line(
 			__LINE__,
 			message );
 	}
-
-	display_delimited =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_display_delimited(
-			query_cell_primary_data_list,
-			ATTRIBUTE_MULTI_KEY_DELIMITER );
 
 	return
 	/* ------------------- */
@@ -3670,9 +3539,11 @@ char *update_one2m_row_command_line(
 		role_name,
 		many_folder_name,
 		post_change_process_name,
-		appaserver_error_filename,
-		display_delimited /* primary_data_list_string */,
-		update_one2m_row_update_attribute_list );
+		appaserver_error_filespecification,
+		primary_data_list,
+		update_one2m_row_update_attribute_list,
+		0 /* row_number */,
+		0 /* row_count */ );
 }
 
 void update_one2m_row_list_pipe_execute(
@@ -3927,12 +3798,14 @@ void update_mto1_isa_command_line_execute( UPDATE_MTO1_ISA *update_mto1_isa )
 			message );
 	}
 
-	if ( update_mto1_isa->update_command_line )
+	if ( update_mto1_isa->update_changed_list->update_command_line )
 	{
 		security_system(
 			SECURITY_FORK_CHARACTER,
 			SECURITY_FORK_STRING,
-			update_mto1_isa->update_command_line );
+			update_mto1_isa->
+				update_changed_list->
+				update_command_line );
 	}
 
 	if ( update_mto1_isa->update_one2m_list
@@ -3964,12 +3837,12 @@ char *update_row_execute(
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
 		LIST *update_mto1_isa_list,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	FILE *output_pipe;
 
 	if ( !application_name
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -3993,7 +3866,7 @@ char *update_row_execute(
 					update_changed_list->
 					sql_statement_string
 					/* update_sql_statement_string */,
-				appaserver_error_filename );
+				appaserver_error_filespecification );
 
 		if ( update_error_string )
 		{
@@ -4016,7 +3889,7 @@ char *update_row_execute(
 			/* --------------------- */
 			update_system_string(
 				sql_executable,
-				appaserver_error_filename ) );
+				appaserver_error_filespecification ) );
 
 	if ( update_one2m_list )
 	{
@@ -4443,7 +4316,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 		char *role_name,
 		int row_number,
 		LIST *relation_one2m_list,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		UPDATE_CHANGED_LIST *update_changed_list )
 {
@@ -4458,7 +4331,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 	||   !role_name
 	||   !row_number
 	||   !list_rewind( relation_one2m_list )
-	||   !appaserver_error_filename
+	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !update_changed_list )
 	{
@@ -4609,7 +4482,7 @@ msg( (char *)0, message );
 				relation_one2m->
 					many_folder->
 					post_change_process,
-				appaserver_error_filename,
+				appaserver_error_filespecification,
 				appaserver_parameter_mount_point,
 				update_changed_list );
 
@@ -4964,7 +4837,7 @@ char *update_changed_list_display(
 char *update_root_execute(
 		const char *sql_executable,
 		char *update_sql_statement_string,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	char system_string[ 128 ];
 	SPOOL *spool;
@@ -4972,7 +4845,7 @@ char *update_root_execute(
 	char *update_error_string;
 
 	if ( !update_sql_statement_string
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -4990,7 +4863,7 @@ char *update_root_execute(
 		sizeof ( system_string ),
 		"tee_process.e '%s %s' | %s",
 		"update_log.sh",
-		appaserver_error_filename,
+		appaserver_error_filespecification,
 		sql_executable );
 
 	/* Safely returns */
@@ -5005,7 +4878,7 @@ char *update_root_execute(
 		update_sql_statement_string );
 
 	pclose( spool->output_pipe );
-	list = spool_list( spool->output_filename );
+	list = spool_list( spool->output_filespecification );
 	update_error_string = list_first( list );
 
 	return update_error_string;
@@ -5430,14 +5303,58 @@ void update_row_display(
 }
 
 void update_row_list_update_changed_list_list_set(
-		LIST *update_row_list /* in/out */ )
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		char *appaserver_error_filespecification,
+		LIST *update_row_list /* in/out */,
+		int update_row_list_count )
 {
 	UPDATE_ROW *update_row;
+	int row_number = 0;
+	char *command_line;
 	LIST *update_changed_list_list;
 
 	if ( list_rewind( update_row_list ) )
 	do {
 		update_row = list_get( update_row_list );
+
+		if (	update_row->update_root
+		&&	update_row->update_root->process_command_line )
+		{
+			command_line =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				update_command_line(
+					APPASERVER_UPDATE_STATE,
+					UPDATE_PREUPDATE_PREFIX,
+					update_row->
+						update_root->
+						process_command_line,
+					session_key,
+					login_name,
+					role_name,
+					update_row->
+						update_root->
+						folder_name,
+					update_row->
+						update_root->
+						process_name,
+					appaserver_error_filespecification,
+					update_row->
+					  update_root->
+					    update_where_list_primary_data_list,
+					update_row->update_attribute_list,
+					++row_number,
+					update_row_list_count /* row_count */ );
+	
+			update_row->
+				update_root->
+				update_changed_list->
+				update_command_line =
+					command_line;
+		}
 
 		update_changed_list_list =
 			update_row_update_changed_list_list(
@@ -5568,7 +5485,7 @@ void update_statement_execute(
 		char *application_name,
 		char *update_statement )
 {
-	char *error_filename;
+	char *error_filespecification;
 	char *system_string;
 	FILE *output_pipe;
 
@@ -5589,11 +5506,11 @@ void update_statement_execute(
 			message );
 	}
 
-	error_filename =
+	error_filespecification =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_error_filename(
+		appaserver_error_filespecification(
 			application_name );
 
 	system_string =
@@ -5602,7 +5519,7 @@ void update_statement_execute(
 		/* --------------------- */
 		update_system_string(
 			sql_executable,
-			error_filename );
+			error_filespecification );
 
 	output_pipe =
 		/* -------------- */
@@ -5618,7 +5535,7 @@ void update_statement_execute(
 
 	pclose( output_pipe );
 
-	free( error_filename );
+	free( error_filespecification );
 }
 
 UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
@@ -5807,7 +5724,7 @@ char *update_changed_list_list_execute(
 		char *application_name,
 		boolean update_root_boolean,
 		LIST *update_changed_list_list,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
 	char *update_error_string;
 	char *system_string;
@@ -5816,7 +5733,7 @@ char *update_changed_list_list_execute(
 
 	if ( !application_name
 	||   !update_changed_list_list
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -5838,7 +5755,7 @@ char *update_changed_list_list_execute(
 		/* --------------------- */
 		update_system_string(
 			sql_executable,
-			appaserver_error_filename );
+			appaserver_error_filespecification );
 
 	output_pipe =
 		/* -------------- */
@@ -5861,7 +5778,7 @@ char *update_changed_list_list_execute(
 					SQL_EXECUTABLE,
 					update_changed_list->
 						sql_statement_string,
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 			if ( update_error_string )
 			{

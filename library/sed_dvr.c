@@ -1,6 +1,9 @@
+/*
 #include <string.h>
 #include <stdio.h>
-#include "timlib.h"
+*/
+#include "all.h"
+#include "String.h"
 #include "sed.h"
 
 void test1( void );
@@ -10,9 +13,9 @@ void test4( void );
 
 int main( void )
 {
-	/* test1(); */
-	/* test2(); */
-	/* test3(); */
+	test1();
+	test2();
+	test3();
 	test4();
 	return 0;
 }
@@ -101,7 +104,7 @@ sans_bank_date_description );
 
 	sed_free( sed );
 	printf( "Will return = [%s]\n",
-		timlib_rtrim( sans_bank_date_description ) );
+		string_rtrim( sans_bank_date_description ) );
 }
 
 void test4( void )

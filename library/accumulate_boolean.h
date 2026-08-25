@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/
 
-#ifndef ACCUMULATE_BOOLEAN_H
-#define ACCUMULATE_BOOLEAN_H
+#pragma once
 
 #include "boolean.h"
 #include "dictionary.h"
@@ -24,6 +23,4 @@ boolean accumulate_boolean_get(
 /* --------------------------------------- */
 boolean accumulate_boolean_dictionary_extract(
 		DICTIONARY *dictionary );
-
-#endif
 
