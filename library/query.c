@@ -320,7 +320,7 @@ LIST *query_select_table_edit_list(
 	LIST *query_select_list;
 	FOLDER_ATTRIBUTE *folder_attribute;
 	boolean skip_boolean;
-	boolean need_but_not_get_boolean = 1;
+	QUERY_SELECT *query_select;
 
 	if ( !application_name
 	||   !folder_name
@@ -356,13 +356,7 @@ LIST *query_select_table_edit_list(
 
 		if ( skip_boolean ) continue;
 
-		query_select_need_but_not_get_boolean(
-			&need_but_not_get_boolean,
-			attribute_not_null,
-			folder_attribute->attribute_name );
-
-		list_set(
-			query_select_list,
+		query_select =
 			/* -------------- */
 			/* Safely returns */
 			/* -------------- */
@@ -370,19 +364,24 @@ LIST *query_select_table_edit_list(
 				relation_mto1_isa_list_length,
 				attribute_not_null,
 				folder_attribute->folder_name,
-				folder_attribute->attribute_name ) );
+				folder_attribute->attribute_name );
+
+		list_set(
+			query_select_list,
+			query_select );
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
-	if ( need_but_not_get_boolean )
+	query_select =
+		query_select_attribute_not_null(
+			folder_attribute_append_isa_list,
+			attribute_not_null );
+
+	if ( query_select )
 	{
 		list_set(
 			query_select_list,
-			query_select_new(
-				0 /* relation_mto1_is_list_length */,
-				(char *)0 /* attribute_not_null */,
-				(char *)0 /* folder_name */,
-				attribute_not_null ) );
+			query_select );
 	}
 
 	return query_select_list;
@@ -8961,3 +8960,29 @@ char *query_attribute_like_where( char *extract )
 	return strdup( where );
 }
 
+QUERY_SELECT *query_select_attribute_not_null(
+		LIST *folder_attribute_append_isa_list,
+		char *attribute_not_null )
+{
+	QUERY_SELECT *query_select = {0};
+
+	if ( !attribute_not_null ) return NULL;
+
+	if ( !folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		attribute_not_null /* attribute_name */,
+		folder_attribute_append_isa_list ) )
+	{
+		query_select =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			query_select_new(
+				0 /* relation_mto1_is_list_length */,
+				(char *)0 /* attribute_not_null */,
+				(char *)0 /* folder_name */,
+				attribute_not_null );
+	}
+
+	return query_select;
+}

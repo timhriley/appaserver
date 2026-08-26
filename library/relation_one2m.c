@@ -306,6 +306,67 @@ LIST *relation_one2m_recursive_list(
 	return one2m_list;
 }
 
+LIST *relation_one2m_without_omit_drillthru_recursive_list(
+		LIST *one2m_list,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list )
+{
+	LIST *seek_one2m_list;
+	RELATION *relation;
+	RELATION_ONE2M *relation_one2m;
+
+	if ( !one_folder_name
+	||   !list_length( one_folder_primary_key_list ) )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	seek_one2m_list =
+		relation_seek_one2m_list(
+			one_folder_name );
+
+	if ( list_rewind( seek_one2m_list ) )
+	do {
+		relation = list_get( seek_one2m_list );
+
+		if ( relation->omit_drillthru ) continue;
+
+		relation_one2m =
+			relation_one2m_new(
+				one_folder_name,
+				one_folder_primary_key_list,
+				relation );
+
+		if ( !one2m_list ) one2m_list = list_new();
+
+		list_set( one2m_list, relation_one2m );
+
+		if ( relation_one2m->primary_key_subset )
+		{
+			one2m_list =
+				relation_one2m_recursive_list(
+					one2m_list,
+					relation->many_folder_name
+					/* one_folder_name */,
+					relation_one2m->
+					   many_folder->
+					   folder_attribute_primary_key_list
+					   /* one_folder_primary_key_list */ );
+		}
+
+	} while ( list_next( seek_one2m_list ) );
+
+	return one2m_list;
+}
+
 boolean relation_one2m_primary_key_subset(
 		LIST *relation_foreign_key_list,
 		LIST *many_folder_primary_key_list )
@@ -475,30 +536,5 @@ char *relation_one2m_list_display( LIST *relation_one2m_list )
 	} while ( list_next( relation_one2m_list ) );
 
 	return strdup( display );
-}
-
-LIST *relation_one2m_without_omit_drillthru_list( LIST *relation_one2m_list )
-{
-	LIST *list = list_new();
-	RELATION_ONE2M *relation_one2m;
-
-	if ( list_rewind( relation_one2m_list ) )
-	do {
-		relation_one2m = list_get( relation_one2m_list );
-
-		if ( !relation_one2m->relation->omit_drillthru )
-		{
-			list_set( list, relation_one2m );
-		}
-
-	} while ( list_next( relation_one2m_list ) );
-
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
-
-	return list;
 }
 

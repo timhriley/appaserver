@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FOLDER_ATTRIBUTE_H
-#define FOLDER_ATTRIBUTE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -368,4 +367,3 @@ char *folder_attribute_fetch_default_value(
 		char *folder_name,
 		char *attribute_name );
 
-#endif

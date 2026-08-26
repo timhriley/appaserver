@@ -4,11 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <malloc.h>
+#include "all.h"
 #include "String.h"
 #include "environ.h"
 #include "appaserver_parameter.h"

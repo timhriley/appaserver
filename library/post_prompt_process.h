@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef POST_PROMPT_PROCESS_H
-#define POST_PROMPT_PROCESS_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -77,8 +76,8 @@ char *post_prompt_process_command_line(
 		char *login_name,
 		char *role_name,
 		char *process_name,
-		DICTIONARY *non_prefixed_dictionary,
-		char *application_error_directory );
+		DICTIONARY *non_prefixed_dictionary /* in/out */,
+		char *application_error_filespecification );
 
 /* Process */
 /* ------- */
@@ -106,4 +105,3 @@ char *post_prompt_process_system_string(
 		char *process_name,
 		char *appaserver_error_filename );
 
-#endif

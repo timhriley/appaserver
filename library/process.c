@@ -667,6 +667,9 @@ char *process_replace_command_line(
 
 	string_replace_command_line(
 		command_line,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
 		list_display_delimited(
 			primary_key_data_list,
 			ATTRIBUTE_MULTI_KEY_DELIMITER ),
@@ -713,9 +716,10 @@ char *process_replace_command_line(
 			update_attribute->
 				folder_attribute->
 				attribute_name,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
+			/* ---------------------- */
+			/* Returns static memory  */
+			/* Buffer size=STRING_66K */
+			/* ---------------------- */
 			string_double_quotes_around(
 				update_attribute->post_datum ) );
 
@@ -740,9 +744,10 @@ char *process_replace_command_line(
 			string_with_space_search_replace(
 				command_line,
 				preupdate_attribute_name,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
+				/* ---------------------- */
+				/* Returns static memory  */
+				/* Buffer size=STRING_66K */
+				/* ---------------------- */
 				string_double_quotes_around(
 					update_attribute->file_datum ) );
 		}
@@ -750,16 +755,18 @@ char *process_replace_command_line(
 	} while ( list_next( update_attribute_list ) );
 
 	escape_dollar =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* ---------------------- */
+		/* Returns heap memory	  */
+		/* Buffer size=STRING_65K */
+		/* ---------------------- */
 		string_escape_dollar(
 			command_line /* source */ );
 
 	if ( appaserver_error_filespecification )
 	{
-		sprintf(
-			command_line + strlen( command_line ),
+		snprintf(
+			command_line,
+			sizeof ( command_line ),
 			"%s 2>>%s",
 			escape_dollar,
 			appaserver_error_filespecification );

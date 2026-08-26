@@ -4,11 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <ctype.h>
+#include "all.h"
 #include "String.h"
 #include "piece.h"
 #include "sql.h"
@@ -67,8 +63,9 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 		row_security_role_update->no_override_boolean =
 			( *buffer == 'y' );
 
-	row_security_role_update->relation_one2m_recursive_list =
-		relation_one2m_recursive_list(
+	row_security_role_update->
+		relation_one2m_without_omit_drillthru_recursive_list =
+		    relation_one2m_without_omit_drillthru_recursive_list(
 			(LIST *)0 /* one2m_list Pass in NULL */,
 			row_security_role_update->folder_name
 				/* one_folder_name */,
@@ -77,10 +74,12 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 					folder_name )
 				/* one_folder_primary_key_list */ );
 
+/*
 	row_security_role_update->relation_one2m_recursive_list =
 		relation_one2m_without_omit_drillthru_list(
 			row_security_role_update->
 				relation_one2m_recursive_list );
+*/
 
 	return row_security_role_update;
 }
@@ -361,8 +360,8 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 
 		if ( ( row_security_role_update->relation_one2m =
 			row_security_role_update_relation_one2m(
-				row_security_role_update->
-					relation_one2m_recursive_list,
+			  row_security_role_update->
+			   relation_one2m_without_omit_drillthru_recursive_list,
 				folder_name ) ) )
 		{
 			return row_security_role_update;
@@ -374,7 +373,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 }
 
 RELATION_ONE2M *row_security_role_update_relation_one2m(
-		LIST *relation_one2m_recursive_list,
+		LIST *relation_one2m_without_omit_drillthru_recursive_list,
 		char *folder_name )
 {
 	RELATION_ONE2M *relation_one2m;
@@ -392,10 +391,12 @@ RELATION_ONE2M *row_security_role_update_relation_one2m(
 			message );
 	}
 
-	if ( list_rewind( relation_one2m_recursive_list ) )
+	if ( list_rewind(
+		relation_one2m_without_omit_drillthru_recursive_list ) )
 	do {
 		relation_one2m =
-			list_get( relation_one2m_recursive_list );
+			list_get(
+			 relation_one2m_without_omit_drillthru_recursive_list );
 
 		if ( !relation_one2m->many_folder_name
 		||   !relation_one2m->relation )
@@ -419,7 +420,8 @@ RELATION_ONE2M *row_security_role_update_relation_one2m(
 			return relation_one2m;
 		}
 
-	} while ( list_next( relation_one2m_recursive_list ) );
+	} while ( list_next(
+		    relation_one2m_without_omit_drillthru_recursive_list ) );
 
 	return NULL;
 }

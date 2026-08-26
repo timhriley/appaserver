@@ -21,6 +21,7 @@
 #include "process_parameter.h"
 #include "folder_attribute.h"
 #include "process.h"
+#include "update.h"
 #include "prompt_process.h"
 #include "post_choose_process.h"
 #include "post_prompt_process.h"
@@ -238,8 +239,9 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 				process_name,
 			post_prompt_process->
 				dictionary_separate_prompt_process->
-				non_prefixed_dictionary,
-			appaserver_error_filename( application_name ) );
+				non_prefixed_dictionary /* in/out */,
+			appaserver_error_filespecification(
+				application_name ) );
 
 	post_prompt_process->post_choose_process_no_parameters =
 		post_choose_process_no_parameters(
@@ -349,10 +351,8 @@ char *post_prompt_process_command_line(
 		char *role_name,
 		char *process_name,
 		DICTIONARY *non_prefixed_dictionary,
-		char *appaserver_error_filename )
+		char *appaserver_error_filespecification )
 {
-	char command_line[ STRING_16K ];
-	char *tmp;
 	char *execute_yn;
 
 	if ( !process_command_line
@@ -361,7 +361,7 @@ char *post_prompt_process_command_line(
 	||   !login_name
 	||   !role_name
 	||   !process_name
-	||   !appaserver_error_filename )
+	||   !appaserver_error_filespecification )
 	{
 		char message[ 128 ];
 
@@ -374,41 +374,6 @@ char *post_prompt_process_command_line(
 			message );
 	}
 
-	string_strcpy(
-		command_line,
-		process_command_line,
-		STRING_16K );
-
-	string_replace_command_line(
-		command_line,
-		application_name,
-		PROCESS_APPLICATION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		session_key,
-		PROCESS_SESSION_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_NAME_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		login_name,
-		PROCESS_LOGIN_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		role_name,
-		PROCESS_ROLE_PLACEHOLDER );
-
-	string_replace_command_line(
-		command_line,
-		process_name,
-		PROCESS_NAME_PLACEHOLDER );
-
 	non_prefixed_dictionary =
 		/* ------------------------------- */
 		/* Returns non_prefixed_dictionary */
@@ -420,45 +385,44 @@ char *post_prompt_process_command_line(
 			PROCESS_COLUMN_PLACEHOLDER,
 			non_prefixed_dictionary /* in/out */ );
 
-	tmp =
-		/* Returns heap memory */
-		/* ------------------- */
-		dictionary_display_delimited(
-			non_prefixed_dictionary,
-			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
-			DICTIONARY_ELEMENT_DELIMITER );
-
-	string_replace_command_line(
-		command_line,
-		tmp,
-		PROCESS_DICTIONARY_PLACEHOLDER );
-
-	free( tmp );
-
-	dictionary_replace_command_line( 	
-		command_line /* source_destination */,
-		non_prefixed_dictionary );
-
-	if ( ( execute_yn =
+	execute_yn =
 		dictionary_get(
 			APPASERVER_EXECUTE_YN,
-			non_prefixed_dictionary ) ) )
-	{
-		string_replace_command_line(
-			command_line /* in/out */,
-			execute_yn,
-			APPASERVER_REALLY_YN );
-	}
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filename );
+			non_prefixed_dictionary );
 
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	process_replace_command_line(
+		UPDATE_PREUPDATE_PREFIX,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		(char *)0 /* folder_name */,
+		(char *)0 /* target_frame */,
+		(char *)0 /* state */,
+		process_name,
+		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
+		(char *)0 /* related_column */,
+		(char *)0 /* update_results_string */,
+		(char *)0 /* update_error_string */,
+		non_prefixed_dictionary
+			/* operation_row_list_dictionary */,
+		non_prefixed_dictionary
+			/* dictionary_single_row */,
+		(char *)0 /* where_string */,
+		0 /* row_number */,
+		0 /* row_count */,
+		0 /* parent_process_id */,
+		(LIST *)0 /* primary_key_data_list */,
+		execute_yn,
+		(LIST *)0 /* insert_datum_list */,
+		(LIST *)0 /* update_attribute_list */,
+		appaserver_error_filespecification,
+		process_command_line );
 }
 
 char *post_prompt_process_system_string(

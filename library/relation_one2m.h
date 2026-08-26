@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef RELATION_ONE2M_H
-#define RELATION_ONE2M_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -58,6 +57,13 @@ LIST *relation_one2m_recursive_list(
 
 /* Usage */
 /* ----- */
+LIST *relation_one2m_without_omit_drillthru_recursive_list(
+		LIST *one2m_list /* Pass in NULL */,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list );
+
+/* Usage */
+/* ----- */
 boolean relation_one2m_primary_key_subset(
 		LIST *relation_foreign_key_list,
 		LIST *many_folder_primary_key_list );
@@ -67,11 +73,6 @@ boolean relation_one2m_primary_key_subset(
 boolean relation_one2m_foreign_key_none_primary(
 		LIST *relation_foreign_key_list,
 		LIST *many_folder_primary_key_list );
-
-/* Usage */
-/* ----- */
-LIST *relation_one2m_without_omit_drillthru_list(
-		LIST *relation_one2m_list );
 
 /* Usage */
 /* ----- */
@@ -108,6 +109,4 @@ char *relation_one2m_where_string(
 /* ------------------------------------- */
 char *relation_one2m_list_display(
 		LIST *relation_one2m_list );
-
-#endif
 

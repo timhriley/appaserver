@@ -120,8 +120,10 @@ char *string_escape_quote_dollar(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* ---------------------- */
+/* Returns heap memory	  */
+/* Buffer size=STRING_65K */
+/* ---------------------- */
 char *string_escape_dollar(
 		char *source );
 
@@ -813,54 +815,52 @@ char *string_unescape_character(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* ---------------------- */
+/* Returns static memory  */
+/* Buffer size=STRING_66K */
+/* ---------------------- */
 char *string_double_quotes_around(
 		char *s );
 
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* ---------------------- */
+/* Returns static memory  */
+/* Buffer size=STRING_66K */
+/* ---------------------- */
 char *string_quotes_around(
 		char *s,
 		char c );
 
 /* Usage */
 /* ----- */
-
 char *string_reverse(
 		char *destination,
 		char *source );
 
 /* Usage */
 /* ----- */
-
-/* Returns source_destination */
-/* -------------------------- */
 char *string_trim_trailing_character(
 		char *source_destination,
 		char character );
 
 /* Usage */
 /* ----- */
-
 char *string_trim_right(
 		char *source_destination,
 		int length );
 
 /* Usage */
 /* ----- */
-
 char *string_search_replace_special_characters(
-		char *buffer );
+		char *buffer /* in/out */ );
 
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns static memory of 4096 bytes */
+/* ----------------------------------- */
 char *string_escape_single_quotes(
 		char *source );
 

@@ -24,7 +24,7 @@ typedef struct
 	char *folder_name;
 	char *attribute_not_null;
 	boolean no_override_boolean;
-	LIST *relation_one2m_recursive_list;
+	LIST *relation_one2m_without_omit_drillthru_recursive_list;
 
 	/* Set externally */
 	/* -------------- */
@@ -57,7 +57,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 /* Usage */
 /* ----- */
 RELATION_ONE2M *row_security_role_update_relation_one2m(
-		LIST *relation_one2m_recursive_list,
+		LIST *relation_one2m_without_omit_drillthru_recursive_list,
 		char *folder_name );
 
 typedef struct

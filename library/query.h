@@ -1147,10 +1147,9 @@ boolean query_select_skip_boolean(
 
 /* Usage */
 /* ----- */
-void query_select_need_but_not_get_boolean(
-		boolean *need_but_not_get_boolean,
-		char *attribute_not_null,
-		char *attribute_name );
+QUERY_SELECT *query_select_attribute_not_null(
+		LIST *folder_attribute_append_isa_list,
+		char *attribute_not_null );
 
 /* Usage */
 /* ----- */
