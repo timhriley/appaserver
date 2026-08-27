@@ -145,8 +145,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			(char *)purchase_table,
 			select,
+			(char *)purchase_table,
 			purchase_fetch->purchase_primary_where );
 
 	free( select );
@@ -173,6 +173,9 @@ PURCHASE_FETCH *purchase_fetch_new(
 		input );
 
 	purchase_fetch->fixed_asset_purchase_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		fixed_asset_purchase_list_new(
 			FIXED_ASSET_PURCHASE_SELECT,
 			FIXED_ASSET_PURCHASE_TABLE,
@@ -183,6 +186,9 @@ PURCHASE_FETCH *purchase_fetch_new(
 	if ( purchase_fetch->inventory_total_boolean )
 	{
 		purchase_fetch->inventory_purchase_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			inventory_purchase_list_new(
 				INVENTORY_PURCHASE_SELECT,
 				INVENTORY_PURCHASE_TABLE,
@@ -190,10 +196,18 @@ PURCHASE_FETCH *purchase_fetch_new(
 				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );
 	}
+	else
+	{
+		purchase_fetch->inventory_purchase_list =
+			inventory_purchase_list_calloc();
+	}
 
 	if ( purchase_fetch->specific_inventory_total_boolean )
 	{
 		purchase_fetch->specific_inventory_purchase_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			specific_inventory_purchase_list_new(
 				SPECIFIC_INVENTORY_PURCHASE_SELECT,
 				SPECIFIC_INVENTORY_PURCHASE_TABLE,
@@ -201,8 +215,27 @@ PURCHASE_FETCH *purchase_fetch_new(
 				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );
 	}
+	else
+	{
+		purchase_fetch->specific_inventory_purchase_list =
+			specific_inventory_purchase_list_calloc();
+	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( (char *)0, message );
+}
 	purchase_fetch->supply_purchase_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		supply_purchase_list_new(
 			SUPPLY_PURCHASE_SELECT,
 			SUPPLY_PURCHASE_TABLE,
@@ -213,7 +246,6 @@ PURCHASE_FETCH *purchase_fetch_new(
 			purchase_fetch->predictive_fund_boolean,
 			purchase_fetch->entity_contact_key_boolean,
 			purchase_fetch->purchase_primary_where );
-
 
 /*
 	purchase_fetch->service_purchase_list =

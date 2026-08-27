@@ -16,7 +16,7 @@
 #define PURCHASE_TABLE			"purchase"
 
 #define PURCHASE_SELECT			"full_name,"			\
-					"purchasee_date_time,"		\
+					"purchase_date_time,"		\
 					"sales_tax,"			\
 					"freight_in,"			\
 					"fixed_asset_total,"		\

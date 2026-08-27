@@ -39,6 +39,8 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		char *appaserver_error_filespecification,
 		char *appaserver_table_name,
 		PROCESS *post_change_process,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list,
 		char *query_cell_where_string,
 		QUERY_CELL *set_null_query_cell );
@@ -69,8 +71,16 @@ char *delete_one2m_update_cell_command_line(
 		char *appaserver_error_filespecification,
 		char *query_cell_attribute_name,
 		char *query_cell_select_datum,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list,
 		char *post_change_process_command_line );
+
+/* Usage */
+/* ----- */
+LIST *delete_one2m_update_cell_update_attribute_list(
+		char *query_cell_attribute_name,
+		char *query_cell_select_datum );
 
 typedef struct
 {
@@ -87,6 +97,8 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list );
 
 /* Process */
@@ -111,7 +123,8 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
-		LIST *query_fetch_row_list );
+		LIST *query_fetch_row_list,
+		int delete_one2m_row_count );
 
 /* Process */
 /* ------- */
@@ -205,6 +218,7 @@ typedef struct
 	char *query_cell_where_string;
 	char *query_system_string;
 	QUERY_FETCH *query_fetch;
+	int row_count;
 	DELETE_ONE2M_UPDATE *delete_one2m_update;
 	LIST *relation_one2m_list;
 	DELETE_ONE2M_FETCH *delete_one2m_fetch;
@@ -242,6 +256,9 @@ char *delete_one2m_table_name(
 char *delete_one2m_select_string(
 		LIST *many_folder_primary_key_list,
 		char delimiter );
+
+int delete_one2m_row_count(
+		LIST *query_fetch_row_list );
 
 /* Usage */
 /* ----- */

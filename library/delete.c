@@ -563,6 +563,11 @@ DELETE_ONE2M *delete_one2m_new(
 		return NULL;
 	}
 
+
+	delete_one2m->row_count =
+		delete_one2m_row_count(
+			delete_one2m->query_fetch->row_list );
+
 	if ( foreign_key_none_primary )
 	{
 		if ( update_null_boolean )
@@ -579,7 +584,8 @@ DELETE_ONE2M *delete_one2m_new(
 						query_cell_list
 						/* set_null_query_cell_list */,
 					post_change_process,
-					delete_one2m->query_fetch->row_list );
+					delete_one2m->query_fetch->row_list,
+					delete_one2m->row_count );
 		}
 
 		return delete_one2m;
@@ -1166,6 +1172,8 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		char *appaserver_error_filespecification,
 		char *appaserver_table_name,
 		PROCESS *post_change_process,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list,
 		char *query_cell_where_string,
 		QUERY_CELL *set_null_query_cell )
@@ -1212,6 +1220,8 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 				appaserver_error_filespecification,
 				set_null_query_cell->attribute_name,
 				set_null_query_cell->select_datum,
+				row_number,
+				row_count,
 				query_row_cell_list,
 				post_change_process->command_line );
 	}
@@ -1278,15 +1288,12 @@ char *delete_one2m_update_cell_command_line(
 		char *appaserver_error_filespecification,
 		char *query_cell_attribute_name,
 		char *query_cell_select_datum,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list,
 		char *post_change_process_command_line )
 {
-	char command_line[ 1024 ];
-	char preupdate_attribute_name[ 128 ];
-
-	if ( !appaserver_update_state
-	||   !update_preupdate_prefix
-	||   !appaserver_error_filespecification
+	if ( !appaserver_error_filespecification
 	||   !query_cell_attribute_name
 	||   !query_cell_select_datum
 	||   !list_length( query_row_cell_list )
@@ -1303,59 +1310,41 @@ char *delete_one2m_update_cell_command_line(
 			message );
 	}
 
-	string_strcpy(
-		command_line,
-		post_change_process_command_line,
-		sizeof ( command_line ) );
-
-	query_cell_command_line_replace(
-		command_line,
-		query_row_cell_list );
-
-	string_with_space_search_replace(
-		command_line,
-		PROCESS_STATE_PLACEHOLDER,
-		/* ---------------------- */
-		/* Returns static memory  */
-		/* Buffer size=STRING_66K */
-		/* ---------------------- */
-		string_double_quotes_around(
-			(char *)appaserver_update_state ) );
-
-	string_with_space_search_replace(
-		command_line,
-		query_cell_attribute_name,
-		/* ---------------------- */
-		/* Returns static memory  */
-		/* Buffer size=STRING_66K */
-		/* ---------------------- */
-		string_double_quotes_around(
-			"" ) );
-
-	sprintf(preupdate_attribute_name,
-		"%s%s",
-		update_preupdate_prefix,
-		query_cell_attribute_name );
-
-	string_with_space_search_replace(
-		command_line,
-		preupdate_attribute_name,
-		/* ---------------------- */
-		/* Returns static memory  */
-		/* Buffer size=STRING_66K */
-		/* ---------------------- */
-		string_double_quotes_around(
-			query_cell_select_datum ) );
-
-	sprintf(command_line + strlen( command_line ),
-		" 2>>%s",
-		appaserver_error_filespecification );
-
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	string_escape_dollar( command_line );
+	process_replace_command_line(
+		update_preupdate_prefix,
+		(char *)0 /* application_name */,
+		(char *)0 /* session_key */,
+		(char *)0  /* login_name */,
+		(char *)0 /* role_name */,
+		(char *)0 /* folder_name */,
+		(char *)0 /* target_frame */,
+		(char *)appaserver_update_state,
+		(char *)0 /* process_name */,
+		(char *)0 /* many_folder_name */,
+		(char *)0 /* one_folder_name */,
+		(char *)0 /* related_column */,
+		(char *)0 /* update_results_string */,
+		(char *)0 /* update_error_string */,
+		(DICTIONARY *)0 /* operation_row_list_dictionary */,
+		(DICTIONARY *)0 /* dictionary_single_row */,
+		(char *)0 /* where_string */,
+		row_number,
+		row_count,
+		0 /* parent_process_id */,
+		(LIST *)0 /* primary_key_data_list */,
+		"y" /* execute_yn */,
+		(LIST *)0 /* insert_datum_list */,
+		delete_one2m_update_cell_update_attribute_list(
+			query_cell_attribute_name,
+			query_cell_select_datum ),
+		query_row_cell_list /* query_cell_list */,
+		appaserver_error_filespecification,
+		post_change_process_command_line
+			/* input_command_line */ );
 }
 
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
@@ -1363,6 +1352,8 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
+		int row_number,
+		int row_count,
 		LIST *query_row_cell_list )
 {
 	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
@@ -1412,6 +1403,8 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 				appaserver_error_filespecification,
 				appaserver_table_name,
 				post_change_process,
+				row_number,
+				row_count,
 				query_row_cell_list,
 				where_string,
 				set_null_query_cell );
@@ -1456,11 +1449,13 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
-		LIST *query_fetch_row_list )
+		LIST *query_fetch_row_list,
+		int row_count )
 {
 	DELETE_ONE2M_UPDATE *delete_one2m_update;
 	QUERY_ROW *query_row;
 	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
+	int row_number = 0;
 
 	if ( !appaserver_error_filespecification
 	||   !folder_name
@@ -1496,6 +1491,8 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 				appaserver_table_name,
 				set_null_query_cell_list,
 				post_change_process,
+				++row_number,
+				row_count,
 				query_row->cell_list );
 
 		list_set(
@@ -2587,5 +2584,27 @@ unsigned int delete_update_cell_count( LIST *delete_sql_list )
 	} while ( list_next( delete_sql_list ) );
 
 	return update_cell_count;
+}
+
+LIST *delete_one2m_update_cell_update_attribute_list(
+		char *query_cell_attribute_name,
+		char *query_cell_select_datum )
+{
+	LIST *list = list_new();
+
+	list_set(
+		list,
+		update_attribute_new(
+			query_cell_attribute_name,
+			query_cell_select_datum /* post_datum */,
+			(char *)0 /* file_datum */ ) );
+
+	return list;
+}
+
+int delete_one2m_row_count( LIST *query_fetch_row_list )
+{
+	return
+	list_length( query_fetch_row_list );
 }
 
