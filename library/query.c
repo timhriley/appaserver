@@ -7496,6 +7496,7 @@ char *query_drop_down_process_command_line(
 		(char *)0 /* execute_yn */,
 		(LIST *)0 /* insert_datum_list */,
 		(LIST *)0 /* update_attribute_list */,
+		(LIST *)0 /* query_cell_list */,
 		appaserver_error_filespecification,
 		process_command_line /* input_command_line */ );
 }

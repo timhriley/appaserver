@@ -190,6 +190,7 @@ void post_delete_folder_block_state_two(
 			query_primary_key->
 			query_fetch->
 			row_list,
-		lookup_delete->title_string );
+		lookup_delete->title_string,
+		lookup_delete->row_count );
 }
 

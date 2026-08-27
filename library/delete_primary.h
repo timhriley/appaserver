@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org 	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef DELETE_PRIMARY_H
-#define DELETE_PRIMARY_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -34,6 +33,8 @@ DELETE_PRIMARY *delete_primary_new(
 		char *role_name,
 		char *folder_name,
 		char *primary_data_list_string,
+		int row_number,
+		int row_count,
 		boolean delete_omit_isa_boolean );
 
 /* Process */
@@ -47,5 +48,3 @@ LIST *delete_primary_query_cell_list(
 		char sql_delimiter,
 		char *primary_data_list_string,
 		LIST *folder_attribute_fetch_primary_key_list );
-
-#endif

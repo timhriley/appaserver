@@ -29,9 +29,10 @@
 
 typedef struct
 {
-	FOLDER_ATTRIBUTE *folder_attribute;
+	char *attribute_name;
 	char *post_datum;
 	char *file_datum;
+	FOLDER_ATTRIBUTE *folder_attribute;
 } UPDATE_ATTRIBUTE;
 
 /* Usage */
@@ -44,11 +45,21 @@ LIST *update_attribute_list(
 
 /* Usage */
 /* ----- */
-UPDATE_ATTRIBUTE *update_attribute_new(
+UPDATE_ATTRIBUTE *update_attribute_resolve_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		int row_number,
 		FOLDER_ATTRIBUTE *folder_attribute );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+UPDATE_ATTRIBUTE *update_attribute_new(
+		char *attribute_name,
+		char *post_datum,
+		char *file_datum );
 
 /* Process */
 /* ------- */
@@ -475,20 +486,6 @@ LIST *update_one2m_where_query_cell_list(
 		LIST *update_where_list,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list );
-
-/* Usage */
-/* ----- */
-LIST *update_one2m_changed_list(
-		char *many_folder_name,
-		LIST *update_changed_list,
-		LIST *relation_foreign_key_list );
-
-/* Usage */
-/* ----- */
-LIST *update_one2m_where_list(
-		char *many_folder_name,
-		LIST *update_where_list,
-		LIST *relation_foreign_key_list );
 
 /* Usage */
 /* ----- */

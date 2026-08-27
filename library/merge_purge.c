@@ -465,6 +465,8 @@ MERGE_PURGE_DELETE *merge_purge_delete_new(
 			login_name,
 			role_name,
 			folder_name,
+			1 /* row_number */,
+			1 /* row_count */,
 			merge_purge_delete->delete_primary_query_cell_list,
 			1 /* isa_boolean */,
 			0 /* not update_null_boolean */ );

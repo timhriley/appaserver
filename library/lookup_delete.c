@@ -136,8 +136,8 @@ LOOKUP_DELETE *lookup_delete_new(
 				query_table_edit_where->
 				string );
 
-	lookup_delete->fetch_row_count =
-		lookup_delete_fetch_row_count( 
+	lookup_delete->row_count =
+		lookup_delete_row_count( 
 			list_length(
 				lookup_delete->
 					query_primary_key->
@@ -175,10 +175,12 @@ void lookup_delete_state_two_execute(
 		char *folder_name,
 		boolean execute_boolean,
 		LIST *query_fetch_row_list,
-		char *title_string )
+		char *title_string,
+		int row_count )
 {
 	QUERY_ROW *query_row;
 	DELETE *delete;
+	int row_number = 0;
 
 	if ( !application_name
 	||   !login_name
@@ -217,6 +219,8 @@ void lookup_delete_state_two_execute(
 					login_name,
 					role_name,
 					folder_name,
+					++row_number,
+					row_count,
 					query_row->cell_list,
 					1 /* isa_boolean */,
 					1 /* update_null_boolean */ );
@@ -373,7 +377,7 @@ void lookup_delete_state_one_form_output(
 	printf( "<h2>Where: %s</h2>\n",
 		lookup_delete->sub_title_string );
 
-	if ( !lookup_delete->fetch_row_count )
+	if ( !lookup_delete->row_count )
 	{
 		printf(	"<h3>%s</h3>\n",
 			LOOKUP_DELETE_NO_ROWS_MESSAGE );
@@ -382,11 +386,11 @@ void lookup_delete_state_one_form_output(
 		exit( 0 );
 	}
 
-	if (	lookup_delete->fetch_row_count >
+	if (	lookup_delete->row_count >
 		LOOKUP_DELETE_ROW_MAX )
 	{
 		printf(	LOOKUP_DELETE_MAX_EXCEED_TEMPLATE,
-			lookup_delete->fetch_row_count,
+			lookup_delete->row_count,
 			LOOKUP_DELETE_ROW_MAX );
 		document_close();
 		exit( 0 );
@@ -398,7 +402,7 @@ void lookup_delete_state_one_form_output(
 		/* --------------------- */
 		lookup_delete_prompt_html(
 			folder_name,
-			lookup_delete->fetch_row_count ) );
+			lookup_delete->row_count ) );
 
 	action_string =
 		/* ------------------- */
@@ -431,14 +435,14 @@ void lookup_delete_state_one_form_output(
 
 char *lookup_delete_prompt_html(
 		char *folder_name,
-		int fetch_row_count )
+		int row_count )
 {
 	char buffer[ 128 ];
 	static char html[ 256 ];
 	char *row_string;
 
 	if ( !folder_name
-	||   !fetch_row_count )
+	||   !row_count )
 	{
 		char message[ 128 ];
 
@@ -451,14 +455,14 @@ char *lookup_delete_prompt_html(
 			message );
 	}
 
-	if ( fetch_row_count == 1 )
+	if ( row_count == 1 )
 		row_string = "row";
 	else
 		row_string = "rows";
 
 	sprintf(html,
 		"<h3>Delete %d %s from %s</h3>",
-		fetch_row_count,
+		row_count,
 		row_string,
 		string_initial_capital(
 			buffer,
@@ -697,7 +701,7 @@ DICTIONARY *lookup_delete_input_query_dictionary(
 		return non_prefixed_dictionary;
 }
 
-int lookup_delete_fetch_row_count( int query_fetch_row_list_length )
+int lookup_delete_row_count( int query_fetch_row_list_length )
 {
 	return query_fetch_row_list_length;
 }

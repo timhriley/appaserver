@@ -4,9 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "all.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "sql.h"
@@ -21,6 +19,8 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *folder_name;
 	char *primary_data_list_string;
+	int row_number;
+	int row_count;
 	boolean delete_omit_isa_boolean;
 	DELETE_PRIMARY *delete_primary;
 
@@ -31,10 +31,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role folder primary_data_list delete_omit_isa_yn\n",
+"Usage: %s session login_name role folder primary_data_list row_number row_count delete_omit_isa_yn\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
@@ -44,7 +44,9 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	primary_data_list_string = argv[ 5 ];
-	delete_omit_isa_boolean = (*argv[ 6 ] == 'y');
+	row_number = atoi( argv[ 6 ] );
+	row_count = atoi( argv[ 7 ] );
+	delete_omit_isa_boolean = (*argv[ 8 ] == 'y');
 
 	delete_primary =
 		/* -------------- */
@@ -57,6 +59,8 @@ int main( int argc, char **argv )
 			role_name,
 			folder_name,
 			primary_data_list_string,
+			row_number,
+			row_count,
 			delete_omit_isa_boolean );
 
 	if ( delete_primary->delete

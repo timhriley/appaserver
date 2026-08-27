@@ -1173,6 +1173,7 @@ char *insert_folder_execute_command_line(
 		"y" /* execute_yn */,
 		insert_datum_list,
 		(LIST *)0 /* update_attribute_list */,
+		(LIST *)0 /* query_cell_list */,
 		appaserver_error_filespecification,
 		post_change_process_command_line );
 }

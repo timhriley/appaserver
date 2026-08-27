@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef LOOKUP_DELETE_H
-#define LOOKUP_DELETE_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -73,7 +72,7 @@ typedef struct
 	QUERY_PRIMARY_KEY *query_primary_key;
 	char *title_string;
 	char *sub_title_string;
-	int fetch_row_count;
+	int row_count;
 } LOOKUP_DELETE;
 
 /* Usage */
@@ -103,7 +102,7 @@ char *lookup_delete_title_string(
 char *lookup_delete_sub_title_string(
 		char *where_string );
 
-int lookup_delete_fetch_row_count(
+int lookup_delete_row_count(
 		int query_fetch_row_list_length );
 
 /* Driver */
@@ -115,7 +114,8 @@ void lookup_delete_state_two_execute(
 		char *role_name,
 		boolean execute_boolean,
 		LIST *query_fetch_row_list,
-		char *title_string );
+		char *title_string,
+		int row_count );
 
 /* Driver */
 /* ------ */
@@ -135,7 +135,7 @@ void lookup_delete_state_one_form_output(
 /* --------------------- */
 char *lookup_delete_prompt_html(
 		char *folder_name,
-		int lookup_delete_fetch_row_count );
+		int lookup_delete_row_count );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -147,4 +147,3 @@ char *lookup_delete_action_string(
 		char *role_name,
 		char *folder_name );
 
-#endif

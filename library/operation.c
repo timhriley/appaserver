@@ -744,7 +744,7 @@ char *operation_row_checked_command_line(
 		DICTIONARY *dictionary_single_row,
 		char *operation_name,
 		char *process_command_line,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		int operation_row_checked_count,
 		pid_t parent_process_id,
 		LIST *primary_key_data_list )
@@ -802,8 +802,8 @@ char *operation_row_checked_command_line(
 		"y" /* execute_yn */,
 		(LIST *)0 /* insert_datum_list */,
 		(LIST *)0 /* update_attribute_list */,
-		appaserver_error_filename
-			/* appaserver_error_filespecification */,
+		(LIST *)0 /* query_cell_list */,
+		appaserver_error_filespecification,
 		process_command_line /* input_command_line */ );
 }
 

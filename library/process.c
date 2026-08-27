@@ -4,9 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "all.h"
 #include "String.h"
 #include "appaserver_error.h"
 #include "list.h"
@@ -21,6 +19,7 @@
 #include "security.h"
 #include "insert.h"
 #include "update.h"
+#include "query.h"
 #include "process_parameter.h"
 #include "dictionary.h"
 #include "process.h"
@@ -542,6 +541,7 @@ char *process_replace_command_line(
 		char *execute_yn,
 		LIST *insert_datum_list,
 		LIST *update_attribute_list,
+		LIST *query_cell_list,
 		char *appaserver_error_filespecification,
 		char *input_command_line )
 {
@@ -713,9 +713,7 @@ char *process_replace_command_line(
 
 		string_with_space_search_replace(
 			command_line,
-			update_attribute->
-				folder_attribute->
-				attribute_name,
+			update_attribute->attribute_name,
 			/* ---------------------- */
 			/* Returns static memory  */
 			/* Buffer size=STRING_66K */
@@ -737,9 +735,7 @@ char *process_replace_command_line(
 				sizeof ( preupdate_attribute_name ),
 				"%s%s",
 				update_preupdate_prefix,
-				update_attribute->
-					folder_attribute->
-					attribute_name );
+				update_attribute->attribute_name );
 
 			string_with_space_search_replace(
 				command_line,
@@ -753,6 +749,10 @@ char *process_replace_command_line(
 		}
 
 	} while ( list_next( update_attribute_list ) );
+
+	query_cell_command_line_replace(
+		command_line /* in/out */,
+		query_cell_list );
 
 	escape_dollar =
 		/* ---------------------- */

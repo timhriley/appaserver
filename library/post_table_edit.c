@@ -4,10 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include "all.h"
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_parameter.h"
@@ -239,7 +236,6 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 		folder_operation_name_list(
 			post_table_edit_input->
 				folder_operation_list );
-
 
 	post_table_edit_input->post_dictionary =
 		/* -------------- */

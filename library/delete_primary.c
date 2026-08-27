@@ -21,6 +21,8 @@ DELETE_PRIMARY *delete_primary_new(
 		char *role_name,
 		char *folder_name,
 		char *primary_data_list_string,
+		int row_number,
+		int row_count,
 		boolean delete_omit_isa_boolean )
 {
 	DELETE_PRIMARY *delete_primary;
@@ -100,6 +102,8 @@ DELETE_PRIMARY *delete_primary_new(
 			login_name,
 			role_name,
 			folder_name,
+			row_number,
+			row_count,
 			delete_primary->query_cell_list,
 			!delete_omit_isa_boolean
 				/* isa_boolean (need to unwind) */,

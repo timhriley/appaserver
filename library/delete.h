@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org 	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef DELETE_H
-#define DELETE_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -37,7 +36,7 @@ typedef struct
 DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 		char *appaserver_update_state,
 		char *update_preupdate_prefix,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_table_name,
 		PROCESS *post_change_process,
 		LIST *query_row_cell_list,
@@ -65,9 +64,9 @@ char *delete_one2m_update_cell_sql_statement(
 /* Returns heap memory */
 /* ------------------- */
 char *delete_one2m_update_cell_command_line(
-		char *appaserver_update_state,
-		char *update_preupdate_prefix,
-		char *appaserver_error_filename,
+		const char *appaserver_update_state,
+		const char *update_preupdate_prefix,
+		char *appaserver_error_filespecification,
 		char *query_cell_attribute_name,
 		char *query_cell_select_datum,
 		LIST *query_row_cell_list,
@@ -84,7 +83,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
 		PROCESS *post_change_process,
@@ -107,7 +106,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 DELETE_ONE2M_UPDATE *delete_one2m_update_new(
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *folder_name,
 		char *appaserver_table_name,
 		LIST *set_null_query_cell_list,
@@ -133,7 +132,7 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
@@ -156,7 +155,7 @@ DELETE_ONE2M_LIST *delete_one2m_list_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
 		LIST *relation_one2m_list );
@@ -184,7 +183,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		char *many_appaserver_table_name,
 		PROCESS *post_change_process,
@@ -217,7 +216,7 @@ DELETE_ONE2M *delete_one2m_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		LIST *one_folder_query_cell_list,
 		char *many_folder_name,
@@ -271,7 +270,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
 		char *one_folder_name,
@@ -297,7 +296,7 @@ DELETE_MTO1_ISA_LIST *delete_mto1_isa_list_new(
 		char *application_name,
 		char *role_name,
 		boolean update_null_boolean,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		char *appaserver_parameter_mount_point,
 		LIST *primary_query_cell_list,
 		LIST *relation_mto1_isa_list );
@@ -323,10 +322,12 @@ typedef struct
 DELETE_ROOT *delete_root_new(
 		char *application_name,
 		char *folder_name,
+		int row_number,
+		int row_count,
 		LIST *primary_query_cell_list,
 		PROCESS *post_change_process,
 		char *security_entity_where,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 /* Process */
 /* ------- */
@@ -337,7 +338,7 @@ typedef struct
 {
 	LIST *folder_operation_list;
 	boolean folder_operation_delete_boolean;
-	char *appaserver_error_filename;
+	char *appaserver_error_filespecification;
 	char *appaserver_parameter_mount_point;
 	ROLE *role;
 	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
@@ -469,6 +470,8 @@ DELETE *delete_new(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
+		int row_number,
+		int row_count,
 		LIST *primary_query_cell_list,
 		boolean isa_boolean,
 		boolean update_null_boolean );
@@ -508,10 +511,12 @@ char *delete_sql_statement(
 /* Returns heap memory */
 /* ------------------- */
 char *delete_command_line(
-		char *delete_state,
+		const char *delete_state,
+		int row_number,
+		int row_count,
 		LIST *primary_query_cell_list,
 		char *post_change_process_command_line,
-		char *appaserver_error_filename );
+		char *appaserver_error_filespecification );
 
 /* Usage */
 /* ----- */
@@ -591,5 +596,3 @@ char *delete_key_list_data_string_sql(
 		char *table_name,
 		LIST *key_list,
 		char *data_string );
-
-#endif

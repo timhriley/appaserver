@@ -210,6 +210,7 @@ char *process_replace_command_line(
 		char *execute_yn,
 		LIST *insert_datum_list,
 		LIST *update_attribute_list,
+		LIST *query_cell_list,
 		char *appaserver_error_filespecification,
 		char *input_command_line );
 

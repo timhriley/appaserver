@@ -427,6 +427,38 @@ msg( (char *)0, message );
 	return update_row;
 }
 
+UPDATE_ATTRIBUTE *update_attribute_new(
+		char *attribute_name,
+		char *post_datum,
+		char *file_datum )
+{
+	UPDATE_ATTRIBUTE *update_attribute;
+
+	if ( !attribute_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"attribute_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	update_attribute = update_attribute_calloc();
+
+	update_attribute->attribute_name = attribute_name;
+	update_attribute->post_datum = post_datum;
+	update_attribute->file_datum = file_datum;
+
+	return update_attribute;
+}
+
 UPDATE_ATTRIBUTE *update_attribute_calloc( void )
 {
 	UPDATE_ATTRIBUTE *update_attribute;
@@ -1308,6 +1340,7 @@ char *update_command_line(
 		"y" /* execute_yn */,
 		(LIST *)0 /* insert_datum_list */,
 		update_attribute_list,
+		(LIST *)0 /* query_cell_list */,
 		appaserver_error_filespecification,
 		post_change_process_command_line );
 }
@@ -1333,241 +1366,6 @@ char *update_command_line_list_execute( LIST *command_line_list )
 	} while ( list_next( command_line_list ) );
 					
 	return message_list_string;
-}
-
-LIST *update_one2m_changed_list(
-		char *many_folder_name,
-		LIST *update_changed_list,
-		LIST *relation_foreign_key_list )
-{
-	UPDATE_CHANGED *changed_primary;
-	UPDATE_CHANGED *changed_foreign;
-	LIST *one2m_changed_list;
-	char *changed_attribute_name;
-
-	if ( !many_folder_name
-	||   !list_length( relation_foreign_key_list )
-	||   !list_rewind( update_changed_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	one2m_changed_list = list_new();
-
-	do {
-		changed_primary =
-			list_get(
-				update_changed_list );
-
-		if ( !changed_primary->update_attribute
-		||   !changed_primary->update_attribute->folder_attribute )
-		{
-			char message[ 128 ];
-
-			sprintf(message, "changed_primary is incomplete." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		if ( changed_primary->
-			update_attribute->
-			folder_attribute->
-			primary_key_index )
-		{
-			changed_foreign = update_changed_calloc();
-
-			changed_foreign->update_attribute =
-				update_attribute_calloc();
-
-			changed_attribute_name =
-				/* ------------------------------------- */
-				/* Returns component of foreign_key_list */
-				/* ------------------------------------- */
-				update_one2m_changed_attribute_name(
-					changed_primary->
-						update_attribute->
-						folder_attribute->
-						primary_key_index,
-					relation_foreign_key_list );
-
-			changed_foreign->update_attribute->folder_attribute =
-				folder_attribute_fetch(
-					many_folder_name,
-					changed_attribute_name,
-					1 /* fetch_attribute */ );
-
-			/* This is for debugging; file_datum isn't used. */
-			/* --------------------------------------------- */
-			changed_foreign->
-				update_attribute->
-				file_datum =
-					changed_primary->
-						update_attribute->
-						file_datum;
-
-			changed_foreign->
-				update_attribute->
-				post_datum =
-					changed_primary->
-						update_attribute->
-						post_datum;
-
-			changed_foreign->set_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				update_changed_set_string(
-					QUERY_IS_NULL,
-					changed_foreign->
-						update_attribute->
-						folder_attribute->
-						attribute_name,
-					changed_foreign->
-						update_attribute->
-						folder_attribute->
-						attribute->
-						datatype_name,
-					changed_foreign->
-					       update_attribute->
-					       post_datum );
-
-			list_set(
-				one2m_changed_list,
-				changed_foreign );
-		}
-
-	} while ( list_next( update_changed_list ) );
-
-	return one2m_changed_list;
-}
-
-LIST *update_one2m_where_list(
-		char *many_folder_name,
-		LIST *update_where_list,
-		LIST *relation_foreign_key_list )
-{
-	UPDATE_WHERE *where_primary;
-	UPDATE_WHERE *where_foreign;
-	char *foreign_key;
-	LIST *one2m_where_list;
-
-	if ( !many_folder_name
-	||   !list_length( update_where_list )
-	||   !list_length( relation_foreign_key_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( list_length( update_where_list ) !=
-	     list_length( relation_foreign_key_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message,
-			"list length mismatch: %d vs. %d.",
-			list_length( update_where_list ),
-			list_length( relation_foreign_key_list ) );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	list_rewind( update_where_list );
-	list_rewind( relation_foreign_key_list );
-
-	one2m_where_list = list_new();
-
-	do {
-		foreign_key = list_get( relation_foreign_key_list );
-
-		where_primary = list_get( update_where_list );
-
-		if ( !where_primary->update_attribute
-		||   !where_primary->update_attribute->folder_attribute
-		||   !where_primary->
-			update_attribute->
-			folder_attribute->
-			attribute )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: attribute is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		where_foreign = update_where_calloc();
-
-		where_foreign->update_attribute = update_attribute_calloc();
-
-		where_foreign->
-			update_attribute->
-			folder_attribute =
-				folder_attribute_fetch(
-					many_folder_name,
-					foreign_key,
-					1 /* fetch_attribute */ );
-
-		where_foreign->
-			update_attribute->
-			file_datum =
-				where_primary->
-					update_attribute->
-					file_datum;
-
-		where_foreign->
-			update_attribute->
-			post_datum =
-				where_primary->
-					update_attribute->
-					post_datum;
-
-		where_foreign->string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			update_where_string(
-				foreign_key /* attribute_name */,
-				where_foreign->
-					update_attribute->
-					folder_attribute->
-					attribute->
-					datatype_name,
-				where_foreign->
-					update_attribute->
-					file_datum );
-
-		list_set( one2m_where_list, where_foreign );
-
-		list_next( update_where_list );
-
-	} while ( list_next( relation_foreign_key_list ) );
-
-	return one2m_where_list;
 }
 
 char *update_one2m_changed_attribute_name(
@@ -2419,7 +2217,7 @@ LIST *update_attribute_list(
 
 		list_set(
 			attribute_list,
-			update_attribute_new(
+			update_attribute_resolve_new(
 				multi_row_dictionary,
 				file_dictionary,
 				row_number,
@@ -2430,12 +2228,14 @@ LIST *update_attribute_list(
 	return attribute_list;
 }
 
-UPDATE_ATTRIBUTE *update_attribute_new(
+UPDATE_ATTRIBUTE *update_attribute_resolve_new(
 		DICTIONARY *multi_row_dictionary,
 		DICTIONARY *file_dictionary,
 		int row_number,
 		FOLDER_ATTRIBUTE *folder_attribute )
 {
+	char *post_datum;
+	char *file_datum;
 	UPDATE_ATTRIBUTE *update_attribute;
 	char *key;
 
@@ -2452,9 +2252,6 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 		exit( 1 );
 	}
 
-	update_attribute = update_attribute_calloc();
-	update_attribute->folder_attribute = folder_attribute;
-
 	key =
 		/* Returns static memory */
 		/* --------------------- */
@@ -2463,42 +2260,38 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 				/* widget_name */,
 			row_number );
 
-	update_attribute->post_datum =
+	post_datum =
 		dictionary_get(
 			key,
 			multi_row_dictionary );
 
-	if ( !update_attribute->post_datum )
-	{
-		free( update_attribute );
-		return NULL;
-	}
+	if ( !post_datum ) return NULL;
 
-	update_attribute->file_datum =
+	file_datum =
 		dictionary_get(
 			key,
 			file_dictionary );
+
+	update_attribute =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		update_attribute_new(
+			folder_attribute->attribute_name,
+			post_datum,
+			file_datum );
+
+	update_attribute->folder_attribute = folder_attribute;
 
 	return update_attribute;
 }
 
 LIST *update_attribute_data_list( LIST *update_attribute_list )
 {
-	LIST *data_list;
+	LIST *data_list = list_new();
 	UPDATE_ATTRIBUTE *update_attribute;
 
-	if ( !list_rewind( update_attribute_list ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: update_attribute_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	data_list = list_new();
-
+	if ( list_rewind( update_attribute_list ) )
 	do {
 		update_attribute = list_get( update_attribute_list );
 
@@ -2533,6 +2326,12 @@ LIST *update_attribute_data_list( LIST *update_attribute_list )
 
 	} while ( list_next( update_attribute_list ) );
 
+	if ( !list_length( data_list ) )
+	{
+		list_free( data_list );
+		data_list = NULL;
+	}
+
 	return data_list;
 }
 
@@ -2560,31 +2359,20 @@ UPDATE_ATTRIBUTE *update_attribute_seek(
 	do {
 		update_attribute = list_get( update_attribute_list );
 
-		if ( !update_attribute->folder_attribute )
+		if ( folder_name && update_attribute->folder_attribute )
 		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"update_attribute->folder_attribute is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			if ( string_strcmp(
+				update_attribute->
+					folder_attribute->
+					folder_name,
+				folder_name ) != 0 )
+			{
+				continue;
+			}
 		}
 
-		if ( strcmp(
-			update_attribute->
-				folder_attribute->
-				folder_name,
-			folder_name ) != 0 )
-		{
-			continue;
-		}
-
-		if ( strcmp(
-			update_attribute->folder_attribute->attribute_name,
+		if ( string_strcmp(
+			update_attribute->attribute_name,
 			attribute_name ) == 0 )
 		{
 			return update_attribute;
@@ -2941,7 +2729,14 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 			message );
 	}
 
-	update_attribute = update_attribute_calloc();
+	update_attribute =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		update_attribute_new(
+			attribute_name,
+			query_cell_select_datum /* post_datum */,
+			query_cell_select_datum /* file_datum */ );
 
 	if ( ! ( update_attribute->folder_attribute =
 			folder_attribute_seek(
@@ -2961,10 +2756,6 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 			__LINE__,
 			message );
 	}
-
-	update_attribute->post_datum =
-	update_attribute->file_datum =
-		query_cell_select_datum;
 
 	if ( update_one2m_row_post_datum )
 	{
@@ -4650,7 +4441,7 @@ UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
 	char *folder_name;
 	char *attribute_name;
 	UPDATE_ATTRIBUTE *seek;
-	UPDATE_ATTRIBUTE *new;
+	UPDATE_ATTRIBUTE *update_attribute;
 
 	if ( one_folder_attribute->primary_key_index )
 	{
@@ -4677,13 +4468,18 @@ UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
 		return NULL;
 	}
 
-	new = update_attribute_calloc();
+	update_attribute =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		update_attribute_new(
+			attribute_name,
+			seek->post_datum,
+			seek->file_datum );
 
-	new->folder_attribute = one_folder_attribute;
-	new->post_datum = seek->post_datum;
-	new->file_datum = seek->file_datum;
+	update_attribute->folder_attribute = one_folder_attribute;
 
-	return new;
+	return update_attribute;
 }
 
 char *update_attribute_list_display( LIST *update_attribute_list )
