@@ -245,13 +245,35 @@ char *fixed_asset_purchase_update_string(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		double cost_basis,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
+		char *asset_name,
+		char *serial_key,
+		double cost_basis,
 		double cost_basis_amount )
 {
 	char *primary_data_string;
+	char *purchase_primary_data_string;
 	char *update_string;
+
+	if ( !*full_name
+	||   !*purchase_date_time
+	||   !*asset_name
+	||   !*serial_key )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( float_virtually_same(
 		cost_basis,
@@ -273,18 +295,30 @@ char *fixed_asset_purchase_update_string(
 			fund_boolean,
 			contact_key_boolean );
 
+	purchase_primary_data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		fixed_asset_purchase_primary_data_string(
+			sql_delimiter,
+			asset_name,
+			serial_key,
+			primary_data_string );
+
+	free( primary_data_string );
+
 	update_string =
 		/* ------------------------------------------------ */
 		/* Returns heap memory or null (if not set_boolean) */
 		/* ------------------------------------------------ */
 		sale_update_string(
 			sql_delimiter,
-			primary_data_string,
+			purchase_primary_data_string,
 			"cost_basis" /* column_name */,
 			cost_basis_amount /* money */,
 			1 /* set_boolean */ );
 
-	free( primary_data_string );
+	free( purchase_primary_data_string );
 
 	return update_string;
 }
@@ -354,6 +388,118 @@ LIST *fixed_asset_purchase_list_update_string_list(
 
 	return update_string_list;
 }
+
+void fixed_asset_purchase_list_set_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *fixed_asset_purchase_list
+			/* Set each update_string_list */ )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+
+	if ( !full_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( fixed_asset_purchase_list ) )
+	do {
+		fixed_asset_purchase = list_get( fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->cost_basis_fixed_asset )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"fixed_asset_purchase->cost_basis_fixed_asset is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		fixed_asset_purchase->update_string =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			fixed_asset_purchase_update_string(
+				sql_delimiter,
+				fund_name,
+				full_name,
+				contact_key,
+				purchase_date_time,
+				predictive_fund_boolean,
+				entity_contact_key_boolean,
+				fixed_asset_purchase->asset_name,
+				fixed_asset_purchase->serial_key,
+				fixed_asset_purchase->cost_basis,
+				fixed_asset_purchase->
+					cost_basis_fixed_asset->
+					cost_basis_amount );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+}
+
+char *fixed_asset_purchase_primary_data_string(
+		const char sql_delimiter,
+		char *asset_name,
+		char *serial_key,
+		char *primary_data_string )
+{
+	char data_string[ 1024 ];
+
+	if ( !*asset_name
+	||   !*serial_key
+	||   !*primary_data_string )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		data_string,
+		sizeof ( data_string ),
+		"%s%c%s%c%s",
+		primary_data_string,
+		sql_delimiter,
+		asset_name,
+		sql_delimiter,
+		serial_key );	
+
+	return strdup( data_string );
+}
+
 
 #ifdef NOT_DEFINED
 char *purchase_asset_account_name(

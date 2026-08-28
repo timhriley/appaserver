@@ -62,11 +62,11 @@ char *specific_inventory_purchase_update_string(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *inventory_name,
 		char *serial_key,
 		double cost_basis,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
 		double cost_basis_amount );
 
 typedef struct

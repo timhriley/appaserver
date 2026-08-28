@@ -76,12 +76,12 @@ LIST *inventory_purchase_update_string_list(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *inventory_name,
-		double extended_cost,
-		double cost_basis,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		char *inventory_name,
+		double extended_cost,
 		double inventory_purchase_extended_cost,
+		double cost_basis,
 		double cost_basis_amount );
 
 typedef struct
@@ -129,6 +129,19 @@ char *inventory_purchase_list_update_system_string(
 /* ----- */
 double inventory_purchase_list_total(
 		LIST *inventory_purchase_list );
+
+/* Usage */
+/* ----- */
+void inventory_purchase_list_set_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_purchase_list
+			/* Set each update_string_list */ );
 
 /* Usage */
 /* ----- */

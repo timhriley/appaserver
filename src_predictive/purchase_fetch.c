@@ -221,17 +221,6 @@ PURCHASE_FETCH *purchase_fetch_new(
 			specific_inventory_purchase_list_calloc();
 	}
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: \n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-msg( (char *)0, message );
-}
 	purchase_fetch->supply_purchase_list =
 		/* -------------- */
 		/* Safely returns */

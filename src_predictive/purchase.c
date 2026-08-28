@@ -221,13 +221,30 @@ PURCHASE *purchase_trigger_new(
 	}
 
 	purchase->purchase_update =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		purchase_update_new(
-			purchase->purchase_fetch->fixed_asset_purchase_list,
-			purchase->purchase_fetch->inventory_purchase_list,
+			SQL_DELIMITER,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			purchase->purchase_fetch->predictive_fund_boolean,
+			purchase->purchase_fetch->entity_contact_key_boolean,
+			purchase->
+				purchase_fetch->
+				fixed_asset_purchase_list
+				/* Sets each update_string_list */,
+			purchase->
+				purchase_fetch->
+				inventory_purchase_list
+				/* Sets each update_string_list */,
 			purchase->
 				purchase_fetch->
 				specific_inventory_purchase_list,
-			purchase->purchase_fetch->supply_purchase_list,
+			purchase->purchase_fetch->supply_purchase_list
+				/* Sets each update_string_list */,
 			purchase->update_system_string,
 			purchase->update_string_list,
 			purchase->purchase_transaction );

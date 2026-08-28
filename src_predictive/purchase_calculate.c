@@ -12,6 +12,8 @@
 #include "fixed_asset_purchase.h"
 #include "inventory_purchase.h"
 #include "specific_inventory_purchase.h"
+#include "supply_purchase.h"
+#include "service_purchase.h"
 #include "cost_basis.h"
 #include "purchase_calculate.h"
 
@@ -38,18 +40,6 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 		fixed_asset_purchase_list_total(
 			fixed_asset_purchase_list );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: fixed_asset_purchase_list_total=%.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	purchase_calculate->fixed_asset_purchase_list_total );
-msg( (char *)0, message );
-}
 	if ( inventory_total_boolean )
 	{
 		purchase_calculate->inventory_purchase_list_total =
@@ -64,17 +54,13 @@ msg( (char *)0, message );
 				specific_inventory_purchase_list );
 	}
 
-	if ( supply_purchase_list ){}
-/*
-	double supply_purchase_list_total(
-		supply_purchase_list );
-*/
+	purchase_calculate->supply_purchase_list_total =
+		supply_purchase_list_total(
+			supply_purchase_list );
 
-	if ( service_purchase_list ){}
-/*
-	double service_purchase_list_total(
-		service_purchase_list );
-*/
+	purchase_calculate->service_purchase_list_total =
+		service_purchase_list_total(
+			service_purchase_list );
 
 	if ( prepaid_asset_total_boolean )
 	{

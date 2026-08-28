@@ -177,12 +177,12 @@ LIST *inventory_purchase_update_string_list(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *inventory_name,
-		double extended_cost,
-		double cost_basis,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
+		char *inventory_name,
+		double extended_cost,
 		double inventory_purchase_extended_cost,
+		double cost_basis,
 		double cost_basis_amount )
 {
 	char *primary_data_string;
@@ -413,3 +413,60 @@ LIST *inventory_purchase_list_update_string_list(
 
 	return update_string_list;
 }
+
+void inventory_purchase_list_set_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_purchase_list
+			/* Set each update_string_list */ )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( !full_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( list_rewind( inventory_purchase_list ) )
+	do {
+		inventory_purchase = list_get( inventory_purchase_list );
+
+		inventory_purchase->update_string_list =
+			inventory_purchase_update_string_list(
+				sql_delimiter,
+				fund_name,
+				full_name,
+				contact_key,
+				purchase_date_time,
+				predictive_fund_boolean,
+				entity_contact_key_boolean,
+				inventory_purchase->inventory_name,
+				inventory_purchase->extended_cost,
+				inventory_purchase->
+					inventory_purchase_extended_cost,
+				inventory_purchase->cost_basis,
+				inventory_purchase->
+					cost_basis_inventory->
+					cost_basis_amount );
+
+	} while ( list_next( inventory_purchase_list ) );
+}
+

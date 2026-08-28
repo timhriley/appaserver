@@ -159,11 +159,11 @@ char *specific_inventory_purchase_update_string(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		char *inventory_name,
 		char *serial_key,
 		double cost_basis,
-		boolean fund_boolean,
-		boolean contact_key_boolean,
 		double cost_basis_amount )
 {
 	char *primary_data_string;
@@ -366,3 +366,82 @@ LIST *specific_inventory_purchase_list_update_string_list(
 
 	return update_string_list;
 }
+
+/* Usage */
+/* ----- */
+void specific_inventory_purchase_list_set_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		LIST *specific_inventory_purchase_list
+			/* Set each update_string_list */ )
+{
+	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
+
+	if ( !full_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( specific_inventory_purchase_list ) )
+	do {
+		specific_inventory_purchase =
+			list_get(
+				specific_inventory_purchase_list );
+
+		if ( !specific_inventory_purchase->
+			    cost_basis_specific_inventory )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+"specific_inventory_purchase->cost_basis_specific_inventory is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+		specific_inventory_purchase->update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			specific_inventory_purchase_update_string(
+				sql_delimiter,
+				fund_name,
+				full_name,
+				contact_key,
+				purchase_date_time,
+				fund_boolean,
+				contact_key_boolean,
+				specific_inventory_purchase->inventory_name,
+				specific_inventory_purchase->serial_key,
+				specific_inventory_purchase->cost_basis,
+				specific_inventory_purchase->
+				    cost_basis_specific_inventory->
+				    cost_basis_amount );
+
+	} while ( list_next( specific_inventory_purchase_list ) );
+}
+

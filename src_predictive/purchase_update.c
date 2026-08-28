@@ -14,14 +14,25 @@
 #include "purchase_update.h"
 
 PURCHASE_UPDATE *purchase_update_new(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		FIXED_ASSET_PURCHASE_LIST *
-			fixed_asset_purchase_list,
+			fixed_asset_purchase_list
+				/* Sets each update_string_list */,
 		INVENTORY_PURCHASE_LIST *
-			inventory_purchase_list,
+			inventory_purchase_list
+				/* Sets each update_string_list */,
 		SPECIFIC_INVENTORY_PURCHASE_LIST *
-			specific_inventory_purchase_list,
+			specific_inventory_purchase_list
+				/* Sets each update_string_list */,
 		SUPPLY_PURCHASE_LIST *
-			supply_purchase_list,
+			supply_purchase_list
+				/* Sets each update_string_list */,
 		char *purchase_update_system_string,
 		LIST *purchase_update_string_list,
 		PURCHASE_TRANSACTION *purchase_transaction )
@@ -48,6 +59,62 @@ PURCHASE_UPDATE *purchase_update_new(
 	}
 
 	purchase_update = purchase_update_calloc();
+
+	if ( fixed_asset_purchase_list->list )
+	{
+		fixed_asset_purchase_list_set_update_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			fixed_asset_purchase_list->list
+				/* Set each update_string_list */ );
+
+		fixed_asset_purchase_list->update_string_list =
+			fixed_asset_purchase_list_update_string_list(
+				fixed_asset_purchase_list->list );
+	}
+
+	if ( inventory_purchase_list->list )
+	{
+		inventory_purchase_list_set_update_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			inventory_purchase_list->list
+				/* Set each update_string_list */ );
+
+		inventory_purchase_list->update_string_list =
+			inventory_purchase_list_update_string_list(
+				inventory_purchase_list->list );
+	}
+
+	if ( specific_inventory_purchase_list->list )
+	{
+		specific_inventory_purchase_list_set_update_string(
+			sql_delimiter,
+			fund_name,
+			full_name,
+			contact_key,
+			purchase_date_time,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			specific_inventory_purchase_list->list
+				/* Set each update_string_list */ );
+
+		specific_inventory_purchase_list->update_string_list =
+			specific_inventory_purchase_list_update_string_list(
+				specific_inventory_purchase_list->list );
+	}
+
+	/* Note: don't need to set each supply update_string */
 
 	purchase_update->fixed_asset_purchase_list =
 		fixed_asset_purchase_list;

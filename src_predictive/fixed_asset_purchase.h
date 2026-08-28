@@ -74,10 +74,23 @@ char *fixed_asset_purchase_update_string(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		double cost_basis,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		char *asset_name,
+		char *serial_key,
+		double cost_basis,
 		double cost_basis_amount );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *fixed_asset_purchase_primary_data_string(
+		const char sql_delimiter,
+		char *asset_name,
+		char *serial_key,
+		char *primary_data_string );
 
 typedef struct
 {
@@ -125,6 +138,19 @@ char *fixed_asset_purchase_list_update_system_string(
 /* ----- */
 double fixed_asset_purchase_list_total(
 		LIST *fixed_asset_purchase_list );
+
+/* Usage */
+/* ----- */
+void fixed_asset_purchase_list_set_update_string(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *purchase_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *fixed_asset_purchase_list
+			/* Set each update_string_list */ );
 
 /* Usage */
 /* ----- */
