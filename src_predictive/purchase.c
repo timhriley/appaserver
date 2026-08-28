@@ -81,21 +81,22 @@ PURCHASE *purchase_trigger_new(
 			purchase->
 				purchase_fetch->
 				fixed_asset_purchase_list->
-				list /* in/out */,
+				list /* Sets each cost_basis_fixed_asset */,
 			purchase->
 				purchase_fetch->
 				inventory_total_boolean,
 			purchase->
 				purchase_fetch->
 				inventory_purchase_list->
-				list /* in/out */,
+				list /* Sets each cost_basis_inventory */,
 			purchase->
 				purchase_fetch->
 				specific_inventory_total_boolean,
 			purchase->
 				purchase_fetch->
 				specific_inventory_purchase_list->
-				list /* in/out */,
+				list
+				/* Sets each cost_basis_specific_inventory */,
 			purchase->purchase_fetch->supply_purchase_list->list,
 			purchase->purchase_fetch->service_purchase_list,
 			purchase->purchase_fetch->prepaid_asset_total_boolean,
@@ -334,7 +335,7 @@ LIST *purchase_update_string_list(
 			sale_update_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"fixed_asset_total”"/* column_name */,
+				"fixed_asset_total"/* column_name */,
 				fixed_asset_purchase_list_total /* money */,
 				1 /* set_boolean */ );
 		list_set( list, update_string );

@@ -33,11 +33,14 @@ typedef struct
 PURCHASE_CALCULATE *purchase_calculate_new(
 		double purchase_sales_tax,
 		double purchase_freight_in,
-		LIST *fixed_asset_purchase_list /* in/out */,
+		LIST *fixed_asset_purchase_list
+			/* Sets each cost_basis_fixed_asset */,
 		boolean inventory_total_boolean,
-		LIST *inventory_purchase_list /* in/out */,
+		LIST *inventory_purchase_list
+			/* Sets each cost_basis_inventory */,
 		boolean specific_inventory_total_boolean,
-		LIST *specific_inventory_purchase_list /* in/out */,
+		LIST *specific_inventory_purchase_list
+			/* Sets each cost_basis_specific_inventory */,
 		LIST *supply_purchase_list,
 		LIST *service_purchase_list,
 		boolean prepaid_asset_total_boolean,

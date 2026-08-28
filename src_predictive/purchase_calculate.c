@@ -109,9 +109,12 @@ msg( (char *)0, message );
 		cost_basis_new(
 			purchase_sales_tax,
 			purchase_freight_in,
-			fixed_asset_purchase_list /* in/out */,
-			inventory_purchase_list /* in/out */,
-			specific_inventory_purchase_list /* in/out */,
+			fixed_asset_purchase_list
+				/* Sets each cost_basis_fixed_asset */,
+			inventory_purchase_list
+				/* Sets each cost_basis_inventory */,
+			specific_inventory_purchase_list
+				/* Sets each cost_basis_specific_inventory */,
 			purchase_calculate->cost_basis_total );
 
 	purchase_calculate->total =
