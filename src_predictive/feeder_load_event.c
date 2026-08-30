@@ -147,7 +147,7 @@ void feeder_load_event_insert(
 		feeder_load_event_insert_system_string(
 			feeder_load_event_insert,
 			feeder_load_event_table,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			SQL_DELIMITER,
 			contact_key_boolean );
 
@@ -183,7 +183,7 @@ void feeder_load_event_insert(
 char *feeder_load_event_insert_system_string(
 		const char *feeder_load_event_insert,
 		const char *feeder_load_event_table,
-		const char *entity_contact_key_column,
+		const char *appaserver_user_contact_key_column,
 		const char sql_delimiter,
 		boolean contact_key_boolean )
 {
@@ -196,7 +196,7 @@ char *feeder_load_event_insert_system_string(
 		/* ------------------- */
 		entity_insert_column_string(
 			feeder_load_event_insert /* ENTITY_INSERT */,
-			entity_contact_key_column,
+			appaserver_user_contact_key_column,
 			contact_key_boolean );
 
 	snprintf(

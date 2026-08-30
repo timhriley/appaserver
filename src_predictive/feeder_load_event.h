@@ -164,7 +164,7 @@ char *feeder_load_event_insert_string(
 char *feeder_load_event_insert_system_string(
 		const char *feeder_load_event_insert,
 		const char *feeder_load_event_table,
-		const char *entity_contact_key_column,
+		const char *appaserver_user_contact_key_column,
 		const char sql_delimiter,
 		boolean entity_contact_key_boolean );
 
