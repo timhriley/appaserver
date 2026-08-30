@@ -15,6 +15,7 @@
 #include "appaserver.h"
 #include "sql.h"
 #include "appaserver_error.h"
+#include "appaserver_user.h"
 #include "journal.h"
 #include "feeder.h"
 #include "optional_column.h"
@@ -308,7 +309,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 		feeder_load_event_system_string(
 			FEEDER_LOAD_EVENT_SELECT,
 			FEEDER_LOAD_EVENT_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN,
+			APPASERVER_USER_CONTACT_KEY_COLUMN,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -375,7 +376,7 @@ char *feeder_load_event_primary_where(
 char *feeder_load_event_system_string(
 		const char *feeder_load_event_select,
 		const char *feeder_load_event_table,
-		const char *entity_contact_key_column,
+		const char *appaserver_user_contact_key_column,
 		char *feeder_load_event_primary_where,
 		boolean contact_key_boolean )
 {
@@ -404,7 +405,7 @@ char *feeder_load_event_system_string(
 		/* ------------------- */
 		feeder_load_event_select_string(
 			feeder_load_event_select,
-			entity_contact_key_column,
+			appaserver_user_contact_key_column,
 			contact_key_boolean );
 
 	snprintf(
@@ -695,7 +696,7 @@ double feeder_load_event_calculate_begin_amount(
 
 char *feeder_load_event_select_string(
 		const char *feeder_load_event_select,
-		const char *entity_contact_key_column,
+		const char *appaserver_user_contact_key_column,
 		boolean entity_contact_key_boolean )
 {
 	OPTIONAL_COLUMN *optional_column;
@@ -707,7 +708,7 @@ char *feeder_load_event_select_string(
 		optional_column_new(
 			',' /* delimiter */,
 			(char *)feeder_load_event_select /* base_string */,
-			(char *)entity_contact_key_column
+			(char *)appaserver_user_contact_key_column
 				/* component column or datum */,
 			0 /* not escape_boolean */,
 			entity_contact_key_boolean /* set_boolean */ );

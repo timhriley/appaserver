@@ -90,7 +90,7 @@ char *feeder_load_event_system_string(
 /* ------------------- */
 char *feeder_load_event_select_string(
 		const char *feeder_load_event_select,
-		const char *entity_contact_key_column,
+		const char *appaserver_user_contact_key_column,
 		boolean entity_contact_key_boolean );
 
 /* Usage */
