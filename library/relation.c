@@ -912,3 +912,92 @@ char *relation_system_string(
 	return strdup( system_string );
 }
 
+char *relation_join_where(
+		char *folder_name,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list,
+		LIST *foreign_key_list )
+{
+	char where[ STRING_4K ];
+	char *ptr = where;
+	char table_name[ 128 ];
+	char *one_table_name;
+	char *foreign_key;
+	char *primary_key;
+
+	if ( !folder_name
+	||   !one_folder_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if (	list_length( one_folder_primary_key_list ) !=
+		list_length( foreign_key_list ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"length(%s) != length(%s).",
+			list_display_delimited(
+				one_folder_primary_key_list,
+				',' ),
+			list_display_delimited(
+				foreign_key_list,
+				',' ) );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	strcpy(	table_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_table_name(
+			folder_name ) );
+
+	one_table_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_table_name(
+			one_folder_name );
+
+	list_rewind( one_folder_primary_key_list );
+
+	if ( list_rewind( foreign_key_list ) )
+	do {
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		foreign_key = list_get( foreign_key_list );
+		primary_key = list_get( one_folder_primary_key_list );
+
+		ptr += sprintf(
+			ptr,
+			"%s.%s = %s.%s",
+			table_name,
+			foreign_key,
+			one_table_name,
+			primary_key );
+
+		list_next( one_folder_primary_key_list );
+
+	} while ( list_next( foreign_key_list ) );
+
+	return strdup( where );
+}
+

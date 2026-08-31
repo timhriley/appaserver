@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ROW_SECURITY_ROLE_UPDATE_H
-#define ROW_SECURITY_ROLE_UPDATE_H
+#pragma once
 
 #include "list.h"
 #include "folder.h"
@@ -24,7 +23,7 @@ typedef struct
 	char *folder_name;
 	char *attribute_not_null;
 	boolean no_override_boolean;
-	LIST *relation_one2m_without_omit_drillthru_recursive_list;
+	LIST *relation_one2m_sans_omit_drillthru_recursive_list;
 
 	/* Set externally */
 	/* -------------- */
@@ -57,7 +56,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 /* Usage */
 /* ----- */
 RELATION_ONE2M *row_security_role_update_relation_one2m(
-		LIST *relation_one2m_without_omit_drillthru_recursive_list,
+		LIST *relation_one2m_sans_omit_drillthru_recursive_list,
 		char *folder_name );
 
 typedef struct
@@ -88,13 +87,6 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 	row_security_role_update_list_calloc(
 		void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *row_security_role_update_list_join_where(
-		char *folder_name,
-		char *one_folder_name,
-		LIST *foreign_key_list );
-
 /* Usage */
 /* ----- */
 
@@ -103,4 +95,14 @@ char *row_security_role_update_list_join_where(
 LIST *row_security_role_update_list_cache_list(
 		char *role_name );
 
-#endif
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *row_security_role_update_list_join_where(
+		char *folder_name,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list,
+		LIST *foreign_key_list );
+

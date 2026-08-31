@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef RELATION_H
-#define RELATION_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -235,4 +234,13 @@ char *relation_translate_foreign_delimited_string(
 char *relation_translate_list_display(
 		LIST *relation_translate_list );
 
-#endif
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_join_where(
+		char *folder_name,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list,
+		LIST *foreign_key_list );

@@ -731,7 +731,6 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 					attribute_not_null
 				: (char *)0 );
 
-
 	if ( !list_length( query_table_edit->query_select_table_edit_list ) )
 	{
 		char message[ 128 ];
@@ -1135,9 +1134,6 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 }
 
 char *query_table_edit_where_string(
-		/* --------------------- */
-		/* Static memory or null */
-		/* --------------------- */
 		char *security_entity_where,
 		char *query_drop_down_relation_where,
 		char *query_attribute_list_where,

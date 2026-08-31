@@ -306,7 +306,7 @@ LIST *relation_one2m_recursive_list(
 	return one2m_list;
 }
 
-LIST *relation_one2m_without_omit_drillthru_recursive_list(
+LIST *relation_one2m_sans_omit_drillthru_recursive_list(
 		LIST *one2m_list,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list )
@@ -513,7 +513,7 @@ char *relation_one2m_where_string(
 
 char *relation_one2m_list_display( LIST *relation_one2m_list )
 {
-	char display[ 2048 ];
+	char display[ 4096 ];
 	char *ptr = display;
 	RELATION_ONE2M *relation_one2m;
 
@@ -526,8 +526,10 @@ char *relation_one2m_list_display( LIST *relation_one2m_list )
 
 		ptr += sprintf(
 			ptr,
+			"one_folder_name=%s, "
 			"many_folder_name=%s, "
 			"relation_foreign_key_list=%s\n\n",
+			relation_one2m->one_folder_name,
 			relation_one2m->many_folder_name,
 			list_display(
 				relation_one2m->

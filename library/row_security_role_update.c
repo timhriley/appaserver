@@ -64,8 +64,8 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 			( *buffer == 'y' );
 
 	row_security_role_update->
-		relation_one2m_without_omit_drillthru_recursive_list =
-		    relation_one2m_without_omit_drillthru_recursive_list(
+		relation_one2m_sans_omit_drillthru_recursive_list =
+		    relation_one2m_sans_omit_drillthru_recursive_list(
 			(LIST *)0 /* one2m_list Pass in NULL */,
 			row_security_role_update->folder_name
 				/* one_folder_name */,
@@ -213,6 +213,10 @@ ROW_SECURITY_ROLE_UPDATE_LIST *row_security_role_update_list_fetch(
 			row_security_role_update_list->
 				row_security_role_update_relation->
 				relation_one2m->
+				one_folder_primary_key_list,
+			row_security_role_update_list->
+				row_security_role_update_relation->
+				relation_one2m->
 				relation_foreign_key_list );
 
 	return row_security_role_update_list;
@@ -245,59 +249,18 @@ ROW_SECURITY_ROLE_UPDATE_LIST *
 char *row_security_role_update_list_join_where(
 		char *folder_name,
 		char *one_folder_name,
+		LIST *one_folder_primary_key_list,
 		LIST *foreign_key_list )
 {
-	char where[ 1024 ];
-	char *ptr = where;
-	char *foreign_key;
-	char table_name[ 128 ];
-	char *one_table_name;
-
-	if ( !folder_name
-	||   !one_folder_name
-	||   !list_rewind( foreign_key_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	strcpy(	table_name,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		appaserver_table_name(
-			folder_name ) );
-
-	one_table_name =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		appaserver_table_name(
-			one_folder_name );
-
-	do {
-		foreign_key = list_get( foreign_key_list );
-
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
-
-		ptr += sprintf(
-			ptr,
-			"%s.%s = %s.%s",
-			table_name,
-			foreign_key,
-			one_table_name,
-			foreign_key );
-
-	} while ( list_next( foreign_key_list ) );
-
-	return strdup( where );
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	relation_join_where(
+		folder_name,
+		one_folder_name,
+		one_folder_primary_key_list,
+		foreign_key_list );
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_seek(
@@ -361,8 +324,8 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 		if ( ( row_security_role_update->relation_one2m =
 			row_security_role_update_relation_one2m(
 			  row_security_role_update->
-			   relation_one2m_without_omit_drillthru_recursive_list,
-				folder_name ) ) )
+			   relation_one2m_sans_omit_drillthru_recursive_list,
+			  folder_name ) ) )
 		{
 			return row_security_role_update;
 		}
@@ -373,10 +336,11 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_relation_seek(
 }
 
 RELATION_ONE2M *row_security_role_update_relation_one2m(
-		LIST *relation_one2m_without_omit_drillthru_recursive_list,
+		LIST *relation_one2m_sans_omit_drillthru_recursive_list,
 		char *folder_name )
 {
 	RELATION_ONE2M *relation_one2m;
+	RELATION_ONE2M *first_relation_one2m = {0};
 
 	if ( !folder_name )
 	{
@@ -392,13 +356,17 @@ RELATION_ONE2M *row_security_role_update_relation_one2m(
 	}
 
 	if ( list_rewind(
-		relation_one2m_without_omit_drillthru_recursive_list ) )
+		relation_one2m_sans_omit_drillthru_recursive_list ) )
 	do {
 		relation_one2m =
 			list_get(
-			 relation_one2m_without_omit_drillthru_recursive_list );
+			 relation_one2m_sans_omit_drillthru_recursive_list );
 
-		if ( !relation_one2m->many_folder_name
+		if ( !first_relation_one2m )
+			first_relation_one2m =
+				relation_one2m;
+
+		if ( !relation_one2m->one_folder_name
 		||   !relation_one2m->relation )
 		{
 			char message[ 128 ];
@@ -415,13 +383,13 @@ RELATION_ONE2M *row_security_role_update_relation_one2m(
 
 		if ( strcmp(
 			folder_name,
-			relation_one2m->many_folder_name ) == 0 )
+			relation_one2m->one_folder_name ) == 0 )
 		{
-			return relation_one2m;
+			return first_relation_one2m;
 		}
 
 	} while ( list_next(
-		    relation_one2m_without_omit_drillthru_recursive_list ) );
+		    relation_one2m_sans_omit_drillthru_recursive_list ) );
 
 	return NULL;
 }

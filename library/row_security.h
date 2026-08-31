@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ROW_SECURITY_H
-#define ROW_SECURITY_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -341,5 +340,3 @@ LIST *row_security_role_update_container_list(
 /* ----- */
 LIST *row_security_ajax_client_list(
 		ROW_SECURITY *row_security );
-
-#endif

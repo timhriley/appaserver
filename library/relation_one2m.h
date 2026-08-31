@@ -57,7 +57,7 @@ LIST *relation_one2m_recursive_list(
 
 /* Usage */
 /* ----- */
-LIST *relation_one2m_without_omit_drillthru_recursive_list(
+LIST *relation_one2m_sans_omit_drillthru_recursive_list(
 		LIST *one2m_list /* Pass in NULL */,
 		char *one_folder_name,
 		LIST *one_folder_primary_key_list );
