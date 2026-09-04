@@ -16,11 +16,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <wait.h>
-#include "timlib.h"
+#include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "sql.h"
 #include "environ.h"
 #include "filename.h"
+
+/* Uncomment to send sql statements to log file. */
+/* --------------------------------------------- */
+/* #define DEBUG_MODE */
 
 int main( int argc, char **argv )
 {
@@ -130,8 +134,17 @@ int main( int argc, char **argv )
 		snprintf(
 		system_string,
 		sizeof ( system_string ),
+#ifdef DEBUG_MODE
+"tee -a %s					|"
+#endif
 "mysql --defaults-extra-file=%s %s -u%s %s %s	|"
 "mysql_transform.e '%c'				 ",
+#ifdef DEBUG_MODE
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_error_filespecification(
+			environment_application() ),
+#endif
 	 	appaserver_parameter->filename,
 	 	appaserver_parameter->flags,
 	 	appaserver_parameter->mysql_user,

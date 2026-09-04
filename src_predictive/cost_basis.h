@@ -144,7 +144,7 @@ LIST *cost_basis_inventory_list(
 /* -------------- */
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
 		double freight_in,
-		double extended_cost,
+		double inventory_purchase_extended_cost,
 		double purchase_calculate_cost_basis_total );
 
 /* Process */

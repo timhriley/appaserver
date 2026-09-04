@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef ENVIRON_H
-#define ENVIRON_H
+#pragma once
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -185,4 +184,3 @@ void environment_prepend_path(
 void environment_session_set(
 		char *application_name );
 
-#endif

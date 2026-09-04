@@ -74,6 +74,10 @@ INSERT *insert_new(
 		appaserver_error_filespecification(
 			application_name );
 
+	insert->folder_attribute_insert_required_name_list =
+		folder_attribute_insert_required_name_list(
+			folder_attribute_append_isa_list );
+
 	if ( !dictionary_length( multi_row_dictionary ) )
 	{
 		insert->insert_zero =
@@ -85,7 +89,9 @@ INSERT *insert_new(
 				relation_mto1_isa_list,
 				prompt_dictionary,
 				ignore_name_list,
-				post_change_process );
+				post_change_process,
+				insert->
+				   folder_attribute_insert_required_name_list );
 	}
 	else
 	{
@@ -99,7 +105,9 @@ INSERT *insert_new(
 				prompt_dictionary /* in/out */,
 				multi_row_dictionary /* in/out */,
 				ignore_name_list,
-				post_change_process );
+				post_change_process,
+				insert->
+				   folder_attribute_insert_required_name_list );
 	}
 
 	if ( !insert->insert_zero && !insert->insert_multi )
@@ -245,6 +253,7 @@ INSERT_ROW *insert_row_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
+		LIST *insert_required_name_list,
 		int row_number )
 {
 	INSERT_ROW *insert_row;
@@ -290,6 +299,7 @@ INSERT_ROW *insert_row_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
+				insert_required_name_list,
 				row_number,
 				name_list ) ) )
 	{
@@ -362,6 +372,7 @@ INSERT_ROW *insert_row_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
+				insert_required_name_list,
 				row_number,
 				name_list ) );
 
@@ -764,6 +775,7 @@ INSERT_FOLDER *insert_folder_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
+		LIST *insert_required_name_list,
 		int row_number,
 		LIST *folder_attribute_name_list )
 {
@@ -968,14 +980,27 @@ INSERT_FOLDER *insert_folder_new(
 					attribute->
 					datatype_name );
 
-		if ( ( datum_extract =
-				insert_datum_extract(
-					prompt_dictionary,
-					multi_row_dictionary,
-					row_number,
-					attribute_name,
-					0 /* primary_key_index */,
-					is_number ) ) )
+		datum_extract =
+			insert_datum_extract(
+				prompt_dictionary,
+				multi_row_dictionary,
+				row_number,
+				attribute_name,
+				0 /* primary_key_index */,
+				is_number );
+
+		if ( list_length( insert_required_name_list )
+		&&   !datum_extract )
+		{
+			if ( list_string_boolean(
+				attribute_name,
+				insert_required_name_list ) )
+			{
+				return NULL;
+			}
+		}
+
+		if ( datum_extract )
 		{
 			list_set(
 				insert_folder->insert_datum_list,
@@ -1622,7 +1647,8 @@ INSERT_ZERO *insert_zero_new(
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process )
+		PROCESS *post_change_process,
+		LIST *insert_required_name_list )
 {
 	INSERT_ZERO *insert_zero;
 	LIST *name_list;
@@ -1670,6 +1696,7 @@ INSERT_ZERO *insert_zero_new(
 				(DICTIONARY *)0 /* multi_row_dictionary */,
 				ignore_name_list,
 				post_change_process,
+				insert_required_name_list,
 				0 /* row_number */,
 				name_list ) ) )
 	{
@@ -1743,6 +1770,7 @@ INSERT_ZERO *insert_zero_new(
 				(DICTIONARY *)0 /* multi_row_dictionary */,
 				ignore_name_list,
 				post_change_process,
+				insert_required_name_list,
 				0 /* row_number */,
 				name_list ) );
 
@@ -1780,7 +1808,8 @@ INSERT_MULTI *insert_multi_new(
 		DICTIONARY *prompt_dictionary,
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process )
+		PROCESS *post_change_process,
+		LIST *insert_required_name_list )
 {
 	INSERT_MULTI *insert_multi;
 	int row_number;
@@ -1855,6 +1884,7 @@ INSERT_MULTI *insert_multi_new(
 				multi_row_dictionary,
 				ignore_name_list,
 				post_change_process,
+				insert_required_name_list,
 				row_number );
 
 		if ( insert_row )

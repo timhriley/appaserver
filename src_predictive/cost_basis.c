@@ -293,7 +293,8 @@ LIST *cost_basis_inventory_list(
 		cost_basis_inventory =
 			cost_basis_inventory_new(
 				freight_in,
-				inventory_purchase->extended_cost,
+				inventory_purchase->
+					inventory_purchase_extended_cost,
 				cost_basis_total );
 
 		inventory_purchase->

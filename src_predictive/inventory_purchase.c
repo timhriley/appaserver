@@ -73,12 +73,30 @@ double inventory_purchase_list_total( LIST *inventory_purchase_list )
 
 	if ( list_rewind( inventory_purchase_list ) )
 	do {
-
 		inventory_purchase =
 			list_get(
 				inventory_purchase_list );
 
-		total += inventory_purchase->extended_cost;
+		if ( float_dollar_virtually_same( 
+			inventory_purchase->
+				inventory_purchase_extended_cost,
+			0.0 ) )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"inventory_purchase->extended_cost is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		total += inventory_purchase->inventory_purchase_extended_cost;
 
 	} while ( list_next( inventory_purchase_list ) );
 
@@ -143,6 +161,11 @@ INVENTORY_PURCHASE *inventory_purchase_parse( char *input )
 
 	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
+
+	inventory_purchase->inventory_purchase_extended_cost =
+		INVENTORY_PURCHASE_EXTENDED_COST(
+			inventory_purchase->ordered_quantity,
+			inventory_purchase->unit_cost );
 
 	return inventory_purchase;
 }
@@ -279,7 +302,7 @@ LIST *inventory_purchase_update_string_list(
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"inventory_purchase" /* column_name */,
+				"average_unit_cost" /* column_name */,
 				inventory_purchase_average_unit_cost,
 				1 /* set_boolean */ );
 
@@ -343,11 +366,6 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 			/* Should succeed */
 			/* -------------- */
 			inventory_purchase_parse( input );
-
-		inventory_purchase->inventory_purchase_extended_cost =
-			INVENTORY_PURCHASE_EXTENDED_COST(
-				inventory_purchase->ordered_quantity,
-				inventory_purchase->unit_cost );
 
 		list_set(
 			inventory_purchase_list->list,
@@ -465,6 +483,22 @@ void inventory_purchase_list_set_update_string(
 	if ( list_rewind( inventory_purchase_list ) )
 	do {
 		inventory_purchase = list_get( inventory_purchase_list );
+
+		if ( !inventory_purchase->cost_basis_inventory )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"inventory_purchase->cost_basis_inventory is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
 		inventory_purchase->update_string_list =
 			inventory_purchase_update_string_list(

@@ -112,6 +112,7 @@ INSERT_FOLDER *insert_folder_new(
 		DICTIONARY *multi_row_dictionary,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
+		LIST *folder_attribute_insert_required_name_list,
 		int row_number,
 		LIST *folder_attribute_name_list );
 
@@ -167,6 +168,7 @@ INSERT_ROW *insert_row_new(
 		DICTIONARY *dictionary_separate_row,
 		LIST *ignore_name_list,
 		PROCESS *post_change_process,
+		LIST *folder_attribute_insert_required_name_list,
 		int row_number );
 
 /* Process */
@@ -230,7 +232,8 @@ INSERT_MULTI *insert_multi_new(
 		DICTIONARY *prompt_dictionary /* in/out */,
 		DICTIONARY *multi_row_dictionary /* in/out */,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process );
+		PROCESS *post_change_process,
+		LIST *folder_attribute_insert_required_name_list );
 
 /* Process */
 /* ------- */
@@ -285,7 +288,8 @@ INSERT_ZERO *insert_zero_new(
 		LIST *relation_mto1_isa_list,
 		DICTIONARY *prompt_dictionary,
 		LIST *ignore_name_list,
-		PROCESS *post_change_process );
+		PROCESS *post_change_process,
+		LIST *folder_attribute_insert_required_name_list );
 
 /* Process */
 /* ------- */
@@ -356,6 +360,7 @@ void insert_statement_command_execute(
 typedef struct
 {
 	char *appaserver_error_filespecification;
+	LIST *folder_attribute_insert_required_name_list;
 	INSERT_ZERO *insert_zero;
 	INSERT_MULTI *insert_multi;
 	INSERT_STATEMENT *insert_statement;

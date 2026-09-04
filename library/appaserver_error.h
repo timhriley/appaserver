@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef APPASERVER_ERROR_H
-#define APPASERVER_ERROR_H
+#pragma once
 
 #include <stdio.h>
 
@@ -117,4 +116,3 @@ void appaserver_error_login_name_append_file(
 		char *application_name,
 		char *login_name );
 
-#endif
