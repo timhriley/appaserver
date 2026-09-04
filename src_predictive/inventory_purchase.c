@@ -136,15 +136,12 @@ INVENTORY_PURCHASE *inventory_purchase_parse( char *input )
 	if ( *buffer ) inventory_purchase->extended_cost = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer ) inventory_purchase->retail_price = atof( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) inventory_purchase->cost_basis = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) inventory_purchase->quantity_on_hand = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 9 );
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
 	return inventory_purchase;
@@ -183,7 +180,9 @@ LIST *inventory_purchase_update_string_list(
 		double extended_cost,
 		double inventory_purchase_extended_cost,
 		double cost_basis,
-		double cost_basis_amount )
+		double cost_basis_amount,
+		double average_unit_cost,
+		double inventory_purchase_average_unit_cost )
 {
 	char *primary_data_string;
 	char *update_string;
@@ -264,6 +263,24 @@ LIST *inventory_purchase_update_string_list(
 				primary_data_string,
 				"cost_basis" /* column_name */,
 				cost_basis_amount /* money */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+	}
+
+	if ( !float_virtually_same(
+		average_unit_cost,
+		inventory_purchase_average_unit_cost ) )
+	{
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				sql_delimiter,
+				primary_data_string,
+				"inventory_purchase" /* column_name */,
+				inventory_purchase_average_unit_cost,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -463,6 +480,47 @@ void inventory_purchase_list_set_update_string(
 				inventory_purchase->
 					inventory_purchase_extended_cost,
 				inventory_purchase->cost_basis,
+				inventory_purchase->
+					cost_basis_inventory->
+					cost_basis_amount,
+				inventory_purchase->average_unit_cost,
+				inventory_purchase->
+					inventory_purchase_average_unit_cost );
+
+	} while ( list_next( inventory_purchase_list ) );
+}
+
+void inventory_purchase_list_set_average_unit_cost(
+		LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( list_rewind( inventory_purchase_list ) )
+	do {
+
+		inventory_purchase =
+			list_get(
+				inventory_purchase_list );
+
+		if ( !inventory_purchase->cost_basis_inventory )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"inventory_purchase->cost_basis_inventory is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		inventory_purchase->average_unit_cost =
+			INVENTORY_PURCHASE_AVERAGE_UNIT_COST (
+				inventory_purchase->ordered_quantity,
 				inventory_purchase->
 					cost_basis_inventory->
 					cost_basis_amount );

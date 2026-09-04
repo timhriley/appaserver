@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FOLDER_H
-#define FOLDER_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -215,5 +214,3 @@ char *folder_column_fetch(
 boolean folder_column_boolean(
 		char *table_name,
 		char *column_name );
-
-#endif

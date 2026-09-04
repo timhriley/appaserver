@@ -18,10 +18,9 @@
 					"missing_quantity,"	\
 					"unit_cost,"		\
 					"extended_cost,"	\
-					"retail_price,"		\
 					"cost_basis,"		\
 					"quantity_on_hand,"	\
-					"average_unit_cost,"
+					"average_unit_cost"
 
 typedef struct
 {
@@ -31,7 +30,6 @@ typedef struct
 	int missing_quantity;
 	double unit_cost;
 	double extended_cost;
-	double retail_price;
 	double cost_basis;
 	int quantity_on_hand;
 	double average_unit_cost;
@@ -40,6 +38,7 @@ typedef struct
 	/* Set externally */
 	/* -------------- */
 	COST_BASIS_INVENTORY *cost_basis_inventory;
+	double inventory_purchase_average_unit_cost;
 	LIST *update_string_list;
 } INVENTORY_PURCHASE;
 
@@ -63,13 +62,6 @@ INVENTORY_PURCHASE *inventory_purchase_calloc(
 
 /* Usage */
 /* ----- */
-#define INVENTORY_PURCHASE_EXTENDED_COST(			\
-		ordered_quantity,				\
-		unit_cost )					\
-	( (double)ordered_quantity * unit_cost )
-
-/* Usage */
-/* ----- */
 LIST *inventory_purchase_update_string_list(
 		const char sql_delimiter,
 		char *fund_name,
@@ -82,7 +74,23 @@ LIST *inventory_purchase_update_string_list(
 		double extended_cost,
 		double inventory_purchase_extended_cost,
 		double cost_basis,
-		double cost_basis_amount );
+		double cost_basis_amount,
+		double average_unit_cost,
+		double inventory_purchase_average_unit_cost );
+
+/* Usage */
+/* ----- */
+#define INVENTORY_PURCHASE_EXTENDED_COST(			\
+		ordered_quantity,				\
+		unit_cost )					\
+	( (double)ordered_quantity * unit_cost )
+
+/* Usage */
+/* ----- */
+#define INVENTORY_PURCHASE_AVERAGE_UNIT_COST(			\
+		ordered_quantity,				\
+		cost_basis_amount )				\
+	( (double)ordered_quantity * cost_basis_amount )
 
 typedef struct
 {
@@ -128,6 +136,11 @@ char *inventory_purchase_list_update_system_string(
 /* Usage */
 /* ----- */
 double inventory_purchase_list_total(
+		LIST *inventory_purchase_list );
+
+/* Usage */
+/* ----- */
+void inventory_purchase_list_set_average_unit_cost(
 		LIST *inventory_purchase_list );
 
 /* Usage */

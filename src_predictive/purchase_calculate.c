@@ -103,6 +103,12 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 				/* Sets each cost_basis_specific_inventory */,
 			purchase_calculate->cost_basis_total );
 
+	if ( !purchase_calculate->cost_basis ) return purchase_calculate;
+
+	inventory_purchase_list_set_average_unit_cost(
+		inventory_purchase_list
+			/* Sets each inventory_purchase->average_unit_cost */ );
+
 	purchase_calculate->total =
 		purchase_calculate_total(
 			purchase_calculate->
