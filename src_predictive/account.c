@@ -1031,18 +1031,29 @@ char *account_hard_coded_account_name(
 	{
 		if ( !warning_only )
 		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d; called from %s(): cannot fetch key=%s.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 calling_function_name,
-				 account_key );
+			char message[ 1024 ];
 
-			exit( 1 );
+			snprintf(
+				message,
+				sizeof ( message ),
+				"called from %s(): cannot fetch key=%s",
+				calling_function_name,
+				account_key );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
 		}
 		else
 		{
+			fprintf(
+				stderr,
+			"Warning: called from %s(): cannot fetch key=%s\n",
+				calling_function_name,
+				account_key );
+
 			return NULL;
 		}
 	}

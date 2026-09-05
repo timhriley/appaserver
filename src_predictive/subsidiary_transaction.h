@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SUBSIDIARY_TRANSACTION_H
-#define SUBSIDIARY_TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -166,4 +165,3 @@ char *subsidiary_transaction_execute(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-#endif

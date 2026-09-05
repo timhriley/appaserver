@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ACCOUNT_H
-#define ACCOUNT_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -677,5 +676,3 @@ ACCOUNT *account_getset(
 /* ----- */
 boolean account_name_changed(
 		char *preupdate_account_name );
-
-#endif

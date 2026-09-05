@@ -109,6 +109,7 @@ PURCHASE *purchase_trigger_new(
 			fund_name,
 			full_name,
 			contact_key,
+			purchase_date_time,
 			state,
 			preupdate_fund_name,
 			preupdate_full_name,
@@ -117,6 +118,7 @@ PURCHASE *purchase_trigger_new(
 			purchase->purchase_fetch->entity_contact_key_boolean,
 			purchase->purchase_fetch->predictive_title_passage_rule,
 			purchase->purchase_fetch->shipped_date,
+			purchase->purchase_fetch->arrived_date_time_boolean,
 			purchase->purchase_fetch->arrived_date_time,
 			purchase->purchase_fetch->transaction_date_time
 				/* prior_transaction_date_time */,

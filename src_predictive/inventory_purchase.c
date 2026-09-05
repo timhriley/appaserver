@@ -552,7 +552,7 @@ void inventory_purchase_list_set_average_unit_cost(
 				message );
 		}
 
-		inventory_purchase->average_unit_cost =
+		inventory_purchase->inventory_purchase_average_unit_cost =
 			INVENTORY_PURCHASE_AVERAGE_UNIT_COST (
 				inventory_purchase->ordered_quantity,
 				inventory_purchase->

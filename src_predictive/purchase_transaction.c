@@ -23,6 +23,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *purchase_date_time,
 		char *state,
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
@@ -32,6 +33,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *shipped_date,
+		boolean arrived_date_time_boolean,
 		char *arrived_date_time,
 		char *prior_transaction_date_time,
 		double sales_tax,
@@ -86,12 +88,14 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 	purchase_transaction = purchase_transaction_calloc();
 
 	purchase_transaction->transaction_date_time =
-		/* ------------------------------------------------- */
-		/* Returns arrived_date_time, static memory, or null */
-		/* ------------------------------------------------- */
+		/* ----------------------------------------- */
+		/* Returns parameter, static memory, or null */
+		/* ----------------------------------------- */
 		purchase_transaction_date_time(
+			purchase_date_time,
 			predictive_title_passage_rule,
 			shipped_date,
+			arrived_date_time_boolean,
 			arrived_date_time );
 
 	if ( purchase_transaction->transaction_date_time )
@@ -151,7 +155,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 				/* foreign_full_name_column */,
 			"contact_key"
 				/* foreign_contact_key_column */,
-			"transaction_date_time"
+			"purchase_date_time"
 				/* foreign_date_time_column */,
 			"transaction_date_time"
 				/* update_date_time_column */,
@@ -198,15 +202,22 @@ PURCHASE_TRANSACTION *purchase_transaction_calloc( void )
 }
 
 char *purchase_transaction_date_time(
+		char *purchase_date_time,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *shipped_date,
+		boolean arrived_date_time_boolean,
 		char *arrived_date_time )
 {
 	static char transaction_date_time[ 32 ];
 
 	if ( predictive_title_passage_rule == title_passage_rule_null )
-		return arrived_date_time;
+	{
+		if ( arrived_date_time_boolean )
+			return arrived_date_time;
+		else
+			return purchase_date_time;
+	}
 
 	if ( predictive_title_passage_rule == FOB_shipping )
 		return arrived_date_time;

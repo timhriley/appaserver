@@ -27,6 +27,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *purchase_date_time,
 		char *state,
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
@@ -36,6 +37,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *shipped_date,
+		boolean arrived_date_time_boolean,
 		char *arrived_date_time,
 		char *prior_transaction_date_time,
 		double sales_tax,
@@ -53,12 +55,14 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 PURCHASE_TRANSACTION *purchase_transaction_calloc(
 	void );
 
-/* Returns arrived_date_time, static memory, or null */
-/* ------------------------------------------------- */
+/* Returns parameter, static memory, or null */
+/* ----------------------------------------- */
 char *purchase_transaction_date_time(
+		char *purchase_date_time,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *shipped_date,
+		boolean arrived_date_time_boolean,
 		char *arrived_date_time );
 
 /* Usage */
