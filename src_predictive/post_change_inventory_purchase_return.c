@@ -258,7 +258,7 @@ void post_change_inventory_purchase_return_insert(
 		inventory_purchase_get_quantity_minus_returned(
 			inventory_purchase->arrived_quantity,
 			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity,
+		inventory_purchase->slippage_quantity,
 
 	inventory_purchase_list_update(
 		application_name,
@@ -398,7 +398,7 @@ void post_change_inventory_purchase_return_update(
 		inventory_purchase_get_quantity_minus_returned(
 			inventory_purchase->arrived_quantity,
 			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity,
+		inventory_purchase->slippage_quantity,
 
 	inventory_purchase_list_update(
 		application_name,
@@ -542,7 +542,7 @@ void post_change_inventory_purchase_return_predelete(
 		inventory_purchase_get_quantity_minus_returned(
 			inventory_purchase->arrived_quantity,
 			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity;
+		inventory_purchase->slippage_quantity;
 
 	inventory_purchase_list_update(
 		application_name,

@@ -30,21 +30,13 @@ COST_BASIS *cost_basis_new(
 		LIST *fixed_asset_purchase_list,
 		LIST *inventory_purchase_list,
 		LIST *specific_inventory_purchase_list,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_taxable_total,
+		double purchase_calculate_extended_total );
 
 /* Process */
 /* ------- */
 COST_BASIS *cost_basis_calloc(
 		void );
-
-double cost_basis_extra_total(
-		double sales_tax,
-		double freight_in );
-
-double cost_basis_percent_total(
-		double cost_basis_fixed_asset_percent_total,
-		double cost_basis_inventory_percent_total,
-		double cost_basis_specific_inventory_percent_total );
 
 double cost_basis_sales_tax_expense(
 		double purchase_sales_tax,
@@ -58,9 +50,15 @@ double cost_basis_freight_in_expense(
 
 /* Usage */
 /* ----- */
-double cost_basis_percent_of_total(
+double cost_basis_taxable_percent_of_total(
 		double cost,
-		double purchase_cost_basis_total );
+		double purchase_calculate_taxable_total );
+
+/* Usage */
+/* ----- */
+double cost_basis_extended_percent_of_total(
+		double cost,
+		double purchase_calculate_extended_total );
 
 /* Usage */
 /* ----- */
@@ -73,18 +71,19 @@ double cost_basis_amount(
 /* ----- */
 double cost_basis_tax_capitalized(
 		double sales_tax,
-		double cost_basis_percent_of_total );
+		double cost_basis_tax_percent_of_total );
 
 /* Usage */
 /* ----- */
 double cost_basis_freight_capitalized(
 		double freight_in,
-		double cost_basis_percent_of_total );
+		double cost_basis_extended_percent_of_total );
 
 typedef struct
 {
-	double cost_basis_percent_of_total;
+	double cost_basis_taxable_percent_of_total;
 	double cost_basis_tax_capitalized;
+	double cost_basis_extended_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
 } COST_BASIS_FIXED_ASSET;
@@ -95,7 +94,8 @@ LIST *cost_basis_fixed_asset_list(
 		double sales_tax,
 		double freight_in,
 		LIST *fixed_asset_purchase_list,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_tax_total,
+		double purchase_calculate_extended_total );
 
 /* Usage */
 /* ----- */
@@ -106,7 +106,8 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
 		double sales_tax,
 		double freight_in,
 		double fixed_asset_cost,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_taxable_total,
+		double purchase_calculate_extended_total );
 
 /* Process */
 /* ------- */
@@ -125,7 +126,7 @@ double cost_basis_fixed_asset_freight_capitalized(
 
 typedef struct
 {
-	double cost_basis_percent_of_total;
+	double cost_basis_extended_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
 } COST_BASIS_INVENTORY;
@@ -135,7 +136,7 @@ typedef struct
 LIST *cost_basis_inventory_list(
 		double freight_in,
 		LIST *inventory_purchase_list,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_extended_total );
 
 /* Usage */
 /* ----- */
@@ -145,7 +146,7 @@ LIST *cost_basis_inventory_list(
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
 		double freight_in,
 		double inventory_purchase_extended_cost,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_extended_total );
 
 /* Process */
 /* ------- */
@@ -159,7 +160,7 @@ double cost_basis_inventory_freight_capitalized(
 
 typedef struct
 {
-	double cost_basis_percent_of_total;
+	double cost_basis_extended_percent_of_total;
 	double cost_basis_freight_capitalized;
 	double cost_basis_amount;
 } COST_BASIS_SPECIFIC_INVENTORY;
@@ -169,7 +170,7 @@ typedef struct
 LIST *cost_basis_specific_inventory_list(
 		double freight_in,
 		LIST *specific_inventory_purchase_list,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_extended_total );
 
 /* Usage */
 /* ----- */
@@ -179,7 +180,7 @@ LIST *cost_basis_specific_inventory_list(
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
 		double freight_in,
 		double unit_cost,
-		double purchase_calculate_cost_basis_total );
+		double purchase_calculate_extended_total );
 
 /* Process */
 /* ------- */

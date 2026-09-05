@@ -22,11 +22,12 @@ COST_BASIS *cost_basis_new(
 		LIST *fixed_asset_purchase_list,
 		LIST *inventory_purchase_list,
 		LIST *specific_inventory_purchase_list,
-		double cost_basis_total )
+		double taxable_total,
+		double extended_total )
 {
 	COST_BASIS *cost_basis;
 
-	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+	if ( float_money_virtually_same( extended_total, 0.0 ) )
 		return NULL;
 
 	cost_basis = cost_basis_calloc();
@@ -36,7 +37,8 @@ COST_BASIS *cost_basis_new(
 			sales_tax,
 			freight_in,
 			fixed_asset_purchase_list,
-			cost_basis_total );
+			taxable_total,
+			extended_total );
 
 	cost_basis->cost_basis_fixed_asset_tax_capitalized =
 		cost_basis_fixed_asset_tax_capitalized(
@@ -50,7 +52,7 @@ COST_BASIS *cost_basis_new(
 		cost_basis_inventory_list(
 			freight_in,
 			inventory_purchase_list,
-			cost_basis_total );
+			extended_total );
 
 	cost_basis->cost_basis_inventory_freight_capitalized =
 		cost_basis_inventory_freight_capitalized(
@@ -60,7 +62,7 @@ COST_BASIS *cost_basis_new(
 		cost_basis_specific_inventory_list(
 			freight_in,
 			specific_inventory_purchase_list,
-			cost_basis_total );
+			extended_total );
 
 	cost_basis->cost_basis_specific_inventory_freight_capitalized =
 		cost_basis_specific_inventory_freight_capitalized(
@@ -108,14 +110,24 @@ COST_BASIS *cost_basis_calloc( void )
 	return cost_basis;
 }
 
-double cost_basis_percent_of_total(
+double cost_basis_taxable_percent_of_total(
 		double cost,
-		double cost_basis_total )
+		double taxable_total )
 {
-	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+	if ( float_money_virtually_same( taxable_total, 0.0 ) )
 		return 0.0;
 	else
-		return cost / cost_basis_total;
+		return cost / taxable_total;
+}
+
+double cost_basis_extended_percent_of_total(
+		double cost,
+		double extended_total )
+{
+	if ( float_money_virtually_same( extended_total, 0.0 ) )
+		return 0.0;
+	else
+		return cost / extended_total;
 }
 
 double cost_basis_amount(
@@ -131,7 +143,8 @@ LIST *cost_basis_fixed_asset_list(
 		double sales_tax,
 		double freight_in,
 		LIST *fixed_asset_purchase_list,
-		double cost_basis_total )
+		double taxable_total,
+		double extended_total )
 {
 	LIST *list = list_new();
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
@@ -144,11 +157,15 @@ LIST *cost_basis_fixed_asset_list(
 				fixed_asset_purchase_list );
 
 		cost_basis_fixed_asset =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			cost_basis_fixed_asset_new(
 				sales_tax,
 				freight_in,
 				fixed_asset_purchase->fixed_asset_cost,
-				cost_basis_total );
+				taxable_total,
+				extended_total );
 
 		fixed_asset_purchase->
 			cost_basis_fixed_asset =
@@ -171,28 +188,34 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_new(
 		double sales_tax,
 		double freight_in,
 		double fixed_asset_cost,
-		double cost_basis_total )
+		double taxable_total,
+		double extended_total )
 {
 	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
 
 	cost_basis_fixed_asset = cost_basis_fixed_asset_calloc();
 
-	cost_basis_fixed_asset->cost_basis_percent_of_total =
-		cost_basis_percent_of_total(
+	cost_basis_fixed_asset->cost_basis_taxable_percent_of_total =
+		cost_basis_taxable_percent_of_total(
 			fixed_asset_cost,
-			cost_basis_total );
+			taxable_total );
 
 	cost_basis_fixed_asset->cost_basis_tax_capitalized =
 		cost_basis_tax_capitalized(
 			sales_tax,
 			cost_basis_fixed_asset->
-				cost_basis_percent_of_total );
+				cost_basis_taxable_percent_of_total );
+
+	cost_basis_fixed_asset->cost_basis_extended_percent_of_total =
+		cost_basis_extended_percent_of_total(
+			fixed_asset_cost,
+			extended_total );
 
 	cost_basis_fixed_asset->cost_basis_freight_capitalized =
 		cost_basis_freight_capitalized(
 			freight_in,
 			cost_basis_fixed_asset->
-				cost_basis_percent_of_total );
+				cost_basis_extended_percent_of_total );
 
 	cost_basis_fixed_asset->cost_basis_amount =
 		cost_basis_amount(
@@ -275,13 +298,13 @@ double cost_basis_fixed_asset_tax_capitalized(
 LIST *cost_basis_inventory_list(
 		double freight_in,
 		LIST *inventory_purchase_list,
-		double cost_basis_total )
+		double extended_total )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 	LIST *list = list_new();
 
-	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+	if ( float_money_virtually_same( extended_total, 0.0 ) )
 		return NULL;
 
 	if ( list_rewind( inventory_purchase_list ) )
@@ -295,7 +318,7 @@ LIST *cost_basis_inventory_list(
 				freight_in,
 				inventory_purchase->
 					inventory_purchase_extended_cost,
-				cost_basis_total );
+				extended_total );
 
 		inventory_purchase->
 			cost_basis_inventory =
@@ -317,22 +340,22 @@ LIST *cost_basis_inventory_list(
 COST_BASIS_INVENTORY *cost_basis_inventory_new(
 		double freight_in,
 		double extended_cost,
-		double cost_basis_total )
+		double extended_total )
 {
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 
 	cost_basis_inventory = cost_basis_inventory_calloc();
 
-	cost_basis_inventory->cost_basis_percent_of_total =
-		cost_basis_percent_of_total(
+	cost_basis_inventory->cost_basis_extended_percent_of_total =
+		cost_basis_extended_percent_of_total(
 			extended_cost,
-			cost_basis_total );
+			extended_total );
 
 	cost_basis_inventory->cost_basis_freight_capitalized =
 		cost_basis_freight_capitalized(
 			freight_in,
 			cost_basis_inventory->
-				cost_basis_percent_of_total );
+				cost_basis_extended_percent_of_total );
 
 	cost_basis_inventory->cost_basis_amount =
 		cost_basis_amount(
@@ -393,13 +416,13 @@ double cost_basis_inventory_freight_capitalized(
 LIST *cost_basis_specific_inventory_list(
 		double freight_in,
 		LIST *specific_inventory_purchase_list,
-		double cost_basis_total )
+		double extended_total )
 {
 	SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase;
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 	LIST *list = list_new();
 
-	if ( float_money_virtually_same( cost_basis_total, 0.0 ) )
+	if ( float_money_virtually_same( extended_total, 0.0 ) )
 		return NULL;
 
 	if ( list_rewind( specific_inventory_purchase_list ) )
@@ -412,7 +435,7 @@ LIST *cost_basis_specific_inventory_list(
 			cost_basis_specific_inventory_new(
 				freight_in,
 				specific_inventory_purchase->unit_cost,
-				cost_basis_total );
+				extended_total );
 
 		specific_inventory_purchase->
 			cost_basis_specific_inventory =
@@ -434,22 +457,22 @@ LIST *cost_basis_specific_inventory_list(
 COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_new(
 		double freight_in,
 		double unit_cost,
-		double cost_basis_total )
+		double extended_total )
 {
 	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
 
 	cost_basis_specific_inventory = cost_basis_specific_inventory_calloc();
 
-	cost_basis_specific_inventory->cost_basis_percent_of_total =
-		cost_basis_percent_of_total(
+	cost_basis_specific_inventory->cost_basis_extended_percent_of_total =
+		cost_basis_extended_percent_of_total(
 			unit_cost,
-			cost_basis_total );
+			extended_total );
 
 	cost_basis_specific_inventory->cost_basis_freight_capitalized =
 		cost_basis_freight_capitalized(
 			freight_in,
 			cost_basis_specific_inventory->
-				cost_basis_percent_of_total );
+				cost_basis_extended_percent_of_total );
 
 	cost_basis_specific_inventory->cost_basis_amount =
 		cost_basis_amount(
@@ -505,25 +528,6 @@ double cost_basis_specific_inventory_freight_capitalized(
 	} while ( list_next( cost_basis_specific_inventory_list ) );
 
 	return freight_capitalized;
-}
-
-double cost_basis_extra_total(
-		double sales_tax,
-		double freight_in )
-{
-	return
-	sales_tax + freight_in;
-}
-
-double cost_basis_percent_total(
-		double fixed_asset_percent_total,
-		double inventory_percent_total,
-		double specific_inventory_percent_total )
-{
-	return
-	fixed_asset_percent_total +
-	inventory_percent_total +
-	specific_inventory_percent_total;
 }
 
 double cost_basis_sales_tax_expense(

@@ -80,8 +80,15 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 */
 	}
 
-	purchase_calculate->cost_basis_total =
-		purchase_calculate_cost_basis_total(
+	purchase_calculate->taxable_total =
+		purchase_calculate_taxable_total(
+			purchase_calculate->
+				fixed_asset_purchase_list_total,
+			purchase_calculate->
+				supply_purchase_list_total );
+
+	purchase_calculate->extended_total =
+		purchase_calculate_extended_total(
 			purchase_calculate->
 				fixed_asset_purchase_list_total,
 			purchase_calculate->
@@ -101,7 +108,8 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 				/* Sets each cost_basis_inventory */,
 			specific_inventory_purchase_list
 				/* Sets each cost_basis_specific_inventory */,
-			purchase_calculate->cost_basis_total );
+			purchase_calculate->taxable_total,
+			purchase_calculate->extended_total );
 
 	if ( !purchase_calculate->cost_basis ) return purchase_calculate;
 
@@ -159,7 +167,7 @@ PURCHASE_CALCULATE *purchase_calculate_calloc( void )
 	return purchase_calculate;
 }
 
-double purchase_calculate_cost_basis_total(
+double purchase_calculate_extended_total(
 		double fixed_asset_purchase_list_total,
 		double inventory_purchase_list_total,
 		double specific_inventory_purchase_list_total,
@@ -169,6 +177,15 @@ double purchase_calculate_cost_basis_total(
 	fixed_asset_purchase_list_total +
 	inventory_purchase_list_total +
 	specific_inventory_purchase_list_total +
+	supply_purchase_list_total;
+}
+
+double purchase_calculate_taxable_total(
+		double fixed_asset_purchase_list_total,
+		double supply_purchase_list_total )
+{
+	return
+	fixed_asset_purchase_list_total +
 	supply_purchase_list_total;
 }
 

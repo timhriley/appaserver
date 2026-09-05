@@ -259,7 +259,7 @@ void post_change_inventory_sale_return_insert(
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
-		inventory_sale->missing_quantity,
+		inventory_sale->slippage_quantity,
 */
 
 	inventory_sale_list_update(
@@ -402,7 +402,7 @@ void post_change_inventory_sale_return_update(
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
-		inventory_sale->missing_quantity,
+		inventory_sale->slippage_quantity,
 */
 
 	inventory_sale_list_update(
@@ -548,7 +548,7 @@ void post_change_inventory_sale_return_predelete(
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
-		inventory_sale->missing_quantity;
+		inventory_sale->slippage_quantity;
 */
 
 	inventory_sale_list_update(

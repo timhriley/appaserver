@@ -145,7 +145,7 @@ INVENTORY_PURCHASE *inventory_purchase_parse( char *input )
 	if ( *buffer ) inventory_purchase->arrived_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) inventory_purchase->missing_quantity = atoi( buffer );
+	if ( *buffer ) inventory_purchase->slippage_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer ) inventory_purchase->unit_cost = atof( buffer );

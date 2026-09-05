@@ -15,7 +15,7 @@
 #define INVENTORY_PURCHASE_SELECT	"inventory_name,"	\
 					"ordered_quantity,"	\
 					"arrived_quantity,"	\
-					"missing_quantity,"	\
+					"slippage_quantity,"	\
 					"unit_cost,"		\
 					"extended_cost,"	\
 					"cost_basis,"		\
@@ -27,7 +27,7 @@ typedef struct
 	char *inventory_name;
 	int ordered_quantity;
 	int arrived_quantity;
-	int missing_quantity;
+	int slippage_quantity;
 	double unit_cost;
 	double extended_cost;
 	double cost_basis;

@@ -19,7 +19,8 @@ typedef struct
 	double service_purchase_list_total;
 	double prepaid_asset_purchase_list_total;
 	double return_list_total;
-	double cost_basis_total;
+	double extended_total;
+	double taxable_total;
 	COST_BASIS *cost_basis;
 	double total;
 	double invoice_amount;
@@ -55,10 +56,16 @@ PURCHASE_CALCULATE *purchase_calculate_calloc(
 
 /* Usage */
 /* ----- */
-double purchase_calculate_cost_basis_total(
+double purchase_calculate_extended_total(
 		double fixed_asset_purchase_list_total,
 		double inventory_purchase_list_total,
 		double specific_inventory_purchase_list_total,
+		double supply_purchase_list_total );
+
+/* Usage */
+/* ----- */
+double purchase_calculate_taxable_total(
+		double fixed_asset_purchase_list_total,
 		double supply_purchase_list_total );
 
 /* Usage */
