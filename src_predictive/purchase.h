@@ -52,14 +52,14 @@ typedef struct
 /* Usage */
 /* ----- */
 PURCHASE *purchase_trigger_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key );
+		char *state );
 
 /* Process */
 /* ------- */

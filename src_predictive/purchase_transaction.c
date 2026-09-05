@@ -20,14 +20,14 @@
 #include "purchase_transaction.h"
 
 PURCHASE_TRANSACTION *purchase_transaction_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
 		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		enum predictive_title_passage_rule

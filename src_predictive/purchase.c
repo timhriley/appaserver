@@ -30,19 +30,21 @@
 #include "purchase.h"
 
 PURCHASE *purchase_trigger_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key )
+		char *state )
 {
 	PURCHASE *purchase;
 
 	if ( !full_name
-	||   !purchase_date_time )
+	||   !*full_name
+	||   !purchase_date_time
+	||   !*purchase_date_time )
 	{
 		char message[ 1024 ];
 
@@ -106,14 +108,14 @@ PURCHASE *purchase_trigger_new(
 
 	purchase->purchase_transaction =
 		purchase_transaction_new(
+			preupdate_fund_name,
+			preupdate_full_name,
+			preupdate_contact_key,
 			fund_name,
 			full_name,
 			contact_key,
 			purchase_date_time,
 			state,
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
 			purchase->purchase_fetch->predictive_fund_boolean,
 			purchase->purchase_fetch->entity_contact_key_boolean,
 			purchase->purchase_fetch->predictive_title_passage_rule,
