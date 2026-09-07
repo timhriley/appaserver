@@ -178,20 +178,16 @@ SUBSIDIARY_TRANSACTION_STATE *
 					preupdate_change_foreign_date_time );
 	}
 
-	if (	subsidiary_transaction_state->journal_exist_boolean
-	&&	!subsidiary_transaction_state->journal_list_match_boolean )
-	{
-		subsidiary_transaction_state->subsidiary_transaction_delete =
-			subsidiary_transaction_delete_new(
-				subsidiary_transaction_state->
-					preupdate_change_fund_name,
-				subsidiary_transaction_state->
-					preupdate_change_full_name,
-				subsidiary_transaction_state->
-					preupdate_change_contact_key,
-				subsidiary_transaction_state->
-					preupdate_change_foreign_date_time );
-	}
+	subsidiary_transaction_state->subsidiary_transaction_delete =
+		subsidiary_transaction_delete_new(
+			subsidiary_transaction_state->
+				preupdate_change_fund_name,
+			subsidiary_transaction_state->
+				preupdate_change_full_name,
+			subsidiary_transaction_state->
+				preupdate_change_contact_key,
+			subsidiary_transaction_state->
+				preupdate_change_foreign_date_time );
 
 	return subsidiary_transaction_state;
 }

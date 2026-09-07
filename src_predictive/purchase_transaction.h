@@ -40,14 +40,15 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		boolean arrived_date_time_boolean,
 		char *arrived_date_time,
 		char *prior_transaction_date_time,
-		double sales_tax,
-		double freight_in,
-		double fixed_asset_purchase_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_purchase_total,
-		double service_purchase_total,
-		double prepaid_asset_purchase_total,
+		double sales_tax_expense,
+		double freight_in_expense,
+		double cost_basis_fixed_asset_total,
+		double cost_basis_inventory_total,
+		double cost_basis_specific_inventory_total,
+		double supply_purchase_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total,
+		double return_list_total,
 		double purchase_invoice_amount );
 
 /* Process */
@@ -68,31 +69,36 @@ char *purchase_transaction_date_time(
 /* Usage */
 /* ----- */
 LIST *purchase_transaction_journal_list(
-		double sales_tax,
-		double freight_in,
-		double fixed_asset_purchase_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_purchase_total,
-		double service_purchase_total,
-		double prepaid_asset_purchase_total,
+		double sales_tax_expense,
+		double freight_in_expense,
+		double cost_basis_fixed_asset_total,
+		double cost_basis_inventory_total,
+		double cost_basis_specific_inventory_total,
+		double supply_purchase_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total,
+		double return_list_total,
 		double purchase_invoice_amount );
 
 /* Process */
 /* ------- */
 double purchase_transaction_debit_sum(
-		double sales_tax,
-		double freight_in,
-		double fixed_asset_purchase_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_purchase_total,
-		double service_purchase_total,
-		double prepaid_asset_purchase_total );
+		double sales_tax_expense,
+		double freight_in_expense,
+		double cost_basis_fixed_asset_total,
+		double cost_basis_inventory_total,
+		double cost_basis_specific_inventory_total,
+		double supply_purchase_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total );
+
+double purchase_transaction_credit_sum(
+		double return_list_total,
+		double purchase_calculate_invoice_amount );
 
 double purchase_transaction_difference(
 		double purchase_transaction_debit_sum,
-		double purchase_invoice_amount );
+		double purchase_transaction_credit_sum );
 
 double purchase_transaction_inventory_total(
 		double inventory_purchase_list_total,

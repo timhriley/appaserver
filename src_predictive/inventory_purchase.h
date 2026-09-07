@@ -87,10 +87,9 @@ LIST *inventory_purchase_update_string_list(
 
 /* Usage */
 /* ----- */
-#define INVENTORY_PURCHASE_AVERAGE_UNIT_COST(			\
-		ordered_quantity,				\
-		cost_basis_amount )				\
-	( (double)ordered_quantity * cost_basis_amount )
+double inventory_purchase_average_unit_cost(
+		int ordered_quantity,
+		double cost_basis_amount );
 
 typedef struct
 {

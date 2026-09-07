@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SUBSIDIARY_TRANSACTION_STATE_H
-#define SUBSIDIARY_TRANSACTION_STATE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -62,4 +61,3 @@ SUBSIDIARY_TRANSACTION_STATE *
 boolean subsidiary_transaction_state_journal_exist_boolean(
 		LIST *old_journal_list );
 
-#endif

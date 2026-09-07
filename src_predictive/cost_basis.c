@@ -48,6 +48,10 @@ COST_BASIS *cost_basis_new(
 		cost_basis_fixed_asset_freight_capitalized(
 			cost_basis->cost_basis_fixed_asset_list );
 
+	cost_basis->cost_basis_fixed_asset_total =
+		cost_basis_fixed_asset_total(
+			cost_basis->cost_basis_fixed_asset_list );
+
 	cost_basis->cost_basis_inventory_list =
 		cost_basis_inventory_list(
 			freight_in,
@@ -58,6 +62,10 @@ COST_BASIS *cost_basis_new(
 		cost_basis_inventory_freight_capitalized(
 			cost_basis->cost_basis_inventory_list );
 
+	cost_basis->cost_basis_inventory_total =
+		cost_basis_inventory_total(
+			cost_basis->cost_basis_inventory_list );
+
 	cost_basis->cost_basis_specific_inventory_list =
 		cost_basis_specific_inventory_list(
 			freight_in,
@@ -66,6 +74,10 @@ COST_BASIS *cost_basis_new(
 
 	cost_basis->cost_basis_specific_inventory_freight_capitalized =
 		cost_basis_specific_inventory_freight_capitalized(
+			cost_basis->cost_basis_specific_inventory_list );
+
+	cost_basis->cost_basis_specific_inventory_total =
+		cost_basis_specific_inventory_total(
 			cost_basis->cost_basis_specific_inventory_list );
 
 	cost_basis->sales_tax_expense =
@@ -253,6 +265,27 @@ COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset_calloc( void )
 	return cost_basis_fixed_asset;
 }
 
+double cost_basis_fixed_asset_total(
+		LIST *cost_basis_fixed_asset_list )
+{
+	COST_BASIS_FIXED_ASSET *cost_basis_fixed_asset;
+	double total = 0.0;
+
+	if ( list_rewind( cost_basis_fixed_asset_list ) )
+	do {
+		cost_basis_fixed_asset =
+			 list_get(
+				cost_basis_fixed_asset_list );
+
+		total +=
+			cost_basis_fixed_asset->
+				cost_basis_amount;
+
+	} while ( list_next( cost_basis_fixed_asset_list ) );
+
+	return total;
+}
+
 double cost_basis_fixed_asset_freight_capitalized(
 		LIST *cost_basis_fixed_asset_list )
 {
@@ -392,6 +425,27 @@ COST_BASIS_INVENTORY *cost_basis_inventory_calloc( void )
 	return cost_basis_inventory;
 }
 
+double cost_basis_inventory_total(
+		LIST *cost_basis_inventory_list )
+{
+	COST_BASIS_INVENTORY *cost_basis_inventory;
+	double total = 0.0;
+
+	if ( list_rewind( cost_basis_inventory_list ) )
+	do {
+		cost_basis_inventory =
+			 list_get(
+				cost_basis_inventory_list );
+
+		total +=
+			cost_basis_inventory->
+				cost_basis_amount;
+
+	} while ( list_next( cost_basis_inventory_list ) );
+
+	return total;
+}
+
 double cost_basis_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list )
 {
@@ -507,6 +561,27 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_calloc( void )
 	}
 
 	return cost_basis_specific_inventory;
+}
+
+double cost_basis_specific_inventory_total(
+		LIST *cost_basis_specific_inventory_list )
+{
+	COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory;
+	double total = 0.0;
+
+	if ( list_rewind( cost_basis_specific_inventory_list ) )
+	do {
+		cost_basis_specific_inventory =
+			 list_get(
+				cost_basis_specific_inventory_list );
+
+		total +=
+			cost_basis_specific_inventory->
+				cost_basis_amount;
+
+	} while ( list_next( cost_basis_specific_inventory_list ) );
+
+	return total;
 }
 
 double cost_basis_specific_inventory_freight_capitalized(

@@ -14,10 +14,13 @@ typedef struct
 	LIST *cost_basis_fixed_asset_list;
 	double cost_basis_fixed_asset_tax_capitalized;
 	double cost_basis_fixed_asset_freight_capitalized;
+	double cost_basis_fixed_asset_total;
 	LIST *cost_basis_inventory_list;
 	double cost_basis_inventory_freight_capitalized;
+	double cost_basis_inventory_total;
 	LIST *cost_basis_specific_inventory_list;
 	double cost_basis_specific_inventory_freight_capitalized;
+	double cost_basis_specific_inventory_total;
 	double sales_tax_expense;
 	double freight_in_expense;
 } COST_BASIS;
@@ -124,6 +127,11 @@ double cost_basis_fixed_asset_tax_capitalized(
 double cost_basis_fixed_asset_freight_capitalized(
 		LIST *cost_basis_fixed_asset_list );
 
+/* Usage */
+/* ----- */
+double cost_basis_fixed_asset_total(
+		LIST *cost_basis_fixed_asset_list );
+
 typedef struct
 {
 	double cost_basis_extended_percent_of_total;
@@ -156,6 +164,11 @@ COST_BASIS_INVENTORY *cost_basis_inventory_calloc(
 /* Usage */
 /* ----- */
 double cost_basis_inventory_freight_capitalized(
+		LIST *cost_basis_inventory_list );
+
+/* Usage */
+/* ----- */
+double cost_basis_inventory_total(
 		LIST *cost_basis_inventory_list );
 
 typedef struct
@@ -191,3 +204,9 @@ COST_BASIS_SPECIFIC_INVENTORY *cost_basis_specific_inventory_calloc(
 /* ----- */
 double cost_basis_specific_inventory_freight_capitalized(
 		LIST *cost_basis_inventory_list );
+
+/* Usage */
+/* ----- */
+double cost_basis_specific_inventory_total(
+		LIST *cost_basis_inventory_list );
+

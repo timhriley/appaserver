@@ -4,8 +4,7 @@
 /* No warranty and freely available software: see Appaserver.org	   */
 /* ----------------------------------------------------------------------- */
 
-#ifndef FLOAT_H
-#define FLOAT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -36,6 +35,9 @@ boolean double_virtually_same(
 boolean float_money_virtually_same(
 		double d1,
 		double d2 );
+
+boolean float_money_virtually_zero(
+		double d );
 
 boolean float_dollar_virtually_same(
 		double d1,
@@ -109,4 +111,3 @@ char *float_string(
 		double d,
 		int decimal_count );
 
-#endif

@@ -31,6 +31,11 @@ double abs_float( double f )
 	return float_abs( f );
 }
 
+boolean float_money_virtually_zero( double d )
+{
+	return float_money_virtually_same( d, 0.0 );
+}
+
 boolean float_money_virtually_same( double d1, double d2 )
 {
 	return float_dollar_virtually_same( d1, d2 );

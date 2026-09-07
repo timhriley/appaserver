@@ -331,6 +331,19 @@ ACCOUNT *account_payable(
 		calling_function_name );
 }
 
+ACCOUNT *account_inventory_return(
+		const char *account_inventory_return_key,
+		const char *calling_function_name )
+{
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	account_key_fetch(
+		account_inventory_return_key,
+		calling_function_name );
+}
+
 ACCOUNT *account_uncleared_checks(
 		const char *account_uncleared_checks_key,
 		const char *calling_function_name )

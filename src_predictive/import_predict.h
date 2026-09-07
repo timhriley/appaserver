@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef IMPORT_PREDICT_H
-#define IMPORT_PREDICT_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -62,9 +61,10 @@
 	"transactions, because most of them will be generated "		      \
 	"automatically. After you install PredictBooks, become "	      \
 	"familiar with the Feeder Phrase table. Each of your bank's "	      \
-	"transactions is described with a phrase. Insert these "	      \
-	"phrases into the Feeder Phrase table. PredictBooks will "	      \
-	"seek out the phrases to generate your transactions automatically."
+	"transactions contain the company's name. PredictBooks calls them "   \
+	"feeder phrases. Insert these feeder phrases into the Feeder Phrase " \
+	"table. PredictBooks will seek out the phrases to generate your "     \
+	"transactions automatically."
 
 #define IMPORT_PREDICT_REFRESH_MESSAGE 					\
 	"<p style=\"margin: 3\%;\">"					\
@@ -194,4 +194,3 @@ char *import_predict_menu_anchor_tag(
 char *import_predict_system_string(
 		char *import_predict_filename );
 
-#endif

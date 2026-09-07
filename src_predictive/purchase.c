@@ -106,45 +106,70 @@ PURCHASE *purchase_trigger_new(
 			purchase->purchase_fetch->return_total_boolean,
 			purchase->purchase_fetch->purchase_return_list );
 
-	purchase->purchase_transaction =
-		purchase_transaction_new(
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			state,
-			purchase->purchase_fetch->predictive_fund_boolean,
-			purchase->purchase_fetch->entity_contact_key_boolean,
-			purchase->purchase_fetch->predictive_title_passage_rule,
-			purchase->purchase_fetch->shipped_date,
-			purchase->purchase_fetch->arrived_date_time_boolean,
-			purchase->purchase_fetch->arrived_date_time,
-			purchase->purchase_fetch->transaction_date_time
-				/* prior_transaction_date_time */,
-			purchase->purchase_fetch->sales_tax,
-			purchase->purchase_fetch->freight_in,
-			purchase->
-				purchase_calculate->
-				fixed_asset_purchase_list_total,
-			purchase->
-				purchase_calculate->
-				inventory_purchase_list_total,
-			purchase->
-				purchase_calculate->
-				specific_inventory_purchase_list_total,
-			purchase->
-				purchase_calculate->
-				supply_purchase_list_total,
-			purchase->
-				purchase_calculate->
-				service_purchase_list_total,
-			purchase->
-				purchase_calculate->
-				prepaid_asset_purchase_list_total,
-			purchase->purchase_calculate->invoice_amount );
+	if ( purchase->purchase_calculate->cost_basis )
+	{
+		purchase->purchase_transaction =
+			purchase_transaction_new(
+				preupdate_fund_name,
+				preupdate_full_name,
+				preupdate_contact_key,
+				fund_name,
+				full_name,
+				contact_key,
+				purchase_date_time,
+				state,
+				purchase->
+					purchase_fetch->
+					predictive_fund_boolean,
+				purchase->
+					purchase_fetch->
+					entity_contact_key_boolean,
+				purchase->
+					purchase_fetch->
+					predictive_title_passage_rule,
+				purchase->
+					purchase_fetch->
+					shipped_date,
+				purchase->
+					purchase_fetch->
+					arrived_date_time_boolean,
+				purchase->purchase_fetch->arrived_date_time,
+				purchase->purchase_fetch->transaction_date_time
+					/* prior_transaction_date_time */,
+				purchase->
+					purchase_calculate->
+					cost_basis->
+					sales_tax_expense,
+				purchase->
+					purchase_calculate->
+					cost_basis->
+					freight_in_expense,
+				purchase->
+					purchase_calculate->
+					cost_basis->
+					cost_basis_fixed_asset_total,
+				purchase->
+					purchase_calculate->
+					cost_basis->
+					cost_basis_inventory_total,
+				purchase->
+					purchase_calculate->
+					cost_basis->
+					cost_basis_specific_inventory_total,
+				purchase->
+					purchase_calculate->
+					supply_purchase_list_total,
+				purchase->
+					purchase_calculate->
+					service_purchase_list_total,
+				purchase->
+					purchase_calculate->
+					prepaid_asset_purchase_list_total,
+				purchase->
+					purchase_calculate->
+					return_list_total,
+				purchase->purchase_calculate->invoice_amount );
+	}
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) != 0 )
 	{

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef JOURNAL_H
-#define JOURNAL_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -667,5 +666,3 @@ char *journal_list_display(
 /* --------------------- */
 char *journal_display(
 		JOURNAL *journal );
-
-#endif

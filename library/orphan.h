@@ -10,7 +10,7 @@
 #include "list.h"
 #include "relation_mto1.h"
 
-#define DEBUG_MODE 0
+/* #define DEBUG_MODE */
 
 typedef struct
 {

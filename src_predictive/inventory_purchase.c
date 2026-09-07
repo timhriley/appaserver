@@ -553,7 +553,7 @@ void inventory_purchase_list_set_average_unit_cost(
 		}
 
 		inventory_purchase->inventory_purchase_average_unit_cost =
-			INVENTORY_PURCHASE_AVERAGE_UNIT_COST (
+			inventory_purchase_average_unit_cost(
 				inventory_purchase->ordered_quantity,
 				inventory_purchase->
 					cost_basis_inventory->
@@ -562,3 +562,12 @@ void inventory_purchase_list_set_average_unit_cost(
 	} while ( list_next( inventory_purchase_list ) );
 }
 
+double inventory_purchase_average_unit_cost(
+		int ordered_quantity,
+		double cost_basis_amount )
+{
+	if ( !ordered_quantity ) return 0.0;
+
+	return
+	cost_basis_amount / (double)ordered_quantity;
+}

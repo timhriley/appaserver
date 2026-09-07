@@ -1089,10 +1089,11 @@ char *journal_insert_data_string(
 		0.0 ) )
 	{
 		fprintf(stderr,
-"Warning in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+"Warning in %s/%s()/%d: for account=%s, both debit_amount and credit_amount are zero.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			account_name );
 
 		return NULL;
 	}
@@ -1442,8 +1443,6 @@ char *journal_display( JOURNAL *journal )
 			"^%s",
 			journal->transaction->memo );
 	}
-
-	ptr += sprintf( ptr, "\n" );
 
 	return display;
 }

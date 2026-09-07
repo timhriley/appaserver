@@ -358,41 +358,42 @@ SUBSIDIARY_TRANSACTION_DELETE *
 			message );
 	}
 
-	if (	preupdate_change_fund_name->no_change_boolean
-	&&	preupdate_change_full_name->no_change_boolean
-	&&  	preupdate_change_contact_key->no_change_boolean
-	&&  	preupdate_change_foreign_date_time->no_change_boolean )
-	{
-		return NULL;
-	}
-
 	subsidiary_transaction_delete = subsidiary_transaction_delete_calloc();
 
 	subsidiary_transaction_delete->fund_name =
-		preupdate_change_fund_name->
-			prior_datum;
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		subsidiary_transaction_delete_datum(
+			preupdate_change_fund_name->
+				prior_datum,
+			preupdate_change_fund_name->
+				new_datum );
 
 	subsidiary_transaction_delete->full_name =
-		preupdate_change_full_name->
-			prior_datum;
-
-	if ( !subsidiary_transaction_delete->full_name )
-	{
-		free( subsidiary_transaction_delete );
-		return NULL;
-	}
+		subsidiary_transaction_delete_datum(
+			preupdate_change_full_name->
+				prior_datum,
+			preupdate_change_full_name->
+				new_datum );
 
 	subsidiary_transaction_delete->contact_key =
-		preupdate_change_contact_key->
-			prior_datum;
+		subsidiary_transaction_delete_datum(
+			preupdate_change_contact_key->
+				prior_datum,
+			preupdate_change_contact_key->
+				new_datum );
 
 	subsidiary_transaction_delete->transaction_date_time =
-		preupdate_change_foreign_date_time->
-			prior_datum;
+		subsidiary_transaction_delete_datum(
+			preupdate_change_foreign_date_time->
+				prior_datum,
+			preupdate_change_foreign_date_time->
+				new_datum );
 
-	if ( !subsidiary_transaction_delete->transaction_date_time )
+	if ( !subsidiary_transaction_delete->full_name
+	||   !subsidiary_transaction_delete->transaction_date_time )
 	{
-		free( subsidiary_transaction_delete );
 		return NULL;
 	}
 
@@ -454,6 +455,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 			message );
 	}
 
+/*
 	if (	preupdate_change_fund_name->no_change_boolean
 	&&	preupdate_change_full_name->no_change_boolean
 	&&  	preupdate_change_contact_key->no_change_boolean
@@ -461,6 +463,7 @@ SUBSIDIARY_TRANSACTION_INSERT *
 	{
 		return NULL;
 	}
+*/
 
 	subsidiary_transaction_insert = subsidiary_transaction_insert_calloc();
 
@@ -657,3 +660,16 @@ char *subsidiary_transaction_update_null_sql(
 	return strdup( update_null_sql );
 }
 
+char *subsidiary_transaction_delete_datum(
+		char *prior_datum,
+		char *new_datum )
+{
+	char *datum;
+
+	if ( prior_datum && *prior_datum )
+		datum = prior_datum;
+	else
+		datum = new_datum;
+
+	return datum;
+}

@@ -159,13 +159,10 @@ ORPHAN_INSERT_STATEMENT *orphan_insert_statement_calloc( void )
 
 LIST *orphan_insert_list( LIST *orphan_subquery_list )
 {
-	LIST *list;
+	LIST *list = list_new();
 	ORPHAN_SUBQUERY *orphan_subquery;
 
-	if ( !list_rewind( orphan_subquery_list ) ) return (LIST *)0;
-
-	list = list_new();
-
+	if ( list_rewind( orphan_subquery_list ) )
 	do {
 		orphan_subquery =
 			list_get(
@@ -180,6 +177,12 @@ LIST *orphan_insert_list( LIST *orphan_subquery_list )
 		}
 
 	} while ( list_next( orphan_subquery_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
@@ -428,17 +431,16 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 			orphan_subquery->many_table_name,
 			orphan_subquery->one_table_name );
 
-	if ( DEBUG_MODE )
-	{
-		fprintf(stderr,
-			"%s/%s/%d: relation=[%s->%s; subquery=[%s]\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			orphan_subquery->many_table_name,
-			orphan_subquery->one_table_name,
-			orphan_subquery->string );
-	}
+#ifdef DEBUG_MODE
+fprintf(stderr,
+	"%s/%s/%d: relation=[%s->%s; subquery=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	orphan_subquery->many_table_name,
+	orphan_subquery->one_table_name,
+	orphan_subquery->string );
+#endif
 
 	orphan_subquery->system_string =
 		/* ------------------- */
@@ -451,20 +453,19 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 		list_pipe(
 			orphan_subquery->system_string );
 
-	if ( DEBUG_MODE )
-	{
-		if ( list_length( orphan_subquery->orphan_data_list ) )
-		{
-			fprintf(stderr,
-			"%s/%s/%d: orphan_data_list=[\n%s\n]\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				list_display_delimited(
-					orphan_subquery->orphan_data_list,
-					'\n' ) );
-		}
-	}
+#ifdef DEBUG_MODE
+if ( list_length( orphan_subquery->orphan_data_list ) )
+{
+	fprintf(stderr,
+	"%s/%s/%d: orphan_data_list=[\n%s\n]\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__,
+		list_display_delimited(
+			orphan_subquery->orphan_data_list,
+			'\n' ) );
+}
+#endif
 
 	return orphan_subquery;
 }
@@ -1311,15 +1312,14 @@ LIST *orphan_folder_list(
 	do {
 		folder_name = list_get( name_list );
 
-		if ( DEBUG_MODE )
-		{
-			fprintf(stderr,
-				"%s/%s/%d: folder_name=%s\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				folder_name );
-		}
+#ifdef DEBUG_MODE
+fprintf(stderr,
+	"\n%s/%s/%d: folder_name=%s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	folder_name );
+#endif
 
 		orphan_folder =
 			/* -------------- */

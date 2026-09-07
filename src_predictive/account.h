@@ -66,6 +66,7 @@
 #define ACCOUNT_STATE_UNEMPLOYMENT_PAYABLE_KEY	"state_unemployment_payable"
 #define ACCOUNT_CONTRIBUTED_CAPITAL_KEY		"contributed_capital"
 #define ACCOUNT_CGS_KEY				"cost_of_goods_sold"
+#define ACCOUNT_INVENTORY_RETURN_KEY		"inventory_return"
 
 typedef struct
 {
@@ -461,6 +462,15 @@ ACCOUNT *account_receivable(
 /* ------------------------------------ */
 ACCOUNT *account_payable(
 		const char *account_payable_key,
+		const char *calling_function_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
+ACCOUNT *account_inventory_return(
+		const char *account_return_inventory_key,
 		const char *calling_function_name );
 
 /* Usage */

@@ -57,6 +57,12 @@ SUBSIDIARY_TRANSACTION_DELETE *
 	subsidiary_transaction_delete_calloc(
 		void );
 
+/* Returns either parameter */
+/* ------------------------ */
+char *subsidiary_transaction_delete_datum(
+		char *prior_datum,
+		char *new_datum );
+
 typedef struct
 {
 	boolean predictive_fund_boolean;
