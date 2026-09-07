@@ -3,8 +3,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PAIR_ONE2M_H
-#define PAIR_ONE2M_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -190,6 +189,3 @@ PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert_new(
 /* ------- */
 PAIR_ONE2M_TABLE_INSERT *pair_one2m_table_insert_calloc(
 		void );
-
-#endif
-

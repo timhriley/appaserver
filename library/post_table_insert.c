@@ -435,22 +435,6 @@ POST_TABLE_INSERT_INPUT *post_table_insert_input_new(
 			post_table_insert_input->
 				folder_attribute_upload_filename_list );
 
-
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: original_post_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display(
-			post_table_insert_input->
-				post_dictionary->
-				original_post_dictionary ) );
-msg( (char *)0, message );
-}
 	post_table_insert_input->dictionary_separate =
 		/* -------------- */
 		/* Safely returns */

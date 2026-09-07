@@ -190,6 +190,7 @@ int main( int argc, char **argv )
 		}
 	}
 
+#ifdef NOT_DEFINED
 	/* If pair one to many is finished */
 	/* ------------------------------- */
 	if ( post_prompt_insert->
@@ -210,6 +211,7 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
+#endif
 
 	/* If pair one to many is skipped */
 	/* ------------------------------ */

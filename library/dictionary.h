@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
+#pragma once
 
 #include "hash_table.h"
 #include "boolean.h"
@@ -690,4 +689,3 @@ DICTIONARY *dictionary_append(
 		DICTIONARY *destination_dictionary,
 		DICTIONARY *source_dictionary );
 
-#endif

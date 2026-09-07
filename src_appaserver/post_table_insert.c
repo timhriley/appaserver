@@ -137,10 +137,10 @@ int main( int argc, char **argv )
 				insert_statement_error_string,
 				post_table_insert->
 					dictionary_separate_send_string,
-				appaserver_error_filename(
+				appaserver_error_filespecification(
 					application_name ) );
 
-		if ( system( system_string ) ){}
+		goto execute_system_string;
 	}
 	else
 	if (	post_table_insert->
@@ -149,27 +149,39 @@ int main( int argc, char **argv )
 			pair_one2m_post_table_insert->
 			next_folder_name )
 	{
-		document_process_output(
-			application_name,
-			(LIST *)0 /* javascript_filename_list */,
-			POST_TABLE_INSERT_PROCESS_NAME );
-	
-		printf(	"%s\n",
-			PAIR_ONE2M_COMPLETE_HTML );
-	
-		if ( result_string )
-		{
-			printf(	"<h2>%s</h2>\n",
-				result_string );
-		}
+		char *one_folder_name;
+		char pair_one2m_result_string[ 128 ];
 
-		if ( insert_statement_error_string )
-		{
-			printf(	"<h3>%s</h3>\n",
-				insert_statement_error_string );
-		}
+		one_folder_name =
+			dictionary_get(
+				PAIR_ONE2M_ONE_FOLDER_KEY,
+				post_table_insert->
+					post_table_insert_input->
+					dictionary_separate->
+					pair_dictionary );
 
-		document_close();
+		snprintf(
+			pair_one2m_result_string,
+			sizeof ( pair_one2m_result_string ),
+			"%s<br>Insert Complete",
+			(result_string) ? result_string : "" );
+
+		system_string =
+			execute_system_string_table_edit(
+				TABLE_EDIT_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				one_folder_name,
+				target_frame,
+				pair_one2m_result_string,
+				insert_statement_error_string,
+				post_table_insert->
+					dictionary_separate_send_string,
+				appaserver_error_filespecification(
+					application_name ) );
+
+		goto execute_system_string;
 	}
 	else
 	{
@@ -185,11 +197,13 @@ int main( int argc, char **argv )
 				insert_statement_error_string,
 				post_table_insert->
 					dictionary_separate_send_string,
-				appaserver_error_filename(
+				appaserver_error_filespecification(
 					application_name ) );
-
-		if ( system( system_string ) ){}
 	}
+
+execute_system_string:
+
+	if ( system( system_string ) ){}
 
 	return 0;
 }
