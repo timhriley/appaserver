@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FORM_TABLE_INSERT_H
-#define FORM_TABLE_INSERT_H
+#pragma once
 
 #include <unistd.h>
 #include "boolean.h"
@@ -276,6 +275,7 @@ typedef struct
 	LIST *widget_container_heading_list;
 	char *drillthru_hidden_html;
 	char *prompt_hidden_html;
+	char *query_hidden_html;
 	char *pair_one2m_hidden_html;
 	LIST *button_list;
 	char *button_list_html;
@@ -302,6 +302,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
+		DICTIONARY *query_dictionary,
 		DICTIONARY *pair_dictionary,
 		LIST *ignore_name_list,
 		LIST *prompt_name_list,
@@ -345,8 +346,8 @@ char *form_table_insert_html(
 		char *widget_table_close_tag,
 		char *drillthru_hidden_html,
 		char *prompt_hidden_html,
+		char *query_hidden_html,
 		char *pair_one2m_hidden_html,
 		char *button_list_html,
 		char *form_close_tag );
 
-#endif

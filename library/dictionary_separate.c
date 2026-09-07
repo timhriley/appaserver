@@ -17,6 +17,8 @@
 #include "appaserver_error.h"
 #include "relation.h"
 #include "prompt_lookup.h"
+#include "post_prompt_insert.h"
+#include "query.h"
 #include "dictionary_separate.h"
 
 DICTIONARY_SEPARATE *dictionary_separate_calloc( void )
@@ -1705,6 +1707,13 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 			folder_attribute_name_list,
 			sql_injection_escape->non_prefixed_dictionary );
 
+	dictionary_separate_table_insert->query_dictionary =
+		/* ---------------------------------- */
+		/* Returns dictionary_small() or null */
+		/* ---------------------------------- */
+		dictionary_separate_table_insert_query_dictionary(
+			dictionary_separate_table_insert->prompt_dictionary );
+
 	dictionary_separate_table_insert->pair_dictionary =
 		sql_injection_escape->pair_dictionary;
 
@@ -3020,5 +3029,18 @@ void dictionary_separate_parse_multi_non_relation(
 		index,
 		multi_key_without_index,
 		get );
+}
+
+DICTIONARY *dictionary_separate_table_insert_query_dictionary(
+		DICTIONARY *prompt_dictionary )
+{
+	return
+	/* ---------------------------------- */
+	/* Returns dictionary_small() or null */
+	/* ---------------------------------- */
+	query_prompt_query_dictionary(
+		QUERY_RELATION_OPERATOR_PREFIX,
+		QUERY_EQUAL,
+		prompt_dictionary );
 }
 

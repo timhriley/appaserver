@@ -678,6 +678,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		LIST *folder_attribute_append_isa_list,
 		DICTIONARY *drillthru_dictionary,
 		DICTIONARY *prompt_dictionary,
+		DICTIONARY *query_dictionary,
 		DICTIONARY *pair_dictionary,
 		LIST *ignore_name_list,
 		LIST *prompt_name_list,
@@ -703,6 +704,18 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			message );
 	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: query_dictionary=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	dictionary_display( query_dictionary ) );
+msg( (char *)0, message );
+}
 	form_table_insert = form_table_insert_calloc();
 
 	form_table_insert->action_string =
@@ -760,6 +773,9 @@ FORM_TABLE_INSERT *form_table_insert_new(
 				widget_container_heading_label_list );
 
 	form_table_insert->drillthru_hidden_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		dictionary_separate_hidden_html(
 			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 			drillthru_dictionary );
@@ -770,6 +786,14 @@ FORM_TABLE_INSERT *form_table_insert_new(
 		/* ------------------- */
 		widget_dictionary_hidden_html(
 			prompt_dictionary );
+
+	form_table_insert->query_hidden_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			query_dictionary );
 
 	form_table_insert->pair_one2m_hidden_html =
 		/* ------------------- */
@@ -819,6 +843,7 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			widget_table_close_tag(),
 			form_table_insert->drillthru_hidden_html,
 			form_table_insert->prompt_hidden_html,
+			form_table_insert->query_hidden_html,
 			form_table_insert->pair_one2m_hidden_html,
 			form_table_insert->button_list_html,
 			/* ---------------------- */
@@ -1005,6 +1030,7 @@ char *form_table_insert_html(
 		char *widget_table_close_tag,
 		char *drillthru_hidden_html,
 		char *prompt_hidden_html,
+		char *query_hidden_html,
 		char *pair_one2m_hidden_html,
 		char *button_list_html,
 		char *form_close_tag )
@@ -1150,6 +1176,7 @@ char *form_table_insert_html(
 	if (	strlen( html ) +
 		string_strlen( drillthru_hidden_html ) +
 		string_strlen( prompt_hidden_html ) +
+		string_strlen( query_hidden_html ) +
 		string_strlen( pair_one2m_hidden_html ) +
 		string_strlen( button_list_html ) +
 		strlen( form_close_tag ) + 3 >= STRING_704K )
@@ -1169,12 +1196,15 @@ char *form_table_insert_html(
 
 	ptr += sprintf(
 		ptr,
-		"%s\n%s\n%s\n%s\n%s",
+		"%s\n%s\n%s\n%s\n%s\n%s",
 		(drillthru_hidden_html)
 			? drillthru_hidden_html
 			: "",
 		(prompt_hidden_html)
 			? prompt_hidden_html
+			: "",
+		(query_hidden_html)
+			? query_hidden_html
 			: "",
 		(pair_one2m_hidden_html)
 			? pair_one2m_hidden_html

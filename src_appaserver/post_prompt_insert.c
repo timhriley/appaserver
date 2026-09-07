@@ -111,7 +111,7 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_prompt_insert->
 					post_prompt_insert_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		goto execute_system_string;
 	}
@@ -234,7 +234,7 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_prompt_insert->
 					post_prompt_insert_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		goto execute_system_string;
 	}
@@ -264,7 +264,7 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_prompt_insert->
 					post_prompt_insert_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		goto execute_system_string;
 	}
@@ -287,7 +287,7 @@ int main( int argc, char **argv )
 					dictionary_separate_send_string,
 				post_prompt_insert->
 					post_prompt_insert_input->
-					appaserver_error_filename );
+					appaserver_error_filespecification );
 
 		goto execute_system_string;
 	}
@@ -306,7 +306,7 @@ int main( int argc, char **argv )
 				dictionary_separate_send_string,
 			post_prompt_insert->
 				post_prompt_insert_input->
-				appaserver_error_filename );
+				appaserver_error_filespecification );
 
 execute_system_string:
 

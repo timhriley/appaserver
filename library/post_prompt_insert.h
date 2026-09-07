@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef POST_PROMPT_INSERT_H
-#define POST_PROMPT_INSERT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -43,7 +42,7 @@ typedef struct
 	boolean lookup_boolean;
 	PROCESS *post_change_process;
 	APPASERVER_USER *insert_appaserver_user;
-	char *appaserver_error_filename;
+	char *appaserver_error_filespecification;
 } POST_PROMPT_INSERT_INPUT;
 
 /* Usage */
@@ -132,4 +131,3 @@ boolean post_prompt_insert_fatal_duplicate_boolean(
 		char *appaserver_table_name,
 		char *insert_statement_error_string );
 
-#endif

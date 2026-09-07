@@ -18,6 +18,7 @@
 #include "dictionary.h"
 #include "dictionary_separate.h"
 #include "appaserver_error.h"
+#include "query.h"
 #include "prompt_insert.h"
 #include "table_insert.h"
 #include "pair_one2m.h"
@@ -283,48 +284,11 @@ DICTIONARY *post_prompt_insert_query_dictionary(
 		const char *query_equal,
 		DICTIONARY *prompt_dictionary )
 {
-	DICTIONARY *query_dictionary;
-	LIST *key_list;
-	char *key;
-	char *relation_key;
-
-	if ( !dictionary_length( prompt_dictionary ) ) return NULL;
-
-	query_dictionary = dictionary_small();
-
-	key_list = dictionary_key_list( prompt_dictionary );
-
-	list_rewind( key_list );
-
-	do {
-		key = list_get( key_list );
-
-		dictionary_set(
-			query_dictionary,
-			key,
-			/* --------------------------------------- */
-			/* Returns component of dictionary or null */
-			/* --------------------------------------- */
-			dictionary_get(
-				key,
-				prompt_dictionary ) );
-
-		relation_key =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			query_relation_key(
-				(char *)query_relation_operator_prefix,
-				key );
-
-		dictionary_set(
-			query_dictionary,
-			strdup( relation_key ),
-			(char *)query_equal );
-
-	} while ( list_next( key_list ) );
-
-	return query_dictionary;
+	return
+	query_prompt_query_dictionary(
+		query_relation_operator_prefix,
+		query_equal,
+		prompt_dictionary );
 }
 
 boolean post_prompt_insert_input_lookup_boolean(
@@ -539,11 +503,11 @@ POST_PROMPT_INSERT_INPUT *post_prompt_insert_input_new(
 		}
 	}
 
-	post_prompt_insert_input->appaserver_error_filename =
+	post_prompt_insert_input->appaserver_error_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		appaserver_error_filename(
+		appaserver_error_filespecification(
 			application_name );
 
 	return post_prompt_insert_input;

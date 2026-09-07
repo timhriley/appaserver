@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef TABLE_INSERT_H
-#define TABLE_INSERT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -171,4 +170,3 @@ boolean table_insert_entire_primary_key_ignored(
 		LIST *folder_attribute_primary_key_list,
 		LIST *ignore_name_list );
 
-#endif

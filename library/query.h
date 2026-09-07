@@ -1571,6 +1571,13 @@ unsigned long query_row_count(
 char *query_row_count_system_string(
 		char *appaserver_table_name );
 
+/* Usage */
+/* ----- */
+DICTIONARY *query_prompt_query_dictionary(
+		const char *query_relation_operator_prefix,
+		const char *query_equal,
+		DICTIONARY *prompt_dictionary );
+
 typedef struct
 {
 	LIST *query_select_list;

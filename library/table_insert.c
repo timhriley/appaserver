@@ -285,6 +285,10 @@ TABLE_INSERT *table_insert_new(
 					dictionary_separate->
 					drillthru_dictionary,
 				table_insert->prompt_dictionary,
+				table_insert->
+					table_insert_input->
+					dictionary_separate->
+					query_dictionary,
 				dictionary_prefix(
 					table_insert->
 						table_insert_input->

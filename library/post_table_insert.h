@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef POST_TABLE_INSERT_H
-#define POST_TABLE_INSERT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -109,4 +108,3 @@ DICTIONARY *post_table_insert_query_dictionary(
 		DICTIONARY *multi_row_dictionary,
 		VERTICAL_NEW_POST *vertical_new_post );
 
-#endif

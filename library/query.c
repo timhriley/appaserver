@@ -8983,3 +8983,52 @@ QUERY_SELECT *query_select_attribute_not_null(
 
 	return query_select;
 }
+
+DICTIONARY *query_prompt_query_dictionary(
+		const char *query_relation_operator_prefix,
+		const char *query_equal,
+		DICTIONARY *prompt_dictionary )
+{
+	DICTIONARY *query_dictionary;
+	LIST *key_list;
+	char *key;
+	char *relation_key;
+
+	if ( !dictionary_length( prompt_dictionary ) ) return NULL;
+
+	query_dictionary = dictionary_small();
+
+	key_list = dictionary_key_list( prompt_dictionary );
+
+	list_rewind( key_list );
+
+	do {
+		key = list_get( key_list );
+
+		dictionary_set(
+			query_dictionary,
+			key,
+			/* --------------------------------------- */
+			/* Returns component of dictionary or null */
+			/* --------------------------------------- */
+			dictionary_get(
+				key,
+				prompt_dictionary ) );
+
+		relation_key =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			query_relation_key(
+				(char *)query_relation_operator_prefix,
+				key );
+
+		dictionary_set(
+			query_dictionary,
+			strdup( relation_key ),
+			(char *)query_equal );
+
+	} while ( list_next( key_list ) );
+
+	return query_dictionary;
+}

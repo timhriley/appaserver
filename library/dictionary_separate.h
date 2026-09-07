@@ -613,6 +613,7 @@ typedef struct
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	DICTIONARY *prompt_dictionary;
+	DICTIONARY *query_dictionary;
 	DICTIONARY *pair_dictionary;
 	LIST *ignore_name_list;
 	LIST *prompt_name_list;
@@ -638,6 +639,14 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 DICTIONARY_SEPARATE_TABLE_INSERT *
 	dictionary_separate_table_insert_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns dictionary_small() or null */
+/* ---------------------------------- */
+DICTIONARY *dictionary_separate_table_insert_query_dictionary(
+		DICTIONARY *prompt_dictionary );
 
 typedef struct
 {
