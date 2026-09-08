@@ -531,38 +531,46 @@ char *entity_primary_data_string(
 }
 
 char *entity_name_display(
+		const char delimiter,
 		char *full_name,
-		char *contact_key )
+		char *contact_key,
+		boolean contact_key_boolean )
 {
 	static char display[ 256 ];
 
-	*display = '\0';
-
-	if ( full_name )
+	if ( !full_name )
 	{
-		if ( !contact_key
-		||   !*contact_key
-		||   strcmp(
-			contact_key,
-			ENTITY_CONTACT_KEY_UNKNOWN ) == 0
-		||   strcmp(
-			contact_key,
-			ENTITY_CONTACT_KEY_NULL ) == 0 )
-		{
-			string_strcpy(
-				display,
-				full_name,
-				sizeof ( display ) );
-		}
-		else
-		{
-			snprintf(
-				display,
-				sizeof ( display ),
-				"%s/%s",
-				full_name,
-				contact_key );
-		}
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"full_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( !contact_key_boolean )
+	{
+		string_strcpy(
+			display,
+			full_name,
+			sizeof ( display ) );
+	}
+	else
+	{
+		snprintf(
+			display,
+			sizeof ( display ),
+			"%s%c%s",
+			full_name,
+			delimiter,
+			contact_key );
 	}
 
 	return display;

@@ -332,9 +332,9 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
 
 LIST *liability_account_entity_list(
 		const char *liability_account_entity_select,
-		const char *liability_account_entity_table )
+		const char *liability_account_entity_table,
+		boolean contact_key_boolean )
 {
-	boolean contact_key_boolean;
 	char *select_string;
 
 	if ( !appaserver_table_column_boolean(
@@ -343,11 +343,6 @@ LIST *liability_account_entity_list(
 	{
 		return NULL;
 	}
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
 
 	select_string =
 		/* Returns heap memory */
@@ -999,10 +994,16 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 
 	liability_calculate = liability_calculate_calloc();
 
+	liability_calculate->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
 	liability_calculate->liability_account_entity_list =
 		liability_account_entity_list(
 			LIABILITY_ACCOUNT_ENTITY_SELECT,
-			LIABILITY_ACCOUNT_ENTITY_TABLE );
+			LIABILITY_ACCOUNT_ENTITY_TABLE,
+			liability_calculate->entity_contact_key_boolean );
 
 	liability_calculate->exclude_account_name_list =
 		/* -------------- */
@@ -1035,16 +1036,6 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 			ACCOUNT_TABLE,
 			SUBCLASSIFICATION_RECEIVABLE );
 
-	liability_calculate->predictive_fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN );
-
-	liability_calculate->entity_contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
-
 	if ( ! ( liability_calculate->entity_self =
 			entity_self_fetch(
 				liability_calculate->
@@ -1060,6 +1051,11 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 	}
 
 	liability_calculate->liability_entity_list = list_new();
+
+	liability_calculate->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
 
 	if ( list_length(
 		liability_calculate->
@@ -1489,12 +1485,13 @@ void liability_transaction_list_html_display(
 			liability_transaction_list->list ) );
 }
 
-void liability_calculate_stdout( LIST *liability_entity_list )
+void liability_calculate_stdout(
+		boolean contact_key_boolean,
+		LIST *liability_entity_list )
 {
 	LIABILITY_ENTITY *liability_entity;
 
-	if ( !list_rewind( liability_entity_list ) ) return;
-
+	if ( list_rewind( liability_entity_list ) )
 	do {
 		liability_entity =
 			list_get(
@@ -1507,13 +1504,16 @@ void liability_calculate_stdout( LIST *liability_entity_list )
 		{
 			printf(	"%s\n",
 				liability_entity_display(
+					contact_key_boolean,
 					liability_entity ) );
 		}
 
 	} while ( list_next( liability_entity_list ) );
 }
 
-char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
+char *liability_entity_display(
+		boolean contact_key_boolean,
+		LIABILITY_ENTITY *liability_entity )
 {
 	static char display[ 128 ];
 
@@ -1527,14 +1527,22 @@ char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
 		exit( 1 );
 	}
 
-	sprintf(display,
-		"%s^%s [%.2lf]",
-		liability_entity->
-			entity->
-			full_name,
-		liability_entity->
-			entity->
-			street_address,
+	snprintf(
+		display,
+		sizeof ( display ),
+		"%s [%.2lf]",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_name_display(
+			SQL_DELIMITER,
+			liability_entity->
+				entity->
+				full_name,
+			liability_entity->
+				entity->
+				contact_key,
+			contact_key_boolean ),
 		liability_entity->amount_due );
 
 	return display;

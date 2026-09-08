@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -240,8 +239,10 @@ char *entity_primary_data_string(
 /* Returns static memory */
 /* --------------------- */
 char *entity_name_display(
+		const char delimiter,
 		char *full_name,
-		char *contact_key );
+		char *contact_key,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -292,6 +293,4 @@ LIST *entity_primary_key_list(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
-
-#endif
 

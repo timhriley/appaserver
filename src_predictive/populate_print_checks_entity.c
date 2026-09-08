@@ -27,6 +27,7 @@ int main( int argc, char **argv )
 			application_name ) ) )
 	{
 		liability_calculate_stdout(
+			liability_calculate->entity_contact_key_boolean,
 			liability_calculate->
 				liability_entity_list );
 	}

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef LIABILITY_H
-#define LIABILITY_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -127,7 +126,8 @@ typedef struct
 /* ----- */
 LIST *liability_account_entity_list(
 		const char *liability_account_entity_select,
-		const char *liability_account_entity_table );
+		const char *liability_account_entity_table,
+		boolean entity_contact_key_boolean );
 
 /* Process */
 /* ------- */
@@ -241,6 +241,7 @@ LIABILITY_ENTITY *liability_entity_seek(
 /* Returns static memory */
 /* --------------------- */
 char *liability_entity_display(
+		boolean entity_contact_key_boolean,
 		LIABILITY_ENTITY *liability_entity );
 
 typedef struct
@@ -337,13 +338,13 @@ LIABILITY_TRANSACTION *liability_transaction_calloc(
 
 typedef struct
 {
+	boolean entity_contact_key_boolean;
 	LIST *liability_account_entity_list;
 	LIST *exclude_account_name_list;
 	LIST *account_current_liability_name_list;
 	LIST *journal_account_distinct_entity_list;
 	LIST *account_receivable_name_list;
 	boolean predictive_fund_boolean;
-	boolean entity_contact_key_boolean;
 	ENTITY_SELF *entity_self;
 	LIST *liability_entity_list;
 } LIABILITY_CALCULATE;
@@ -359,6 +360,7 @@ LIABILITY_CALCULATE *liability_calculate_calloc(
 /* Driver */
 /* ------ */
 void liability_calculate_stdout(
+		boolean entity_contact_key_boolean,
 		LIST *liability_entity_list );
 
 typedef struct
@@ -409,5 +411,3 @@ LIST *liability_payment_entity_list(
 /* --------------- */
 char *liability_payment_error_message(
 		const char *message );
-
-#endif
