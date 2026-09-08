@@ -1,21 +1,13 @@
-/* commas_in_long.c				*/
-/* -------------------------------------------- */
-/* 						*/
-/* Tim Riley					*/
-/* -------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/commas_in_long.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "timlib.h"
+#include "String.h"
 #include "column.h"
-
-char *commas_in_long( long n );
-
-char *commas_in_long( long n )
-{
-	return place_commas_in_long( n );
-
-} /* commas_in_long() */
 
 int main( int argc, char **argv )
 {
@@ -25,7 +17,7 @@ int main( int argc, char **argv )
 
 	if ( argc == 1 )
 	{
-		while( get_line( buffer, stdin ) )
+		while( string_input( buffer, stdin, sizeof ( buffer ) ) )
 		{
 			if ( column_last( number_string, buffer ) )
 			{
@@ -37,8 +29,8 @@ int main( int argc, char **argv )
 			}
 
 			printf( "%s\n",
-				commas_in_long(
-					atol( source ) ) );
+				string_commas_number_string(
+					source ) );
 		}
 	}
 	else
@@ -53,12 +45,11 @@ int main( int argc, char **argv )
 			}
 
 			printf( "%s\n",
-				commas_in_long(
-					atol( source ) ) );
+				string_commas_number_string(
+					source ) );
 		}
 	}
 
 	return 0;
-
-} /* main() */
+}
 
