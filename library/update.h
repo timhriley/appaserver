@@ -25,7 +25,7 @@
 #define UPDATE_RESULTS_KEY		"update_results"
 #define UPDATE_ROW_LIST_ERROR_KEY	"update_row_list_error"
 
-/* #define UPDATE_DEBUG_MODE 1 */
+/* #define UPDATE_DEBUG_MODE */
 
 typedef struct
 {

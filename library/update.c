@@ -4,13 +4,9 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-/*
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-*/
-
-#include "all.h"
 #include "String.h"
 #include "sql.h"
 #include "dictionary.h"
@@ -131,6 +127,24 @@ UPDATE *update_new(
 	update->relation_mto1_list = relation_mto1_list;
 	update->relation_mto1_isa_list = relation_mto1_isa_list;
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: relation_mto1_isa_list=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	/* ------------------------------ */
+	/* Returns heap or program memory */
+	/* ------------------------------ */
+	relation_mto1_list_display( update->relation_mto1_isa_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( folder_row_level_restriction )
 	{
 		update->security_entity =
@@ -192,6 +206,20 @@ UPDATE *update_new(
 			update->update_row_list->cell_count,
 			update->update_row_list->folder_name_list_string );
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update->results_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update->results_string );
+msg( (char *)0, message );
+}
+#endif
 	return update;
 }
 
@@ -588,21 +616,6 @@ msg( (char *)0, message );
 			update_attribute_list
 				/* many_update_attribute_list */ );
 
-#ifdef UPDATE_DEBUG_MODE
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: update_attribute_list=[%s]\n\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	update_attribute_list_display( update_mto1_isa->update_attribute_list ) );
-msg( (char *)0, message );
-}
-#endif
-
 	if ( !list_length( update_mto1_isa->update_attribute_list ) )
 	{
 		char message[ 128 ];
@@ -618,6 +631,21 @@ msg( (char *)0, message );
 			message );
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_mto1_isa->update_attribute_list=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update_attribute_list_display( update_mto1_isa->update_attribute_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	update_mto1_isa->update_changed_list =
 		update_changed_list_new(
 			relation_mto1_isa->one_folder_name,
@@ -629,6 +657,21 @@ msg( (char *)0, message );
 				folder_attribute_name_list,
 			update_mto1_isa->update_attribute_list,
 			(char *)0 /* security_entity_where */ );
+
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_changed_list=0x%x\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	(unsigned int)(long)update_mto1_isa->update_changed_list );
+msg( (char *)0, message );
+}
+#endif
 
 	if ( !update_mto1_isa->update_changed_list )
 	{
@@ -959,7 +1002,7 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: with many_folder_name=%s; relation_mto1_isa_list=[%s]; update_attribute_list=[%s]\n\n",
+	"%s/%s()/%d: with many_folder_name=%s; relation_mto1_isa_list=[%s]\nupdate_attribute_list=[%s]\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
@@ -4459,6 +4502,22 @@ UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
 		attribute_name = one_folder_attribute->attribute_name;
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: folder_name=[%s], attribute_name=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	folder_name,
+	attribute_name );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( ! ( seek =
 			update_attribute_seek(
 				folder_name,
@@ -4473,7 +4532,7 @@ UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
 		/* Safely returns */
 		/* -------------- */
 		update_attribute_new(
-			attribute_name,
+			one_folder_attribute->attribute_name,
 			seek->post_datum,
 			seek->file_datum );
 
