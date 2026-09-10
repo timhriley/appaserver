@@ -124,7 +124,8 @@ CHECK_LIST *check_list_new(
 					transaction_memo,
 					liability_entity->
 						liability->
-						journal_list_last_memo ),
+						journal_list_last_memo )
+					/* transaction_memo */,
 				liability_entity->amount_due,
 				liability_entity->entity->full_name ) );
 
@@ -219,7 +220,7 @@ CHECK_LIST *check_list_new(
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *check_list_memo,
+		char *transaction_memo,
 		double liability_entity_amount_due,
 		char *entity_full_name )
 {
@@ -279,17 +280,17 @@ CHECK *check_new(
 		check_escape_payable_to(
 			entity_full_name );
 
-	check->move_down =
+	check->move_down_latex =
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		check_move_down();
+		check_move_down_latex();
 
-	check->date_display =
+	check->date_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_date_display(
+		check_date_latex(
 			string_pipe_fetch(
 				CHECK_DATE_COMMAND )
 					/* check_date */ );
@@ -301,59 +302,71 @@ CHECK *check_new(
 		string_commas_money(
 			check->amount );
 
-	check->vendor_name_amount_due_display =
+	check->vendor_amount_due_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_vendor_name_amount_due_display(
+		check_vendor_amount_due_latex(
 			check->escape_payable_to,
 			commas_money );
 
-	check->amount_due_stub_display =
+	check->amount_due_stub_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_amount_due_stub_display(
+		check_amount_due_stub_latex(
 			commas_money );
 
-	check->dollar_text_display =
+	check->dollar_text_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_dollar_text_display(
+		check_dollar_text_latex(
 			check->dollar_text );
 
-	check->memo_display =
+	check->memo_stub_trim =
+		check_memo_stub_trim(
+			CHECK_STUB_MEMO_MAX_LENGTH,
+			transaction_memo );
+
+	check->memo_stub_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_memo_display( check_list_memo );
+		check_memo_stub_latex( check->memo_stub_trim );
 
-	check->number_display =
+	check->number_stub_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_number_display( check_number );
+		check_number_stub_latex( check_number );
 
-	check->newpage =
+	check->memo_latex =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		check_memo_latex( transaction_memo );
+
+	check->newpage_latex =
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		check_newpage();
+		check_newpage_latex();
 
 	check->output_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		check_output_string(
-			check->move_down,
-			check->date_display,
-			check->vendor_name_amount_due_display,
-			check->amount_due_stub_display,
-			check->dollar_text_display,
-			check->memo_display,
-			check->number_display,
-			check->newpage );
+			check->move_down_latex,
+			check->date_latex,
+			check->vendor_amount_due_latex,
+			check->amount_due_stub_latex,
+			check->dollar_text_latex,
+			check->memo_stub_latex,
+			check->number_stub_latex,
+			check->memo_latex,
+			check->newpage_latex );
 
 	return check;
 }
@@ -391,7 +404,7 @@ char *check_list_begin_document( void )
 "\\begin{document}";
 }
 
-char *check_newpage( void )
+char *check_newpage_latex( void )
 {
 	return
 "\\newpage\n";
@@ -427,7 +440,7 @@ char *check_dollar_text( double amount_due )
 	return text;
 }
 
-char *check_move_down( void )
+char *check_move_down_latex( void )
 {
 	return
 "\\begin{tabular}l\n"
@@ -435,9 +448,9 @@ char *check_move_down( void )
 "\\vspace{0.45in}";
 }
 
-char *check_date_display( char *check_date )
+char *check_date_latex( char *check_date )
 {
-	static char date_display[ 256 ];
+	static char date_latex[ 256 ];
 
 	if ( !check_date )
 	{
@@ -449,24 +462,26 @@ char *check_date_display( char *check_date )
 		exit( 1 );
 	}
 
-	sprintf(date_display,
+	snprintf(
+		date_latex,
+		sizeof ( date_latex ),
 "\\begin{tabular}{p{0.2in}p{6.6in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
 		check_date,
 		check_date );
 
-	return date_display;
+	return date_latex;
 }
 
-char *check_vendor_amount_due_display(
+char *check_vendor_amount_due_latex(
 		char *payable_to,
-		char *amount_due_display )
+		char *commas_money )
 {
-	static char display[ 256 ];
+	static char latex[ 256 ];
 
 	if ( !payable_to
-	||   !amount_due_display )
+	||   !commas_money )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -476,26 +491,28 @@ char *check_vendor_amount_due_display(
 		exit( 1 );
 	}
 
-	sprintf(display,
+	snprintf(
+		latex,
+		sizeof ( latex ),
 "\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
 "& %.26s & %s & %s\n"
 "\\end{tabular}\n",
 		payable_to,
 		payable_to,
-		amount_due_display );
+		commas_money );
 
-	return display;
+	return latex;
 }
 
-char *check_amount_due_stub_display( char *amount_due_display )
+char *check_amount_due_stub_latex( char *commas_money )
 {
-	static char display[ 128 ];
+	static char latex[ 128 ];
 
-	if ( !amount_due_display )
+	if ( !commas_money )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "amount_due_display is empty." );
+		sprintf(message, "commas_money is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -504,19 +521,21 @@ char *check_amount_due_stub_display( char *amount_due_display )
 			message );
 	}
 
-	sprintf(display,
+	snprintf(
+		latex,
+		sizeof ( latex ),
 "\\vspace{0.10in}\n\n"
 "\\begin{tabular}{p{0.2in}l}\n"
 "& %s\n"
 "\\end{tabular}",
-		amount_due_display );
+		commas_money );
 
-	return display;
+	return latex;
 }
 
-char *check_dollar_text_display( char *dollar_text )
+char *check_dollar_text_latex( char *dollar_text )
 {
-	static char display[ 256 ];
+	static char latex[ 256 ];
 
 	if ( !dollar_text )
 	{
@@ -531,49 +550,75 @@ char *check_dollar_text_display( char *dollar_text )
 			message );
 	}
 
-	sprintf(display,
+	snprintf(
+		latex,
+		sizeof ( latex ),
 "\\vspace{0.10in}\n\n"
 "\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
 "& & %s\n"
 "\\end{tabular}\n",
 		dollar_text );
 
-	return display;
+	return latex;
 }
 
-char *check_memo_display( char *transaction_memo )
+char *check_memo_stub_latex( char *stub_trim )
 {
-	static char display[ 256 ];
+	static char latex[ 256 ];
 
-	if ( transaction_memo && *transaction_memo )
+	if ( stub_trim && *stub_trim )
 	{
-		sprintf(display,
+		snprintf(
+			latex,
+			sizeof ( latex ),
 "\\vspace{0.20in}\n\n"
-"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
-"& %s & %s\n"
+"\\begin{tabular}{p{0.2in}l}\n"
+"& %s\n"
 "\\end{tabular}\n\n",
-			/* ----------------------------------------- */
-			/* Returns transaction_memo or static memory */
-			/* ----------------------------------------- */
-			check_stub_memo(
-				transaction_memo,
-				30 /* max_length */ ),
-			transaction_memo );
+			stub_trim );
 	}
 	else
 	{
-		sprintf(display,
+		snprintf(
+			latex,
+			sizeof ( latex ),
 "\\vspace{0.20in}\n\n"
 "\\begin{tabular}l\n"
 "\\end{tabular}\n\n" );
 	}
 
-	return display;
+	return latex;
 }
 
-char *check_number_display( int check_number )
+char *check_memo_latex( char *transaction_memo )
 {
-	static char display[ 128 ];
+	static char latex[ 256 ];
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		snprintf(
+			latex,
+			sizeof ( latex ),
+"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
+"& & %s\n"
+"\\end{tabular}\n\n",
+			transaction_memo );
+	}
+	else
+	{
+		snprintf(
+			latex,
+			sizeof ( latex ),
+"\\begin{tabular}l\n"
+"\\end{tabular}\n\n" );
+	}
+
+	return latex;
+}
+
+char *check_number_stub_latex( int check_number )
+{
+	static char latex[ 128 ];
 
 	if ( !check_number )
 	{
@@ -588,36 +633,40 @@ char *check_number_display( int check_number )
 			message );
 	}
 
-	sprintf(display,
+	snprintf(
+		latex,
+		sizeof ( latex ),
 "\\vspace{0.05in}\n\n"
 "\\begin{tabular}{p{0.2in}l}\n"
 "& Check: %d\n"
 "\\end{tabular}\n",
 		check_number );
 
-	return display;
+	return latex;
 }
 
 char *check_output_string(
-		char *check_move_down,
-		char *check_date_display,
-		char *check_vendor_name_amount_due_display,
-		char *check_amount_due_stub_display,
-		char *check_dollar_text_display,
-		char *check_memo_display,
-		char *check_number_display,
-		char *check_newpage )
+		char *check_move_down_latex,
+		char *check_date_latex,
+		char *check_vendor_amount_due_latex,
+		char *check_amount_due_stub_latex,
+		char *check_dollar_text_latex,
+		char *check_memo_stub_latex,
+		char *check_number_stub_latex,
+		char *check_memo_latex,
+		char *check_newpage_latex )
 {
 	char output_string[ 4096 ];
 
-	if ( !check_move_down
-	||   !check_date_display
-	||   !check_vendor_name_amount_due_display
-	||   !check_amount_due_stub_display
-	||   !check_dollar_text_display
-	||   !check_memo_display
-	||   !check_number_display
-	||   !check_newpage )
+	if ( !check_move_down_latex
+	||   !check_date_latex
+	||   !check_vendor_amount_due_latex
+	||   !check_amount_due_stub_latex
+	||   !check_dollar_text_latex
+	||   !check_memo_stub_latex
+	||   !check_number_stub_latex
+	||   !check_memo_latex
+	||   !check_newpage_latex )
 	{
 		char message[ 128 ];
 
@@ -630,16 +679,19 @@ char *check_output_string(
 			message );
 	}
 
-	sprintf(output_string,
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
-		check_move_down,
-		check_date_display,
-		check_vendor_name_amount_due_display,
-		check_amount_due_stub_display,
-		check_dollar_text_display,
-		check_memo_display,
-		check_number_display,
-		check_newpage );
+	snprintf(
+		output_string,
+		sizeof ( output_string ),
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		check_move_down_latex,
+		check_date_latex,
+		check_vendor_amount_due_latex,
+		check_amount_due_stub_latex,
+		check_dollar_text_latex,
+		check_memo_stub_latex,
+		check_number_stub_latex,
+		check_memo_latex,
+		check_newpage_latex );
 
 	return strdup( output_string );
 }
@@ -816,34 +868,6 @@ CHECK_LIST *check_list_calloc( void )
 	return check_list;
 }
 
-char *check_vendor_name_amount_due_display(
-		char *escape_payable_to,
-		char *amount_due_display )
-{
-	static char display[ 256 ];
-
-	if ( !escape_payable_to
-	||   !amount_due_display )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(display,
-"\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
-"& %.26s & %s & %s\n"
-"\\end{tabular}\n\n",
-		escape_payable_to,
-		escape_payable_to,
-		amount_due_display );
-
-	return display;
-}
-
 char *check_escape_payable_to( char *full_name )
 {
 	if ( !full_name || !*full_name )
@@ -880,16 +904,16 @@ double check_amount(
 	return amount;
 }
 
-char *check_stub_memo(
-		char *transaction_memo,
-		int max_length )
+char *check_memo_stub_trim(
+		int max_length,
+		char *transaction_memo )
 {
-	static char memo[ 128 ];
+	static char trim[ 128 ];
 
 	if ( string_strlen( transaction_memo ) > max_length )
 	{
-		string_strncpy( memo, transaction_memo, max_length );
-		return memo;
+		string_strncpy( trim, transaction_memo, max_length );
+		return trim;
 	}
 	else
 	{

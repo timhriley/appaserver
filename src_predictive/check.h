@@ -4,30 +4,31 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CHECK_H
-#define CHECK_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
 #include "appaserver_link.h"
 
-#define CHECK_PROMPT		"Press here to view the check(s)."
-#define CHECK_DATE_COMMAND	"now.sh pretty | column.e 0"
+#define CHECK_PROMPT			"Press here to view the check(s)."
+#define CHECK_DATE_COMMAND		"now.sh pretty | column.e 0"
+#define CHECK_STUB_MEMO_MAX_LENGTH	30
 
 typedef struct
 {
 	double amount;
 	char *dollar_text;
 	char *escape_payable_to;
-	char *move_down;
-	char *date_display;
-	char *amount_due_display;
-	char *vendor_name_amount_due_display;
-	char *amount_due_stub_display;
-	char *dollar_text_display;
-	char *memo_display;
-	char *number_display;
-	char *newpage;
+	char *move_down_latex;
+	char *date_latex;
+	char *vendor_amount_due_latex;
+	char *amount_due_stub_latex;
+	char *dollar_text_latex;
+	char *memo_stub_trim;
+	char *memo_stub_latex;
+	char *number_stub_latex;
+	char *memo_latex;
+	char *newpage_latex;
 	char *output_string;
 } CHECK;
 
@@ -36,7 +37,7 @@ typedef struct
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *check_list_memo,
+		char *transaction_memo,
 		double liability_entity_amount_due,
 		char *entity_full_name );
 
@@ -51,78 +52,85 @@ double check_amount(
 			
 /* Returns static memory */
 /* --------------------- */
-char *check_dollar_text(
-		double check_amount );
-
-/* Returns static memory */
-/* --------------------- */
 char *check_escape_payable_to(
 		char *entity_full_name );
 
 /* Returns program memory */
 /* ---------------------- */
-char *check_move_down(
+char *check_move_down_latex(
 		void );
 
 /* Returns static memory */
 /* --------------------- */
-char *check_date_display(
+char *check_date_latex(
 		char *check_date );
 
 /* Returns static memory */
 /* --------------------- */
-char *check_vendor_name_amount_due_display(
+char *check_vendor_amount_due_latex(
 		char *check_escape_payable_to,
-		char *check_amount_due_display );
+		char *string_commas_money );
 
 /* Returns static memory */
 /* --------------------- */
-char *check_amount_due_stub_display(
-		char *check_amount_due_display );
+char *check_amount_due_stub_latex(
+		char *string_commas_money );
 
 /* Returns static memory */
 /* --------------------- */
-char *check_dollar_text_display(
+char *check_dollar_text_latex(
 		char *check_dollar_text );
 
 /* Returns static memory */
 /* --------------------- */
-char *check_number_display(
+char *check_memo_stub_latex(
+		char *check_memo_stub_trim );
+
+/* Returns static memory */
+/* --------------------- */
+char *check_number_stub_latex(
 		int check_number );
+
+/* Returns static memory */
+/* --------------------- */
+char *check_memo_latex(
+		char *transaction_memo );
 
 /* Returns program memory */
 /* ---------------------- */
-char *check_newpage(
+char *check_newpage_latex(
 		void );
 
 /* Returns heap memory */
 /* ------------------- */
 char *check_output_string(
-		char *check_move_down,
-		char *check_date_display,
-		char *check_vendor_name_amount_due_display,
-		char *check_amount_due_stub_display,
-		char *check_dollar_text_display,
-		char *check_memo_display,
-		char *check_number_display,
-		char *check_newpage );
+		char *check_move_down_latex,
+		char *check_date_latex,
+		char *check_vendor_name_amount_due_latex,
+		char *check_amount_due_stub_latex,
+		char *check_dollar_text_latex,
+		char *check_memo_stub_latex,
+		char *check_number_latex,
+		char *check_memo_latex,
+		char *check_newpage_latex );
 
 /* Usage */
 /* ----- */
 
 /* Returns static memory */
 /* --------------------- */
-char *check_memo_display(
+char *check_dollar_text(
+		double check_amount );
+
+/* Usage */
+/* ----- */
+
+/* Returns parameter or static memory */
+/* ---------------------------------- */
+char *check_memo_stub_trim(
+		const int check_stub_memo_max_length
+			/* Probably 30 */,
 		char *transaction_memo );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *check_stub_memo(
-		char *transaction_memo,
-		int max_length );
 
 typedef struct
 {
@@ -214,4 +222,3 @@ char *check_list_memo(
 /* ---------------------- */
 char *check_list_end_document(
 		void );
-#endif
