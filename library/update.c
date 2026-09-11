@@ -637,7 +637,7 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: update_mto1_isa->update_attribute_list=[%s]\n\n",
+	"%s/%s()/%d: calling update_changed_list_new() with update_mto1_isa->update_attribute_list=[%s]\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
@@ -1055,6 +1055,7 @@ UPDATE_ONE2M *update_one2m_new(
 		char *login_name,
 		char *role_name,
 		int row_number,
+		char *one_folder_name,
 		char *many_folder_name,
 		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
@@ -1072,6 +1073,7 @@ UPDATE_ONE2M *update_one2m_new(
 	||   !login_name
 	||   !role_name
 	||   !row_number
+	||   !one_folder_name
 	||   !many_folder_name
 	||   !list_length( many_primary_key_list )
 	||   !list_length( many_folder_attribute_list )
@@ -1092,11 +1094,31 @@ UPDATE_ONE2M *update_one2m_new(
 			message );
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: ONE_FOLDER_NAME=%s; MANY_FOLDER_NAME=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	one_folder_name,
+	many_folder_name );
+msg( (char *)0, message );
+}
+#endif
+
 	update_one2m = update_one2m_calloc();
 
+	update_one2m->one_folder_name = one_folder_name;
 	update_one2m->many_folder_name = many_folder_name;
 
 	update_one2m->select_name_list =
+	/* ------------------------------------------------------------ */
+	/* Select from both lists in case the foreign key isn’t primary */
+	/* ------------------------------------------------------------ */
 		update_one2m_select_name_list(
 			many_primary_key_list,
 			relation_foreign_key_list );
@@ -1178,7 +1200,8 @@ msg( (char *)0, message );
 			many_folder_attribute_list,
 			date_convert_international
 				/* date_convert_format_enum */,
-			update_one2m->select_name_list,
+			update_one2m->select_name_list
+				/* query_select_name_list */,
 			update_one2m->query_system_string,
 			1 /* input_save_boolean */ );
 
@@ -1195,10 +1218,11 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: calling update_one2m_fetch_new() with many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s; list_length(query_fetch->row_list)=%d\n\n",
+	"%s/%s()/%d: calling update_one2m_fetch_new() with one_folder_name=%s; many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s; list_length(query_fetch->row_list)=%d\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
+	one_folder_name,
 	many_folder_name,
 	list_display( many_primary_key_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ),
@@ -1217,6 +1241,7 @@ msg( (char *)0, message );
 			login_name,
 			role_name,
 			row_number,
+			one_folder_name,
 			many_folder_name,
 			many_primary_key_list,
 			many_folder_attribute_list,
@@ -1493,6 +1518,22 @@ UPDATE_CHANGED_LIST *update_changed_list_new(
 	char *primary_key;
 	UPDATE_WHERE *update_where;
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: folder_name=[%s], primary_key_list=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	folder_name,
+	list_display_delimited( primary_key_list, ',' ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( !folder_name
 	||   !list_rewind( primary_key_list )
 	||   !list_rewind( folder_attribute_name_list )
@@ -1564,10 +1605,10 @@ UPDATE_CHANGED_LIST *update_changed_list_new(
 			snprintf(
 				message,
 				sizeof ( message ),
-"for folder_name=%s, update_attribute_list = [%s], update_where_new(%s) returned empty.",
-				folder_name,
+"update_attribute_list=[%s], update_where_new(folder_name=%s,primary_key=%s) returned empty.",
 				update_attribute_list_display(
 					update_attribute_list ),
+				folder_name,
 				primary_key );
 
 			appaserver_error_stderr_exit(
@@ -2443,7 +2484,6 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 		LIST *query_row_cell_list )
 {
 	UPDATE_ONE2M_ROW *update_one2m_row;
-	boolean changed_primary_key_boolean;
 
 	if ( !application_name
 	||   !session_key
@@ -2474,19 +2514,21 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: received many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;\nupdate_changed_list=%s\n\n",
+	"%s/%s()/%d: received many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;update_changed_list=%s;query_row_cell_list=[%s]\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	many_folder_name,
 	list_display( many_primary_key_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ),
-	update_changed_list_display( update_changed_list ) );
+	update_changed_list_display( update_changed_list ),
+	query_row_cell_list_display( query_row_cell_list ) );
 msg( (char *)0, message );
 }
 #endif
 
 	update_one2m_row = update_one2m_row_calloc();
+	update_one2m_row->row_number = row_number;
 	update_one2m_row->many_folder_name = many_folder_name;
 
 #ifdef UPDATE_DEBUG_MODE
@@ -2495,14 +2537,15 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: calling update_one2m_row_update_attribute_list() with many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;\nupdate_changed_list=%s\n\n",
+	"%s/%s()/%d: calling update_one2m_row_update_attribute_list() with many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;update_changed_list=%s;query_row_cell_list=[%s]\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	many_folder_name,
 	list_display( many_primary_key_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ),
-	update_changed_list_display( update_changed_list ) );
+	update_changed_list_display( update_changed_list ),
+	query_row_cell_list_display( query_row_cell_list ) );
 msg( (char *)0, message );
 }
 #endif
@@ -2597,17 +2640,18 @@ msg( (char *)0, message );
 			update_one2m_row->command_line;
 	}
 
-	changed_primary_key_boolean =
+	update_one2m_row->changed_primary_key_boolean =
 		update_changed_primary_key_boolean(
 			update_one2m_row->
 				update_changed_list->
 				list /* update_changed_list */ );
 
-	if ( changed_primary_key_boolean )
+	if ( update_one2m_row->changed_primary_key_boolean )
 	{
 		update_one2m_row->relation_one2m_list =
 			relation_one2m_list(
-				many_folder_name,
+				many_folder_name
+					/* one_folder_name */,
 				folder_attribute_primary_key_list(
 					many_folder_name,
 					many_folder_attribute_list ),
@@ -2621,11 +2665,12 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: recursively calling update_one2m_list_new() with many_folder_name=%s;\nupdate_changed_list=%s\n\n",
+	"%s/%s()/%d: recursively calling update_one2m_list_new() with one_folder_name=%s; relation_one2m_list=[%s]; update_changed_list=%s\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	many_folder_name,
+	relation_one2m_list_display( update_one2m_row->relation_one2m_list ),
 	update_changed_list_display( update_one2m_row->update_changed_list ) );
 msg( (char *)0, message );
 }
@@ -2656,15 +2701,32 @@ LIST *update_one2m_row_update_attribute_list(
 		LIST *update_changed_list,
 		LIST *query_row_cell_list )
 {
+	char *translate_primary_key;
+	char *seek_attribute_name;
+	char *post_datum;
 	LIST *update_attribute_list;
 	QUERY_CELL *query_cell;
-	char *primary_key;
 	UPDATE_CHANGED *update_changed;
 	UPDATE_ATTRIBUTE *update_attribute;
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: many_primary_key_list=[%s], query_row_cell_list=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	list_display_delimited( many_primary_key_list, ',' ),
+	query_row_cell_list_display( query_row_cell_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( !list_length( many_primary_key_list )
 	||   !list_length( many_folder_attribute_list )
-	||   !list_length( relation_translate_list )
 	||   !list_length( update_changed_list )
 	||   !list_rewind( query_row_cell_list ) )
 	{
@@ -2685,11 +2747,12 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: received many_primary_key_list=%s; foreign_key_list=%s\n",
+	"%s/%s()/%d: received many_primary_key_list=[%s]; relation_translate_list=[%s]; foreign_key_list=[%s]\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	list_display( many_primary_key_list ),
+	relation_translate_list_display( relation_translate_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ) );
 msg( (char *)0, message );
 }
@@ -2715,16 +2778,81 @@ msg( (char *)0, message );
 }
 #endif
 
-		primary_key =
+		translate_primary_key =
 			relation_translate_primary_key(
 				relation_translate_list,
 				query_cell->attribute_name
 					/* foreign_key */ );
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: query_cell->attribute_name=[%s], translate_primary_key=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	query_cell->attribute_name,
+	translate_primary_key );
+msg( (char *)0, message );
+}
+#endif
+		seek_attribute_name =
+			/* ------------------------ */
+			/* Returns either parameter */
+			/* ------------------------ */
+			update_one2m_row_seek_attribute_name(
+				query_cell->attribute_name,
+				translate_primary_key );
+
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_one2m_row_seek_attribute_name(attribute_name=%s,translate_primary_key=%s) returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	query_cell->attribute_name,
+	translate_primary_key,
+	seek_attribute_name );
+msg( (char *)0, message );
+}
+#endif
+
 		update_changed =
 			update_changed_seek(
 				update_changed_list,
-				primary_key /* attribute_name */ );
+				seek_attribute_name );
+
+		post_datum =
+			/* ------------------------------------------- */
+			/* Returns parameter or component of parameter */
+			/* ------------------------------------------- */
+			update_one2m_row_post_datum(
+				query_cell->select_datum,
+				update_changed );
+
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_changed_seek(seek_attribute_name=%s) returned 0x%x; therefore post_datum=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	seek_attribute_name,
+	(unsigned int)(long)update_changed,
+	post_datum );
+msg( (char *)0, message );
+}
+#endif
 
 		update_attribute =
 			/* -------------- */
@@ -2734,11 +2862,7 @@ msg( (char *)0, message );
 				many_folder_attribute_list,
 				query_cell->attribute_name,
 				query_cell->select_datum,
-				/* -------------------------------------- */
-				/* Returns component of parameter or null */
-				/* -------------------------------------- */
-				update_one2m_row_post_datum(
-					update_changed ) );
+				post_datum );
 
 		list_set(
 			update_attribute_list,
@@ -2772,14 +2896,33 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 			message );
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: attribute_name=[%s], query_cell_select_datum=[%s], update_one2m_row_post_datum=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	attribute_name,
+	query_cell_select_datum,
+	update_one2m_row_post_datum );
+msg( (char *)0, message );
+}
+#endif
+
 	update_attribute =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		update_attribute_new(
 			attribute_name,
-			query_cell_select_datum /* post_datum */,
-			query_cell_select_datum /* file_datum */ );
+			update_one2m_row_post_datum
+				/* post_datum */,
+			query_cell_select_datum
+				/* file_datum */ );
 
 	if ( ! ( update_attribute->folder_attribute =
 			folder_attribute_seek(
@@ -2798,12 +2941,6 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 			__FUNCTION__,
 			__LINE__,
 			message );
-	}
-
-	if ( update_one2m_row_post_datum )
-	{
-		update_attribute->post_datum =
-			update_one2m_row_post_datum;
 	}
 
 	return update_attribute;
@@ -2911,6 +3048,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		char *login_name,
 		char *role_name,
 		int row_number,
+		char *one_folder_name,
 		char *many_folder_name,
 		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
@@ -2929,6 +3067,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
+	||   !one_folder_name
 	||   !many_folder_name
 	||   !list_length( many_primary_key_list )
 	||   !list_length( many_folder_attribute_list )
@@ -2955,10 +3094,11 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: received many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;list_length(query_fetch_row_list)=%d\n\n",
+	"%s/%s()/%d: received one_folder_name=%s; many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;list_length(query_fetch_row_list)=%d\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
+	one_folder_name,
 	many_folder_name,
 	list_display( many_primary_key_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ),
@@ -2970,6 +3110,7 @@ msg( (char *)0, message );
 	update_one2m_fetch = update_one2m_fetch_calloc();
 
 	update_one2m_fetch->row_number = row_number;
+	update_one2m_fetch->one_folder_name = one_folder_name;
 	update_one2m_fetch->many_folder_name = many_folder_name;
 
 	update_one2m_fetch->update_one2m_row_list = list_new();
@@ -2983,15 +3124,16 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: calling update_one2m_row_new() with many_folder_name=%s;many_primary_key_list=%s;foreign_key_list=%s;\nupdate_changed_list=%s;query_row=%s\n\n",
+	"%s/%s()/%d: calling update_one2m_row_new() with one_folder_name=%s; many_folder_name=%s; many_primary_key_list=%s; foreign_key_list=%s; update_changed_list=%s; query_row_cell_list=[%s]\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
+	one_folder_name,
 	many_folder_name,
 	list_display( many_primary_key_list ),
 	relation_translate_foreign_delimited_string( relation_translate_list ),
 	update_changed_list_display( update_changed_list ),
-	query_row->input );
+	query_row_cell_list_display( query_row->cell_list ) );
 msg( (char *)0, message );
 }
 #endif
@@ -4164,7 +4306,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 	||   !folder_name
 	||   !role_name
 	||   !row_number
-	||   !list_rewind( relation_one2m_list )
+	||   !list_length( relation_one2m_list )
 	||   !appaserver_error_filespecification
 	||   !appaserver_parameter_mount_point
 	||   !update_changed_list )
@@ -4186,11 +4328,13 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: received folder_name=%s and update_changed_list=%s\n\n",
+	"%s/%s()/%d: received folder_name=%s; length(relation_one2m_list)=%d; relation_one2m_list=[%s]; update_changed_list=%s\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
 	folder_name,
+	list_length( relation_one2m_list ),
+	relation_one2m_list_display( relation_one2m_list ),
 	update_changed_list_display( update_changed_list ) );
 msg( (char *)0, message );
 }
@@ -4202,6 +4346,7 @@ msg( (char *)0, message );
 	update_one2m_list->row_number = row_number;
 	update_one2m_list->list = list_new();
 
+	list_rewind( relation_one2m_list );
 	do {
 		relation_one2m = list_get( relation_one2m_list );
 
@@ -4278,15 +4423,18 @@ msg( (char *)0, message );
 
 #ifdef UPDATE_DEBUG_MODE
 {
+static int count;
 char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d: calling update_one2m_new() with: relation_one2m->many_folder_name=%s;primary_key_list=%s;foreign_key_list=%s;\nupdate_changed_list=%s\n\n",
+	"%s/%s()/%d: CALLING update_one2m_new() relation_one2m->ONE_FOLDER_NAME=%s;relation_one2m->MANY_FOLDER_NAME=%s;count=%d;primary_key_list=%s;foreign_key_list=%s;\nupdate_changed_list=%s\n\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
+	relation_one2m->one_folder_name,
 	relation_one2m->many_folder_name,
+	++count,
 	list_display( relation_one2m->many_folder->folder_attribute_primary_key_list ),
 	list_display( relation_one2m->relation_foreign_key_list ),
 	update_changed_list_display( update_changed_list ) );
@@ -4301,6 +4449,7 @@ msg( (char *)0, message );
 				login_name,
 				role_name,
 				row_number,
+				relation_one2m->one_folder_name,
 				relation_one2m->many_folder_name,
 				relation_one2m->
 					many_folder->
@@ -4663,7 +4812,7 @@ char *update_changed_list_display(
 
 		ptr += sprintf(
 			ptr,
-			"[%s]",
+			"update_changed_display()=[%s]",
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -4675,14 +4824,14 @@ char *update_changed_list_display(
 	ptr +=
 		sprintf(
 			ptr,
-			" update_where_list_string=%s, ",
+			"; update_where_list_string=%s",
 			update_changed_list->
 				update_where_list_string );
 
 	ptr +=
 		sprintf(
 			ptr,
-			" sql_statement_string=%s\n\n",
+			"; sql_statement_string=%s",
 			update_changed_list->
 				sql_statement_string );
 
@@ -5486,31 +5635,40 @@ char *update_one2m_select_string( LIST *select_name_list )
 		',' );
 }
 
-LIST *update_one2m_select_name_list(
-		LIST *many_primary_key_list,
-		LIST *relation_foreign_key_list )
+char *update_one2m_row_post_datum(
+		char *query_cell_select_datum,
+		UPDATE_CHANGED *update_changed_seek )
 {
-	LIST *copy = list_copy( many_primary_key_list );
+	char *post_datum;
 
-	return
-	list_set_list(
-		copy,
-		relation_foreign_key_list );
-}
-
-char *update_one2m_row_post_datum( UPDATE_CHANGED *update_changed_seek )
-{
 	if ( update_changed_seek )
 	{
-		return
-		update_changed_seek->
-			update_attribute->
-			post_datum;
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: attribute_name=[%s], post_datum=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update_changed_seek->update_attribute->folder_attribute->attribute_name,
+	update_changed_seek->update_attribute->post_datum );
+msg( (char *)0, message );
+}
+#endif
+		post_datum =
+			update_changed_seek->
+				update_attribute->
+				post_datum;
 	}
 	else
 	{
-		return NULL;
+		post_datum = query_cell_select_datum;
 	}
+
+	return post_datum;
 }
 
 void update_changed_list_list_getset(
@@ -5751,3 +5909,22 @@ int update_row_list_count( LIST *update_row_list )
 	return list_length( update_row_list );
 }
 
+LIST *update_one2m_select_name_list(
+		LIST *many_primary_key_list,
+		LIST *relation_foreign_key_list )
+{
+	return
+	list_set_list(
+		list_copy( many_primary_key_list ),
+		relation_foreign_key_list );
+}
+
+char *update_one2m_row_seek_attribute_name(
+		char *query_cell_attribute_name,
+		char *relation_translate_primary_key )
+{
+	if ( relation_translate_primary_key )
+		return relation_translate_primary_key;
+	else
+		return query_cell_attribute_name;
+}

@@ -625,9 +625,11 @@ char *relation_translate_list_display( LIST *relation_translate_list )
 			list_get(
 				relation_translate_list );
 
+		if ( ptr != display ) ptr += sprintf( ptr, "; " );
+
 		ptr += sprintf(
 			ptr,
-			"\nprimary_key=%s, foreign_key=%s\n",
+			"primary_key=%s, foreign_key=%s",
 			relation_translate->primary_key,
 			relation_translate->foreign_key );
 

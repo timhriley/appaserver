@@ -294,11 +294,13 @@ UPDATE_ONE2M_LIST *update_one2m_list_calloc(
 
 typedef struct
 {
+	int row_number;
 	char *many_folder_name;
 	LIST *update_attribute_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
 	LIST *query_cell_primary_data_list;
 	char *command_line;
+	boolean changed_primary_key_boolean;
 	LIST *relation_one2m_list;
 	UPDATE_ONE2M_LIST *update_one2m_list;
 } UPDATE_ONE2M_ROW;
@@ -335,6 +337,15 @@ LIST *update_one2m_row_update_attribute_list(
 		LIST *update_changed_list,
 		LIST *query_row_cell_list );
 
+/* Process */
+/* ------- */
+
+/* Returns either parameter */
+/* ------------------------ */
+char *update_one2m_row_seek_attribute_name(
+		char *query_cell_attribute_name,
+		char *relation_translate_primary_key );
+
 /* Usage */
 /* ----- */
 
@@ -349,9 +360,10 @@ UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
 /* Usage */
 /* ----- */
 
-/* Returns component of parameter or null */
-/* -------------------------------------- */
+/* Returns parameter or component of parameter */
+/* ------------------------------------------- */
 char *update_one2m_row_post_datum(
+		char *query_cell_select_datum,
 		UPDATE_CHANGED *update_changed_seek );
 
 /* Usage */
@@ -415,6 +427,7 @@ void update_one2m_row_list_update_changed_list_list(
 typedef struct
 {
 	int row_number;
+	char *one_folder_name;
 	char *many_folder_name;
 	LIST *update_one2m_row_list;
 } UPDATE_ONE2M_FETCH;
@@ -430,6 +443,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		char *login_name,
 		char *role_name,
 		int row_number,
+		char *one_folder_name,
 		char *many_folder_name,
 		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
@@ -447,6 +461,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_calloc(
 
 typedef struct
 {
+	char *one_folder_name;
 	char *many_folder_name;
 	LIST *select_name_list;
 	char *select_string;
@@ -465,6 +480,7 @@ UPDATE_ONE2M *update_one2m_new(
 		char *login_name,
 		char *role_name,
 		int row_number,
+		char *one_folder_name,
 		char *many_folder_name,
 		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
@@ -531,6 +547,9 @@ LIST *update_one2m_list_folder_name_list(
 
 /* Usage */
 /* ----- */
+
+/* Select from both lists in case the foreign key isn’t primary */
+/* ------------------------------------------------------------ */
 LIST *update_one2m_select_name_list(
 		LIST *many_primary_key_list,
 		LIST *relation_foreign_key_list );

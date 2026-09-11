@@ -7135,7 +7135,7 @@ char *query_cell_list_display( LIST *cell_list )
 
 		ptr += sprintf(
 			ptr,
-			"%s\n",
+			"%s",
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */

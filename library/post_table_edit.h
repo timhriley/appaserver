@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef POST_TABLE_EDIT_H
-#define POST_TABLE_EDIT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -38,7 +37,7 @@ typedef struct
 	LIST *relation_mto1_isa_list;
 	PROCESS *post_change_process;
 	LIST *relation_mto1_list;
-	LIST *relation_one2m_recursive_list;
+	LIST *relation_one2m_list;
 	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
 	char *appaserver_update_filespecification;
 	DICTIONARY *file_dictionary;
@@ -115,5 +114,3 @@ POST_TABLE_EDIT *post_table_edit_calloc(
 /* ----- */
 boolean post_table_edit_forbid(
 		boolean role_folder_lookup_boolean );
-
-#endif
