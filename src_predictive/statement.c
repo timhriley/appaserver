@@ -1696,6 +1696,7 @@ STATEMENT_ACCOUNT *statement_account_new(
 		statement_account_label(
 			account_journal_latest );
 
+#ifdef NOT_DEFINED
 	/* For trial_balance report */
 	/* ------------------------ */
 	if ( statement_account->balance < 0.0 )
@@ -1705,6 +1706,7 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 		element_accumulate_debit = 1 - element_accumulate_debit;
 	}
+#endif
 
 	statement_account->balance_string =
 		/* ------------------- */
@@ -2551,7 +2553,9 @@ char *statement_account_balance_string(
 
 	if ( account_action_string )
 	{
-		sprintf(balance_string,
+		snprintf(
+			balance_string,
+			sizeof ( balance_string ),
 			"<a href=\"%s\">%s</a>",
 			account_action_string,
 			/* --------------------- */
@@ -2563,10 +2567,12 @@ char *statement_account_balance_string(
 	}
 	else
 	{
-		strcpy(	balance_string,
+		string_strcpy(
+			balance_string,
 			statement_account_money_string(
 				balance,
-				round_dollar_boolean ) );
+				round_dollar_boolean ),
+			sizeof( balance_string ) );
 	}
 
 	return strdup( balance_string );
@@ -2576,22 +2582,26 @@ char *statement_account_money_string(
 		double balance,
 		boolean round_dollar_boolean )
 {
+	char *money_string;
+
 	if ( round_dollar_boolean )
 	{
-		return
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		string_commas_rounded_dollar( balance );
+		money_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_commas_rounded_dollar( balance );
 	}
 	else
 	{
-		return
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		string_commas_dollar( balance );
+		money_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			string_commas_dollar( balance );
 	}
+
+	return money_string;
 }
 
 STATEMENT_SUBCLASS_OMIT_HTML *

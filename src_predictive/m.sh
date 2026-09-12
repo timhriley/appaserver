@@ -3,5 +3,5 @@
 #cd ../library
 #make
 #cd -
-make generate_invoice
+make income_statement_output
 
