@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef LATEX_H
-#define LATEX_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -166,7 +165,6 @@ char *latex_cell_markup(
 char *latex_cell_formatted_datum(
 		char *datum,
 		enum latex_column_enum latex_column_enum,
-		int float_decimal_count,
 		boolean dollar_sign_boolean );
 
 /* Process */
@@ -508,4 +506,3 @@ void latex_table_list_output(
 		LATEX *latex,
 		LIST *latex_table_list );
 
-#endif

@@ -510,7 +510,6 @@ LATEX_CELL *latex_cell_new(
 		latex_cell_formatted_datum(
 			datum,
 			latex_column->latex_column_enum,
-			latex_column->float_decimal_count,
 			latex_cell_dollar_sign_boolean(
 				latex_column->dollar_sign_boolean,
 				first_row_boolean ) );
@@ -574,7 +573,6 @@ char *latex_cell_markup(
 char *latex_cell_formatted_datum(
 		char *datum,
 		enum latex_column_enum latex_column_enum,
-		int float_decimal_count,
 		boolean dollar_sign_boolean )
 {
 	if ( !datum || !*datum ) return (char *)0;
@@ -590,24 +588,35 @@ char *latex_cell_formatted_datum(
 
 	if ( latex_column_enum == latex_column_float )
 	{
-		static char formatted_datum[ 128 ];
+		static char formatted_datum[ 32 ];
 
-		sprintf(formatted_datum,
+		snprintf(
+			formatted_datum,
+			sizeof ( formatted_datum ),
 			"%s%s",
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
 			latex_cell_dollar_sign( dollar_sign_boolean ),
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			string_commas_double(
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				string_atof( datum ),
-				float_decimal_count ) );
+			/* --------------------------- */
+			/* Returns static memory or "" */
+			/* --------------------------- */
+			string_commas_number_string(
+				datum ) );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: datum=[%s], formatted_datum=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	datum,
+	formatted_datum );
+msg( (char *)0, message );
+}
 		return formatted_datum;
 	}
 	else
@@ -677,7 +686,7 @@ char *latex_cell_escape( char *datum )
 
 char *latex_cell_list_display( LIST *latex_cell_list )
 {
-	char display[ 65536 ];
+	char display[ STRING_64K ];
 	char *ptr = display;
 	LATEX_CELL *latex_cell;
 
@@ -689,13 +698,13 @@ char *latex_cell_list_display( LIST *latex_cell_list )
 
 		if (	strlen( display ) +
 			string_strlen( latex_cell->display ) +
-			1 >= 65536 )
+			1 >= STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				65536 );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -706,11 +715,9 @@ char *latex_cell_list_display( LIST *latex_cell_list )
 
 		if ( latex_cell->display )
 		{
-			ptr +=
-				sprintf(
-					ptr,
-					"%s",
-					latex_cell->display );
+			ptr += sprintf( ptr,
+				"%s",
+				latex_cell->display );
 		}
 
 	} while ( list_next( latex_cell_list ) );

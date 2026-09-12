@@ -601,6 +601,9 @@ char *string_commas_dollar( double d )
 	{
 		sprintf(commas_double,
 			"(%s)",
+			/* ------------------- */
+			/* Skip the minus sign */
+			/* ------------------- */
 			commas_double + 1 );
 	}
 
@@ -1901,18 +1904,35 @@ char *string_low( char *s )
 char *string_commas_number_string( char *s )
 {
 	static char return_string[ 64 ];
-	char *r_ptr;
-	char *s_ptr;
-	int c = 0;
+	char *r_ptr /* return pointer */;
+	char *s_ptr /* string pointer */;
+	int c = 0   /* keep count */;
  
 	if ( !string_strlen( s ) ) return "";
+
+	if ( string_instr( ",", s, 1 ) != -1 )
+	{
+		string_strcpy(
+			return_string,
+			s,
+			sizeof ( return_string ) );
+		return return_string;
+	}
 
 	r_ptr = &return_string[ 63 ];
 	*r_ptr-- = '\0';
  
 	s_ptr = s + strlen( s ) - 1;
 
-	if ( *s_ptr != '.' && !isdigit( *s_ptr ) ) return s;
+	/* If input string doesn't end with any of these, then return it. */
+	/* -------------------------------------------------------------- */
+	if (	*s_ptr != '.'
+	&&	!isdigit( *s_ptr )
+	&&	*s_ptr != '-'
+	&&	*s_ptr != ')' )
+	{
+		return s;
+	}
 
 	if ( string_instr( ".", s, 1 ) != -1 )
 	{
@@ -1934,7 +1954,11 @@ char *string_commas_number_string( char *s )
 	{
 		*r_ptr-- = *s_ptr--;
 
-		if ( *s_ptr == '-' )
+		/* If minus sign, open paren or close paren */
+		/* ---------------------------------------- */
+		if ( *s_ptr == '-'
+		||   *s_ptr == '('
+		||   *s_ptr == ')' )
 		{
 			*r_ptr-- = *s_ptr--;
 			continue;

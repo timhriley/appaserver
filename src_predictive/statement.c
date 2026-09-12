@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "String.h"
-#include "timlib.h"
+#include "float.h"
 #include "date_convert.h"
 #include "application.h"
 #include "application_constant.h"
@@ -355,7 +355,7 @@ char *statement_prior_year_account_data( ACCOUNT *prior_account )
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			timlib_place_commas_in_dollars(
+			string_commas_money(
 				prior_account->
 					account_journal_latest->
 					balance ) );
@@ -2449,7 +2449,7 @@ char *statement_prior_year_cell_display(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			timlib_place_commas_in_dollars(
+			string_commas_money(
 				prior_year_amount ) );
 	}
 
@@ -3214,7 +3214,7 @@ HTML_ROW *statement_subclass_aggr_html_element_sum_row(
 
 	list_set(
 		cell_list,
-			html_cell_new(
+		html_cell_new(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -3227,7 +3227,7 @@ HTML_ROW *statement_subclass_aggr_html_element_sum_row(
 
 	list_set(
 		cell_list,
-			html_cell_new(
+		html_cell_new(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
