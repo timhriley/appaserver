@@ -567,27 +567,49 @@ char *string_commas_long( long n )
 	return string_commas_number_string( s );
 }
  
-char *string_commas_rounded_dollar( double d )
+char *string_commas_round_dollar( double d )
 {
-	char s[ 20 ];
-
-	snprintf( s, sizeof ( s ), "%.0lf", round_double( d ) );
-
 	return
-	/* --------------------------- */
-	/* Returns static memory or "" */
-	/* --------------------------- */
-	string_commas_number_string( s );
-}
-
-char *string_commas_money( double d )
-{
+	/* --------------------- */
 	/* Returns static memory */
 	/* --------------------- */
-	return string_commas_dollar( d );
+	string_commas_round_money( d );
+}
+
+char *string_commas_round_money( double d )
+{
+	char s[ 20 ];
+	char *number_string;
+
+	snprintf( s, sizeof ( s ), "%d", float_round_integer( d ) );
+
+	number_string =
+		/* --------------------------- */
+		/* Returns static memory or "" */
+		/* --------------------------- */
+		string_commas_number_string( s );
+
+	if ( d <= -0.01 )
+	{
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_paren_money(
+			number_string /* money_string */ );
+	}
+
+	return number_string;
 }
 
 char *string_commas_dollar( double d )
+{
+	/* Returns static memory */
+	/* --------------------- */
+	return string_commas_money( d );
+}
+
+char *string_commas_money( double d )
 {
 	char *commas_double;
 
@@ -599,15 +621,31 @@ char *string_commas_dollar( double d )
 
 	if ( d <= -0.01 )
 	{
-		sprintf(commas_double,
-			"(%s)",
-			/* ------------------- */
-			/* Skip the minus sign */
-			/* ------------------- */
-			commas_double + 1 );
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_paren_money(
+			commas_double /* money_string */ );
 	}
 
 	return commas_double;
+}
+
+char *string_paren_money( char *money_string )
+{
+	static char paren_money[ 144 ];
+
+	snprintf(
+		paren_money,
+		sizeof ( paren_money ),
+		"(%s)",
+		/* ------------------- */
+		/* Skip the minus sign */
+		/* ------------------- */
+		money_string + 1 );
+
+	return paren_money;
 }
 
 char *string_commas_float(
@@ -633,7 +671,7 @@ char *string_commas_double(
 	char *reversed_integer_pointer = reversed_integer;
 	char *integer_part_pointer;
 	int counter = 0;
-	static char destination[ 256 ];
+	static char destination[ 128 ];
 
 	/* Sometimes, d is -0.0 */
 	/* -------------------- */
@@ -663,6 +701,7 @@ char *string_commas_double(
 		}
 		integer_part_pointer--;
 	}
+
 	*reversed_integer_pointer = '\0';
 	string_reverse( buffer, reversed_integer );
 

@@ -2590,7 +2590,7 @@ char *statement_account_money_string(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			string_commas_rounded_dollar( balance );
+			string_commas_round_dollar( balance );
 	}
 	else
 	{

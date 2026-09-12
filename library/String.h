@@ -272,16 +272,11 @@ char *string_escape_character(
 /* ----- */
 
 /* Returns static memory */
+/* Trim pennies		 */
 /* ----------------------*/
-char *string_commas_rounded_dollar(
+char *string_commas_round_money(
 		double d );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* ----------------------*/
-char *string_commas_dollar(
+char *string_commas_round_dollar(
 		double d );
 
 /* Usage */
@@ -292,6 +287,16 @@ char *string_commas_dollar(
 /* ---------------------- */
 char *string_commas_money(
 		double d );
+char *string_commas_dollar(
+		double d );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *string_paren_money(
+		char *money_string );
 
 /* Usage */
 /* ----- */
@@ -301,12 +306,6 @@ char *string_commas_money(
 char *string_commas_double(
 		double d,
 		int decimal_count );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* ----------------------*/
 char *string_commas_float(
 		double d,
 		int decimal_places );

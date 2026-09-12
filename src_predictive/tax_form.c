@@ -2230,7 +2230,7 @@ char *tax_form_account_html_caption(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			string_commas_rounded_dollar(
+			string_commas_round_dollar(
 				tax_form_line_total ) ) );
 
 	return strdup( caption );
@@ -2495,7 +2495,7 @@ char *tax_form_entity_html_caption(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			string_commas_rounded_dollar(
+			string_commas_round_dollar(
 				journal_list_total ) ) );
 
 	return strdup( caption );
