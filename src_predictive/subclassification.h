@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SUBCLASSIFICATION_H
-#define SUBCLASSIFICATION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -236,4 +235,3 @@ boolean subclassification_accumulate_debit(
 		boolean element_accumulate_debit,
 		ELEMENT *element );
 
-#endif

@@ -411,15 +411,9 @@ double subclassification_list_sum_set(
 		LIST *subclassification_statement_list )
 {
 	SUBCLASSIFICATION *subclassification;
-	double list_sum;
+	double list_sum = 0.0;
 
-	if ( !list_rewind( subclassification_statement_list ) )
-	{
-		return 0.0;
-	}
-
-	list_sum = 0.0;
-
+	if ( list_rewind( subclassification_statement_list ) )
 	do {
 		subclassification =
 			list_get(

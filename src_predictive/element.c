@@ -285,10 +285,7 @@ void element_list_sum_set( LIST *element_statement_list )
 	if ( list_rewind( element_statement_list ) )
 	do {
 		element = list_get( element_statement_list );
-
-		element->sum =
-			element_sum(
-				element );
+		element->sum = element_sum( element );
 
 	} while ( list_next( element_statement_list ) );
 }

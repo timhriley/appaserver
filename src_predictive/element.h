@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ELEMENT_H
-#define ELEMENT_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -209,24 +208,30 @@ double element_income(
 double element_net_income(
 		LIST *element_statement_list );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 boolean element_is_nominal(
 		char *element_name );
 
+/* Usage */
+/* ----- */
 ELEMENT *element_seek(
 		char *element_name,
 		LIST *element_list );
 
+/* Usage */
+/* ----- */
 double element_list_debit_sum(
 		LIST *element_statement_list );
 
+/* Usage */
+/* ----- */
 double element_list_credit_sum(
 		LIST *element_statement_list );
 
+/* Usage */
+/* ----- */
 double element_seek_sum(
 		char *element_name,
 		LIST *element_statement_list );
-
-#endif
 
