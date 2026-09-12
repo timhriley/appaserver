@@ -11,6 +11,7 @@ investment_account
 investment_medium
 investment_purpose
 journal
+select_statement
 subclassification
 tax_form
 tax_form_line
