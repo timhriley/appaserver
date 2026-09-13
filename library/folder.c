@@ -224,6 +224,8 @@ FOLDER *folder_fetch(
 			message );
 	}
 
+	if ( strcmp( folder_name, "null" ) == 0 ) return folder_calloc();
+
 	if ( cache_boolean )
 	{
 		folder =
@@ -646,7 +648,8 @@ LIST *folder_fetch_name_list(
 	char *where_string;
 
 	where_string =
-		"table_name in (select distinct table_name from role_table)";
+		"table_name in (select distinct table_name from role_table)"
+		" and table_name != 'null'";
 
 	system_string =
 		/* ------------------- */
