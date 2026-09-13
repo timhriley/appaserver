@@ -16,6 +16,8 @@
 #include "security.h"
 #include "query.h"
 
+/* #define DELETE_DEBUG_MODE */
+
 #define DELETE_MESSAGE			\
 	"Delete: delete row count=%u, update cell count=%u"
 
@@ -82,8 +84,17 @@ LIST *delete_one2m_update_cell_update_attribute_list(
 		char *query_cell_attribute_name,
 		char *query_cell_select_datum );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_update_cell_display(
+		DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell );
+
 typedef struct
 {
+	char *query_cell_where_string;
 	LIST *delete_one2m_update_cell_list;
 } DELETE_ONE2M_UPDATE_ROW;
 
@@ -105,6 +116,14 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 /* ------- */
 DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_update_row_display(
+		DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row );
 
 typedef struct
 {
@@ -130,6 +149,14 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 /* ------- */
 DELETE_ONE2M_UPDATE *delete_one2m_update_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_update_display(
+		DELETE_ONE2M_UPDATE *delete_one2m_update );
 
 typedef struct
 {
@@ -178,6 +205,14 @@ DELETE_ONE2M_LIST *delete_one2m_list_new(
 DELETE_ONE2M_LIST *delete_one2m_list_calloc(
 		void );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_list_display(
+		DELETE_ONE2M_LIST *delete_one2m_list );
+
 typedef struct
 {
 	char *delete_where;
@@ -207,6 +242,14 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 /* ------- */
 DELETE_ONE2M_ROW *delete_one2m_row_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_row_display(
+		DELETE_ONE2M_ROW *delete_one2m_row );
 
 typedef struct
 {
@@ -264,6 +307,14 @@ int delete_one2m_row_count(
 /* ----- */
 LIST *delete_one2m_query_fetch_list(
 		LIST *delete_one2m_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_display(
+		DELETE_ONE2M *delete_one2m );
 
 typedef struct
 {

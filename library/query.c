@@ -7152,18 +7152,25 @@ char *query_cell_display( QUERY_CELL *query_cell )
 {
 	static char display[ 2048 ];
 
-	snprintf(
-		display,
-		sizeof ( display ),
-		"[%s=%s; Display=%s; Primary=%d]",
-		(query_cell->attribute_name)
-			? query_cell->attribute_name
-			: "anonymous",
-		query_cell->select_datum,
-		(query_cell->display_datum)
-			? query_cell->display_datum
-			: "",
-		query_cell->primary_key_index );
+	if ( !query_cell )
+	{
+		strcpy( display, "NULL" );
+	}
+	else
+	{
+		snprintf(
+			display,
+			sizeof ( display ),
+			"[%s=%s; Display=%s; Primary=%d]",
+			(query_cell->attribute_name)
+				? query_cell->attribute_name
+				: "anonymous",
+			query_cell->select_datum,
+			(query_cell->display_datum)
+				? query_cell->display_datum
+				: "",
+			query_cell->primary_key_index );
+	}
 
 	return display;
 }

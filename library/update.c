@@ -2065,7 +2065,7 @@ boolean update_changed_boolean(
 
 	if ( ( !file_datum || !*file_datum ) && !*post_datum ) return 0;
 
-	if (	!*file_datum
+	if (	( !file_datum || !*file_datum )
 	&&	strcmp( post_datum, query_is_null ) == 0 )
 	{
 		return 0;
@@ -2079,7 +2079,7 @@ boolean update_changed_boolean(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			post_datum );
 
-	if ( strcmp( file_datum, unescape ) != 0 )
+	if ( string_strcmp( file_datum, unescape ) != 0 )
 	{
 		return_value = 1;
 	}

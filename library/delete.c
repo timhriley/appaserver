@@ -123,6 +123,21 @@ DELETE *delete_new(
 				delete->
 					delete_input->
 					relation_one2m_list );
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: delete_one2m_list_new(primary_query_list=[%s] returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	query_row_cell_list_display( primary_query_cell_list ),
+	delete_one2m_list_display( delete->delete_one2m_list ) );
+msg( (char *)0, message );
+}
+#endif
 	}
 
 	if ( isa_boolean
@@ -557,6 +572,22 @@ DELETE_ONE2M *delete_one2m_new(
 			delete_one2m->query_system_string,
 			1 /* input_save_boolean for MERGE_PURGE */ );
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: query_fetch_new(%s) returned length(row_list)=%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	many_folder_name,
+	list_length( delete_one2m->query_fetch->row_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( !list_length( delete_one2m->query_fetch->row_list ) )
 	{
 		free( delete_one2m );
@@ -572,6 +603,21 @@ DELETE_ONE2M *delete_one2m_new(
 	{
 		if ( update_null_boolean )
 		{
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling delete_one2m_update_new(table_name=%s,query_cell_list=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	many_folder_name,
+	query_row_cell_list_display( delete_one2m->query_cell_list ) );
+msg( (char *)0, message );
+}
+#endif
 			delete_one2m->delete_one2m_update =
 				/* -------------- */
 				/* Safely returns */
@@ -586,6 +632,20 @@ DELETE_ONE2M *delete_one2m_new(
 					post_change_process,
 					delete_one2m->query_fetch->row_list,
 					delete_one2m->row_count );
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: delete_one2m_update_new() returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	delete_one2m_update_display( delete_one2m->delete_one2m_update ) );
+msg( (char *)0, message );
+}
+#endif
 		}
 
 		return delete_one2m;
@@ -1201,6 +1261,24 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 
 	delete_one2m_update_cell = delete_one2m_update_cell_calloc();
 
+
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling delete_one2m_update_cell_sql_statement(table_name=%s,set_null_attribute_name=%s,query_cell_where_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	appaserver_table_name,
+	set_null_query_cell->attribute_name,
+	query_cell_where_string );
+msg( (char *)0, message );
+}
+#endif
+
 	delete_one2m_update_cell->sql_statement =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1213,6 +1291,24 @@ DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell_new(
 
 	if ( post_change_process )
 	{
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling delete_one2m_update_cell_command_line(attribute_update_state=%s,attribute_name=%s,select_datum=%s,query_row_cell_list=%s,command_line=%s)\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	appaserver_update_state,
+	set_null_query_cell->attribute_name,
+	set_null_query_cell->select_datum,
+	query_row_cell_list_display( query_row_cell_list ),
+	post_change_process->command_line );
+msg( (char *)0, message );
+}
+#endif
 		delete_one2m_update_cell->command_line =
 			delete_one2m_update_cell_command_line(
 				appaserver_update_state,
@@ -1273,7 +1369,9 @@ char *delete_one2m_update_cell_sql_statement(
 			message );
 	}
 
-	sprintf(update_sql_statement,
+	snprintf(
+		update_sql_statement,
+		sizeof ( update_sql_statement ),
 		"update %s set %s = null where %s;",
 		appaserver_table_name,
 		set_null_attribute_name,
@@ -1358,7 +1456,6 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 {
 	DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row;
 	QUERY_CELL *set_null_query_cell;
-	char *where_string;
 	DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell;
 
 	if ( !appaserver_error_filespecification
@@ -1379,7 +1476,7 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 
 	delete_one2m_update_row = delete_one2m_update_row_calloc();
 
-	where_string =
+	delete_one2m_update_row->query_cell_where_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -1392,6 +1489,25 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 		set_null_query_cell =
 			list_get(
 				set_null_query_cell_list );
+
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling delete_one2m_update_cell_new(table_name=%s,set_null_query_cell=[%s])\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	appaserver_table_name,
+	/* --------------------- */
+	/* Returns static memory */
+	/* --------------------- */
+	query_cell_display( set_null_query_cell ) );
+msg( (char *)0, message );
+}
+#endif
 
 		delete_one2m_update_cell =
 			/* -------------- */
@@ -1406,8 +1522,25 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 				row_number,
 				row_count,
 				query_row_cell_list,
-				where_string,
+				delete_one2m_update_row->
+					query_cell_where_string,
 				set_null_query_cell );
+
+
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: delete_one2m_update_cell_new() returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	delete_one2m_update_cell_display( delete_one2m_update_cell ) );
+msg( (char *)0, message );
+}
+#endif
 
 		list_set(
 			delete_one2m_update_row->
@@ -1415,8 +1548,6 @@ DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row_new(
 			delete_one2m_update_cell );
 
 	} while ( list_next( set_null_query_cell_list ) );
-
-	free( where_string );
 
 	return delete_one2m_update_row;
 }
@@ -1482,6 +1613,22 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 	do {
 		query_row = list_get( query_fetch_row_list );
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: calling delete_one2m_update_row_new(table_name=%s,set_null_query_cell_list=[%s], query_row_cell_list=[%s])\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	appaserver_table_name,
+	query_row_cell_list_display( set_null_query_cell_list ),
+	query_row_cell_list_display( query_row->cell_list ) );
+msg( (char *)0, message );
+}
+#endif
 		delete_one2m_update_row =
 			/* -------------- */
 			/* Safely returns */
@@ -1495,6 +1642,20 @@ DELETE_ONE2M_UPDATE *delete_one2m_update_new(
 				row_count,
 				query_row->cell_list );
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: delete_one2m_update_row_new() returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	delete_one2m_update_row_display( delete_one2m_update_row ) );
+msg( (char *)0, message );
+}
+#endif
 		list_set(
 			delete_one2m_update->
 				delete_one2m_update_row_list,
@@ -1694,6 +1855,24 @@ DELETE_ONE2M_FETCH *delete_one2m_fetch_new(
 				query_row->cell_list,
 				relation_one2m_list );
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+static int count;
+
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: count=%d; delete_one2m_row_new() returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	++count,
+	delete_one2m_row_display( delete_one2m_row ) );
+msg( (char *)0, message );
+}
+#endif
+
 		list_set(
 			delete_one2m_fetch->delete_one2m_row_list,
 			delete_one2m_row );
@@ -1806,6 +1985,25 @@ DELETE_ONE2M_LIST *delete_one2m_list_new(
 					appaserver_parameter_mount_point );
 		}
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+static int count;
+
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: count=%d; calling delete_one2m_new(relation_one2m->many_folder_name=%s,primary_query_cell_list=%s)\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	++count,
+	relation_one2m->many_folder_name,
+	query_row_cell_list_display( primary_query_cell_list ) );
+	
+msg( (char *)0, message );
+}
+#endif
 		delete_one2m =
 			delete_one2m_new(
 				application_name,
@@ -1830,6 +2028,23 @@ DELETE_ONE2M_LIST *delete_one2m_list_new(
 					many_folder->
 					post_change_process );
 
+#ifdef DELETE_DEBUG_MODE
+{
+char message[ 65536 ];
+static int count;
+
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: count=%d; delete_one2m_new() returned=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	++count,
+	delete_one2m_display( delete_one2m ) );
+msg( (char *)0, message );
+}
+#endif
 		if ( delete_one2m )
 		{
 			if ( !delete_one2m_list->list )
@@ -2606,5 +2821,120 @@ int delete_one2m_row_count( LIST *query_fetch_row_list )
 {
 	return
 	list_length( query_fetch_row_list );
+}
+
+char *delete_one2m_display( DELETE_ONE2M *delete_one2m )
+{
+	char display[ STRING_64K ];
+
+	if ( !delete_one2m ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"table_name=%s; "
+		"query_system_string=[%s]; "
+		"row_count=%d; "
+		"delete_one2m_update=[0x%x]; "
+		"length( relation_one2m_list )=%d; "
+		"delete_one2m_fetch=[0x%x]",
+		delete_one2m->table_name,
+		delete_one2m->query_system_string,
+		delete_one2m->row_count,
+		(unsigned int)(long)delete_one2m->delete_one2m_update,
+		list_length( delete_one2m->relation_one2m_list ),
+		(unsigned int)(long)delete_one2m->delete_one2m_fetch );
+
+	return strdup( display );
+}
+
+char *delete_one2m_row_display( DELETE_ONE2M_ROW *delete_one2m_row )
+{
+	char display[ 1024 ];
+
+	if ( !delete_one2m_row ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"delete_sql_statement=[%s]; "
+		"delete_one2m_list=[0x%x]",
+		delete_one2m_row->delete_sql_statement,
+		(unsigned int)(long)delete_one2m_row->delete_one2m_list );
+
+	return strdup( display );
+}
+
+char *delete_one2m_list_display( DELETE_ONE2M_LIST *delete_one2m_list )
+{
+	char display[ 128 ];
+
+	if ( !delete_one2m_list ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"length(list)=%d",
+		list_length( delete_one2m_list->list ) );
+
+	return strdup( display );
+}
+
+char *delete_one2m_update_display( DELETE_ONE2M_UPDATE *delete_one2m_update )
+{
+	char display[ 128 ];
+
+	if ( !delete_one2m_update ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"folder_name=[%s], length(delete_one2m_update_row_list)=%d",
+		delete_one2m_update->folder_name,
+		list_length(
+			delete_one2m_update->
+				delete_one2m_update_row_list ) );
+
+	return strdup( display );
+}
+
+char *delete_one2m_update_row_display(
+		DELETE_ONE2M_UPDATE_ROW *delete_one2m_update_row )
+{
+	char display[ 1024 ];
+
+	if ( !delete_one2m_update_row ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"query_cell_where_string=[%s]; "
+		"length(delete_one2m_update_cell_list)=%d",
+		delete_one2m_update_row->query_cell_where_string,
+		list_length(
+			delete_one2m_update_row->
+				delete_one2m_update_cell_list ) );
+
+	return strdup( display );
+}
+
+char *delete_one2m_update_cell_display(
+		DELETE_ONE2M_UPDATE_CELL *delete_one2m_update_cell )
+{
+	char display[ 1024 ];
+
+	if ( !delete_one2m_update_cell ) return strdup( "NULL" );
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"sql_statement=[%s]; "
+		"command_line=[%s]",
+		delete_one2m_update_cell->sql_statement,
+		(delete_one2m_update_cell->command_line)
+			? delete_one2m_update_cell->command_line
+			: "" );
+
+	return strdup( display );
 }
 
