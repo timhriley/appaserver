@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef BALANCE_SHEET_H
-#define BALANCE_SHEET_H
+#pragma once
 
 #include "list.h"
 #include "date.h"
@@ -538,8 +537,9 @@ BALANCE_SHEET *balance_sheet_calloc(
 		void );
 
 LIST *balance_sheet_element_name_list(
-		char *element_asset,
-		char *element_liability );
+		const char *element_asset,
+		const char *element_liability,
+		const char *element_equity );
 
 double balance_sheet_drawing_amount(
 		const char *journal_table,
@@ -554,4 +554,3 @@ double balance_sheet_drawing_amount(
 char *balance_sheet_prior_date_time_closing(
 		char *transaction_begin_date_string );
 
-#endif

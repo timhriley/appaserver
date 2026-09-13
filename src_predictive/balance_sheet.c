@@ -2860,7 +2860,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 	balance_sheet->element_name_list =
 		balance_sheet_element_name_list(
 			ELEMENT_ASSET,
-			ELEMENT_LIABILITY );
+			ELEMENT_LIABILITY,
+			ELEMENT_EQUITY );
 
 	balance_sheet->statement =
 		statement_fetch(
@@ -3093,13 +3094,15 @@ BALANCE_SHEET *balance_sheet_calloc( void )
 }
 
 LIST *balance_sheet_element_name_list(
-		char *element_asset,
-		char *element_liability )
+		const char *element_asset,
+		const char *element_liability,
+		const char *element_equity )
 {
 	LIST *element_name_list = list_new();
 
-	list_set( element_name_list, element_asset );
-	list_set( element_name_list, element_liability );
+	list_set( element_name_list, (char *)element_asset );
+	list_set( element_name_list, (char *)element_liability );
+	list_set( element_name_list, (char *)element_equity );
 
 	return element_name_list;
 }
