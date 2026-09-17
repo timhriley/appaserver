@@ -16,6 +16,7 @@
 #include "security.h"
 #include "optional_column.h"
 #include "sale.h"
+#include "inventory_purchase.h"
 #include "inventory_sale.h"
 
 INVENTORY_SALE *inventory_sale_new(
@@ -556,5 +557,42 @@ INVENTORY_SALE *inventory_sale_trigger(
 			inventory_sale->primary_key_list );
 
 	return inventory_sale;
+}
+
+char *inventory_sale_cost_where(
+		const char *inventory_sale_table,
+		const char *sale_inventory_column,
+		const char *transaction_date_time_column,
+		char *inventory_name,
+		char *completed_date_time )
+{
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !completed_date_time ) return NULL;
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	inventory_purchase_cost_where(
+		inventory_sale_table /* inventory_purchase_table */,
+		sale_inventory_column,
+		transaction_date_time_column /* inventory_arrived_column */,
+		inventory_name,
+		completed_date_time /* arrived_date_time */ );
 }
 

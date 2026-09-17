@@ -127,6 +127,18 @@ LIST *inventory_sale_primary_key_list(
 /* Usage */
 /* ----- */
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *inventory_sale_cost_where(
+		const char *inventory_sale_table,
+		const char *sale_inventory_column,
+		const char *transaction_date_time_column,
+		char *inventory_name,
+		char *completed_date_time );
+
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_primary_data_string(
