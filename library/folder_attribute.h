@@ -102,6 +102,9 @@ FOLDER_ATTRIBUTE *folder_attribute_calloc(
 
 /* Usage */
 /* ----- */
+boolean folder_attribute_boolean(
+		char *folder_name,
+		char *attribute_name );
 boolean folder_attribute_exists(
 		char *folder_name,
 		char *attribute_name );

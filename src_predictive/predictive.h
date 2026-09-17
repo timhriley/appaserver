@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit Appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PREDICTIVE_H
-#define PREDICTIVE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -77,4 +76,3 @@ char *predictive_fund_string(
 		char delimiter /* optional */,
 		char *fund_name,
 		boolean predictive_fund_boolean );
-#endif

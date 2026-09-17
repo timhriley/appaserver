@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef POST_LOGIN_H
-#define POST_LOGIN_H
+#pragma once
 
 #include "dictionary.h"
 #include "document.h"
@@ -103,9 +102,7 @@ boolean post_login_input_public_boolean(
 		char *post_login_name );
 
 boolean post_login_input_deactivated_boolean(
-		char *database_password,
-		boolean appaserver_user_deactivated_boolean,
-		boolean post_login_input_public_boolean );
+		boolean appaserver_user_deactivated_boolean );
 
 /* Returns component of post_login_dictionary or null */
 /* -------------------------------------------------- */
@@ -340,5 +337,3 @@ char *post_login_reject_index_html_parameter(
 char *post_login_security_encrypt_password(
 		char *form_password,
 		char *database_password );
-
-#endif

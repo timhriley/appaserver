@@ -12,7 +12,9 @@
 
 #define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
 
-#define INVENTORY_PURCHASE_SELECT	"inventory_name,"	\
+#define INVENTORY_PURCHASE_SELECT	"full_name,"		\
+					"inventory_name,"	\
+					"purchase_date_time,"	\
 					"ordered_quantity,"	\
 					"arrived_quantity,"	\
 					"slippage_quantity,"	\
@@ -24,6 +26,10 @@
 
 typedef struct
 {
+	char *fund_name;
+	char *full_name;
+	char *contact_key;
+	char *purchase_date_time;
 	char *inventory_name;
 	int ordered_quantity;
 	int arrived_quantity;
@@ -45,6 +51,8 @@ typedef struct
 /* Usage */
 /* ----- */
 INVENTORY_PURCHASE *inventory_purchase_parse(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -91,6 +99,30 @@ double inventory_purchase_average_unit_cost(
 		int ordered_quantity,
 		double cost_basis_amount );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *inventory_purchase_cost_where(
+		const char *inventory_purchase_table,
+		const char *sale_inventory_column,
+		const char *inventory_arrived_column,
+		char *inventory_name,
+		char *arrived_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *inventory_purchase_prior_date_time(
+		const char *inventory_purchase_table,
+		const char *sale_inventory_column,
+		const char *inventory_arrived_column,
+		char *inventory_name,
+		char *arrived_date_time );
+
 typedef struct
 {
 	LIST *list;
@@ -109,12 +141,28 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		const char *inventory_purchase_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *purchase_primary_where );
+		char *where );
 
 /* Process */
 /* ------- */
 INVENTORY_PURCHASE_LIST *inventory_purchase_list_calloc(
 		void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_purchase_list_select(
+		const char *inventory_purchase_select,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_purchase_list_system_string(
+		char *inventory_purchase_list_select,
+		const char *inventory_purchase_table,
+		char *where,
+		const char *inventory_arrived_column
+			/* For order clause */ );
 
 /* Usage */
 /* ----- */

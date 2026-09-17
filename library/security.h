@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit Appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SECURITY_H
-#define SECURITY_H
+#pragma once
 
 #include <stdio.h>
 #include "boolean.h"
@@ -163,5 +162,3 @@ boolean security_password_encrypted(
 
 LIST *security_sql_injection_escape_list(
 		LIST *data_list );
-
-#endif

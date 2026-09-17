@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef OPTIONAL_COLUMN_H
-#define OPTIONAL_COLUMN_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -79,4 +78,3 @@ OPTIONAL_COLUMN *optional_column_text_new(
 		char *text,
 		boolean set_boolean );
 
-#endif

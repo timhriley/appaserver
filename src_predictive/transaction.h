@@ -4,8 +4,7 @@
 /* No warranty and  available software. Visit appaserver.org		*/
 /* -------------------------------------------------------------------- */
 
-#ifndef TRANSACTION_H
-#define TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "date.h"
@@ -461,5 +460,3 @@ char *transaction_insert_column_string(
 /* ---------------------- */
 const char *transaction_lock_y(
 		boolean lock_boolean );
-
-#endif

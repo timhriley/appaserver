@@ -1001,17 +1001,9 @@ boolean post_login_user_not_found_boolean( APPASERVER_USER *appaserver_user )
 }
 
 boolean post_login_input_deactivated_boolean(
-		char *appaserver_user_password,
-		boolean deactivated_boolean,
-		boolean public_boolean )
+		boolean appaserver_user_deactivated_boolean )
 {
-	if ( deactivated_boolean ) return 1;
-	if ( public_boolean ) return 0;
-
-	if ( appaserver_user_password )
-		return 0;
-	else
-		return 1;
+	return appaserver_user_deactivated_boolean;
 }
 
 boolean post_login_input_form_password_blank_boolean( char *form_password )
@@ -1267,11 +1259,7 @@ POST_LOGIN_INPUT *post_login_input_new(
 		post_login_input_deactivated_boolean(
 			post_login_input->
 				appaserver_user->
-				password,
-			post_login_input->
-				appaserver_user->
-				deactivated_boolean,
-			post_login_input->public_boolean );
+				deactivated_boolean );
 
 	if ( post_login_input->deactivated_boolean )
 		return post_login_input;

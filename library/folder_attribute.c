@@ -766,6 +766,16 @@ boolean folder_attribute_exists(
 		char *folder_name,
 		char *attribute_name )
 {
+	return
+	folder_attribute_boolean(
+		folder_name,
+		attribute_name );
+}
+
+boolean folder_attribute_boolean(
+		char *folder_name,
+		char *attribute_name )
+{
 	if ( !folder_name
 	||   !attribute_name )
 	{
