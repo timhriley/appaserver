@@ -111,7 +111,7 @@ INVENTORY_SALE *inventory_sale_parse( char *input )
 	return inventory_sale;
 }
 
-char *inventory_sale_update_system_string(
+char *inventory_sale_list_update_system_string(
 		const char *inventory_sale_table,
 		LIST *primary_key_list )
 {
@@ -269,7 +269,7 @@ double inventory_sale_CGS_total( LIST *inventory_sale_list )
 	return total;
 }
 
-LIST *inventory_sale_primary_key_list(
+LIST *inventory_sale_list_primary_key_list(
 		const char *sale_inventory_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
@@ -543,7 +543,7 @@ INVENTORY_SALE *inventory_sale_trigger(
 			inventory_sale->sale_extended_price );
 
 	inventory_sale->primary_key_list =
-		inventory_sale_primary_key_list(
+		inventory_sale_list_primary_key_list(
 			SALE_INVENTORY_COLUMN,
 			fund_boolean,
 			contact_key_boolean );
@@ -594,5 +594,167 @@ char *inventory_sale_cost_where(
 		transaction_date_time_column /* inventory_arrived_column */,
 		inventory_name,
 		completed_date_time /* arrived_date_time */ );
+}
+
+INVENTORY_SALE_LIST *inventory_sale_list_new(
+		const char *inventory_sale_select,
+		const char *inventory_sale_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *where )
+{
+}
+
+
+INVENTORY_SALE_LIST *inventory_sale_list_calloc( void )
+{
+	INVENTORY_SALE_LIST *inventory_sale_list;
+
+	if ( ! ( inventory_sale_list =
+			calloc( 1,
+				sizeof ( INVENTORY_SALE_LIST ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return inventory_sale_list;
+}
+
+char *inventory_sale_list_select(
+		const char *inventory_sale_select,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	inventory_purchase_list_select(
+		inventory_sale_select /* inventory_purchase_select */,
+		fund_boolean,
+		contact_key_boolean );
+}
+
+char *inventory_sale_list_system_string(
+		char *inventory_sale_select,
+		const char *inventory_sale_table,
+		char *where,
+		const char *sale_completed_column )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	inventory_purchase_list_system_string(
+		inventory_sale_list_select /* inventory_purchase_list_select */,
+		inventory_sale_table /* inventory_purchase_table */,
+		where,
+		sale_completed_column /* inventory_arrived_column */ );
+}
+
+INVENTORY_SALE_LIST *inventory_sale_list_new(
+		const char *inventory_sale_select,
+		const char *inventory_sale_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *where )
+{
+	char *select_string;
+	char *system_string;
+	FILE *input_pipe;
+	char input[ 1024 ];
+	INVENTORY_SALE *inventory_sale;
+	INVENTORY_SALE_LIST *inventory_sale_list;
+
+	if ( !where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"where is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_sale_list = inventory_sale_list_calloc();
+
+	inventory_sale_list->list = list_new();
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		inventory_sale_list_select_string(
+			inventory_sale_select,
+			fund_boolean,
+			contact_key_boolean );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		inventory_sale_list_system_string(
+			select_string,
+			inventory_sale_table,
+			where,
+			SALE_COMPLETED_DATE_COLUMN
+				/* For order clause */ );
+
+	free( select_string );
+
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
+
+	free( system_string );
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	{
+		inventory_sale =
+			/* -------------- */
+			/* Should succeed */
+			/* -------------- */
+			inventory_sale_parse(
+				fund_boolean,
+				contact_key_boolean,
+				input );
+
+		list_set( inventory_sale_list->list, inventory_sale );
+	}
+
+	pclose( input_pipe );
+
+	if ( !list_length( inventory_sale_list->list ) )
+		return inventory_sale_list;
+
+	inventory_sale_list->primary_key_list =
+		inventory_sale_list_primary_key_list(
+			SALE_INVENTORY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	inventory_sale_list->update_system_string =
+		inventory_sale_list_update_system_string(
+			inventory_sale_table,
+			inventory_sale_list->primary_key_list );
+
+	return inventory_sale_list;
 }
 

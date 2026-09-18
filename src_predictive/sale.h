@@ -33,6 +33,7 @@
 #define SALE_SERIAL_KEY_COLUMN		"serial_key"
 #define SALE_BEGIN_WORK_COLUMN		"begin_work_date_time"
 #define SALE_PAYMENT_DATE_COLUMN	"payment_date_time"
+#define SALE_COMPLETED_DATE_COLUMN	"completed_date_time"
 #define SALE_MEMO			"Customer Sale"
 
 typedef struct

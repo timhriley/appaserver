@@ -65,6 +65,7 @@ INVENTORY_SALE *inventory_sale_calloc(
 
 /* Usage */
 /* ----- */
+/* To retire */
 INVENTORY_SALE *inventory_sale_trigger(
 		char *fund_name,
 		char *full_name,
@@ -91,11 +92,6 @@ char *inventory_sale_primary_where(
 
 /* Usage */
 /* ----- */
-double inventory_sale_total(
-		LIST *inventory_sale_list );
-
-/* Usage */
-/* ----- */
 double inventory_sale_CGS_total(
 		LIST *inventory_sale_list );
 
@@ -107,22 +103,6 @@ double inventory_sale_CGS_total(
 char *inventory_sale_update_string(
 		char *inventory_sale_primary_data_string,
 		double sale_extended_price );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *inventory_sale_update_system_string(
-		const char *inventory_sale_table,
-		LIST *inventory_sale_primary_key_list );
-
-/* Usage */
-/* ----- */
-LIST *inventory_sale_primary_key_list(
-		const char *sale_inventory_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -162,5 +142,70 @@ char *inventory_sale_join(
 		const char *entity_full_name_column,
 		const char *entity_contact_key_column,
 		const char *sale_date_time_column,
+		boolean entity_contact_key_boolean );
+
+typedef struct
+{
+	LIST *list;
+	LIST *primary_key_list;
+	char *update_system_string;
+
+	/* Set externally */
+	/* -------------- */
+	LIST *update_string_list;
+} INVENTORY_SALE_LIST;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+INVENTORY_SALE_LIST *inventory_sale_list_new(
+		const char *inventory_sale_select,
+		const char *inventory_sale_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *where );
+
+/* Process */
+/* ------- */
+INVENTORY_SALE_LIST *inventory_sale_list_calloc(
+		void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_list_select(
+		const char *inventory_sale_select,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_list_system_string(
+		char *inventory_sale_list_select,
+		const char *inventory_sale_table,
+		char *where,
+		const char *sale_completed_date_column
+			/* For order clause */ );
+
+/* Usage */
+/* ----- */
+double inventory_sale_list_total(
+		LIST *inventory_sale_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_sale_list_update_system_string(
+		const char *inventory_sale_table,
+		LIST *inventory_sale_primary_key_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_sale_list_primary_key_list(
+		const char *sale_inventory_column,
+		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 

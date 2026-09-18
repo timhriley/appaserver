@@ -1,0 +1,200 @@
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/src_predictive/inventory_average.c			*/
+/* -------------------------------------------------------------------- */
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* -------------------------------------------------------------------- */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "entity.h"
+#include "predictive.h"
+#include "inventory.h"
+#include "sale.h"
+#include "inventory_purchase.h"
+#include "inventory_sale.h"
+#include "inventory_average.h"
+
+INVENTORY_AVERAGE *inventory_average_new(
+		char *inventory_name,
+		char *arrived_date_time
+		char *completed_date_time )
+{
+	INVENTORY_AVERAGE *inventory_average;
+
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !arrived_date_time
+	&&   !completed_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+		"both arrived_date_time and completed_date_time are empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_average = inventory_average_calloc();
+
+	inventory_average->predictive_fund_boolean =
+		predictive_fund_boolean(
+			PREDICTIVE_FUND_TABLE,
+			PREDICTIVE_FUND_COLUMN );
+
+	inventory_average->entity_contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	inventory_average->cost_date_time =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		inventory_average_cost_date_time(
+			arrived_date_time,
+			completed_date_time );
+
+	inventory_average->inventory_purchase_cost_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		inventory_purchase_cost_where(
+			INVENTORY_PURCHASE_TABLE,
+			SALE_INVENTORY_COLUMN,
+			INVENTORY_ARRIVED_COLUMN,
+			inventory_name,
+			inventory_average->cost_date_time
+				/* arrived_date_time */ );
+
+	if ( !inventory_average->inventory_purchase_cost_where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_purchase_cost_where(%s,%s) returned empty.",
+			inventory_name,
+			inventory_average->cost_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_average->inventory_purchase_list_new =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		inventory_purchase_list_new(
+			INVENTORY_PURCHASE_SELECT,
+			INVENTORY_PURCHASE_TABLE,
+			inventory_average->predictive_fund_boolean,
+			inventory_average->entity_contact_key_boolean,
+			inventory_average->inventory_purchase_cost_where );
+
+	inventory_average->inventory_sale_cost_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		inventory_sale_cost_where(
+			INVENTORY_SALE_TABLE,
+			SALE_INVENTORY_COLUMN,
+			TRANSACTION_DATE_TIME_COLUMN,
+			inventory_name,
+			inventory_average->cost_date_time
+				/* completed_date_time */ );
+
+	if ( !inventory_average->inventory_sale_cost_where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_sale_cost_where(%s,%s) returned empty.",
+			inventory_name,
+			inventory_average->cost_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_average->inventory_sale_list_new =
+		inventory_sale_list_new(
+			INVENTORY_SALE_SELECT,
+			INVENTORY_SALE_TABLE,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			inventory_sale_cost_where() );
+
+LIST *inventory_balance_list(
+	inventory_purchase_list_new()->list
+		/* inventory_purchase_list */,
+	inventory_sale_list_new()->list
+		/* inventory_sale_list */ );
+
+LIST *inventory_average_cost_list(
+	inventory_balance_list() );
+
+	return inventory_average;
+}
+
+INVENTORY_AVERAGE *inventory_average_calloc( void )
+{
+	INVENTORY_AVERAGE *inventory_average;
+
+	if ( ! ( inventory_average =
+			calloc( 1, sizeof ( INVENTORY_AVERAGE ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return inventory_average;
+}
+
+char *inventory_average_cost_date_time(
+		char *arrived_date_time,
+		char *completed_date_time )
+{
+	if ( arrived_date_time )
+		return arrived_date_time;
+	else
+		return completed_date_time;
+}
