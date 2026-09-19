@@ -8,18 +8,25 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "inventory_average.h"
 
-#define INVENTORY_SALE_TABLE			"inventory_sale"
-
-#define INVENTORY_SALE_SELECT			"inventory_name,"	\
+#define INVENTORY_SALE_SELECT			"full_name,"		\
+						"sale_date_time,"	\
+						"inventory_name,"	\
 						"quantity,"		\
 						"retail_price,"		\
 						"discount_amount,"	\
 						"extended_price,"	\
 						"cost_of_goods_sold"
 
+#define INVENTORY_SALE_TABLE			"inventory_sale"
+
 typedef struct
 {
+	char *fund_name;
+	char *full_name;
+	char *contact_key;
+	char *sale_date_time;
 	char *inventory_name;
 	int quantity;
 	double retail_price;
@@ -27,27 +34,16 @@ typedef struct
 	double extended_price;
 	double cost_of_goods_sold;
 	double sale_extended_price;
-	char *primary_data_string;
-	char *update_string;
-	LIST *primary_key_list;
-	char *update_system_string;
+	INVENTORY_AVERAGE *inventory_average;
+	LIST *update_string_list;
 } INVENTORY_SALE;
 
 /* Usage */
 /* ----- */
-LIST *inventory_sale_list(
-		const char *inventory_sale_select,
-		const char *inventory_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
 INVENTORY_SALE *inventory_sale_parse(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *completed_date_time,
 		char *input );
 
 /* Usage */
@@ -65,15 +61,18 @@ INVENTORY_SALE *inventory_sale_calloc(
 
 /* Usage */
 /* ----- */
-/* To retire */
-INVENTORY_SALE *inventory_sale_trigger(
+LIST *inventory_sale_update_string_list(
+		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
 		char *inventory_name,
 		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
+		boolean entity_contact_key_boolean,
+		double extended_price,
+		double sale_extended_price,
+		LIST *inventory_average_cost_list );
 
 /* Usage */
 /* ----- */
@@ -92,17 +91,11 @@ char *inventory_sale_primary_where(
 
 /* Usage */
 /* ----- */
-double inventory_sale_CGS_total(
-		LIST *inventory_sale_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *inventory_sale_update_string(
-		char *inventory_sale_primary_data_string,
-		double sale_extended_price );
+LIST *inventory_sale_cost_quantity_update_string_list(
+		const char sql_delimiter,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_average_cost_list );
 
 /* Usage */
 /* ----- */
@@ -149,10 +142,9 @@ typedef struct
 	LIST *list;
 	LIST *primary_key_list;
 	char *update_system_string;
-
-	/* Set externally */
-	/* -------------- */
 	LIST *update_string_list;
+	double extended_total;
+	double CGS_total;
 } INVENTORY_SALE_LIST;
 
 /* Usage */
@@ -165,6 +157,7 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		char *completed_date_time,
 		char *where );
 
 /* Process */
@@ -190,8 +183,10 @@ char *inventory_sale_list_system_string(
 
 /* Usage */
 /* ----- */
-double inventory_sale_list_total(
-		LIST *inventory_sale_list );
+LIST *inventory_sale_list_primary_key_list(
+		const char *sale_inventory_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -199,13 +194,21 @@ double inventory_sale_list_total(
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_list_update_system_string(
-		const char *inventory_sale_table,
+		const char *INVENTORY_SALE_TABLE,
 		LIST *inventory_sale_primary_key_list );
 
 /* Usage */
 /* ----- */
-LIST *inventory_sale_list_primary_key_list(
-		const char *sale_inventory_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
+LIST *inventory_sale_list_update_string_list(
+		LIST *inventory_sale_list );
+
+/* Usage */
+/* ----- */
+double inventory_sale_list_extended_total(
+		LIST *inventory_sale_list );
+
+/* Usage */
+/* ----- */
+double inventory_sale_list_CGS_total(
+		LIST *inventory_sale_list );
 

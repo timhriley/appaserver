@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "date.h"
+#include "float.h"
 #include "sql.h"
 #include "entity.h"
 #include "security.h"
@@ -19,8 +20,7 @@
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 
-INVENTORY_SALE *inventory_sale_new(
-		char *inventory_name )
+INVENTORY_SALE *inventory_sale_new( char *inventory_name )
 {
 	INVENTORY_SALE *inventory_sale;
 
@@ -71,42 +71,99 @@ INVENTORY_SALE *inventory_sale_calloc( void )
 	return inventory_sale;
 }
 
-INVENTORY_SALE *inventory_sale_parse( char *input )
+INVENTORY_SALE *inventory_sale_parse(
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		char *completed_date_time,
+		char *input )
 {
 	INVENTORY_SALE *inventory_sale;
 	char inventory_name[ 128 ];
 	char buffer[ 128 ];
+	INVENTORY_AVERAGE *inventory_average = {0};
+	int piece_offset;
 
 	if ( !input || !*input ) return NULL;
 
-	piece( inventory_name, SQL_DELIMITER, input, 0 );
+	/* See inventory_sale_list_select() */
+	/* -------------------------------- */
+	piece( inventory_name, SQL_DELIMITER, input, 2 );
 
 	/* -------------- */
 	/* Safely returns */
 	/* -------------- */
 	inventory_sale = inventory_sale_new( strdup( inventory_name ) );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	if ( *buffer ) inventory_sale->quantity = atoi( buffer );
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	if ( *buffer ) inventory_sale->full_name = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer ) inventory_sale->retail_price = atof( buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) inventory_sale->sale_date_time = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) inventory_sale->discount_amount = atof( buffer );
+	if ( *buffer ) inventory_sale->quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer ) inventory_sale->extended_price = atof( buffer );
+	if ( *buffer ) inventory_sale->retail_price = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) inventory_sale->discount_amount = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) inventory_sale->extended_price = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer )
 		inventory_sale->cost_of_goods_sold = atof( buffer );
+
+	piece_offset = 8;
+
+	if ( fund_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset++ );
+		if ( *buffer )
+			inventory_sale->fund_name =
+				strdup( buffer );
+	}
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset );
+		if ( *buffer )
+			inventory_sale->contact_key =
+				strdup( buffer );
+	}
 
 	inventory_sale->sale_extended_price =
 		SALE_EXTENDED_PRICE(
 			inventory_sale->retail_price,
 			inventory_sale->quantity,
 			inventory_sale->discount_amount );
+
+	if ( completed_date_time )
+	{
+		inventory_average =
+			inventory_average_new(
+				inventory_sale->inventory_name,
+				(char *)0 /* arrived_date_time */,
+				completed_date_time );
+	}
+
+	inventory_sale->update_string_list =
+		inventory_sale_update_string_list(
+			SQL_DELIMITER,
+			fund_name,
+			full_name,
+			contact_key,
+			sale_date_time,
+			inventory_name,
+			predictive_fund_boolean,
+			entity_contact_key_boolean,
+			extended_price,
+			sale_extended_price,
+			(inventory_average)
+				? inventory_average->cost_list
+				: NULL );
 
 	return inventory_sale;
 }
@@ -124,122 +181,75 @@ char *inventory_sale_list_update_system_string(
 		primary_key_list );
 }
 
-char *inventory_sale_update_string(
-		char *primary_data_string,
-		double sale_extended_price )
-{
-	char update_string[ 1024 ];
-
-	if ( !primary_data_string )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"primary_data_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		update_string,
-		sizeof ( update_string ),
-	 	"%s^extended_price^%.2lf\n",
-		primary_data_string,
-		sale_extended_price );
-
-	return strdup( update_string );
-}
-
-LIST *inventory_sale_list(
-		const char *inventory_sale_select,
-		const char *inventory_sale_table,
+LIST *inventory_sale_update_string_list(
+		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
+		char *inventory_name,
 		boolean fund_boolean,
-		boolean contact_key_boolean )
+		boolean contact_key_boolean,
+		double extended_price,
+		double sale_extended_price,
+		LIST *inventory_average_cost_list )
 {
-	char *where;
 	LIST *list = list_new();
-	char *system_string;
-	FILE *input_pipe;
-	char input[ 1024 ];
-	INVENTORY_SALE *inventory_sale;
+	char *primary_data_string;
+	char *update_string;
+	LIST *cost_quantity_update_string_list;
 
-	if ( !full_name
-	||   !sale_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		sale_primary_where(
-			SALE_DATE_TIME_COLUMN,
+	primary_data_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		inventory_sale_primary_data_string(
+			sql_delimiter,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
+			inventory_name,
 			fund_boolean,
 			contact_key_boolean );
 
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			(char *)inventory_sale_select,
-			(char *)inventory_sale_table,
-			where );
-
-	/* -------------- */
-	/* Safely returns */
-	/* -------------- */
-	input_pipe = appaserver_input_pipe( system_string );
-
-	free( system_string );
-
-	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	if ( !float_money_virtually_same(
+		extended_price,
+		sale_extended_price ) )
 	{
-		/* Shouldn't fail */
-		/* -------------- */
-		inventory_sale = inventory_sale_parse( input );
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				sql_delimiter,
+				primary_data_string,
+				"extended_price" /* column_name */,
+				sale_extended_price /* money */,
+				1 /* set_boolean */ );
 
-		list_set( list, inventory_sale );
+		list_set( list, update_string );
 	}
 
-	pclose( input_pipe );
+	free( primary_data_string );
 
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
+	cost_quantity_update_string_list =
+		inventory_sale_cost_quantity_update_string_list(
+			sql_delimiter,
+			fund_boolean,
+			contact_key_boolean,
+			inventory_average_cost_list );
+
+	list_set_list(
+		list,
+		cost_quantity_update_string_list );
+
+	list_free_container( cost_quantity_update_string_list );
 
 	return list;
 }
 
-double inventory_sale_total( LIST *inventory_sale_list )
+double inventory_sale_list_extended_total( LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
 	double total = 0.0;
@@ -254,15 +264,54 @@ double inventory_sale_total( LIST *inventory_sale_list )
 	return total;
 }
 
-double inventory_sale_CGS_total( LIST *inventory_sale_list )
+double inventory_sale_list_CGS_total( LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
 	double total = 0.0;
 
 	if ( list_rewind( inventory_sale_list ) )
 	do {
 		inventory_sale = list_get( inventory_sale_list );
-		total += inventory_sale->cost_of_goods_sold;
+
+		if ( !inventory_sale->inventory_average )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"inventory_sale->inventory_average is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( list_rewind(
+			inventory_sale->
+				inventory_average->
+				cost_list ) )
+		do {
+			inventory_average_cost =
+				list_get(
+					inventory_sale->
+						average->
+						cost_list );
+
+			if ( inventory_average_cost->inventory_sale )
+			{
+				total +=
+					inventory_average_cost->
+						cost_of_goods_sold;
+			}
+
+		} while ( list_next(
+				inventory_sale->
+					inventory_average->
+					cost_list ) );
 
 	} while( list_next( inventory_sale_list ) );
 
@@ -450,115 +499,6 @@ char *inventory_sale_primary_where(
 	return strdup( where );
 }
 
-INVENTORY_SALE *inventory_sale_trigger(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *inventory_name,
-		boolean fund_boolean,
-		boolean contact_key_boolean )
-{
-	char *primary_where;
-	char *system_string;
-	char *input;
-	INVENTORY_SALE *inventory_sale;
-
-	if ( !full_name
-	||   !sale_date_time
-	||   !inventory_name )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	primary_where =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		inventory_sale_primary_where(
-			SALE_INVENTORY_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			inventory_name,
-			fund_boolean,
-			contact_key_boolean );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			INVENTORY_SALE_SELECT,
-			INVENTORY_SALE_TABLE,
-			primary_where );
-
-	free( primary_where );
-
-	input =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		string_system_input(
-			system_string );
-
-	free( system_string );
-
-	if ( !input ) return NULL;
-
-	/* -------------- */
-	/* Shouldn't fail */
-	/* -------------- */
-	inventory_sale = inventory_sale_parse( input );
-
-	inventory_sale->primary_data_string =
-		inventory_sale_primary_data_string(
-			SQL_DELIMITER,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			inventory_sale->inventory_name,
-			fund_boolean,
-			contact_key_boolean );
-
-	inventory_sale->update_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		inventory_sale_update_string(
-			inventory_sale->primary_data_string,
-			inventory_sale->sale_extended_price );
-
-	inventory_sale->primary_key_list =
-		inventory_sale_list_primary_key_list(
-			SALE_INVENTORY_COLUMN,
-			fund_boolean,
-			contact_key_boolean );
-
-	inventory_sale->update_system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		inventory_sale_update_system_string(
-			INVENTORY_SALE_TABLE,
-			inventory_sale->primary_key_list );
-
-	return inventory_sale;
-}
-
 char *inventory_sale_cost_where(
 		const char *inventory_sale_table,
 		const char *sale_inventory_column,
@@ -595,16 +535,6 @@ char *inventory_sale_cost_where(
 		inventory_name,
 		completed_date_time /* arrived_date_time */ );
 }
-
-INVENTORY_SALE_LIST *inventory_sale_list_new(
-		const char *inventory_sale_select,
-		const char *inventory_sale_table,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		char *where )
-{
-}
-
 
 INVENTORY_SALE_LIST *inventory_sale_list_calloc( void )
 {
@@ -668,9 +598,10 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		char *completed_date_time,
 		char *where )
 {
-	char *select_string;
+	char *select;
 	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -697,11 +628,11 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 
 	inventory_sale_list->list = list_new();
 
-	select_string =
+	select =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		inventory_sale_list_select_string(
+		inventory_sale_list_select(
 			inventory_sale_select,
 			fund_boolean,
 			contact_key_boolean );
@@ -711,13 +642,13 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		inventory_sale_list_system_string(
-			select_string,
+			select,
 			inventory_sale_table,
 			where,
 			SALE_COMPLETED_DATE_COLUMN
 				/* For order clause */ );
 
-	free( select_string );
+	free( select );
 
 	/* Safely returns */
 	/* -------------- */
@@ -734,6 +665,7 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 			inventory_sale_parse(
 				fund_boolean,
 				contact_key_boolean,
+				completed_date_time,
 				input );
 
 		list_set( inventory_sale_list->list, inventory_sale );
@@ -755,6 +687,118 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 			inventory_sale_table,
 			inventory_sale_list->primary_key_list );
 
+	inventory_sale_list->update_string_list =
+		inventory_sale_list_update_string_list(
+			list /* inventory_sale_list */ );
+
+	inventory_sale_list->extended_total =
+		inventory_sale_list_extended_total(
+			list /* inventory_sale_list */ );
+
+	inventory_sale_list->CGS_total =
+		inventory_sale_list_CGS_total(
+		list /* inventory_sale_list */ );
+
 	return inventory_sale_list;
+}
+
+char *inventory_sale_list_select(
+		const char *inventory_sale_select,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	inventory_purchase_list_select(
+		inventory_sale_select /* inventory_purchase_select */,
+		fund_boolean,
+		contact_key_boolean );
+}
+
+LIST *inventory_sale_cost_quantity_update_string_list(
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		LIST *inventory_average_cost_list )
+{
+
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+	LIST *list = list_new();
+	char *primary_data_string;
+	char *update_string;
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		if ( !inventory_average_cost->inventory_sale ) continue;
+
+		primary_data_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_sale_primary_data_string(
+				SQL_DELIMITER,
+				inventory_average_cost->
+					inventory_sale->
+					fund_name,
+				inventory_average_cost->
+					inventory_sale->
+					full_name,
+				inventory_average_cost->
+					inventory_sale->
+					contact_key,
+				inventory_average_cost->
+					inventory_sale->
+					purchase_date_time,
+				inventory_average_cost->
+					inventory_sale->
+					inventory_name,
+				fund_boolean,
+				contact_key_boolean );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_integer_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"quantity_on_hand" /* column_name */,
+				inventory_averge_cost->
+					quantity_on_hand /* integer */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+		free( update_string );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"cost_of_goods_sold" /* column_name */,
+				inventory_average_cost->
+					cost_of_goods_sold /* money */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+		free( update_string );
+		free( primary_data_string );
+
+	} while ( list_next( inventory_average_cost_list ) );
+	
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 

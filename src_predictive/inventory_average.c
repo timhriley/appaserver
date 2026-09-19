@@ -12,6 +12,7 @@
 #include "sale.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
+#include "inventory_balance.h"
 #include "inventory_average.h"
 
 INVENTORY_AVERAGE *inventory_average_new(
@@ -20,6 +21,8 @@ INVENTORY_AVERAGE *inventory_average_new(
 		char *completed_date_time )
 {
 	INVENTORY_AVERAGE *inventory_average;
+	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
+	INVENTORY_SALE_LIST *inventory_sale_list;
 
 	if ( !inventory_name )
 	{
@@ -104,7 +107,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message );
 	}
 
-	inventory_average->inventory_purchase_list_new =
+	inventory_purchase_list =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
@@ -114,6 +117,11 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->predictive_fund_boolean,
 			inventory_average->entity_contact_key_boolean,
 			inventory_average->inventory_purchase_cost_where );
+
+	inventory_average->purchase_list =
+		inventory_average_purchase_list(
+			inventory_purchase_list->list
+				/* inventory_purchase_list */ );
 
 	inventory_average->inventory_sale_cost_where =
 		/* --------------------------- */
@@ -145,22 +153,32 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message );
 	}
 
-	inventory_average->inventory_sale_list_new =
+	inventory_sale_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		inventory_sale_list_new(
 			INVENTORY_SALE_SELECT,
 			INVENTORY_SALE_TABLE,
-			predictive_fund_boolean,
-			entity_contact_key_boolean,
-			inventory_sale_cost_where() );
+			inventory_average->predictive_fund_boolean,
+			inventory_average->entity_contact_key_boolean,
+			inventory_average->inventory_sale_cost_where );
 
-LIST *inventory_balance_list(
-	inventory_purchase_list_new()->list
-		/* inventory_purchase_list */,
-	inventory_sale_list_new()->list
-		/* inventory_sale_list */ );
+	inventory_average->sale_list =
+		inventory_average_sale_list(
+			inventory_sale_list->list
+				/* inventory_sale_list */ );
 
-LIST *inventory_average_cost_list(
-	inventory_balance_list() );
+	inventory_average->inventory_balance_list =
+		inventory_balance_list(
+			inventory_average->purchase_list
+				/* inventory_purchase_list */,
+			inventory_average->sale_list
+				/* inventory_sale_list */ );
+
+	inventory_average->inventory_average_cost_list =
+		inventory_average_cost_list(
+			inventory_average->inventory_balance_list );
 
 	return inventory_average;
 }
@@ -198,3 +216,14 @@ char *inventory_average_cost_date_time(
 	else
 		return completed_date_time;
 }
+
+LIST *inventory_average_purchase_list( LIST *inventory_purchase_list )
+{
+	return inventory_purchase_list;
+}
+
+LIST *inventory_average_sale_list( LIST *inventory_sale_list )
+{
+	return inventory_sale_list;
+}
+

@@ -31,7 +31,7 @@ void list_free_container( LIST *list )
 	while ( list->num_in_list )
 	{
 	/* ------------------------------------------------------------ */
-	/* This function deletes the link that current is pointing to	*/
+	/* This function deletes the link that current is pointing to   */
 	/* but not the datum.						*/
 	/* ------------------------------------------------------------ */
 		list_delete( list );

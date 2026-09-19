@@ -128,6 +128,7 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	char inventory_name[ 128 ];
 	char buffer[ 128 ];
 	INVENTORY_PURCHASE *inventory_purchase;
+	int piece_offset;
 
 	if ( !input || !*input ) return NULL;
 
@@ -174,9 +175,11 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
+	piece_offset = 11;
+
 	if ( fund_boolean )
 	{
-		piece( buffer, SQL_DELIMITER, input, 11 );
+		piece( buffer, SQL_DELIMITER, input, piece_offset++ );
 		if ( *buffer )
 			inventory_purchase->fund_name =
 				strdup( buffer );
@@ -184,7 +187,7 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 
 	if ( contact_key_boolean )
 	{
-		piece( buffer, SQL_DELIMITER, input, 12 );
+		piece( buffer, SQL_DELIMITER, input, piece_offset );
 		if ( *buffer )
 			inventory_purchase->contact_key =
 				strdup( buffer );
