@@ -22,13 +22,12 @@ CLOSE_TRANSACTION *close_transaction_new(
 		LIST *element_statement_list,
 		LIST *equity_subclassification_statement_list,
 		char *self_full_name,
-		char *self_street_address )
+		char *self_contact_key )
 {
 	CLOSE_TRANSACTION *close_transaction;
 
 	if ( !transaction_date_close_date_time
-	||   !self_full_name
-	||   !self_street_address )
+	||   !self_full_name )
 	{
 		char message[ 128 ];
 
@@ -66,7 +65,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 			transaction_date_close_date_time,
 			element_statement_list,
 			self_full_name,
-			self_street_address );
+			self_contact_key );
 
 	close_transaction->close_account_list =
 		close_account_list(
@@ -81,7 +80,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 			transaction_date_close_date_time,
 			equity_subclassification_statement_list,
 			self_full_name,
-			self_street_address,
+			self_contact_key,
 			-1 /* element_accumulate_debit */ );
 
 	close_account_list_journal_accumulate(
@@ -116,7 +115,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 			transaction_new(
 				(char *)0 /* fund_name */,
 				self_full_name,
-				self_street_address,
+				self_contact_key,
 				transaction_date_close_date_time );
 
 		close_transaction->transaction->transaction_amount =
@@ -200,14 +199,13 @@ LIST *close_transaction_nominal_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *element_statement_list,
 		char *self_full_name,
-		char *self_street_address )
+		char *self_contact_key )
 {
 	LIST *journal_list = list_new();
 	ELEMENT *element;
 
 	if ( !transaction_date_close_date_time
-	||   !self_full_name
-	||   !self_street_address )
+	||   !self_full_name )
 	{
 		char message[ 128 ];
 
@@ -233,7 +231,7 @@ LIST *close_transaction_nominal_journal_list(
 				transaction_date_close_date_time,
 				element->subclassification_statement_list,
 				self_full_name,
-				self_street_address,
+				self_contact_key,
 				element->accumulate_debit ) );
 
 	} while ( list_next( element_statement_list ) );
@@ -251,15 +249,14 @@ LIST *close_transaction_subclassification_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *subclassification_list,
 		char *self_full_name,
-		char *self_street_address,
+		char *self_contact_key,
 		boolean element_accumulate_debit )
 {
 	LIST *journal_list = list_new();
 	SUBCLASSIFICATION *subclassification;
 
 	if ( !transaction_date_close_date_time
-	||   !self_full_name
-	||   !self_street_address )
+	||   !self_full_name )
 	{
 		char message[ 128 ];
 
@@ -285,7 +282,7 @@ LIST *close_transaction_subclassification_journal_list(
 				transaction_date_close_date_time,
 				subclassification->account_statement_list,
 				self_full_name,
-				self_street_address,
+				self_contact_key,
 				subclassification_accumulate_debit(
 					element_accumulate_debit,
 					subclassification->element ) ) );
@@ -305,7 +302,7 @@ LIST *close_transaction_account_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *account_list,
 		char *self_full_name,
-		char *self_street_address,
+		char *self_contact_key,
 		boolean element_accumulate_debit )
 {
 	LIST *journal_list = list_new();
@@ -313,8 +310,7 @@ LIST *close_transaction_account_journal_list(
 	JOURNAL *journal;
 
 	if ( !transaction_date_close_date_time
-	||   !self_full_name
-	||   !self_street_address )
+	||   !self_full_name )
 	{
 		char message[ 128 ];
 
@@ -344,7 +340,7 @@ LIST *close_transaction_account_journal_list(
 			journal_new(
 				(char *)0 /* fund_name */,
 				self_full_name,
-				self_street_address,
+				self_contact_key,
 				transaction_date_close_date_time,
 				account->account_name );
 

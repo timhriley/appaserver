@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CLOSE_TRANSACTION_H
-#define CLOSE_TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -35,7 +34,7 @@ CLOSE_TRANSACTION *close_transaction_new(
 		LIST *element_statement_list,
 		LIST *equity_subclassification_statement_list,
 		char *self_full_name,
-		char *self_street_address );
+		char *self_contact_key );
 
 /* Process */
 /* ------- */
@@ -53,7 +52,7 @@ LIST *close_transaction_nominal_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *element_statement_list,
 		char *self_full_name,
-		char *self_street_address );
+		char *self_contact_key );
 
 /* Usage */
 /* ----- */
@@ -61,7 +60,7 @@ LIST *close_transaction_subclassification_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *subclassification_list,
 		char *self_full_name,
-		char *self_street_address,
+		char *self_contact_key,
 		boolean element_accumulate_debit );
 
 /* Usage */
@@ -70,7 +69,7 @@ LIST *close_transaction_account_journal_list(
 		char *transaction_date_close_date_time,
 		LIST *account_list,
 		char *self_full_name,
-		char *self_street_address,
+		char *self_contact_key,
 		boolean element_accumulate_debit );
 
 /* Usage */
@@ -90,6 +89,4 @@ double close_transaction_credit_amount(
 /* ----- */
 double close_transaction_amount(
 		LIST *close_transaction_journal_list );
-
-#endif
 

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CLOSE_NOMINAL_H
-#define CLOSE_NOMINAL_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -170,4 +169,3 @@ char *close_nominal_undo_execute_message(
 char *close_nominal_undo_no_execute_message(
 		void );
 
-#endif
