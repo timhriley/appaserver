@@ -10,13 +10,13 @@
 #include "list.h"
 #include "cost_basis.h"
 
-#define SPECIFIC_INVENTORY_PURCHASE_TABLE	"specific_inventory_purchase"
-
 #define SPECIFIC_INVENTORY_PURCHASE_SELECT	"inventory_name,"	\
 						"serial_key,"		\
 						"unit_cost,"		\
 						"retail_price,"		\
 						"cost_basis"
+
+#define SPECIFIC_INVENTORY_PURCHASE_TABLE	"specific_inventory_purchase"
 
 typedef struct
 {

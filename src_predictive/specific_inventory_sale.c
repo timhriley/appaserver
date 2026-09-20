@@ -402,7 +402,7 @@ LIST *specific_inventory_sale_primary_key_list(
 	LIST *primary_key_list;
 
 	primary_key_list =
-		inventory_sale_primary_key_list(
+		inventory_sale_list_primary_key_list(
 			sale_inventory_column,
 			fund_boolean,
 			contact_key_boolean );

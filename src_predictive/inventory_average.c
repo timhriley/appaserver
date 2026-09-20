@@ -8,16 +8,18 @@
 #include <stdlib.h>
 #include "entity.h"
 #include "predictive.h"
+#include "appaserver_error.h"
 #include "inventory.h"
 #include "sale.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 #include "inventory_balance.h"
+#include "inventory_average_cost.h"
 #include "inventory_average.h"
 
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
-		char *arrived_date_time
+		char *arrived_date_time,
 		char *sale_date_time )
 {
 	INVENTORY_AVERAGE *inventory_average;

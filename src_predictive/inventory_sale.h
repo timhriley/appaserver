@@ -193,7 +193,7 @@ LIST *inventory_sale_list_primary_key_list(
 /* ------------------- */
 char *inventory_sale_list_update_system_string(
 		const char *inventory_sale_table,
-		LIST *inventory_sale_primary_key_list );
+		LIST *inventory_sale_list_primary_key_list );
 
 /* Usage */
 /* ----- */
