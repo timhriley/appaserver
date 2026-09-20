@@ -155,27 +155,30 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	if ( *buffer ) inventory_purchase->ordered_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer ) inventory_purchase->arrived_quantity = atoi( buffer );
+	if ( *buffer ) inventory_purchase->arrived_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer ) inventory_purchase->slippage_quantity = atoi( buffer );
+	if ( *buffer ) inventory_purchase->arrived_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
-	if ( *buffer ) inventory_purchase->unit_cost = atof( buffer );
+	if ( *buffer ) inventory_purchase->slippage_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
-	if ( *buffer ) inventory_purchase->extended_cost = atof( buffer );
+	if ( *buffer ) inventory_purchase->unit_cost = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 8 );
-	if ( *buffer ) inventory_purchase->cost_basis = atof( buffer );
+	if ( *buffer ) inventory_purchase->extended_cost = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 9 );
-	if ( *buffer ) inventory_purchase->quantity_on_hand = atoi( buffer );
+	if ( *buffer ) inventory_purchase->cost_basis = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 10 );
+	if ( *buffer ) inventory_purchase->quantity_on_hand = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 11 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
-	piece_offset = 11;
+	piece_offset = 12;
 
 	if ( fund_boolean )
 	{

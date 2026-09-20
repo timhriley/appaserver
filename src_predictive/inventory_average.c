@@ -18,7 +18,7 @@
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
 		char *arrived_date_time
-		char *completed_date_time )
+		char *sale_date_time )
 {
 	INVENTORY_AVERAGE *inventory_average;
 	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
@@ -41,14 +41,14 @@ INVENTORY_AVERAGE *inventory_average_new(
 	}
 
 	if ( !arrived_date_time
-	&&   !completed_date_time )
+	&&   !sale_date_time )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-		"both arrived_date_time and completed_date_time are empty." );
+		"both arrived_date_time and sale_date_time are empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -75,7 +75,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 		/* ------------------------ */
 		inventory_average_cost_date_time(
 			arrived_date_time,
-			completed_date_time );
+			sale_date_time );
 
 	inventory_average->inventory_purchase_cost_where =
 		/* --------------------------- */
@@ -133,7 +133,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 			TRANSACTION_DATE_TIME_COLUMN,
 			inventory_name,
 			inventory_average->cost_date_time
-				/* completed_date_time */ );
+				/* sale_date_time */ );
 
 	if ( !inventory_average->inventory_sale_cost_where )
 	{
@@ -209,12 +209,12 @@ INVENTORY_AVERAGE *inventory_average_calloc( void )
 
 char *inventory_average_cost_date_time(
 		char *arrived_date_time,
-		char *completed_date_time )
+		char *sale_date_time )
 {
 	if ( arrived_date_time )
 		return arrived_date_time;
 	else
-		return completed_date_time;
+		return sale_date_time;
 }
 
 LIST *inventory_average_purchase_list( LIST *inventory_purchase_list )

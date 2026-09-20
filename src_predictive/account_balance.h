@@ -11,14 +11,14 @@
 #include "spool.h"
 #include "investment_transaction.h"
 
-#define ACCOUNT_BALANCE_TABLE		"account_balance"
-
 #define ACCOUNT_BALANCE_SELECT		"full_name,"			\
 					"account_number,"		\
 					"date,"				\
 					"balance,"			\
 					"balance_change,"		\
 					"balance_change_percent"
+
+#define ACCOUNT_BALANCE_TABLE		"account_balance"
 
 #define ACCOUNT_BALANCE_PRIMARY_KEY	"full_name,"			\
 					"account_number,"		\

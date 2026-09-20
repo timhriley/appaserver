@@ -43,7 +43,6 @@ typedef struct
 INVENTORY_SALE *inventory_sale_parse(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *completed_date_time,
 		char *input );
 
 /* Usage */
@@ -107,7 +106,7 @@ char *inventory_sale_cost_where(
 		const char *sale_inventory_column,
 		const char *transaction_date_time_column,
 		char *inventory_name,
-		char *completed_date_time );
+		char *sale_date_time );
 
 /* Usage */
 /* ----- */
@@ -157,7 +156,6 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *completed_date_time,
 		char *where );
 
 /* Process */
@@ -194,7 +192,7 @@ LIST *inventory_sale_list_primary_key_list(
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_list_update_system_string(
-		const char *INVENTORY_SALE_TABLE,
+		const char *inventory_sale_table,
 		LIST *inventory_sale_primary_key_list );
 
 /* Usage */

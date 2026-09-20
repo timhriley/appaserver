@@ -31,7 +31,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
 		char *arrived_date_time
 			/* Mutually exclusive */,
-		char *completed_date_time
+		char *sale_date_time
 			/* Mutually exclusive */ );
 
 /* Process */
@@ -43,7 +43,7 @@ INVENTORY_AVERAGE *inventory_average_calloc(
 /* ------------------------ */
 char *inventory_average_cost_date_time(
 		char *arrived_date_time,
-		char *completed_date_time );
+		char *sale_date_time );
 
 LIST *inventory_average_purchase_list(
 		LIST *inventory_purchase_list );

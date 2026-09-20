@@ -16,6 +16,7 @@
 					"inventory_name,"	\
 					"purchase_date_time,"	\
 					"ordered_quantity,"	\
+					"arrived_date_time,"	\
 					"arrived_quantity,"	\
 					"slippage_quantity,"	\
 					"unit_cost,"		\
@@ -32,6 +33,7 @@ typedef struct
 	char *purchase_date_time;
 	char *inventory_name;
 	int ordered_quantity;
+	char *arrived_date_time;
 	int arrived_quantity;
 	int slippage_quantity;
 	double unit_cost;

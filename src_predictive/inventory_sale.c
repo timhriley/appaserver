@@ -17,6 +17,7 @@
 #include "security.h"
 #include "optional_column.h"
 #include "sale.h"
+#include "inventory_average_cost.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 
@@ -74,13 +75,11 @@ INVENTORY_SALE *inventory_sale_calloc( void )
 INVENTORY_SALE *inventory_sale_parse(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		char *completed_date_time,
 		char *input )
 {
 	INVENTORY_SALE *inventory_sale;
 	char inventory_name[ 128 ];
 	char buffer[ 128 ];
-	INVENTORY_AVERAGE *inventory_average = {0};
 	int piece_offset;
 
 	if ( !input || !*input ) return NULL;
@@ -95,10 +94,10 @@ INVENTORY_SALE *inventory_sale_parse(
 	inventory_sale = inventory_sale_new( strdup( inventory_name ) );
 
 	piece( buffer, SQL_DELIMITER, input, 0 );
-	if ( *buffer ) inventory_sale->full_name = atoi( buffer );
+	if ( *buffer ) inventory_sale->full_name = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	if ( *buffer ) inventory_sale->sale_date_time = atoi( buffer );
+	if ( *buffer ) inventory_sale->sale_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
 	if ( *buffer ) inventory_sale->quantity = atoi( buffer );
@@ -140,29 +139,28 @@ INVENTORY_SALE *inventory_sale_parse(
 			inventory_sale->quantity,
 			inventory_sale->discount_amount );
 
-	if ( completed_date_time )
-	{
-		inventory_average =
-			inventory_average_new(
-				inventory_sale->inventory_name,
-				(char *)0 /* arrived_date_time */,
-				completed_date_time );
-	}
+	inventory_sale->inventory_average =
+		inventory_average_new(
+			inventory_sale->inventory_name,
+			(char *)0 /* arrived_date_time */,
+			inventory_sale->sale_date_time );
 
 	inventory_sale->update_string_list =
 		inventory_sale_update_string_list(
 			SQL_DELIMITER,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			inventory_name,
-			predictive_fund_boolean,
-			entity_contact_key_boolean,
-			extended_price,
-			sale_extended_price,
-			(inventory_average)
-				? inventory_average->cost_list
+			inventory_sale->fund_name,
+			inventory_sale->full_name,
+			inventory_sale->contact_key,
+			inventory_sale->sale_date_time,
+			inventory_sale->inventory_name,
+			fund_boolean,
+			contact_key_boolean,
+			inventory_sale->extended_price,
+			inventory_sale->sale_extended_price,
+			(inventory_sale->inventory_average)
+				? inventory_sale->
+					inventory_average->
+					inventory_average_cost_list
 				: NULL );
 
 	return inventory_sale;
@@ -504,8 +502,11 @@ char *inventory_sale_cost_where(
 		const char *sale_inventory_column,
 		const char *transaction_date_time_column,
 		char *inventory_name,
-		char *completed_date_time )
+		char *sale_date_time )
 {
+	char *purchase_cost_where;
+	char cost_where[ 1024 ];
+
 	if ( !inventory_name )
 	{
 		char message[ 1024 ];
@@ -522,18 +523,33 @@ char *inventory_sale_cost_where(
 			message );
 	}
 
-	if ( !completed_date_time ) return NULL;
+	if ( !sale_date_time ) return NULL;
 
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	inventory_purchase_cost_where(
-		inventory_sale_table /* inventory_purchase_table */,
-		sale_inventory_column,
-		transaction_date_time_column /* inventory_arrived_column */,
-		inventory_name,
-		completed_date_time /* arrived_date_time */ );
+	purchase_cost_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		inventory_purchase_cost_where(
+			inventory_sale_table
+				/* inventory_purchase_table */,
+			sale_inventory_column,
+			transaction_date_time_column
+				/* inventory_arrived_column */,
+			inventory_name,
+			sale_date_time
+				/* arrived_date_time */ );
+
+	if ( !purchase_cost_where ) return NULL;
+
+	snprintf(
+		cost_where,
+		sizeof ( cost_where ),
+		"%s and completed_date_time is not null",
+		purchase_cost_where );
+
+	free( purchase_cost_where );
+
+	return strdup( cost_where );
 }
 
 INVENTORY_SALE_LIST *inventory_sale_list_calloc( void )
@@ -598,7 +614,6 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *completed_date_time,
 		char *where )
 {
 	char *select;
@@ -665,7 +680,6 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 			inventory_sale_parse(
 				fund_boolean,
 				contact_key_boolean,
-				completed_date_time,
 				input );
 
 		list_set( inventory_sale_list->list, inventory_sale );
