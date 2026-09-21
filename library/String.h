@@ -271,6 +271,14 @@ char *string_escape_character(
 /* Usage */
 /* ----- */
 
+/* Returns static memory or "" */
+/* --------------------------- */
+char *string_commas_money_integer(
+		int i );
+
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* Trim pennies		 */
 /* ----------------------*/

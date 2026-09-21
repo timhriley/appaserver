@@ -660,7 +660,7 @@ char *budget_display( int budget_integer )
 			/* ----------------------- */
 			/* Returns static memory   */
 			/* ----------------------- */
-			string_commas_integer( budget_integer ) );
+			string_commas_money_integer( budget_integer ) );
 	}
 	else
 	{
@@ -768,7 +768,7 @@ LATEX_ROW *budget_latex_row(
 				/* ---------------------- */
 				/* Returns static memory. */
 				/* ---------------------- */
-				string_commas_integer(
+				string_commas_money_integer(
 					annualized_amount_integer ) ) ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1288,7 +1288,7 @@ HTML_ROW *budget_html_sum_row(
 				/* ---------------------- */
 				/* Returns static memory. */
 				/* ---------------------- */
-				string_commas_integer(
+				string_commas_money_integer(
 					annualized_amount_net ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
@@ -1300,7 +1300,7 @@ HTML_ROW *budget_html_sum_row(
 				/* ---------------------- */
 				/* Returns static memory. */
 				/* ---------------------- */
-				string_commas_integer(
+				string_commas_money_integer(
 					annualized_budget_net ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
@@ -1407,10 +1407,10 @@ HTML_ROW *budget_html_row(
 		cell_list,
 		html_cell_new(
 			strdup(
-				/* ---------------------- */
-				/* Returns static memory. */
-				/* ---------------------- */
-				string_commas_integer(
+				/* ---------------------------- */
+				/* Returns static memory or "". */
+				/* ---------------------------- */
+				string_commas_money_integer(
 					annualized_amount_integer ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
@@ -1570,7 +1570,7 @@ LATEX_ROW *budget_latex_sum_row(
 			     /* ---------------------- */
 			     /* Returns static memory. */
 			     /* ---------------------- */
-			     string_commas_integer(
+			     string_commas_money_integer(
 				    annualized_amount_net ) ) ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1585,7 +1585,7 @@ LATEX_ROW *budget_latex_sum_row(
 			     /* ---------------------- */
 			     /* Returns static memory. */
 			     /* ---------------------- */
-			     string_commas_integer(
+			     string_commas_money_integer(
 				    annualized_budget_net ) ) ) );
 
 	latex_column = list_get( latex_column_list );

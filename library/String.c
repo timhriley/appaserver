@@ -576,6 +576,30 @@ char *string_commas_round_dollar( double d )
 	string_commas_round_money( d );
 }
 
+char *string_commas_money_integer( int i )
+{
+	char s[ 64 ];
+	char *number_string;
+
+	sprintf( s, "%d", i );
+
+	/* Returns static memory or "" */
+	/* --------------------------- */
+	number_string = string_commas_number_string( s );
+
+	if ( i < 0 )
+	{
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_paren_money(
+			number_string /* money_string */ );
+	}
+
+	return number_string;
+}
+
 char *string_commas_round_money( double d )
 {
 	char s[ 20 ];

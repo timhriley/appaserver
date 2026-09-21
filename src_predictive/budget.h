@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef BUDGET_H
-#define BUDGET_H
+#pragma once
 
 #include <unistd.h>
 #include "list.h"
@@ -645,4 +644,3 @@ double budget_amount_sum(
 		const char *element_name,
 		LIST *budget_annualized_list );
 
-#endif
