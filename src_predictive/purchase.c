@@ -278,6 +278,17 @@ PURCHASE *purchase_trigger_new(
 			purchase->update_string_list,
 			purchase->purchase_transaction );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: \n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+msg( (char *)0, message );
+}
 	return purchase;
 }
 

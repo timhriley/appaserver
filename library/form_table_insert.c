@@ -704,18 +704,6 @@ FORM_TABLE_INSERT *form_table_insert_new(
 			message );
 	}
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: query_dictionary=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	dictionary_display( query_dictionary ) );
-msg( (char *)0, message );
-}
 	form_table_insert = form_table_insert_calloc();
 
 	form_table_insert->action_string =
