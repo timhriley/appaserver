@@ -104,7 +104,8 @@ SUBSIDIARY_TRANSACTION *
 				foreign_full_name_column,
 				foreign_contact_key_column,
 				foreign_date_time_column,
-				update_date_time_column,
+				foreign_where_date_time_column,
+				foreign_where_date_time_datum,
 				subsidiary_transaction_insert->
 					fund_name,
 				subsidiary_transaction_insert->
@@ -220,11 +221,11 @@ char *subsidiary_transaction_update_template(
 			foreign_fund_name_column,
 			foreign_full_name_column,
 			foreign_contact_key_column,
-			foreign_date_time_column,
+			foreign_where_date_time_column,
+			foreign_where_date_time_datum,
 			fund_name,
 			full_name,
 			contact_key,
-			foreign_date_time,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -529,11 +530,11 @@ char *subsidiary_transaction_update_where(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
+		const char *foreign_where_date_time_column,
+		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -542,7 +543,7 @@ char *subsidiary_transaction_update_where(
 	char where[ 1024 ];
 
 	if ( !full_name
-	||   !foreign_date_time )
+	||   !foreign_where_date_time_datum )
 	{
 		char message[ 1024 ];
 
@@ -590,8 +591,8 @@ char *subsidiary_transaction_update_where(
 		"where %s and %s and %s = '%s'",
 		fund_where,
 		primary_where,
-		foreign_date_time_column,
-		foreign_date_time );
+		foreign_where_date_time_column,
+		foreign_where_date_time_datum );
 
 	return strdup( where );
 }
@@ -602,10 +603,11 @@ char *subsidiary_transaction_update_null_sql(
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *update_date_time_column,
+		const char *foreign_where_date_time_column,
+		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -628,7 +630,7 @@ char *subsidiary_transaction_update_null_sql(
 			message );
 	}
 
-	if ( !foreign_date_time ) return NULL;
+	if ( !foreign_where_date_time_datum ) return NULL;
 
 	update_where =
 		/* ------------------- */
@@ -638,8 +640,8 @@ char *subsidiary_transaction_update_null_sql(
 			foreign_fund_name_column,
 			foreign_full_name_column,
 			foreign_contact_key_column,
-			update_date_time_column
-				/* foreign_date_time_column */,
+			foreign_where_date_time_column,
+			foreign_where_date_time_datum,
 			fund_name,
 			full_name,
 			contact_key,

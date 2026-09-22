@@ -113,10 +113,10 @@ char *subsidiary_transaction_update_template(
 		const char *foreign_contact_key_column,
 		const char *foreign_date_time_column,
 		const char *update_date_time_column,
+		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -147,11 +147,11 @@ char *subsidiary_transaction_update_where(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
+		const char *foreign_where_date_time_column,
+		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
