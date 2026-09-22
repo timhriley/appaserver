@@ -21,7 +21,6 @@
 					"average_unit_cost,"		\
 					"total_cost_balance"
 
-#define INVENTORY_ARRIVED_COLUMN	"arrived_date_time"
 #define INVENTORY_LABOR_CHARGE_COLUMN	"labor_charge"
 
 typedef struct

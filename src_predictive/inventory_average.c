@@ -11,6 +11,7 @@
 #include "appaserver_error.h"
 #include "inventory.h"
 #include "sale.h"
+#include "purchase.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 #include "inventory_balance.h"
@@ -19,7 +20,7 @@
 
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
-		char *arrived_date_time,
+		char *purchase_date_time,
 		char *sale_date_time )
 {
 	INVENTORY_AVERAGE *inventory_average;
@@ -42,7 +43,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message );
 	}
 
-	if ( !arrived_date_time
+	if ( !purchase_date_time
 	&&   !sale_date_time )
 	{
 		char message[ 1024 ];
@@ -50,7 +51,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 		snprintf(
 			message,
 			sizeof ( message ),
-		"both arrived_date_time and sale_date_time are empty." );
+		"both purchase_date_time and sale_date_time are empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -76,7 +77,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 		/* Returns either parameter */
 		/* ------------------------ */
 		inventory_average_cost_date_time(
-			arrived_date_time,
+			purchase_date_time,
 			sale_date_time );
 
 	inventory_average->inventory_purchase_cost_where =
@@ -86,10 +87,10 @@ INVENTORY_AVERAGE *inventory_average_new(
 		inventory_purchase_cost_where(
 			INVENTORY_PURCHASE_TABLE,
 			SALE_INVENTORY_COLUMN,
-			INVENTORY_ARRIVED_COLUMN,
+			PURCHASE_DATE_TIME_COLUMN,
 			inventory_name,
 			inventory_average->cost_date_time
-				/* arrived_date_time */ );
+				/* purchase_date_time */ );
 
 	if ( !inventory_average->inventory_purchase_cost_where )
 	{
@@ -210,11 +211,11 @@ INVENTORY_AVERAGE *inventory_average_calloc( void )
 }
 
 char *inventory_average_cost_date_time(
-		char *arrived_date_time,
+		char *purchase_date_time,
 		char *sale_date_time )
 {
-	if ( arrived_date_time )
-		return arrived_date_time;
+	if ( purchase_date_time )
+		return purchase_date_time;
 	else
 		return sale_date_time;
 }

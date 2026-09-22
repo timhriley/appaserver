@@ -29,7 +29,7 @@ typedef struct
 /* -------------- */
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
-		char *arrived_date_time
+		char *purchase_date_time
 			/* Mutually exclusive */,
 		char *sale_date_time
 			/* Mutually exclusive */ );
@@ -42,7 +42,7 @@ INVENTORY_AVERAGE *inventory_average_calloc(
 /* Returns either parameter */
 /* ------------------------ */
 char *inventory_average_cost_date_time(
-		char *arrived_date_time,
+		char *purchase_date_time,
 		char *sale_date_time );
 
 LIST *inventory_average_purchase_list(

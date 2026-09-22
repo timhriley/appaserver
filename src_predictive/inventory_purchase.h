@@ -16,7 +16,6 @@
 					"inventory_name,"	\
 					"purchase_date_time,"	\
 					"ordered_quantity,"	\
-					"arrived_date_time,"	\
 					"arrived_quantity,"	\
 					"slippage_quantity,"	\
 					"unit_cost,"		\
@@ -33,7 +32,6 @@ typedef struct
 	char *purchase_date_time;
 	char *inventory_name;
 	int ordered_quantity;
-	char *arrived_date_time;
 	int arrived_quantity;
 	int slippage_quantity;
 	double unit_cost;
@@ -111,7 +109,7 @@ char *inventory_purchase_cost_where(
 		const char *sale_inventory_column,
 		const char *inventory_arrived_column,
 		char *inventory_name,
-		char *arrived_date_time );
+		char *purchase_date_time );
 
 /* Usage */
 /* ----- */
@@ -123,7 +121,7 @@ char *inventory_purchase_prior_date_time(
 		const char *sale_inventory_column,
 		const char *inventory_arrived_column,
 		char *inventory_name,
-		char *arrived_date_time );
+		char *purchase_date_time );
 
 typedef struct
 {
@@ -163,7 +161,7 @@ char *inventory_purchase_list_system_string(
 		char *inventory_purchase_list_select,
 		const char *inventory_purchase_table,
 		char *where,
-		const char *inventory_arrived_column
+		const char *purchase_date_time_column
 			/* For order clause */ );
 
 /* Usage */

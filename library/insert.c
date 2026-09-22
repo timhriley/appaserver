@@ -12,6 +12,7 @@
 #include "application.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
+#include "date.h"
 #include "process.h"
 #include "security.h"
 #include "widget.h"
@@ -419,14 +420,29 @@ INSERT_DATUM *insert_datum_new(
 		char *attribute_name,
 		char *datum,
 		int primary_key_index,
-		boolean attribute_is_number )
+		boolean attribute_number_boolean,
+		boolean attribute_date_time_boolean )
 {
 	INSERT_DATUM *insert_datum = insert_datum_calloc();
+
+	if ( attribute_date_time_boolean )
+	{
+		if ( !string_character_boolean( datum, ' ' ) )
+		{
+			datum =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				date_set_now_hhmmss(
+					datum,
+					date_utc_offset() );
+		}
+	}
 
 	insert_datum->attribute_name = attribute_name;
 	insert_datum->datum = datum;
 	insert_datum->primary_key_index = primary_key_index;
-	insert_datum->attribute_is_number = attribute_is_number;
+	insert_datum->attribute_number_boolean = attribute_number_boolean;
 
 	return insert_datum;
 }
@@ -437,7 +453,8 @@ INSERT_DATUM *insert_datum_extract(
 		int row_number,
 		char *attribute_name,
 		int primary_key_index,
-		boolean attribute_is_number )
+		boolean number_boolean,
+		boolean date_time_boolean )
 {
 	char *datum;
 
@@ -452,7 +469,8 @@ INSERT_DATUM *insert_datum_extract(
 			attribute_name,
 			datum,
 			primary_key_index,
-			attribute_is_number );
+			number_boolean,
+			date_time_boolean );
 	}
 
 	if ( multi_row_dictionary
@@ -471,33 +489,19 @@ INSERT_DATUM *insert_datum_extract(
 			attribute_name,
 			datum,
 			primary_key_index,
-			attribute_is_number );
+			number_boolean,
+			date_time_boolean );
 	}
 
 	return NULL;
 }
 
-LIST *insert_datum_key_datum_list(
-		LIST *insert_datum_list )
+LIST *insert_datum_key_datum_list( LIST *insert_datum_list )
 {
 	INSERT_DATUM *insert_datum;
-	LIST *key_datum_list;
+	LIST *key_datum_list = list_new();
 
-	if ( !list_rewind( insert_datum_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "insert_datum_list is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	key_datum_list = list_new();
-
+	if ( list_rewind( insert_datum_list ) )
 	do {
 		insert_datum = list_get( insert_datum_list );
 
@@ -509,6 +513,12 @@ LIST *insert_datum_key_datum_list(
 		list_set( key_datum_list, insert_datum->datum );
 
 	} while ( list_next( insert_datum_list ) );
+
+	if ( !list_length( key_datum_list ) )
+	{
+		list_free( key_datum_list );
+		key_datum_list = NULL;
+	}
 
 	return key_datum_list;
 }
@@ -782,7 +792,8 @@ INSERT_FOLDER *insert_folder_new(
 	INSERT_FOLDER *insert_folder;
 	char *attribute_name;
 	FOLDER_ATTRIBUTE *folder_attribute;
-	boolean is_number;
+	boolean number_boolean;
+	boolean date_time_boolean;
 	INSERT_DATUM *datum_extract;
 	char *table_name;
 
@@ -891,8 +902,14 @@ INSERT_FOLDER *insert_folder_new(
 				message );
 		}
 
-		is_number =
-			attribute_is_number(
+		number_boolean =
+			attribute_number_boolean(
+				folder_attribute->
+					attribute->
+					datatype_name );
+
+		date_time_boolean =
+			attribute_date_time_boolean(
 				folder_attribute->
 					attribute->
 					datatype_name );
@@ -904,7 +921,8 @@ INSERT_FOLDER *insert_folder_new(
 					row_number,
 					attribute_name,
 					folder_attribute->primary_key_index,
-					is_number ) ) )
+					number_boolean,
+					date_time_boolean ) ) )
 		{
 			list_free( insert_folder->insert_datum_list );
 			free( insert_folder );
@@ -974,8 +992,14 @@ INSERT_FOLDER *insert_folder_new(
 
 		if ( folder_attribute->primary_key_index ) continue;
 
-		is_number =
-			attribute_is_number(
+		number_boolean =
+			attribute_number_boolean(
+				folder_attribute->
+					attribute->
+					datatype_name );
+
+		date_time_boolean =
+			attribute_date_time_boolean(
 				folder_attribute->
 					attribute->
 					datatype_name );
@@ -987,7 +1011,8 @@ INSERT_FOLDER *insert_folder_new(
 				row_number,
 				attribute_name,
 				0 /* primary_key_index */,
-				is_number );
+				number_boolean,
+				date_time_boolean );
 
 		if ( list_length( insert_required_name_list )
 		&&   !datum_extract )
@@ -1205,7 +1230,7 @@ char *insert_folder_execute_command_line(
 
 char *insert_datum_value_string(
 		char *datum,
-		boolean attribute_is_number )
+		boolean number_boolean )
 {
 	char value_string[ STRING_64K ];
 	char destination[ STRING_64K ];
@@ -1228,7 +1253,7 @@ char *insert_datum_value_string(
 	if ( !datum || !*datum )
 		strcpy( value_string, "null" );
 	else
-	if ( attribute_is_number )
+	if ( number_boolean )
 		sprintf( value_string, "%s", datum );
 	else
 	{
@@ -1361,7 +1386,7 @@ char *insert_folder_value_list_string(
 			/* ------------------- */
 			insert_datum_value_string(
 				datum,
-				0 /* not attribute_is_number */ );
+				0 /* not attribute_number_boolean */ );
 
 		if (	strlen( value_list_string ) +
 			strlen( value_string ) + 1 >= STRING_128K )
@@ -1970,7 +1995,7 @@ char *insert_datum_value_list_string( LIST *insert_datum_list )
 			/* ------------------- */
 			insert_datum_value_string(
 				insert_datum->datum,
-				insert_datum->attribute_is_number );
+				insert_datum->attribute_number_boolean );
 
 		if (	strlen( string ) +
 			strlen( datum_value_string ) + 1 >= STRING_128K )

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ATTRIBUTE_H
-#define ATTRIBUTE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -184,12 +183,24 @@ boolean attribute_is_date(
 boolean attribute_is_time(
 		char *datatype_name );
 
+/* Usage */
+/* ----- */
+boolean attribute_date_time_boolean(
+		char *datatype_name );
 boolean attribute_is_date_time(
 		char *datatype_name );
 
+/* Usage */
+/* ----- */
+boolean attribute_current_date_time_boolean(
+		char *datatype_name );
 boolean attribute_is_current_date_time(
 		char *datatype_name );
 
+/* Usage */
+/* ----- */
+boolean attribute_current_date_boolean(
+		char *datatype_name );
 boolean attribute_is_current_date(
 		char *datatype_name );
 
@@ -200,7 +211,11 @@ boolean attribute_is_integer(
 		const char *attribute_datatype_integer,
 		char *datatype_name );
 
+/* Usage */
+/* ----- */
 boolean attribute_is_number(
+		char *datatype_name );
+boolean attribute_number_boolean(
 		char *datatype_name );
 
 boolean attribute_is_character(
@@ -247,5 +262,3 @@ char *attribute_delete_statement(
 LIST *attribute_data_list(
 		char delimiter,
 		char *data_list_string );
-
-#endif

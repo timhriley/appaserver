@@ -203,6 +203,11 @@ boolean attribute_is_integer(
 
 boolean attribute_is_number( char *datatype_name )
 {
+	return attribute_number_boolean( datatype_name );
+}
+
+boolean attribute_number_boolean( char *datatype_name )
+{
 	if ( !datatype_name ) return 0;
 
 	if (  strcmp( datatype_name, "float" ) == 0
@@ -227,39 +232,42 @@ boolean attribute_is_float( char *datatype_name )
 
 boolean attribute_is_current_date( char *datatype_name )
 {
+	return attribute_current_date_boolean( datatype_name );
+}
+
+boolean attribute_current_date_boolean( char *datatype_name )
+{
 	if (  string_strcmp( datatype_name, "current_date" ) == 0 )
-	{
 		return 1;
-	}
 	else
-	{
 		return 0;
-	}
 }
 
 boolean attribute_is_current_date_time( char *datatype_name )
 {
-	if (  string_strcmp( datatype_name, "current_date_time" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	return attribute_current_date_time_boolean( datatype_name );
 }
 
-boolean attribute_is_date_time( char *datatype_name )
+boolean attribute_current_date_time_boolean( char *datatype_name )
+{
+	if (  string_strcmp( datatype_name, "current_date_time" ) == 0 )
+		return 1;
+	else
+		return 0;
+}
+
+boolean attribute_is_date_time( char *datatype )
+{
+	return attribute_date_time_boolean( datatype );
+}
+
+boolean attribute_date_time_boolean( char *datatype_name )
 {
 	if (  string_strcmp( datatype_name, "date_time" ) == 0
 	||    attribute_is_current_date_time( datatype_name ) )
-	{
 		return 1;
-	}
 	else
-	{
 		return 0;
-	}
 }
 
 boolean attribute_is_character(

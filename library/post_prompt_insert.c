@@ -569,7 +569,8 @@ LIST *post_prompt_insert_missing_primary_key_list(
 				0 /* row_number */,
 				attribute_name,
 				1 /* primary_key_index */,
-				0 /* attribute_is_number */ );
+				0 /* not attribute_number_boolean */,
+				0 /* not attribute_date_time_boolean */ );
 
 		if ( !insert_datum )
 		{

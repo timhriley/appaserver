@@ -142,7 +142,7 @@ INVENTORY_SALE *inventory_sale_parse(
 	inventory_sale->inventory_average =
 		inventory_average_new(
 			inventory_sale->inventory_name,
-			(char *)0 /* arrived_date_time */,
+			(char *)0 /* purchase_date_time */,
 			inventory_sale->sale_date_time );
 
 	inventory_sale->update_string_list =
@@ -504,10 +504,8 @@ char *inventory_sale_cost_where(
 		char *inventory_name,
 		char *sale_date_time )
 {
-	char *purchase_cost_where;
-	char cost_where[ 1024 ];
-
-	if ( !inventory_name )
+	if ( !inventory_name
+	||   !sale_date_time )
 	{
 		char message[ 1024 ];
 
@@ -523,33 +521,19 @@ char *inventory_sale_cost_where(
 			message );
 	}
 
-	if ( !sale_date_time ) return NULL;
-
-	purchase_cost_where =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		inventory_purchase_cost_where(
-			inventory_sale_table
-				/* inventory_purchase_table */,
-			sale_inventory_column,
-			transaction_date_time_column
-				/* inventory_arrived_column */,
-			inventory_name,
-			sale_date_time
-				/* arrived_date_time */ );
-
-	if ( !purchase_cost_where ) return NULL;
-
-	snprintf(
-		cost_where,
-		sizeof ( cost_where ),
-		"%s and completed_date_time is not null",
-		purchase_cost_where );
-
-	free( purchase_cost_where );
-
-	return strdup( cost_where );
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	inventory_purchase_cost_where(
+		inventory_sale_table
+			/* inventory_purchase_table */,
+		sale_inventory_column,
+		transaction_date_time_column
+			/* purchase_date_time_column */,
+		inventory_name,
+		sale_date_time
+			/* purchase_date_time */ );
 }
 
 INVENTORY_SALE_LIST *inventory_sale_list_calloc( void )
@@ -606,7 +590,7 @@ char *inventory_sale_list_system_string(
 		inventory_sale_list_select /* inventory_purchase_list_select */,
 		inventory_sale_table /* inventory_purchase_table */,
 		where,
-		sale_completed_column /* inventory_arrived_column */ );
+		sale_completed_column /* purchase_date_time_column */ );
 }
 
 INVENTORY_SALE_LIST *inventory_sale_list_new(

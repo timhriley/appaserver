@@ -155,30 +155,27 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	if ( *buffer ) inventory_purchase->ordered_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer ) inventory_purchase->arrived_date_time = strdup( buffer );
-
-	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer ) inventory_purchase->arrived_quantity = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 6 );
+	piece( buffer, SQL_DELIMITER, input, 5 );
 	if ( *buffer ) inventory_purchase->slippage_quantity = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
+	piece( buffer, SQL_DELIMITER, input, 6 );
 	if ( *buffer ) inventory_purchase->unit_cost = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) inventory_purchase->extended_cost = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 9 );
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) inventory_purchase->cost_basis = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 10 );
+	piece( buffer, SQL_DELIMITER, input, 9 );
 	if ( *buffer ) inventory_purchase->quantity_on_hand = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 11 );
+	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
-	piece_offset = 12;
+	piece_offset = 11;
 
 	if ( fund_boolean )
 	{
@@ -393,7 +390,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 			select,
 			inventory_purchase_table,
 			where,
-			INVENTORY_ARRIVED_COLUMN
+			PURCHASE_DATE_TIME_COLUMN
 				/* For order clause */ );
 
 
@@ -627,35 +624,30 @@ double inventory_purchase_average_unit_cost(
 char *inventory_purchase_cost_where(
 		const char *inventory_purchase_table,
 		const char *sale_inventory_column,
-		const char *inventory_arrived_column,
+		const char *purchase_date_time_column,
 		char *inventory_name,
-		char *arrived_date_time )
+		char *purchase_date_time )
 {
 	char cost_where[ 1024 ];
 	char *ptr = cost_where;
 	char *prior_date_time;
 
-	if ( !inventory_name )
+	if ( !inventory_name
+	||   !purchase_date_time )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"inventory_name is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			message );
-
-		/* Stub */
-		/* ---- */
-		exit( 1 );
 	}
-
-	if ( !arrived_date_time ) return NULL;
 
 	ptr += sprintf( ptr,
 		"%s = '%s'",
@@ -669,14 +661,15 @@ char *inventory_purchase_cost_where(
 		inventory_purchase_prior_date_time(
 			inventory_purchase_table,
 			sale_inventory_column,
-			inventory_arrived_column,
+			purchase_date_time_column,
 			inventory_name,
-			arrived_date_time );
+			purchase_date_time );
 
 	if ( prior_date_time )
 	{
 		ptr += sprintf( ptr,
-			" and arrived_date_time >= '%s'",
+			" and %s >= '%s'",
+			purchase_date_time_column,
 			prior_date_time );
 
 		free( prior_date_time );
@@ -688,21 +681,22 @@ char *inventory_purchase_cost_where(
 char *inventory_purchase_prior_date_time(
 		const char *inventory_purchase_table,
 		const char *sale_inventory_column,
-		const char *inventory_arrived_column,
+		const char *purchase_date_time_column,
 		char *inventory_name,
-		char *arrived_date_time )
+		char *purchase_date_time )
 {
 	char system_string[ 1024 ];
 	char where[ 512 ];
 
-	if ( !inventory_name )
+	if ( !inventory_name
+	||   !purchase_date_time )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"inventory_name is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -715,18 +709,17 @@ char *inventory_purchase_prior_date_time(
 		where,
 		sizeof ( where ),
 		"%s = '%s' and "
-		"%s is not null and "
 		"%s < '%s'",
 		sale_inventory_column,
 		inventory_name,
-		inventory_arrived_column,
-		inventory_arrived_column,
-		arrived_date_time );
+		purchase_date_time_column,
+		purchase_date_time );
 
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"select.sh 'max( arrived_date_time )' %s \"%s\"",
+		"select.sh 'max( %s )' %s \"%s\"",
+		purchase_date_time_column,
 		inventory_purchase_table,
 		where );
 
@@ -768,7 +761,7 @@ char *inventory_purchase_list_system_string(
 		char *inventory_purchase_list_select,
 		const char *inventory_purchase_table,
 		char *where,
-		const char *inventory_arrived_column )
+		const char *purchase_date_time_column )
 {
 	char system_string[ 1024 ];
 
@@ -795,7 +788,7 @@ char *inventory_purchase_list_system_string(
 		inventory_purchase_list_select,
 		inventory_purchase_table,
 		where,
-		inventory_arrived_column );
+		purchase_date_time_column );
 
 	return strdup( system_string );
 }

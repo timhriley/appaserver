@@ -79,7 +79,7 @@ LIST *inventory_balance_list(
 		}
 		else
 		if ( string_strcmp(
-				inventory_purchase->arrived_date_time,
+				inventory_purchase->purchase_date_time,
 	     			inventory_sale->sale_date_time ) <= 0 )
 		{
 			inventory_balance->inventory_purchase =

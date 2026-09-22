@@ -19,7 +19,7 @@ typedef struct
 	char *attribute_name;
 	char *datum;
 	int primary_key_index;
-	boolean attribute_is_number;
+	boolean attribute_number_boolean;
 } INSERT_DATUM;
 
 /* Usage */
@@ -30,7 +30,8 @@ INSERT_DATUM *insert_datum_extract(
 		int row_number,
 		char *attribute_name,
 		int primary_key_index,
-		boolean attribute_is_number );
+		boolean attribute_number_boolean,
+		boolean attribute_date_time_boolean );
 
 /* Usage */
 /* ----- */
@@ -41,7 +42,8 @@ INSERT_DATUM *insert_datum_new(
 		char *attribute_name,
 		char *datum,
 		int primary_key_index,
-		boolean attribute_is_number );
+		boolean attribute_number_boolean,
+		boolean attribute_date_time_boolean );
 
 /* Process */
 /* ------- */
