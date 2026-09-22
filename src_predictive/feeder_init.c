@@ -198,7 +198,8 @@ char *feeder_init_passthru_insert_sql(
 			"feeder_phrase" /* attribute_name */,
 			passthru_feeder_phrase /* datum */,
 			1 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	list_set(
 		insert_datum_list,
@@ -206,7 +207,8 @@ char *feeder_init_passthru_insert_sql(
 			"nominal_account" /* attribute_name */,
 			account_name /* datum */,
 			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	list_set(
 		insert_datum_list,
@@ -214,7 +216,8 @@ char *feeder_init_passthru_insert_sql(
 			"full_name" /* attribute_name */,
 			entity_self_full_name /* datum */,
 			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	if ( contact_key_boolean )
 	{
@@ -224,7 +227,8 @@ char *feeder_init_passthru_insert_sql(
 				"contact_key" /* attribute_name */,
 				entity_self_contact_key /* datum */,
 				0 /* primary_key_index */,
-				0 /* not attribute_is_number */ ) );
+				0 /* not attribute_number_boolean */,
+				0 /* not attribute_date_time_boolean */ ) );
 	}
 
 	attribute_name_list_string =
@@ -1312,7 +1316,8 @@ char *feeder_init_feeder_account_insert_sql(
 			(char *)feeder_account_primary_key /* attribute_name */,
 			account_name /* datum */,
 			1 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	list_set(
 		insert_datum_list,
@@ -1320,7 +1325,8 @@ char *feeder_init_feeder_account_insert_sql(
 			"full_name" /* attribute_name */,
 			financial_institution_full_name /* datum */,
 			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	if ( financial_institution_contact_key )
 	{
@@ -1330,7 +1336,8 @@ char *feeder_init_feeder_account_insert_sql(
 				"contact_key" /* attribute_name */,
 				financial_institution_contact_key /* datum */,
 				0 /* primary_key_index */,
-				0 /* not attribute_is_number */ ) );
+				0 /* not attribute_number_boolean */,
+				0 /* not attribute_date_time_boolean */ ) );
 	}
 
 	attribute_name_list_string =
@@ -1550,7 +1557,8 @@ char *feeder_init_account_insert_sql(
 			(char *)account_primary_key /* attribute_name */,
 			account_name /* datum */,
 			1 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	subclassification =
 		/* ------------------------ */
@@ -1567,7 +1575,8 @@ char *feeder_init_account_insert_sql(
 			"subclassification" /* attribute_name */,
 			subclassification /* datum */,
 			0 /* primary_key_index */,
-			0 /* not attribute_is_number */ ) );
+			0 /* not attribute_number_boolean */,
+			0 /* not attribute_date_time_boolean */ ) );
 
 	if ( !checking_boolean )
 	{
@@ -1577,7 +1586,8 @@ char *feeder_init_account_insert_sql(
 				"hard_coded_account_key",
 				(char *)account_credit_card_key,
 				0 /* primary_key_index */,
-				0 /* not attribute_is_number */ ) );
+				0 /* not attribute_number_boolean */,
+				0 /* not attribute_date_time_boolean */ ) );
 	}
 
 	attribute_name_list_string =
