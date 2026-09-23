@@ -183,16 +183,18 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 		subsidiary_transaction_new(
 			FIXED_ASSET_HOME_TABLE
 				/* foreign_table_name */,
-			"fund_name"
+			PREDICTIVE_FUND_COLUMN
 				/* foreign_fund_name_column */,
-			"full_name"
+			ENTITY_FULL_NAME_COLUMN
 				/* foreign_full_name_column */,
-			"contact_key"
+			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
-			"purchase_date_time"
-				/* foreign_date_time_column */,
-			"purchase_date_time"
-				/* update_date_time_column */,
+			PURCHASE_DATE_TIME_COLUMN
+				/* foreign_update_date_time_column */,
+			PURCHASE_DATE_TIME_COLUMN
+				/* foreign_where_date_time_column */,
+			purchase_date_time
+				/* foreign_where_date_time_datum */,
 			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */,
 			fixed_asset_home->fixed_asset_cost

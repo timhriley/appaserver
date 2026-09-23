@@ -27,19 +27,20 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *sale_date_time,
 		char *state,
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *feeder_account,
+		char *cash_account,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
-		char *prior_transaction_date_time,
+		char *fetch_transaction_date_time,
 		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
@@ -52,7 +53,7 @@ SALE_TRANSACTION *sale_transaction_new(
 /* Process */
 /* ------- */
 SALE_TRANSACTION *sale_transaction_calloc(
-	void );
+		void );
 
 /* Returns completed_date_time, shipped_date_time, static memory, or null */
 /* ---------------------------------------------------------------------- */

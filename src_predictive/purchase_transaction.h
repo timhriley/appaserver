@@ -39,7 +39,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *shipped_date,
 		boolean arrived_date_time_boolean,
 		char *arrived_date_time,
-		char *prior_transaction_date_time,
+		char *fetch_transaction_date_time,
 		double sales_tax_expense,
 		double freight_in_expense,
 		double cost_basis_fixed_asset_total,

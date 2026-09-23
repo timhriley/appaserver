@@ -36,6 +36,7 @@ PURCHASE_UPDATE *purchase_update_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
+		char *state,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		FIXED_ASSET_PURCHASE_LIST *
@@ -50,9 +51,14 @@ PURCHASE_UPDATE *purchase_update_new(
 		SUPPLY_PURCHASE_LIST *
 			supply_purchase_list
 				/* Sets each update_string_list */,
-		char *purchase_update_system_string,
-		LIST *purchase_update_string_list,
-		PURCHASE_TRANSACTION *purchase_transaction );
+		double fixed_asset_purchase_list_total,
+		double inventory_purchase_list_total,
+		double specific_inventory_purchase_list_total,
+		double supply_purchase_list_total,
+		double service_purchase_list_total,
+		double prepaid_asset_purchase_list_total,
+		double return_list_total,
+		double purchase_invoice_amount );
 
 /* Process */
 /* ------- */

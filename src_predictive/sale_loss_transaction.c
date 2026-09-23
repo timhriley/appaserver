@@ -17,6 +17,7 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *sale_date_time,
 		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_fund_name,
@@ -158,16 +159,18 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
-			"fund_name"
+			PREDICTIVE_FUND_COLUMN
 				/* foreign_full_name_column */,
-			"full_name"
+			ENTITY_FULL_NAME_COLUMN
 				/* foreign_full_name_column */,
-			"contact_key"
+			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
 			"uncollectible_date_time"
-				/* foreign_date_time_column */,
-			"uncollectible_date_time"
-				/* update_date_time_column */,
+				/* foreign_update_date_time_column */,
+			SALE_DATE_TIME_COLUMN
+				/* foreign_where_date_time_column */,
+			sale_date_time
+				/* foreign_where_date_time_datum */,
 			sale_loss_transaction->journal_binary_list
 				/* insert_journal_list */,
 			sale_amount_due

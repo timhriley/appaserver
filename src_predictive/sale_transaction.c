@@ -23,19 +23,20 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *sale_date_time,
 		char *state,
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		char *feeder_account,
+		char *cash_account,
 		enum predictive_title_passage_rule
 			predictive_title_passage_rule,
 		char *completed_date_time,
 		char *shipped_date_time,
 		char *arrived_date,
-		char *prior_transaction_date_time,
+		char *fetch_transaction_date_time,
 		double shipping_revenue,
 		double inventory_sale_total,
 		double inventory_sale_CGS_total,
@@ -127,7 +128,7 @@ SALE_TRANSACTION *sale_transaction_new(
 			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
-			prior_transaction_date_time
+			fetch_transaction_date_time
 				/* preupdate_foreign_date_time */,
 			fund_name,
 			full_name,
@@ -146,16 +147,18 @@ SALE_TRANSACTION *sale_transaction_new(
 		subsidiary_transaction_new(
 			SALE_TABLE
 				/* foreign_table_name */,
-			"fund_name"
+			PREDICTIVE_FUND_COLUMN
 				/* foreign_fund_name_column */,
-			"full_name"
+			ENTITY_FULL_NAME_COLUMN
 				/* foreign_full_name_column */,
-			"contact_key"
+			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
-			"completed_date_time"
-				/* foreign_date_time_column */,
-			"transaction_date_time"
-				/* update_date_time_column */,
+			TRANSACTION_DATE_TIME_COLUMN,
+				/* foreign_update_date_time_column */,
+			SALE_DATE_TIME_COLUMN,
+				/* foreign_where_date_time_column */,
+			sale_date_time
+				/* foreign_where_date_time_datum */,
 			sale_transaction->journal_list
 				/* insert_journal_list */,
 			sale_invoice_amount

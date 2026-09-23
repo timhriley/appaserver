@@ -32,6 +32,7 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *sale_date_time,
 		char *uncollectible_date_time,
 		char *state,
 		char *preupdate_fund_name,

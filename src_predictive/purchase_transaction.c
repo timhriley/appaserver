@@ -35,7 +35,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		char *shipped_date,
 		boolean arrived_date_time_boolean,
 		char *arrived_date_time,
-		char *prior_transaction_date_time,
+		char *fetch_transaction_date_time,
 		double sales_tax_expense,
 		double freight_in_expense,
 		double cost_basis_fixed_asset_total,
@@ -132,7 +132,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
-			prior_transaction_date_time
+			fetch_transaction_date_time
 				/* preupdate_foreign_date_time */,
 			fund_name,
 			full_name,
@@ -151,16 +151,18 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 		subsidiary_transaction_new(
 			PURCHASE_TABLE
 				/* foreign_table_name */,
-			"fund_name"
+			PREDICTIVE_FUND_COLUMN
 				/* foreign_fund_name_column */,
-			"full_name"
+			ENTITY_FULL_NAME_COLUMN
 				/* foreign_full_name_column */,
-			"contact_key"
+			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
-			"purchase_date_time"
-				/* foreign_date_time_column */,
-			"transaction_date_time"
-				/* update_date_time_column */,
+			TRANSACTION_DATE_TIME_COLUMN
+				/* foreign_update_date_time_column */,
+			PURCHASE_DATE_TIME_COLUMN
+				/* foreign_where_date_time_column */,
+			purchase_date_time
+				/* foreign_where_date_time_datum */,
 			purchase_transaction->journal_list
 				/* insert_journal_list */,
 			purchase_invoice_amount

@@ -84,8 +84,9 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
-		const char *update_date_time_column,
+		const char *foreign_update_date_time_column,
+		const char *foreign_where_date_time_column,
+		char foreign_where_date_time_datum,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,
@@ -104,19 +105,21 @@ SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* -------------------------------------------- */
+/* Returns heap memory or null 			*/
+/* Template for foreign_update_date_time_datum	*/
+/* -------------------------------------------- */
 char *subsidiary_transaction_update_template(
 		const char *foreign_table_name,
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
-		const char *update_date_time_column,
-		char *foreign_where_date_time_datum,
+		const char *foreign_update_date_time_column,
+		const char *foreign_where_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *foreign_where_date_time_datum,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -130,11 +133,12 @@ char *subsidiary_transaction_update_null_sql(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *update_date_time_column,
+		const char *foreign_update_date_time_column,
+		const char *foreign_where_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
+		char *foreign_where_date_time_datum,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -148,10 +152,10 @@ char *subsidiary_transaction_update_where(
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_where_date_time_column,
-		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *foreign_where_date_time_datum,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 

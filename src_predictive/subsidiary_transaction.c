@@ -23,8 +23,9 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
-		const char *update_date_time_column,
+		const char *foreign_update_date_time_column,
+		const char *foreign_where_date_time_column,
+		char *foreign_where_date_time_datum,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,
@@ -103,18 +104,15 @@ SUBSIDIARY_TRANSACTION *
 				foreign_fund_name_column,
 				foreign_full_name_column,
 				foreign_contact_key_column,
-				foreign_date_time_column,
+				foreign_update_date_time_column,
 				foreign_where_date_time_column,
-				foreign_where_date_time_datum,
 				subsidiary_transaction_insert->
 					fund_name,
 				subsidiary_transaction_insert->
 					full_name,
 				subsidiary_transaction_insert->
 					contact_key,
-				subsidiary_transaction_insert->
-					transaction_date_time
-					/* foreign_date_time */,
+				foreign_where_date_time_datum,
 				fund_boolean,
 				contact_key_boolean );
 	}
@@ -122,8 +120,8 @@ SUBSIDIARY_TRANSACTION *
 	if ( subsidiary_transaction_delete )
 	{
 		if ( strcmp(
-			foreign_date_time_column,
-			update_date_time_column ) != 0 )
+			foreign_update_date_time_column,
+			foreign_where_date_time_column ) != 0 )
 		{
 			subsidiary_transaction->update_null_sql =
 				/* --------------------------- */
@@ -134,16 +132,15 @@ SUBSIDIARY_TRANSACTION *
 					foreign_fund_name_column,
 					foreign_full_name_column,
 					foreign_contact_key_column,
-					update_date_time_column,
+					foreign_update_date_time_column,
+					foreign_where_date_time_column,
 					subsidiary_transaction_delete->
 						fund_name,
 					subsidiary_transaction_delete->
 						full_name,
 					subsidiary_transaction_delete->
 						contact_key,
-					subsidiary_transaction_delete->
-						transaction_date_time
-						/* foreign_date_time */,
+					foreign_where_date_time_datum,
 					fund_boolean,
 					contact_key_boolean );
 		}
@@ -183,12 +180,12 @@ char *subsidiary_transaction_update_template(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *foreign_date_time_column,
-		const char *update_date_time_column,
+		const char *foreign_update_date_time_column,
+		const char *foreign_where_date_time_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *foreign_date_time,
+		char *foreign_where_date_time_datum,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -211,7 +208,7 @@ char *subsidiary_transaction_update_template(
 			message );
 	}
 
-	if ( !foreign_date_time ) return NULL;
+	if ( !foreign_where_date_time_datum ) return NULL;
 
 	update_where =
 		/* ------------------- */
@@ -222,13 +219,15 @@ char *subsidiary_transaction_update_template(
 			foreign_full_name_column,
 			foreign_contact_key_column,
 			foreign_where_date_time_column,
-			foreign_where_date_time_datum,
 			fund_name,
 			full_name,
 			contact_key,
+			foreign_where_date_time_datum,
 			fund_boolean,
 			contact_key_boolean );
 
+	/* Placeholder for foreign_update_date_time_datum */
+	/* ---------------------------------------------- */
 	snprintf(
 		update_template,
 		sizeof ( update_template ),
@@ -236,9 +235,11 @@ char *subsidiary_transaction_update_template(
 		"set %s = '%cs' "
 		"%s;",
 		foreign_table_name,
-		update_date_time_column,
+		foreign_update_date_time_column,
 		'%',
 		update_where );
+
+	free( update_where );
 
 	return strdup( update_template );
 }
@@ -531,10 +532,10 @@ char *subsidiary_transaction_update_where(
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
 		const char *foreign_where_date_time_column,
-		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *foreign_where_date_time_datum,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -602,12 +603,12 @@ char *subsidiary_transaction_update_null_sql(
 		const char *foreign_fund_name_column,
 		const char *foreign_full_name_column,
 		const char *foreign_contact_key_column,
-		const char *update_date_time_column,
+		const char *foreign_update_date_time_column,
 		const char *foreign_where_date_time_column,
-		char *foreign_where_date_time_datum,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
+		char *foreign_where_date_time_datum,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -641,11 +642,10 @@ char *subsidiary_transaction_update_null_sql(
 			foreign_full_name_column,
 			foreign_contact_key_column,
 			foreign_where_date_time_column,
-			foreign_where_date_time_datum,
 			fund_name,
 			full_name,
 			contact_key,
-			foreign_date_time,
+			foreign_where_date_time_datum,
 			fund_boolean,
 			contact_key_boolean );
 

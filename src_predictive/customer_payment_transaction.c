@@ -153,16 +153,18 @@ CUSTOMER_PAYMENT_TRANSACTION *customer_payment_transaction_new(
 		subsidiary_transaction_new(
 			CUSTOMER_PAYMENT_TABLE
 				/* foreign_table_name */,
-			"fund_name"
+			PREDICTIVE_FUND_COLUMN
 				/* foreign_fund_name_column */,
-			"full_name"
+			ENTITY_FULL_NAME_COLUMN
 				/* foreign_full_name_column */,
-			"contact_key"
+			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
 			"payment_date_time"
-				/* foreign_date_time_column */,
+				/* foreign_update_date_time_column */,
 			"payment_date_time"
-				/* update_date_time_column */,
+				/* foreign_where_date_time_column */,
+			payment_date_time
+				/* foreign_where_date_time_datum */,
 			customer_payment_transaction->journal_binary_list
 				/* insert_journal_list */,
 			payment_amount

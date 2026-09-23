@@ -83,7 +83,6 @@ SALE *sale_trigger_new(
 		return NULL;
 	}
 
-/*
 	if ( sale->sale_fetch->inventory_total_boolean )
 	{
 		sale->inventory_sale_total =
@@ -94,8 +93,6 @@ SALE *sale_trigger_new(
 			inventory_sale_CGS_total(
 				sale->sale_fetch->inventory_sale_list );
 	}
-
-*/
 
 	if ( sale->sale_fetch->specific_inventory_total_boolean )
 	{
@@ -166,6 +163,7 @@ SALE *sale_trigger_new(
 			fund_name,
 			full_name,
 			contact_key,
+			sale_date_time,
 			state,
 			preupdate_fund_name,
 			preupdate_full_name,
@@ -178,7 +176,7 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->shipped_date_time,
 			sale->sale_fetch->arrived_date,
 			sale->sale_fetch->transaction_date_time
-				/* prior_transaction_date_time */,
+				/* fetch_transaction_date_time */,
 			sale->sale_fetch->shipping_charge,
 			sale->inventory_sale_total,
 			sale->inventory_sale_CGS_total,
@@ -193,6 +191,7 @@ SALE *sale_trigger_new(
 			fund_name,
 			full_name,
 			contact_key,
+			sale_date_time,
 			sale->
 				sale_fetch->
 				uncollectible_date_time,

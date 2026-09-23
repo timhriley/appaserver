@@ -13,8 +13,6 @@
 #include "purchase_fetch.h"
 #include "purchase_update.h"
 
-#define PURCHASE_TABLE			"purchase"
-
 #define PURCHASE_SELECT			"full_name,"			\
 					"purchase_date_time,"		\
 					"sales_tax,"			\
@@ -25,6 +23,7 @@
 					"invoice_amount,"		\
 					"transaction_date_time"
 
+#define PURCHASE_TABLE			"purchase"
 #define PURCHASE_DATE_TIME_COLUMN	"purchase_date_time"
 #define PURCHASE_ASSET_COLUMN		"asset_name"
 #define PURCHASE_SUPPLY_COLUMN		"supply_name"

@@ -15,8 +15,6 @@
 #include "sale_loss_transaction.h"
 #include "sale_fetch.h"
 
-#define SALE_TABLE			"sale"
-
 #define SALE_SELECT			"full_name,"			\
 					"sale_date_time,"		\
 					"gross_revenue,"		\
@@ -26,6 +24,7 @@
 					"completed_date_time,"		\
 					"transaction_date_time"
 
+#define SALE_TABLE			"sale"
 #define SALE_DATE_TIME_COLUMN		"sale_date_time"
 #define SALE_SERVICE_NAME_COLUMN	"service_name"
 #define SALE_SERVICE_DESCRIPTION_COLUMN	"service_description"
@@ -38,12 +37,7 @@
 
 typedef struct
 {
-	char *fund_name;
-	char *full_name;
-	char *contact_key;
-	char *sale_date_time;
-	SALE_FETCH *sale_fetch;
-	double shipping_charge;
+	double shipping_revenue;
 	double inventory_sale_total;
 	double inventory_sale_CGS_total;
 	double specific_inventory_sale_total;
@@ -55,6 +49,83 @@ typedef struct
 	double invoice_amount;
 	double customer_payment_total;
 	double amount_due;
+} SALE_CALCULATE;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+SALE_CALCULATE *sale_calculate_new(
+		boolean shipping_revenue_boolean,
+		boolean inventory_sale_boolean,
+		boolean specific_inventory_boolean,
+		boolean fixed_service_sale_boolean,
+		boolean hourly_service_sale_boolean,
+		CUSTOMER *customer,
+		INVENTORY_SALE_LIST *inventory_sale_list,
+		LIST *specific_inventory_sale_list,
+		LIST *fixed_service_sale_list,
+		LIST *hourly_service_sale_list,
+		boolean sales_tax_boolean,
+		double predictbooks_self_sales_tax_rate,
+		double shipping_revenue,
+		char *cash_account,
+		char *completed_date_time,
+		LIST *customer_payment_list );
+
+/* Process */
+/* ------- */
+SALE_CALCULATE *sale_calculate_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+#define SALE_CALCULATE_GROSS_REVENUE(				\
+		inventory_sale_total,				\
+		specific_inventory_sale_total,			\
+		fixed_service_sale_total,			\
+		hourly_service_sale_total )			\
+	( inventory_sale_total +				\
+	  specific_inventory_sale_total +			\
+	  fixed_service_sale_total +				\
+	  hourly_service_sale_total )
+
+/* Usage */
+/* ----- */
+#define SALE_CALCULATE_SALES_TAX(				\
+		inventory_sale_total,				\
+		specific_inventory_sale_total,			\
+		self_tax_state_sales_tax_rate )			\
+	( ( inventory_sale_total +				\
+	    specific_inventory_sale_total ) *			\
+	    self_tax_state_sales_tax_rate )
+
+/* Usage */
+/* ----- */
+#define SALE_CALCULATE_INVOICE_AMOUNT(				\
+		sale_gross_revenue,				\
+		sale_calculate_sales_tax,			\
+		sale_calculate_shipping_revenue )		\
+		( sale_gross_revenue +				\
+		  sale_calculate_sales_tax +			\
+		  sale_calculate_shipping_revenue )
+
+/* Usage */
+/* ----- */
+#define SALE_CALCULATE_AMOUNT_DUE(				\
+		sale_calculate_invoice_amount,			\
+		customer_payment_total )			\
+	( sale_calculate_invoice_amount - customer_payment_total )
+
+typedef struct
+{
+	char *fund_name;
+	char *full_name;
+	char *contact_key;
+	char *sale_date_time;
+	SALE_FETCH *sale_fetch;
+	SALE_CALCULATE *sale_calculate;
 	SALE_TRANSACTION *sale_transaction;
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
 	LIST *update_string_list;
@@ -100,43 +171,6 @@ char *sale_primary_where(
 		quantity,					\
 		discount_amount )				\
 	( ( retail_price * (double)quantity ) - discount_amount )
-
-/* Usage */
-/* ----- */
-#define SALE_GROSS_REVENUE(					\
-		inventory_sale_total,				\
-		specific_inventory_sale_total,			\
-		fixed_service_sale_total,			\
-		hourly_service_sale_total )			\
-	( inventory_sale_total +				\
-	  specific_inventory_sale_total +			\
-	  fixed_service_sale_total +				\
-	  hourly_service_sale_total )
-
-/* Usage */
-/* ----- */
-#define SALE_SALES_TAX(						\
-		inventory_sale_total,				\
-		specific_inventory_sale_total,			\
-		self_tax_state_sales_tax_rate )			\
-	( ( inventory_sale_total +				\
-	    specific_inventory_sale_total ) *			\
-	    self_tax_state_sales_tax_rate )
-
-/* Usage */
-/* ----- */
-#define SALE_INVOICE_AMOUNT(					\
-		sale_gross_revenue,				\
-		sale_sales_tax,					\
-		shipping_charge )				\
-	( sale_gross_revenue + sale_sales_tax + shipping_charge )
-
-/* Usage */
-/* ----- */
-#define SALE_AMOUNT_DUE(					\
-		sale_invoice_amount,				\
-		customer_payment_total )			\
-	( sale_invoice_amount - customer_payment_total )
 
 /* Usage */
 /* ----- */
