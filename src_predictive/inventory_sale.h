@@ -163,12 +163,18 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 INVENTORY_SALE_LIST *inventory_sale_list_calloc(
 		void );
 
+/* Usage */
+/* ----- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_list_select(
 		const char *inventory_sale_select,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
