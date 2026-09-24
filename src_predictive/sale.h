@@ -11,6 +11,7 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
+#include "inventory_sale.h"
 #include "sale_transaction.h"
 #include "sale_loss_transaction.h"
 #include "sale_fetch.h"

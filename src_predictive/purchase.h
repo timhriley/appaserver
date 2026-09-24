@@ -32,19 +32,8 @@
 typedef struct
 {
 	PURCHASE_FETCH *purchase_fetch;
-	double fixed_asset_purchase_list_total;
-	double inventory_purchase_list_total;
-	double specific_inventory_purchase_list_total;
-	double supply_purchase_list_total;
-	double service_purchase_list_total;
-	double prepaid_asset_purchase_list_total;
-	double return_list_total;
-	double total;
-	double invoice_amount;
 	PURCHASE_CALCULATE *purchase_calculate;
 	PURCHASE_TRANSACTION *purchase_transaction;
-	char *update_system_string;
-	LIST *update_string_list;
 	PURCHASE_UPDATE *purchase_update;
 } PURCHASE;
 
@@ -79,29 +68,3 @@ char *purchase_primary_where(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *purchase_update_system_string(
-		const char *purchase_table,
-		LIST *purchase_fetch_primary_key_list );
-
-/* Usage */
-/* ----- */
-LIST *purchase_update_string_list(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *purchase_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		double fixed_asset_list_total,
-		double inventory_purchase_list_total,
-		double specific_inventory_purchase_list_total,
-		double supply_list_total,
-		double service_purchase_list_total,
-		double prepaid_asset_purchase_list_total,
-		double purchase_return_list_total,
-		double purchase_calculate_invoice_amount );
