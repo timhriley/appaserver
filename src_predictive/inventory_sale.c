@@ -580,7 +580,7 @@ char *inventory_sale_list_system_string(
 		char *inventory_sale_list_select,
 		const char *inventory_sale_table,
 		char *where,
-		const char *sale_completed_column )
+		const char *sale_date_time_column )
 {
 	return
 	/* ------------------- */
@@ -590,7 +590,7 @@ char *inventory_sale_list_system_string(
 		inventory_sale_list_select /* inventory_purchase_list_select */,
 		inventory_sale_table /* inventory_purchase_table */,
 		where,
-		sale_completed_column /* purchase_date_time_column */ );
+		sale_date_time_column /* purchase_date_time_column */ );
 }
 
 INVENTORY_SALE_LIST *inventory_sale_list_new(
@@ -644,7 +644,7 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 			select,
 			inventory_sale_table,
 			where,
-			SALE_COMPLETED_DATE_COLUMN
+			SALE_DATE_TIME_COLUMN
 				/* For order clause */ );
 
 	free( select );

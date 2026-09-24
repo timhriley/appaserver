@@ -10,8 +10,6 @@
 #include "boolean.h"
 #include "cost_basis.h"
 
-#define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
-
 #define FIXED_ASSET_PURCHASE_SELECT	"asset_name,"			    \
 					"serial_key,"			    \
 					"fixed_asset_cost,"		    \
@@ -23,6 +21,8 @@
 					"cost_basis,"			    \
 					"accumulated_depreciation,"	    \
 					"disposal_date"
+
+#define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
 
 typedef struct
 {
@@ -150,7 +150,7 @@ void fixed_asset_purchase_list_set_update_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		LIST *fixed_asset_purchase_list
-			/* Set each update_string_list */ );
+			/* Set each update_string */ );
 
 /* Usage */
 /* ----- */

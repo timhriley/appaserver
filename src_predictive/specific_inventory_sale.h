@@ -9,14 +9,14 @@
 #include "list.h"
 #include "boolean.h"
 
-#define SPECIFIC_INVENTORY_SALE_TABLE	"specific_inventory_sale"
-
 #define SPECIFIC_INVENTORY_SALE_SELECT	"inventory_name,"		\
 					"serial_key,"			\
 					"retail_price,"			\
 					"discount_amount,"		\
 					"extended_price,"		\
 					"cost_of_goods_sold"
+
+#define SPECIFIC_INVENTORY_SALE_TABLE	"specific_inventory_sale"
 
 typedef struct
 {

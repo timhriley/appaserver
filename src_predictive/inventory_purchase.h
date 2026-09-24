@@ -10,8 +10,6 @@
 #include "list.h"
 #include "cost_basis.h"
 
-#define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
-
 #define INVENTORY_PURCHASE_SELECT	"full_name,"		\
 					"inventory_name,"	\
 					"purchase_date_time,"	\
@@ -23,6 +21,8 @@
 					"cost_basis,"		\
 					"quantity_on_hand,"	\
 					"average_unit_cost"
+
+#define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
 
 typedef struct
 {
@@ -192,7 +192,7 @@ void inventory_purchase_list_set_average_unit_cost(
 
 /* Usage */
 /* ----- */
-void inventory_purchase_list_set_update_string(
+void inventory_purchase_list_set_update_string_list(
 		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,

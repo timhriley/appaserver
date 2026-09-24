@@ -127,7 +127,7 @@ void specific_inventory_purchase_list_set_update_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		LIST *specific_inventory_purchase_list
-			/* Set each update_string_list */ );
+			/* Set each update_string */ );
 
 /* Usage */
 /* ----- */

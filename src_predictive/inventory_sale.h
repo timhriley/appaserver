@@ -176,7 +176,7 @@ char *inventory_sale_list_system_string(
 		char *inventory_sale_list_select,
 		const char *inventory_sale_table,
 		char *where,
-		const char *sale_completed_date_column
+		const char *sale_date_time_column
 			/* For order clause */ );
 
 /* Usage */
