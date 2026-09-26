@@ -28,15 +28,15 @@
 #include "sale.h"
 
 SALE *sale_trigger_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
+		char *preupdate_uncollectible_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
-		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key,
-		char *preupdate_uncollectible_date_time )
+		char *state )
 {
 	SALE *sale;
 
@@ -83,80 +83,26 @@ SALE *sale_trigger_new(
 		return NULL;
 	}
 
-	if ( sale->sale_fetch->inventory_total_boolean )
-	{
-		sale->inventory_sale_total =
-			inventory_sale_total(
-				sale->sale_fetch->inventory_sale_list );
-
-		sale->inventory_sale_CGS_total =
-			inventory_sale_CGS_total(
-				sale->sale_fetch->inventory_sale_list );
-	}
-
-	if ( sale->sale_fetch->specific_inventory_total_boolean )
-	{
-		sale->specific_inventory_sale_total =
-			specific_inventory_sale_total(
-				sale->
-					sale_fetch->
-					specific_inventory_sale_list );
-
-		sale->specific_inventory_sale_CGS_total =
-			specific_inventory_sale_CGS_total(
-				sale->
-					sale_fetch->
-					specific_inventory_sale_list );
-	}
-	if ( sale->sale_fetch->fixed_service_total_boolean )
-	{
-		sale->fixed_service_sale_total =
-			fixed_service_sale_total(
-				sale->sale_fetch->fixed_service_sale_list );
-	}
-
-	if ( sale->sale_fetch->hourly_service_total_boolean )
-	{
-		sale->hourly_service_sale_total =
-			hourly_service_sale_total(
-				sale->sale_fetch->hourly_service_sale_list );
-	}
-
-	sale->gross_revenue =
-		SALE_GROSS_REVENUE(
-			sale->inventory_sale_total,
-			sale->specific_inventory_sale_total,
-			sale->fixed_service_sale_total,
-			sale->hourly_service_sale_total );
-
-	if ( sale->sale_fetch->sales_tax_boolean )
-	{
-		sale->sales_tax =
-			SALE_SALES_TAX(
-				sale->inventory_sale_total,
-				sale->specific_inventory_sale_total,
-				sale->
-					sale_fetch->
-					self_tax_state_sales_tax_rate );
-	}
-
-	sale->invoice_amount =
-		SALE_INVOICE_AMOUNT(
-			sale->gross_revenue,
-			sale->sales_tax,
-			sale->sale_fetch->shipping_charge );
-
-	sale->customer_payment_total =
-		customer_payment_total(
+	sale->sale_calculate =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		sale_calculate_new(
+			sale->sale_fetch->shipping_revenue_boolean,
+			sale->sale_fetch->inventory_total_boolean,
+			sale->sale_fetch->specific_inventory_total_boolean,
+			sale->sale_fetch->fixed_service_total_boolean,
+			sale->sale_fetch->hourly_service_total_boolean,
+			sale->sale_fetch->customer,
+			sale->sale_fetch->inventory_sale_list,
+			sale->sale_fetch->specific_inventory_sale_list,
+			sale->sale_fetch->fixed_service_sale_list,
+			sale->sale_fetch->hourly_service_sale_list,
+			sale->sale_fetch->sales_tax_boolean,
+			sale->sale_fetch->predictbooks_self_sales_tax_rate,
 			sale->sale_fetch->cash_account,
 			sale->sale_fetch->completed_date_time,
-			sale->sale_fetch->invoice_amount,
 			sale->sale_fetch->customer_payment_list );
-
-	sale->amount_due =
-		SALE_AMOUNT_DUE(
-			sale->invoice_amount,
-			sale->customer_payment_total );
 
 	sale->sale_transaction =
 		sale_transaction_new(
@@ -386,19 +332,22 @@ char *sale_update(
 			message );
 	}
 
-	/* -------------- */
-	/* Safely returns */
-	/* -------------- */
-	pipe = appaserver_output_pipe( update_system_string );
+	if ( list_length( update_string_list ) )
+	{
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		pipe = appaserver_output_pipe( update_system_string );
+	
+		if ( list_rewind( update_string_list ) )
+		do {
+			update_string = list_get( update_string_list );
+			fprintf( pipe, "%s\n", update_string );
+	
+		} while ( list_next( update_string_list ) );
 
-	if ( list_rewind( update_string_list ) )
-	do {
-		update_string = list_get( update_string_list );
-		fprintf( pipe, "%s\n", update_string );
-
-	} while ( list_next( update_string_list ) );
-
-	pclose( pipe );
+		pclose( pipe );
+	}
 
 	if ( sale_transaction )
 	{
@@ -931,5 +880,147 @@ char *sale_update_text_string(
 	}
 
 	return update_string;
+}
+
+SALE_CALCULATE *sale_calculate_new(
+		boolean shipping_revenue_boolean,
+		boolean inventory_total_boolean,
+		boolean specific_inventory_total_boolean,
+		boolean fixed_service_total_boolean,
+		boolean hourly_service_total_boolean,
+		CUSTOMER *customer,
+		INVENTORY_SALE_LIST *inventory_sale_list,
+		LIST *specific_inventory_sale_list,
+		LIST *fixed_service_sale_list,
+		LIST *hourly_service_sale_list,
+		boolean sales_tax_boolean,
+		double predictbooks_self_sales_tax_rate,
+		char *cash_account,
+		char *completed_date_time,
+		LIST *customer_payment_list )
+{
+	SALE_CALCULATE *sale_calculate;
+
+	if ( !customer )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"customer is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	sale_calculate = sale_calculate_calloc();
+
+	if ( shipping_revenue_boolean )
+	{
+/*
+		sale_calculate->shipping_revenue =
+			sale_calculate_shipping_revenue(
+				customer->zip_code );
+*/
+	}
+
+	if ( inventory_total_boolean )
+	{
+		sale_calculate->inventory_sale_list_total =
+			inventory_sale_list_total(
+				inventory_sale_list );
+
+		sale_calculate->inventory_sale_list_CGS_total =
+			inventory_sale_list_CGS_total(
+				inventory_sale_list );
+	}
+
+	if ( specific_inventory_total_boolean )
+	{
+		sale_calculate->specific_inventory_sale_list_total =
+			specific_inventory_sale_list_total(
+				specific_inventory_sale_list );
+
+		sale_calculate->specific_inventory_sale_list_CGS_total =
+			specific_inventory_sale_list_CGS_total(
+				specific_inventory_sale_list );
+	}
+
+	if ( fixed_service_total_boolean )
+	{
+		sale_calculate->fixed_service_sale_list_total =
+			fixed_service_sale_list_total(
+				fixed_service_sale_list );
+	}
+
+	if ( hourly_service_total_boolean )
+	{
+		sale_calculate->hourly_service_sale_list_total =
+			hourly_service_sale_list_total(
+				hourly_service_sale_list );
+	}
+
+	sale->gross_revenue =
+		SALE_GROSS_REVENUE(
+			sale_calculate->inventory_sale_list_total,
+			sale_calculate->specific_inventory_sale_list_total,
+			sale_calculate->fixed_service_sale_list_total,
+			sale_calculate->hourly_service_sale_list_total );
+
+	if ( sales_tax_boolean )
+	{
+		sale_calculate->sales_tax =
+			SALE_SALES_TAX(
+				sale->inventory_sale_list_total,
+				sale->specific_inventory_sale_list_total,
+				predictbooks_self_sales_tax_rate );
+	}
+
+	sale_calculate->invoice_amount =
+		SALE_INVOICE_AMOUNT(
+			sale_calculate->gross_revenue,
+			sale_calculate->sales_tax,
+			sale_calculate->shipping_revenue );
+
+	sale_calculate->customer_payment_total =
+		customer_payment_total(
+			cash_account,
+			completed_date_time,
+			sale_calculate->invoice_amount,
+			customer_payment_list );
+
+	sale_calculate->amount_due =
+		SALE_AMOUNT_DUE(
+			sale->invoice_amount,
+			sale->customer_payment_total );
+
+	return sale_calculate;
+}
+
+SALE_CALCULATE *sale_calculate_calloc( void )
+{
+	SALE_CALCULATE *sale_calculate;
+
+	if ( ! ( sale_calculate = calloc( 1, sizeof ( sale_calculate ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return sale_calculate;
 }
 

@@ -8,9 +8,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "piece.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "piece.h"
+#include "float.h"
 #include "sql.h"
 #include "date.h"
 #include "entity.h"
@@ -194,6 +195,7 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 			fund_boolean,
 			contact_key_boolean,
 			fixed_service_work->begin_work_date_time,
+			fixed_service_work->work_hours,
 			fixed_service_work->sale_work_hours );
 
 	fixed_service_work->primary_key_list =
@@ -514,6 +516,7 @@ LIST *fixed_service_work_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		char *begin_work_date_time,
+		double work_hours,
 		double sale_work_hours )
 {
 	char *work_primary_data_string;
@@ -554,20 +557,31 @@ LIST *fixed_service_work_update_string_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	update_string =
-		/* ------------------------------------------------ */
-		/* Returns heap memory or null (if not set_boolean) */
-		/* ------------------------------------------------ */
-		sale_update_string(
-			sql_delimiter,
-			work_primary_data_string,
-			"work_hours" /* column_name */,
-			sale_work_hours /* money */,
-			1 /* set_boolean */ );
+	if ( !float_virtually_same(
+		work_hours,
+		sale_work_hours ) )
+	{
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				sql_delimiter,
+				work_primary_data_string,
+				"work_hours" /* column_name */,
+				sale_work_hours /* money */,
+				1 /* set_boolean */ );
 
-	list_set( list, update_string );
+		list_set( list, update_string );
+	}
 
 	free( work_primary_data_string );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }

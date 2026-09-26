@@ -176,7 +176,7 @@ HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
 
 /* Process */
 /* ------- */
-HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
+HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_calloc(
 		void );
 
 /* Usage */

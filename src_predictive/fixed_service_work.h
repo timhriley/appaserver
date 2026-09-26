@@ -123,6 +123,7 @@ LIST *fixed_service_work_update_string_list(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		char *begin_work_date_time,
+		double work_hours,
 		double sale_work_hours );
 
 /* Usage */

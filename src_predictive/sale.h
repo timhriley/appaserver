@@ -39,12 +39,12 @@
 typedef struct
 {
 	double shipping_revenue;
-	double inventory_sale_total;
-	double inventory_sale_CGS_total;
-	double specific_inventory_sale_total;
-	double specific_inventory_sale_CGS_total;
-	double fixed_service_sale_total;
-	double hourly_service_sale_total;
+	double inventory_sale_list_total;
+	double inventory_sale_list_CGS_total;
+	double specific_inventory_sale_list_total;
+	double specific_inventory_sale_list_CGS_total;
+	double fixed_service_sale_list_total;
+	double hourly_service_sale_list_total;
 	double gross_revenue;
 	double sales_tax;
 	double invoice_amount;
@@ -59,10 +59,10 @@ typedef struct
 /* -------------- */
 SALE_CALCULATE *sale_calculate_new(
 		boolean shipping_revenue_boolean,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_boolean,
-		boolean fixed_service_sale_boolean,
-		boolean hourly_service_sale_boolean,
+		boolean inventory_total_boolean,
+		boolean specific_inventory_total_boolean,
+		boolean fixed_service_total_boolean,
+		boolean hourly_service_total_boolean,
 		CUSTOMER *customer,
 		INVENTORY_SALE_LIST *inventory_sale_list,
 		LIST *specific_inventory_sale_list,
@@ -70,7 +70,6 @@ SALE_CALCULATE *sale_calculate_new(
 		LIST *hourly_service_sale_list,
 		boolean sales_tax_boolean,
 		double predictbooks_self_sales_tax_rate,
-		double shipping_revenue,
 		char *cash_account,
 		char *completed_date_time,
 		LIST *customer_payment_list );
@@ -83,23 +82,23 @@ SALE_CALCULATE *sale_calculate_calloc(
 /* Usage */
 /* ----- */
 #define SALE_CALCULATE_GROSS_REVENUE(				\
-		inventory_sale_total,				\
-		specific_inventory_sale_total,			\
-		fixed_service_sale_total,			\
-		hourly_service_sale_total )			\
-	( inventory_sale_total +				\
-	  specific_inventory_sale_total +			\
-	  fixed_service_sale_total +				\
-	  hourly_service_sale_total )
+		inventory_sale_list_total,			\
+		specific_inventory_sale_list_total,		\
+		fixed_service_sale_list_total,			\
+		hourly_service_sale_list_total )		\
+	( inventory_sale_list_total +				\
+	  specific_inventory_sale_list_total +			\
+	  fixed_service_sale_list_total +			\
+	  hourly_service_sale_list_total )
 
 /* Usage */
 /* ----- */
 #define SALE_CALCULATE_SALES_TAX(				\
-		inventory_sale_total,				\
-		specific_inventory_sale_total,			\
+		inventory_sale_list_total,			\
+		specific_inventory_sale_list_total,		\
 		self_tax_state_sales_tax_rate )			\
-	( ( inventory_sale_total +				\
-	    specific_inventory_sale_total ) *			\
+	( ( inventory_sale_list_total +				\
+	    specific_inventory_sale_list_total ) *		\
 	    self_tax_state_sales_tax_rate )
 
 /* Usage */
@@ -136,15 +135,15 @@ typedef struct
 /* Usage */
 /* ----- */
 SALE *sale_trigger_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
+		char *preupdate_uncollectible_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
-		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key,
-		char *preupdate_uncollectible_date_time );
+		char *state );
 
 /* Process */
 /* ------- */

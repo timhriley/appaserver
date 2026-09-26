@@ -688,7 +688,7 @@ LIST *hourly_service_work_primary_key_list(
 	LIST *list;
 
 	list =
-		hourly_service_sale_primary_key_list(
+		hourly_service_sale_list_primary_key_list(
 			SALE_SERVICE_NAME_COLUMN,
 			SALE_SERVICE_DESCRIPTION_COLUMN,
 			fund_boolean,
