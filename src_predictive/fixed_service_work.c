@@ -191,9 +191,9 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 			contact_key,
 			sale_date_time,
 			service_name,
-			fixed_service_work->begin_work_date_time,
 			fund_boolean,
 			contact_key_boolean,
+			fixed_service_work->begin_work_date_time,
 			fixed_service_work->sale_work_hours );
 
 	fixed_service_work->primary_key_list =
@@ -511,9 +511,9 @@ LIST *fixed_service_work_update_string_list(
 		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *begin_work_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
+		char *begin_work_date_time,
 		double sale_work_hours )
 {
 	char *work_primary_data_string;
@@ -594,7 +594,7 @@ LIST *fixed_service_work_primary_key_list(
 	LIST *list;
 
 	list =
-		fixed_service_sale_primary_key_list(
+		fixed_service_sale_list_primary_key_list(
 			SALE_SERVICE_NAME_COLUMN,
 			fund_boolean,
 			contact_key_boolean );

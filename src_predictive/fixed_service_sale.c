@@ -17,6 +17,7 @@
 #include "sale.h"
 #include "predictive.h"
 #include "sale_fetch.h"
+#include "inventory_purchase.h"
 #include "fixed_service_work.h"
 #include "fixed_service_sale.h"
 
@@ -60,7 +61,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_calloc( void )
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"calloc() returned empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -73,10 +74,6 @@ FIXED_SERVICE_SALE *fixed_service_sale_calloc( void )
 }
 
 FIXED_SERVICE_SALE *fixed_service_sale_parse(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		boolean fixed_service_work_boolean,
@@ -85,32 +82,55 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 	FIXED_SERVICE_SALE *fixed_service_sale;
 	char service_name[ 128 ];
 	char buffer[ 128 ];
+	int piece_offset;
 
 	if ( !input || !*input ) return NULL;
 
-	/* See FIXED_SERVICE_SALE_SELECT */
-	/* ----------------------------- */
-	piece( service_name, SQL_DELIMITER, input, 0 );
+	/* See fixed_service_sale_list_select() */
+	/* ------------------------------------ */
+	piece( service_name, SQL_DELIMITER, input, 2 );
 
 	/* -------------- */
 	/* Safely returns */
 	/* -------------- */
 	fixed_service_sale = fixed_service_sale_new( strdup( service_name ) );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	if ( *buffer ) fixed_service_sale->fixed_price = atof( buffer );
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	if ( *buffer ) fixed_service_sale->full_name = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer ) fixed_service_sale->estimated_hours = atof( buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) fixed_service_sale->sale_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) fixed_service_sale->discount_amount = atof( buffer );
+	if ( *buffer ) fixed_service_sale->fixed_price = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer ) fixed_service_sale->work_hours = atof( buffer );
+	if ( *buffer ) fixed_service_sale->estimated_hours = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) fixed_service_sale->discount_amount = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) fixed_service_sale->work_hours = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) fixed_service_sale->net_revenue = atof( buffer );
+
+	piece_offset = 8;
+
+	if ( fund_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset++ );
+		if ( *buffer ) fixed_service_sale->fund_name = strdup( buffer );
+	}
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset );
+		if ( *buffer )
+			fixed_service_sale->contact_key =
+				strdup( buffer );
+	}
 
 	if ( fixed_service_work_boolean )
 	{
@@ -118,10 +138,10 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 			fixed_service_work_list(
 				FIXED_SERVICE_WORK_SELECT,
 				FIXED_SERVICE_WORK_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
+				fixed_service_sale->fund_name,
+				fixed_service_sale->full_name,
+				fixed_service_sale->contact_key,
+				fixed_service_sale->sale_date_time,
 				fixed_service_sale->service_name,
 				fund_boolean,
 				contact_key_boolean );
@@ -129,157 +149,30 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse(
 		fixed_service_sale->fixed_service_work_hours =
 			fixed_service_work_hours(
 				fixed_service_sale->fixed_service_work_list );
-
-		fixed_service_sale->fixed_service_sale_net_revenue =
-			FIXED_SERVICE_SALE_NET_REVENUE(
-				fixed_service_sale->fixed_price,
-				fixed_service_sale->discount_amount );
-
-		fixed_service_sale->update_string_list =
-			fixed_service_sale_update_string_list(
-				SQL_DELIMITER,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				service_name,
-				fund_boolean,
-				contact_key_boolean,
-				fixed_service_sale->
-					fixed_service_work_hours,
-				fixed_service_sale->
-					fixed_service_sale_net_revenue );
-
-		fixed_service_sale->primary_key_list =
-			fixed_service_sale_primary_key_list(
-					SALE_SERVICE_NAME_COLUMN,
-					fund_boolean,
-					contact_key_boolean );
-
-		fixed_service_sale->sale_update_system_string =
-			/* -------------------- */
-			/* Borrow sale_update() */
-			/* Returns heap memory  */
-			/* -------------------- */
-			sale_update_system_string(
-				FIXED_SERVICE_SALE_TABLE,
-				fixed_service_sale->primary_key_list );
 	}
+
+	fixed_service_sale->fixed_service_sale_net_revenue =
+		FIXED_SERVICE_SALE_NET_REVENUE(
+			fixed_service_sale->fixed_price,
+			fixed_service_sale->discount_amount );
+
+	fixed_service_sale->update_string_list =
+		fixed_service_sale_update_string_list(
+			SQL_DELIMITER,
+			fixed_service_sale->fund_name,
+			fixed_service_sale->full_name,
+			fixed_service_sale->contact_key,
+			fixed_service_sale->sale_date_time,
+			fixed_service_sale->service_name,
+			fund_boolean,
+			contact_key_boolean,
+			fixed_service_sale->fixed_service_work_hours,
+			fixed_service_sale->fixed_service_sale_net_revenue );
 
 	return fixed_service_sale;
 }
 
-LIST *fixed_service_sale_list(
-		const char *fixed_service_sale_select,
-		const char *fixed_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean fund_boolean,
-		boolean contact_key_boolean,
-		boolean fixed_service_work_boolean )
-{
-	char *where;
-	LIST *list = list_new();
-	char *system_string;
-	FILE *input_pipe;
-	char input[ 1024 ];
-	FIXED_SERVICE_SALE *fixed_service_sale;
-
-	if ( !full_name
-	||   !sale_date_time )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		sale_primary_where(
-			SALE_DATE_TIME_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			fund_boolean,
-			contact_key_boolean );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			(char *)fixed_service_sale_select,
-			(char *)fixed_service_sale_table,
-			where );
-
-	/* -------------- */
-	/* Safely returns */
-	/* -------------- */
-	input_pipe = appaserver_input_pipe( system_string );
-
-	free( system_string );
-
-	while ( string_input( input, input_pipe, sizeof ( input ) ) )
-	{
-		fixed_service_sale =
-			fixed_service_sale_parse(
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				fund_boolean,
-				contact_key_boolean,
-				fixed_service_work_boolean,
-				input );
-
-		if ( !fixed_service_sale )
-		{
-			char message[ 2048 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"fixed_service_sale_parse(%s) returned empty.",
-				input );
-
-			pclose( input_pipe );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		list_set( list, fixed_service_sale );
-	}
-
-	pclose( input_pipe );
-
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
-
-	return list;
-}
-
-double fixed_service_sale_total( LIST *fixed_service_sale_list )
+double fixed_service_sale_list_revenue_total( LIST *fixed_service_sale_list )
 {
 	FIXED_SERVICE_SALE *fixed_service_sale;
 	double total = 0.0;
@@ -295,82 +188,6 @@ double fixed_service_sale_total( LIST *fixed_service_sale_list )
 	} while( list_next( fixed_service_sale_list ) );
 
 	return total;
-}
-
-FIXED_SERVICE_SALE *fixed_service_sale_fetch(
-		const char *fixed_service_sale_select,
-		const char *fixed_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		boolean fund_boolean,
-		boolean contact_key_boolean,
-		boolean fixed_service_work_boolean )
-{
-	char *where;
-	char *system_string;
-	char *input;
-
-	if ( !full_name
-	||   !sale_date_time
-	||   !service_name )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		fixed_service_sale_primary_where(
-			SALE_SERVICE_NAME_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			service_name,
-			fund_boolean,
-			contact_key_boolean );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			(char *)fixed_service_sale_select,
-			(char *)fixed_service_sale_table,
-			where );
-
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	input = string_system_input( system_string );
-
-	if ( !input ) return NULL;
-
-	return
-	fixed_service_sale_parse(
-		fund_name,
-		full_name,
-		contact_key,
-		sale_date_time,
-		fund_boolean,
-		contact_key_boolean,
-		fixed_service_work_boolean,
-		input );
 }
 
 char *fixed_service_sale_primary_where(
@@ -434,74 +251,6 @@ char *fixed_service_sale_primary_where(
 	free( escape );
 
 	return where;
-}
-
-FIXED_SERVICE_SALE *fixed_service_sale_trigger(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		char *state )
-{
-	FIXED_SERVICE_SALE *fixed_service_sale = {0};
-
-	if ( !full_name
-	||   !sale_date_time
-	||   !service_name
-	||   !state )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return NULL;
-
-	if ( strcmp(
-		state,
-		APPASERVER_INSERT_STATE ) == 0
-	||   strcmp(
-		state,
-		APPASERVER_UPDATE_STATE ) == 0 )
-	{
-		boolean fund_boolean;
-		boolean contact_key_boolean;
-
-		fund_boolean =
-			predictive_fund_boolean(
-				PREDICTIVE_FUND_TABLE,
-				PREDICTIVE_FUND_COLUMN );
-
-		contact_key_boolean =
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN );
-
-		fixed_service_sale =
-			fixed_service_sale_fetch(
-				FIXED_SERVICE_SALE_SELECT,
-				FIXED_SERVICE_SALE_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				service_name,
-				fund_boolean,
-				contact_key_boolean,
-				1 /* fixed_service_work_boolean */ );
-	}
-
-	return fixed_service_sale;
 }
 
 char *fixed_service_sale_primary_data_string(
@@ -646,21 +395,7 @@ LIST *fixed_service_sale_update_string_list(
 	return list;
 }
 
-void fixed_service_sale_update(
-		LIST *update_string_list,
-		char *sale_update_system_string )
-{
-	/* Borrow sale_update() */
-	/* -------------------- */
-	(void)sale_update(
-		(char *)0 /* application_name for transaction_update */,
-		update_string_list,
-		sale_update_system_string,
-		(SALE_TRANSACTION *)0,
-		(SALE_LOSS_TRANSACTION*)0 );
-}
-
-LIST *fixed_service_sale_primary_key_list(
+LIST *fixed_service_sale_list_primary_key_list(
 		const char *sale_service_name_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
@@ -680,3 +415,185 @@ LIST *fixed_service_sale_primary_key_list(
 
 	return primary_key_list;
 }
+
+char *fixed_service_sale_list_select(
+		const char *fixed_service_sale_select,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	inventory_purchase_list_select(
+		fixed_service_sale_select
+			/* INVENTORY_PURCHASE_SELECT */,
+		fund_boolean,
+		contact_key_boolean );
+}
+
+char *fixed_service_sale_list_update_system_string(
+		const char *fixed_service_sale_table,
+		LIST *primary_key_list )
+{
+	return
+	/* -------------------- */
+	/* Returns heap memory  */
+	/* -------------------- */
+	sale_update_system_string(
+		fixed_service_sale_table,
+		primary_key_list );
+}
+
+LIST *fixed_service_sale_list_update_string_list(
+		LIST *fixed_service_sale_list )
+{
+	FIXED_SERVICE_SALE *fixed_service_sale;
+	LIST *update_string_list = list_new();
+
+	if ( list_rewind( fixed_service_sale_list ) )
+	do {
+		fixed_service_sale =
+			list_get(
+				fixed_service_sale_list );
+
+		list_set_list(
+			update_string_list,
+			fixed_service_sale->update_string_list );
+
+	} while ( list_next( fixed_service_sale_list ) );
+
+	if ( !list_length( update_string_list ) )
+	{
+		list_free( update_string_list );
+		update_string_list = NULL;
+	}
+
+	return update_string_list;
+}
+
+FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_new(
+		const char *fixed_service_sale_select,
+		const char *fixed_service_sale_table,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		boolean fixed_service_work_boolean,
+		char *where )
+{
+	FIXED_SERVICE_SALE_LIST *fixed_service_sale_list;
+	char *system_string;
+	FILE *input_pipe;
+	char input[ 1024 ];
+	FIXED_SERVICE_SALE *fixed_service_sale;
+
+	if ( !where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"where is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	fixed_service_sale_list = fixed_service_sale_list_calloc();
+	fixed_service_sale_list->list = list_new();
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			(char *)fixed_service_sale_select,
+			(char *)fixed_service_sale_table,
+			where );
+
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	input_pipe = appaserver_input_pipe( system_string );
+
+	free( system_string );
+
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
+	{
+		fixed_service_sale =
+			/* -------------- */
+			/* Should succeed */
+			/* -------------- */
+			fixed_service_sale_parse(
+				fund_boolean,
+				contact_key_boolean,
+				fixed_service_work_boolean,
+				input );
+
+		list_set( fixed_service_sale_list->list, fixed_service_sale );
+	}
+
+	pclose( input_pipe );
+
+	if ( !list_length( fixed_service_sale_list->list ) )
+	{
+		list_free( fixed_service_sale_list->list );
+		fixed_service_sale_list->list = NULL;
+		return fixed_service_sale_list;
+	}
+
+	fixed_service_sale_list->primary_key_list =
+		fixed_service_sale_list_primary_key_list(
+			SALE_SERVICE_NAME_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
+
+	fixed_service_sale_list->update_system_string =
+		/* -------------------- */
+		/* Returns heap memory  */
+		/* -------------------- */
+		fixed_service_sale_list_update_system_string(
+			FIXED_SERVICE_SALE_TABLE,
+			fixed_service_sale_list->primary_key_list );
+
+	fixed_service_sale_list->update_string_list =
+		fixed_service_sale_list_update_string_list(
+			fixed_service_sale_list->list
+				/* fixed_service_sale_list */ );
+
+	fixed_service_sale_list->revenue_total =
+		fixed_service_sale_list_revenue_total(
+			fixed_service_sale_list->list
+				/* fixed_service_sale_list */ );
+
+	return fixed_service_sale_list;
+}
+
+FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_calloc( void )
+{
+	FIXED_SERVICE_SALE_LIST *fixed_service_sale_list;
+
+	if ( ! ( fixed_service_sale_list =
+			calloc( 1,
+				sizeof ( FIXED_SERVICE_SALE_LIST ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return fixed_service_sale_list;
+}
+

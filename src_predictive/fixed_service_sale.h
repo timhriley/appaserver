@@ -4,23 +4,28 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FIXED_SERVICE_SALE_H
-#define FIXED_SERVICE_SALE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
 
-#define FIXED_SERVICE_SALE_TABLE	"fixed_service_sale"
-
-#define FIXED_SERVICE_SALE_SELECT	"service_name,"			\
+#define FIXED_SERVICE_SALE_SELECT	"full_name,"			\
+					"sale_date_time,"		\
+					"service_name,"			\
 					"fixed_price,"			\
 					"estimated_hours,"		\
 					"discount_amount,"		\
 					"work_hours,"			\
 					"net_revenue"
 
+#define FIXED_SERVICE_SALE_TABLE	"fixed_service_sale"
+
 typedef struct
 {
+	char *fund_name;
+	char *full_name;
+	char *contact_key;
+	char *sale_date_time;
 	char *service_name;
 	double fixed_price;
 	double estimated_hours;
@@ -31,31 +36,11 @@ typedef struct
 	double fixed_service_work_hours; /* for update */
 	double fixed_service_sale_net_revenue; /* for update */
 	LIST *update_string_list;
-	LIST *primary_key_list;
-	char *sale_update_system_string;
 } FIXED_SERVICE_SALE;
 
 /* Usage */
 /* ----- */
-FIXED_SERVICE_SALE *fixed_service_sale_fetch(
-		const char *fixed_service_sale_select,
-		const char *fixed_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean fixed_service_work_boolean );
-
-/* Usage */
-/* ----- */
 FIXED_SERVICE_SALE *fixed_service_sale_parse(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		boolean fixed_service_work_boolean,
@@ -74,27 +59,6 @@ FIXED_SERVICE_SALE *fixed_service_sale_new(
 /* ------- */
 FIXED_SERVICE_SALE *fixed_service_sale_calloc(
 		void );
-
-/* Usage */
-/* ----- */
-LIST *fixed_service_sale_list(
-		const char *fixed_service_sale_select,
-		const char *fixed_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean fixed_service_work_boolean );
-
-
-/* Usage */
-/* ----- */
-LIST *fixed_service_sale_primary_key_list(
-		const char *sale_service_name_column,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
@@ -117,11 +81,6 @@ char *fixed_service_sale_primary_where(
 		fixed_price,					\
 		discount_amount )				\
 	( fixed_price - discount_amount )
-
-/* Usage */
-/* ----- */
-double fixed_service_sale_total(
-		LIST *fixed_service_sale_list );
 
 /* Usage */
 /* ----- */
@@ -152,21 +111,66 @@ char *fixed_service_sale_primary_data_string(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
-/* Usage */
-/* ----- */
-FIXED_SERVICE_SALE *fixed_service_sale_trigger(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		char *state );
+typedef struct
+{
+	LIST *list;
+	LIST *primary_key_list;
+	char *update_system_string;
+	LIST *update_string_list;
+	double revenue_total;
+} FIXED_SERVICE_SALE_LIST;
 
 /* Usage */
 /* ----- */
-void fixed_service_sale_update(
-		LIST *update_string_list,
-		char *sale_update_system_string );
 
-#endif
+/* Safely returns */
+/* -------------- */
+FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_new(
+		const char *fixed_service_sale_select,
+		const char *fixed_service_sale_table,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		boolean fixed_service_work_boolean,
+		char *where );
+
+/* Process */
+/* ------- */
+FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *fixed_service_sale_list_select(
+		const char *fixed_service_sale_select,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+LIST *fixed_service_sale_list_primary_key_list(
+		const char *sale_service_name_column,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *fixed_service_sale_list_update_system_string(
+		const char *fixed_service_sale_table,
+		LIST *fixed_service_sale_list_primary_key_list );
+
+/* Usage */
+/* ----- */
+LIST *fixed_service_sale_list_update_string_list(
+		LIST *fixed_service_sale_list );
+
+/* Usage */
+/* ----- */
+double fixed_service_sale_list_revenue_total(
+		LIST *fixed_service_sale_list );
 

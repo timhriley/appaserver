@@ -216,7 +216,7 @@ EXECUTABLES=	trial_balance_output					\
 		purchase_trigger					\
 		customer_sale_trigger					\
 		fixed_service_sale_trigger				\
-		post_change_fixed_service_work				\
+		fixed_service_work_trigger				\
 		hourly_service_sale_trigger				\
 		post_change_hourly_service_work				\
 		specific_inventory_sale_trigger
@@ -733,16 +733,16 @@ post_change_hourly_service_work:					\
 		post_change_hourly_service_work.c			\
 		-o post_change_hourly_service_work
 
-post_change_fixed_service_work:						\
-	post_change_fixed_service_work.c				\
+fixed_service_work_trigger:						\
+	fixed_service_work_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		post_change_fixed_service_work.c			\
-		-o post_change_fixed_service_work
+		fixed_service_work_trigger.c				\
+		-o fixed_service_work_trigger
 
 post_change_customer_payment: post_change_customer_payment.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\

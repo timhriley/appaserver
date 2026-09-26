@@ -11,6 +11,7 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "date.h"
+#include "float.h"
 #include "sql.h"
 #include "security.h"
 #include "sale.h"
@@ -61,7 +62,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_calloc( void )
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"calloc() returned empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -74,10 +75,6 @@ HOURLY_SERVICE_SALE *hourly_service_sale_calloc( void )
 }
 
 HOURLY_SERVICE_SALE *hourly_service_sale_parse(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		boolean hourly_service_work_boolean,
@@ -87,6 +84,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 	char service_name[ 128 ];
 	char service_description[ 128 ];
 	char buffer[ 128 ];
+	int piece_offset;
 
 	if ( !full_name
 	||   !sale_date_time
@@ -96,10 +94,10 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		return NULL;
 	}
 
-	/* See HOURLY_SERVICE_SALE_SELECT */
-	/* ------------------------------ */
-	piece( service_name, SQL_DELIMITER, input, 0 );
-	piece( service_description, SQL_DELIMITER, input, 1 );
+	/* See hourly_service_sale_select() */
+	/* -------------------------------- */
+	piece( service_name, SQL_DELIMITER, input, 2 );
+	piece( service_description, SQL_DELIMITER, input, 3 );
 
 	hourly_service_sale =
 		/* -------------- */
@@ -109,20 +107,44 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 			strdup( service_name ),
 			strdup( service_description ) );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	if ( *buffer ) hourly_service_sale->estimated_hours = atof( buffer );
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	if ( *buffer ) hourly_service_sale->full_name = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) hourly_service_sale->hourly_rate = atof( buffer );
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	if ( *buffer ) hourly_service_sale->sale_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	if ( *buffer ) hourly_service_sale->estimated_revenue = atof( buffer );
+	if ( *buffer ) hourly_service_sale->estimated_hours = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
-	if ( *buffer ) hourly_service_sale->work_hours = atof( buffer );
+	if ( *buffer ) hourly_service_sale->hourly_rate = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) hourly_service_sale->estimated_revenue = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer ) hourly_service_sale->work_hours = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) hourly_service_sale->net_revenue = atof( buffer );
+
+	piece_offset = 9;
+
+	if ( fund_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset++ );
+		if ( *buffer )
+			hourly_service_sale->fund_name =
+				strdup( buffer );
+	}
+
+	if ( contact_key_boolean )
+	{
+		piece( buffer, SQL_DELIMITER, input, piece_offset );
+		if ( *buffer )
+			hourly_service_sale->contact_key =
+				strdup( buffer );
+	}
 
 	if ( hourly_service_work_boolean )
 	{
@@ -135,10 +157,10 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 			hourly_service_work_list(
 				HOURLY_SERVICE_WORK_SELECT,
 				HOURLY_SERVICE_WORK_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
+				hourly_service_sale->fund_name,
+				hourly_service_sale->full_name,
+				hourly_service_sale->contact_key,
+				hourly_service_sale->sale_date_time,
 				hourly_service_sale->service_name,
 				hourly_service_sale->service_description,
 				fund_boolean,
@@ -158,12 +180,12 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 		hourly_service_sale->update_string_list =
 			hourly_service_sale_update_string_list(
 				SQL_DELIMITER,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				service_name,
-				service_description,
+				hourly_service_sale->fund_name,
+				hourly_service_sale->full_name,
+				hourly_service_sale->contact_key,
+				hourly_service_sale->sale_date_time,
+				hourly_service_sale->service_name,
+				hourly_service_sale->service_description,
 				fund_boolean,
 				contact_key_boolean,
 				hourly_service_sale->
@@ -172,189 +194,6 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 					hourly_service_work_list_hours,
 				hourly_service_sale->
 					hourly_service_sale_net_revenue );
-
-		hourly_service_sale->primary_key_list =
-			hourly_service_sale_primary_key_list(
-					SALE_SERVICE_NAME_COLUMN,
-					SALE_SERVICE_DESCRIPTION_COLUMN,
-					fund_boolean,
-					contact_key_boolean );
-
-		hourly_service_sale->sale_update_system_string =
-			/* -------------------- */
-			/* Borrow sale_update() */
-			/* Returns heap memory  */
-			/* -------------------- */
-			sale_update_system_string(
-				HOURLY_SERVICE_SALE_TABLE,
-				hourly_service_sale->primary_key_list );
-	}
-
-	return hourly_service_sale;
-}
-
-void hourly_service_sale_update(
-		LIST *update_string_list,
-		char *sale_update_system_string )
-{
-	/* Borrow sale_update() */
-	/* -------------------- */
-	(void)sale_update(
-		(char *)0 /* application_name for transaction_update */,
-		update_string_list,
-		sale_update_system_string,
-		(SALE_TRANSACTION *)0,
-		(SALE_LOSS_TRANSACTION*)0 );
-}
-
-HOURLY_SERVICE_SALE *hourly_service_sale_fetch(
-		const char *hourly_service_sale_select,
-		const char *hourly_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		boolean fund_boolean,
-		boolean contact_key_boolean,
-		boolean hourly_service_work_boolean )
-{
-	char *where;
-	char *system_string;
-	char *input;
-
-	if ( !full_name
-	||   !sale_date_time
-	||   !service_name
-	||   !service_description )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		hourly_service_sale_primary_where(
-			SALE_SERVICE_NAME_COLUMN,
-			SALE_SERVICE_DESCRIPTION_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			service_name,
-			service_description,
-			fund_boolean,
-			contact_key_boolean );
-
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			(char *)hourly_service_sale_select,
-			(char *)hourly_service_sale_table,
-			where );
-
-	input =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		string_system_input(
-			system_string );
-
-	if ( !input ) return NULL;
-
-	return
-	hourly_service_sale_parse(
-		fund_name,
-		full_name,
-		contact_key,
-		sale_date_time,
-		fund_boolean,
-		contact_key_boolean,
-		hourly_service_work_boolean,
-		input );
-}
-
-HOURLY_SERVICE_SALE *hourly_service_sale_trigger(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *service_name,
-		char *service_description,
-		char *state )
-{
-	HOURLY_SERVICE_SALE *hourly_service_sale = {0};
-
-	if ( !full_name
-	||   !sale_date_time
-	||   !service_name
-	||   !service_description
-	||   !state )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) return NULL;
-
-	if ( strcmp(
-		state,
-		APPASERVER_INSERT_STATE ) == 0
-	||   strcmp(
-		state,
-		APPASERVER_UPDATE_STATE ) == 0 )
-	{
-		boolean fund_boolean;
-		boolean contact_key_boolean;
-
-		fund_boolean =
-			predictive_fund_boolean(
-				PREDICTIVE_FUND_TABLE,
-				PREDICTIVE_FUND_COLUMN );
-
-		contact_key_boolean =
-			entity_contact_key_boolean(
-				ENTITY_TABLE,
-				ENTITY_CONTACT_KEY_COLUMN );
-
-		hourly_service_sale =
-			hourly_service_sale_fetch(
-				HOURLY_SERVICE_SALE_SELECT,
-				HOURLY_SERVICE_SALE_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				service_name,
-				service_description,
-				fund_boolean,
-				contact_key_boolean,
-				1 /* hourly_service_work_boolean */ );
 	}
 
 	return hourly_service_sale;
@@ -450,8 +289,11 @@ LIST *hourly_service_sale_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		double estimated_revenue,
-		double work_list_hours,
-		double net_revenue )
+		double hourly_service_sale_estimated_revenue,
+		double work_hours,
+		double hourly_service_work_list_hours,
+		double net_revenue,
+		double hourly_service_sale_net_revenue )
 {
 	char *primary_data_string;
 	char *update_string;
@@ -491,43 +333,65 @@ LIST *hourly_service_sale_update_string_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	update_string =
-		/* ------------------------------------------------ */
-		/* Returns heap memory or null (if not set_boolean) */
-		/* ------------------------------------------------ */
-		sale_update_string(
-			sql_delimiter,
-			primary_data_string,
-			"estimated_revenue" /* column_name */,
-			estimated_revenue /* money */,
-			1 /* set_boolean */ );
+	if ( !float_money_virtually_same(
+		estimated_revenue,
+		hourly_service_sale_estimated_revenue ) )
+	{
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				sql_delimiter,
+				primary_data_string,
+				"estimated_revenue" /* column_name */,
+				hourly_service_sale_estimated_revenue
+					/* money */,
+				1 /* set_boolean */ );
 
-	list_set( list, update_string );
+		list_set( list, update_string );
+	}
 
-	update_string =
-		/* ------------------------------------------------ */
-		/* Returns heap memory or null (if not set_boolean) */
-		/* ------------------------------------------------ */
-		sale_update_string(
-			sql_delimiter,
-			primary_data_string,
-			"work_hours" /* column_name */,
-			work_list_hours /* money */,
-			1 /* set_boolean */ );
+	if ( !float_money_virtually_same(
+		work_hours,
+		hourly_service_work_list_hours ) )
+	{
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				sql_delimiter,
+				primary_data_string,
+				"work_hours" /* column_name */,
+				hourly_service_work_list_hours /* money */,
+				1 /* set_boolean */ );
 
-	list_set( list, update_string );
+		list_set( list, update_string );
+	}
 
-	update_string =
-		sale_update_string(
-			sql_delimiter,
-			primary_data_string,
-			"net_revenue" /* column_name */,
-			net_revenue /* money */,
-			1 /* set_boolean */ );
+	if ( !float_money_virtually_same(
+		net_revenue,
+		hourly_service_sale_net_revenue ) )
+	{
+		update_string =
+			sale_update_string(
+				sql_delimiter,
+				primary_data_string,
+				"net_revenue" /* column_name */,
+				hourly_service_sale_net_revenue /* money */,
+				1 /* set_boolean */ );
 
-	list_set( list, update_string );
+		list_set( list, update_string );
+	}
 
 	free( primary_data_string );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
@@ -625,7 +489,7 @@ char *hourly_service_sale_primary_where(
 	return where;
 }
 
-LIST *hourly_service_sale_primary_key_list(
+LIST *hourly_service_sale_list_primary_key_list(
 		const char *sale_service_name_column,
 		const char *sale_service_description_column,
 		boolean fund_boolean,
@@ -648,51 +512,89 @@ LIST *hourly_service_sale_primary_key_list(
 	return primary_key_list;
 }
 
-LIST *hourly_service_sale_list(
+char *hourly_service_sale_list_update_system_string(
+		const char *hourly_service_sale_table,
+		LIST *primary_key_list )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	sale_update_system_string(
+		hourly_service_sale_table,
+		primary_key_list );
+}
+
+LIST *hourly_service_sale_list_update_string_list(
+		LIST *hourly_service_sale_list )
+{
+	HOURLY_SERVICE_SALE *hourly_service_sale;
+	LIST *update_string_list = list_new();
+
+	if ( list_rewind( hourly_service_sale_list ) )
+	do {
+		hourly_service_sale =
+			list_get(
+				hourly_service_sale_list );
+
+		list_set_list(
+			update_string_list,
+			hourly_service_sale->update_string_list );
+
+	} while ( list_next( hourly_service_sale_list ) );
+
+	if ( !list_length( update_string_list ) )
+	{
+		list_free( update_string_list );
+		update_string_list = NULL;
+	}
+
+	return update_string_list;
+}
+
+double hourly_service_sale_list_revenue_total(
+		LIST *hourly_service_sale_list )
+{
+	HOURLY_SERVICE_SALE *hourly_service_sale;
+	double total = 0.0;
+
+	if ( list_rewind( hourly_service_sale_list ) )
+	do {
+		hourly_service_sale =
+			list_get(
+				hourly_service_sale_list );
+
+		total += hourly_service_sale->hourly_service_sale_net_revenue;
+
+	} while ( list_next( hourly_service_sale_list ) );
+
+	return total;
+}
+
+HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
 		const char *hourly_service_sale_select,
 		const char *hourly_service_sale_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean hourly_service_work_boolean )
+		boolean hourly_service_work_boolean,
+		char *where )
 {
-	char *where;
-	LIST *list = list_new();
+	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
+	char *select;
 	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
 	HOURLY_SERVICE_SALE *hourly_service_sale;
 
-	if ( !full_name
-	||   !sale_date_time )
-	{
-		char message[ 128 ];
+	hourly_service_sale_list = hourly_service_sale_list_calloc();
+	hourly_service_sale_list->list = list_new();
 
-		snprintf(
-			message,
-			sizeof ( message ),
-			"parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		sale_primary_where(
-			SALE_DATE_TIME_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
+	select =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		hourly_service_sale_list_select(
+			hourly_service_sale_select,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -701,9 +603,11 @@ LIST *hourly_service_sale_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		appaserver_system_string(
-			(char *)hourly_service_sale_select,
+			select,
 			(char *)hourly_service_sale_table,
 			where );
+
+	free( select );
 
 	/* -------------- */
 	/* Safely returns */
@@ -715,46 +619,87 @@ LIST *hourly_service_sale_list(
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		hourly_service_sale =
+			/* -------------- */
+			/* Should succeed */
+			/* -------------- */
 			hourly_service_sale_parse(
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
 				fund_boolean,
 				contact_key_boolean,
 				hourly_service_work_boolean,
 				input );
 
-		if ( !hourly_service_sale )
-		{
-			char message[ 2048 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"hourly_service_sale_parse(%s) returned empty.",
-				input );
-
-			pclose( input_pipe );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		list_set( list, hourly_service_sale );
+		list_set( hourly_service_sale_list->list, hourly_service_sale );
 	}
 
 	pclose( input_pipe );
 
-	if ( !list_length( list ) )
+	if ( !list_length( hourly_service_list_sale->list ) )
 	{
-		list_free( list );
-		list = NULL;
+		list_free( hourly_service_list_sale->list );
+		hourly_service_list_sale->list = NULL;
+		return hourly_service_sale_list;
 	}
 
-	return list;
+	hourly_service_list_sale->primary_key_list =
+		hourly_service_sale_list_primary_key_list(
+				SALE_SERVICE_NAME_COLUMN,
+				SALE_SERVICE_DESCRIPTION_COLUMN,
+				fund_boolean,
+				contact_key_boolean );
+
+	hourly_service_sale_list->update_system_string =
+		/* -------------------- */
+		/* Returns heap memory  */
+		/* -------------------- */
+		hourly_service_sale_list_update_system_string(
+			HOURLY_SERVICE_SALE_TABLE,
+			hourly_service_sale_list->primary_key_list );
+
+	hourly_service_sale_list->revenue_total =
+		hourly_service_sale_list_revenue_total(
+			hourly_service_sale_list->list
+				/* hourly_service_sale_list */ );
+
+	return hourly_service_sale_list;
 }
 
+HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_calloc( void )
+{
+	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
+
+	if ( ! ( hourly_service_sale_list =
+			calloc( 1,
+				sizeof ( HOURLY_SERVICE_SALE_LIST ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return hourly_service_sale_list;
+}
+
+char *hourly_service_sale_list_select(
+		const char *hourly_service_sale_select,
+		boolean fund_boolean,
+		boolean contact_key_boolean )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	char *inventory_purchase_list_select(
+		hourly_service_sale_select
+			/* INVENTORY_PURCHASE_SELECT */,
+		fund_boolean,
+		contact_key_boolean );
+}

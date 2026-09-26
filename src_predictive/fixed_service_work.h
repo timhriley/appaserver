@@ -4,18 +4,17 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FIXED_SERVICE_WORK_H
-#define FIXED_SERVICE_WORK_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
-
-#define FIXED_SERVICE_WORK_TABLE	"fixed_service_work"
 
 #define FIXED_SERVICE_WORK_SELECT	"begin_work_date_time,"	\
 					"end_work_date_time,"	\
 					"activity,"		\
 					"work_hours"
+
+#define FIXED_SERVICE_WORK_TABLE	"fixed_service_work"
 
 typedef struct
 {
@@ -121,9 +120,9 @@ LIST *fixed_service_work_update_string_list(
 		char *contact_key,
 		char *sale_date_time,
 		char *service_name,
-		char *begin_work_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		char *begin_work_date_time,
 		double sale_work_hours );
 
 /* Usage */
@@ -158,5 +157,3 @@ FIXED_SERVICE_WORK *fixed_service_work_trigger(
 void fixed_service_work_update(
 		LIST *update_string_list,
 		char *sale_update_system_string );
-
-#endif

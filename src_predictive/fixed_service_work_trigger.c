@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_fixed_service_work.c	*/
+/* $APPASERVER_HOME/src_predictive/fixed_service_work_trigger.c		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -11,7 +11,6 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "sale.h"
-#include "fixed_service_sale.h"
 #include "fixed_service_work.h"
 
 int main( int argc, char **argv )
@@ -25,7 +24,6 @@ int main( int argc, char **argv )
 	char *begin_work_date_time;
 	char *state;
 	FIXED_SERVICE_WORK *fixed_service_work;
-	FIXED_SERVICE_SALE *fixed_service_sale;
 	SALE *sale;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -73,33 +71,17 @@ int main( int argc, char **argv )
 			fixed_service_work->sale_update_system_string );
 	}
 
-	fixed_service_sale =
-		fixed_service_sale_trigger(
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			service_name,
-			state );
-
-	if ( fixed_service_sale )
-	{
-		fixed_service_sale_update(
-			fixed_service_sale->update_string_list,
-			fixed_service_sale->sale_update_system_string );
-	}
-
 	sale =
 		sale_trigger_new(
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			state,
 			(char *)0 /* preupdate_fund_name */,
 			(char *)0 /* preupdate_full_name */,
 			(char *)0 /* preupdate_contact_key */,
-			(char *)0 /* preupdate_uncollectible_date_time */ );
+			(char *)0 /* preupdate_uncollectible_date_time */,
+			fund_name,
+			full_name,
+			contact_key,
+			sale_date_time,
+			state );
 
 	if ( sale )
 	{
@@ -107,7 +89,7 @@ int main( int argc, char **argv )
 			application_name /* for update_statement_execute */,
 			sale->update_string_list,
 			sale->update_system_string,
-			sale->sale_transaction,
+			(SALE_TRANSACTION *)0,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}
 
