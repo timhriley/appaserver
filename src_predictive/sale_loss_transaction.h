@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SALE_LOSS_TRANSACTION_H
-#define SALE_LOSS_TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -29,16 +28,16 @@ typedef struct
 /* Usage */
 /* ----- */
 SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
+		char *preupdate_uncollectible_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
 		char *uncollectible_date_time,
 		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key,
-		char *preupdate_uncollectible_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		double sale_amount_due );
@@ -47,5 +46,3 @@ SALE_LOSS_TRANSACTION *sale_loss_transaction_new(
 /* ------- */
 SALE_LOSS_TRANSACTION *sale_loss_transaction_calloc(
 		void );
-
-#endif

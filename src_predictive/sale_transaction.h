@@ -24,14 +24,14 @@ typedef struct
 /* Usage */
 /* ----- */
 SALE_TRANSACTION *sale_transaction_new(
+		char *preupdate_fund_name,
+		char *preupdate_full_name,
+		char *preupdate_contact_key,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
 		char *state,
-		char *preupdate_fund_name,
-		char *preupdate_full_name,
-		char *preupdate_contact_key,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		char *cash_account,

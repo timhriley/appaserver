@@ -106,14 +106,14 @@ SALE *sale_trigger_new(
 
 	sale->sale_transaction =
 		sale_transaction_new(
+			preupdate_fund_name,
+			preupdate_full_name,
+			preupdate_contact_key,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
 			state,
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
 			sale->sale_fetch->predictive_fund_boolean,
 			sale->sale_fetch->entity_contact_key_boolean,
 			sale->sale_fetch->cash_account,
@@ -123,7 +123,7 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->arrived_date,
 			sale->sale_fetch->transaction_date_time
 				/* fetch_transaction_date_time */,
-			sale->sale_fetch->shipping_charge,
+			sale->sale_calculate->shipping_charge,
 			sale->inventory_sale_total,
 			sale->inventory_sale_CGS_total,
 			sale->specific_inventory_sale_total,
@@ -134,6 +134,10 @@ SALE *sale_trigger_new(
 
 	sale->sale_loss_transaction =
 		sale_loss_transaction_new(
+			preupdate_fund_name,
+			preupdate_full_name,
+			preupdate_contact_key,
+			preupdate_uncollectible_date_time,
 			fund_name,
 			full_name,
 			contact_key,
@@ -142,10 +146,6 @@ SALE *sale_trigger_new(
 				sale_fetch->
 				uncollectible_date_time,
 			state,
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
-			preupdate_uncollectible_date_time,
 			sale->
 				sale_fetch->
 				predictive_fund_boolean,
