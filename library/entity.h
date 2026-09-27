@@ -9,14 +9,6 @@
 #include "boolean.h"
 #include "list.h"
 
-#define ENTITY_TABLE			"entity"
-#define ENTITY_FULL_NAME_COLUMN		"full_name"
-#define ENTITY_CONTACT_KEY_COLUMN	"contact_key"
-#define ENTITY_CONTACT_KEY_DEFAULT	"unknown"
-
-#define ENTITY_FINANCIAL_INSTITUTION_TABLE \
-					"financial_institution"
-
 #define ENTITY_SELECT			"full_name,"		\
 					"street_address,"	\
 					"city,"			\
@@ -25,6 +17,14 @@
 					"land_phone_number,"	\
 					"cell_phone_number,"	\
 					"email_address"
+
+#define ENTITY_TABLE			"entity"
+#define ENTITY_FULL_NAME_COLUMN		"full_name"
+#define ENTITY_CONTACT_KEY_COLUMN	"contact_key"
+#define ENTITY_CONTACT_KEY_DEFAULT	"unknown"
+
+#define ENTITY_FINANCIAL_INSTITUTION_TABLE \
+					"financial_institution"
 
 #define ENTITY_CONTACT_KEY_UNKNOWN	"unknown"
 #define ENTITY_CONTACT_KEY_NULL		"null"

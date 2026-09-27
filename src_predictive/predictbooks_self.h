@@ -1,25 +1,15 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/self_tax.h				*/
+/* $APPASERVER_HOME/src_predictive/predictbooks_self.h				*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef SELF_TAX_H
-#define SELF_TAX_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
 
-enum self_tax_payroll_pay_period{
-	pay_period_unknown,
-	pay_period_weekly,
-	pay_period_biweekly,
-	pay_period_semimonthly,
-	pay_period_monthly };
-
-#define SELF_TAX_TABLE		"self_tax"
-
-#define SELF_TAX_SELECT						\
+#define PREDICTBOOKS_SELF_SELECT				\
 	"full_name,"						\
 	"inventory_cost_method,"				\
 	"payroll_pay_period,"					\
@@ -43,12 +33,29 @@ enum self_tax_payroll_pay_period{
 	"energy_charge_kilowatts_per_hour,"			\
 	"paypall_cash_account_name"
 
+#define PREDICTBOOKS_SELF_TABLE		"predictbooks_self"
+
+enum payroll_pay_period
+{
+	payroll_pay_period_unknown,
+	weekly,
+	biweekly,
+	semimonthly,
+	monthly
+};
+
+enum inventory_cost_method
+{
+	inventory_cost_method_unknown,
+	average,
+	fifo,
+	lifo
+};
+
 typedef struct
 {
 	char *full_name;
 	char *contact_key;
-	char *inventory_cost_method;
-	char *payroll_pay_period_string;
 	char *payroll_begin_day;
 	double social_security_combined_tax_rate;
 	int social_security_payroll_ceiling;
@@ -68,29 +75,24 @@ typedef struct
 	double state_sales_tax_rate;
 	double energy_charge_kilowatts_per_hour;
 	char *paypall_cash_account_name;
-	enum self_tax_payroll_pay_period payroll_pay_period;
-} SELF_TAX;
+	enum payroll_pay_period payroll_pay_period;
+	enum inventory_cost_method inventory_cost_method;
+} PREDICTBOOKS_SELF;
 
 /* Usage */
 /* ----- */
 
 /* Safely returns */
 /* -------------- */
-SELF_TAX *self_tax_fetch(
-		const char *self_tax_table,
-		char *full_name,
-		char *contact_key );
-
-/* Process */
-/* ------- */
-enum self_tax_payroll_pay_period self_tax_resolve_payroll_pay_period(
-		char *payroll_pay_period_string );
+PREDICTBOOKS_SELF *predictbooks_self_fetch(
+		const char *predictbooks_self_select,
+		const char *predictbooks_self_table,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
-SELF_TAX *self_tax_parse(
-		char *full_name,
-		char *contact_key,
+PREDICTBOOKS_SELF *predictbooks_self_parse(
+		boolean entity_contact_key_boolean,
 		char *input );
 
 /* Usage */
@@ -98,38 +100,51 @@ SELF_TAX *self_tax_parse(
 
 /* Safely returns */
 /* -------------- */
-SELF_TAX *self_tax_new(
-		char *full_name,
-		char *contact_key );
+PREDICTBOOKS_SELF *predictbooks_self_new(
+		char *full_name );
 
 /* Process */
 /* ------- */
-SELF_TAX *self_tax_calloc(
+PREDICTBOOKS_SELF *predictbooks_self_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *predictbooks_self_select_string(
+		const char *predictbooks_self_select,
+		const char *entity_contact_key_column,
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *self_tax_paypal_cash_account_name(
-		char *full_name,
-		char *contact_key );
+char *predictbooks_self_paypal_cash_account_name(
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
-double self_tax_state_sales_tax_rate(
-		char *full_name,
-		char *contact_key );
+double predictbooks_self_state_sales_tax_rate(
+		boolean entity_contact_key_boolean );
 
 /* Usage */
 /* ----- */
 
 /* Returns program memory */
 /* ---------------------- */
-char *self_tax_resolve_payroll_pay_period_string(
-		enum self_tax_payroll_pay_period
-			self_tax_payroll_pay_period );
+char *predictbooks_self_payroll_pay_period_string(
+		enum payroll_pay_period payroll_pay_period );
 
-#endif
+/* Usage */
+/* ----- */
+enum payroll_pay_period predictbooks_self_payroll_pay_period(
+		char *payoll_pay_period_string );
 
+/* Usage */
+/* ----- */
+enum inventory_cost_method predictbooks_self_inventory_cost_method(
+		char *inventory_cost_method_string );

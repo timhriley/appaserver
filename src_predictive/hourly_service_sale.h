@@ -171,8 +171,8 @@ HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
 		const char *hourly_service_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		boolean hourly_service_work_boolean,
-		char *where );
+		char *where,
+		boolean hourly_service_work_boolean );
 
 /* Process */
 /* ------- */

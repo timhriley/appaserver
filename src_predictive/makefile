@@ -951,9 +951,9 @@ vendor_payment.o: vendor_payment.c					\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c vendor_payment.c
 
-self_tax.o: self_tax.c self_tax.h
+predictbooks_self.o: predictbooks_self.c predictbooks_self.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c self_tax.c
+		-c predictbooks_self.c
 
 feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

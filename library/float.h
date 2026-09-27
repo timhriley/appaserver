@@ -39,6 +39,9 @@ boolean float_money_virtually_same(
 boolean float_money_virtually_zero(
 		double d );
 
+boolean float_virtually_zero(
+		double d );
+
 boolean float_dollar_virtually_same(
 		double d1,
 		double d2 );

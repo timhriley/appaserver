@@ -10,7 +10,7 @@
 #include "boolean.h"
 #include "predictive.h"
 #include "customer.h"
-#include "entity_self.h"
+#include "predictbooks_self.h"
 #include "folder.h"
 
 typedef struct
@@ -21,7 +21,7 @@ typedef struct
 	char *sale_date_time;
 	FOLDER *folder_fetch;
 	boolean cash_account_boolean;
-	boolean shipping_charge_boolean;
+	boolean shipping_revenue_boolean;
 	boolean instructions_boolean;
 	boolean inventory_total_boolean;
 	boolean specific_inventory_total_boolean;
@@ -36,7 +36,7 @@ typedef struct
 	boolean predictive_fund_boolean;
 	boolean entity_contact_key_boolean;
 	char *cash_account;
-	double shipping_charge;
+	double shipping_revenue;
 	char *instructions;
 	double inventory_sale_total;
 	double specific_inventory_sale_total;
@@ -55,13 +55,13 @@ typedef struct
 	char *arrived_date;
 	char *transaction_date_time;
 	CUSTOMER *customer;
-	LIST *inventory_sale_list;
-	LIST *specific_inventory_sale_list;
-	LIST *fixed_service_sale_list;
-	LIST *hourly_service_sale_list;
+	INVENTORY_SALE_LIST *inventory_sale_list;
+	SPECIFIC_INVENTORY_SALE_LIST *specific_inventory_sale_list;
+	FIXED_SERVICE_SALE_LIST *fixed_service_sale_list;
+	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
 	LIST *customer_payment_list;
-	ENTITY_SELF *entity_self;
-	double self_tax_state_sales_tax_rate;
+	PREDICTBOOKS_SELF *predictbooks_self;
+	double predictbooks_self_state_sales_tax_rate;
 	LIST *primary_key_list;
 } SALE_FETCH;
 
@@ -84,7 +84,7 @@ SALE_FETCH *sale_fetch_calloc(
 boolean sale_fetch_cash_account_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_shipping_charge_boolean(
+boolean sale_fetch_shipping_revenue_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_instructions_boolean(
@@ -127,7 +127,7 @@ boolean sale_fetch_uncollectible_date_time_boolean(
 char *sale_fetch_select(
 		const char *sale_select,
 		boolean sale_fetch_cash_account_boolean,
-		boolean sale_fetch_shipping_charge_boolean,
+		boolean sale_fetch_shipping_revenue_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_total_boolean,
 		boolean sale_fetch_specific_inventory_total_boolean,
@@ -144,7 +144,7 @@ char *sale_fetch_select(
 void sale_fetch_parse(
 		SALE_FETCH *sale_fetch_calloc /* in/out */,
 		boolean sale_fetch_cash_account_boolean,
-		boolean sale_fetch_shipping_charge_boolean,
+		boolean sale_fetch_shipping_revenue_boolean,
 		boolean sale_fetch_instructions_boolean,
 		boolean sale_fetch_inventory_total_boolean,
 		boolean sale_fetch_specific_inventory_total_boolean,

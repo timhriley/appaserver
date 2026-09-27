@@ -12,6 +12,7 @@
 #include "sql.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "float.h"
 #include "folder_attribute.h"
 #include "optional_column.h"
 #include "fixed_service_sale.h"
@@ -19,14 +20,14 @@
 #include "inventory_sale.h"
 #include "specific_inventory_sale.h"
 #include "customer_payment.h"
-#include "self_tax.h"
+#include "predictbooks_self.h"
 #include "sale.h"
 #include "sale_fetch.h"
 
 char *sale_fetch_select(
 		const char *sale_select,
 		boolean cash_account_boolean,
-		boolean shipping_charge_boolean,
+		boolean shipping_revenue_boolean,
 		boolean instructions_boolean,
 		boolean inventory_total_boolean,
 		boolean specific_inventory_total_boolean,
@@ -55,9 +56,9 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
-			"shipping_charge" /* component */,
+			"shipping_revenue" /* component */,
 			0 /* not escape_boolean */,
-			shipping_charge_boolean /* set_boolean */ );
+			shipping_revenue_boolean /* set_boolean */ );
 
 	free( optional_column->prior_return_string );
 
@@ -167,7 +168,7 @@ char *sale_fetch_select(
 void sale_fetch_parse(
 		SALE_FETCH *sale_fetch /* in/out */,
 		boolean cash_account_boolean,
-		boolean shipping_charge_boolean,
+		boolean shipping_revenue_boolean,
 		boolean instructions_boolean,
 		boolean inventory_sale_boolean,
 		boolean specific_inventory_sale_boolean,
@@ -253,14 +254,14 @@ void sale_fetch_parse(
 		if ( *buffer ) sale_fetch->cash_account = strdup( buffer );
 	}
 
-	if ( shipping_charge_boolean )
+	if ( shipping_revenue_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
 			input,
 			optional_piece_offset++ );
 
-		if ( *buffer ) sale_fetch->shipping_charge = atof( buffer );
+		if ( *buffer ) sale_fetch->shipping_revenue = atof( buffer );
 	}
 
 	if ( instructions_boolean )
@@ -454,8 +455,8 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch_cash_account_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
-	sale_fetch->shipping_charge_boolean =
-		sale_fetch_shipping_charge_boolean(
+	sale_fetch->shipping_revenue_boolean =
+		sale_fetch_shipping_revenue_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
 	sale_fetch->instructions_boolean =
@@ -511,7 +512,7 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch_select(
 			sale_select,
 			sale_fetch->cash_account_boolean,
-			sale_fetch->shipping_charge_boolean,
+			sale_fetch->shipping_revenue_boolean,
 			sale_fetch->instructions_boolean,
 			sale_fetch->inventory_total_boolean,
 			sale_fetch->specific_inventory_total_boolean,
@@ -572,7 +573,7 @@ SALE_FETCH *sale_fetch_new(
 	sale_fetch_parse(
 		sale_fetch /* in/out */,
 		sale_fetch->cash_account_boolean,
-		sale_fetch->shipping_charge_boolean,
+		sale_fetch->shipping_revenue_boolean,
 		sale_fetch->instructions_boolean,
 		sale_fetch->inventory_total_boolean,
 		sale_fetch->specific_inventory_total_boolean,
@@ -610,18 +611,32 @@ SALE_FETCH *sale_fetch_new(
 			message );
 	}
 
-#ifdef NOT_DEFINED
-
 	if ( sale_fetch->inventory_total_boolean )
 	{
 		sale_fetch->inventory_sale_list =
-			inventory_sale_list(
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			inventory_sale_list_new(
 				INVENTORY_SALE_TABLE,
 				INVENTORY_SALE_SELECT,
-				full_name,
-				contact_key,
-				sale_date_time,
-				contact_key_boolean );
+				sale_fetch->predictive_fund_boolean,
+				sale_fetch->entity_contact_key_boolean,
+				where );
+	}
+
+	if ( sale_fetch->specific_inventory_total_boolean )
+	{
+		sale_fetch->specific_inventory_sale_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			specific_inventory_sale_list_new(
+				SPECIFIC_INVENTORY_SALE_SELECT,
+				SPECIFIC_INVENTORY_SALE_TABLE,
+				sale_fetch->predictive_fund_boolean,
+				sale_fetch->entity_contact_key_boolean,
+				where );
 	}
 
 	if (	sale_fetch->inventory_total_boolean
@@ -629,16 +644,19 @@ SALE_FETCH *sale_fetch_new(
 	{
 		if ( !sale_fetch->customer->sales_tax_exempt_boolean )
 		{
-			if ( ! ( sale_fetch->entity_self =
-				     entity_self_fetch(
-					0 /* not fetch_entity_boolean */ ) ) )
+			if ( ! ( sale_fetch->predictbooks_self =
+				     predictbooks_self_fetch(
+					PREDICTBOOKS_SELF_SELECT,
+					PREDICTBOOKS_SELF_TABLE,
+					sale_fetch->
+					    entity_contact_key_boolean ) ) )
 			{
 				char message[ 128 ];
 
 				snprintf(
 					message,
 					sizeof ( message ),
-					"entity_self_fetch() returned empty." );
+				"predictbooks_self_fetch() returned empty." );
 
 				appaserver_error_stderr_exit(
 					__FILE__,
@@ -647,23 +665,17 @@ SALE_FETCH *sale_fetch_new(
 					message );
 			}
 
-			sale_fetch->self_tax_state_sales_tax_rate =
-				self_tax_state_sales_tax_rate(
-					sale_fetch->
-						entity_self->
-						full_name,
-					sale_fetch->
-						entity_self->
-							street_address );
-
-			if ( !sale_fetch->self_tax_state_sales_tax_rate )
+			if ( float_virtually_zero(
+				sale_fetch->
+					predictbooks_self->
+					state_sales_tax_rate ) )
 			{
 				char message[ 128 ];
 
 				snprintf(
 					message,
 					sizeof ( message ),
-			"self_tax_state_sales_tax_rate() returned empty." );
+					"state_sales_tax_rate is zero." );
 
 				appaserver_error_stderr_exit(
 					__FILE__,
@@ -673,50 +685,35 @@ SALE_FETCH *sale_fetch_new(
 			}
 		}
 	}
-#endif
 
 	if ( sale_fetch->fixed_service_total_boolean )
 	{
 		sale_fetch->fixed_service_sale_list =
-			fixed_service_sale_list(
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			fixed_service_sale_list_new(
 				FIXED_SERVICE_SALE_SELECT,
 				FIXED_SERVICE_SALE_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
 				sale_fetch->predictive_fund_boolean,
 				sale_fetch->entity_contact_key_boolean,
+				where,
 				1 /* fixed_service_work_boolean */ );
 	}
 
 	if ( sale_fetch->hourly_service_total_boolean )
 	{
 		sale_fetch->hourly_service_sale_list =
-			hourly_service_sale_list(
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			hourly_service_sale_list_new(
 				HOURLY_SERVICE_SALE_SELECT,
 				HOURLY_SERVICE_SALE_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
 				sale_fetch->predictive_fund_boolean,
 				sale_fetch->entity_contact_key_boolean,
+				where,
 				1 /* hourly_service_work_boolean */ );
-	}
-
-	if ( sale_fetch->specific_inventory_total_boolean )
-	{
-		sale_fetch->specific_inventory_sale_list =
-			specific_inventory_sale_list(
-				SPECIFIC_INVENTORY_SALE_SELECT,
-				SPECIFIC_INVENTORY_SALE_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				sale_fetch->predictive_fund_boolean,
-				sale_fetch->entity_contact_key_boolean );
 	}
 
 	if ( sale_fetch->payment_list_boolean )
@@ -725,12 +722,7 @@ SALE_FETCH *sale_fetch_new(
 			customer_payment_list(
 				CUSTOMER_PAYMENT_SELECT,
 				CUSTOMER_PAYMENT_TABLE,
-				fund_name,
-				full_name,
-				contact_key,
-				sale_date_time,
-				sale_fetch->predictive_fund_boolean,
-				sale_fetch->entity_contact_key_boolean );
+				where );
 	}
 
 	sale_fetch->primary_key_list =
@@ -824,13 +816,13 @@ boolean sale_fetch_title_passage_rule_boolean(
 		folder_attribute_list );
 }
 
-boolean sale_fetch_shipping_charge_boolean(
+boolean sale_fetch_shipping_revenue_boolean(
 		LIST *folder_attribute_list )
 {
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"shipping_charge",
+		"shipping_revenue",
 		folder_attribute_list );
 }
 

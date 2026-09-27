@@ -14,6 +14,7 @@
 #include "float.h"
 #include "sql.h"
 #include "security.h"
+#include "inventory_purchase.h"
 #include "sale.h"
 #include "hourly_service_work.h"
 #include "hourly_service_sale.h"
@@ -86,13 +87,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 	char buffer[ 128 ];
 	int piece_offset;
 
-	if ( !full_name
-	||   !sale_date_time
-	||   !input
-	||   !*input )
-	{
-		return NULL;
-	}
+	if ( !input || !*input ) return NULL;
 
 	/* See hourly_service_sale_select() */
 	/* -------------------------------- */
@@ -189,9 +184,13 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 				fund_boolean,
 				contact_key_boolean,
 				hourly_service_sale->
+					estimated_revenue,
+				hourly_service_sale->
 					hourly_service_sale_estimated_revenue,
+				hourly_service_sale->work_hours,
 				hourly_service_sale->
 					hourly_service_work_list_hours,
+				hourly_service_sale->net_revenue,
 				hourly_service_sale->
 					hourly_service_sale_net_revenue );
 	}
@@ -576,8 +575,8 @@ HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
 		const char *hourly_service_sale_table,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean hourly_service_work_boolean,
-		char *where )
+		char *where,
+		boolean hourly_service_work_boolean )
 {
 	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
 	char *select;
@@ -633,14 +632,14 @@ HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list_new(
 
 	pclose( input_pipe );
 
-	if ( !list_length( hourly_service_list_sale->list ) )
+	if ( !list_length( hourly_service_sale_list->list ) )
 	{
-		list_free( hourly_service_list_sale->list );
-		hourly_service_list_sale->list = NULL;
+		list_free( hourly_service_sale_list->list );
+		hourly_service_sale_list->list = NULL;
 		return hourly_service_sale_list;
 	}
 
-	hourly_service_list_sale->primary_key_list =
+	hourly_service_sale_list->primary_key_list =
 		hourly_service_sale_list_primary_key_list(
 				SALE_SERVICE_NAME_COLUMN,
 				SALE_SERVICE_DESCRIPTION_COLUMN,
@@ -697,7 +696,7 @@ char *hourly_service_sale_list_select(
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	char *inventory_purchase_list_select(
+	inventory_purchase_list_select(
 		hourly_service_sale_select
 			/* INVENTORY_PURCHASE_SELECT */,
 		fund_boolean,

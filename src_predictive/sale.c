@@ -23,7 +23,7 @@
 #include "customer_payment.h"
 #include "entity.h"
 #include "entity_self.h"
-#include "self_tax.h"
+#include "predictbooks_self.h"
 #include "account.h"
 #include "sale.h"
 
@@ -89,17 +89,16 @@ SALE *sale_trigger_new(
 		/* -------------- */
 		sale_calculate_new(
 			sale->sale_fetch->shipping_revenue_boolean,
-			sale->sale_fetch->inventory_total_boolean,
-			sale->sale_fetch->specific_inventory_total_boolean,
-			sale->sale_fetch->fixed_service_total_boolean,
-			sale->sale_fetch->hourly_service_total_boolean,
 			sale->sale_fetch->customer,
 			sale->sale_fetch->inventory_sale_list,
 			sale->sale_fetch->specific_inventory_sale_list,
 			sale->sale_fetch->fixed_service_sale_list,
 			sale->sale_fetch->hourly_service_sale_list,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->sale_fetch->predictbooks_self_sales_tax_rate,
+			sale->
+				sale_fetch->
+				predictbooks_self->
+				state_sales_tax_rate,
 			sale->sale_fetch->cash_account,
 			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->customer_payment_list );
@@ -123,14 +122,20 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->arrived_date,
 			sale->sale_fetch->transaction_date_time
 				/* fetch_transaction_date_time */,
-			sale->sale_calculate->shipping_charge,
-			sale->inventory_sale_total,
-			sale->inventory_sale_CGS_total,
-			sale->specific_inventory_sale_total,
-			sale->specific_inventory_sale_CGS_total,
-			sale->gross_revenue,
-			sale->sales_tax,
-			sale->invoice_amount );
+			sale->sale_calculate->shipping_revenue,
+			sale->sale_fetch->inventory_sale_list->extended_total,
+			sale->sale_fetch->inventory_sale_list->CGS_total,
+			sale->
+				sale_fetch->
+				specific_inventory_sale_list->
+				extended_total,
+			sale->
+				sale_fetch->
+				specific_inventory_sale_list->
+				CGS_total,
+			sale->sale_calculate->gross_revenue,
+			sale->sale_calculate->sales_tax,
+			sale->sale_calculate->invoice_amount );
 
 	sale->sale_loss_transaction =
 		sale_loss_transaction_new(
@@ -152,7 +157,7 @@ SALE *sale_trigger_new(
 			sale->
 				sale_fetch->
 				entity_contact_key_boolean,
-			sale->amount_due );
+			sale->sale_fetch->amount_due );
 
 	sale->update_string_list =
 		sale_update_string_list(
@@ -163,13 +168,13 @@ SALE *sale_trigger_new(
 			sale_date_time,
 			sale->sale_fetch->predictive_fund_boolean,
 			sale->sale_fetch->entity_contact_key_boolean,
-			sale->sale_fetch->shipping_charge_boolean,
+			sale->sale_fetch->shipping_revenue_boolean,
 			sale->sale_fetch->inventory_total_boolean,
 			sale->sale_fetch->specific_inventory_total_boolean,
 			sale->sale_fetch->fixed_service_total_boolean,
 			sale->sale_fetch->hourly_service_total_boolean,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->shipping_charge,
+			sale->shipping_revenue,
 			sale->inventory_sale_total,
 			sale->specific_inventory_sale_total,
 			sale->fixed_service_sale_total,
@@ -592,13 +597,13 @@ LIST *sale_update_string_list(
 		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean shipping_charge_boolean,
+		boolean shipping_revenue_boolean,
 		boolean inventory_total_boolean,
 		boolean specific_inventory_total_boolean,
 		boolean fixed_service_total_boolean,
 		boolean hourly_service_total_boolean,
 		boolean sales_tax_boolean,
-		double shipping_charge,
+		double shipping_revenuecharge,
 		double inventory_sale_total,
 		double specific_inventory_sale_total,
 		double fixed_service_sale_total,
@@ -633,9 +638,9 @@ LIST *sale_update_string_list(
 		sale_update_string(
 			sql_delimiter,
 			primary_data_string,
-			"shipping_charge" /* column_name */,
-			shipping_charge /* money */,
-			shipping_charge_boolean /* set_boolean */ );
+			"shipping_revenue" /* column_name */,
+			shipping_revenue /* money */,
+			shipping_revenue_boolean /* set_boolean */ );
 
 	list_set( list, update_string );
 

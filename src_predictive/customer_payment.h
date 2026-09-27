@@ -4,20 +4,18 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CUSTOMER_PAYMENT_H
-#define CUSTOMER_PAYMENT_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
 #include "customer_payment_transaction.h"
-
-#define CUSTOMER_PAYMENT_TABLE		"customer_payment"
 
 #define CUSTOMER_PAYMENT_SELECT		"payment_date_time,"	\
 					"account,"		\
 					"payment_amount,"	\
 					"check_number"
 
+#define CUSTOMER_PAYMENT_TABLE		"customer_payment"
 #define CUSTOMER_PAYMENT_MEMO		"Customer payment"
 #define CUSTOMER_PAYMENT_DATE_COLUMN	"payment_date_time"
 
@@ -38,12 +36,7 @@ typedef struct
 LIST *customer_payment_list(
 		const char *customer_payment_select,
 		const char *customer_payment_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
+		char *sale_primary_where );
 
 /* Usage */
 /* ----- */
@@ -138,4 +131,3 @@ void customer_payment_trigger(
 		char *preupdate_contact_key,
 		char *preupdate_payment_date_time );
 
-#endif

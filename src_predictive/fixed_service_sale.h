@@ -130,8 +130,8 @@ FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_new(
 		const char *fixed_service_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		boolean fixed_service_work_boolean,
-		char *where );
+		char *where,
+		boolean fixed_service_work_boolean );
 
 /* Process */
 /* ------- */

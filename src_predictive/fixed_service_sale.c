@@ -477,8 +477,8 @@ FIXED_SERVICE_SALE_LIST *fixed_service_sale_list_new(
 		const char *fixed_service_sale_table,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean fixed_service_work_boolean,
-		char *where )
+		char *where,
+		boolean fixed_service_work_boolean )
 {
 	FIXED_SERVICE_SALE_LIST *fixed_service_sale_list;
 	char *system_string;

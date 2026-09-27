@@ -4,14 +4,11 @@
 /* No warranty and freely available software. Visit Appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ENTITY_SELF_H
-#define ENTITY_SELF_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
 #include "entity.h"
-
-#define ENTITY_SELF_TABLE		"self"
 
 #define ENTITY_SELF_SELECT		"full_name,"			    \
 					"credit_card_number,"		    \
@@ -20,6 +17,8 @@
 					"credit_provider,"		    \
 					"invoice_amount_due,"		    \
 					"invoice_statement_current"
+
+#define ENTITY_SELF_TABLE		"self"
 
 typedef struct
 {
@@ -76,6 +75,4 @@ ENTITY_SELF *entity_self_new(
 /* ------- */
 ENTITY_SELF *entity_self_calloc(
 		void );
-
-#endif
 

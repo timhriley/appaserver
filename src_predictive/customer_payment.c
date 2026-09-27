@@ -19,29 +19,22 @@
 LIST *customer_payment_list(
 		const char *customer_payment_select,
 		const char *customer_payment_table,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean fund_boolean,
-		boolean contact_key_boolean )
+		char *sale_primary_where )
 {
 	LIST *list = list_new();
-	char *where;
 	char *system_string;
 	FILE *pipe;
 	char input[ 1024 ];
 	CUSTOMER_PAYMENT *customer_payment;
 
-	if ( !full_name
-	||   !sale_date_time )
+	if ( !sale_primary_where )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"sale_primary_where is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -50,19 +43,6 @@ LIST *customer_payment_list(
 			message );
 	}
 
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		sale_primary_where(
-			SALE_DATE_TIME_COLUMN,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			fund_boolean,
-			contact_key_boolean );
-
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -70,7 +50,7 @@ LIST *customer_payment_list(
 		appaserver_system_string(
 			(char *)customer_payment_select,
 			(char *)customer_payment_table,
-			where );
+			sale_primary_where );
 
 	/* -------------- */
 	/* Safely returns */

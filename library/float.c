@@ -60,13 +60,18 @@ boolean double_virtually_same( double d1, double d2 )
 	return float_virtually_same( d1, d2 );
 }
 
+boolean float_virtually_zero( double d )
+{
+	return float_virtually_same( d, 0.0 );
+}
+
 boolean float_virtually_same( double d1, double d2 )
 {
 	double difference = d1 - d2;
-	boolean results;
+	boolean result;
 	
-	results = ( float_abs( difference ) < 0.000005 );
-	return results;
+	result = ( float_abs( difference ) < 0.000005 );
+	return result;
 }
 
 boolean float_virtually_same_places(
