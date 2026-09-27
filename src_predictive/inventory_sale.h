@@ -17,7 +17,8 @@
 						"retail_price,"		\
 						"discount_amount,"	\
 						"extended_price,"	\
-						"cost_of_goods_sold"
+						"cost_of_goods_sold,"	\
+						"markup_percent"
 
 #define INVENTORY_SALE_TABLE			"inventory_sale"
 
@@ -33,8 +34,10 @@ typedef struct
 	double discount_amount;
 	double extended_price;
 	double cost_of_goods_sold;
+	int markup_percent;
 	double sale_extended_price;
 	INVENTORY_AVERAGE *inventory_average;
+	int inventory_sale_markup_percent;
 	LIST *update_string_list;
 } INVENTORY_SALE;
 
@@ -60,6 +63,18 @@ INVENTORY_SALE *inventory_sale_calloc(
 
 /* Usage */
 /* ----- */
+int inventory_sale_markup_percent(
+		double sale_extended_price,
+		double cost_of_goods_sold );
+
+/* Process */
+/* ------- */
+double inventory_sale_markup_ratio(
+		double extended_price,
+		double cost_of_goods_sold );
+
+/* Usage */
+/* ----- */
 LIST *inventory_sale_update_string_list(
 		const char sql_delimiter,
 		char *fund_name,
@@ -71,7 +86,9 @@ LIST *inventory_sale_update_string_list(
 		boolean entity_contact_key_boolean,
 		double extended_price,
 		double sale_extended_price,
-		LIST *inventory_average_cost_list );
+		LIST *inventory_average_cost_list,
+		int markup_percent,
+		int inventory_sale_markup_percent );
 
 /* Usage */
 /* ----- */

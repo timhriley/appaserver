@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "appaserver_error.h"
 #include "inventory_balance.h"
 #include "inventory_average_cost.h"
@@ -348,3 +349,69 @@ double inventory_average_cost_of_goods_sold(
 	return (double)quantity_sold * average_unit_cost;
 }
 
+
+INVENTORY_AVERAGE_COST *inventory_average_cost_sale_seek(
+		LIST *inventory_average_cost_list,
+		char *sale_date_time )
+{
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+
+	if ( !sale_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"sale_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		if ( inventory_average_cost->inventory_sale )
+		{
+			if ( strcmp(
+				sale_date_time,
+				inventory_average_cost->
+					inventory_sale->
+					sale_date_time ) == 0 )
+			{
+				return inventory_average_cost;
+			}
+		}
+	} while ( list_next( inventory_average_cost_list ) );
+
+	return NULL;
+}
+
+double inventory_average_cost_get(
+		INVENTORY_AVERAGE_COST *inventory_average_cost )
+{
+	if ( !inventory_average_cost )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_average_cost is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return inventory_average_cost->cost_of_goods_sold;
+}

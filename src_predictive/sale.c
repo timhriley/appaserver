@@ -884,15 +884,11 @@ char *sale_update_text_string(
 
 SALE_CALCULATE *sale_calculate_new(
 		boolean shipping_revenue_boolean,
-		boolean inventory_total_boolean,
-		boolean specific_inventory_total_boolean,
-		boolean fixed_service_total_boolean,
-		boolean hourly_service_total_boolean,
 		CUSTOMER *customer,
 		INVENTORY_SALE_LIST *inventory_sale_list,
-		LIST *specific_inventory_sale_list,
-		LIST *fixed_service_sale_list,
-		LIST *hourly_service_sale_list,
+		SPECIFIC_INVENTORY_SALE_LIST *specific_inventory_sale_list,
+		FIXED_SERVICE_SALE_LIST *fixed_service_sale_list,
+		HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list,
 		boolean sales_tax_boolean,
 		double predictbooks_self_sales_tax_rate,
 		char *cash_account,
@@ -901,14 +897,18 @@ SALE_CALCULATE *sale_calculate_new(
 {
 	SALE_CALCULATE *sale_calculate;
 
-	if ( !customer )
+	if ( !customer
+	||   !inventory_sale_list
+	||   !specific_inventory_sale_list
+	||   !fixed_service_sale_list
+	||   !hourly_service_sale_list )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"customer is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -928,44 +928,8 @@ SALE_CALCULATE *sale_calculate_new(
 */
 	}
 
-	if ( inventory_total_boolean )
-	{
-		sale_calculate->inventory_sale_list_total =
-			inventory_sale_list_total(
-				inventory_sale_list );
-
-		sale_calculate->inventory_sale_list_CGS_total =
-			inventory_sale_list_CGS_total(
-				inventory_sale_list );
-	}
-
-	if ( specific_inventory_total_boolean )
-	{
-		sale_calculate->specific_inventory_sale_list_total =
-			specific_inventory_sale_list_total(
-				specific_inventory_sale_list );
-
-		sale_calculate->specific_inventory_sale_list_CGS_total =
-			specific_inventory_sale_list_CGS_total(
-				specific_inventory_sale_list );
-	}
-
-	if ( fixed_service_total_boolean )
-	{
-		sale_calculate->fixed_service_sale_list_total =
-			fixed_service_sale_list_total(
-				fixed_service_sale_list );
-	}
-
-	if ( hourly_service_total_boolean )
-	{
-		sale_calculate->hourly_service_sale_list_total =
-			hourly_service_sale_list_total(
-				hourly_service_sale_list );
-	}
-
-	sale->gross_revenue =
-		SALE_GROSS_REVENUE(
+	sale_calculate->gross_revenue =
+		SALE_CALCULATE_GROSS_REVENUE(
 			sale_calculate->inventory_sale_list_total,
 			sale_calculate->specific_inventory_sale_list_total,
 			sale_calculate->fixed_service_sale_list_total,
@@ -1022,5 +986,47 @@ SALE_CALCULATE *sale_calculate_calloc( void )
 	}
 
 	return sale_calculate;
+}
+
+int sale_calculate_inventory_markup_percent(
+		double inventory_sale_list_extended_total,
+		double specific_inventory_sale_list_extended_total,
+		int cost_of_goods_sold )
+{
+	double inventory_total;
+	double ratio;
+
+	inventory_total =
+		sale_calculate_inventory_total(
+			inventory_sale_list_extended_total,
+			specific_inventory_sale_list_extended_total );
+
+	if ( !inventory_total ) return 0;
+
+	ratio =
+		sale_calculate_inventory_markup_ratio(
+			cost_of_goods_sold,
+			inventory_total );
+	return
+	float_round_integer( ratio * 100.0 );
+}
+
+double sale_calculate_inventory_total(
+		double inventory_sale_list_extended_total,
+		double specific_inventory_sale_list_extended_total )
+{
+	return
+	inventory_sale_list_extended_total +
+	specific_inventory_sale_list_extended_total;
+}
+
+double sale_calculate_inventory_markup_ratio(
+		double cost_of_goods_sold,
+		double inventory_total )
+{
+	if ( float_money_virtually_zero( inventory_total ) ) return 0.0;
+
+	return
+	(inventory_total - cost_of_goods_sold) / inventory_total;
 }
 

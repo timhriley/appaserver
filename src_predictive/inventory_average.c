@@ -183,6 +183,37 @@ INVENTORY_AVERAGE *inventory_average_new(
 		inventory_average_cost_list(
 			inventory_average->inventory_balance_list );
 
+	if ( sale_date_time )
+	{
+		INVENTORY_AVERAGE_COST *inventory_average_cost;
+
+		inventory_average_cost =
+			inventory_average_cost_sale_seek(
+				inventory_average->inventory_average_cost_list,
+				sale_date_time );
+
+		if ( !inventory_average_cost )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"inventory_average_cost_sale_seek(%s) returned empty.",
+				sale_date_time );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		inventory_average->cost_of_goods_sold =
+			inventory_average_cost_get(
+				inventory_average_cost );
+	}
+
 	return inventory_average;
 }
 

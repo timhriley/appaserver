@@ -115,7 +115,11 @@ INVENTORY_SALE *inventory_sale_parse(
 	if ( *buffer )
 		inventory_sale->cost_of_goods_sold = atof( buffer );
 
-	piece_offset = 8;
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	if ( *buffer )
+		inventory_sale->markup_percent = atoi( buffer );
+
+	piece_offset = 9;
 
 	if ( fund_boolean )
 	{
@@ -140,10 +144,20 @@ INVENTORY_SALE *inventory_sale_parse(
 			inventory_sale->discount_amount );
 
 	inventory_sale->inventory_average =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		inventory_average_new(
 			inventory_sale->inventory_name,
 			(char *)0 /* purchase_date_time */,
 			inventory_sale->sale_date_time );
+
+	inventory_sale->inventory_sale_markup_percent =
+		inventory_sale_markup_percent(
+			inventory_sale->sale_extended_price,
+			inventory_sale->
+				inventory_average->
+				cost_of_goods_sold );
 
 	inventory_sale->update_string_list =
 		inventory_sale_update_string_list(
@@ -157,11 +171,11 @@ INVENTORY_SALE *inventory_sale_parse(
 			contact_key_boolean,
 			inventory_sale->extended_price,
 			inventory_sale->sale_extended_price,
-			(inventory_sale->inventory_average)
-				? inventory_sale->
-					inventory_average->
-					inventory_average_cost_list
-				: NULL );
+			inventory_sale->
+				inventory_average->
+				inventory_average_cost_list,
+			inventory_sale->markup_percent,
+			inventory_sale->inventory_sale_markup_percent );
 
 	return inventory_sale;
 }
@@ -190,7 +204,9 @@ LIST *inventory_sale_update_string_list(
 		boolean contact_key_boolean,
 		double extended_price,
 		double sale_extended_price,
-		LIST *inventory_average_cost_list )
+		LIST *inventory_average_cost_list,
+		int markup_percent,
+		int inventory_sale_markup_percent )
 {
 	LIST *list = list_new();
 	char *primary_data_string;
@@ -229,8 +245,6 @@ LIST *inventory_sale_update_string_list(
 		list_set( list, update_string );
 	}
 
-	free( primary_data_string );
-
 	cost_quantity_update_string_list =
 		inventory_sale_cost_quantity_update_string_list(
 			sql_delimiter,
@@ -243,6 +257,24 @@ LIST *inventory_sale_update_string_list(
 		cost_quantity_update_string_list );
 
 	list_free_container( cost_quantity_update_string_list );
+
+	if ( markup_percent != inventory_sale_markup_percent )
+	{
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_integer_string(
+				sql_delimiter,
+				primary_data_string,
+				"inventory_markup_percent" /* column_name */,
+				inventory_sale_markup_percent /* integer */,
+				1 /* set_boolean */ );
+
+			list_set( list, update_string );
+	}
+
+	free( primary_data_string );
 
 	return list;
 }
@@ -808,5 +840,46 @@ LIST *inventory_sale_list_update_string_list( LIST *inventory_sale_list )
 	}
 
 	return update_string_list;
+}
+
+int inventory_sale_markup_percent(
+		double sale_extended_price,
+		double cost_of_goods_sold )
+{
+	double ratio;
+
+	if ( !sale_extended_price ) return 0;
+
+	ratio =
+		inventory_sale_markup_ratio(
+			sale_extended_price,
+			cost_of_goods_sold );
+
+	return
+	float_round_integer( ratio * 100.0 );
+}
+
+double inventory_sale_markup_ratio(
+		double extended_price,
+		double cost_of_goods_sold )
+{
+	if ( float_money_virtually_zero( extended_price ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"extended_price is zero." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	(extended_price - cost_of_goods_sold) / extended_price;
 }
 

@@ -12,6 +12,9 @@
 #include "transaction.h"
 #include "entity.h"
 #include "inventory_sale.h"
+#include "specific_inventory_sale.h"
+#include "fixed_service_sale.h"
+#include "hourly_service_sale.h"
 #include "sale_transaction.h"
 #include "sale_loss_transaction.h"
 #include "sale_fetch.h"
@@ -39,13 +42,9 @@
 typedef struct
 {
 	double shipping_revenue;
-	double inventory_sale_list_total;
-	double inventory_sale_list_CGS_total;
-	double specific_inventory_sale_list_total;
-	double specific_inventory_sale_list_CGS_total;
-	double fixed_service_sale_list_total;
-	double hourly_service_sale_list_total;
 	double gross_revenue;
+	double cost_of_goods_sold;
+	int inventory_markup_percent;
 	double sales_tax;
 	double invoice_amount;
 	double customer_payment_total;
@@ -59,15 +58,11 @@ typedef struct
 /* -------------- */
 SALE_CALCULATE *sale_calculate_new(
 		boolean shipping_revenue_boolean,
-		boolean inventory_total_boolean,
-		boolean specific_inventory_total_boolean,
-		boolean fixed_service_total_boolean,
-		boolean hourly_service_total_boolean,
 		CUSTOMER *customer,
 		INVENTORY_SALE_LIST *inventory_sale_list,
-		LIST *specific_inventory_sale_list,
-		LIST *fixed_service_sale_list,
-		LIST *hourly_service_sale_list,
+		SPECIFIC_INVENTORY_SALE_LIST *specific_inventory_sale_list,
+		FIXED_SERVICE_SALE_LIST *fixed_service_sale_list,
+		HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list,
 		boolean sales_tax_boolean,
 		double predictbooks_self_sales_tax_rate,
 		char *cash_account,
@@ -82,14 +77,39 @@ SALE_CALCULATE *sale_calculate_calloc(
 /* Usage */
 /* ----- */
 #define SALE_CALCULATE_GROSS_REVENUE(				\
-		inventory_sale_list_total,			\
-		specific_inventory_sale_list_total,		\
-		fixed_service_sale_list_total,			\
-		hourly_service_sale_list_total )		\
-	( inventory_sale_list_total +				\
-	  specific_inventory_sale_list_total +			\
-	  fixed_service_sale_list_total +			\
-	  hourly_service_sale_list_total )
+		inventory_sale_list_extended_total,		\
+		specific_inventory_sale_list_extended_total,	\
+		fixed_service_sale_list_revenue_total,		\
+		hourly_service_sale_list_revenue_total )	\
+	( inventory_sale_list_extended_total +			\
+	  specific_inventory_sale_list_extended_total +		\
+	  fixed_service_sale_list_revenue_total +		\
+	  hourly_service_sale_list_revenue_total )
+
+/* Usage */
+/* ----- */
+#define SALE_CALCULATE_COST_OF_GOODS_SOLD(			\
+		inventory_sale_list_extended_total,		\
+		specific_inventory_sale_list_extended_total )	\
+	( inventory_sale_list_extended_total +			\
+	  specific_inventory_sale_list_extended_total )
+
+/* Usage */
+/* ----- */
+int sale_calculate_inventory_markup_percent(
+		double inventory_sale_list_extended_total,
+		double specific_inventory_sale_list_extended_total,
+		int sale_calculate_cost_of_goods_sold );
+
+/* Process */
+/* ------- */
+double sale_calculate_inventory_total(
+		double inventory_sale_list_extended_total,
+		double specific_inventory_sale_list_extended_total );
+
+double sale_calculate_inventory_markup_ratio(
+		double sale_calculate_cost_of_goods_sold,
+		double sale_calculate_inventory_total );
 
 /* Usage */
 /* ----- */

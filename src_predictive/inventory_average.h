@@ -20,6 +20,7 @@ typedef struct
 	LIST *sale_list;
 	LIST *inventory_balance_list;
 	LIST *inventory_average_cost_list;
+	double cost_of_goods_sold;
 } INVENTORY_AVERAGE;
 
 /* Usage */

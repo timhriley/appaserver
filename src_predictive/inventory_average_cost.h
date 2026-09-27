@@ -100,3 +100,17 @@ double inventory_average_cost_of_goods_sold(
 		int quantity_sold,
 		double inventory_average_cost_sale_average_unit_cost );
 
+/* Usage */
+/* ----- */
+INVENTORY_AVERAGE_COST *inventory_average_cost_sale_seek(
+		LIST *inventory_average_cost_list,
+		char *sale_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns cost_of_goods_sold */
+/* -------------------------- */
+double inventory_average_cost_get(
+		INVENTORY_AVERAGE_COST *inventory_average_cost );
+
