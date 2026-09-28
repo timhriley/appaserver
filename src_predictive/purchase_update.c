@@ -103,7 +103,7 @@ PURCHASE_UPDATE *purchase_update_new(
 
 	if ( inventory_purchase_list->list )
 	{
-		inventory_purchase_list_set_update_string(
+		inventory_purchase_list_set_update_string_list(
 			sql_delimiter,
 			fund_name,
 			full_name,
@@ -130,7 +130,7 @@ PURCHASE_UPDATE *purchase_update_new(
 			predictive_fund_boolean,
 			entity_contact_key_boolean,
 			specific_inventory_purchase_list->list
-				/* Set each update_string_list */ );
+				/* Set each update_string */ );
 
 		specific_inventory_purchase_list->update_string_list =
 			specific_inventory_purchase_list_update_string_list(

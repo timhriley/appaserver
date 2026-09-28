@@ -498,7 +498,7 @@ LIST *inventory_purchase_list_update_string_list(
 	return update_string_list;
 }
 
-void inventory_purchase_list_set_update_string(
+void inventory_purchase_list_set_update_string_list(
 		const char sql_delimiter,
 		char *fund_name,
 		char *full_name,
@@ -527,7 +527,6 @@ void inventory_purchase_list_set_update_string(
 			__LINE__,
 			message );
 	}
-
 
 	if ( list_rewind( inventory_purchase_list ) )
 	do {

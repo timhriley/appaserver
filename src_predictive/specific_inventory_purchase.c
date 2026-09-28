@@ -407,21 +407,20 @@ void specific_inventory_purchase_list_set_update_string(
 
 		if ( !specific_inventory_purchase->
 			    cost_basis_specific_inventory )
-	{
-		char message[ 1024 ];
+		{
+			char message[ 1024 ];
 
-		snprintf(
-			message,
-			sizeof ( message ),
+			snprintf(
+				message,
+				sizeof ( message ),
 "specific_inventory_purchase->cost_basis_specific_inventory is empty." );
 
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
 		specific_inventory_purchase->update_string =
 			/* ------------------- */
