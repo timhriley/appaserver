@@ -215,7 +215,7 @@ EXECUTABLES=	trial_balance_output					\
 		import_predictbooks					\
 		generate_invoice					\
 		purchase_trigger					\
-		customer_sale_trigger					\
+		sale_trigger						\
 		fixed_service_work_trigger				\
 		hourly_service_work_trigger
 #		post_change_customer_payment				\
@@ -668,15 +668,15 @@ post_change_account_balance: post_change_account_balance.c		\
 		post_change_account_balance.c				\
 		-o post_change_account_balance
 
-customer_sale_trigger: customer_sale_trigger.c				\
+sale_trigger: sale_trigger.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		customer_sale_trigger.c					\
-		-o customer_sale_trigger
+		sale_trigger.c						\
+		-o sale_trigger
 
 hourly_service_sale_trigger: hourly_service_sale_trigger.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\

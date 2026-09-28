@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/customer_sale_trigger.c		*/
+/* $APPASERVER_HOME/src_predictive/sale_trigger.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -55,15 +55,15 @@ int main( int argc, char **argv )
 
 	sale =
 		sale_trigger_new(
+			preupdate_fund_name,
+			preupdate_full_name,
+			preupdate_contact_key,
+			preupdate_uncollectible_date_time,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
-			state,
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
-			preupdate_uncollectible_date_time );
+			state );
 
 	if ( !sale ) exit( 0 );
 

@@ -678,6 +678,11 @@ SALE_FETCH *sale_fetch_new(
 				sale_fetch->entity_contact_key_boolean,
 				where );
 	}
+	else
+	{
+		sale_fetch->inventory_sale_list =
+			inventory_sale_list_calloc();
+	}
 
 	if ( sale_fetch->specific_inventory_total_boolean )
 	{
@@ -691,6 +696,11 @@ SALE_FETCH *sale_fetch_new(
 				sale_fetch->predictive_fund_boolean,
 				sale_fetch->entity_contact_key_boolean,
 				where );
+	}
+	else
+	{
+		sale_fetch->specific_inventory_sale_list =
+			specific_inventory_sale_list_calloc();
 	}
 
 	if (	sale_fetch->inventory_total_boolean
@@ -719,24 +729,9 @@ SALE_FETCH *sale_fetch_new(
 					message );
 			}
 
-			if ( float_virtually_zero(
-				sale_fetch->
-					predictbooks_self->
-					state_sales_tax_rate ) )
-			{
-				char message[ 128 ];
-
-				snprintf(
-					message,
-					sizeof ( message ),
-					"state_sales_tax_rate is zero." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
+			sale_fetch->state_sales_tax_rate =
+				sale_fetch_state_sales_tax_rate(
+					sale_fetch->predictbooks_self );
 		}
 	}
 
@@ -754,6 +749,11 @@ SALE_FETCH *sale_fetch_new(
 				where,
 				1 /* fixed_service_work_boolean */ );
 	}
+	else
+	{
+		sale_fetch->fixed_service_sale_list =
+			fixed_service_sale_list_calloc();
+	}
 
 	if ( sale_fetch->hourly_service_total_boolean )
 	{
@@ -768,6 +768,11 @@ SALE_FETCH *sale_fetch_new(
 				sale_fetch->entity_contact_key_boolean,
 				where,
 				1 /* hourly_service_work_boolean */ );
+	}
+	else
+	{
+		sale_fetch->hourly_service_sale_list =
+			hourly_service_sale_list_calloc();
 	}
 
 	if ( sale_fetch->payment_list_boolean )
@@ -1039,3 +1044,43 @@ LIST *sale_fetch_primary_key_list(
 
 	return list;
 }
+
+double sale_fetch_state_sales_tax_rate( PREDICTBOOKS_SELF *predictbooks_self )
+{
+	if ( !predictbooks_self )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"predictbooks_self is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( float_virtually_zero(
+			predictbooks_self->
+			state_sales_tax_rate ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"state_sales_tax_rate is zero." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return predictbooks_self->state_sales_tax_rate;
+}
+

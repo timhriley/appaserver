@@ -55,7 +55,7 @@ SALE *sale_trigger_new(
 			message );
 	}
 
-	if ( strcmp( state, APPASERVER_UPDATE_STATE ) == 0 ) return NULL;
+	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) return NULL;
 
 	sale = sale_calloc();
 
@@ -104,10 +104,7 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->fixed_service_sale_list,
 			sale->sale_fetch->hourly_service_sale_list,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->
-				sale_fetch->
-				predictbooks_self->
-				state_sales_tax_rate,
+			sale->sale_fetch->state_sales_tax_rate,
 			sale->sale_fetch->cash_account,
 			sale->sale_fetch->completed_date_time,
 			sale->sale_fetch->customer_payment_list );
@@ -734,7 +731,12 @@ SALE_CALCULATE *sale_calculate_new(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"parameter is empty: %x,%x,%x,%x,%x",
+			(unsigned int)(long)customer,
+			(unsigned int)(long)inventory_sale_list,
+			(unsigned int)(long)specific_inventory_sale_list,
+			(unsigned int)(long)fixed_service_sale_list,
+			(unsigned int)(long)hourly_service_sale_list );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

@@ -68,7 +68,7 @@ typedef struct
 	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
 	LIST *customer_payment_list;
 	PREDICTBOOKS_SELF *predictbooks_self;
-	double predictbooks_self_state_sales_tax_rate;
+	double state_sales_tax_rate;
 	LIST *primary_key_list;
 } SALE_FETCH;
 
@@ -153,6 +153,9 @@ char *sale_fetch_select(
 		boolean sale_fetch_shipped_date_time_boolean,
 		boolean sale_fetch_arrived_date_boolean,
 		boolean sale_fetch_uncollectible_date_time_boolean );
+
+double sale_fetch_state_sales_tax_rate(
+		PREDICTBOOKS_SELF *predictbooks_self );
 
 /* Usage */
 /* ----- */
