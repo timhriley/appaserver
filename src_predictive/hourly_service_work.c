@@ -216,7 +216,6 @@ HOURLY_SERVICE_WORK *hourly_service_work_parse(
 
 	hourly_service_work->sale_update_system_string =
 		/* -------------------- */
-		/* Borrow sale_update() */
 		/* Returns heap memory  */
 		/* -------------------- */
 		sale_update_system_string(
@@ -383,9 +382,7 @@ void hourly_service_work_update(
 		LIST *update_string_list,
 		char *system_string )
 {
-	/* Borrow sale_update() */
-	/* -------------------- */
-	(void)sale_update(
+	(void)sale_update_execute(
 		(char *)0 /* application_name for update_statement_execute */,
 		update_string_list,
 		system_string,

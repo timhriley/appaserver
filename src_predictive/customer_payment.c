@@ -501,10 +501,10 @@ void customer_payment_trigger(
 
 		if ( !sale ) return;
 
-		sale_update(
+		sale_update_execute(
 			application_name,
-			sale->update_string_list,
-			sale->update_system_string,
+			sale->sale_update->update_string_list,
+			sale->sale_update->update_system_string,
 			sale->sale_transaction,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}

@@ -146,7 +146,7 @@ LIST *specific_inventory_purchase_list_primary_key_list(
 		boolean contact_key_boolean )
 {
 	return
-	specific_inventory_sale_primary_key_list(
+	specific_inventory_sale_list_primary_key_list(
 		sale_inventory_column,
 		sale_serial_key_column,
 		fund_boolean,
@@ -202,14 +202,14 @@ char *specific_inventory_purchase_update_string(
 		/* ------------------------------------ */
 		specific_inventory_sale_primary_data_string(
 			sql_delimiter,
+			fund_boolean,
+			contact_key_boolean,
 			fund_name,
 			full_name,
 			contact_key,
 			purchase_date_time /* sale_date_time */,
 			inventory_name,
-			serial_key,
-			fund_boolean,
-			contact_key_boolean );
+			serial_key );
 
 	update_string =
 		/* ------------------------------------------------ */

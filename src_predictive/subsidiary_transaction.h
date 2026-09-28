@@ -86,7 +86,7 @@ SUBSIDIARY_TRANSACTION *
 		const char *foreign_contact_key_column,
 		const char *foreign_update_date_time_column,
 		const char *foreign_where_date_time_column,
-		char foreign_where_date_time_datum,
+		char *foreign_where_date_time_datum,
 		LIST *insert_journal_list,
 		double foreign_amount,
 		char *transaction_memo,

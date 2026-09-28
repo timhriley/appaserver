@@ -10,6 +10,10 @@
 #include "boolean.h"
 #include "predictive.h"
 #include "customer.h"
+#include "inventory_sale.h"
+#include "specific_inventory_sale.h"
+#include "fixed_service_sale.h"
+#include "hourly_service_sale.h"
 #include "predictbooks_self.h"
 #include "folder.h"
 
@@ -27,6 +31,8 @@ typedef struct
 	boolean specific_inventory_total_boolean;
 	boolean fixed_service_total_boolean;
 	boolean hourly_service_total_boolean;
+	boolean cost_of_goods_sold_total_boolean;
+	boolean inventory_markup_percent_boolean;
 	boolean sales_tax_boolean;
 	boolean payment_list_boolean;
 	boolean title_passage_rule_boolean;
@@ -42,9 +48,9 @@ typedef struct
 	double specific_inventory_sale_total;
 	double fixed_service_sale_total;
 	double hourly_service_sale_total;
-	double gross_revenue;
 	double cost_of_goods_sold_total;
 	int inventory_markup_percent;
+	double gross_revenue;
 	double sales_tax;
 	double invoice_amount;
 	enum predictive_title_passage_rule predictive_title_passage_rule;
@@ -103,6 +109,12 @@ boolean sale_fetch_fixed_service_total_boolean(
 boolean sale_fetch_hourly_service_total_boolean(
 		LIST *folder_attribute_list );
 
+boolean sale_fetch_cost_of_goods_sold_total_boolean(
+		LIST *folder_attribute_list );
+
+boolean sale_fetch_inventory_markup_percent_boolean(
+		LIST *folder_attribute_list );
+
 boolean sale_fetch_sales_tax_boolean(
 		LIST *folder_attribute_list );
 
@@ -134,6 +146,8 @@ char *sale_fetch_select(
 		boolean sale_fetch_specific_inventory_total_boolean,
 		boolean sale_fetch_fixed_service_total_boolean,
 		boolean sale_fetch_hourly_service_total_boolean,
+		boolean sale_fetch_cost_of_goods_sold_total_boolean,
+		boolean sale_fetch_inventory_markup_percent_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
 		boolean sale_fetch_shipped_date_time_boolean,
@@ -151,6 +165,8 @@ void sale_fetch_parse(
 		boolean sale_fetch_specific_inventory_total_boolean,
 		boolean sale_fetch_fixed_service_total_boolean,
 		boolean sale_fetch_hourly_service_total_boolean,
+		boolean sale_fetch_cost_of_goods_sold_total_boolean,
+		boolean sale_fetch_inventory_markup_percent_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
 		boolean sale_fetch_shipped_date_time_boolean,

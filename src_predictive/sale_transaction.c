@@ -100,7 +100,7 @@ SALE_TRANSACTION *sale_transaction_new(
 	{
 		sale_transaction->journal_list =
 			sale_transaction_journal_list(
-				feeder_account,
+				cash_account,
 				shipping_revenue,
 				inventory_sale_total,
 				inventory_sale_CGS_total,
@@ -153,9 +153,9 @@ SALE_TRANSACTION *sale_transaction_new(
 				/* foreign_full_name_column */,
 			ENTITY_CONTACT_KEY_COLUMN
 				/* foreign_contact_key_column */,
-			TRANSACTION_DATE_TIME_COLUMN,
+			TRANSACTION_DATE_TIME_COLUMN
 				/* foreign_update_date_time_column */,
-			SALE_DATE_TIME_COLUMN,
+			SALE_DATE_TIME_COLUMN
 				/* foreign_where_date_time_column */,
 			sale_date_time
 				/* foreign_where_date_time_datum */,

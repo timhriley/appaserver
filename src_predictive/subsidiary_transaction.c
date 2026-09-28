@@ -656,7 +656,7 @@ char *subsidiary_transaction_update_null_sql(
 		"set %s = null "
 		"%s;",
 		foreign_table_name,
-		update_date_time_column,
+		foreign_update_date_time_column,
 		update_where );
 
 	return strdup( update_null_sql );

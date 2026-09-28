@@ -69,6 +69,7 @@ int main( int argc, char **argv )
 			(void)purchase_update_execute(
 				application_name
 					/* for update_statement_execute */,
+				purchase->purchase_transaction,
 				purchase->purchase_update );
 		}
 	}

@@ -15,10 +15,6 @@
 #include "float.h"
 #include "folder_attribute.h"
 #include "optional_column.h"
-#include "fixed_service_sale.h"
-#include "hourly_service_sale.h"
-#include "inventory_sale.h"
-#include "specific_inventory_sale.h"
 #include "customer_payment.h"
 #include "predictbooks_self.h"
 #include "sale.h"
@@ -33,6 +29,8 @@ char *sale_fetch_select(
 		boolean specific_inventory_total_boolean,
 		boolean fixed_service_total_boolean,
 		boolean hourly_service_total_boolean,
+		boolean cost_of_goods_sold_total_boolean,
+		boolean inventory_markup_percent_boolean,
 		boolean sales_tax_boolean,
 		boolean title_passage_rule_boolean,
 		boolean shipped_date_time_boolean,
@@ -116,6 +114,26 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
+			"cost_of_goods_sold_total" /* component */,
+			0 /* not escape_boolean */,
+			cost_of_goods_sold_total_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
+			"inventory_markup_percent" /* component */,
+			0 /* not escape_boolean */,
+			inventory_markup_percent_boolean /* set_boolean */ );
+
+	free( optional_column->prior_return_string );
+
+	optional_column =
+		optional_column_new(
+			',' /* delimiter */,
+			optional_column->return_string /* base_string */,
 			"sales_tax" /* component */,
 			0 /* not escape_boolean */,
 			sales_tax_boolean /* set_boolean */ );
@@ -174,6 +192,8 @@ void sale_fetch_parse(
 		boolean specific_inventory_sale_boolean,
 		boolean fixed_service_sale_boolean,
 		boolean hourly_service_sale_boolean,
+		boolean cost_of_goods_sold_total_boolean,
+		boolean inventory_markup_percent_boolean,
 		boolean sales_tax_boolean,
 		boolean title_passage_rule_boolean,
 		boolean shipped_date_time_boolean,
@@ -326,6 +346,32 @@ void sale_fetch_parse(
 					atof( buffer );
 	}
 
+	if ( cost_of_goods_sold_total_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				cost_of_goods_sold_total =
+					atof( buffer );
+	}
+
+	if ( inventory_markup_percent_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer )
+			sale_fetch->
+				inventory_markup_percent =
+					atoi( buffer );
+	}
+
 	if ( sales_tax_boolean )
 	{
 		piece(	buffer,
@@ -348,14 +394,10 @@ void sale_fetch_parse(
 
 		if ( *buffer )
 		{
-			sale_fetch->
-				title_passage_rule_string =
-					strdup( buffer );
-
 			sale_fetch->predictive_title_passage_rule =
 				predictive_resolve_title_passage_rule(
-					sale_fetch->
-						title_passage_rule_string );
+					buffer
+					/* title_passage_rule_string */ );
 		}
 
 	}
@@ -479,6 +521,14 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch_hourly_service_total_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
 
+	sale_fetch->cost_of_goods_sold_total_boolean =
+		sale_fetch_cost_of_goods_sold_total_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
+	sale_fetch->inventory_markup_percent_boolean =
+		sale_fetch_inventory_markup_percent_boolean(
+			sale_fetch->folder_fetch->folder_attribute_list );
+
 	sale_fetch->sales_tax_boolean =
 		sale_fetch_sales_tax_boolean(
 			sale_fetch->folder_fetch->folder_attribute_list );
@@ -518,6 +568,8 @@ SALE_FETCH *sale_fetch_new(
 			sale_fetch->specific_inventory_total_boolean,
 			sale_fetch->fixed_service_total_boolean,
 			sale_fetch->hourly_service_total_boolean,
+			sale_fetch->cost_of_goods_sold_total_boolean,
+			sale_fetch->inventory_markup_percent_boolean,
 			sale_fetch->sales_tax_boolean,
 			sale_fetch->title_passage_rule_boolean,
 			sale_fetch->shipped_date_time_boolean,
@@ -579,6 +631,8 @@ SALE_FETCH *sale_fetch_new(
 		sale_fetch->specific_inventory_total_boolean,
 		sale_fetch->fixed_service_total_boolean,
 		sale_fetch->hourly_service_total_boolean,
+		sale_fetch->cost_of_goods_sold_total_boolean,
+		sale_fetch->inventory_markup_percent_boolean,
 		sale_fetch->sales_tax_boolean,
 		sale_fetch->title_passage_rule_boolean,
 		sale_fetch->shipped_date_time_boolean,
@@ -903,6 +957,26 @@ boolean sale_fetch_hourly_service_total_boolean(
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
 		"hourly_service_sale_total",
+		folder_attribute_list );
+}
+
+boolean sale_fetch_cost_of_goods_sold_total_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"cost_of_goods_sold_total",
+		folder_attribute_list );
+}
+
+boolean sale_fetch_inventory_markup_percent_boolean(
+		LIST *folder_attribute_list )
+{
+	return
+	(boolean)(unsigned int)(long)folder_attribute_seek(
+		(char *)0 /* folder_name */,
+		"inventory_markup_percent",
 		folder_attribute_list );
 }
 

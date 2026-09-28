@@ -199,7 +199,7 @@ LIST *sale_update_string_list(
 		double cost_of_goods_sold_total,
 		int sale_fetch_inventory_markup_percent,
 		int inventory_markup_percent,
-		double sale_fetch_sale_tax,
+		double sale_fetch_sales_tax,
 		double sales_tax,
 		double sale_fetch_invoice_amount,
 		double invoice_amount,
@@ -322,10 +322,10 @@ char *sale_primary_data_string(
 
 /* Returns inserted sale_transaction->transaction_date_time */
 /* -------------------------------------------------------- */
-char *sale_update(
+char *sale_update_execute(
 		char *application_name /* for transaction update */,
 		LIST *update_string_list,
-		char *sale_update_system_string,
+		char *update_system_string,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction );
 

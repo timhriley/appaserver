@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "float.h"
 #include "journal.h"
+#include "predictive.h"
 #include "customer_payment.h"
 #include "customer_payment_transaction.h"
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_hourly_service_work.c	*/
+/* $APPASERVER_HOME/src_predictive/hourly_service_work_trigger.c	*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -12,7 +12,6 @@
 #include "appaserver_error.h"
 #include "journal.h"
 #include "sale.h"
-#include "hourly_service_sale.h"
 #include "hourly_service_work.h"
 
 int main( int argc, char **argv )
@@ -27,7 +26,6 @@ int main( int argc, char **argv )
 	char *begin_work_date_time;
 	char *state;
 	HOURLY_SERVICE_WORK *hourly_service_work;
-	HOURLY_SERVICE_SALE *hourly_service_sale;
 	SALE *sale;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -81,23 +79,6 @@ int main( int argc, char **argv )
 			hourly_service_work->sale_update_system_string );
 	}
 
-	hourly_service_sale =
-		hourly_service_sale_trigger(
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			service_name,
-			service_description,
-			state );
-
-	if ( hourly_service_sale )
-	{
-		hourly_service_sale_update(
-			hourly_service_sale->update_string_list,
-			hourly_service_sale->sale_update_system_string );
-	}
-
 	sale =
 		sale_trigger_new(
 			fund_name,
@@ -112,10 +93,10 @@ int main( int argc, char **argv )
 
 	if ( sale )
 	{
-		(void)sale_update(
+		(void)sale_update_execute(
 			application_name,
-			sale->update_string_list,
-			sale->update_system_string,
+			sale->sale_update->update_string_list,
+			sale->sale_update->update_system_string,
 			sale->sale_transaction,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}

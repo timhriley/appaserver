@@ -553,3 +553,12 @@ LIST *specific_inventory_sale_list_update_string_list(
 	return list;
 }
 
+char *specific_inventory_sale_list_update_system_string(
+		const char *specific_inventory_sale_table,
+		LIST *primary_key_list )
+{
+	return
+	sale_update_system_string(
+		specific_inventory_sale_table,
+		primary_key_list );
+}

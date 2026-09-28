@@ -296,7 +296,7 @@ void purchase_update_table_execute(
 {
 	/* Borrow SALE’s */
 	/* ------------- */
-	(void)sale_update(
+	(void)sale_update_execute(
 		(char *)0 /* application_name for transaction update */,
 		update_string_list,
 		update_system_string,

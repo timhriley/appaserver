@@ -307,7 +307,7 @@ char *sale_update_system_string(
 	return strdup( system_string );
 }
 
-char *sale_update(
+char *sale_update_execute(
 		char *application_name,
 		LIST *update_string_list,
 		char *update_system_string,
@@ -806,7 +806,7 @@ SALE_CALCULATE *sale_calculate_calloc( void )
 {
 	SALE_CALCULATE *sale_calculate;
 
-	if ( ! ( sale_calculate = calloc( 1, sizeof ( sale_calculate ) ) ) )
+	if ( ! ( sale_calculate = calloc( 1, sizeof ( SALE_CALCULATE ) ) ) )
 	{
 		char message[ 1024 ];
 
@@ -958,7 +958,7 @@ SALE_UPDATE *sale_update_new(
 			cost_of_goods_sold_total,
 			sale_fetch->inventory_markup_percent,
 			inventory_markup_percent,
-			sale_fetch->sale_tax,
+			sale_fetch->sales_tax,
 			sales_tax,
 			sale_fetch->invoice_amount,
 			invoice_amount,
@@ -999,12 +999,12 @@ LIST *sale_update_string_list(
 		char *full_name,
 		char *contact_key,
 		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
+		boolean fund_boolean,
+		boolean contact_key_boolean,
 		double sale_fetch_inventory_sale_total,
 		double inventory_sale_list_extended_total,
 		double sale_fetch_specific_inventory_sale_total,
-		double specific_inventory_sale_list_extended_total
+		double specific_inventory_sale_list_extended_total,
 		double sale_fetch_fixed_service_sale_total,
 		double fixed_service_sale_list_revenue_total,
 		double sale_fetch_hourly_service_sale_total,
@@ -1017,7 +1017,7 @@ LIST *sale_update_string_list(
 		double cost_of_goods_sold_total,
 		int sale_fetch_inventory_markup_percent,
 		int inventory_markup_percent,
-		double sale_fetch_sale_tax,
+		double sale_fetch_sales_tax,
 		double sales_tax,
 		double sale_fetch_invoice_amount,
 		double invoice_amount,
@@ -1138,15 +1138,15 @@ LIST *sale_update_string_list(
 	}
 
 	if ( !float_money_virtually_same(
-		sale_fetch_cost_of_goods_sold,
-		cost_of_goods_sold ) )
+		sale_fetch_cost_of_goods_sold_total,
+		cost_of_goods_sold_total ) )
 	{
 		update_string =
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"cost_of_goods_sold",
-				cost_of_goods_sold,
+				"cost_of_goods_sold_total",
+				cost_of_goods_sold_total,
 				1 );
 
 		list_set( list, update_string );
@@ -1156,14 +1156,14 @@ LIST *sale_update_string_list(
 		inventory_markup_percent )
 	{
 		update_string =
-			sale_update_inteter_string(
+			sale_update_integer_string(
 				sql_delimiter,
 				primary_data_string,
 				"inventory_markup_percent" /* column_name */,
 				inventory_markup_percent /* integer */,
 				1 /* set_boolean */ );
 
-		list_set( list, sale_update_string() );
+		list_set( list, update_string );
 	}
 
 	if ( !float_money_virtually_same(

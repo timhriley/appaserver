@@ -87,10 +87,14 @@ int main( int argc, char **argv )
 
 	if ( specific_inventory_sale )
 	{
-		(void)sale_update(
+		(void)sale_update_execute(
 			(char *)0 /* application_name */,
-			specific_inventory_sale->update_string_list,
-			specific_inventory_sale->sale_update_system_string,
+			specific_inventory_sale->
+				sale_update->
+				update_string_list,
+			specific_inventory_sale->
+				sale_update->
+				sale_update_system_string,
 			(SALE_TRANSACTION *)0,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}
@@ -112,11 +116,11 @@ int main( int argc, char **argv )
 
 		if ( sale )
 		{
-			(void)sale_update(
+			(void)sale_update_execute(
 				application_name
 					/* for update_statement_execute */,
-				sale->update_string_list,
-				sale->update_system_string,
+				sale->sale_update->update_string_list,
+				sale->sale_update->update_system_string,
 				sale->sale_transaction,
 				(SALE_LOSS_TRANSACTION *)0 );
 		}

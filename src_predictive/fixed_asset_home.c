@@ -14,6 +14,8 @@
 #include "sql.h"
 #include "security.h"
 #include "journal.h"
+#include "predictive.h"
+#include "purchase.h"
 #include "fixed_asset_home.h"
 
 FIXED_ASSET_HOME *fixed_asset_home_fetch(
@@ -193,7 +195,7 @@ FIXED_ASSET_HOME *fixed_asset_home_fetch(
 				/* foreign_update_date_time_column */,
 			PURCHASE_DATE_TIME_COLUMN
 				/* foreign_where_date_time_column */,
-			purchase_date_time
+			fixed_asset_home->purchase_date_time
 				/* foreign_where_date_time_datum */,
 			fixed_asset_home->journal_binary_list
 				/* insert_journal_list */,

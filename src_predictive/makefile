@@ -156,6 +156,7 @@ SALE_LIBRARY=								\
 		customer_payment.o					\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
+		predictbooks_self.o					\
 		inventory_sale.o					\
 		inventory_balance.o					\
 		inventory_average.o					\
@@ -215,12 +216,8 @@ EXECUTABLES=	trial_balance_output					\
 		generate_invoice					\
 		purchase_trigger					\
 		customer_sale_trigger					\
-		fixed_service_sale_trigger				\
 		fixed_service_work_trigger				\
-		hourly_service_sale_trigger				\
-		post_change_hourly_service_work				\
-		specific_inventory_sale_trigger
-#		post_change_inventory_sale				\
+		hourly_service_work_trigger
 #		post_change_customer_payment				\
 #		post_accrual						\
 #		depreciate_fixed_assets					\
@@ -581,15 +578,6 @@ post_change_inventory_purchase_return:					\
 		post_change_inventory_purchase_return.c			\
 		-o post_change_inventory_purchase_return
 
-post_change_inventory_sale_return:					\
-	post_change_inventory_sale_return.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_inventory_sale_return.c			\
-		-o post_change_inventory_sale_return
-
 purchase_trigger: purchase_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 	${SALE_LIBRARY}
@@ -662,17 +650,6 @@ post_change_inventory_sale: post_change_inventory_sale.c		\
 		post_change_inventory_sale.c				\
 		-o post_change_inventory_sale
 
-specific_inventory_sale_trigger:					\
-	specific_inventory_sale_trigger.c				\
-	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
-	${SALE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		${SALE_LIBRARY}						\
-		specific_inventory_sale_trigger.c			\
-		-o specific_inventory_sale_trigger
-
 post_change_vendor_payment: post_change_vendor_payment.c		\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -722,16 +699,16 @@ fixed_service_sale_trigger:						\
 		fixed_service_sale_trigger.c				\
 		-o fixed_service_sale_trigger
 
-post_change_hourly_service_work:					\
-	post_change_hourly_service_work.c				\
+hourly_service_work_trigger:						\
+	hourly_service_work_trigger.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY}				\
 		${SALE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${SALE_LIBRARY}						\
-		post_change_hourly_service_work.c			\
-		-o post_change_hourly_service_work
+		hourly_service_work_trigger.c				\
+		-o hourly_service_work_trigger
 
 fixed_service_work_trigger:						\
 	fixed_service_work_trigger.c					\

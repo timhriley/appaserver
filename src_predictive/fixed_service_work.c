@@ -206,7 +206,6 @@ FIXED_SERVICE_WORK *fixed_service_work_parse(
 
 	fixed_service_work->sale_update_system_string =
 		/* -------------------- */
-		/* Borrow sale_update() */
 		/* Returns heap memory  */
 		/* -------------------- */
 		sale_update_system_string(
@@ -590,9 +589,7 @@ void fixed_service_work_update(
 		LIST *update_string_list,
 		char *update_system_string )
 {
-	/* Borrow sale_update() */
-	/* -------------------- */
-	(void)sale_update(
+	(void)sale_update_execute(
 		(char *)0 /* application_name for update_statement_execute */,
 		update_string_list,
 		update_system_string,

@@ -89,10 +89,10 @@ int main( int argc, char **argv )
 
 	if ( sale )
 	{
-		(void)sale_update(
+		(void)sale_update_execute(
 			application_name /* for update_statement_execute */,
-			sale->update_string_list,
-			sale->update_system_string,
+			sale->sale_update->update_string_list,
+			sale->sale_update->update_system_string,
 			sale->sale_transaction,
 			(SALE_LOSS_TRANSACTION*)0 );
 	}
