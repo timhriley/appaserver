@@ -174,7 +174,7 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->fixed_service_total_boolean,
 			sale->sale_fetch->hourly_service_total_boolean,
 			sale->sale_fetch->sales_tax_boolean,
-			sale->shipping_revenue,
+			sale->sale_calculate->shipping_revenue,
 			sale->inventory_sale_total,
 			sale->specific_inventory_sale_total,
 			sale->fixed_service_sale_total,
