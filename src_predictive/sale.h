@@ -64,7 +64,7 @@ SALE_CALCULATE *sale_calculate_new(
 		FIXED_SERVICE_SALE_LIST *fixed_service_sale_list,
 		HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list,
 		boolean sales_tax_boolean,
-		double predictbooks_self_sales_tax_rate,
+		double predictbooks_self_state_sales_tax_rate,
 		char *cash_account,
 		char *completed_date_time,
 		LIST *customer_payment_list );
@@ -114,12 +114,12 @@ double sale_calculate_inventory_markup_ratio(
 /* Usage */
 /* ----- */
 #define SALE_CALCULATE_SALES_TAX(				\
-		inventory_sale_list_total,			\
-		specific_inventory_sale_list_total,		\
-		self_tax_state_sales_tax_rate )			\
-	( ( inventory_sale_list_total +				\
-	    specific_inventory_sale_list_total ) *		\
-	    self_tax_state_sales_tax_rate )
+		inventory_extended_total,			\
+		specific_inventory_extended_total,		\
+		predictbooks_self_state_sales_tax_rate )	\
+	( ( inventory_extended_total +				\
+	    specific_inventory_extended_total ) *		\
+	    predictbooks_self_state_sales_tax_rate )
 
 /* Usage */
 /* ----- */
@@ -140,6 +140,112 @@ double sale_calculate_inventory_markup_ratio(
 
 typedef struct
 {
+	INVENTORY_SALE_LIST *inventory_sale_list;
+	SPECIFIC_INVENTORY_SALE_LIST *specific_inventory_sale_list;
+	FIXED_SERVICE_SALE_LIST *fixed_service_sale_list;
+	HOURLY_SERVICE_SALE_LIST *hourly_service_sale_list;
+	char *update_system_string;
+	LIST *update_string_list;
+} SALE_UPDATE;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+SALE_UPDATE *sale_update_new(
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		SALE_FETCH *sale_fetch,
+		double shipping_revenue,
+		double gross_revenue,
+		double cost_of_goods_sold_total,
+		int inventory_markup_percent,
+		double sales_tax,
+		double invoice_amount,
+		double customer_payment_total,
+		double amount_due );
+
+/* Process */
+/* ------- */
+SALE_UPDATE *sale_update_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+LIST *sale_update_string_list(
+		const char sql_delimiter,
+		char *fund_name,
+		char *full_name,
+		char *contact_key,
+		char *sale_date_time,
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		double sale_fetch_inventory_sale_total,
+		double inventory_sale_list_extended_total,
+		double sale_fetch_specific_inventory_sale_total,
+		double specific_inventory_sale_list_extended_total,
+		double sale_fetch_fixed_service_sale_total,
+		double fixed_service_sale_list_revenue_total,
+		double sale_fetch_hourly_service_sale_total,
+		double hourly_service_sale_list_revenue_total,
+		double sale_fetch_shipping_revenue,
+		double shipping_revenue,
+		double sale_fetch_gross_revenue,
+		double gross_revenue,
+		double sale_fetch_cost_of_goods_sold_total,
+		double cost_of_goods_sold_total,
+		int sale_fetch_inventory_markup_percent,
+		int inventory_markup_percent,
+		double sale_fetch_sale_tax,
+		double sales_tax,
+		double sale_fetch_invoice_amount,
+		double invoice_amount,
+		double sale_fetch_payment_total,
+		double customer_payment_total,
+		double sale_fetch_amount_due,
+		double amount_due );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *sale_update_string(
+		const char sql_delimiter,
+		char *sale_primary_data_string,
+		const char *column_name,
+		double money,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *sale_update_integer_string(
+		const char sql_delimiter,
+		char *sale_primary_data_string,
+		const char *column_name,
+		int integer,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *sale_update_text_string(
+		const char sql_delimiter,
+		char *sale_primary_data_string,
+		const char *column_name,
+		char *text,
+		boolean set_boolean );
+
+typedef struct
+{
 	char *fund_name;
 	char *full_name;
 	char *contact_key;
@@ -148,8 +254,7 @@ typedef struct
 	SALE_CALCULATE *sale_calculate;
 	SALE_TRANSACTION *sale_transaction;
 	SALE_LOSS_TRANSACTION *sale_loss_transaction;
-	LIST *update_string_list;
-	char *update_system_string;
+	SALE_UPDATE *sale_update;
 } SALE;
 
 /* Usage */
@@ -200,69 +305,6 @@ double sale_work_hours(
 
 /* Usage */
 /* ----- */
-LIST *sale_update_string_list(
-		const char sql_delimiter,
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		boolean shipping_charge_boolean,
-		boolean inventory_total_boolean,
-		boolean specific_inventory_total_boolean,
-		boolean fixed_service_total_boolean,
-		boolean hourly_service_total_boolean,
-		boolean sales_tax_boolean,
-		double shipping_charge,
-		double inventory_sale_total,
-		double specific_inventory_sale_total,
-		double fixed_service_sale_total,
-		double hourly_service_sale_total,
-		double sale_gross_revenue,
-		double sale_sales_tax,
-		double sale_invoice_amount,
-		double customer_payment_total,
-		double sale_amount_due );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null (if not set_boolean) */
-/* ------------------------------------------------ */
-char *sale_update_string(
-		const char sql_delimiter,
-		char *sale_primary_data_string,
-		const char *column_name,
-		double money,
-		boolean set_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null (if not set_boolean) */
-/* ------------------------------------------------ */
-char *sale_update_integer_string(
-		const char sql_delimiter,
-		char *sale_primary_data_string,
-		const char *column_name,
-		int integer,
-		boolean set_boolean );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null (if not set_boolean) */
-/* ------------------------------------------------ */
-char *sale_update_text_string(
-		const char sql_delimiter,
-		char *sale_primary_data_string,
-		const char *column_name,
-		char *text,
-		boolean set_boolean );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -294,5 +336,5 @@ char *sale_update(
 /* ------------------- */
 char *sale_update_system_string(
 		const char *sale_table,
-		LIST *sale_primary_key_list );
+		LIST *sale_fetch_primary_key_list );
 

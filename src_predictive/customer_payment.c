@@ -100,8 +100,8 @@ CUSTOMER_PAYMENT *customer_payment_parse(
 double customer_payment_total(
 		char *cash_account,
 		char *completed_date_time,
-		double invoice_amount,
-		LIST *customer_payment_list )
+		LIST *customer_payment_list,
+		double invoice_amount )
 {
 	CUSTOMER_PAYMENT *customer_payment;
 	double total = 0.0;
