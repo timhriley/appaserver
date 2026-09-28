@@ -186,6 +186,10 @@ SALE *sale_trigger_new(
 				sale->sale_calculate->customer_payment_total,
 				sale->sale_calculate->amount_due );
 	}
+	else
+	{
+		sale->sale_update = sale_update_calloc();
+	}
 
 	return sale;
 }
@@ -315,21 +319,7 @@ char *sale_update_execute(
 	char *update_string;
 	char *transaction_date_time = {0};
 
-	if ( !update_system_string )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"update_system_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	if ( !update_system_string ) return NULL;
 
 	if ( list_length( update_string_list ) )
 	{

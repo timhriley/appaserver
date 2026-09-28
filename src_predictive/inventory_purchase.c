@@ -20,6 +20,7 @@
 #include "purchase.h"
 #include "inventory.h"
 #include "inventory_sale.h"
+#include "inventory_average_cost.h"
 #include "inventory_purchase.h"
 
 INVENTORY_PURCHASE *inventory_purchase_new( char *inventory_name )
@@ -236,11 +237,13 @@ LIST *inventory_purchase_update_string_list(
 		double cost_basis,
 		double cost_basis_amount,
 		double average_unit_cost,
-		double inventory_purchase_average_unit_cost )
+		double inventory_purchase_average_unit_cost,
+		LIST *inventory_average_cost_list )
 {
 	char *primary_data_string;
 	char *update_string;
 	LIST *list = list_new();
+	LIST *quantity_update_string_list;
 
 	if ( !full_name
 	||   !purchase_date_time
@@ -339,6 +342,14 @@ LIST *inventory_purchase_update_string_list(
 
 		list_set( list, update_string );
 	}
+
+	quantity_update_string_list =
+		inventory_purchase_quantity_update_string_list(
+			fund_boolean,
+			contact_key_boolean,
+			inventory_average_cost_list );
+
+	list_set_list( list, quantity_update_string_list );
 
 	return list;
 }
@@ -548,6 +559,22 @@ void inventory_purchase_list_set_update_string_list(
 				message );
 		}
 
+		if ( !inventory_purchase->inventory_average )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"inventory_purchase->inventory_average is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		inventory_purchase->update_string_list =
 			inventory_purchase_update_string_list(
 				sql_delimiter,
@@ -567,7 +594,10 @@ void inventory_purchase_list_set_update_string_list(
 					cost_basis_amount,
 				inventory_purchase->average_unit_cost,
 				inventory_purchase->
-					inventory_purchase_average_unit_cost );
+					inventory_purchase_average_unit_cost,
+				inventory_purchase->
+					inventory_average->
+					inventory_average_cost_list );
 
 	} while ( list_next( inventory_purchase_list ) );
 }
@@ -792,3 +822,84 @@ char *inventory_purchase_list_system_string(
 	return strdup( system_string );
 }
 
+void inventory_purchase_list_set_inventory_average(
+		LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( list_rewind( inventory_purchase_list ) )
+	do {
+		inventory_purchase =
+			list_get(
+				inventory_purchase_list );
+
+		inventory_purchase->inventory_average =
+			inventory_average_new(
+				inventory_purchase->inventory_name,
+				inventory_purchase->purchase_date_time,
+				(char *)0 /* sale_date_time */ );
+
+	} while ( list_next( inventory_purchase_list ) );
+}
+
+LIST *inventory_purchase_quantity_update_string_list(
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		LIST *inventory_average_cost_list )
+{
+	LIST *list = list_new();
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+	char *primary_data_string;
+	char *update_string;
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		if ( !inventory_average_cost->inventory_purchase )
+			continue;
+
+		primary_data_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_sale_primary_data_string(
+				SQL_DELIMITER,
+				inventory_average_cost->
+					inventory_purchase->
+					fund_name,
+				inventory_average_cost->
+					inventory_purchase->
+					full_name,
+				inventory_average_cost->
+					inventory_purchase->
+					contact_key,
+				inventory_average_cost->
+					inventory_purchase->
+					purchase_date_time,
+				inventory_average_cost->
+					inventory_purchase->
+					inventory_name,
+				fund_boolean,
+				contact_key_boolean );
+	
+		update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			sale_update_integer_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"quantity_on_hand" /* column_name */,
+				inventory_average_cost->
+					quantity_on_hand /* integer */,
+				1 /* set_boolean */ );
+	
+		list_set( list, update_string );
+
+	} while ( list_next( inventory_average_cost_list ) );
+
+	return list;
+}

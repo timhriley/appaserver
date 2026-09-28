@@ -8,6 +8,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "inventory_average.h"
 #include "cost_basis.h"
 
 #define INVENTORY_PURCHASE_SELECT	"full_name,"		\
@@ -45,6 +46,7 @@ typedef struct
 	/* -------------- */
 	COST_BASIS_INVENTORY *cost_basis_inventory;
 	double inventory_purchase_average_unit_cost;
+	INVENTORY_AVERAGE *inventory_average;
 	LIST *update_string_list;
 } INVENTORY_PURCHASE;
 
@@ -84,7 +86,15 @@ LIST *inventory_purchase_update_string_list(
 		double cost_basis,
 		double cost_basis_amount,
 		double average_unit_cost,
-		double inventory_purchase_average_unit_cost );
+		double inventory_purchase_average_unit_cost,
+		LIST *inventory_average_cost_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_purchase_quantity_update_string_list(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_average_cost_list );
 
 /* Usage */
 /* ----- */
@@ -179,6 +189,12 @@ LIST *inventory_purchase_list_primary_key_list(
 char *inventory_purchase_list_update_system_string(
 		const char *inventory_purchase_table,
 		LIST *inventory_purchase_list_primary_key_list );
+
+/* Usage */
+/* ----- */
+void inventory_purchase_list_set_inventory_average(
+		LIST *inventory_purchase_list
+		/* Sets each inventory_purchase->inventory_average */ );
 
 /* Usage */
 /* ----- */

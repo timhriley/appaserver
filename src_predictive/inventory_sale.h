@@ -10,17 +10,17 @@
 #include "boolean.h"
 #include "inventory_average.h"
 
-#define INVENTORY_SALE_SELECT			"full_name,"		\
-						"sale_date_time,"	\
-						"inventory_name,"	\
-						"quantity,"		\
-						"retail_price,"		\
-						"discount_amount,"	\
-						"extended_price,"	\
-						"cost_of_goods_sold,"	\
-						"markup_percent"
+#define INVENTORY_SALE_SELECT		"full_name,"			\
+					"sale_date_time,"		\
+					"inventory_name,"		\
+					"quantity,"			\
+					"retail_price,"			\
+					"discount_amount,"		\
+					"extended_price,"		\
+					"cost_of_goods_sold,"		\
+					"inventory_markup_percent"
 
-#define INVENTORY_SALE_TABLE			"inventory_sale"
+#define INVENTORY_SALE_TABLE		"inventory_sale"
 
 typedef struct
 {

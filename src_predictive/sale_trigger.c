@@ -24,6 +24,8 @@ int main( int argc, char **argv )
 	char *preupdate_full_name;
 	char *preupdate_contact_key;
 	char *preupdate_uncollectible_date_time;
+	int row_number;
+	int row_count;
 	SALE *sale;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -33,10 +35,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10  )
+	if ( argc != 12  )
 	{
 		fprintf(stderr,
-"Usage: %s fund_name full_name contact_key sale_date_time state preupdate_fund_name preupdate_full_name preupdate_contact_key preupdate_uncollectible_date_time\n",
+"Usage: %s fund_name full_name contact_key sale_date_time state preupdate_fund_name preupdate_full_name preupdate_contact_key preupdate_uncollectible_date_time row_number row_count\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -50,29 +52,34 @@ int main( int argc, char **argv )
 	preupdate_full_name = argv[ 7 ];
 	preupdate_contact_key = argv[ 8 ];
 	preupdate_uncollectible_date_time = argv[ 9 ];
+	row_number = atoi( argv[ 10 ] );
+	row_count = atoi( argv[ 11 ] );
 
 	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) exit( 0 );
 
-	sale =
-		sale_trigger_new(
-			preupdate_fund_name,
-			preupdate_full_name,
-			preupdate_contact_key,
-			preupdate_uncollectible_date_time,
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			state );
+	if ( row_number == row_count )
+	{
+		sale =
+			sale_trigger_new(
+				preupdate_fund_name,
+				preupdate_full_name,
+				preupdate_contact_key,
+				preupdate_uncollectible_date_time,
+				fund_name,
+				full_name,
+				contact_key,
+				sale_date_time,
+				state );
+	
+		if ( !sale ) exit( 0 );
 
-	if ( !sale ) exit( 0 );
-
-	sale_update_execute(
-		application_name /* for transaction_update */,
-		sale->sale_update->update_string_list,
-		sale->sale_update->update_system_string,
-		sale->sale_transaction,
-		sale->sale_loss_transaction );
+		sale_update_execute(
+			application_name /* for transaction_update */,
+			sale->sale_update->update_string_list,
+			sale->sale_update->update_system_string,
+			sale->sale_transaction,
+			sale->sale_loss_transaction );
+	}
 
 	return 0;
 }

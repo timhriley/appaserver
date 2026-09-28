@@ -117,6 +117,12 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 		inventory_purchase_list
 			/* Sets each inventory_purchase->average_unit_cost */ );
 
+	if ( list_length( inventory_purchase_list ) )
+	{
+		inventory_purchase_list_set_inventory_average(
+			inventory_purchase_list
+			/* Sets each inventory_purchase->inventory_average */ );
+	}
 	purchase_calculate->total =
 		purchase_calculate_total(
 			purchase_calculate->
