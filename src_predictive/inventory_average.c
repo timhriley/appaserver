@@ -121,11 +121,6 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->entity_contact_key_boolean,
 			inventory_average->inventory_purchase_cost_where );
 
-	inventory_average->purchase_list =
-		inventory_average_purchase_list(
-			inventory_purchase_list->list
-				/* inventory_purchase_list */ );
-
 	inventory_average->inventory_sale_cost_where =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -133,7 +128,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 		inventory_sale_cost_where(
 			INVENTORY_SALE_TABLE,
 			SALE_INVENTORY_COLUMN,
-			TRANSACTION_DATE_TIME_COLUMN,
+			SALE_DATE_TIME_COLUMN,
 			inventory_name,
 			inventory_average->cost_date_time
 				/* sale_date_time */ );
@@ -167,7 +162,18 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->entity_contact_key_boolean,
 			inventory_average->inventory_sale_cost_where );
 
+	inventory_average->purchase_list =
+		/* ------------------------------------------- */
+		/* Returns parameter (used to change the name) */
+		/* ------------------------------------------- */
+		inventory_average_purchase_list(
+			inventory_purchase_list->list
+				/* inventory_purchase_list */ );
+
 	inventory_average->sale_list =
+		/* ------------------------------------------- */
+		/* Returns parameter (used to change the name) */
+		/* ------------------------------------------- */
 		inventory_average_sale_list(
 			inventory_sale_list->list
 				/* inventory_sale_list */ );

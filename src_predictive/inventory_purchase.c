@@ -716,6 +716,7 @@ char *inventory_purchase_prior_date_time(
 {
 	char system_string[ 1024 ];
 	char where[ 512 ];
+	char *input;
 
 	if ( !inventory_name
 	||   !purchase_date_time )
@@ -752,7 +753,11 @@ char *inventory_purchase_prior_date_time(
 		inventory_purchase_table,
 		where );
 
-	return string_system_input( system_string );
+	input = string_system_input( system_string );
+
+	if ( input && !*input ) input = NULL;
+
+	return input;
 }
 
 char *inventory_purchase_list_select(

@@ -60,6 +60,8 @@ PURCHASE *purchase_trigger_new(
 			message );
 	}
 
+	if ( strcmp( state, APPASERVER_DELETE_STATE ) == 0 ) return NULL;
+
 	purchase = purchase_calloc();
 
 	purchase->purchase_fetch =
@@ -71,7 +73,23 @@ PURCHASE *purchase_trigger_new(
 			contact_key,
 			purchase_date_time );
 
-	if ( !purchase->purchase_fetch ) return NULL;
+	if ( !purchase->purchase_fetch )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_fetch_new(%s,%s) returned empty.",
+			full_name,
+			purchase_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	purchase->purchase_calculate =
 		/* -------------- */

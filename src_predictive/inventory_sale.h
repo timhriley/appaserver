@@ -121,7 +121,7 @@ LIST *inventory_sale_cost_quantity_update_string_list(
 char *inventory_sale_cost_where(
 		const char *inventory_sale_table,
 		const char *sale_inventory_column,
-		const char *transaction_date_time_column,
+		const char *sale_date_time_column,
 		char *inventory_name,
 		char *sale_date_time );
 

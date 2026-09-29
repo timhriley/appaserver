@@ -532,7 +532,7 @@ char *inventory_sale_primary_where(
 char *inventory_sale_cost_where(
 		const char *inventory_sale_table,
 		const char *sale_inventory_column,
-		const char *transaction_date_time_column,
+		const char *sale_date_time_column,
 		char *inventory_name,
 		char *sale_date_time )
 {
@@ -561,7 +561,7 @@ char *inventory_sale_cost_where(
 		inventory_sale_table
 			/* inventory_purchase_table */,
 		sale_inventory_column,
-		transaction_date_time_column
+		sale_date_time_column
 			/* purchase_date_time_column */,
 		inventory_name,
 		sale_date_time

@@ -46,9 +46,13 @@ char *inventory_average_cost_date_time(
 		char *purchase_date_time,
 		char *sale_date_time );
 
+/* Returns parameter (used to change the name) */
+/* ------------------------------------------- */
 LIST *inventory_average_purchase_list(
 		LIST *inventory_purchase_list );
 
+/* Returns parameter (used to change the name) */
+/* ------------------------------------------- */
 LIST *inventory_average_sale_list(
 		LIST *inventory_sale_list );
 

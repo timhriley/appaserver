@@ -48,7 +48,7 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_calloc(
 /* ----- */
 double inventory_average_cost_prior_total_cost_balance(
 		int ordered_quantity,
-		double cost_basis_amount );
+		double cost_basis );
 
 /* Usage */
 /* ----- */

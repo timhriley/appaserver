@@ -123,6 +123,7 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 			inventory_purchase_list
 			/* Sets each inventory_purchase->inventory_average */ );
 	}
+
 	purchase_calculate->total =
 		purchase_calculate_total(
 			purchase_calculate->

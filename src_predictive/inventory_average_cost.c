@@ -50,7 +50,7 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 				snprintf(
 					message,
 					sizeof ( message ),
-				"inventory_purchase->cost_basis is empty." );
+				"inventory_purchase->cost_basis is zero." );
 
 				appaserver_error_stderr_exit(
 					__FILE__,
@@ -66,8 +66,7 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 						ordered_quantity,
 					inventory_balance->
 						inventory_purchase->
-						cost_basis_inventory->
-						cost_basis_amount );
+						cost_basis );
 
 			prior_inventory_average_cost =
 				/* -------------- */
@@ -84,8 +83,7 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					prior_total_cost_balance,
 					inventory_balance->
 						inventory_purchase->
-						cost_basis_inventory->
-						cost_basis_amount
+						cost_basis
 						/* average_unit_cost */,
 					0.0 /* cost_of_goods_sold */ );
 
@@ -174,9 +172,9 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_calloc( void )
 
 double inventory_average_cost_prior_total_cost_balance(
 		int ordered_quantity,
-		double cost_basis_amount )
+		double cost_basis )
 {
-	return (double)ordered_quantity * cost_basis_amount;
+	return (double)ordered_quantity * cost_basis;
 }
 
 INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
@@ -188,8 +186,7 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 	double average_unit_cost;
 
 	if ( !prior_inventory_average_cost
-	||   !inventory_purchase
-	||   !inventory_purchase->cost_basis_inventory )
+	||   !inventory_purchase )
 	{
 		char message[ 1024 ];
 
@@ -211,8 +208,7 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 				/* prior_total_cost_balance */,
 			inventory_purchase->ordered_quantity,
 			inventory_purchase->
-				cost_basis_inventory->
-				cost_basis_amount );
+				cost_basis );
 
 	quantity_on_hand =
 		inventory_average_cost_purchase_quantity_on_hand(
