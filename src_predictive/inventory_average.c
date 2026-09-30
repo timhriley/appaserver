@@ -21,7 +21,8 @@
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
 		char *purchase_date_time,
-		char *sale_date_time )
+		char *sale_date_time,
+		double current_purchase_cost_basis )
 {
 	INVENTORY_AVERAGE *inventory_average;
 	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
@@ -52,6 +53,22 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message,
 			sizeof ( message ),
 		"both purchase_date_time and sale_date_time are empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( float_money_virtually_zero( current_purchase_cost_basis ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"current_purchase_cost_baisis is zero." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -120,6 +137,11 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->predictive_fund_boolean,
 			inventory_average->entity_contact_key_boolean,
 			inventory_average->inventory_purchase_cost_where );
+
+	inventory_average_set_current_purchase_cost_basis(
+		purchase_date_time,
+		current_purchase_cost_basis,
+		inventory_purchase_list->list );
 
 	inventory_average->inventory_sale_cost_where =
 		/* --------------------------- */
@@ -267,3 +289,34 @@ LIST *inventory_average_sale_list( LIST *inventory_sale_list )
 	return inventory_sale_list;
 }
 
+void inventory_average_set_current_purchase_cost_basis(
+	char *purchase_date_time,
+	double current_purchase_cost_basis,
+	LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	inventory_purchase =
+		inventory_purchase_date_seek(
+			purchase_date_time,
+			inventory_purchase_list );
+
+	if ( !inventory_purchase )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_purchase_date_seek(%s) returned empty.",
+			purchase_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_purchase->cost_basis = current_purchase_cost_basis;
+}

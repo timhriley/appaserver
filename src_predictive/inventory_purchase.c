@@ -908,3 +908,41 @@ LIST *inventory_purchase_quantity_update_string_list(
 
 	return list;
 }
+
+INVENTORY_PURCHASE *inventory_purchase_date_seek(
+		char *purchase_date_time,
+		LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_date_time is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_purchase_list ) )
+	do {
+		inventory_purchase = list_get( inventory_purchase_list );
+
+		if ( strcmp(
+			purchase_date_time,
+			inventory_purchase->purchase_date_time ) == 0 )
+		{
+			return inventory_purchase;
+		}
+
+	} while ( list_next( inventory_purchase_list ) );
+
+	return NULL;
+}

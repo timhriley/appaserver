@@ -33,7 +33,8 @@ INVENTORY_AVERAGE *inventory_average_new(
 		char *purchase_date_time
 			/* Mutually exclusive */,
 		char *sale_date_time
-			/* Mutually exclusive */ );
+			/* Mutually exclusive */,
+		double current_purchase_cost_basis );
 
 /* Process */
 /* ------- */
@@ -46,13 +47,19 @@ char *inventory_average_cost_date_time(
 		char *purchase_date_time,
 		char *sale_date_time );
 
-/* Returns parameter (used to change the name) */
-/* ------------------------------------------- */
+/* Returns parameter (used to set the name) */
+/* ---------------------------------------- */
 LIST *inventory_average_purchase_list(
 		LIST *inventory_purchase_list );
 
-/* Returns parameter (used to change the name) */
-/* ------------------------------------------- */
+/* Returns parameter (used to set the name) */
+/* ---------------------------------------- */
 LIST *inventory_average_sale_list(
 		LIST *inventory_sale_list );
 
+/* Usage */
+/* ----- */
+void inventory_average_set_current_purchase_cost_basis(
+	char *purchase_date_time,
+	double current_purchase_cost_basis,
+	LIST *inventory_purchase_list );

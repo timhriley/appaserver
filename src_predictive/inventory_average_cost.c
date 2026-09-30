@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_error.h"
+#include "float.h"
 #include "inventory_balance.h"
 #include "inventory_average_cost.h"
 
@@ -16,7 +17,6 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 	LIST *list = list_new();
 	INVENTORY_AVERAGE_COST *prior_inventory_average_cost = {0};
 	INVENTORY_BALANCE *inventory_balance;
-	double prior_total_cost_balance;
 	INVENTORY_AVERAGE_COST *inventory_average_cost;
 
 	if ( list_rewind( inventory_balance_list ) )
@@ -25,6 +25,11 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 
 		if ( !prior_inventory_average_cost )
 		{
+			int prior_quantity_on_hand;
+			double prior_average_unit_cost;
+			double prior_total_cost_balance;
+			INVENTORY_PURCHASE *inventory_purchase;
+
 			if ( !inventory_balance->inventory_purchase )
 			{
 				char message[ 1024 ];
@@ -32,7 +37,7 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 				snprintf(
 					message,
 					sizeof ( message ),
-			"Inventory balance must begin with a purchase." );
+			"inventory balance must begin with a purchase." );
 
 				appaserver_error_stderr_exit(
 					__FILE__,
@@ -41,9 +46,12 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					message );
 			}
 
-			if ( !inventory_balance->
-				inventory_purchase->
-				cost_basis )
+			inventory_purchase =
+				inventory_balance->
+					inventory_purchase;
+
+			if ( float_money_virtually_zero(
+				inventory_purchase->cost_basis ) )
 			{
 				char message[ 1024 ];
 
@@ -59,32 +67,39 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					message );
 			}
 
+			prior_quantity_on_hand =
+				/* ------------------------ */
+				/* Returns either parameter */
+				/* ------------------------ */
+				inventory_average_cost_prior_quantity_on_hand(
+					inventory_purchase->quantity_on_hand,
+					inventory_purchase->ordered_quantity );
+
+			prior_average_unit_cost =
+				/* ------------------------ */
+				/* Returns either parameter */
+				/* ------------------------ */
+				inventory_average_cost_prior_average_unit_cost(
+					inventory_purchase->
+						average_unit_cost,
+					inventory_purchase->
+						cost_basis );
+
 			prior_total_cost_balance =
 				inventory_average_cost_prior_total_cost_balance(
-					inventory_balance->
-						inventory_purchase->
-						ordered_quantity,
-					inventory_balance->
-						inventory_purchase->
-						cost_basis );
+					prior_quantity_on_hand,
+					prior_average_unit_cost );
 
 			prior_inventory_average_cost =
 				/* -------------- */
 				/* Safely returns */
 				/* -------------- */
 				inventory_average_cost_new(
-					inventory_balance->
-						inventory_purchase,
+					inventory_purchase,
 					(INVENTORY_SALE *)0,
-					inventory_balance->
-						inventory_purchase->
-						ordered_quantity
-						/* quantity_on_hand */,
+					prior_quantity_on_hand,
 					prior_total_cost_balance,
-					inventory_balance->
-						inventory_purchase->
-						cost_basis
-						/* average_unit_cost */,
+					prior_average_unit_cost,
 					0.0 /* cost_of_goods_sold */ );
 
 			continue;		
@@ -171,10 +186,10 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_calloc( void )
 }
 
 double inventory_average_cost_prior_total_cost_balance(
-		int ordered_quantity,
-		double cost_basis )
+		int prior_quantity_on_hand,
+		double prior_average_unit_cost )
 {
-	return (double)ordered_quantity * cost_basis;
+	return (double)prior_quantity_on_hand * prior_average_unit_cost;
 }
 
 INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
@@ -411,3 +426,24 @@ double inventory_average_cost_get(
 
 	return inventory_average_cost->cost_of_goods_sold;
 }
+
+int inventory_average_cost_prior_quantity_on_hand(
+		int quantity_on_hand,
+		int ordered_quantity )
+{
+	if ( quantity_on_hand )
+		return quantity_on_hand;
+	else
+		return ordered_quantity;
+}
+
+double inventory_average_cost_prior_average_unit_cost(
+		double average_unit_cost,
+		double cost_basis )
+{
+	if ( !float_money_virtually_zero( average_unit_cost ) )
+		return average_unit_cost;
+	else
+		return cost_basis;
+}
+

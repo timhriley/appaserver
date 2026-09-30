@@ -133,6 +133,12 @@ char *inventory_purchase_prior_date_time(
 		char *inventory_name,
 		char *purchase_date_time );
 
+/* Usage */
+/* ----- */
+INVENTORY_PURCHASE *inventory_purchase_date_seek(
+		char *purchase_date_time,
+		LIST *inventory_purchase_list );
+
 typedef struct
 {
 	LIST *list;

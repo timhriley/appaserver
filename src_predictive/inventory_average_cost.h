@@ -26,6 +26,21 @@ typedef struct
 LIST *inventory_average_cost_list(
 		LIST *inventory_balance_list );
 
+/* Process */
+/* ------- */
+
+/* Returns either parameter */
+/* ------------------------ */
+int inventory_average_cost_prior_quantity_on_hand(
+		int quantity_on_hand,
+		int ordered_quantity );
+
+/* Returns either parameter */
+/* ------------------------ */
+double inventory_average_cost_prior_average_unit_cost(
+		double average_unit_cost,
+		double cost_basis );
+
 /* Usage */
 /* ----- */
 
@@ -47,8 +62,8 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_calloc(
 /* Usage */
 /* ----- */
 double inventory_average_cost_prior_total_cost_balance(
-		int ordered_quantity,
-		double cost_basis );
+		int inventory_average_cost_prior_quantity_on_hand,
+		double inventory_average_cost_prior_average_unit_cost );
 
 /* Usage */
 /* ----- */
