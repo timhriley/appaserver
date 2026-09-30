@@ -263,17 +263,6 @@ LIST *inventory_purchase_update_string_list(
 			message );
 	}
 
-	if (	float_virtually_same(
-			extended_cost,
-			inventory_purchase_extended_cost )
-	&&	float_virtually_same(
-			cost_basis,
-			cost_basis_amount ) )
-	{
-		list_free( list );
-		return NULL;
-	}
-
 	primary_data_string =
 		/* ---------------------------- */
 		/* Borrow INVENTORY_SALE’s	*/
@@ -838,11 +827,31 @@ void inventory_purchase_list_set_inventory_average(
 			list_get(
 				inventory_purchase_list );
 
+		if ( !inventory_purchase->cost_basis_inventory )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"inventory_purchase->cost_basis_inventory is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		inventory_purchase->inventory_average =
 			inventory_average_new(
 				inventory_purchase->inventory_name,
 				inventory_purchase->purchase_date_time,
-				(char *)0 /* sale_date_time */ );
+				(char *)0 /* sale_date_time */,
+				inventory_purchase->
+					cost_basis_inventory->
+					cost_basis_amount
+					/* current_purchase_cost_basis */ );
 
 	} while ( list_next( inventory_purchase_list ) );
 }

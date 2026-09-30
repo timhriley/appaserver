@@ -129,3 +129,19 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_sale_seek(
 double inventory_average_cost_get(
 		INVENTORY_AVERAGE_COST *inventory_average_cost );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_average_cost_list_display(
+		LIST *inventory_average_cost_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *inventory_average_cost_display(
+		INVENTORY_AVERAGE_COST *inventory_average_cost );
+

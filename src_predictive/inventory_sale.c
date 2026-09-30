@@ -150,7 +150,8 @@ INVENTORY_SALE *inventory_sale_parse(
 		inventory_average_new(
 			inventory_sale->inventory_name,
 			(char *)0 /* purchase_date_time */,
-			inventory_sale->sale_date_time );
+			inventory_sale->sale_date_time,
+			0.0 /* current_purchase_cost_basis */ );
 
 	inventory_sale->inventory_sale_markup_percent =
 		inventory_sale_markup_percent(

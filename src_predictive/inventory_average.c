@@ -9,6 +9,7 @@
 #include "entity.h"
 #include "predictive.h"
 #include "appaserver_error.h"
+#include "float.h"
 #include "inventory.h"
 #include "sale.h"
 #include "purchase.h"
@@ -53,22 +54,6 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message,
 			sizeof ( message ),
 		"both purchase_date_time and sale_date_time are empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( float_money_virtually_zero( current_purchase_cost_basis ) )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"current_purchase_cost_baisis is zero." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -138,10 +123,13 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->entity_contact_key_boolean,
 			inventory_average->inventory_purchase_cost_where );
 
-	inventory_average_set_current_purchase_cost_basis(
-		purchase_date_time,
-		current_purchase_cost_basis,
-		inventory_purchase_list->list );
+	if ( purchase_date_time )
+	{
+		inventory_average_set_current_purchase_cost_basis(
+			purchase_date_time,
+			current_purchase_cost_basis,
+			inventory_purchase_list->list );
+	}
 
 	inventory_average->inventory_sale_cost_where =
 		/* --------------------------- */
@@ -207,9 +195,41 @@ INVENTORY_AVERAGE *inventory_average_new(
 			inventory_average->sale_list
 				/* inventory_sale_list */ );
 
+	if ( !list_length( inventory_average->inventory_balance_list ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_balance_list() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	inventory_average->inventory_average_cost_list =
 		inventory_average_cost_list(
 			inventory_average->inventory_balance_list );
+
+	if ( !list_length( inventory_average->inventory_average_cost_list ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_average_cost_list() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( sale_date_time )
 	{
@@ -295,6 +315,22 @@ void inventory_average_set_current_purchase_cost_basis(
 	LIST *inventory_purchase_list )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( float_money_virtually_zero( current_purchase_cost_basis ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"current_purchase_cost_basis is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	inventory_purchase =
 		inventory_purchase_date_seek(

@@ -9,6 +9,7 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "float.h"
+#include "String.h"
 #include "inventory_balance.h"
 #include "inventory_average_cost.h"
 
@@ -102,6 +103,7 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					prior_average_unit_cost,
 					0.0 /* cost_of_goods_sold */ );
 
+			list_set( list, prior_inventory_average_cost );
 			continue;		
 
 		} /* if ( !prior_inventory_average_cost ) */
@@ -445,5 +447,85 @@ double inventory_average_cost_prior_average_unit_cost(
 		return average_unit_cost;
 	else
 		return cost_basis;
+}
+
+char *inventory_average_cost_list_display(
+		LIST *inventory_average_cost_list )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+	char *cost_display;
+
+	*ptr = '\0';
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		cost_display =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			inventory_average_cost_display(
+				inventory_average_cost );
+
+		if ( ptr != display ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf( ptr, "%s", cost_display );
+
+	} while ( list_next( inventory_average_cost_list ) );
+
+	return strdup( display );
+}
+
+char *inventory_average_cost_display(
+		INVENTORY_AVERAGE_COST *inventory_average_cost )
+{
+	static char display[ 1024 ];
+
+	if ( !inventory_average_cost )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_average_cost is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		display,
+		sizeof ( display ),
+		"purchase=%s, "
+		"sale=%s, "
+		"quantity_on_hand=%d, "
+		"total_cost_balance=%.2lf, "
+		"average_unit_cost=%.2lf, "
+		"cost_of_goods_sold=%.2lf",
+		(inventory_average_cost->inventory_purchase)
+			? inventory_average_cost->
+					inventory_purchase->
+					purchase_date_time
+			: "",
+		(inventory_average_cost->inventory_sale)
+			? inventory_average_cost->
+				inventory_sale->
+				sale_date_time
+			: "",
+		inventory_average_cost->quantity_on_hand,
+		inventory_average_cost->total_cost_balance,
+		inventory_average_cost->average_unit_cost,
+		inventory_average_cost->cost_of_goods_sold );
+
+	return display;
 }
 
