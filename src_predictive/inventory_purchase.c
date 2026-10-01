@@ -176,7 +176,10 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
-	piece_offset = 11;
+	piece( buffer, SQL_DELIMITER, input, 11 );
+	if ( *buffer ) inventory_purchase->total_cost_balance = atof( buffer );
+
+	piece_offset = 12;
 
 	if ( fund_boolean )
 	{
@@ -243,7 +246,7 @@ LIST *inventory_purchase_update_string_list(
 	char *primary_data_string;
 	char *update_string;
 	LIST *list = list_new();
-	LIST *quantity_update_string_list;
+	LIST *inventory_average_update_string_list;
 
 	if ( !full_name
 	||   !purchase_date_time
@@ -332,13 +335,13 @@ LIST *inventory_purchase_update_string_list(
 		list_set( list, update_string );
 	}
 
-	quantity_update_string_list =
-		inventory_purchase_quantity_update_string_list(
+	inventory_average_update_string_list =
+		inventory_average_cost_list_purchase_update_string_list(
 			fund_boolean,
 			contact_key_boolean,
 			inventory_average_cost_list );
 
-	list_set_list( list, quantity_update_string_list );
+	list_set_list( list, inventory_average_update_string_list );
 
 	return list;
 }
@@ -854,68 +857,6 @@ void inventory_purchase_list_set_inventory_average(
 					/* current_purchase_cost_basis */ );
 
 	} while ( list_next( inventory_purchase_list ) );
-}
-
-LIST *inventory_purchase_quantity_update_string_list(
-		boolean fund_boolean,
-		boolean contact_key_boolean,
-		LIST *inventory_average_cost_list )
-{
-	LIST *list = list_new();
-	INVENTORY_AVERAGE_COST *inventory_average_cost;
-	char *primary_data_string;
-	char *update_string;
-
-	if ( list_rewind( inventory_average_cost_list ) )
-	do {
-		inventory_average_cost =
-			list_get(
-				inventory_average_cost_list );
-
-		if ( !inventory_average_cost->inventory_purchase )
-			continue;
-
-		primary_data_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			inventory_sale_primary_data_string(
-				SQL_DELIMITER,
-				inventory_average_cost->
-					inventory_purchase->
-					fund_name,
-				inventory_average_cost->
-					inventory_purchase->
-					full_name,
-				inventory_average_cost->
-					inventory_purchase->
-					contact_key,
-				inventory_average_cost->
-					inventory_purchase->
-					purchase_date_time,
-				inventory_average_cost->
-					inventory_purchase->
-					inventory_name,
-				fund_boolean,
-				contact_key_boolean );
-	
-		update_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			sale_update_integer_string(
-				SQL_DELIMITER,
-				primary_data_string,
-				"quantity_on_hand" /* column_name */,
-				inventory_average_cost->
-					quantity_on_hand /* integer */,
-				1 /* set_boolean */ );
-	
-		list_set( list, update_string );
-
-	} while ( list_next( inventory_average_cost_list ) );
-
-	return list;
 }
 
 INVENTORY_PURCHASE *inventory_purchase_date_seek(

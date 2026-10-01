@@ -21,7 +21,8 @@
 					"extended_cost,"	\
 					"cost_basis,"		\
 					"quantity_on_hand,"	\
-					"average_unit_cost"
+					"average_unit_cost,"	\
+					"total_cost_balance"
 
 #define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
 
@@ -40,6 +41,7 @@ typedef struct
 	double cost_basis;
 	int quantity_on_hand;
 	double average_unit_cost;
+	double total_cost_balance;
 	double inventory_purchase_extended_cost;
 
 	/* Set externally */
@@ -87,13 +89,6 @@ LIST *inventory_purchase_update_string_list(
 		double cost_basis_amount,
 		double average_unit_cost,
 		double inventory_purchase_average_unit_cost,
-		LIST *inventory_average_cost_list );
-
-/* Usage */
-/* ----- */
-LIST *inventory_purchase_quantity_update_string_list(
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
 		LIST *inventory_average_cost_list );
 
 /* Usage */

@@ -24,22 +24,8 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *inventory_average_cost_list(
-		LIST *inventory_balance_list );
-
-/* Process */
-/* ------- */
-
-/* Returns either parameter */
-/* ------------------------ */
-int inventory_average_cost_prior_quantity_on_hand(
-		int quantity_on_hand,
-		int ordered_quantity );
-
-/* Returns either parameter */
-/* ------------------------ */
-double inventory_average_cost_prior_average_unit_cost(
-		double average_unit_cost,
-		double cost_basis );
+		LIST *inventory_balance_list,
+		boolean inventory_average_first_purchase_boolean );
 
 /* Usage */
 /* ----- */
@@ -61,9 +47,25 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_calloc(
 
 /* Usage */
 /* ----- */
-double inventory_average_cost_prior_total_cost_balance(
-		int inventory_average_cost_prior_quantity_on_hand,
-		double inventory_average_cost_prior_average_unit_cost );
+
+/* Safely returns */
+/* -------------- */
+INVENTORY_AVERAGE_COST *inventory_average_cost_prior_first(
+		INVENTORY_PURCHASE *inventory_purchase );
+
+/* Process */
+/* ------- */
+int inventory_average_cost_prior_quantity_on_hand(
+		int arrived_quantity,
+		int slippage_quantity );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+INVENTORY_AVERAGE_COST *inventory_average_cost_prior(
+		INVENTORY_PURCHASE *inventory_purchase );
 
 /* Usage */
 /* ----- */
@@ -74,20 +76,43 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 		INVENTORY_AVERAGE_COST *prior_inventory_average_cost,
 		INVENTORY_PURCHASE *inventory_purchase );
 
-/* Process */
-/* ------- */
-int inventory_average_cost_purchase_quantity_on_hand(
-		int prior_quantity_on_hand,
-		int ordered_quantity );
+/* Usage */
+/* ----- */
+double inventory_average_cost_prior_total_cost_balance(
+		int inventory_average_cost_prior_quantity_on_hand,
+		double inventory_average_cost_prior_average_unit_cost );
 
+/* Usage */
+/* ----- */
+double inventory_average_cost_first_total_cost_balance(
+		int ordered_quantity,
+		double cost_basis );
+
+/* Usage */
+/* ----- */
+double inventory_average_cost_purchase_unit_cost(
+		double inventory_average_cost_purchase_total_cost_balance,
+		int inventory_average_cost_purchase_quantity_on_hand );
+
+/* Usage */
+/* ----- */
 double inventory_average_cost_purchase_total_cost_balance(
 		double prior_total_cost_balance,
 		int ordered_quantity,
-		double cost_basis_amount );
+		double cost_basis );
 
-double inventory_average_cost_purchase_average_unit_cost(
-		double inventory_average_cost_purchase_total_cost_balance,
-		int inventory_average_cost_purchase_quantity_on_hand );
+/* Usage */
+/* ----- */
+int inventory_average_cost_purchase_arrived_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int arrived_quantity,
+		int slippage_quantity );
+
+/* Usage */
+/* ----- */
+int inventory_average_cost_purchase_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int ordered_quantity );
 
 /* Usage */
 /* ----- */
@@ -128,6 +153,13 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_sale_seek(
 /* -------------------------- */
 double inventory_average_cost_get(
 		INVENTORY_AVERAGE_COST *inventory_average_cost );
+
+/* Usage */
+/* ----- */
+LIST *inventory_averge_cost_list_purchase_update_string_list(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_average_cost_list );
 
 /* Usage */
 /* ----- */

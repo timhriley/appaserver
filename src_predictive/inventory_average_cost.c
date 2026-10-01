@@ -9,11 +9,15 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "float.h"
+#include "sql.h"
 #include "String.h"
+#include "sale.h"
 #include "inventory_balance.h"
 #include "inventory_average_cost.h"
 
-LIST *inventory_average_cost_list( LIST *inventory_balance_list )
+LIST *inventory_average_cost_list(
+		LIST *inventory_balance_list,
+		boolean first_purchase_boolean )
 {
 	LIST *list = list_new();
 	INVENTORY_AVERAGE_COST *prior_inventory_average_cost = {0};
@@ -26,11 +30,6 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 
 		if ( !prior_inventory_average_cost )
 		{
-			int prior_quantity_on_hand;
-			double prior_average_unit_cost;
-			double prior_total_cost_balance;
-			INVENTORY_PURCHASE *inventory_purchase;
-
 			if ( !inventory_balance->inventory_purchase )
 			{
 				char message[ 1024 ];
@@ -47,12 +46,10 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					message );
 			}
 
-			inventory_purchase =
-				inventory_balance->
-					inventory_purchase;
-
 			if ( float_money_virtually_zero(
-				inventory_purchase->cost_basis ) )
+				inventory_balance->
+					inventory_purchase->
+					cost_basis ) )
 			{
 				char message[ 1024 ];
 
@@ -68,42 +65,30 @@ LIST *inventory_average_cost_list( LIST *inventory_balance_list )
 					message );
 			}
 
-			prior_quantity_on_hand =
-				/* ------------------------ */
-				/* Returns either parameter */
-				/* ------------------------ */
-				inventory_average_cost_prior_quantity_on_hand(
-					inventory_purchase->quantity_on_hand,
-					inventory_purchase->ordered_quantity );
+			if ( first_purchase_boolean )
+			{
+				inventory_average_cost =
+					/* -------------- */
+					/* Safely returns */
+					/* -------------- */
+					inventory_average_cost_prior_first(
+						inventory_balance->
+							inventory_purchase );
+			}
+			else
+			{
+				inventory_average_cost =
+					/* -------------- */
+					/* Safely returns */
+					/* -------------- */
+					inventory_average_cost_prior(
+						inventory_balance->
+							inventory_purchase );
+			}
 
-			prior_average_unit_cost =
-				/* ------------------------ */
-				/* Returns either parameter */
-				/* ------------------------ */
-				inventory_average_cost_prior_average_unit_cost(
-					inventory_purchase->
-						average_unit_cost,
-					inventory_purchase->
-						cost_basis );
+			list_set( list, inventory_average_cost );
+			prior_inventory_average_cost = inventory_average_cost;
 
-			prior_total_cost_balance =
-				inventory_average_cost_prior_total_cost_balance(
-					prior_quantity_on_hand,
-					prior_average_unit_cost );
-
-			prior_inventory_average_cost =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				inventory_average_cost_new(
-					inventory_purchase,
-					(INVENTORY_SALE *)0,
-					prior_quantity_on_hand,
-					prior_total_cost_balance,
-					prior_average_unit_cost,
-					0.0 /* cost_of_goods_sold */ );
-
-			list_set( list, prior_inventory_average_cost );
 			continue;		
 
 		} /* if ( !prior_inventory_average_cost ) */
@@ -198,9 +183,10 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 		INVENTORY_AVERAGE_COST *prior_inventory_average_cost,
 		INVENTORY_PURCHASE *inventory_purchase )
 {
+	int arrived_quantity_on_hand;
 	double total_cost_balance;
 	int quantity_on_hand;
-	double average_unit_cost;
+	double purchase_unit_cost;
 
 	if ( !prior_inventory_average_cost
 	||   !inventory_purchase )
@@ -219,13 +205,19 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 			message );
 	}
 
+	arrived_quantity_on_hand =
+		inventory_average_cost_purchase_arrived_quantity_on_hand(
+			prior_inventory_average_cost->quantity_on_hand
+				/* prior_quantity_on_hand */,
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->slippage_quantity );
+
 	total_cost_balance =
 		inventory_average_cost_purchase_total_cost_balance(
 			prior_inventory_average_cost->total_cost_balance
 				/* prior_total_cost_balance */,
 			inventory_purchase->ordered_quantity,
-			inventory_purchase->
-				cost_basis );
+			inventory_purchase->cost_basis );
 
 	quantity_on_hand =
 		inventory_average_cost_purchase_quantity_on_hand(
@@ -233,8 +225,8 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 				/* prior_quantity_on_hand */,
 			inventory_purchase->ordered_quantity );
 
-	average_unit_cost =
-		inventory_average_cost_purchase_average_unit_cost(
+	purchase_unit_cost =
+		inventory_average_cost_purchase_unit_cost(
 			total_cost_balance,
 			quantity_on_hand );
 
@@ -245,27 +237,10 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 	inventory_average_cost_new(
 		inventory_purchase,
 		(INVENTORY_SALE *)0,
-		quantity_on_hand,
+		arrived_quantity_on_hand,
 		total_cost_balance,
-		average_unit_cost,
+		purchase_unit_cost /* average_cost_balance */,
 		0.0 /* inventory_average_cost_of_goods_sold */ );
-}
-
-int inventory_average_cost_purchase_quantity_on_hand(
-		int quantity_on_hand,
-		int ordered_quantity )
-{
-	return quantity_on_hand + ordered_quantity;
-}
-
-double inventory_average_cost_purchase_total_cost_balance(
-		double prior_total_cost_balance,
-		int ordered_quantity,
-		double cost_basis_amount )
-{
-	return
-	prior_total_cost_balance +
-	((double)ordered_quantity * cost_basis_amount );
 }
 
 double inventory_average_cost_purchase_average_unit_cost(
@@ -429,16 +404,6 @@ double inventory_average_cost_get(
 	return inventory_average_cost->cost_of_goods_sold;
 }
 
-int inventory_average_cost_prior_quantity_on_hand(
-		int quantity_on_hand,
-		int ordered_quantity )
-{
-	if ( quantity_on_hand )
-		return quantity_on_hand;
-	else
-		return ordered_quantity;
-}
-
 double inventory_average_cost_prior_average_unit_cost(
 		double average_unit_cost,
 		double cost_basis )
@@ -529,3 +494,225 @@ char *inventory_average_cost_display(
 	return display;
 }
 
+LIST *inventory_averge_cost_list_purchase_update_string_list(
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		LIST *inventory_average_cost_list )
+{
+	LIST *list = list_new();
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+	char *primary_data_string;
+	char *update_string;
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		if ( !inventory_average_cost->inventory_purchase )
+			continue;
+
+		primary_data_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_sale_primary_data_string(
+				SQL_DELIMITER,
+				inventory_average_cost->
+					inventory_purchase->
+					fund_name,
+				inventory_average_cost->
+					inventory_purchase->
+					full_name,
+				inventory_average_cost->
+					inventory_purchase->
+					contact_key,
+				inventory_average_cost->
+					inventory_purchase->
+					purchase_date_time,
+				inventory_average_cost->
+					inventory_purchase->
+					inventory_name,
+				fund_boolean,
+				contact_key_boolean );
+	
+		update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			sale_update_integer_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"quantity_on_hand" /* column_name */,
+				inventory_average_cost->
+					quantity_on_hand /* integer */,
+				1 /* set_boolean */ );
+	
+		list_set( list, update_string );
+
+		update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			sale_update_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"total_cost_balance" /* column_name */,
+				inventory_average_cost->
+					total_cost_balance /* money */,
+				1 /* set_boolean */ );
+	
+		list_set( list, update_string );
+
+		update_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			sale_update_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"average_unit_cost" /* column_name */,
+				inventory_average_cost->
+					average_unit_cost /* money */,
+				1 /* set_boolean */ );
+	
+		list_set( list, update_string );
+
+		free( primary_data_string );
+
+	} while ( list_next( inventory_average_cost_list ) );
+
+	return list;
+}
+
+INVENTORY_AVERAGE_COST *inventory_average_cost_prior_first(
+		INVENTORY_PURCHASE *inventory_purchase )
+{
+	int prior_quantity_on_hand;
+	double first_total_cost_balance;
+
+	if ( !inventory_purchase )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_purchase is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	prior_quantity_on_hand =
+		inventory_average_cost_prior_quantity_on_hand(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->slippage_quantity );
+
+	first_total_cost_balance =
+		inventory_average_cost_first_total_cost_balance(
+			inventory_purchase->ordered_quantity,
+			inventory_purchase->cost_basis );
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	inventory_average_cost_new(
+		inventory_purchase,
+		(INVENTORY_SALE *)0,
+		prior_quantity_on_hand,
+		first_total_cost_balance,
+		inventory_purchase->cost_basis
+			/* average_unit_cost */,
+		0.0 /* cost_of_goods_sold */ );
+}
+
+int inventory_average_cost_prior_quantity_on_hand(
+		int arrived_quantity,
+		int slippage_quantity )
+{
+	return arrived_quantity - slippage_quantity;
+}
+
+double inventory_average_cost_first_total_cost_balance(
+		int ordered_quantity,
+		double cost_basis )
+{
+	return
+	(double)ordered_quantity * cost_basis;
+}
+
+double inventory_average_cost_purchase_unit_cost(
+		double total_cost_balance,
+		int quantity_on_hand )
+{
+	if ( !quantity_on_hand ) return 0.0;
+
+	return
+	total_cost_balance / (double)quantity_on_hand;
+}
+
+double inventory_average_cost_purchase_total_cost_balance(
+		double prior_total_cost_balance,
+		int ordered_quantity,
+		double cost_basis )
+{
+	return
+	prior_total_cost_balance +
+	( (double)ordered_quantity * cost_basis);
+}
+
+INVENTORY_AVERAGE_COST *inventory_average_cost_prior(
+		INVENTORY_PURCHASE *inventory_purchase )
+{
+	if ( !inventory_purchase )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_purchase is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	inventory_average_cost_new(
+		inventory_purchase,
+		(INVENTORY_SALE *)0,
+		inventory_purchase->quantity_on_hand,
+		inventory_purchase->total_cost_balance,
+		inventory_purchase->average_unit_cost,
+		0.0 /* inventory_average_cost_of_goods_sold */ );
+}
+
+int inventory_average_cost_purchase_arrived_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int arrived_quantity,
+		int slippage_quantity )
+{
+	return
+	prior_quantity_on_hand + (arrived_quantity - slippage_quantity);
+}
+
+int inventory_average_cost_purchase_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int ordered_quantity )
+{
+	return
+	prior_quantity_on_hand +
+	ordered_quantity;
+}
