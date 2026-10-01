@@ -63,3 +63,32 @@ void inventory_average_set_current_purchase_cost_basis(
 	char *purchase_date_time,
 	double current_purchase_cost_basis,
 	LIST *inventory_purchase_list );
+
+/* Usage */
+/* ----- */
+boolean inventory_average_first_purchase_boolean(
+		const char *inventory_purchase_table,
+		const char *purchase_date_time_column,
+		const char *sale_inventory_column,
+		char *inventory_name,
+		char *purchase_date_time );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *inventory_average_first_purchase_system_string(
+		const char *inventory_purchase_table,
+		const char *purchase_date_time_column,
+		const char *sale_inventory_column,
+		char *inventory_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *inventory_average_first_purchase_where(
+		const char *sale_inventory_column,
+		char *inventory_name );

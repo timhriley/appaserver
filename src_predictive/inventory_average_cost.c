@@ -494,7 +494,7 @@ char *inventory_average_cost_display(
 	return display;
 }
 
-LIST *inventory_averge_cost_list_purchase_update_string_list(
+LIST *inventory_average_cost_list_purchase_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		LIST *inventory_average_cost_list )

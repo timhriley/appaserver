@@ -10,6 +10,7 @@
 #include "predictive.h"
 #include "appaserver_error.h"
 #include "float.h"
+#include "String.h"
 #include "inventory.h"
 #include "sale.h"
 #include "purchase.h"
@@ -28,6 +29,7 @@ INVENTORY_AVERAGE *inventory_average_new(
 	INVENTORY_AVERAGE *inventory_average;
 	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
 	INVENTORY_SALE_LIST *inventory_sale_list;
+	boolean first_purchase_boolean = 0;
 
 	if ( !inventory_name )
 	{
@@ -211,9 +213,21 @@ INVENTORY_AVERAGE *inventory_average_new(
 			message );
 	}
 
+	if ( purchase_date_time )
+	{
+		first_purchase_boolean =
+			inventory_average_first_purchase_boolean(
+				INVENTORY_PURCHASE_TABLE,
+				PURCHASE_DATE_TIME_COLUMN,
+				SALE_INVENTORY_COLUMN,
+				inventory_name,
+				purchase_date_time );
+	}
+
 	inventory_average->inventory_average_cost_list =
 		inventory_average_cost_list(
-			inventory_average->inventory_balance_list );
+			inventory_average->inventory_balance_list,
+			first_purchase_boolean );
 
 	if ( !list_length( inventory_average->inventory_average_cost_list ) )
 	{
@@ -355,4 +369,109 @@ void inventory_average_set_current_purchase_cost_basis(
 	}
 
 	inventory_purchase->cost_basis = current_purchase_cost_basis;
+}
+
+boolean inventory_average_first_purchase_boolean(
+		const char *inventory_purchase_table,
+		const char *purchase_date_time_column,
+		const char *sale_inventory_column,
+		char *inventory_name,
+		char *purchase_date_time )
+{
+	char *system_string;
+	char *input;
+
+	if ( !inventory_name
+	||   !purchase_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		inventory_average_first_purchase_system_string(
+			inventory_purchase_table,
+			purchase_date_time_column,
+			sale_inventory_column,
+			inventory_name );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	input = string_system_input( system_string );
+
+	if ( !input || !*input )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"string_system_input(%s) returned empty.",
+			system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return (strcmp( input, purchase_date_time ) == 0);
+}
+
+char *inventory_average_first_purchase_system_string(
+		const char *inventory_purchase_table,
+		const char *purchase_date_time_column,
+		const char *sale_inventory_column,
+		char *inventory_name )
+{
+	static char system_string[ 256 ];
+	char *where;
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		inventory_average_first_purchase_where(
+			sale_inventory_column,
+			inventory_name );
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh 'min(%s)' %s \"%s\"",
+		purchase_date_time_column,
+		inventory_purchase_table,
+		where );	
+
+	return system_string;
+}
+
+char *inventory_average_first_purchase_where(
+		const char *sale_inventory_column,
+		char *inventory_name )
+{
+	static char where[ 128 ];
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s = '%s'",
+		sale_inventory_column,
+		inventory_name );
+
+	return where;
 }
