@@ -84,21 +84,14 @@ double inventory_average_cost_prior_total_cost_balance(
 
 /* Usage */
 /* ----- */
-double inventory_average_cost_first_total_cost_balance(
-		int ordered_quantity,
-		double cost_basis );
-
-/* Usage */
-/* ----- */
 double inventory_average_cost_purchase_unit_cost(
-		double inventory_average_cost_purchase_total_cost_balance,
-		int inventory_average_cost_purchase_quantity_on_hand );
+		double total_cost_balance,
+		int quantity_on_hand );
 
 /* Usage */
 /* ----- */
 double inventory_average_cost_purchase_total_cost_balance(
 		double prior_total_cost_balance,
-		int ordered_quantity,
 		double cost_basis );
 
 /* Usage */

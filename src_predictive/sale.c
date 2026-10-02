@@ -926,19 +926,19 @@ SALE_UPDATE *sale_update_new(
 			sale_date_time,
 			sale_fetch->predictive_fund_boolean,
 			sale_fetch->entity_contact_key_boolean,
-			sale_fetch->inventory_sale_total,
+			sale_fetch->inventory_total,
 			sale_update->
 				inventory_sale_list->
 				extended_total,
-			sale_fetch->specific_inventory_sale_total,
+			sale_fetch->specific_inventory_total,
 			sale_update->
 				specific_inventory_sale_list->
 				extended_total,
-			sale_fetch->fixed_service_sale_total,
+			sale_fetch->fixed_service_total,
 			sale_update->
 				fixed_service_sale_list->
 				revenue_total,
-			sale_fetch->hourly_service_sale_total,
+			sale_fetch->hourly_service_total,
 			sale_update->
 				hourly_service_sale_list->
 				revenue_total,
@@ -993,13 +993,13 @@ LIST *sale_update_string_list(
 		char *sale_date_time,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		double sale_fetch_inventory_sale_total,
+		double sale_fetch_inventory_total,
 		double inventory_sale_list_extended_total,
-		double sale_fetch_specific_inventory_sale_total,
+		double sale_fetch_specific_inventory_total,
 		double specific_inventory_sale_list_extended_total,
-		double sale_fetch_fixed_service_sale_total,
+		double sale_fetch_fixed_service_total,
 		double fixed_service_sale_list_revenue_total,
-		double sale_fetch_hourly_service_sale_total,
+		double sale_fetch_hourly_service_total,
 		double hourly_service_sale_list_revenue_total,
 		double sale_fetch_shipping_revenue,
 		double shipping_revenue,
@@ -1036,7 +1036,7 @@ LIST *sale_update_string_list(
 			contact_key_boolean );
 
 	if ( !float_money_virtually_same(
-		sale_fetch_inventory_sale_total,
+		sale_fetch_inventory_total,
 		inventory_sale_list_extended_total ) )
 	{
 		update_string =
@@ -1046,7 +1046,7 @@ LIST *sale_update_string_list(
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"inventory_sale_total",
+				"inventory_total",
 				inventory_sale_list_extended_total,
 				1 );
 
@@ -1054,14 +1054,14 @@ LIST *sale_update_string_list(
 	}
 
 	if ( !float_money_virtually_same(
-		sale_fetch_specific_inventory_sale_total,
+		sale_fetch_specific_inventory_total,
 		specific_inventory_sale_list_extended_total ) )
 	{
 		update_string =
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"specific_inventory_sale_total" /* column */,
+				"specific_inventory_total" /* column */,
 				specific_inventory_sale_list_extended_total
 					/* money */,
 				1 /* set_boolean */ );
@@ -1070,14 +1070,14 @@ LIST *sale_update_string_list(
 	}
 
 	if ( !float_money_virtually_same(
-		sale_fetch_fixed_service_sale_total,
+		sale_fetch_fixed_service_total,
 		fixed_service_sale_list_revenue_total ) )
 	{
 		update_string =
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"fixed_service_sale_total",
+				"fixed_service_total",
 				fixed_service_sale_list_revenue_total,
 				1 );
 
@@ -1085,14 +1085,14 @@ LIST *sale_update_string_list(
 	}
 
 	if ( !float_money_virtually_same(
-		sale_fetch_hourly_service_sale_total,
+		sale_fetch_hourly_service_total,
 		hourly_service_sale_list_revenue_total ) )
 	{
 		update_string =
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"hourly_service_sale_total",
+				"hourly_service_total",
 				hourly_service_sale_list_revenue_total,
 				1 );
 

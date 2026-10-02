@@ -216,7 +216,6 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_purchase(
 		inventory_average_cost_purchase_total_cost_balance(
 			prior_inventory_average_cost->total_cost_balance
 				/* prior_total_cost_balance */,
-			inventory_purchase->ordered_quantity,
 			inventory_purchase->cost_basis );
 
 	quantity_on_hand =
@@ -590,7 +589,7 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_prior_first(
 		INVENTORY_PURCHASE *inventory_purchase )
 {
 	int prior_quantity_on_hand;
-	double first_total_cost_balance;
+	double purchase_unit_cost;
 
 	if ( !inventory_purchase )
 	{
@@ -613,10 +612,10 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_prior_first(
 			inventory_purchase->arrived_quantity,
 			inventory_purchase->slippage_quantity );
 
-	first_total_cost_balance =
-		inventory_average_cost_first_total_cost_balance(
-			inventory_purchase->ordered_quantity,
-			inventory_purchase->cost_basis );
+	purchase_unit_cost =
+		inventory_average_cost_purchase_unit_cost(
+			inventory_purchase->cost_basis /* total_cost_balance */,
+			prior_quantity_on_hand );
 
 	return
 	/* -------------- */
@@ -626,9 +625,8 @@ INVENTORY_AVERAGE_COST *inventory_average_cost_prior_first(
 		inventory_purchase,
 		(INVENTORY_SALE *)0,
 		prior_quantity_on_hand,
-		first_total_cost_balance,
-		inventory_purchase->cost_basis
-			/* average_unit_cost */,
+		inventory_purchase->cost_basis /* total_cost_balance */,
+		purchase_unit_cost /* average_unit_cost */,
 		0.0 /* cost_of_goods_sold */ );
 }
 
@@ -659,12 +657,10 @@ double inventory_average_cost_purchase_unit_cost(
 
 double inventory_average_cost_purchase_total_cost_balance(
 		double prior_total_cost_balance,
-		int ordered_quantity,
 		double cost_basis )
 {
 	return
-	prior_total_cost_balance +
-	( (double)ordered_quantity * cost_basis);
+	prior_total_cost_balance + cost_basis;
 }
 
 INVENTORY_AVERAGE_COST *inventory_average_cost_prior(

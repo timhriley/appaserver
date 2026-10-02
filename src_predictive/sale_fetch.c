@@ -74,7 +74,7 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
-			"inventory_sale_total" /* component */,
+			"inventory_total" /* component */,
 			0 /* not escape_boolean */,
 			inventory_total_boolean /* set_boolean */ );
 
@@ -84,9 +84,10 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
-			"specific_inventory_sale_total" /* component */,
+			"specific_inventory_total" /* component */,
 			0 /* not escape_boolean */,
-			specific_inventory_total_boolean /* set_boolean */ );
+			specific_inventory_total_boolean
+				/* set_boolean */ );
 
 	free( optional_column->prior_return_string );
 
@@ -94,7 +95,7 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
-			"fixed_service_sale_total" /* component */,
+			"fixed_service_total" /* component */,
 			0 /* not escape_boolean */,
 			fixed_service_total_boolean /* set_boolean */ );
 
@@ -104,7 +105,7 @@ char *sale_fetch_select(
 		optional_column_new(
 			',' /* delimiter */,
 			optional_column->return_string /* base_string */,
-			"hourly_service_sale_total" /* component */,
+			"hourly_service_total" /* component */,
 			0 /* not escape_boolean */,
 			hourly_service_total_boolean /* set_boolean */ );
 
@@ -188,10 +189,10 @@ void sale_fetch_parse(
 		boolean cash_account_boolean,
 		boolean shipping_revenue_boolean,
 		boolean instructions_boolean,
-		boolean inventory_sale_boolean,
-		boolean specific_inventory_sale_boolean,
-		boolean fixed_service_sale_boolean,
-		boolean hourly_service_sale_boolean,
+		boolean inventory_boolean,
+		boolean specific_inventory_boolean,
+		boolean fixed_service_boolean,
+		boolean hourly_service_boolean,
 		boolean cost_of_goods_sold_total_boolean,
 		boolean inventory_markup_percent_boolean,
 		boolean sales_tax_boolean,
@@ -294,7 +295,17 @@ void sale_fetch_parse(
 		if ( *buffer ) sale_fetch->instructions = strdup( buffer );
 	}
 
-	if ( inventory_sale_boolean )
+	if ( inventory_boolean )
+	{
+		piece(	buffer,
+			SQL_DELIMITER,
+			input,
+			optional_piece_offset++ );
+
+		if ( *buffer ) sale_fetch->inventory_total = atof( buffer );
+	}
+
+	if ( specific_inventory_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
@@ -303,11 +314,11 @@ void sale_fetch_parse(
 
 		if ( *buffer )
 			sale_fetch->
-				inventory_sale_total =
+				specific_inventory_total =
 					atof( buffer );
 	}
 
-	if ( specific_inventory_sale_boolean )
+	if ( fixed_service_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
@@ -316,11 +327,11 @@ void sale_fetch_parse(
 
 		if ( *buffer )
 			sale_fetch->
-				specific_inventory_sale_total =
+				fixed_service_total =
 					atof( buffer );
 	}
 
-	if ( fixed_service_sale_boolean )
+	if ( hourly_service_boolean )
 	{
 		piece(	buffer,
 			SQL_DELIMITER,
@@ -329,20 +340,7 @@ void sale_fetch_parse(
 
 		if ( *buffer )
 			sale_fetch->
-				fixed_service_sale_total =
-					atof( buffer );
-	}
-
-	if ( hourly_service_sale_boolean )
-	{
-		piece(	buffer,
-			SQL_DELIMITER,
-			input,
-			optional_piece_offset++ );
-
-		if ( *buffer )
-			sale_fetch->
-				hourly_service_sale_total =
+				hourly_service_total =
 					atof( buffer );
 	}
 
@@ -708,6 +706,7 @@ SALE_FETCH *sale_fetch_new(
 	{
 		if ( !sale_fetch->customer->sales_tax_exempt_boolean )
 		{
+/*
 			if ( ! ( sale_fetch->predictbooks_self =
 				     predictbooks_self_fetch(
 					PREDICTBOOKS_SELF_SELECT,
@@ -732,6 +731,7 @@ SALE_FETCH *sale_fetch_new(
 			sale_fetch->state_sales_tax_rate =
 				sale_fetch_state_sales_tax_rate(
 					sale_fetch->predictbooks_self );
+*/
 		}
 	}
 
@@ -845,23 +845,23 @@ boolean sale_fetch_sales_tax_boolean( LIST *folder_attribute_list )
 		folder_attribute_list );
 }
 
-boolean sale_fetch_inventory_sale_boolean(
+boolean sale_fetch_inventory_boolean(
 		LIST *folder_attribute_list )
 {
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"inventory_sale_total",
+		"inventory_total",
 		folder_attribute_list );
 }
 
-boolean sale_fetch_specific_inventory_sale_boolean(
+boolean sale_fetch_specific_inventory_boolean(
 		LIST *folder_attribute_list )
 {
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"specific_inventory_sale_total",
+		"specific_inventory_total",
 		folder_attribute_list );
 }
 
@@ -895,23 +895,23 @@ boolean sale_fetch_instructions_boolean(
 		folder_attribute_list );
 }
 
-boolean sale_fetch_hourly_service_sale_boolean(
+boolean sale_fetch_hourly_service_boolean(
 		LIST *folder_attribute_list )
 {
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"hourly_service_sale_total",
+		"hourly_service_total",
 		folder_attribute_list );
 }
 
-boolean sale_fetch_fixed_service_sale_boolean(
+boolean sale_fetch_fixed_service_boolean(
 		LIST *folder_attribute_list )
 {
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"fixed_service_sale_total",
+		"fixed_service_total",
 		folder_attribute_list );
 }
 
@@ -951,7 +951,7 @@ boolean sale_fetch_fixed_service_total_boolean(
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"fixed_service_sale_total",
+		"fixed_service_total",
 		folder_attribute_list );
 }
 
@@ -961,7 +961,7 @@ boolean sale_fetch_hourly_service_total_boolean(
 	return
 	(boolean)(unsigned int)(long)folder_attribute_seek(
 		(char *)0 /* folder_name */,
-		"hourly_service_sale_total",
+		"hourly_service_total",
 		folder_attribute_list );
 }
 

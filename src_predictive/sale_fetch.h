@@ -44,10 +44,10 @@ typedef struct
 	char *cash_account;
 	double shipping_revenue;
 	char *instructions;
-	double inventory_sale_total;
-	double specific_inventory_sale_total;
-	double fixed_service_sale_total;
-	double hourly_service_sale_total;
+	double inventory_total;
+	double specific_inventory_total;
+	double fixed_service_total;
+	double hourly_service_total;
 	double cost_of_goods_sold_total;
 	int inventory_markup_percent;
 	double gross_revenue;
