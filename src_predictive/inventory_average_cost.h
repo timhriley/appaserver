@@ -156,6 +156,13 @@ LIST *inventory_average_cost_list_purchase_update_string_list(
 
 /* Usage */
 /* ----- */
+LIST *inventory_average_cost_list_sale_update_string_list(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		LIST *inventory_average_cost_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */

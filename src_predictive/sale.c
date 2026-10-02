@@ -15,6 +15,7 @@
 #include "appaserver.h"
 #include "optional_column.h"
 #include "sql.h"
+#include "update.h"
 #include "transaction.h"
 #include "journal.h"
 #include "customer_payment.h"
@@ -310,33 +311,67 @@ char *sale_update_system_string(
 
 char *sale_update_execute(
 		char *application_name,
-		LIST *update_string_list,
-		char *update_system_string,
+		SALE_UPDATE *sale_update,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction )
 {
-	FILE *pipe;
-	char *update_string;
 	char *transaction_date_time = {0};
 
-	if ( !update_system_string ) return NULL;
-
-	if ( list_length( update_string_list ) )
+	if ( !sale_update
+	||   !sale_update->inventory_sale_list
+	||   !sale_update->specific_inventory_sale_list
+	||   !sale_update->hourly_service_sale_list
+	||   !sale_update->fixed_service_sale_list )
 	{
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		pipe = appaserver_output_pipe( update_system_string );
-	
-		if ( list_rewind( update_string_list ) )
-		do {
-			update_string = list_get( update_string_list );
-			fprintf( pipe, "%s\n", update_string );
-	
-		} while ( list_next( update_string_list ) );
+		char message[ 1024 ];
 
-		pclose( pipe );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
+
+	update_string_list_execute(
+		sale_update->update_system_string,
+		sale_update->update_string_list );
+
+	update_string_list_execute(
+		sale_update->
+			inventory_sale_list->
+			update_system_string,
+		sale_update->
+			inventory_sale_list->
+			update_string_list );
+
+	update_string_list_execute(
+		sale_update->
+			specific_inventory_sale_list->
+			update_system_string,
+		sale_update->
+			specific_inventory_sale_list->
+			update_string_list );
+
+	update_string_list_execute(
+		sale_update->
+			hourly_service_sale_list->
+			update_system_string,
+		sale_update->
+			hourly_service_sale_list->
+			update_string_list );
+
+	update_string_list_execute(
+		sale_update->
+			fixed_service_sale_list->
+			update_system_string,
+		sale_update->
+			fixed_service_sale_list->
+			update_string_list );
 
 	if ( sale_transaction )
 	{
@@ -867,7 +902,7 @@ SALE_UPDATE *sale_update_new(
 		SALE_FETCH *sale_fetch,
 		double shipping_revenue,
 		double gross_revenue,
-		double cost_of_goods_sold_total,
+		double cost_of_goods_sold,
 		int inventory_markup_percent,
 		double sales_tax,
 		double invoice_amount,
@@ -946,8 +981,8 @@ SALE_UPDATE *sale_update_new(
 			shipping_revenue,
 			sale_fetch->gross_revenue,
 			gross_revenue,
-			sale_fetch->cost_of_goods_sold_total,
-			cost_of_goods_sold_total,
+			sale_fetch->cost_of_goods_sold,
+			cost_of_goods_sold,
 			sale_fetch->inventory_markup_percent,
 			inventory_markup_percent,
 			sale_fetch->sales_tax,
@@ -1005,8 +1040,8 @@ LIST *sale_update_string_list(
 		double shipping_revenue,
 		double sale_fetch_gross_revenue,
 		double gross_revenue,
-		double sale_fetch_cost_of_goods_sold_total,
-		double cost_of_goods_sold_total,
+		double sale_fetch_cost_of_goods_sold,
+		double cost_of_goods_sold,
 		int sale_fetch_inventory_markup_percent,
 		int inventory_markup_percent,
 		double sale_fetch_sales_tax,
@@ -1130,15 +1165,15 @@ LIST *sale_update_string_list(
 	}
 
 	if ( !float_money_virtually_same(
-		sale_fetch_cost_of_goods_sold_total,
-		cost_of_goods_sold_total ) )
+		sale_fetch_cost_of_goods_sold,
+		cost_of_goods_sold ) )
 	{
 		update_string =
 			sale_update_string(
 				sql_delimiter,
 				primary_data_string,
-				"cost_of_goods_sold_total",
-				cost_of_goods_sold_total,
+				"cost_of_goods_sold",
+				cost_of_goods_sold,
 				1 );
 
 		list_set( list, update_string );

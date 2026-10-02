@@ -585,18 +585,6 @@ LIST *fixed_service_work_update_string_list(
 	return list;
 }
 
-void fixed_service_work_update(
-		LIST *update_string_list,
-		char *update_system_string )
-{
-	(void)sale_update_execute(
-		(char *)0 /* application_name for update_statement_execute */,
-		update_string_list,
-		update_system_string,
-		(SALE_TRANSACTION *)0,
-		(SALE_LOSS_TRANSACTION*)0 );
-}
-
 LIST *fixed_service_work_primary_key_list(
 		const char *sale_begin_work_column,
 		boolean fund_boolean,

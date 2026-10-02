@@ -81,22 +81,21 @@ int main( int argc, char **argv )
 
 	sale =
 		sale_trigger_new(
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */,
+			(char *)0 /* preupdate_uncollectible_date_time */,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
-			state,
-			(char *)0 /* preupdate_fund_name */,
-			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_contact_key */,
-			(char *)0 /* preupdate_uncollectible_date_time */ );
+			state );
 
 	if ( sale )
 	{
 		(void)sale_update_execute(
 			application_name,
-			sale->sale_update->update_string_list,
-			sale->sale_update->update_system_string,
+			sale->sale_update,
 			sale->sale_transaction,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}

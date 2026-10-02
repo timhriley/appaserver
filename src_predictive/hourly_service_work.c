@@ -12,6 +12,7 @@
 #include "appaserver_error.h"
 #include "appaserver.h"
 #include "sql.h"
+#include "update.h"
 #include "date.h"
 #include "entity.h"
 #include "security.h"
@@ -382,12 +383,9 @@ void hourly_service_work_update(
 		LIST *update_string_list,
 		char *system_string )
 {
-	(void)sale_update_execute(
-		(char *)0 /* application_name for update_statement_execute */,
-		update_string_list,
+	update_string_list_execute(
 		system_string,
-		(SALE_TRANSACTION *)0,
-		(SALE_LOSS_TRANSACTION*)0 );
+		update_string_list );
 }
 
 HOURLY_SERVICE_WORK *hourly_service_work_trigger(

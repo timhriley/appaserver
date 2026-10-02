@@ -75,8 +75,7 @@ int main( int argc, char **argv )
 
 		sale_update_execute(
 			application_name /* for transaction_update */,
-			sale->sale_update->update_string_list,
-			sale->sale_update->update_system_string,
+			sale->sale_update,
 			sale->sale_transaction,
 			sale->sale_loss_transaction );
 	}

@@ -31,7 +31,7 @@ typedef struct
 	boolean specific_inventory_total_boolean;
 	boolean fixed_service_total_boolean;
 	boolean hourly_service_total_boolean;
-	boolean cost_of_goods_sold_total_boolean;
+	boolean cost_of_goods_sold_boolean;
 	boolean inventory_markup_percent_boolean;
 	boolean sales_tax_boolean;
 	boolean payment_list_boolean;
@@ -48,7 +48,7 @@ typedef struct
 	double specific_inventory_total;
 	double fixed_service_total;
 	double hourly_service_total;
-	double cost_of_goods_sold_total;
+	double cost_of_goods_sold;
 	int inventory_markup_percent;
 	double gross_revenue;
 	double sales_tax;
@@ -109,7 +109,7 @@ boolean sale_fetch_fixed_service_total_boolean(
 boolean sale_fetch_hourly_service_total_boolean(
 		LIST *folder_attribute_list );
 
-boolean sale_fetch_cost_of_goods_sold_total_boolean(
+boolean sale_fetch_cost_of_goods_sold_boolean(
 		LIST *folder_attribute_list );
 
 boolean sale_fetch_inventory_markup_percent_boolean(
@@ -146,7 +146,7 @@ char *sale_fetch_select(
 		boolean sale_fetch_specific_inventory_total_boolean,
 		boolean sale_fetch_fixed_service_total_boolean,
 		boolean sale_fetch_hourly_service_total_boolean,
-		boolean sale_fetch_cost_of_goods_sold_total_boolean,
+		boolean sale_fetch_cost_of_goods_sold_boolean,
 		boolean sale_fetch_inventory_markup_percent_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,
@@ -168,7 +168,7 @@ void sale_fetch_parse(
 		boolean sale_fetch_specific_inventory_total_boolean,
 		boolean sale_fetch_fixed_service_total_boolean,
 		boolean sale_fetch_hourly_service_total_boolean,
-		boolean sale_fetch_cost_of_goods_sold_total_boolean,
+		boolean sale_fetch_cost_of_goods_sold_boolean,
 		boolean sale_fetch_inventory_markup_percent_boolean,
 		boolean sale_fetch_sales_tax_boolean,
 		boolean sale_fetch_title_passage_rule_boolean,

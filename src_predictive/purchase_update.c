@@ -11,6 +11,7 @@
 #include "appaserver_error.h"
 #include "sql.h"
 #include "float.h"
+#include "update.h"
 #include "sale.h"
 #include "purchase.h"
 #include "subsidiary_transaction.h"
@@ -294,14 +295,9 @@ void purchase_update_table_execute(
 		LIST *update_string_list,
 		char *update_system_string )
 {
-	/* Borrow SALE’s */
-	/* ------------- */
-	(void)sale_update_execute(
-		(char *)0 /* application_name for transaction update */,
-		update_string_list,
+	update_string_list_execute(
 		update_system_string,
-		(SALE_TRANSACTION *)0,
-		(SALE_LOSS_TRANSACTION *)0 );
+		update_string_list );
 }
 
 char *purchase_update_system_string(

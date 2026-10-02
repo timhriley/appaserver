@@ -10,6 +10,7 @@
 #include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "update.h"
 #include "sale.h"
 #include "fixed_service_work.h"
 
@@ -66,9 +67,9 @@ int main( int argc, char **argv )
 
 	if ( fixed_service_work )
 	{
-		fixed_service_work_update(
-			fixed_service_work->update_string_list,
-			fixed_service_work->sale_update_system_string );
+		update_string_list_execute(
+			fixed_service_work->sale_update_system_string,
+			fixed_service_work->update_string_list );
 	}
 
 	sale =
@@ -87,8 +88,7 @@ int main( int argc, char **argv )
 	{
 		(void)sale_update_execute(
 			application_name /* for update_statement_execute */,
-			sale->sale_update->update_string_list,
-			sale->sale_update->update_system_string,
+			sale->sale_update,
 			(SALE_TRANSACTION *)0,
 			(SALE_LOSS_TRANSACTION *)0 );
 	}

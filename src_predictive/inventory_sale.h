@@ -46,6 +46,7 @@ typedef struct
 INVENTORY_SALE *inventory_sale_parse(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
+		boolean inventory_average_boolean,
 		char *input );
 
 /* Usage */
@@ -107,14 +108,6 @@ char *inventory_sale_primary_where(
 
 /* Usage */
 /* ----- */
-LIST *inventory_sale_cost_quantity_update_string_list(
-		const char sql_delimiter,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean,
-		LIST *inventory_average_cost_list );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -173,7 +166,8 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *where );
+		char *where,
+		boolean inventory_average_boolean );
 
 /* Process */
 /* ------- */

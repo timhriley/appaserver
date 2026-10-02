@@ -71,18 +71,6 @@ SPECIFIC_INVENTORY_SALE *specific_inventory_sale_calloc(
 
 /* Usage */
 /* ----- */
-SPECIFIC_INVENTORY_SALE *specific_inventory_sale_trigger(
-		char *fund_name,
-		char *full_name,
-		char *contact_key,
-		char *sale_date_time,
-		char *inventory_name,
-		char *serial_key,
-		boolean predictive_fund_boolean,
-		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */

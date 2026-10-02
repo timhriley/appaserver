@@ -712,3 +712,73 @@ int inventory_average_cost_purchase_quantity_on_hand(
 	prior_quantity_on_hand +
 	ordered_quantity;
 }
+
+LIST *inventory_average_cost_list_sale_update_string_list(
+		boolean fund_boolean,
+		boolean contact_key_boolean,
+		LIST *inventory_average_cost_list )
+{
+
+	INVENTORY_AVERAGE_COST *inventory_average_cost;
+	LIST *list = list_new();
+	char *primary_data_string;
+	char *update_string;
+
+	if ( list_rewind( inventory_average_cost_list ) )
+	do {
+		inventory_average_cost =
+			list_get(
+				inventory_average_cost_list );
+
+		if ( !inventory_average_cost->inventory_sale ) continue;
+
+		primary_data_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_sale_primary_data_string(
+				SQL_DELIMITER,
+				inventory_average_cost->
+					inventory_sale->
+					fund_name,
+				inventory_average_cost->
+					inventory_sale->
+					full_name,
+				inventory_average_cost->
+					inventory_sale->
+					contact_key,
+				inventory_average_cost->
+					inventory_sale->
+					sale_date_time,
+				inventory_average_cost->
+					inventory_sale->
+					inventory_name,
+				fund_boolean,
+				contact_key_boolean );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			sale_update_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"cost_of_goods_sold" /* column_name */,
+				inventory_average_cost->
+					cost_of_goods_sold /* money */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+		free( primary_data_string );
+
+	} while ( list_next( inventory_average_cost_list ) );
+	
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+

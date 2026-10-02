@@ -25,8 +25,8 @@ int main( int argc, char **argv )
 	char *inventory_name;
 	char *serial_key;
 	char *state;
-	int operation_row_number;
-	int operation_row_count;
+	int row_number;
+	int row_count;
 	boolean fund_boolean;
 	boolean contact_key_boolean;
 	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
@@ -41,7 +41,7 @@ int main( int argc, char **argv )
 	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s fund_name full_name contact_key sale_date_time inventory_name serial_key state operation_row_number operation_row_count\n",
+"Usage: %s fund_name full_name contact_key sale_date_time inventory_name serial_key state row_number row_count\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -53,8 +53,8 @@ int main( int argc, char **argv )
 	inventory_name = argv[ 5 ];
 	serial_key = argv[ 6 ];
 	state = argv[ 7 ];
-	operation_row_number = atoi( argv[ 8 ] );
-	operation_row_count = atoi( argv[ 9 ] );
+	row_number = atoi( argv[ 8 ] );
+	row_count = atoi( argv[ 9 ] );
 
 	/* If just changed 1:m primary key */
 	/* ------------------------------- */
@@ -64,63 +64,27 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, APPASERVER_PREDELETE_STATE ) == 0 ) exit( 0 );
 
-	fund_boolean =
-		predictive_fund_boolean(
-			PREDICTIVE_FUND_TABLE,
-			PREDICTIVE_FUND_COLUMN );
-
-	contact_key_boolean =
-		entity_contact_key_boolean(
-			ENTITY_TABLE,
-			ENTITY_CONTACT_KEY_COLUMN );
-
-	specific_inventory_sale =
-		specific_inventory_sale_trigger(
-			fund_name,
-			full_name,
-			contact_key,
-			sale_date_time,
-			inventory_name,
-			serial_key,
-			fund_boolean,
-			contact_key_boolean );
-
-	if ( specific_inventory_sale )
-	{
-		(void)sale_update_execute(
-			(char *)0 /* application_name */,
-			specific_inventory_sale->
-				sale_update->
-				update_string_list,
-			specific_inventory_sale->
-				sale_update->
-				sale_update_system_string,
-			(SALE_TRANSACTION *)0,
-			(SALE_LOSS_TRANSACTION *)0 );
-	}
-
-	if ( operation_row_number == operation_row_count )
+	if ( row_number == row_count )
 	{
 		SALE *sale;
 
 		sale = sale_trigger_new(
+			(char *)0 /* preupdate_fund_name */,
+			(char *)0 /* preupdate_full_name */,
+			(char *)0 /* preupdate_contact_key */,
+			(char *)0 /* preupdate_uncollectible_date_time */,
 			fund_name,
 			full_name,
 			contact_key,
 			sale_date_time,
-			state,
-			(char *)0 /* preupdate_fund_name */,
-			(char *)0 /* preupdate_full_name */,
-			(char *)0 /* preupdate_contact_key */,
-			(char *)0 /* preupdate_uncollectible_date_time */ );
+			state );
 
 		if ( sale )
 		{
 			(void)sale_update_execute(
 				application_name
 					/* for update_statement_execute */,
-				sale->sale_update->update_string_list,
-				sale->sale_update->update_system_string,
+				sale->sale_update,
 				sale->sale_transaction,
 				(SALE_LOSS_TRANSACTION *)0 );
 		}

@@ -172,7 +172,8 @@ INVENTORY_AVERAGE *inventory_average_new(
 			INVENTORY_SALE_TABLE,
 			inventory_average->predictive_fund_boolean,
 			inventory_average->entity_contact_key_boolean,
-			inventory_average->inventory_sale_cost_where );
+			inventory_average->inventory_sale_cost_where,
+			0 /* not inventory_average_boolean */ );
 
 	inventory_average->purchase_list =
 		/* ------------------------------------------- */

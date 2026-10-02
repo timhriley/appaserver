@@ -161,7 +161,7 @@ SALE_UPDATE *sale_update_new(
 		SALE_FETCH *sale_fetch,
 		double shipping_revenue,
 		double gross_revenue,
-		double cost_of_goods_sold_total,
+		double cost_of_goods_sold,
 		int inventory_markup_percent,
 		double sales_tax,
 		double invoice_amount,
@@ -195,8 +195,8 @@ LIST *sale_update_string_list(
 		double shipping_revenue,
 		double sale_fetch_gross_revenue,
 		double gross_revenue,
-		double sale_fetch_cost_of_goods_sold_total,
-		double cost_of_goods_sold_total,
+		double sale_fetch_cost_of_goods_otal,
+		double cost_of_goods_sold,
 		int sale_fetch_inventory_markup_percent,
 		int inventory_markup_percent,
 		double sale_fetch_sales_tax,
@@ -323,9 +323,8 @@ char *sale_primary_data_string(
 /* Returns inserted sale_transaction->transaction_date_time */
 /* -------------------------------------------------------- */
 char *sale_update_execute(
-		char *application_name /* for transaction update */,
-		LIST *update_string_list,
-		char *update_system_string,
+		char *application_name /* for update_statement_execute */,
+		SALE_UPDATE *sale_update,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction );
 

@@ -152,9 +152,3 @@ FIXED_SERVICE_WORK *fixed_service_work_trigger(
 		char *service_name,
 		char *begin_work_date_time,
 		char *state );
-
-/* Usage */
-/* ----- */
-void fixed_service_work_update(
-		LIST *update_string_list,
-		char *sale_update_system_string );
