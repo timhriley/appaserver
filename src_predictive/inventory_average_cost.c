@@ -547,36 +547,43 @@ LIST *inventory_average_cost_list_purchase_update_string_list(
 				inventory_average_cost->
 					quantity_on_hand /* integer */,
 				1 /* set_boolean */ );
-	
 		list_set( list, update_string );
 
-		update_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			sale_update_string(
-				SQL_DELIMITER,
-				primary_data_string,
-				"total_cost_balance" /* column_name */,
-				inventory_average_cost->
-					total_cost_balance /* money */,
-				1 /* set_boolean */ );
-	
-		list_set( list, update_string );
+		if ( !float_money_virtually_zero(
+			inventory_average_cost->
+				total_cost_balance ) )
+		{
+			update_string =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				sale_update_string(
+					SQL_DELIMITER,
+					primary_data_string,
+					"total_cost_balance" /* column_name */,
+					inventory_average_cost->
+						total_cost_balance /* money */,
+					1 /* set_boolean */ );
+			list_set( list, update_string );
+		}
 
-		update_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			sale_update_string(
-				SQL_DELIMITER,
-				primary_data_string,
-				"average_unit_cost" /* column_name */,
-				inventory_average_cost->
-					average_unit_cost /* money */,
-				1 /* set_boolean */ );
-	
-		list_set( list, update_string );
+		if ( !float_money_virtually_zero(
+			inventory_average_cost->
+				average_unit_cost ) )
+		{
+			update_string =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				sale_update_string(
+					SQL_DELIMITER,
+					primary_data_string,
+					"average_unit_cost" /* column_name */,
+					inventory_average_cost->
+						average_unit_cost /* money */,
+					1 /* set_boolean */ );
+			list_set( list, update_string );
+		}
 
 		free( primary_data_string );
 

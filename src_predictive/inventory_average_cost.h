@@ -33,8 +33,10 @@ LIST *inventory_average_cost_list(
 /* Safely returns */
 /* -------------- */
 INVENTORY_AVERAGE_COST *inventory_average_cost_new(
-		INVENTORY_PURCHASE *inventory_purchase,
-		INVENTORY_SALE *inventory_sale,
+		INVENTORY_PURCHASE *inventory_purchase
+			/* mutually exclusive */,
+		INVENTORY_SALE *inventory_sale
+			/* mutually exclusive */,
 		int quantity_on_hand,
 		double total_cost_balance,
 		double average_unit_cost,
