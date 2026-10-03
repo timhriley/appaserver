@@ -496,7 +496,8 @@ char *inventory_average_cost_display(
 LIST *inventory_average_cost_list_purchase_update_string_list(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		LIST *inventory_average_cost_list )
+		LIST *inventory_average_cost_list,
+		boolean average_attributes_boolean )
 {
 	LIST *list = list_new();
 	INVENTORY_AVERAGE_COST *inventory_average_cost;
@@ -549,9 +550,7 @@ LIST *inventory_average_cost_list_purchase_update_string_list(
 				1 /* set_boolean */ );
 		list_set( list, update_string );
 
-		if ( !float_money_virtually_zero(
-			inventory_average_cost->
-				total_cost_balance ) )
+		if ( average_attributes_boolean )
 		{
 			update_string =
 				/* ------------------- */
@@ -565,12 +564,7 @@ LIST *inventory_average_cost_list_purchase_update_string_list(
 						total_cost_balance /* money */,
 					1 /* set_boolean */ );
 			list_set( list, update_string );
-		}
 
-		if ( !float_money_virtually_zero(
-			inventory_average_cost->
-				average_unit_cost ) )
-		{
 			update_string =
 				/* ------------------- */
 				/* Returns heap memory */

@@ -173,7 +173,8 @@ SALE_LIBRARY=								\
 		inventory_purchase.o					\
 		supply_purchase.o					\
 		service_purchase.o					\
-		prepaid_asset_purchase.o
+		prepaid_asset_purchase.o				\
+		inventory_purchase_update.o
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -1273,4 +1274,10 @@ inventory_average_cost.o:						\
 	inventory_average_cost.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_average_cost.c
+
+inventory_purchase_update.o:						\
+	inventory_purchase_update.c					\
+	inventory_purchase_update.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c inventory_purchase_update.c
 

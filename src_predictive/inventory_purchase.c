@@ -339,7 +339,8 @@ LIST *inventory_purchase_update_string_list(
 		inventory_average_cost_list_purchase_update_string_list(
 			fund_boolean,
 			contact_key_boolean,
-			inventory_average_cost_list );
+			inventory_average_cost_list,
+			1 /* average_attributes_boolean */ );
 
 	list_set_list( list, inventory_average_update_string_list );
 

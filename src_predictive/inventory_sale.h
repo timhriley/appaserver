@@ -9,6 +9,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "inventory_average.h"
+#include "inventory_purchase_update.h"
 
 #define INVENTORY_SALE_SELECT		"full_name,"			\
 					"sale_date_time,"		\
@@ -39,6 +40,7 @@ typedef struct
 	INVENTORY_AVERAGE *inventory_average;
 	int inventory_sale_markup_percent;
 	LIST *update_string_list;
+	INVENTORY_PURCHASE_UPDATE *inventory_purchase_update;
 } INVENTORY_SALE;
 
 /* Usage */

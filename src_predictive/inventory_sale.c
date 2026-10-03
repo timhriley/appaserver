@@ -180,6 +180,18 @@ INVENTORY_SALE *inventory_sale_parse(
 					inventory_average_cost_list,
 				inventory_sale->markup_percent,
 				inventory_sale->inventory_sale_markup_percent );
+
+		inventory_sale->inventory_purchase_update =
+			/* ----------------------------------------------- */
+			/* Used to set INVENTORY_PURCHASE.quantity_on_hand */
+			/* Safely returns				   */
+			/* ----------------------------------------------- */
+			inventory_purchase_update_new(
+				fund_boolean,
+				contact_key_boolean,
+				inventory_sale->
+					inventory_average->
+					inventory_average_cost_list );
 	}
 
 	return inventory_sale;

@@ -300,7 +300,9 @@ char *sale_update_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"update_statement.e table=%s key=%s carrot=y | sql.e",
+		"update_statement.e table=%s key=%s carrot=y | "
+		"tee_appaserver.sh | "
+		"sql.e",
 		sale_table,
 		delimited_string );
 
@@ -348,6 +350,12 @@ char *sale_update_execute(
 		sale_update->
 			inventory_sale_list->
 			update_string_list );
+
+	sale_update_purchase_quantity_on_hand_execute(
+		sale_update->
+			inventory_sale_list->
+			list
+			/* inventory_sale_list */ );
 
 	update_string_list_execute(
 		sale_update->
@@ -1264,3 +1272,37 @@ LIST *sale_update_string_list(
 	return list;
 }
 
+void sale_update_purchase_quantity_on_hand_execute( LIST *inventory_sale_list )
+{
+	INVENTORY_SALE *inventory_sale;
+
+	if ( list_rewind( inventory_sale_list ) )
+	do {
+		inventory_sale = list_get( inventory_sale_list );
+
+		if ( !inventory_sale->inventory_purchase_update )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"inventory_sale->inventory_purchase_update is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		update_string_list_execute(
+			inventory_sale->
+				inventory_purchase_update->
+				update_system_string,
+			inventory_sale->
+				inventory_purchase_update->
+				update_string_list );
+
+	} while ( list_next( inventory_sale_list ) );
+}

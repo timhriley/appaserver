@@ -154,7 +154,8 @@ double inventory_average_cost_get(
 LIST *inventory_average_cost_list_purchase_update_string_list(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		LIST *inventory_average_cost_list );
+		LIST *inventory_average_cost_list,
+		boolean averge_attributes_boolean );
 
 /* Usage */
 /* ----- */

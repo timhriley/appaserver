@@ -330,6 +330,11 @@ char *sale_update_execute(
 
 /* Usage */
 /* ----- */
+void sale_update_purchase_quantity_on_hand_execute(
+		LIST *inventory_sale_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
