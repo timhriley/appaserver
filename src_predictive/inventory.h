@@ -9,8 +9,6 @@
 #include "boolean.h"
 #include "list.h"
 
-#define INVENTORY_TABLE			"inventory"
-
 #define INVENTORY_SELECT		"inventory_name,"		\
 					"inventory_account,"		\
 					"cost_of_goods_sold_account,"	\
@@ -21,6 +19,8 @@
 					"average_unit_cost,"		\
 					"total_cost_balance"
 
+#define INVENTORY_TABLE			"inventory"
+#define INVENTORY_COLUMN		"inventory_name"
 #define INVENTORY_LABOR_CHARGE_COLUMN	"labor_charge"
 
 typedef struct
@@ -67,7 +67,7 @@ INVENTORY *inventory_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *inventory_primary_where(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		char *inventory_name );
 
 /* Usage */

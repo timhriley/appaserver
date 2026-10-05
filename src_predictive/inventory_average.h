@@ -9,18 +9,34 @@
 #include "boolean.h"
 #include "list.h"
 
+#define INVENTORY_AVERAGE_SELECT	"inventory_name,"	\
+					"date_time_key,"	\
+					"purchase_date_time,"	\
+					"sale_date_time,"	\
+					"quantity,"		\
+					"quantity_on_hand,"	\
+					"total_cost_balance,"	\
+					"average_unit_cost"
+
+#define INVENTORY_AVERAGE_TABLE		"inventory_average"
+
 typedef struct
 {
-	boolean predictive_fund_boolean;
-	boolean entity_contact_key_boolean;
-	char *cost_date_time;
-	char *inventory_purchase_cost_where;
-	LIST *purchase_list;
-	char *inventory_sale_cost_where;
-	LIST *sale_list;
-	LIST *inventory_balance_list;
-	LIST *inventory_average_cost_list;
-	double cost_of_goods_sold;
+	char *inventory_name;
+	char *date_time_key;
+	char *purchase_date_time;
+	char *sale_date_time;
+	int quantity;
+	int quantity_on_hand;
+	double total_cost_balance;
+	double average_unit_cost;
+
+	/* Set externally */
+	/* -------------- */
+	int inventory_average_quantity_on_hand;
+	double inventory_average_total_cost_balance;
+	double inventory_average_unit_cost;
+	double inventory_average_cost_of_goods_sold;
 } INVENTORY_AVERAGE;
 
 /* Usage */

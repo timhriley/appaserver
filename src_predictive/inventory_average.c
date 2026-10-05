@@ -433,10 +433,10 @@ boolean inventory_average_first_purchase_boolean(
 	return (strcmp( input, purchase_date_time ) == 0);
 }
 
-char *inventory_average_first_purchase_system_string(
-		const char *inventory_purchase_table,
+char *inventory_average_purchase_first_system_string(
+		const char *inventory_average_table,
 		const char *purchase_date_time_column,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		char *inventory_name )
 {
 	static char system_string[ 256 ];
@@ -446,8 +446,8 @@ char *inventory_average_first_purchase_system_string(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		inventory_average_first_purchase_where(
-			sale_inventory_column,
+		inventory_primary_where(
+			inventory_column,
 			inventory_name );
 
 	snprintf(
@@ -455,7 +455,7 @@ char *inventory_average_first_purchase_system_string(
 		sizeof ( system_string ),
 		"select.sh 'min(%s)' %s \"%s\"",
 		purchase_date_time_column,
-		inventory_purchase_table,
+		inventory_average_table,
 		where );	
 
 	return system_string;

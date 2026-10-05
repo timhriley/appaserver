@@ -46,7 +46,7 @@ INVENTORY *inventory_fetch( char *inventory_name )
 		/* Returns static memory */
 		/* --------------------- */
 		inventory_primary_where(
-			SALE_INVENTORY_COLUMN,
+			INVENTORY_COLUMN,
 			inventory_name );
 
 	labor_charge_boolean =
@@ -160,7 +160,7 @@ INVENTORY *inventory_calloc( void )
 }
 
 char *inventory_primary_where(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		char *inventory_name )
 {
 	char *escape;
@@ -174,7 +174,7 @@ char *inventory_primary_where(
 		where,
 		sizeof ( where ),
 		"%s = '%s'",
-		sale_inventory_column,
+		inventory_column,
 		escape );
 
 	free( escape );
