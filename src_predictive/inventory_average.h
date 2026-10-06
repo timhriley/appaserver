@@ -89,9 +89,6 @@ INVENTORY_AVERAGE *inventory_average_calloc(
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 INVENTORY_AVERAGE *inventory_average_purchase_new(
 		char *inventory_name,
 		char *purchase_date_time,
@@ -100,16 +97,11 @@ INVENTORY_AVERAGE *inventory_average_purchase_new(
 		int slippage_quantity,
 		double total_cost_balance,
 		char *inventory_average_date_time_key,
-		int inventory_average_purchase_quantity,
-		int inventory_average_purchase_quantity_on_hand,
-		double inventory_average_unit_cost,
-		double total_cost_balance );
+		int quantity_on_hand,
+		double average_unit_cost );
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 INVENTORY_AVERAGE *inventory_average_sale_new(
 		char *inventory_name,
 		char *sale_date_time,
@@ -133,6 +125,8 @@ char *inventory_average_primary_where(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *inventory_average_prior_purchase_date_time(
+		const char *inventory_column,
+		const char *purchase_date_time_column,
 		char *inventory_name,
 		char *purchase_date_time );
 
@@ -180,7 +174,7 @@ double inventory_average_total_cost_balance(
 		int ordered_quantity,
 		double average_unit_cost );
 
-double inventory_average_unit_cost(
+double inventory_average_purchase_unit_cost(
 		int inventory_average_purchase_quantity_on_hand,
 		double inventory_average_total_cost_balance );
 
@@ -215,6 +209,8 @@ void inventory_average_list_save(
 
 typedef struct
 {
+	int fetch_quantity_on_hand;
+	double fetch_unit_cost;
 	INVENTORY_AVERAGE *inventory_average;
 	boolean update_boolean;
 	char *inventory_average_prior_purchase_date_time;
@@ -239,11 +235,11 @@ INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_calloc(
 boolean inventory_average_purchase_update_boolean(
 		INVENTORY_AVERAGE *inventory_average_fetch );
 
-int inventory_average_purchase_quantity(
+int inventory_average_purchase_fetch_quantity_on_hand(
 		int arrived_quantity,
 		int slippage_quantity );
 
-double inventory_average_unit_cost(
+double inventory_average_purchase_fetch_unit_cost(
 		int ordered_quantity,
 		double inventory_purchase_cost_basis );
 

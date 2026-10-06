@@ -158,9 +158,7 @@ SALE_LIBRARY=								\
 		hourly_service_work.o					\
 		predictbooks_self.o					\
 		inventory_sale.o					\
-		inventory_balance.o					\
 		inventory_average.o					\
-		inventory_average_cost.o				\
 		specific_inventory_sale.o				\
 		purchase_fetch.o					\
 		purchase_calculate.o					\
@@ -1257,23 +1255,11 @@ customer_accrual.o:							\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c customer_accrual.c
 
-inventory_balance.o:							\
-	inventory_balance.c						\
-	inventory_balance.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c inventory_balance.c
-
 inventory_average.o:							\
 	inventory_average.c						\
 	inventory_average.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_average.c
-
-inventory_average_cost.o:						\
-	inventory_average_cost.c					\
-	inventory_average_cost.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c inventory_average_cost.c
 
 inventory_purchase_update.o:						\
 	inventory_purchase_update.c					\
