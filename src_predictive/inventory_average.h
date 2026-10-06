@@ -22,6 +22,7 @@
 					"average_unit_cost"
 
 #define INVENTORY_AVERAGE_TABLE		"inventory_average"
+#define INVENTORY_AVERAGE_DATE_COLUMN	"date_time_key"
 
 typedef struct
 {
@@ -89,6 +90,35 @@ INVENTORY_AVERAGE *inventory_average_calloc(
 /* Usage */
 /* ----- */
 
+/* Safely returns */
+/* -------------- */
+INVENTORY_AVERAGE *inventory_average_purchase_new(
+		char *inventory_name,
+		char *purchase_date_time,
+		int ordered_quantity,
+		int arrived_quantity,
+		int slippage_quantity,
+		double total_cost_balance,
+		char *inventory_average_date_time_key,
+		int inventory_average_purchase_quantity,
+		int inventory_average_purchase_quantity_on_hand,
+		double inventory_average_unit_cost,
+		double total_cost_balance );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+INVENTORY_AVERAGE *inventory_average_sale_new(
+		char *inventory_name,
+		char *sale_date_time,
+		int sold_quantity,
+		char *inventory_average_date_time_key );
+
+/* Usage */
+/* ----- */
+
 /* Returns static memory */
 /* --------------------- */
 char *inventory_average_primary_where(
@@ -125,7 +155,7 @@ char *inventory_average_prior_purchase_date_system_string(
 /* --------------------- */
 char *inventory_average_prior_purchase_where(
 		const char *inventory_column,
-		char *purchase_date_time_column,
+		const char *purchase_date_time_column,
 		char *inventory_name,
 		char *purchase_date_time );
 
@@ -138,6 +168,37 @@ void inventory_average_list_set(
 			/* Sets each inventory_average_unit_cost */
 			/* Sets each cost_of_goods_sold */ );
 
+/* Process */
+/* ------- */
+int inventory_average_purchase_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int arrived_quantity,
+		int slippage_quantity );
+
+double inventory_average_total_cost_balance(
+		double prior_total_cost_balance,
+		int ordered_quantity,
+		double average_unit_cost );
+
+double inventory_average_unit_cost(
+		int inventory_average_purchase_quantity_on_hand,
+		double inventory_average_total_cost_balance );
+
+int inventory_average_sale_quantity_on_hand(
+		int prior_quantity_on_hand,
+		int sold_quantity );
+
+double inventory_average_sale_unit_cost(
+		double average_unit_cost );
+
+double inventory_average_sale_total_cost_balance(
+		int inventory_average_sale_quantity_on_hand,
+		double inventory_average_sale_unit_cost );
+
+double inventory_average_cost_of_goods_sold(
+		int sold_quantity,
+		double inventory_average_sale_unit_cost );
+
 /* Usage */
 /* ----- */
 
@@ -147,11 +208,47 @@ char *inventory_average_date_time_key(
 		char *purchase_date_time,
 		char *sale_date_time );
 
+/* Usage */
+/* ----- */
+void inventory_average_list_save(
+		LIST *inventory_average_list );
+
 typedef struct
 {
 	INVENTORY_AVERAGE *inventory_average;
 	boolean update_boolean;
 	char *inventory_average_prior_purchase_date_time;
 	LIST *inventory_average_list;
-}
+} INVENTORY_AVERAGE_PURCHASE;
+
+/* Usage */
+/* ----- */
+INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_fetch(
+		char *inventory_name,
+		char *purchase_date_time,
+		int ordered_quantity,
+		int arrived_quantity,
+		int slippage_quantity,
+		double inventory_purchase_cost_basis );
+
+/* Process */
+/* ------- */
+INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_calloc(
+		void );
+
+boolean inventory_average_purchase_update_boolean(
+		INVENTORY_AVERAGE *inventory_average_fetch );
+
+int inventory_average_purchase_quantity(
+		int arrived_quantity,
+		int slippage_quantity );
+
+double inventory_average_unit_cost(
+		int ordered_quantity,
+		double inventory_purchase_cost_basis );
+
+/* Driver */
+/* ------ */
+void inventory_average_purchase_save(
+		INVENTORY_AVERAGE *inventory_average );
 
