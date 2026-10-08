@@ -76,3 +76,12 @@ char *predictive_fund_string(
 		char delimiter /* optional */,
 		char *fund_name,
 		boolean predictive_fund_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *predictive_update_system_string(
+		const char *table_name,
+		LIST *primary_key_list );

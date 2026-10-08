@@ -270,45 +270,13 @@ char *sale_update_system_string(
 		const char *sale_table,
 		LIST *primary_key_list )
 {
-	char *delimited_string;
-	char system_string[ 1024 ];
-
-	if ( !list_length( primary_key_list ) )
-	{
-		char message[ 1024 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"primary_key_list is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	delimited_string =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		list_delimited_string(
-			primary_key_list,
-			',' );
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"update_statement.e table=%s key=%s carrot=y | "
-		"tee_appaserver.sh | "
-		"sql.e",
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	predictive_update_system_string(
 		sale_table,
-		delimited_string );
-
-	free( delimited_string );
-
-	return strdup( system_string );
+		primary_key_list );
 }
 
 char *sale_update_execute(

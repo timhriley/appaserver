@@ -20,7 +20,6 @@
 #include "purchase.h"
 #include "inventory.h"
 #include "inventory_sale.h"
-#include "inventory_average_cost.h"
 #include "inventory_purchase.h"
 
 INVENTORY_PURCHASE *inventory_purchase_new( char *inventory_name )
@@ -595,7 +594,7 @@ void inventory_purchase_list_set_update_string_list(
 	} while ( list_next( inventory_purchase_list ) );
 }
 
-void inventory_purchase_list_set_average_unit_cost(
+void inventory_purchase_list_set_inventory_average(
 		LIST *inventory_purchase_list )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
@@ -623,12 +622,34 @@ void inventory_purchase_list_set_average_unit_cost(
 				message );
 		}
 
-		inventory_purchase->inventory_purchase_average_unit_cost =
-			inventory_purchase_average_unit_cost(
+		inventory_purchase->inventory_average_purchase =
+			inventory_average_purchase_fetch(
+				inventory_purchase->inventory_name,
+				inventory_purchase->purchase_date_time,
 				inventory_purchase->ordered_quantity,
+				inventory_purchase->arrived_quantity,
+				inventory_purchase->slippage_quantity,
 				inventory_purchase->
 					cost_basis_inventory->
-					cost_basis_amount );
+					cost_basis_amount
+					/* inventory_purchase_cost_basis */ );
+
+		if ( !inventory_purchase->inventory_average_purchase )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+		"inventory_average_purchase_fetch(%s) returned empty.",
+				inventory_name );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
 	} while ( list_next( inventory_purchase_list ) );
 }

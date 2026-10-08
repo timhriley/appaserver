@@ -27,7 +27,7 @@ char *sql_delimiter_string(
 /* ---------------------------- */
 char *sql_execute(
 		const char *sql_executable,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *sql_list /* mutually exclusive */,
 		char *sql_statement /* mutually exclusive */ );
 

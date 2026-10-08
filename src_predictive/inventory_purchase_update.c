@@ -10,7 +10,7 @@
 #include "appaserver_error.h"
 #include "sale.h"
 #include "inventory_purchase.h"
-#include "inventory_average_cost.h"
+#include "inventory_average.h"
 #include "inventory_purchase_update.h"
 
 INVENTORY_PURCHASE_UPDATE *inventory_purchase_update_new(

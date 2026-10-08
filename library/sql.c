@@ -22,7 +22,7 @@ char *sql_delimiter_string( char sql_delimiter )
 
 char *sql_execute(
 		const char *sql_executable,
-		char *appaserver_error_filename,
+		char *appaserver_error_filespecification,
 		LIST *sql_list,
 		char *sql_statement )
 {
@@ -37,13 +37,13 @@ char *sql_execute(
 		return (char *)0;
 	}
 
-	if ( appaserver_error_filename )
+	if ( appaserver_error_filespecification )
 	{
 		snprintf(
 			system_string,
 			sizeof ( system_string ),
 			"tee -a %s | %s 2>%s",
-			appaserver_error_filename,
+			appaserver_error_filespecification,
 			sql_executable,
 			( temp_filespecification =
 		  		/* ------------------- */

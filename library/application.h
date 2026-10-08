@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -240,5 +239,3 @@ void application_output_ftp_prompt(
 		char *prompt,
 		char *target,
 		char *mime_type );
-
-#endif

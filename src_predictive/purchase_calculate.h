@@ -38,7 +38,8 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 			/* Sets each cost_basis_fixed_asset */,
 		boolean inventory_total_boolean,
 		LIST *inventory_purchase_list
-			/* Sets each cost_basis_inventory */,
+			/* Sets each cost_basis_inventory */
+			/* Sets each inventory_average_purchase */,
 		boolean specific_inventory_total_boolean,
 		LIST *specific_inventory_purchase_list
 			/* Sets each cost_basis_specific_inventory */,
