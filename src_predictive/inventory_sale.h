@@ -37,10 +37,9 @@ typedef struct
 	double cost_of_goods_sold;
 	int markup_percent;
 	double sale_extended_price;
-	INVENTORY_AVERAGE *inventory_average;
+	INVENTORY_AVERAGE_SALE *inventory_average_sale;
 	int inventory_sale_markup_percent;
 	LIST *update_string_list;
-	INVENTORY_PURCHASE_UPDATE *inventory_purchase_update;
 } INVENTORY_SALE;
 
 /* Usage */
@@ -48,7 +47,6 @@ typedef struct
 INVENTORY_SALE *inventory_sale_parse(
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		boolean inventory_average_boolean,
 		char *input );
 
 /* Usage */
@@ -89,7 +87,6 @@ LIST *inventory_sale_update_string_list(
 		boolean entity_contact_key_boolean,
 		double extended_price,
 		double sale_extended_price,
-		LIST *inventory_average_cost_list,
 		int markup_percent,
 		int inventory_sale_markup_percent );
 
@@ -168,8 +165,7 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
-		char *where,
-		boolean inventory_average_boolean );
+		char *where );
 
 /* Process */
 /* ------- */

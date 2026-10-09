@@ -83,7 +83,7 @@ char *inventory_average_cost_date_time(
 		return sale_date_time;
 }
 
-INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_fetch(
+INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_new(
 		char *inventory_name,
 		char *purchase_date_time,
 		int ordered_quantity,
@@ -472,10 +472,11 @@ char *inventory_average_primary_where(
 	return where;
 }
 
-void inventory_average_list_set( LIST *inventory_average_list )
+double inventory_average_list_set( LIST *inventory_average_list )
 {
 	INVENTORY_AVERAGE *inventory_average;
 	INVENTORY_AVERAGE *inventory_average_prior = {0};
+	double cost_of_goods_sold = 0.0;
 
 	if ( list_rewind( inventory_average_list ) )
 	do {
@@ -565,6 +566,7 @@ void inventory_average_list_set( LIST *inventory_average_list )
 					inventory_average->
 					    inventory_average_unit_cost );
 
+			cost_of_goods_sold =
 			inventory_average->cost_of_goods_sold =
 				inventory_average_list_cost_of_goods_sold(
 					inventory_average->sold_quantity,
@@ -575,6 +577,8 @@ void inventory_average_list_set( LIST *inventory_average_list )
 		inventory_average_prior = inventory_average;
 
 	} while ( list_next( inventory_average_list ) );
+
+	return cost_of_goods_sold;
 }
 
 int inventory_average_list_purchase_quantity_on_hand(
@@ -977,8 +981,9 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 	pclose( input_pipe );
 
-	inventory_average_list_set(
-		inventory_average_list->list /* inventory_average_list */
+	inventory_average_list->cost_of_goods_sold =
+		inventory_average_list_set(
+		    inventory_average_list->list /* inventory_average_list */
 			/* Sets each inventory_average_quantity_on_hand */
 			/* Sets each inventory_average_total_cost_balance */
 			/* Sets each inventory_average_unit_cost */
@@ -1140,7 +1145,7 @@ char *inventory_average_list_where(
 	return where;
 }
 
-INVENTORY_AVERAGE_SALE *inventory_average_sale_fetch(
+INVENTORY_AVERAGE_SALE *inventory_average_sale_new(
 		char *inventory_name,
 		char *sale_date_time,
 		int sold_quantity )

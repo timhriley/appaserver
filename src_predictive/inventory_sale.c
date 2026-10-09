@@ -11,12 +11,14 @@
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "date.h"
+#include "update.h"
 #include "float.h"
 #include "sql.h"
 #include "entity.h"
 #include "security.h"
 #include "optional_column.h"
 #include "sale.h"
+#include "inventory_average.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 
@@ -74,7 +76,6 @@ INVENTORY_SALE *inventory_sale_calloc( void )
 INVENTORY_SALE *inventory_sale_parse(
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean inventory_average_boolean,
 		char *input )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -143,23 +144,20 @@ INVENTORY_SALE *inventory_sale_parse(
 			inventory_sale->quantity,
 			inventory_sale->discount_amount );
 
-	if ( inventory_average_boolean )
-	{
-		inventory_sale->inventory_average =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			inventory_average_new(
-				inventory_sale->inventory_name,
-				(char *)0 /* purchase_date_time */,
-				inventory_sale->sale_date_time,
-				0.0 /* current_purchase_cost_basis */ );
+	inventory_sale->inventory_average_sale =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		inventory_average_sale_new(
+			inventory_sale->inventory_name,
+			inventory_sale->sale_date_time,
+			inventory_sale->sold_quantity );
 
 		inventory_sale->inventory_sale_markup_percent =
 			inventory_sale_markup_percent(
 				inventory_sale->sale_extended_price,
 				inventory_sale->
-					inventory_average->
+					inventory_average_sale->
 					cost_of_goods_sold );
 
 		inventory_sale->update_string_list =
@@ -174,9 +172,6 @@ INVENTORY_SALE *inventory_sale_parse(
 				contact_key_boolean,
 				inventory_sale->extended_price,
 				inventory_sale->sale_extended_price,
-				inventory_sale->
-					inventory_average->
-					inventory_average_cost_list,
 				inventory_sale->markup_percent,
 				inventory_sale->inventory_sale_markup_percent );
 
@@ -220,14 +215,12 @@ LIST *inventory_sale_update_string_list(
 		boolean contact_key_boolean,
 		double extended_price,
 		double sale_extended_price,
-		LIST *inventory_average_cost_list,
 		int markup_percent,
 		int inventory_sale_markup_percent )
 {
 	LIST *list = list_new();
 	char *primary_data_string;
 	char *update_string;
-	LIST *average_cost_update_string_list;
 
 	primary_data_string =
 		/* ------------------- */
@@ -251,7 +244,7 @@ LIST *inventory_sale_update_string_list(
 			/* ------------------------------------------------ */
 			/* Returns heap memory or null (if not set_boolean) */
 			/* ------------------------------------------------ */
-			sale_update_string(
+			update_double_string(
 				sql_delimiter,
 				primary_data_string,
 				"extended_price" /* column_name */,
@@ -261,25 +254,13 @@ LIST *inventory_sale_update_string_list(
 		list_set( list, update_string );
 	}
 
-	average_cost_update_string_list =
-		inventory_average_cost_list_sale_update_string_list(
-			fund_boolean,
-			contact_key_boolean,
-			inventory_average_cost_list );
-
-	list_set_list(
-		list,
-		average_cost_update_string_list );
-
-	list_free_container( average_cost_update_string_list );
-
 	if ( markup_percent != inventory_sale_markup_percent )
 	{
 		update_string =
 			/* ------------------------------------------------ */
 			/* Returns heap memory or null (if not set_boolean) */
 			/* ------------------------------------------------ */
-			sale_update_integer_string(
+			update_integer_string(
 				sql_delimiter,
 				primary_data_string,
 				"inventory_markup_percent" /* column_name */,
@@ -645,8 +626,7 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 		const char *inventory_sale_table,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		char *where,
-		boolean inventory_average_boolean )
+		char *where )
 {
 	char *select;
 	char *system_string;
@@ -709,7 +689,6 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 			inventory_sale_parse(
 				fund_boolean,
 				contact_key_boolean,
-				inventory_average_boolean,
 				input );
 
 		if ( !inventory_sale )

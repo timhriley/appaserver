@@ -146,6 +146,7 @@ typedef struct
 {
 	LIST *list;
 	char *where;
+	double cost_of_goods_sold;
 	LIST *average_primary_key_list;
 	char *average_update_system_string;
 	LIST *average_update_string_list;
@@ -184,7 +185,10 @@ char *inventory_average_list_where(
 
 /* Usage */
 /* ----- */
-void inventory_average_list_set(
+
+/* Returns cost_of_goods_sold */
+/* -------------------------- */
+double inventory_average_list_set(
 		LIST *inventory_average_list
 			/* Sets each inventory_average_quantity_on_hand */
 			/* Sets each inventory_average_total_cost_balance */
@@ -276,7 +280,7 @@ typedef struct
 
 /* Usage */
 /* ----- */
-INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_fetch(
+INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase_new(
 		char *inventory_name,
 		char *purchase_date_time,
 		int ordered_quantity,
@@ -346,7 +350,7 @@ typedef struct
 
 /* Usage */
 /* ----- */
-INVENTORY_AVERAGE_SALE *inventory_average_sale_fetch(
+INVENTORY_AVERAGE_SALE *inventory_average_sale_new(
 		char *inventory_name,
 		char *sale_date_time,
 		int sold_quantity );
