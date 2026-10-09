@@ -5939,14 +5939,13 @@ void update_string_list_execute(
 
 	if ( !update_system_string ) return;
 
-	if ( list_length( update_string_list ) )
+	if ( list_rewind( update_string_list ) )
 	{
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		pipe = appaserver_output_pipe( update_system_string );
 	
-		if ( list_rewind( update_string_list ) )
 		do {
 			update_string = list_get( update_string_list );
 			fprintf( pipe, "%s\n", update_string );

@@ -148,7 +148,7 @@ typedef struct
 	char *where;
 	LIST *average_primary_key_list;
 	char *average_update_system_string;
-	LIST average_update_string_list;
+	LIST *average_update_string_list;
 	LIST *purchase_primary_key_list;
 	char *purchase_update_system_string;
 	LIST *purchase_update_string_list;
@@ -162,10 +162,11 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 		char *inventory_name,
-		char *inventory_average_date_time_key,
-		char *inventory_average_primary_data_string,
 		char *inventory_average_prior_purchase_date_time );
 
 /* Process */
@@ -180,10 +181,6 @@ char *inventory_average_list_where(
 	const char *inventory_average_date_column,
 	char *inventory_name,
 	char *inventory_average_prior_purchase_date_time );
-
-LIST *inventory_average_list_average_update_string_list(
-		char *inventory_average_primary_data_string,
-		LIST *inventory_average_list );
 
 /* Usage */
 /* ----- */
@@ -224,8 +221,39 @@ double inventory_average_list_cost_of_goods_sold(
 
 /* Usage */
 /* ----- */
+LIST *inventory_average_list_average_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_average_list_purchase_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_average_list_inventory_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_average_list_sale_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list );
+
+/* Usage */
+/* ----- */
 void inventory_average_list_update(
-		INVENTORY_AVERAGE_LIST *inventory_average_list );
+		char *average_update_system_string,
+		LIST *average_update_string_list,
+		char *purchase_update_system_string,
+		LIST *purchase_update_string_list,
+		char *inventory_update_system_string,
+		LIST *inventory_update_string_list,
+		char *sale_update_system_string,
+		LIST *sale_update_string_list );
 
 typedef struct
 {

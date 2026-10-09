@@ -17,7 +17,6 @@
 #include "security.h"
 #include "optional_column.h"
 #include "sale.h"
-#include "inventory_average_cost.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
 

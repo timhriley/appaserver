@@ -857,24 +857,43 @@ void inventory_average_purchase_save(
 		inventory_average_purchase->update_string_list );
 
 	inventory_average_purchase->inventory_average_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		inventory_average_list_new(
 			inventory_name,	
-			inventory_average_purchase->
-				inventory_average_date_time_key,
-			inventory_average_purchase->
-				inventory_average_primary_data_string,
 			inventory_average_purchase->
 				inventory_average_prior_purchase_date_time );
 
 	inventory_average_list_update(
 		inventory_average_purchase->
-			inventory_average_list );
+			inventory_average_list->
+			average_update_system_string,
+		inventory_average_purchase->
+			inventory_average_list->
+			average_update_string_list,
+		inventory_average_purchase->
+			inventory_average_list->
+			purchase_update_system_string,
+		inventory_average_purchase->
+			inventory_average_list->
+			purchase_update_string_list,
+		inventory_average_purchase->
+			inventory_average_list->
+			inventory_update_system_string,
+		inventory_average_purchase->
+			inventory_average_list->
+			inventory_update_string_list,
+		inventory_average_purchase->
+			inventory_average_list->
+			sale_update_system_string,
+		inventory_average_purchase->
+			inventory_average_list->
+			sale_update_string_list );
 }
 
 INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 		char *inventory_name,
-		char *inventory_average_date_time_key,
-		char *inventory_average_primary_data_string,
 		char *prior_purchase_date_time )
 {
 	INVENTORY_AVERAGE_LIST *inventory_average_list;
@@ -936,7 +955,7 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 		if ( !inventory_average )
 		{
-			char message[ 1024 ];
+			char message[ 2048 ];
 
 			pclose( input_pipe );
 
@@ -968,8 +987,9 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 	/* Set INVENTORY_AVERAGE_TABLE */
 	/* --------------------------- */
 	inventory_average_list->average_primary_key_list =
-		folder_attribute_cache_primary_key_list(
-		INVENTORY_AVERAGE_TABLE /* folder_name */ );
+		inventory_average_primary_key_list(
+			INVENTORY_COLUMN,
+			INVENTORY_AVERAGE_DATE_COLUMN );
 
 	inventory_average_list->average_update_system_string =
 		/* ------------------- */
@@ -982,14 +1002,16 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 	inventory_average_list->average_update_string_list =
 		inventory_average_list_average_update_string_list(
+			inventory_name,
 			inventory_average_list->list
 				/* inventory_average_list */ );
 
 	/* Set INVENTORY_PURCHASE_TABLE */
 	/* ---------------------------- */
 	inventory_average_list->purchase_primary_key_list =
-		folder_attribute_cache_primary_key_list(
-			INVENTORY_PURCHASE_TABLE /* folder_name */ );
+		inventory_average_primary_key_list(
+			INVENTORY_COLUMN,
+			PURCHASE_DATE_TIME_COLUMN );
 
 	inventory_average_list->purchase_update_system_string =
 		/* ------------------- */
@@ -1002,14 +1024,15 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 	inventory_average_list->purchase_update_string_list =
 		inventory_average_list_purchase_update_string_list(
+			inventory_name,
 			inventory_average_list->list
 				/* inventory_average_list */ );
 
 	/* Set INVENTORY_TABLE */
 	/* ------------------- */
 	inventory_average_list->inventory_primary_key_list =
-		folder_attribute_cache_primary_key_list(
-			INVENTORY_TABLE /* folder_name */ );
+		list_string_new(
+			INVENTORY_COLUMN );
 
 	inventory_average_list->inventory_update_system_string =
 		/* ------------------- */
@@ -1022,14 +1045,16 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 	inventory_average_list->inventory_update_string_list =
 		inventory_average_list_inventory_update_string_list(
+			inventory_name,
 			inventory_average_list->list
 				/* inventory_average_list */ );
 
 	/* Set INVENTORY_SALE_TABLE */
 	/* ------------------------ */
 	inventory_average_list->sale_primary_key_list =
-		folder_attribute_cache_primary_key_list(
-			INVENTORY_SALE_TABLE /* folder_name */ );
+		inventory_average_primary_key_list(
+			INVENTORY_COLUMN,
+			SALE_DATE_TIME_COLUMN );
 
 	inventory_average_list->sale_update_system_string =
 		predictive_update_system_string(
@@ -1038,6 +1063,7 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 
 	inventory_average_list->sale_update_string_list =
 		inventory_average_list_sale_update_string_list(
+			inventory_name,
 			inventory_average_list->list
 				/* inventory_average_list */ );
 
@@ -1079,7 +1105,7 @@ char *inventory_average_list_where(
 	static char where[ 256 ];
 
 	if ( !inventory_name
-	||   !purchase_date_time )
+	||   !prior_purchase_date_time )
 	{
 		char message[ 1024 ];
 
@@ -1169,13 +1195,13 @@ INVENTORY_AVERAGE_SALE *inventory_average_sale_fetch(
 			inventory_average_sale->
 				inventory_average_primary_where );
 
-	inventory_average->insert_boolean =
+	inventory_average_sale->insert_boolean =
 		inventory_average_purchase_insert_boolean(
 			inventory_average );
 
-	if ( inventory_average->insert_boolean )
+	if ( inventory_average_sale->insert_boolean )
 	{
-		inventory_average->insert_sql =
+		inventory_average_sale->insert_sql =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -1184,7 +1210,8 @@ INVENTORY_AVERAGE_SALE *inventory_average_sale_fetch(
 				INVENTORY_COLUMN,
 				INVENTORY_AVERAGE_DATE_COLUMN,
 				inventory_name,
-				inventory_average_date_time_key() );
+				inventory_average_sale->
+					inventory_average_date_time_key );
 	}
 
 	inventory_average_sale->inventory_average_primary_key_list =
@@ -1341,25 +1368,387 @@ void inventory_average_sale_save(
 				/* sql_statement */ );
 	}
 
-	void update_string_list_execute(
+	update_string_list_execute(
 		inventory_average_sale->predictive_update_system_string,
 		inventory_average_sale->update_string_list );
 
 	inventory_average_sale->inventory_average_list =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		inventory_average_list_new(
 			inventory_name,	
 			inventory_average_sale->
-				inventory_average_date_time_key,
-			inventory_average_sale->
-				inventory_average_primary_data_string,
-			inventory_average_sale->
 				inventory_average_prior_purchase_date_time );
 
-	inventory_average_list_update( inventory_average_list );
+	inventory_average_list_update(
+		inventory_average_sale->
+			inventory_average_list->
+			average_update_system_string,
+		inventory_average_sale->
+			inventory_average_list->
+			average_update_string_list,
+		inventory_average_sale->
+			inventory_average_list->
+			purchase_update_system_string,
+		inventory_average_sale->
+			inventory_average_list->
+			purchase_update_string_list,
+		inventory_average_sale->
+			inventory_average_list->
+			inventory_update_system_string,
+		inventory_average_sale->
+			inventory_average_list->
+			inventory_update_string_list,
+		inventory_average_sale->
+			inventory_average_list->
+			sale_update_system_string,
+		inventory_average_sale->
+			inventory_average_list->
+			sale_update_string_list );
+}
+
+void inventory_average_list_update(
+		char *average_update_system_string,
+		LIST *average_update_string_list,
+		char *purchase_update_system_string,
+		LIST *purchase_update_string_list,
+		char *inventory_update_system_string,
+		LIST *inventory_update_string_list,
+		char *sale_update_system_string,
+		LIST *sale_update_string_list )
+{
+	if ( !average_update_system_string
+	||   !purchase_update_system_string
+	||   !inventory_update_system_string
+	||   !sale_update_system_string )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty: %x, %x, %x, %x",
+			(unsigned int)(long)average_update_system_string,
+			(unsigned int)(long)purchase_update_system_string,
+			(unsigned int)(long)inventory_update_system_string,
+			(unsigned int)(long)sale_update_system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	update_string_list_execute(
+		average_update_system_string,
+		average_update_string_list );
+
+	update_string_list_execute(
+		purchase_update_system_string,
+		purchase_update_string_list );
+
+	update_string_list_execute(
+		inventory_update_system_string,
+		inventory_update_string_list );
+
+	update_string_list_execute(
+		sale_update_system_string,
+		sale_update_string_list );
+}
+
+LIST *inventory_average_list_sale_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list )
+{
+	LIST *list = list_new();
+	INVENTORY_AVERAGE *inventory_average;
+	char *primary_data_string;
+	char *update_string;
+
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_average_list ) )
+	do {
+		inventory_average =
+			list_get(
+				inventory_average_list );
+
+		if ( !inventory_average->sale_date_time ) continue;
+
+		primary_data_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			inventory_average_primary_data_string(
+				SQL_DELIMITER,
+				inventory_name,
+				inventory_average->sale_date_time
+					/* date_time_key */ );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			update_double_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"cost_of_goods_sold" /* column_name */,
+				inventory_average->
+					cost_of_goods_sold /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+	} while ( list_next( inventory_average_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+
+LIST *inventory_average_list_inventory_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list )
+{
+	LIST *list = list_new();
+	INVENTORY_AVERAGE *inventory_average;
+	char *update_string;
+
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	inventory_average =
+		/* -------------------------------- */
+		/* Returns the last element or null */
+		/* -------------------------------- */
+		list_last( inventory_average_list );
+
+	if ( !inventory_average ) return NULL;
+
+	update_string =
+		/* ------------------------------------------------ */
+		/* Returns heap memory or null (if not set_boolean) */
+		/* ------------------------------------------------ */
+		update_integer_string(
+			SQL_DELIMITER,
+			inventory_name /* primary_data_string */,
+			"quantity_on_hand" /* column_name */,
+			inventory_average->quantity_on_hand /* number */,
+			1 /* set_boolean */ );
+
+	list_set( list, update_string );
+
+	update_string =
+		/* ------------------------------------------------ */
+		/* Returns heap memory or null (if not set_boolean) */
+		/* ------------------------------------------------ */
+		update_double_string(
+			SQL_DELIMITER,
+			inventory_name,
+			"average_unit_cost" /* column_name */,
+			inventory_average->average_unit_cost /* number */,
+			1 /* set_boolean */ );
+
+	list_set( list, update_string );
+
+	return list;
+}
+
+LIST *inventory_average_list_purchase_update_string_list(
+		char *inventory_name,
+		LIST *inventory_average_list )
+{
+	LIST *list = list_new();
+	INVENTORY_AVERAGE *inventory_average;
+	char *primary_data_string;
+	char *update_string;
+
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_average_list ) )
+	do {
+		inventory_average =
+			list_get(
+				inventory_average_list );
+
+		if ( !inventory_average->purchase_date_time ) continue;
+
+		primary_data_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			inventory_average_primary_data_string(
+				SQL_DELIMITER,
+				inventory_name,
+				inventory_average->purchase_date_time
+					/* date_time_key */ );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			update_integer_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"quantity_on_hand" /* column_name */,
+				inventory_average->
+					quantity_on_hand /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+		update_string =
+			update_double_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"average_unit_cost" /* column_name */,
+				inventory_average->
+					average_unit_cost /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+	} while ( list_next( inventory_average_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 
 LIST *inventory_average_list_average_update_string_list(
-		char *primary_data_string,
+		char *inventory_name,
 		LIST *inventory_average_list )
 {
+	LIST *list = list_new();
+	INVENTORY_AVERAGE *inventory_average;
+	char *primary_data_string;
+	char *update_string;
+
+	if ( !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"inventory_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( inventory_average_list ) )
+	do {
+		inventory_average =
+			list_get(
+				inventory_average_list );
+
+		primary_data_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			inventory_average_primary_data_string(
+				SQL_DELIMITER,
+				inventory_name,
+				inventory_average->date_time_key );
+
+		update_string =
+			/* ------------------------------------------------ */
+			/* Returns heap memory or null (if not set_boolean) */
+			/* ------------------------------------------------ */
+			update_integer_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"quantity_on_hand" /* column_name */,
+				inventory_average->
+					quantity_on_hand /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+		update_string =
+			update_double_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"total_cost_balance" /* column_name */,
+				inventory_average->
+					total_cost_balance /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+		update_string =
+			update_double_string(
+				SQL_DELIMITER,
+				primary_data_string,
+				"average_unit_cost" /* column_name */,
+				inventory_average->
+					average_unit_cost /* number */,
+				1 /* set_boolean */ );
+
+		list_set( list, update_string );
+
+	} while ( list_next( inventory_average_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
