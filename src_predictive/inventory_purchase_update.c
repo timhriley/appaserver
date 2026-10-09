@@ -25,7 +25,7 @@ INVENTORY_PURCHASE_UPDATE *inventory_purchase_update_new(
 
 	primary_key_list =
 		inventory_purchase_list_primary_key_list(
-			SALE_INVENTORY_COLUMN,
+			INVENTORY_COLUMN,
 			fund_boolean,
 			contact_key_boolean );
 

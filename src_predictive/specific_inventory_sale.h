@@ -75,7 +75,7 @@ SPECIFIC_INVENTORY_SALE *specific_inventory_sale_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *specific_inventory_sale_primary_where(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_serial_key_column,
 		char *fund_name,
 		char *full_name,
@@ -168,7 +168,7 @@ char *specific_inventory_sale_list_system_string(
 /* Usage */
 /* ----- */
 LIST *specific_inventory_sale_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_serial_key_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );

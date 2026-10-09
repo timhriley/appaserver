@@ -368,7 +368,10 @@ LIST *inventory_average_sale_update_string_list(
 
 /* Driver */
 /* ------ */
-void inventory_average_sale_save(
+
+/* Returns cost_of_goods_sold */
+/* -------------------------- */
+double inventory_average_sale_save(
 		char *inventory_name,
 		INVENTORY_AVERAGE_SALE *inventory_average_sale
 			/* In/out sets inventory_average_list */ );

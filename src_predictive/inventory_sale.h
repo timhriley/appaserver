@@ -9,7 +9,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "inventory_average.h"
-#include "inventory_purchase_update.h"
 
 #define INVENTORY_SALE_SELECT		"full_name,"			\
 					"sale_date_time,"		\
@@ -30,7 +29,7 @@ typedef struct
 	char *contact_key;
 	char *sale_date_time;
 	char *inventory_name;
-	int quantity;
+	int sold_quantity;
 	double retail_price;
 	double discount_amount;
 	double extended_price;
@@ -38,6 +37,7 @@ typedef struct
 	int markup_percent;
 	double sale_extended_price;
 	INVENTORY_AVERAGE_SALE *inventory_average_sale;
+	double inventory_average_cost_of_goods_sold;
 	int inventory_sale_markup_percent;
 	LIST *update_string_list;
 } INVENTORY_SALE;
@@ -96,7 +96,7 @@ LIST *inventory_sale_update_string_list(
 /* Returns heap memory */
 /* ------------------- */
 char *inventory_sale_primary_where(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -112,7 +112,7 @@ char *inventory_sale_primary_where(
 /* --------------------------- */
 char *inventory_sale_cost_where(
 		const char *inventory_sale_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_date_time_column,
 		char *inventory_name,
 		char *sale_date_time );
@@ -197,7 +197,7 @@ char *inventory_sale_list_system_string(
 /* Usage */
 /* ----- */
 LIST *inventory_sale_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 

@@ -292,9 +292,10 @@ char *sale_primary_where(
 /* ----- */
 #define SALE_EXTENDED_PRICE(					\
 		retail_price,					\
-		quantity,					\
+		sold_quantity,					\
 		discount_amount )				\
-	( ( retail_price * (double)quantity ) - discount_amount )
+	( ( retail_price * (double)sold_quantity ) -		\
+	discount_amount )
 
 /* Usage */
 /* ----- */
@@ -326,11 +327,6 @@ char *sale_update_execute(
 		SALE_UPDATE *sale_update,
 		SALE_TRANSACTION *sale_transaction,
 		SALE_LOSS_TRANSACTION *sale_loss_transaction );
-
-/* Usage */
-/* ----- */
-void sale_update_purchase_quantity_on_hand_execute(
-		LIST *inventory_sale_list );
 
 /* Usage */
 /* ----- */

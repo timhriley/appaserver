@@ -104,6 +104,8 @@ PURCHASE_UPDATE *purchase_update_new(
 
 	if ( inventory_purchase_list->list )
 	{
+		/* Need to set it here b/c cost basis was calculated */
+		/* ------------------------------------------------- */
 		inventory_purchase_list_set_update_string_list(
 			sql_delimiter,
 			fund_name,
@@ -253,6 +255,25 @@ char *purchase_update_execute(
 			purchase_update->
 				inventory_purchase_list->
 				update_system_string );
+
+		if ( list_rewind(
+			purchase_update->
+				inventory_purchase_list->
+				list ) )
+		{
+			INVENTORY_PURCHASE *inventory_purchase;
+
+			inventory_purchase =
+				list_get(
+					purchase_update->
+						inventory_purchase_list->
+						list );
+
+			inventory_average_purchase_save(
+				inventory_purchase->inventory_name,
+				inventory_purchase->inventory_average_purchase
+				/* In/out sets inventory_average_list */ );
+		}
 	}
 
 	if ( purchase_update->

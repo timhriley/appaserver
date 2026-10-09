@@ -13,6 +13,7 @@
 #include "appaserver_error.h"
 #include "piece.h"
 #include "float.h"
+#include "update.h"
 #include "sql.h"
 #include "predictive.h"
 #include "optional_column.h"
@@ -205,7 +206,7 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 }
 
 LIST *inventory_purchase_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -220,7 +221,7 @@ LIST *inventory_purchase_list_primary_key_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	list_set( primary_key_list, (char *)sale_inventory_column );
+	list_set( primary_key_list, (char *)inventory_column );
 
 	return primary_key_list;
 }
@@ -237,15 +238,11 @@ LIST *inventory_purchase_update_string_list(
 		double extended_cost,
 		double inventory_purchase_extended_cost,
 		double cost_basis,
-		double cost_basis_amount,
-		double average_unit_cost,
-		double inventory_purchase_average_unit_cost,
-		LIST *inventory_average_cost_list )
+		double cost_basis_amount )
 {
 	char *primary_data_string;
 	char *update_string;
 	LIST *list = list_new();
-	LIST *inventory_average_update_string_list;
 
 	if ( !full_name
 	||   !purchase_date_time
@@ -288,11 +285,11 @@ LIST *inventory_purchase_update_string_list(
 			/* ------------------------------------------------ */
 			/* Returns heap memory or null (if not set_boolean) */
 			/* ------------------------------------------------ */
-			sale_update_string(
+			update_double_string(
 				sql_delimiter,
 				primary_data_string,
 				"extended_cost" /* column_name */,
-				inventory_purchase_extended_cost /* money */,
+				inventory_purchase_extended_cost /* double */,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -306,42 +303,15 @@ LIST *inventory_purchase_update_string_list(
 			/* ------------------------------------------------ */
 			/* Returns heap memory or null (if not set_boolean) */
 			/* ------------------------------------------------ */
-			sale_update_string(
+			update_double_string(
 				sql_delimiter,
 				primary_data_string,
 				"cost_basis" /* column_name */,
-				cost_basis_amount /* money */,
+				cost_basis_amount /* double */,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
 	}
-
-	if ( !float_virtually_same(
-		average_unit_cost,
-		inventory_purchase_average_unit_cost ) )
-	{
-		update_string =
-			/* ------------------------------------------------ */
-			/* Returns heap memory or null (if not set_boolean) */
-			/* ------------------------------------------------ */
-			sale_update_string(
-				sql_delimiter,
-				primary_data_string,
-				"average_unit_cost" /* column_name */,
-				inventory_purchase_average_unit_cost,
-				1 /* set_boolean */ );
-
-		list_set( list, update_string );
-	}
-
-	inventory_average_update_string_list =
-		inventory_average_cost_list_purchase_update_string_list(
-			fund_boolean,
-			contact_key_boolean,
-			inventory_average_cost_list,
-			1 /* average_attributes_boolean */ );
-
-	list_set_list( list, inventory_average_update_string_list );
 
 	return list;
 }
@@ -428,7 +398,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 
 	inventory_purchase_list->primary_key_list =
 		inventory_purchase_list_primary_key_list(
-			SALE_INVENTORY_COLUMN,
+			INVENTORY_COLUMN,
 			fund_boolean,
 			contact_key_boolean );
 
@@ -551,22 +521,6 @@ void inventory_purchase_list_set_update_string_list(
 				message );
 		}
 
-		if ( !inventory_purchase->inventory_average )
-		{
-			char message[ 1024 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-			"inventory_purchase->inventory_average is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
 		inventory_purchase->update_string_list =
 			inventory_purchase_update_string_list(
 				sql_delimiter,
@@ -583,13 +537,7 @@ void inventory_purchase_list_set_update_string_list(
 				inventory_purchase->cost_basis,
 				inventory_purchase->
 					cost_basis_inventory->
-					cost_basis_amount,
-				inventory_purchase->average_unit_cost,
-				inventory_purchase->
-					inventory_purchase_average_unit_cost,
-				inventory_purchase->
-					inventory_average->
-					inventory_average_cost_list );
+					cost_basis_amount );
 
 	} while ( list_next( inventory_purchase_list ) );
 }
@@ -623,7 +571,7 @@ void inventory_purchase_list_set_inventory_average(
 		}
 
 		inventory_purchase->inventory_average_purchase =
-			inventory_average_purchase_fetch(
+			inventory_average_purchase_new(
 				inventory_purchase->inventory_name,
 				inventory_purchase->purchase_date_time,
 				inventory_purchase->ordered_quantity,
@@ -642,7 +590,7 @@ void inventory_purchase_list_set_inventory_average(
 				message,
 				sizeof ( message ),
 		"inventory_average_purchase_fetch(%s) returned empty.",
-				inventory_name );
+				inventory_purchase->inventory_name );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -666,7 +614,7 @@ double inventory_purchase_average_unit_cost(
 
 char *inventory_purchase_cost_where(
 		const char *inventory_purchase_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *purchase_date_time_column,
 		char *inventory_name,
 		char *purchase_date_time )
@@ -694,7 +642,7 @@ char *inventory_purchase_cost_where(
 
 	ptr += sprintf( ptr,
 		"%s = '%s'",
-		sale_inventory_column,
+		inventory_column,
 		inventory_name );
 
 	prior_date_time =
@@ -703,7 +651,7 @@ char *inventory_purchase_cost_where(
 		/* --------------------------- */
 		inventory_purchase_prior_date_time(
 			inventory_purchase_table,
-			sale_inventory_column,
+			inventory_column,
 			purchase_date_time_column,
 			inventory_name,
 			purchase_date_time );
@@ -723,7 +671,7 @@ char *inventory_purchase_cost_where(
 
 char *inventory_purchase_prior_date_time(
 		const char *inventory_purchase_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *purchase_date_time_column,
 		char *inventory_name,
 		char *purchase_date_time )
@@ -754,7 +702,7 @@ char *inventory_purchase_prior_date_time(
 		sizeof ( where ),
 		"%s = '%s' and "
 		"%s < '%s'",
-		sale_inventory_column,
+		inventory_column,
 		inventory_name,
 		purchase_date_time_column,
 		purchase_date_time );
@@ -839,46 +787,6 @@ char *inventory_purchase_list_system_string(
 		purchase_date_time_column );
 
 	return strdup( system_string );
-}
-
-void inventory_purchase_list_set_inventory_average(
-		LIST *inventory_purchase_list )
-{
-	INVENTORY_PURCHASE *inventory_purchase;
-
-	if ( list_rewind( inventory_purchase_list ) )
-	do {
-		inventory_purchase =
-			list_get(
-				inventory_purchase_list );
-
-		if ( !inventory_purchase->cost_basis_inventory )
-		{
-			char message[ 1024 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-		"inventory_purchase->cost_basis_inventory is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		inventory_purchase->inventory_average =
-			inventory_average_new(
-				inventory_purchase->inventory_name,
-				inventory_purchase->purchase_date_time,
-				(char *)0 /* sale_date_time */,
-				inventory_purchase->
-					cost_basis_inventory->
-					cost_basis_amount
-					/* current_purchase_cost_basis */ );
-
-	} while ( list_next( inventory_purchase_list ) );
 }
 
 INVENTORY_PURCHASE *inventory_purchase_date_seek(

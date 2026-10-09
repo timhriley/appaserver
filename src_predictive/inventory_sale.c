@@ -18,6 +18,7 @@
 #include "security.h"
 #include "optional_column.h"
 #include "sale.h"
+#include "inventory.h"
 #include "inventory_average.h"
 #include "inventory_purchase.h"
 #include "inventory_sale.h"
@@ -101,7 +102,7 @@ INVENTORY_SALE *inventory_sale_parse(
 	if ( *buffer ) inventory_sale->sale_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	if ( *buffer ) inventory_sale->quantity = atoi( buffer );
+	if ( *buffer ) inventory_sale->sold_quantity = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
 	if ( *buffer ) inventory_sale->retail_price = atof( buffer );
@@ -141,7 +142,7 @@ INVENTORY_SALE *inventory_sale_parse(
 	inventory_sale->sale_extended_price =
 		SALE_EXTENDED_PRICE(
 			inventory_sale->retail_price,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_sale->discount_amount );
 
 	inventory_sale->inventory_average_sale =
@@ -153,40 +154,35 @@ INVENTORY_SALE *inventory_sale_parse(
 			inventory_sale->sale_date_time,
 			inventory_sale->sold_quantity );
 
-		inventory_sale->inventory_sale_markup_percent =
-			inventory_sale_markup_percent(
-				inventory_sale->sale_extended_price,
-				inventory_sale->
-					inventory_average_sale->
-					cost_of_goods_sold );
+	inventory_sale->inventory_average_cost_of_goods_sold =
+		/* -------------------------- */
+		/* Returns cost_of_goods_sold */
+		/* -------------------------- */
+		inventory_average_sale_save(
+			inventory_sale->inventory_name,
+			inventory_sale->inventory_average_sale
+			/* In/out sets inventory_average_list */ );
 
-		inventory_sale->update_string_list =
-			inventory_sale_update_string_list(
-				SQL_DELIMITER,
-				inventory_sale->fund_name,
-				inventory_sale->full_name,
-				inventory_sale->contact_key,
-				inventory_sale->sale_date_time,
-				inventory_sale->inventory_name,
-				fund_boolean,
-				contact_key_boolean,
-				inventory_sale->extended_price,
-				inventory_sale->sale_extended_price,
-				inventory_sale->markup_percent,
-				inventory_sale->inventory_sale_markup_percent );
+	inventory_sale->inventory_sale_markup_percent =
+		inventory_sale_markup_percent(
+			inventory_sale->sale_extended_price,
+			inventory_sale->
+				inventory_average_cost_of_goods_sold );
 
-		inventory_sale->inventory_purchase_update =
-			/* ----------------------------------------------- */
-			/* Used to set INVENTORY_PURCHASE.quantity_on_hand */
-			/* Safely returns				   */
-			/* ----------------------------------------------- */
-			inventory_purchase_update_new(
-				fund_boolean,
-				contact_key_boolean,
-				inventory_sale->
-					inventory_average->
-					inventory_average_cost_list );
-	}
+	inventory_sale->update_string_list =
+		inventory_sale_update_string_list(
+			SQL_DELIMITER,
+			inventory_sale->fund_name,
+			inventory_sale->full_name,
+			inventory_sale->contact_key,
+			inventory_sale->sale_date_time,
+			inventory_sale->inventory_name,
+			fund_boolean,
+			contact_key_boolean,
+			inventory_sale->extended_price,
+			inventory_sale->sale_extended_price,
+			inventory_sale->markup_percent,
+			inventory_sale->inventory_sale_markup_percent );
 
 	return inventory_sale;
 }
@@ -293,21 +289,23 @@ double inventory_sale_list_extended_total( LIST *inventory_sale_list )
 double inventory_sale_list_CGS_total( LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
-	INVENTORY_AVERAGE_COST *inventory_average_cost;
 	double total = 0.0;
 
 	if ( list_rewind( inventory_sale_list ) )
 	do {
 		inventory_sale = list_get( inventory_sale_list );
 
-		if ( !inventory_sale->inventory_average )
+		if ( !inventory_sale->inventory_average_sale
+		||   !inventory_sale->
+			inventory_average_sale->
+			inventory_average_list )
 		{
 			char message[ 1024 ];
 
 			snprintf(
 				message,
 				sizeof ( message ),
-				"inventory_sale->inventory_average is empty." );
+	"inventory_sale->inventory_average_sale is empty or incomplete." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -316,28 +314,11 @@ double inventory_sale_list_CGS_total( LIST *inventory_sale_list )
 				message );
 		}
 
-		if ( list_rewind(
+		total +=
 			inventory_sale->
-				inventory_average->
-				inventory_average_cost_list ) )
-		do {
-			inventory_average_cost =
-				list_get(
-					inventory_sale->
-						inventory_average->
-						inventory_average_cost_list );
-
-			if ( inventory_average_cost->inventory_sale )
-			{
-				total +=
-					inventory_average_cost->
-						cost_of_goods_sold;
-			}
-
-		} while ( list_next(
-				inventory_sale->
-					inventory_average->
-					inventory_average_cost_list ) );
+				inventory_average_sale->
+				inventory_average_list->
+				cost_of_goods_sold;
 
 	} while( list_next( inventory_sale_list ) );
 
@@ -345,7 +326,7 @@ double inventory_sale_list_CGS_total( LIST *inventory_sale_list )
 }
 
 LIST *inventory_sale_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
@@ -360,7 +341,7 @@ LIST *inventory_sale_list_primary_key_list(
 			fund_boolean,
 			contact_key_boolean );
 
-	list_set( list, (char *)sale_inventory_column );
+	list_set( list, (char *)inventory_column );
 
 	return list;
 }
@@ -461,7 +442,7 @@ char *inventory_sale_primary_data_string(
 }
 
 char *inventory_sale_primary_where(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -517,7 +498,7 @@ char *inventory_sale_primary_where(
 		sizeof ( where ),
 		"%s and %s = '%s'",
 		primary_where,
-		sale_inventory_column,
+		inventory_column,
 		escape );
 
 	free( escape );
@@ -527,7 +508,7 @@ char *inventory_sale_primary_where(
 
 char *inventory_sale_cost_where(
 		const char *inventory_sale_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_date_time_column,
 		char *inventory_name,
 		char *sale_date_time )
@@ -556,7 +537,7 @@ char *inventory_sale_cost_where(
 	inventory_purchase_cost_where(
 		inventory_sale_table
 			/* inventory_purchase_table */,
-		sale_inventory_column,
+		inventory_column,
 		sale_date_time_column
 			/* purchase_date_time_column */,
 		inventory_name,
@@ -717,34 +698,31 @@ INVENTORY_SALE_LIST *inventory_sale_list_new(
 	if ( !list_length( inventory_sale_list->list ) )
 		return inventory_sale_list;
 
-	if ( inventory_average_boolean )
-	{
-		inventory_sale_list->primary_key_list =
-			inventory_sale_list_primary_key_list(
-				SALE_INVENTORY_COLUMN,
-				fund_boolean,
-				contact_key_boolean );
+	inventory_sale_list->primary_key_list =
+		inventory_sale_list_primary_key_list(
+			INVENTORY_COLUMN,
+			fund_boolean,
+			contact_key_boolean );
 	
-		inventory_sale_list->update_system_string =
-			inventory_sale_list_update_system_string(
-				inventory_sale_table,
-				inventory_sale_list->primary_key_list );
+	inventory_sale_list->update_system_string =
+		inventory_sale_list_update_system_string(
+			inventory_sale_table,
+			inventory_sale_list->primary_key_list );
 	
-		inventory_sale_list->update_string_list =
-			inventory_sale_list_update_string_list(
-				inventory_sale_list->list
-				/* inventory_sale_list */ );
-	
-		inventory_sale_list->extended_total =
-			inventory_sale_list_extended_total(
-				inventory_sale_list->list
-				/* inventory_sale_list */ );
-	
-		inventory_sale_list->CGS_total =
-			inventory_sale_list_CGS_total(
+	inventory_sale_list->update_string_list =
+		inventory_sale_list_update_string_list(
 			inventory_sale_list->list
 			/* inventory_sale_list */ );
-	}
+	
+	inventory_sale_list->extended_total =
+		inventory_sale_list_extended_total(
+			inventory_sale_list->list
+			/* inventory_sale_list */ );
+	
+	inventory_sale_list->CGS_total =
+		inventory_sale_list_CGS_total(
+		inventory_sale_list->list
+		/* inventory_sale_list */ );
 
 	return inventory_sale_list;
 }

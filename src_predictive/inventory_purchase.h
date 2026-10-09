@@ -85,10 +85,7 @@ LIST *inventory_purchase_update_string_list(
 		double extended_cost,
 		double inventory_purchase_extended_cost,
 		double cost_basis,
-		double cost_basis_amount,
-		double average_unit_cost,
-		double inventory_purchase_average_unit_cost,
-		LIST *inventory_average_cost_list );
+		double cost_basis_amount );
 
 /* Usage */
 /* ----- */
@@ -110,7 +107,7 @@ double inventory_purchase_average_unit_cost(
 /* --------------------------- */
 char *inventory_purchase_cost_where(
 		const char *inventory_purchase_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *inventory_arrived_column,
 		char *inventory_name,
 		char *purchase_date_time );
@@ -122,7 +119,7 @@ char *inventory_purchase_cost_where(
 /* --------------------------- */
 char *inventory_purchase_prior_date_time(
 		const char *inventory_purchase_table,
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *inventory_arrived_column,
 		char *inventory_name,
 		char *purchase_date_time );
@@ -177,7 +174,7 @@ char *inventory_purchase_list_system_string(
 /* Usage */
 /* ----- */
 LIST *inventory_purchase_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
 
@@ -200,13 +197,6 @@ void inventory_purchase_list_set_inventory_average(
 /* ----- */
 double inventory_purchase_list_total(
 		LIST *inventory_purchase_list );
-
-/* Usage */
-/* ----- */
-void inventory_purchase_list_set_inventory_average(
-		LIST *inventory_purchase_list
-			/* Sets each inventory_purchase->
-			  	inventory_average_purchase */ );
 
 /* Usage */
 /* ----- */

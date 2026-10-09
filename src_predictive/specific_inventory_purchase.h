@@ -97,7 +97,7 @@ SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list_calloc(
 /* Usage */
 /* ----- */
 LIST *specific_inventory_purchase_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_serial_key_column,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );

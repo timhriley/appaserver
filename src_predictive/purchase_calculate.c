@@ -113,15 +113,14 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 
 	if ( !purchase_calculate->cost_basis ) return purchase_calculate;
 
-	inventory_purchase_list_set_average_unit_cost(
-		inventory_purchase_list
-			/* Sets each inventory_purchase->average_unit_cost */ );
-
 	if ( list_length( inventory_purchase_list ) )
 	{
 		inventory_purchase_list_set_inventory_average(
 			inventory_purchase_list
-			/* Sets each inventory_purchase->inventory_average */ );
+			/*
+			Sets each inventory_purchase->
+				inventory_average_purchase
+			*/ );
 	}
 
 	purchase_calculate->total =

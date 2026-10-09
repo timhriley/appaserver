@@ -15,6 +15,7 @@
 #include "float.h"
 #include "sql.h"
 #include "predictive.h"
+#include "inventory.h"
 #include "sale.h"
 #include "specific_inventory_sale.h"
 #include "specific_inventory_purchase.h"
@@ -140,14 +141,14 @@ SPECIFIC_INVENTORY_PURCHASE *specific_inventory_purchase_parse( char *input )
 }
 
 LIST *specific_inventory_purchase_list_primary_key_list(
-		const char *sale_inventory_column,
+		const char *inventory_column,
 		const char *sale_serial_key_column,
 		boolean fund_boolean,
 		boolean contact_key_boolean )
 {
 	return
 	specific_inventory_sale_list_primary_key_list(
-		sale_inventory_column,
+		inventory_column,
 		sale_serial_key_column,
 		fund_boolean,
 		contact_key_boolean );
@@ -291,7 +292,7 @@ SPECIFIC_INVENTORY_PURCHASE_LIST *specific_inventory_purchase_list_new(
 
 	specific_inventory_purchase_list->primary_key_list =
 		specific_inventory_purchase_list_primary_key_list(
-			SALE_INVENTORY_COLUMN,
+			INVENTORY_COLUMN,
 			SALE_SERIAL_KEY_COLUMN,
 			fund_boolean,
 			contact_key_boolean );

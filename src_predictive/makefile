@@ -157,6 +157,7 @@ SALE_LIBRARY=								\
 		hourly_service_sale.o					\
 		hourly_service_work.o					\
 		predictbooks_self.o					\
+		inventory.o						\
 		inventory_sale.o					\
 		inventory_average.o					\
 		specific_inventory_sale.o				\
@@ -171,8 +172,7 @@ SALE_LIBRARY=								\
 		inventory_purchase.o					\
 		supply_purchase.o					\
 		service_purchase.o					\
-		prepaid_asset_purchase.o				\
-		inventory_purchase_update.o
+		prepaid_asset_purchase.o
 
 INVESTMENT_LIBRARY=							\
 		account_balance.o					\
@@ -1260,10 +1260,3 @@ inventory_average.o:							\
 	inventory_average.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_average.c
-
-inventory_purchase_update.o:						\
-	inventory_purchase_update.c					\
-	inventory_purchase_update.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c inventory_purchase_update.c
-

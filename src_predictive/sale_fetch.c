@@ -674,8 +674,7 @@ SALE_FETCH *sale_fetch_new(
 				INVENTORY_SALE_TABLE,
 				sale_fetch->predictive_fund_boolean,
 				sale_fetch->entity_contact_key_boolean,
-				where,
-				1 /* inventory_average_boolean */ );
+				where );
 	}
 	else
 	{

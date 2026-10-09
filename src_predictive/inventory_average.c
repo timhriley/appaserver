@@ -11,6 +11,7 @@
 #include "appaserver_error.h"
 #include "float.h"
 #include "sql.h"
+#include "piece.h"
 #include "String.h"
 #include "update.h"
 #include "predictive.h"
@@ -18,6 +19,54 @@
 #include "sale.h"
 #include "purchase.h"
 #include "inventory_average.h"
+
+INVENTORY_AVERAGE *inventory_average_fetch(
+		const char *inventory_average_select,
+		const char *inventory_average_table,
+		char *primary_where )
+{
+	char *system_string;
+	char *input;
+	INVENTORY_AVERAGE *inventory_average;
+
+	if ( !primary_where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"primary_where is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	system_string =
+		appaserver_system_string(
+			(char *)inventory_average_select,
+			(char *)inventory_average_table,
+			primary_where );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	input = string_system_input( system_string );
+
+	free( system_string );
+
+	if ( !input ) return NULL;
+
+	inventory_average =
+		inventory_average_parse(
+			input );
+
+	free( input );
+
+	return inventory_average;
+}
 
 INVENTORY_AVERAGE *inventory_average_new(
 		char *inventory_name,
@@ -1343,7 +1392,7 @@ LIST *inventory_average_sale_update_string_list(
 	return list;
 }
 
-void inventory_average_sale_save(
+double inventory_average_sale_save(
 		char *inventory_name,
 		INVENTORY_AVERAGE_SALE *inventory_average_sale )
 {
@@ -1411,6 +1460,9 @@ void inventory_average_sale_save(
 		inventory_average_sale->
 			inventory_average_list->
 			sale_update_string_list );
+
+	return
+	inventory_average_sale->inventory_average_list->cost_of_goods_sold;
 }
 
 void inventory_average_list_update(
@@ -1757,3 +1809,66 @@ LIST *inventory_average_list_average_update_string_list(
 
 	return list;
 }
+
+double inventory_average_list_purchase_total_cost_balance(
+		double prior_total_cost_balance,
+		int ordered_quantity,
+		double average_unit_cost )
+{
+	return
+	prior_total_cost_balance +
+	( (double)ordered_quantity * average_unit_cost );
+}
+
+INVENTORY_AVERAGE *inventory_average_parse( char *input )
+{
+	char inventory_name[ 128 ];
+	char date_time_key[ 128 ];
+	INVENTORY_AVERAGE *inventory_average;
+	char buffer[ 128 ];
+
+	/* See INVENTORY_AVERAGE_SELECT */
+	/* ---------------------------- */
+	if ( !input || !*input ) return NULL;
+
+	piece( inventory_name, SQL_DELIMITER, input, 0 );
+	piece( date_time_key, SQL_DELIMITER, input, 1 );
+
+	inventory_average =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		inventory_average_new(
+			strdup( inventory_name ),
+			strdup( date_time_key ) );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	if ( *buffer ) inventory_average->purchase_date_time = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	if ( *buffer ) inventory_average->sale_date_time = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	if ( *buffer ) inventory_average->ordered_quantity = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	if ( *buffer ) inventory_average->arrived_quantity = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	if ( *buffer ) inventory_average->slippage_quantity = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	if ( *buffer ) inventory_average->sold_quantity = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	if ( *buffer ) inventory_average->quantity_on_hand = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 9 );
+	if ( *buffer ) inventory_average->total_cost_balance = atof( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 10 );
+	if ( *buffer ) inventory_average->average_unit_cost = atof( buffer );
+
+	return inventory_average;
+}
+
