@@ -13,7 +13,7 @@
 #include "float.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
-#include "optional_column.h"
+#include "update.h"
 #include "sql.h"
 #include "update.h"
 #include "transaction.h"
@@ -590,38 +590,16 @@ char *sale_update_string(
 		double money,
 		boolean set_boolean )
 {
-	OPTIONAL_COLUMN *optional_column;
-	char *update_string = {0};
-
-	if ( set_boolean )
-	{
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_new(
-				sql_delimiter,
-				primary_data_string /* base_string */,
-				(char *)column_name /* component */,
-				0 /* not escape_boolean */,
-				1 /* set_boolean */ );
-
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_money_new(
-				sql_delimiter,
-				optional_column->return_string
-					/* base_string */,
-				money,
-				1 /* set_boolean */ );
-
-		free( optional_column->prior_return_string );
-		update_string = optional_column->return_string;
-	}
-
-	return update_string;
+	return
+	/* ------------------------------------------------ */
+	/* Returns heap memory or null (if not set_boolean) */
+	/* ------------------------------------------------ */
+	update_double_string(
+		sql_delimiter,
+		primary_data_string,
+		column_name,
+		money /* number */,
+		set_boolean );
 }
 
 char *sale_update_integer_string(
@@ -631,38 +609,16 @@ char *sale_update_integer_string(
 		int integer,
 		boolean set_boolean )
 {
-	OPTIONAL_COLUMN *optional_column;
-	char *update_string = {0};
-
-	if ( set_boolean )
-	{
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_new(
-				sql_delimiter,
-				primary_data_string /* base_string */,
-				(char *)column_name /* component */,
-				0 /* not escape_boolean */,
-				1 /* set_boolean */ );
-
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_integer_new(
-				sql_delimiter,
-				optional_column->return_string
-					/* base_string */,
-				integer,
-				1 /* set_boolean */ );
-
-		free( optional_column->prior_return_string );
-		update_string = optional_column->return_string;
-	}
-
-	return update_string;
+	return
+	/* ------------------------------------------------ */
+	/* Returns heap memory or null (if not set_boolean) */
+	/* ------------------------------------------------ */
+	update_integer_string(
+		sql_delimiter,
+		primary_data_string,
+		column_name,
+		integer /* number */,
+		set_boolean );
 }
 
 char *sale_update_text_string(
@@ -672,38 +628,16 @@ char *sale_update_text_string(
 		char *text,
 		boolean set_boolean )
 {
-	OPTIONAL_COLUMN *optional_column;
-	char *update_string = {0};
-
-	if ( set_boolean )
-	{
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_new(
-				sql_delimiter,
-				primary_data_string /* base_string */,
-				(char *)column_name /* component */,
-				0 /* not escape_boolean */,
-				1 /* set_boolean */ );
-
-		optional_column =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			optional_column_text_new(
-				sql_delimiter,
-				optional_column->return_string
-					/* base_string */,
-				text,
-				1 /* set_boolean */ );
-
-		free( optional_column->prior_return_string );
-		update_string = optional_column->return_string;
-	}
-
-	return update_string;
+	return
+	/* ------------------------------------------------ */
+	/* Returns heap memory or null (if not set_boolean) */
+	/* ------------------------------------------------ */
+	update_text_string(
+		sql_delimiter,
+		primary_data_string,
+		column_name,
+		text,
+		set_boolean );
 }
 
 SALE_CALCULATE *sale_calculate_new(

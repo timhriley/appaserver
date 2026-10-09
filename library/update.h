@@ -1014,3 +1014,39 @@ void update_statement_execute(
 void update_stderr_display(
 		LIST *update_row_list );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *update_double_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		double number,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *update_integer_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		int number,
+		boolean set_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null (if not set_boolean) */
+/* ------------------------------------------------ */
+char *update_text_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		char *text,
+		boolean set_boolean );
+

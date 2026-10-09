@@ -30,6 +30,7 @@
 #include "appaserver_parameter.h"
 #include "dictionary_separate.h"
 #include "relation_copy.h"
+#include "optional_column.h"
 #include "update.h"
 
 UPDATE *update_calloc( void )
@@ -5955,3 +5956,127 @@ void update_string_list_execute(
 		pclose( pipe );
 	}
 }
+
+char *update_double_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		double number,
+		boolean set_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+	char *update_string = {0};
+
+	if ( set_boolean )
+	{
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_new(
+				sql_delimiter,
+				primary_data_string /* base_string */,
+				(char *)column_name /* component */,
+				0 /* not escape_boolean */,
+				1 /* set_boolean */ );
+
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_money_new(
+				sql_delimiter,
+				optional_column->return_string
+					/* base_string */,
+				number,
+				1 /* set_boolean */ );
+
+		free( optional_column->prior_return_string );
+		update_string = optional_column->return_string;
+	}
+
+	return update_string;
+}
+
+char *update_integer_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		int number,
+		boolean set_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+	char *update_string = {0};
+
+	if ( set_boolean )
+	{
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_new(
+				sql_delimiter,
+				primary_data_string /* base_string */,
+				(char *)column_name /* component */,
+				0 /* not escape_boolean */,
+				1 /* set_boolean */ );
+
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_integer_new(
+				sql_delimiter,
+				optional_column->return_string
+					/* base_string */,
+				number,
+				1 /* set_boolean */ );
+
+		free( optional_column->prior_return_string );
+		update_string = optional_column->return_string;
+	}
+
+	return update_string;
+}
+
+char *update_text_string(
+		const char sql_delimiter,
+		char *primary_data_string,
+		const char *column_name,
+		char *text,
+		boolean set_boolean )
+{
+	OPTIONAL_COLUMN *optional_column;
+	char *update_string = {0};
+
+	if ( set_boolean )
+	{
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_new(
+				sql_delimiter,
+				primary_data_string /* base_string */,
+				(char *)column_name /* component */,
+				0 /* not escape_boolean */,
+				1 /* set_boolean */ );
+
+		optional_column =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			optional_column_text_new(
+				sql_delimiter,
+				optional_column->return_string
+					/* base_string */,
+				text,
+				1 /* set_boolean */ );
+
+		free( optional_column->prior_return_string );
+		update_string = optional_column->return_string;
+	}
+
+	return update_string;
+}
+

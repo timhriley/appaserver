@@ -1269,8 +1269,7 @@ int folder_attribute_calendar_date_name_list_length(
 	return length;
 }
 
-LIST *folder_attribute_fetch_primary_key_list(
-		char *folder_name )
+LIST *folder_attribute_fetch_primary_key_list( char *folder_name )
 {
 	LIST *list;
 
@@ -1279,6 +1278,23 @@ LIST *folder_attribute_fetch_primary_key_list(
 			folder_name,
 			(LIST *)0 /* role_attribute_exclude_name_list */,
 			0 /* not fetch_attribute */ );
+
+	return
+	folder_attribute_primary_key_list(
+		folder_name,
+		list );
+}
+
+LIST *folder_attribute_cache_primary_key_list( char *folder_name )
+{
+	LIST *list;
+
+	list =
+		folder_attribute_list(
+			folder_name,
+			(LIST *)0 /* role_attribute_exclude_name_list */,
+			0 /* not fetch_attribute */,
+			1 /* cache_boolean */ );
 
 	return
 	folder_attribute_primary_key_list(

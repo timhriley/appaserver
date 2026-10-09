@@ -343,6 +343,11 @@ LIST *folder_attribute_fetch_primary_key_list(
 
 /* Usage */
 /* ----- */
+LIST *folder_attribute_cache_primary_key_list(
+		char *folder_name );
+
+/* Usage */
+/* ----- */
 LIST *folder_attribute_name_list_attribute_list(
 		LIST *folder_name_list );
 
