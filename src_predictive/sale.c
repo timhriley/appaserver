@@ -287,8 +287,9 @@ char *sale_update_execute(
 {
 	char *transaction_date_time = {0};
 
-	if ( !sale_update
-	||   !sale_update->inventory_sale_list
+	if ( !sale_update ) return NULL;
+
+	if ( !sale_update->inventory_sale_list
 	||   !sale_update->specific_inventory_sale_list
 	||   !sale_update->hourly_service_sale_list
 	||   !sale_update->fixed_service_sale_list )
@@ -298,7 +299,7 @@ char *sale_update_execute(
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty or incomplete." );
+			"sale_update is incomplete." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

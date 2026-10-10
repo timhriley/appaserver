@@ -320,8 +320,8 @@ char *sale_primary_data_string(
 /* Driver */
 /* ------ */
 
-/* Returns inserted sale_transaction->transaction_date_time */
-/* -------------------------------------------------------- */
+/* Returns inserted sale_transaction->transaction_date_time or null */
+/* ---------------------------------------------------------------- */
 char *sale_update_execute(
 		char *application_name /* for update_statement_execute */,
 		SALE_UPDATE *sale_update,

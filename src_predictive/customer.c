@@ -68,6 +68,24 @@ CUSTOMER *customer_fetch(
 	/* --------------------------- */
 	input = string_system_input( system_string );
 
+	if ( !input )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"string_system_input(%s) returned empty.",
+			system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
 	return
 	customer_parse(
 		customer_full_name,
@@ -96,7 +114,9 @@ CUSTOMER *customer_parse(
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "parameter is empty: %x, %x",
+			(unsigned int)(long)customer_full_name,
+			(unsigned int)(long)input );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

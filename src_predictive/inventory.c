@@ -255,12 +255,9 @@ INVENTORY *inventory_parse(
 	piece( buffer, SQL_DELIMITER, input, 7 );
 	if ( *buffer ) inventory->average_unit_cost = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
-	if ( *buffer ) inventory->total_cost_balance = atof( buffer );
-
 	if ( labor_charge_boolean )
 	{
-		piece( buffer, SQL_DELIMITER, input, 9 );
+		piece( buffer, SQL_DELIMITER, input, 8 );
 		if ( *buffer ) inventory->labor_charge = atof( buffer );
 	}
 

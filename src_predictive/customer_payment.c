@@ -501,7 +501,7 @@ void customer_payment_trigger(
 
 		if ( !sale ) return;
 
-		sale_update_execute(
+		(void)sale_update_execute(
 			application_name,
 			sale->sale_update,
 			sale->sale_transaction,

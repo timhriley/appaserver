@@ -21,8 +21,7 @@
 					"extended_cost,"	\
 					"cost_basis,"		\
 					"quantity_on_hand,"	\
-					"average_unit_cost,"	\
-					"total_cost_balance"
+					"average_unit_cost"	\
 
 #define INVENTORY_PURCHASE_TABLE	"inventory_purchase"
 
@@ -41,7 +40,6 @@ typedef struct
 	double cost_basis;
 	int quantity_on_hand;
 	double average_unit_cost;
-	double total_cost_balance;
 	double inventory_purchase_extended_cost;
 
 	/* Set externally */

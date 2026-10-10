@@ -13,7 +13,7 @@
 #define INVENTORY_SALE_SELECT		"full_name,"			\
 					"sale_date_time,"		\
 					"inventory_name,"		\
-					"quantity,"			\
+					"sold_quantity,"		\
 					"retail_price,"			\
 					"discount_amount,"		\
 					"extended_price,"		\

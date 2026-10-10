@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 	
 		if ( !sale ) exit( 0 );
 
-		sale_update_execute(
+		(void)sale_update_execute(
 			application_name /* for transaction_update */,
 			sale->sale_update,
 			sale->sale_transaction,

@@ -1065,8 +1065,6 @@ char *string_system_input( char *system_string )
 
 	pclose( pipe );
 
-	if ( !null_input && !*buffer ) null_input = 1;
-
 	if ( null_input )
 		return (char *)0;
 	else

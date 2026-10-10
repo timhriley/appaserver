@@ -795,7 +795,7 @@ LIST *inventory_average_purchase_update_string_list(
 		sale_update_text_string(
 			sql_delimiter,
 			primary_data_string,
-			"purchased_date_time" /* column_name */,
+			"purchase_date_time" /* column_name */,
 			purchase_date_time /* text */,
 			1 /* set_boolean */ );
 	list_set( list, update_string );
@@ -879,14 +879,15 @@ void inventory_average_purchase_save(
 		char *inventory_name,
 		INVENTORY_AVERAGE_PURCHASE *inventory_average_purchase )
 {
-	if ( !inventory_average_purchase )
+	if ( !inventory_name
+	||   !inventory_average_purchase )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"inventory_average_purchase is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -955,15 +956,14 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 	char input[ 1024 ];
 	INVENTORY_AVERAGE *inventory_average;
 
-	if ( !inventory_name
-	||   !prior_purchase_date_time )
+	if ( !inventory_name )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"inventory_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1150,23 +1150,22 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_calloc( void )
 }
 
 char *inventory_average_list_where(
-	const char *inventory_column,
-	const char *inventory_average_date_column,
-	char *inventory_name,
-	char *prior_purchase_date_time )
+		const char *inventory_column,
+		const char *inventory_average_date_column,
+		char *inventory_name,
+		char *prior_purchase_date_time )
 {
 	char *primary_where;
 	static char where[ 256 ];
 
-	if ( !inventory_name
-	||   !prior_purchase_date_time )
+	if ( !inventory_name )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"inventory_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1183,13 +1182,20 @@ char *inventory_average_list_where(
 			inventory_column,
 			inventory_name );
 
-	snprintf(
-		where,
-		sizeof ( where ),
-		"%s and %s >= '%s'",
-		primary_where,
-		inventory_average_date_column,
-		prior_purchase_date_time );
+	if ( prior_purchase_date_time )
+	{
+		snprintf(
+			where,
+			sizeof ( where ),
+			"%s and %s >= '%s'",
+			primary_where,
+			inventory_average_date_column,
+			prior_purchase_date_time );
+	}
+	else
+	{
+		strcpy( where, primary_where );
+	}
 
 	return where;
 }
@@ -1622,8 +1628,8 @@ LIST *inventory_average_list_inventory_update_string_list(
 		update_integer_string(
 			SQL_DELIMITER,
 			inventory_name /* primary_data_string */,
-			"quantity_on_hand" /* column_name */,
-			inventory_average->quantity_on_hand /* number */,
+			"quantity_on_hand",
+			inventory_average->inventory_average_quantity_on_hand,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
@@ -1635,8 +1641,9 @@ LIST *inventory_average_list_inventory_update_string_list(
 		update_double_string(
 			SQL_DELIMITER,
 			inventory_name,
-			"average_unit_cost" /* column_name */,
-			inventory_average->average_unit_cost /* number */,
+			"average_unit_cost",
+			inventory_average->
+				inventory_average_unit_cost,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
@@ -1694,9 +1701,9 @@ LIST *inventory_average_list_purchase_update_string_list(
 			update_integer_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"quantity_on_hand" /* column_name */,
+				"quantity_on_hand",
 				inventory_average->
-					quantity_on_hand /* number */,
+					inventory_average_quantity_on_hand,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -1705,9 +1712,9 @@ LIST *inventory_average_list_purchase_update_string_list(
 			update_double_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"average_unit_cost" /* column_name */,
+				"average_unit_cost",
 				inventory_average->
-					average_unit_cost /* number */,
+					inventory_average_unit_cost,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -1770,9 +1777,9 @@ LIST *inventory_average_list_average_update_string_list(
 			update_integer_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"quantity_on_hand" /* column_name */,
+				"quantity_on_hand",
 				inventory_average->
-					quantity_on_hand /* number */,
+					inventory_average_quantity_on_hand,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -1781,9 +1788,9 @@ LIST *inventory_average_list_average_update_string_list(
 			update_double_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"total_cost_balance" /* column_name */,
+				"total_cost_balance",
 				inventory_average->
-					total_cost_balance /* number */,
+					inventory_average_total_cost_balance,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );
@@ -1792,9 +1799,9 @@ LIST *inventory_average_list_average_update_string_list(
 			update_double_string(
 				SQL_DELIMITER,
 				primary_data_string,
-				"average_unit_cost" /* column_name */,
+				"average_unit_cost",
 				inventory_average->
-					average_unit_cost /* number */,
+					inventory_average_unit_cost,
 				1 /* set_boolean */ );
 
 		list_set( list, update_string );

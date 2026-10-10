@@ -176,10 +176,7 @@ INVENTORY_PURCHASE *inventory_purchase_parse(
 	piece( buffer, SQL_DELIMITER, input, 10 );
 	if ( *buffer ) inventory_purchase->average_unit_cost = atof( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 11 );
-	if ( *buffer ) inventory_purchase->total_cost_balance = atof( buffer );
-
-	piece_offset = 12;
+	piece_offset = 11;
 
 	if ( fund_boolean )
 	{

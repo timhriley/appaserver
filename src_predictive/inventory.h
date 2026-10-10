@@ -16,8 +16,7 @@
 					"retail_price,"			\
 					"reorder_quantity,"		\
 					"quantity_on_hand,"		\
-					"average_unit_cost,"		\
-					"total_cost_balance"
+					"average_unit_cost"
 
 #define INVENTORY_TABLE			"inventory"
 #define INVENTORY_COLUMN		"inventory_name"
@@ -33,7 +32,6 @@ typedef struct
 	int reorder_quantity;
 	int quantity_on_hand;
 	double average_unit_cost;
-	double total_cost_balance;
 	double labor_charge;
 } INVENTORY;
 
