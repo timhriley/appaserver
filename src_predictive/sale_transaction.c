@@ -251,19 +251,6 @@ LIST *sale_transaction_journal_list(
 	JOURNAL *journal;
 	ACCOUNT *revenue;
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: debit sale_invoice_amount=%.2lf, inventory_sale_CGS_total=%.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	sale_invoice_amount,
-	inventory_sale_CGS_total );
-msg( (char *)0, message );
-}
 	debit_sum =
 		sale_transaction_debit_sum(
 			sale_invoice_amount,
