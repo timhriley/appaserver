@@ -2698,16 +2698,15 @@ JOURNAL *journal_account_new(
 {
 	JOURNAL *journal;
 
-	if ( !journal_amount
-	|| ( !debit_account
-	&&   !credit_account ) )
+	if ( !debit_account
+	&&   !credit_account )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"parameter is empty." );
+			"both debit_account and credit_account are empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2715,6 +2714,8 @@ JOURNAL *journal_account_new(
 			__LINE__,
 			message );
 	}
+
+	if ( float_money_virtually_zero( journal_amount ) ) return NULL;
 
 	journal = journal_calloc();
 

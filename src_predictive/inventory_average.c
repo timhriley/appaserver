@@ -1182,7 +1182,7 @@ char *inventory_average_list_where(
 			inventory_column,
 			inventory_name );
 
-	if ( prior_purchase_date_time )
+	if ( prior_purchase_date_time && *prior_purchase_date_time )
 	{
 		snprintf(
 			where,

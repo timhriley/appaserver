@@ -37,10 +37,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *shipped_date_time,
 		char *arrived_date,
 		char *fetch_transaction_date_time,
-		double shipping_revenue,
-		double inventory_sale_total,
 		double inventory_sale_CGS_total,
-		double specific_inventory_sale_total,
 		double specific_inventory_sale_CGS_total,
 		double sale_gross_revenue,
 		double sale_sales_tax,
@@ -101,10 +98,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		sale_transaction->journal_list =
 			sale_transaction_journal_list(
 				cash_account,
-				shipping_revenue,
-				inventory_sale_total,
 				inventory_sale_CGS_total,
-				specific_inventory_sale_total,
 				specific_inventory_sale_CGS_total,
 				sale_invoice_amount,
 				sale_gross_revenue,
@@ -243,10 +237,7 @@ char *sale_transaction_date_time(
 
 LIST *sale_transaction_journal_list(
 		char *feeder_account,
-		double shipping_revenue,
-		double inventory_sale_total,
 		double inventory_sale_CGS_total,
-		double specific_inventory_sale_total,
 		double specific_inventory_sale_CGS_total,
 		double sale_invoice_amount,
 		double sale_gross_revenue,
@@ -260,6 +251,19 @@ LIST *sale_transaction_journal_list(
 	JOURNAL *journal;
 	ACCOUNT *revenue;
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: debit sale_invoice_amount=%.2lf, inventory_sale_CGS_total=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	sale_invoice_amount,
+	inventory_sale_CGS_total );
+msg( (char *)0, message );
+}
 	debit_sum =
 		sale_transaction_debit_sum(
 			sale_invoice_amount,
@@ -268,9 +272,8 @@ LIST *sale_transaction_journal_list(
 
 	credit_sum =
 		sale_transaction_credit_sum(
-			shipping_revenue,
-			inventory_sale_total,
-			specific_inventory_sale_total,
+			inventory_sale_CGS_total,
+			specific_inventory_sale_CGS_total,
 			sale_gross_revenue,
 			sale_sales_tax );
 
@@ -279,7 +282,7 @@ LIST *sale_transaction_journal_list(
 			debit_sum,
 			credit_sum );
 
-	if ( !float_virtually_same( difference, 0.0 ) )
+	if ( !float_virtually_zero( difference ) )
 	{
 		char message[ 128 ];
 
@@ -319,9 +322,6 @@ LIST *sale_transaction_journal_list(
 	}
 
 	journal =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		journal_account_new(
 			sale_invoice_amount,
 			debit_account,
@@ -329,11 +329,10 @@ LIST *sale_transaction_journal_list(
 
 	list_set( list, journal );
 
-	if (	inventory_sale_total
-	||	specific_inventory_sale_total )
+	if (	inventory_sale_CGS_total
+	||	specific_inventory_sale_CGS_total )
 	{
 		double CGS_total;
-		double inventory_total;
 		ACCOUNT *cost_of_goods_sold;
 		ACCOUNT *inventory;
 
@@ -351,9 +350,6 @@ LIST *sale_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				CGS_total
 					/* journal_amount */,
@@ -364,11 +360,6 @@ LIST *sale_transaction_journal_list(
 
 		list_set( list, journal );
 
-		inventory_total =
-			sale_transaction_inventory_total(
-				inventory_sale_total,
-				specific_inventory_sale_total );
-
 		inventory =
 			/* -------------- */
 			/* Safely returns */
@@ -378,11 +369,8 @@ LIST *sale_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
-				inventory_total
+				CGS_total
 					/* journal_amount */,
 				(ACCOUNT *)0
 					/* debit_account */,
@@ -401,39 +389,12 @@ LIST *sale_transaction_journal_list(
 			__FUNCTION__ );
 
 	journal =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		journal_account_new(
 			sale_gross_revenue /* journal_amount */,
 			(ACCOUNT *)0 /* debit_account */,
 			revenue /* credit_account */ );
 
 	list_set( list, journal );
-
-	if ( shipping_revenue )
-	{
-		ACCOUNT *account;
-
-		account =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			account_shipping_revenue(
-				ACCOUNT_SHIPPING_REVENUE_KEY,
-				__FUNCTION__ );
-
-		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			journal_account_new(
-				shipping_revenue /* journal_amount */,
-				(ACCOUNT *)0 /* debit_account */,
-				account /* credit_account */ );
-
-		list_set( list, journal );
-	}
 
 	if ( sale_sales_tax )
 	{
@@ -468,16 +429,14 @@ double sale_transaction_debit_sum(
 }
 
 double sale_transaction_credit_sum(
-		double shipping_revenue,
-		double inventory_sale_total,
-		double specific_inventory_sale_total,
+		double inventory_sale_CGS_total,
+		double specific_inventory_sale_CGS_total,
 		double sale_gross_revenue,
 		double sale_sales_tax )
 {
 	return
-	shipping_revenue +
-	inventory_sale_total +
-	specific_inventory_sale_total +
+	inventory_sale_CGS_total +
+	specific_inventory_sale_CGS_total +
 	sale_gross_revenue +
 	sale_sales_tax;
 }
@@ -498,15 +457,6 @@ double sale_transaction_CGS_total(
 	return
 	inventory_sale_CGS_total +
 	specific_inventory_sale_CGS_total;
-}
-
-double sale_transaction_inventory_total(
-		double inventory_sale_total,
-		double specific_inventory_sale_total )
-{
-	return
-	inventory_sale_total +
-	specific_inventory_sale_total;
 }
 
 ACCOUNT *sale_transaction_debit_account( char *feeder_account )

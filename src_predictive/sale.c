@@ -129,13 +129,7 @@ SALE *sale_trigger_new(
 			sale->sale_fetch->arrived_date,
 			sale->sale_fetch->transaction_date_time
 				/* fetch_transaction_date_time */,
-			sale->sale_calculate->shipping_revenue,
-			sale->sale_fetch->inventory_sale_list->extended_total,
 			sale->sale_fetch->inventory_sale_list->CGS_total,
-			sale->
-				sale_fetch->
-				specific_inventory_sale_list->
-				extended_total,
 			sale->
 				sale_fetch->
 				specific_inventory_sale_list->

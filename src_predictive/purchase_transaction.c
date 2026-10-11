@@ -368,9 +368,6 @@ LIST *purchase_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				transaction_inventory_total
 					/* journal_amount */,
@@ -391,9 +388,6 @@ LIST *purchase_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				supply_purchase_list_total /* journal_amount */,
 				(ACCOUNT *)0 /* debit_account */,
@@ -413,9 +407,6 @@ LIST *purchase_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				service_purchase_list_total
 					/* journal_amount */,
@@ -436,9 +427,6 @@ LIST *purchase_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				prepaid_asset_purchase_list_total
 					/* journal_amount */,
@@ -459,9 +447,6 @@ LIST *purchase_transaction_journal_list(
 				__FUNCTION__ );
 
 		journal =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
 			journal_account_new(
 				return_list_total /* journal_amount */,
 				(ACCOUNT *)0 /* debit_account */,
@@ -479,9 +464,6 @@ LIST *purchase_transaction_journal_list(
 			__FUNCTION__ );
 
 	journal =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		journal_account_new(
 			purchase_invoice_amount,
 			(ACCOUNT *)0 /* debit_account */,

@@ -41,10 +41,7 @@ SALE_TRANSACTION *sale_transaction_new(
 		char *shipped_date_time,
 		char *arrived_date,
 		char *fetch_transaction_date_time,
-		double shipping_revenue,
-		double inventory_sale_total,
 		double inventory_sale_CGS_total,
-		double specific_inventory_sale_total,
 		double specific_inventory_sale_CGS_total,
 		double sale_gross_revenue,
 		double sale_sales_tax,
@@ -68,10 +65,7 @@ char *sale_transaction_date_time(
 /* ----- */
 LIST *sale_transaction_journal_list(
 		char *feeder_account,
-		double shipping_revenue,
-		double inventory_sale_total,
 		double inventory_sale_CGS_total,
-		double specific_inventory_sale_total,
 		double specific_inventory_sale_CGS_total,
 		double sale_invoice_amount,
 		double sale_gross_revenue,
@@ -85,9 +79,8 @@ double sale_transaction_debit_sum(
 		double specific_inventory_sale_CGS_total );
 
 double sale_transaction_credit_sum(
-		double shipping_revenue,
-		double inventory_sale_total,
-		double specific_inventory_sale_total,
+		double inventory_sale_CGS_total,
+		double specific_inventory_sale_CGS_total,
 		double sale_gross_revenue,
 		double sale_sales_tax );
 
@@ -98,10 +91,6 @@ double sale_transaction_difference(
 double sale_transaction_CGS_total(
 		double inventory_sale_CGS_total,
 		double specific_inventory_sale_CGS_total );
-
-double sale_transaction_inventory_total(
-		double inventory_sale_total,
-		double specific_inventory_sale_total );
 
 /* Usage */
 /* ----- */

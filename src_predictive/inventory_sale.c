@@ -279,7 +279,7 @@ double inventory_sale_list_extended_total( LIST *inventory_sale_list )
 	if ( list_rewind( inventory_sale_list ) )
 	do {
 		inventory_sale = list_get( inventory_sale_list );
-		total += inventory_sale->extended_price;
+		total += inventory_sale->sale_extended_price;
 
 	} while( list_next( inventory_sale_list ) );
 
