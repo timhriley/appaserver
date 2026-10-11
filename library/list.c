@@ -1521,12 +1521,14 @@ char *list_string( LIST *list )
 
 void *list_get( LIST *list )
 {
+	if ( !list ) return NULL;
+
         if (list->num_in_list)
                 return list->current->item;
         else
                 /* List is empty */
                 /* ------------- */
-                return (void *)0;
+                return NULL;
 }
 
 char *retrieve_item_ptr( LIST *list )

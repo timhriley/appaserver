@@ -14,6 +14,7 @@
 #include "appaserver_parameter.h"
 #include "document.h"
 #include "sql.h"
+#include "entity.h"
 #include "liability.h"
 
 int main( int argc, char **argv )
@@ -31,7 +32,8 @@ int main( int argc, char **argv )
 	boolean execute;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	LIST *full_name_list;
-	LIST *contact_key_list;
+	LIST *contact_key_list = {0};
+	boolean contact_key_boolean;
 	LIABILITY_PAYMENT *liability_payment;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -70,11 +72,6 @@ int main( int argc, char **argv )
 			full_name_list_string,
 			SQL_DELIMITER );
 
-	contact_key_list =
-		list_string_to_list(
-			contact_key_list_string,
-			SQL_DELIMITER );
-
 	if ( ( !list_length( full_name_list ) )
 	||   ( list_length( full_name_list ) == 1
 	&& 	strcmp(
@@ -89,15 +86,28 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( list_length( full_name_list ) !=
-	     list_length( contact_key_list ) )
+	contact_key_boolean =
+		entity_contact_key_boolean(
+			ENTITY_TABLE,
+			ENTITY_CONTACT_KEY_COLUMN );
+
+	if ( contact_key_boolean )
 	{
-		printf(
+		contact_key_list =
+			list_string_to_list(
+				contact_key_list_string,
+				SQL_DELIMITER );
+	
+		if ( list_length( full_name_list ) !=
+		     list_length( contact_key_list ) )
+		{
+			printf(
 "<h3>An internal error occurred. The list lengths don't match: %d vs. %d.</h3>\n",
-		list_length( full_name_list ),
-		list_length( contact_key_list ) );
-		document_close();
-		exit( 0 );
+			list_length( full_name_list ),
+			list_length( contact_key_list ) );
+			document_close();
+			exit( 0 );
+		}
 	}
 
 	appaserver_parameter = appaserver_parameter_new();

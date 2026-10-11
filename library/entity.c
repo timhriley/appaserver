@@ -586,19 +586,6 @@ LIST *entity_full_contact_list(
 
 	if ( !list_length( full_name_list ) ) return NULL;
 
-	if (	list_length( full_name_list ) !=
-		list_length( contact_key_list ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: list_lengths not same [%d vs. %d]\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			list_length( full_name_list ),
-			list_length( contact_key_list ) );
-		exit( 1 );
-	}
-
 	list_rewind( full_name_list );
 	list_rewind( contact_key_list );
 
