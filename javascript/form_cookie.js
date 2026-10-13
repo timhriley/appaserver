@@ -132,7 +132,7 @@ form_cookie.prototype.cookie2form_multi = function(
 			{
 				if ( element.type == 'select-multiple' )
 				{
-alert( 'form_cookie.js cookie2form_multi(): for multi element_name = (' + element_name + '), value = (' + value + ')' );
+// alert( 'form_cookie.js cookie2form_multi(): for multi element_name = (' + element_name + '), value = (' + value + ')' );
 				form_cookie_set_multi_drop_down_element_value(
 					element,
 					value,
@@ -195,13 +195,13 @@ form_cookie.prototype.store_multi = function(
 					element,
 					multi_select_remember_delimiter );
 
-alert( 'form_cookie.js store_multi(): for element = ' + element_name + ', value = (' + value + ')' );
+// alert( 'form_cookie.js store_multi(): for element = ' + element_name + ', value = (' + value + ')' );
 				this.cookie[ element_name ] = value;
 			}
 		}
 	}
 
-alert( 'form_cookie.js store_multi(): executing cookie.display()' );
+// alert( 'form_cookie.js store_multi(): executing cookie.display()' );
 this.cookie.display();
 
 	this.cookie.store();
@@ -249,12 +249,12 @@ form_cookie.prototype.store_non_multi = function( form, element_name_list )
 				value = '';
 			}
 
-alert( 'form_cookie.js store_non_multi(): for element = ' + element_name + ', value = (' + value + ')' );
+// alert( 'form_cookie.js store_non_multi(): for element = ' + element_name + ', value = (' + value + ')' );
 			this.cookie[ element_name ] = value;
 		}
 	}
 
-alert( 'form_cookie.js store_non_multi(): executing cookie.display()' );
+// alert( 'form_cookie.js store_non_multi(): executing cookie.display()' );
 this.cookie.display();
 
 	this.cookie.store();
@@ -334,12 +334,14 @@ function form_cookie_set_multi_drop_down_element_value(
 	var list_length;
 	var original_element;
 	var original_element_name;
+	var value_exists;
 
 	original_element_name = "original_" + element.name;
 	original_element = timlib_get_element( original_element_name );
 
 	element_value_list =
-		element_value_list_string.split( multi_select_delimiter );
+		element_value_list_string.split(
+			multi_select_delimiter );
 
 	list_length = element_value_list.length;
 
@@ -350,9 +352,19 @@ function form_cookie_set_multi_drop_down_element_value(
 				element_value_list[ i ],
 				move_left_right_delimiter );
 
-		form_cookie_set_drop_down_element_selected(
-			original_element,
-			element_value )
+		value_exists =
+			timlib_multi_select_drop_down_value_exists(
+				original_element.options,
+				element_value );
+
+		if ( value_exists )
+		{
+// alert( 'form_cookie.js form_cookie_set_multi_drop_down_element_value() element_value = ' + element_value );
+
+			form_cookie_set_drop_down_element_selected(
+				original_element,
+				element_value )
+		}
 	}
 
 	post_change_multi_select_move_right(

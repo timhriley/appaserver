@@ -69,7 +69,7 @@ cookie.prototype.store = function ()
 		}
 	}
 
-alert ( 'cookie.js cookie.prototype.store(): cookie_key=' + this.$cookie_key + ' cookie_value=' + cookie_value );
+// alert ( 'cookie.js cookie.prototype.store(): cookie_key=' + this.$cookie_key + ' cookie_value=' + cookie_value );
 
 	var cookie = this.$cookie_key + '=' + cookie_value;
 
@@ -141,7 +141,7 @@ cookie.prototype.load = function ()
 		if ( cookie_value == undefined ) continue;
 
 		this[ a[ i ][ 0 ] ] = cookie_value;
-alert ( 'cookie.js cookie.prototype.load(): cookie_value=' + cookie_value );
+// alert ( 'cookie.js cookie.prototype.load(): cookie_value=' + cookie_value );
 	}
 
 	return true;

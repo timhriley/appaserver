@@ -93,6 +93,23 @@ function timlib_get_multi_select_drop_down_element_populated( options )
 	return timlib_multi_select_drop_down_element_populated( options );
 }
 
+function timlib_multi_select_drop_down_value_exists(
+		options,
+		value )
+{
+	var object_value;
+	var i;
+
+	if ( options == undefined ) return false;
+
+	for( i = 0; i < options.length; i++ )
+	{
+		object_value = options[ i ].value;
+		if ( object_value == value ) return true;
+	}
+	return false;
+}
+
 function timlib_multi_select_drop_down_element_populated( options )
 {
 	var value;
