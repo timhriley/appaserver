@@ -67,6 +67,15 @@ int main( int argc, char **argv )
 		(LIST *)0 /* javascript_filename_list */,
 		process_name /* title */ );
 
+	if ( strcmp( cash_account_name, "account" ) == 0
+	&&   !starting_check_number )
+	{
+		printf(
+"<h3>Please choose a cash account or enter in a Starting Check Number</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
 	full_name_list =
 		list_string_to_list(
 			full_name_list_string,
@@ -83,7 +92,7 @@ int main( int argc, char **argv )
 	{
 		printf( "<h3>Please choose an Entity</h3>\n" );
 		document_close();
-		exit( 0 );
+		exit( 1 );
 	}
 
 	contact_key_boolean =
@@ -106,7 +115,7 @@ int main( int argc, char **argv )
 			list_length( full_name_list ),
 			list_length( contact_key_list ) );
 			document_close();
-			exit( 0 );
+			exit( 1 );
 		}
 	}
 
@@ -115,8 +124,8 @@ int main( int argc, char **argv )
 	liability_payment =
 		liability_payment_new(
 			application_name,
-			cash_account_name,
 			fund_name,
+			cash_account_name,
 			dialog_box_payment_amount,
 			starting_check_number,
 			memo /* dialog_box_memo */,
@@ -132,7 +141,7 @@ int main( int argc, char **argv )
 		printf(	"<h3>%s</h3>\n",
 			liability_payment->error_message );
 		document_close();
-		exit( 0 );
+		exit( 1 );
 	}
 
 	if ( liability_payment->check_list )

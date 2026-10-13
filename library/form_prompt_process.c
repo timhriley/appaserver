@@ -360,8 +360,12 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 			0 /* not button_drillthru_skip_boolean */,
 			(char *)0 /* post_choose_folder_action_string */,
 			form_prompt_process->form_multi_select_all_javascript,
-			form_prompt_process->recall_save->javascript,
-			form_prompt_process->recall_load->javascript );
+			form_prompt_process->
+				recall_save->
+				javascript,
+			form_prompt_process->
+				recall_load->
+				javascript );
 
 	form_prompt_process->button_list_html =
 		/* ------------------- */

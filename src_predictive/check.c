@@ -111,7 +111,9 @@ CHECK_LIST *check_list_new(
 			list_get(
 				liability_payment_entity_list );
 
-		list_set(
+		/* Output the checks in reverse order */
+		/* ---------------------------------- */
+		list_set_first(
 			check_list->list,
 			check_new(
 				dialog_box_payment_amount,

@@ -1527,9 +1527,9 @@ void journal_list_pipe_display(
 				}
 
 				fund_name =
-					/* ------------------------ */
-					/* Returns either parameter */
-					/* ------------------------ */
+					/* -------------------------------- */
+					/* Returns either parameter or null */
+					/* -------------------------------- */
 					journal_fund_name(
 						transaction_fund_name,
 						journal->fund_name );
@@ -1572,9 +1572,9 @@ void journal_list_pipe_display(
 				}
 
 				fund_name =
-					/* ------------------------ */
-					/* Returns either parameter */
-					/* ------------------------ */
+					/* -------------------------------- */
+					/* Returns either parameter or null */
+					/* -------------------------------- */
 					journal_fund_name(
 						transaction_fund_name,
 						journal->fund_name );
@@ -2882,6 +2882,9 @@ char *journal_fund_name(
 	if ( transaction_fund_name
 	&&   *transaction_fund_name )
 	{
+		if ( strcmp( transaction_fund_name, "fund_name" ) == 0 )
+			return NULL;
+
 		return transaction_fund_name;
 	}
 	else

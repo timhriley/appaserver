@@ -104,18 +104,21 @@ RECALL_SAVE *recall_save_new(
 	{
 		recall_save->javascript =
 			/* --------------------------- */
+			/* Borrow RECALL_LOAD's	       */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			recall_load_javascript(
-				recall_save->keystrokes_javascript,
-				recall_save->keystrokes_multi_javascript );
+			    recall_save->keystrokes_javascript
+				/* recall_load_keystrokes_javascript */,
+			    recall_save->keystrokes_multi_javascript
+				/* recall_load_keystrokes_multi_javascript */ );
 	}
 
 	return recall_save;
 }
 
 char *recall_save_cookie_key(
-		char *recall_process_cookie_key,
+		const char *recall_process_cookie_key,
 		char *folder_name,
 		char *state )
 {
@@ -1006,7 +1009,7 @@ char *recall_save_display( RECALL_SAVE *recall_save )
 		"keystrokes_javascript=%s\n"
 		"cookie_multi_key=%s\n"
 		"keystrokes_multi_javascript=%s\n"
-		"javascript=%s\n",
+		"recall_save_javascript=%s\n",
 		recall_save->cookie_key,
 		recall_save->keystrokes_javascript,
 		recall_save->cookie_multi_key,

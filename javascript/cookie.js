@@ -60,10 +60,16 @@ cookie.prototype.store = function ()
 		if ( this[ property ] != '' )
 		{
 			store_value = this[ property ];
-			if ( cookie_value != "" ) cookie_value += '&';
+
+			// Synchronize with RECALL_DELIMITER
+			if ( cookie_value != "" ) cookie_value += '~';
+
+			// Synchronize with RECALL_EQUAL_DELIMITER
 			cookie_value += property + '!*' + store_value;
 		}
 	}
+
+alert ( 'cookie.js cookie.prototype.store(): cookie_key=' + this.$cookie_key + ' cookie_value=' + cookie_value );
 
 	var cookie = this.$cookie_key + '=' + cookie_value;
 
@@ -121,36 +127,22 @@ cookie.prototype.load = function ()
 
 	var cookie_evaluate = all_cookies.substring( start, end );
 
-	var a = cookie_evaluate.split( '&' );
+	// Synchronize with RECALL_DELIMITER
+	var a = cookie_evaluate.split( '~' );
 
 	for( var i = 0; i < a.length; i++ )
+		// Synchronize with RECALL_EQUAL_DELIMITER
 		a[ i ] = a[ i ].split( '!*' );
 
 	for ( var i = 0; i < a.length; i++ )
 	{
 		cookie_value = a[ i ][ 1 ];
+
+		if ( cookie_value == undefined ) continue;
+
 		this[ a[ i ][ 0 ] ] = cookie_value;
+alert ( 'cookie.js cookie.prototype.load(): cookie_value=' + cookie_value );
 	}
 
 	return true;
 }
-
-cookie.prototype.remove = function ()
-{
-	var cookie = this.$cookie_key + '=';
-
-	if ( this.$path ) cookie += '; path=' + this.$path;
-	if ( this.$domain ) cookie += '; domain=' + this.$domain;
-	cookie += '; expires=Fri, 02-Jan-1970 00:00:00 GMT';
-	
-	for ( var property in this )
-	{
-		if ( ( property.charAt( 0 ) == '$' )
-		|| ( ( typeof this[ property ] ) == 'function' ) )
-		{
-			continue;
-		}
-		this[ property ] = "";
-	}
-}
-

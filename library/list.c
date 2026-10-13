@@ -2360,18 +2360,20 @@ LIST *list_position_list(	LIST *list,
 	int position;
 
 	if ( list_rewind( subset_list ) )
-	{
-		do {
-			item = list_get( subset_list );
-			if ( ( position = list_exists_string( item, list ) ) )
-			{
-				sprintf( position_string, "%d", position - 1 );
-				list_append_pointer(
-					position_list,
-					strdup( position_string ) );
-			}
-		} while( list_next( subset_list ) );
-	}
+	do {
+		item = list_get( subset_list );
+
+		if ( ( position = list_exists_string( item, list ) ) )
+		{
+			sprintf( position_string, "%d", position - 1 );
+
+			list_append_pointer(
+				position_list,
+				strdup( position_string ) );
+		}
+
+	} while( list_next( subset_list ) );
+
 	return position_list;
 }
 
@@ -2382,24 +2384,24 @@ LIST *list_initial_capital( LIST *list )
 	LIST *return_list = list_new();
 
 	if ( list_rewind( list ) )
-	{
-		do {
-			ptr = list_get( list );
+	do {
+		ptr = list_get( list );
 
-			list_set(
-				return_list,
-				strdup( 
-					string_initial_capital(
-						buffer,
-						ptr ) ) );
+		list_set(
+			return_list,
+			strdup( 
+				string_initial_capital(
+					buffer,
+					ptr ) ) );
 
-		} while( list_next( list ) );
-	}
+	} while( list_next( list ) );
+
 	return return_list;
 }
 
-boolean list_string_list_same(	LIST *list1,
-				LIST *list2 )
+boolean list_string_list_same(
+		LIST *list1,
+		LIST *list2 )
 {
 	return list_string_list_match( list1, list2 );
 }
@@ -2470,22 +2472,22 @@ LIST *list_purge_duplicates( LIST *string_list )
 	return_list = list_new_list();
 
 	if ( list_rewind( string_list ) )
-	{
-		do {
-			string = list_get( string_list );
-			if ( !list_exists_string(
-					string,
-					return_list ) )
-			{
-				list_append_pointer( return_list, string );
-			}
-		} while( list_next( string_list ) );
-	}
+	do {
+		string = list_get( string_list );
+		if ( !list_exists_string(
+				string,
+				return_list ) )
+		{
+			list_append_pointer( return_list, string );
+		}
+	} while( list_next( string_list ) );
+
 	return return_list;
 }
 
-LIST *list_tail_list(		LIST *list,
-				int include_tail_count )
+LIST *list_tail_list(
+		LIST *list,
+		int include_tail_count )
 {
 	LIST *return_list;
 	char *data;
@@ -2508,19 +2510,15 @@ LIST *list_tail_list(		LIST *list,
 	return return_list;
 }
 
-LIST *list_copy_count(		LIST *list,
-				int count )
+LIST *list_copy_count(
+		LIST *list,
+		int count )
 {
-	LIST *return_list;
+	LIST *return_list = list_new();
 	void *data;
-	int i;
+	int i = 0;
 
-	/* if ( count > list_length( list ) ) return (LIST *)0; */
-
-	return_list = list_new();
-	list_rewind( list );
-	i = 0;
-
+	if ( list_rewind( list ) )
 	do {
 		data = list_get( list );
 		list_append_pointer( return_list, data );
@@ -2532,14 +2530,13 @@ LIST *list_copy_count(		LIST *list,
 }
 
 LIST *list_delimiter_extract(
-			char *delimited_string,
-			char delimiter )
+		char *delimited_string,
+		char delimiter )
 {
 	return list_string_list( delimited_string, delimiter );
 }
 
-LIST *list_delimited_string_to_list(
-			char *delimited_string )
+LIST *list_delimited_string_to_list( char *delimited_string )
 {
 	char delimiter;
 
@@ -2554,9 +2551,9 @@ LIST *list_delimited_string_to_list(
 }
 
 LIST *list_delimiter_list_piece_list(
-				LIST *list,
-				char delimiter,
-				int piece_offset )
+		LIST *list,
+		char delimiter,
+		int piece_offset )
 {
 	LIST *return_list;
 	char piece_buffer[ 8192 ];

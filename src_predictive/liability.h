@@ -365,8 +365,8 @@ void liability_calculate_stdout(
 
 typedef struct
 {
-	LIABILITY_CALCULATE *liability_calculate;
 	LIST *entity_list;
+	LIABILITY_CALCULATE *liability_calculate;
 	char *transaction_memo;
 	CHECK_LIST *check_list;
 	char *credit_account_name;

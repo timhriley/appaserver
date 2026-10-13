@@ -132,7 +132,7 @@ form_cookie.prototype.cookie2form_multi = function(
 			{
 				if ( element.type == 'select-multiple' )
 				{
-// alert( 'cookie2form_multi(): for multi element_name = (' + element_name + '), value = (' + value + ')' );
+alert( 'form_cookie.js cookie2form_multi(): for multi element_name = (' + element_name + '), value = (' + value + ')' );
 				form_cookie_set_multi_drop_down_element_value(
 					element,
 					value,
@@ -152,9 +152,11 @@ form_cookie.prototype.store = function(
 {
 	if ( this.is_multi )
 	{
-		this.store_multi(	form,
-					element_name_list,
-					multi_select_remember_delimiter );
+		this.store_multi(
+			form,
+			element_name_list,
+			multi_select_remember_delimiter );
+
 		return true;
 	}
 	else
@@ -193,15 +195,14 @@ form_cookie.prototype.store_multi = function(
 					element,
 					multi_select_remember_delimiter );
 
-
-// alert( 'store_multi(): for element = ' + element_name + ', value = (' + value + ')' );
+alert( 'form_cookie.js store_multi(): for element = ' + element_name + ', value = (' + value + ')' );
 				this.cookie[ element_name ] = value;
 			}
 		}
 	}
 
-// alert( 'executing cookie.display()' );
-// this.cookie.display();
+alert( 'form_cookie.js store_multi(): executing cookie.display()' );
+this.cookie.display();
 
 	this.cookie.store();
 	return true;
@@ -248,13 +249,13 @@ form_cookie.prototype.store_non_multi = function( form, element_name_list )
 				value = '';
 			}
 
-// alert( 'store_non_multi(): for element = ' + element_name + ', value = (' + value + ')' );
+alert( 'form_cookie.js store_non_multi(): for element = ' + element_name + ', value = (' + value + ')' );
 			this.cookie[ element_name ] = value;
 		}
 	}
 
-// alert( 'executing cookie.display()' );
-// this.cookie.display();
+alert( 'form_cookie.js store_non_multi(): executing cookie.display()' );
+this.cookie.display();
 
 	this.cookie.store();
 	return true;

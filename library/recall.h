@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef RECALL_H
-#define RECALL_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -13,6 +12,7 @@
 
 #define RECALL_BUTTON_LABEL		"Recall"
 #define RECALL_DELIMITER		'~'
+#define RECALL_EQUAL_DELIMITER		"!*"
 #define RECALL_PROCESS_COOKIE_KEY	"process_cookie"
 
 typedef struct
@@ -44,7 +44,7 @@ RECALL_SAVE *recall_save_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *recall_save_cookie_key(
-		char *recall_process_cookie_key,
+		const char *recall_process_cookie_key,
 		char *folder_name,
 		char *state );
 
@@ -272,5 +272,3 @@ char *recall_widget_component_string(
 /* ------------------------------ */
 char *recall_widget_name(
 		WIDGET_CONTAINER *widget_container );
-
-#endif

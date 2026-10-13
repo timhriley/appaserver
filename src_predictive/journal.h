@@ -255,8 +255,8 @@ void journal_list_pipe_display(
 /* Process */
 /* ------- */
 
-/* Returns either parameter */
-/* ------------------------ */
+/* Returns either parameter or null */
+/* -------------------------------- */
 char *journal_fund_name(
 		char *transaction_fund_name,
 		char *journal_fund_name );
