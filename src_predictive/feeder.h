@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_H
-#define FEEDER_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -129,5 +128,3 @@ void feeder_process(
 		boolean reverse_order_boolean,
 		boolean execute_boolean,
 		FEEDER *feeder );
-
-#endif

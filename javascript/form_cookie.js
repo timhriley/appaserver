@@ -202,7 +202,7 @@ form_cookie.prototype.store_multi = function(
 	}
 
 // alert( 'form_cookie.js store_multi(): executing cookie.display()' );
-this.cookie.display();
+// this.cookie.display();
 
 	this.cookie.store();
 	return true;
@@ -255,7 +255,7 @@ form_cookie.prototype.store_non_multi = function( form, element_name_list )
 	}
 
 // alert( 'form_cookie.js store_non_multi(): executing cookie.display()' );
-this.cookie.display();
+// this.cookie.display();
 
 	this.cookie.store();
 	return true;

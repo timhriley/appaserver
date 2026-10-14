@@ -90,7 +90,7 @@ function timlib_drop_down_element_populated( options )
 
 function timlib_get_multi_select_drop_down_element_populated( options )
 {
-	return timlib_multi_select_drop_down_element_populated( options );
+	return timlib_multi_drop_down_element_value( options );
 }
 
 function timlib_multi_select_drop_down_value_exists(
@@ -110,7 +110,7 @@ function timlib_multi_select_drop_down_value_exists(
 	return false;
 }
 
-function timlib_multi_select_drop_down_element_populated( options )
+function timlib_multi_drop_down_element_value( options )
 {
 	var value;
 	var i;
@@ -405,7 +405,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 		if ( element.type == 'select-multiple' )
 		{
 			value =
-			timlib_multi_select_drop_down_element_populated(
+			timlib_multi_drop_down_element_value(
 					element.options );
 		}
 		else
