@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_ROW_H
-#define FEEDER_ROW_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -148,10 +147,10 @@ LIST *feeder_row_list(
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
+		LIST *feeder_load_row_list,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
-		LIST *feeder_matched_journal_list,
-		LIST *feeder_load_row_list );
+		LIST *feeder_journal_list );
 
 /* Process */
 /* ------- */
@@ -531,4 +530,3 @@ void feeder_row_list_raw_display(
 char *feeder_row_raw_display(
 		FEEDER_ROW *feeder_row );
 
-#endif

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_LOAD_ROW_H
-#define FEEDER_LOAD_ROW_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -180,4 +179,3 @@ void feeder_load_row_list_raw_display(
 char *feeder_load_row_raw_display(
 		FEEDER_LOAD_ROW *feeder_load_row );
 
-#endif

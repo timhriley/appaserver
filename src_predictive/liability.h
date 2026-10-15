@@ -352,7 +352,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY_CALCULATE *liability_calculate_new(
-		char *application_name );
+		void );
 
 LIABILITY_CALCULATE *liability_calculate_calloc(
 		void );

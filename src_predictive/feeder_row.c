@@ -1165,10 +1165,10 @@ LIST *feeder_row_list(
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		char *account_uncleared_checks_string,
+		LIST *feeder_load_row_list,
 		LIST *feeder_phrase_list,
 		LIST *feeder_row_exist_list,
-		LIST *feeder_matched_journal_list,
-		LIST *feeder_load_row_list )
+		LIST *feeder_journal_list )
 {
 	LIST *list = list_new();
 	FEEDER_LOAD_ROW *feeder_load_row;

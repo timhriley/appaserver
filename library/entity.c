@@ -97,19 +97,11 @@ ENTITY *entity_seek(
 	do {
 		entity = list_get( entity_list );
 
-		if ( contact_key )
-		{
-			if ( string_strcmp(
-				entity->contact_key,
-				contact_key ) != 0 )
-			{
-				continue;
-			}
-		}
-
-		if ( string_strcmp(
+		if ( entity_match_boolean(
+			full_name,
+			contact_key,
 			entity->full_name,
-			full_name ) == 0 )
+			entity->contact_key ) )
 		{
 			return entity;
 		}
@@ -117,6 +109,53 @@ ENTITY *entity_seek(
 	} while( list_next( entity_list ) );
 
 	return NULL;
+}
+
+boolean entity_match_boolean(
+		char *full_name,
+		char *contact_key,
+		char *entity_full_name,
+		char *entity_contact_key )
+{
+	boolean match_boolean = 0;
+
+	if ( !full_name
+	&&   !entity_full_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp(
+		full_name,
+		entity_full_name ) == 0 )
+	{
+		match_boolean = 1;
+	}
+
+	if ( match_boolean
+	&&   contact_key
+	&&   entity_contact_key )
+	{
+		if ( strcmp(
+			contact_key,
+			entity_contact_key ) != 0 )
+		{
+			match_boolean = 0;
+		}
+	}
+
+	return match_boolean;
 }
 
 ENTITY *entity_getset(

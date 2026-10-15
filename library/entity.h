@@ -178,6 +178,14 @@ ENTITY *entity_seek(
 		char *contact_key,
 		LIST *entity_list );
 
+/* Process */
+/* ------- */
+boolean entity_match_boolean(
+		char *full_name,
+		char *contact_key,
+		char *entity_full_name,
+		char *entity_contact_key );
+
 /* Usage */
 /* ----- */
 boolean entity_list_exist_boolean(

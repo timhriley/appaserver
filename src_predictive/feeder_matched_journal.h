@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_MATCHED_JOURNAL_H
-#define FEEDER_MATCHED_JOURNAL_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -129,4 +128,3 @@ char *feeder_matched_journal_check_update_statement(
 		char *contact_key,
 		char *transaction_date_time );
 
-#endif

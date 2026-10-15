@@ -978,19 +978,9 @@ LIABILITY_ACCOUNT_LIST *
 	return liability_account_list;
 }
 
-LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
+LIABILITY_CALCULATE *liability_calculate_new( void )
 {
 	LIABILITY_CALCULATE *liability_calculate;
-
-	if ( !application_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	liability_calculate = liability_calculate_calloc();
 

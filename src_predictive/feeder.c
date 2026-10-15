@@ -159,10 +159,10 @@ feeder_load_row_list_raw_display(
 				feeder_account->
 				financial_institution_contact_key,
 			feeder->account_uncleared_checks_string,
+			feeder->feeder_load_row_list,
 			feeder->feeder_phrase_list,
 			feeder->feeder_row_exist_list,
-			feeder->feeder_matched_journal_list,
-			feeder->feeder_load_row_list );
+			feeder->feeder_journal_list );
 
 	feeder->feeder_row_count =
 		feeder_row_count(
