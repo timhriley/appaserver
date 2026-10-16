@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_matched_journal.c		*/
+/* $APPASERVER_HOME/src_predictive/feeder_journal.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -33,7 +33,7 @@
 #include "feeder_audit.h"
 #include "feeder.h"
 
-LIST *feeder_matched_journal_list(
+LIST *feeder_journal_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
 		boolean fund_boolean,
@@ -66,7 +66,7 @@ LIST *feeder_matched_journal_list(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		feeder_matched_journal_subquery(
+		feeder_journal_subquery(
 			JOURNAL_TABLE,
 			feeder_row_table,
 			feeder_account_name,
@@ -77,7 +77,7 @@ LIST *feeder_matched_journal_list(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		feeder_matched_journal_where(
+		feeder_journal_where(
 			feeder_account_name,
 			account_uncleared_checks_string,
 			subquery,
@@ -109,7 +109,7 @@ LIST *feeder_matched_journal_list(
 
 		list_set(
 			list,
-			feeder_matched_journal_new(
+			feeder_journal_new(
 				journal ) );
 
 	} while ( list_next( system_list ) );
@@ -123,13 +123,13 @@ LIST *feeder_matched_journal_list(
 	return list;
 }
 
-FEEDER_MATCHED_JOURNAL *feeder_matched_journal_calloc( void )
+FEEDER_JOURNAL *feeder_journal_calloc( void )
 {
-	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+	FEEDER_JOURNAL *feeder_journal;
 
-	if ( ! ( feeder_matched_journal =
+	if ( ! ( feeder_journal =
 			calloc(	1,
-				sizeof ( FEEDER_MATCHED_JOURNAL ) ) ) )
+				sizeof ( FEEDER_JOURNAL ) ) ) )
 	{
 		char message[ 128 ];
 
@@ -142,10 +142,10 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_calloc( void )
 			message );
 	}
 
-	return feeder_matched_journal;
+	return feeder_journal;
 }
 
-char *feeder_matched_journal_subquery(
+char *feeder_journal_subquery(
 		const char *journal_table,
 		const char *feeder_row_table,
 		char *feeder_account_name,
@@ -156,7 +156,7 @@ char *feeder_matched_journal_subquery(
 	char *contact_join;
 
 	contact_join =
-		feeder_matched_journal_contact_join(
+		feeder_journal_contact_join(
 			journal_table,
 			feeder_row_table,
 			ENTITY_CONTACT_KEY_COLUMN,
@@ -186,7 +186,7 @@ char *feeder_matched_journal_subquery(
 	return strdup( subquery );
 }
 
-char *feeder_matched_journal_where(
+char *feeder_journal_where(
 		char *feeder_account_name,
 		char *account_uncleared_checks,
 		char *subquery,
@@ -224,16 +224,16 @@ char *feeder_matched_journal_where(
 	return strdup( where );
 }
 
-FEEDER_MATCHED_JOURNAL *
-	feeder_matched_journal_check_seek(
+FEEDER_JOURNAL *
+	feeder_journal_check_seek(
 		char *feeder_account_name,
 		boolean contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
-		LIST *feeder_matched_journal_list )
+		LIST *feeder_journal_list )
 {
-	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+	FEEDER_JOURNAL *feeder_journal;
 
 	if ( !feeder_account_name
 	||   !account_uncleared_checks_string
@@ -251,50 +251,50 @@ FEEDER_MATCHED_JOURNAL *
 			message );
 	}
 
-	if ( list_rewind( feeder_matched_journal_list ) )
+	if ( list_rewind( feeder_journal_list ) )
 	do {
-		feeder_matched_journal =
+		feeder_journal =
 			list_get(
-				feeder_matched_journal_list );
+				feeder_journal_list );
 
-		if ( feeder_matched_journal->taken ) continue;
+		if ( feeder_journal->taken ) continue;
 
-		if ( feeder_matched_journal->check_number == check_number
+		if ( feeder_journal->check_number == check_number
 		&&   float_money_virtually_same(
-			feeder_matched_journal->amount,
+			feeder_journal->amount,
 			exchange_journal_amount ) )
 		{
-			feeder_matched_journal->check_update_statement =
+			feeder_journal->check_update_statement =
 				/* ------------------- */
 				/* Independent of fund */
 				/* Returns heap memory */
 				/* ------------------- */
-				feeder_matched_journal_check_update_statement(
+				feeder_journal_check_update_statement(
 					JOURNAL_TABLE,
 					feeder_account_name,
 					contact_key_boolean,
 					account_uncleared_checks_string,
-					feeder_matched_journal->
+					feeder_journal->
 						full_name,
-					feeder_matched_journal->
+					feeder_journal->
 						contact_key,
-					feeder_matched_journal->
+					feeder_journal->
 						transaction_date_time );
 
-			return feeder_matched_journal;
+			return feeder_journal;
 		}
 
-	} while ( list_next( feeder_matched_journal_list ) );
+	} while ( list_next( feeder_journal_list ) );
 
 	return NULL;
 }
 
-FEEDER_MATCHED_JOURNAL *
-	feeder_matched_journal_amount_seek(
+FEEDER_JOURNAL *
+	feeder_journal_amount_seek(
 		double amount,
-		LIST *feeder_matched_journal_list )
+		LIST *feeder_journal_list )
 {
-	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+	FEEDER_JOURNAL *feeder_journal;
 
 	if ( !amount )
 	{
@@ -309,30 +309,30 @@ FEEDER_MATCHED_JOURNAL *
 			message );
 	}
 
-	if ( list_rewind( feeder_matched_journal_list ) )
+	if ( list_rewind( feeder_journal_list ) )
 	do {
-		feeder_matched_journal =
+		feeder_journal =
 			list_get(
-				feeder_matched_journal_list );
+				feeder_journal_list );
 
-		if ( feeder_matched_journal->taken ) continue;
-		if ( feeder_matched_journal->check_number ) continue;
+		if ( feeder_journal->taken ) continue;
+		if ( feeder_journal->check_number ) continue;
 
 		if ( float_money_virtually_same(
-			feeder_matched_journal->amount,
+			feeder_journal->amount,
 			amount ) )
 		{
-			return feeder_matched_journal;
+			return feeder_journal;
 		}
 
-	} while ( list_next( feeder_matched_journal_list ) );
+	} while ( list_next( feeder_journal_list ) );
 
 	return NULL;
 }
 
-FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
+FEEDER_JOURNAL *feeder_journal_new( JOURNAL *journal )
 {
-	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+	FEEDER_JOURNAL *feeder_journal;
 
 	if ( !journal )
 	{
@@ -362,30 +362,30 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 			message );
 	}
 
-	feeder_matched_journal = feeder_matched_journal_calloc();
+	feeder_journal = feeder_journal_calloc();
 
-	feeder_matched_journal->amount =
-		feeder_matched_journal_amount(
+	feeder_journal->amount =
+		feeder_journal_amount(
 			journal->debit_amount,
 			journal->credit_amount );
 
-	feeder_matched_journal->full_name = journal->full_name;
-	feeder_matched_journal->contact_key = journal->contact_key;
+	feeder_journal->full_name = journal->full_name;
+	feeder_journal->contact_key = journal->contact_key;
 
-	feeder_matched_journal->transaction_date_time =
+	feeder_journal->transaction_date_time =
 		journal->transaction_date_time;
 
-	feeder_matched_journal->account_name = journal->account_name;
-	feeder_matched_journal->debit_amount = journal->debit_amount;
-	feeder_matched_journal->credit_amount = journal->credit_amount;
+	feeder_journal->account_name = journal->account_name;
+	feeder_journal->debit_amount = journal->debit_amount;
+	feeder_journal->credit_amount = journal->credit_amount;
 
-	feeder_matched_journal->check_number =
+	feeder_journal->check_number =
 		journal->transaction->check_number;
 
-	return feeder_matched_journal;
+	return feeder_journal;
 }
 
-double feeder_matched_journal_amount(
+double feeder_journal_amount(
 		double debit_amount,
 		double credit_amount )
 {
@@ -395,7 +395,7 @@ double feeder_matched_journal_amount(
 		return 0.0 - credit_amount;
 }
 
-char *feeder_matched_journal_check_update_statement(
+char *feeder_journal_check_update_statement(
 		const char *journal_table,
 		char *feeder_account,
 		boolean contact_key_boolean,
@@ -449,7 +449,7 @@ char *feeder_matched_journal_check_update_statement(
 	return strdup( update_statement );
 }
 
-char *feeder_matched_journal_contact_join(
+char *feeder_journal_contact_join(
 		const char *journal_table,
 		const char *feeder_row_table,
 		const char *contact_key_column,

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_TRANSACTION_H
-#define FEEDER_TRANSACTION_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -15,13 +14,15 @@
 #include "transaction.h"
 #include "journal.h"
 #include "account.h"
+#include "liability.h"
 #include "feeder_phrase.h"
 #include "feeder_transaction.h"
 
 typedef struct
 {
-	char *debit_account;
-	char *credit_account;
+	char *nominal_account_name;
+	char *full_name;
+	char *contact_key;
 	TRANSACTION *transaction;
 } FEEDER_TRANSACTION;
 
@@ -30,7 +31,10 @@ typedef struct
 FEEDER_TRANSACTION *feeder_transaction_new(
 		char *fund_name,
 		char *feeder_account_name,
-		FEEDER_PHRASE *feeder_phrase_seek,
+		FEEDER_PHRASE *feeder_phrase_seek
+			/* Mutually exclusive */,
+		LIABILITY_ENTITY *liability_entity
+			/* Mutually exclusive */,
 		double exchange_journal_amount,
 		char *transaction_date_time,
 		char *memo );
@@ -40,4 +44,24 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 FEEDER_TRANSACTION *feeder_transaction_calloc(
 		void );
 
-#endif
+/* Returns a component of either parameter */
+/* --------------------------------------- */
+char *feeder_transaction_full_name(
+		FEEDER_PHRASE *feeder_phrase_seek,
+		LIABILITY_ENTITY *feeder_row_liability_entity );
+
+/* Returns a component of either parameter */
+/* --------------------------------------- */
+char *feeder_transaction_contact_key(
+		FEEDER_PHRASE *feeder_phrase_seek,
+		LIABILITY_ENTITY *feeder_row_liability_entity );
+
+/* Usage */
+/* ----- */
+
+/* Returns a component of either parameter */
+/* --------------------------------------- */
+char *feeder_transaction_nominal_account_name(
+		FEEDER_PHRASE *feeder_phrase_seek,
+		LIABILITY_ENTITY *feeder_row_liability_entity );
+

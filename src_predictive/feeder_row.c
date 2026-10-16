@@ -199,7 +199,7 @@ void feeder_row_list_insert(
 		}
 
 		if ( !feeder_row->feeder_phrase_seek
-		&&   !feeder_row->feeder_matched_journal )
+		&&   !feeder_row->feeder_journal )
 		{
 			continue;
 		}
@@ -210,7 +210,7 @@ void feeder_row_list_insert(
 		   /* -------------- */
 		   feeder_row_journal(
 			fund_name,
-			feeder_row->feeder_matched_journal,
+			feeder_row->feeder_journal,
 			feeder_row->feeder_phrase_seek,
 			/* ------------------------------------------ */
 			/* See feeder_row_transaction_date_time_set() */
@@ -568,7 +568,7 @@ char *feeder_row_exist_system_string(
 
 JOURNAL *feeder_row_journal(
 		char *fund_name,
-		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
+		FEEDER_JOURNAL *feeder_journal,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		char *transaction_date_time )
 {
@@ -600,8 +600,8 @@ JOURNAL *feeder_row_journal(
 		return
 		journal_new(
 			fund_name,
-			feeder_matched_journal->full_name,
-			feeder_matched_journal->contact_key,
+			feeder_journal->full_name,
+			feeder_journal->contact_key,
 			transaction_date_time,
 			(char *)0 /* account_name */ );
 	}
@@ -836,8 +836,9 @@ FILE *feeder_row_display_output(
 		/* ------------------- */
 		feeder_row_display_results(
 			feeder_row->feeder_row_exist_seek,
-			feeder_row->feeder_matched_journal,
-			feeder_row->feeder_phrase_seek );
+			feeder_row->feeder_journal,
+			feeder_row->feeder_phrase_seek,
+			feeder_row->liability_entity );
 
 	strcpy(	feeder_row_calculate_balance_string,
 		/* --------------------- */
@@ -942,10 +943,11 @@ char *feeder_row_status_string(
 
 char *feeder_row_display_results(
 		FEEDER_ROW_EXIST *feeder_row_exist_seek,
-		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
-		FEEDER_PHRASE *feeder_phrase )
+		FEEDER_JOURNAL *feeder_journal,
+		FEEDER_PHRASE *feeder_phrase,
+		LIABILITY_ENTITY *liability_entity )
 {
-	char buffer[ STRING_64K ];
+	char buffer[ STRING_1K ];
 
 	if ( feeder_row_exist_seek )
 	{
@@ -957,18 +959,18 @@ char *feeder_row_display_results(
 			feeder_row_exist_seek->transaction_date_time );
 	}
 	else
-	if ( feeder_matched_journal )
+	if ( feeder_journal )
 	{
-		if ( feeder_matched_journal->check_number )
+		if ( feeder_journal->check_number )
 		{
 			snprintf(
 				buffer,
 				sizeof ( buffer ),
 				"Matched check# %d/%s/%s; %s",
-				feeder_matched_journal->check_number,
-				feeder_matched_journal->full_name,
-				feeder_matched_journal->transaction_date_time,
-				feeder_matched_journal->
+				feeder_journal->check_number,
+				feeder_journal->full_name,
+				feeder_journal->transaction_date_time,
+				feeder_journal->
 					check_update_statement );
 		}
 		else
@@ -977,9 +979,9 @@ char *feeder_row_display_results(
 				buffer,
 				sizeof ( buffer ),
 				"Matched amount: %.2lf/%s/%s",
-				feeder_matched_journal->amount,
-				feeder_matched_journal->full_name,
-				feeder_matched_journal->transaction_date_time );
+				feeder_journal->amount,
+				feeder_journal->full_name,
+				feeder_journal->transaction_date_time );
 		}
 	}
 	else
@@ -991,6 +993,15 @@ char *feeder_row_display_results(
 			"Matched feeder phrase: %s<br>Entity: %s",
 			feeder_phrase->phrase,
 			feeder_phrase->full_name );
+	}
+	else
+	if ( liability_entity )
+	{
+		snprintf(
+			buffer,
+			sizeof ( buffer ),
+			"Matched liability for Entity: %s",
+			liability_entity->entity->full_name );
 	}
 	else
 	{
@@ -1144,8 +1155,9 @@ LIST *feeder_row_error_extract_list( LIST *feeder_row_list )
 		feeder_row = list_get( feeder_row_list );
 
 		if ( !feeder_row->feeder_row_exist_seek
-		&&   !feeder_row->feeder_matched_journal
-		&&   !feeder_row->feeder_phrase_seek )
+		&&   !feeder_row->feeder_journal
+		&&   !feeder_row->feeder_phrase_seek
+		&&   !feeder_row->liability_entity )
 		{
 			if ( !extract_list ) extract_list = list_new();
 
@@ -1164,11 +1176,12 @@ LIST *feeder_row_list(
 		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
-		char *account_uncleared_checks_string,
 		LIST *feeder_load_row_list,
 		LIST *feeder_phrase_list,
 		LIST *feeder_row_exist_list,
-		LIST *feeder_journal_list )
+		char *account_uncleared_checks_string,
+		LIST *feeder_journal_list,
+		LIST *liability_entity_list )
 {
 	LIST *list = list_new();
 	FEEDER_LOAD_ROW *feeder_load_row;
@@ -1203,11 +1216,12 @@ LIST *feeder_row_list(
 				contact_key_boolean,
 				financial_institution_full_name,
 				financial_institution_contact_key,
-				account_uncleared_checks_string,
+				feeder_load_row,
 				feeder_phrase_list,
 				feeder_row_exist_list,
-				feeder_matched_journal_list,
-				feeder_load_row,
+				account_uncleared_checks_string,
+				feeder_journal_list,
+				liability_entity_list,
 				minimum_transaction_date_time,
 				feeder_row_feeder_row_number(
 					reverse_order_boolean,
@@ -1241,11 +1255,12 @@ FEEDER_ROW *feeder_row_new(
 		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
-		char *account_uncleared_checks_string,
+		FEEDER_LOAD_ROW *feeder_load_row,
 		LIST *feeder_phrase_list,
 		LIST *feeder_row_exist_list,
-		LIST *feeder_matched_journal_list,
-		FEEDER_LOAD_ROW *feeder_load_row,
+		char *account_uncleared_checks_string,
+		LIST *feeder_journal_list,
+		LIST *liability_entity_list,
 		char *minimum_transaction_date_time,
 		int feeder_row_number )
 {
@@ -1291,40 +1306,40 @@ FEEDER_ROW *feeder_row_new(
 		return feeder_row;
 	}
 
-	if ( list_length( feeder_matched_journal_list ) )
+	if ( list_length( feeder_journal_list ) )
 	{
 		if ( feeder_load_row->check_number )
 		{
-			feeder_row->feeder_matched_journal =
+			feeder_row->feeder_journal =
 				/* ------------------- */
 				/* Independent of fund */
 				/* ------------------- */
-				feeder_matched_journal_check_seek(
+				feeder_journal_check_seek(
 					feeder_account_name,
 					contact_key_boolean,
 					account_uncleared_checks_string,
 					feeder_load_row->check_number,
 					feeder_load_row->
 						exchange_journal_amount,
-					feeder_matched_journal_list );
+					feeder_journal_list );
 		}
 
-		if ( !feeder_row->feeder_matched_journal )
+		if ( !feeder_row->feeder_journal )
 		{
-			feeder_row->feeder_matched_journal =
-				feeder_matched_journal_amount_seek(
+			feeder_row->feeder_journal =
+				feeder_journal_amount_seek(
 					feeder_load_row->
 						exchange_journal_amount,
-					feeder_matched_journal_list );
+					feeder_journal_list );
 		}
 
-		if ( feeder_row->feeder_matched_journal )
+		if ( feeder_row->feeder_journal )
 		{
-			feeder_row->feeder_matched_journal->taken = 1;
+			feeder_row->feeder_journal->taken = 1;
 		}
 	}
 
-	if ( !feeder_row->feeder_matched_journal
+	if ( !feeder_row->feeder_journal
 	&&   list_length( feeder_phrase_list ) )
 	{
 		feeder_row->feeder_phrase_seek =
@@ -1335,13 +1350,30 @@ FEEDER_ROW *feeder_row_new(
 				feeder_phrase_list );
 	}
 
-	if ( !feeder_row->feeder_matched_journal
-	&&   !feeder_row->feeder_phrase_seek )
+	if ( list_length( liability_entity_list )
+	&&   feeder_row->feeder_phrase_seek )
+	{
+		feeder_row->liability_entity =
+			feeder_row_liability_entity(
+				feeder_load_row->exchange_journal_amount,
+				liability_entity_list,
+				feeder_row->feeder_phrase_seek );
+
+		if ( feeder_row->liability_entity )
+		{
+			feeder_row->feeder_phrase_seek = NULL;
+		}
+	}
+
+	if ( !feeder_row->feeder_journal
+	&&   !feeder_row->feeder_phrase_seek
+	&&   !feeder_row->liability_entity )
 	{
 		return feeder_row;
 	}
 
-	if ( feeder_row->feeder_phrase_seek )
+	if ( feeder_row->feeder_phrase_seek
+	||   feeder_row->liability_entity )
 	{
 		feeder_row->transaction_date_time =
 			/* ------------------- */
@@ -1356,17 +1388,18 @@ FEEDER_ROW *feeder_row_new(
 				fund_name,
 				feeder_account_name,
 				feeder_row->feeder_phrase_seek,
+				feeder_row->liability_entity,
 				feeder_load_row->exchange_journal_amount,
 				feeder_row->transaction_date_time,
 				feeder_load_row->description_embedded
 					/* memo */ );
 	}
 	else
-	if ( feeder_row->feeder_matched_journal )
+	if ( feeder_row->feeder_journal )
 	{
 		feeder_row->transaction_date_time =
 			feeder_row->
-				feeder_matched_journal->
+				feeder_journal->
 				transaction_date_time;
 	}
 
@@ -1404,7 +1437,7 @@ int feeder_row_insert_count( LIST *feeder_row_list )
 	do {
 		feeder_row = list_get( feeder_row_list );
 
-		if ( feeder_row->feeder_matched_journal
+		if ( feeder_row->feeder_journal
 		||   feeder_row->feeder_phrase_seek )
 		{
 			insert_count++;
@@ -1521,15 +1554,15 @@ void feeder_row_check_journal_update(
 	do {
 		feeder_row = list_get( feeder_row_list );
 
-		if ( feeder_row->feeder_matched_journal
+		if ( feeder_row->feeder_journal
 		&&   feeder_row->
-			feeder_matched_journal->
+			feeder_journal->
 			check_update_statement )
 		{
 			fprintf(update_pipe,
 				"%s\n",
 				feeder_row->
-					feeder_matched_journal->
+					feeder_journal->
 					check_update_statement );
 		}
 
@@ -1993,8 +2026,8 @@ char *feeder_row_raw_display( FEEDER_ROW *feeder_row )
 
 	ptr += sprintf(
 		ptr,
-		"feeder_matched_journal?=%d; ",
-		(feeder_row->feeder_matched_journal)
+		"feeder_journal?=%d; ",
+		(feeder_row->feeder_journal)
 			? 1 : 0 );
 
 	ptr += sprintf(
@@ -2081,8 +2114,9 @@ boolean feeder_row_list_non_match_boolean( LIST *feeder_row_list )
 		feeder_row = list_get( feeder_row_list );
 
 		if (	!feeder_row->feeder_row_exist_seek
-		&&	!feeder_row->feeder_matched_journal
-		&&	!feeder_row->feeder_phrase_seek )
+		&&	!feeder_row->feeder_journal
+		&&	!feeder_row->feeder_phrase_seek
+		&&	!feeder_row->liability_entity )
 		{
 			return 1;
 		}
@@ -2144,3 +2178,51 @@ char *feeder_row_select_string(
 	return optional_column->return_string /* heap memory */;
 }
 
+LIABILITY_ENTITY *feeder_row_liability_entity(
+		double exchange_journal_amount,
+		LIST *liability_entity_list,
+		FEEDER_PHRASE *feeder_phrase_seek )
+{
+	LIABILITY_ENTITY *liability_entity;
+
+	if ( !feeder_phrase_seek )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_phrase_seek is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	liability_entity =
+		liability_entity_seek(
+			feeder_phrase_seek->full_name,
+			feeder_phrase_seek->contact_key,
+			liability_entity_list );
+
+	if ( liability_entity )
+	{
+		if ( !liability_entity->single_account_name )
+		{
+			liability_entity = NULL;
+		}
+		else
+		{
+			if ( !float_money_virtually_same(
+				-exchange_journal_amount,
+				liability_entity->amount_due ) )
+			{
+				liability_entity = NULL;
+			}
+		}
+	}
+
+	return liability_entity;
+}

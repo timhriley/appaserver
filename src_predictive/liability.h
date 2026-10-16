@@ -180,6 +180,8 @@ typedef struct
 	LIABILITY *liability;
 	RECEIVABLE *receivable;
 	double amount_due;
+	LIST *distinct_account_name_list;
+	char *single_account_name;
 } LIABILITY_ENTITY;
 
 /* Usage */
@@ -230,10 +232,14 @@ double liability_entity_amount_due(
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_seek(
-		boolean entity_contact_key_boolean,
 		char *full_name,
 		char *contact_key,
 		LIST *liability_entity_list );
+
+/* Usage */
+/* ----- */
+LIST *liability_entity_distinct_account_name_list(
+		LIST *liability_account_list );
 
 /* Driver */
 /* ------ */

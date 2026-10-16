@@ -113,7 +113,10 @@ SOURCE_LIBRARY= 							\
 		statement.o						\
 		element.o						\
 		journal.o						\
-		journal_propagate.o
+		journal_propagate.o					\
+		receivable.o						\
+		check.o							\
+		liability.o
 
 FEEDER_LIBRARY=								\
 		exchange.o						\
@@ -121,7 +124,7 @@ FEEDER_LIBRARY=								\
 		feeder.o						\
 		feeder_row.o						\
 		feeder_load_row.o					\
-		feeder_matched_journal.o				\
+		feeder_journal.o					\
 		feeder_account.o					\
 		feeder_phrase.o						\
 		feeder_load_event.o					\
@@ -143,9 +146,6 @@ SALE_LIBRARY=								\
 		sale_fetch.o						\
 		customer.o						\
 		customer_accrual.o					\
-		receivable.o						\
-		check.o							\
-		liability.o						\
 		fixed_service_sale.o					\
 		fixed_service_work.o					\
 		sale_transaction.o					\
@@ -963,11 +963,11 @@ feeder_load_event.o: feeder_load_event.c feeder_load_event.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_load_event.c
 
-feeder_matched_journal.o:						\
-	feeder_matched_journal.c					\
-	feeder_matched_journal.h
+feeder_journal.o:							\
+	feeder_journal.c						\
+	feeder_journal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c feeder_matched_journal.c
+		-c feeder_journal.c
 
 feeder_phrase.o: feeder_phrase.c feeder_phrase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

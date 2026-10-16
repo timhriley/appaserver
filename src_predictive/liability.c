@@ -578,6 +578,22 @@ LIABILITY_ENTITY *liability_entity_account_name_new(
 			liability_entity->liability,
 			(RECEIVABLE *)0 /* receivable */ );
 
+	liability_entity->distinct_account_name_list =
+		liability_entity_distinct_account_name_list(
+			liability_entity->
+				liability->
+				liability_account_list->
+				list
+				/* liability_account_list */ );
+
+	if ( list_length(
+		liability_entity->distinct_account_name_list ) == 1 )
+	{
+		liability_entity->single_account_name =
+			list_first(
+				liability_entity->distinct_account_name_list );
+	}
+
 	return liability_entity;
 }
 
@@ -633,6 +649,22 @@ LIABILITY_ENTITY *liability_entity_account_list_new(
 		liability_entity_amount_due(
 			liability_entity->liability,
 			liability_entity->receivable );
+
+	liability_entity->distinct_account_name_list =
+		liability_entity_distinct_account_name_list(
+			liability_entity->
+				liability->
+				liability_account_list->
+				list
+				/* liability_account_list */ );
+
+	if ( list_length(
+		liability_entity->distinct_account_name_list ) == 1 )
+	{
+		liability_entity->single_account_name =
+			list_first(
+				liability_entity->distinct_account_name_list );
+	}
 
 	return liability_entity;
 }
@@ -735,8 +767,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 	}
 
 	liability_payment->liability_calculate =
-		liability_calculate_new(
-			application_name );
+		liability_calculate_new();
 
 	if ( !liability_payment->liability_calculate )
 	{
@@ -1666,7 +1697,6 @@ LIST *liability_entity_distinct_entity_list(
 }
 
 LIABILITY_ENTITY *liability_entity_seek(
-		boolean contact_key_boolean,
 		char *full_name,
 		char *contact_key,
 		LIST *liability_entity_list )
@@ -1689,26 +1719,13 @@ LIABILITY_ENTITY *liability_entity_seek(
 			exit( 1 );
 		}
 
-		if ( contact_key_boolean )
+		if ( entity_match_boolean(
+			full_name,
+			contact_key,
+			liability_entity->entity->full_name,
+			liability_entity->entity->contact_key ) )
 		{
-			if ( strcmp(
-				full_name,
-				liability_entity->entity->full_name ) == 0
-			&&   strcmp(
-				contact_key,
-				liability_entity->entity->contact_key ) == 0 )
-			{
-				return liability_entity;
-			}
-		}
-		else
-		{
-			if ( strcmp(
-				full_name,
-				liability_entity->entity->full_name ) == 0 )
-			{
-				return liability_entity;
-			}
+			return liability_entity;
 		}
 
 	} while ( list_next( liability_entity_list ) );
@@ -1730,7 +1747,6 @@ LIST *liability_payment_entity_list(
 
 		if ( ! ( liability_entity =
 				liability_entity_seek(
-					entity->entity_contact_key_boolean,
 					entity->full_name,
 					entity->contact_key,
 					liability_entity_list ) ) )
@@ -1762,5 +1778,32 @@ LIST *liability_payment_entity_list(
 double liability_due( double journal_credit_debit_difference_sum )
 {
 	return journal_credit_debit_difference_sum;
+}
+
+LIST *liability_entity_distinct_account_name_list(
+		LIST *liability_account_list )
+{
+	LIST *list = list_new();
+	LIABILITY_ACCOUNT *liability_account;
+
+	if ( list_rewind( liability_account_list ) )
+	do {
+		liability_account =
+			list_get(
+				liability_account_list );
+
+		list_set_unique(
+			list,
+			liability_account->account_name );
+
+	} while ( list_next( liability_account_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }
 

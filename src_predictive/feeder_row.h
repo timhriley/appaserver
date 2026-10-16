@@ -15,12 +15,13 @@
 #include "transaction.h"
 #include "journal.h"
 #include "account.h"
+#include "liability.h"
 #include "feeder_account.h"
 #include "feeder_load_row.h"
 #include "feeder_load_event.h"
 #include "feeder_transaction.h"
 #include "feeder_phrase.h"
-#include "feeder_matched_journal.h"
+#include "feeder_journal.h"
 
 #define FEEDER_ROW_TABLE		"feeder_row"
 
@@ -113,8 +114,9 @@ typedef struct
 	FEEDER_LOAD_ROW *feeder_load_row;
 	int feeder_row_number;
 	FEEDER_ROW_EXIST *feeder_row_exist_seek;
-	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+	FEEDER_JOURNAL *feeder_journal;
 	FEEDER_PHRASE *feeder_phrase_seek;
+	LIABILITY_ENTITY *liability_entity;
 	FEEDER_TRANSACTION *feeder_transaction;
 	char *transaction_date_time;
 
@@ -146,11 +148,12 @@ LIST *feeder_row_list(
 		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
-		char *account_uncleared_checks_string,
 		LIST *feeder_load_row_list,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
-		LIST *feeder_journal_list );
+		char *account_uncleared_checks_string,
+		LIST *feeder_journal_list,
+		LIST *liability_entity_list );
 
 /* Process */
 /* ------- */
@@ -169,11 +172,12 @@ FEEDER_ROW *feeder_row_new(
 		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
-		char *account_uncleared_checks_string,
+		FEEDER_LOAD_ROW *feeder_load_row,
 		LIST *feeder_phrase_list,
 		LIST *feeder_exist_row_list,
-		LIST *feeder_matched_journal_list,
-		FEEDER_LOAD_ROW *feeder_load_row,
+		char *account_uncleared_checks_string,
+		LIST *feeder_journal_list,
+		LIST *liability_entity_list,
 		char *minimum_transaction_date_time,
 		int feeder_row_number );
 
@@ -354,6 +358,13 @@ FILE *feeder_row_list_display_pipe(
 
 /* Usage */
 /* ----- */
+LIABILITY_ENTITY *feeder_row_liability_entity(
+		double exchange_journal_amount,
+		LIST *liability_entity_list,
+		FEEDER_PHRASE *feeder_phrase_seek );
+
+/* Usage */
+/* ----- */
 
 /* Returns display_pipe or null */
 /* ---------------------------- */
@@ -368,8 +379,9 @@ FILE *feeder_row_display_output(
 /* ------------------- */
 char *feeder_row_display_results(
 		FEEDER_ROW_EXIST *feeder_exist_row_seek,
-		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
-		FEEDER_PHRASE *feeder_phrase_seek );
+		FEEDER_JOURNAL *feeder_journal,
+		FEEDER_PHRASE *feeder_phrase_seek,
+		LIABILITY_ENTITY *liability_entity );
 
 /* Usage */
 /* ----- */
@@ -422,7 +434,7 @@ char *feeder_row_list_insert_field(
 /* -------------- */
 JOURNAL *feeder_row_journal(
 		char *fund_name,
-		FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
+		FEEDER_JOURNAL *feeder_journal,
 		FEEDER_PHRASE *feeder_phrase_seek,
 		/* ------------------------------------------ */
 		/* See feeder_row_transaction_date_time_set() */
@@ -529,4 +541,3 @@ void feeder_row_list_raw_display(
 /* ------------------- */
 char *feeder_row_raw_display(
 		FEEDER_ROW *feeder_row );
-

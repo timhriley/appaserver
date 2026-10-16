@@ -14,6 +14,7 @@
 #include "transaction.h"
 #include "journal.h"
 #include "account.h"
+#include "liability.h"
 #include "feeder_account.h"
 #include "feeder_audit.h"
 #include "feeder_load_event.h"
@@ -43,17 +44,37 @@
 
 typedef struct
 {
+	LIABILITY_CALCULATE *liability_calculate;
+} FEEDER_LIABILITY;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FEEDER_LIABILITY *feeder_liability_new(
+		void );
+
+/* Process */
+/* ------- */
+FEEDER_LIABILITY *feeder_liability_calloc(
+		void );
+
+typedef struct
+{
 	char *feeder_account_name;
 	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
 	boolean entity_contact_key_boolean;
 	FEEDER_ACCOUNT *feeder_account;
 	LIST *feeder_load_row_list;
-	char *account_uncleared_checks_string;
 	LIST *feeder_phrase_list;
 	LIST *feeder_row_exist_list;
 	char *match_minimum_date;
-	LIST *feeder_matched_journal_list;
+	char *account_uncleared_checks_string;
+	LIST *feeder_journal_list;
+	FEEDER_LIABILITY *feeder_liability;
+	LIST *liability_entity_list;
 	LIST *feeder_row_list;
 	int feeder_row_count;
 	boolean feeder_row_list_non_match_boolean;
@@ -64,7 +85,6 @@ typedef struct
 	double feeder_load_event_error_double;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;
-	char *feeder_load_date_time;
 	FEEDER_LOAD_EVENT *feeder_load_event;
 } FEEDER;
 

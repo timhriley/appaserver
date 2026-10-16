@@ -203,7 +203,7 @@ boolean entity_list_exist_boolean(
 {
 	boolean exist_boolean = 0;
 
-	if ( entity_seek(
+	if ( (boolean)(unsigned int)(long)entity_seek(
 			full_name,
 			contact_key,
 			entity_list ) )

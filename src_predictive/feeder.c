@@ -25,7 +25,7 @@
 #include "account.h"
 #include "entity.h"
 #include "feeder_row.h"
-#include "feeder_matched_journal.h"
+#include "feeder_journal.h"
 #include "feeder_load_event.h"
 #include "feeder.h"
 
@@ -137,14 +137,18 @@ feeder_load_row_list_raw_display(
 			ACCOUNT_UNCLEARED_CHECKS_KEY,
 			__FUNCTION__ );
 
-	feeder->feeder_matched_journal_list =
-		feeder_matched_journal_list(
+	feeder->feeder_journal_list =
+		feeder_journal_list(
 			FEEDER_ROW_TABLE,
 			feeder_account_name,
 			feeder->predictive_fund_boolean,
 			feeder->entity_contact_key_boolean,
 			feeder->match_minimum_date,
 			feeder->account_uncleared_checks_string );
+
+	/* Safely returns */
+	/* -------------- */
+	feeder->feeder_liability = feeder_liability_new();
 
 	feeder->feeder_row_list =
 		feeder_row_list(
@@ -158,11 +162,17 @@ feeder_load_row_list_raw_display(
 			feeder->
 				feeder_account->
 				financial_institution_contact_key,
-			feeder->account_uncleared_checks_string,
 			feeder->feeder_load_row_list,
 			feeder->feeder_phrase_list,
 			feeder->feeder_row_exist_list,
-			feeder->feeder_journal_list );
+			feeder->account_uncleared_checks_string,
+			feeder->feeder_journal_list,
+			(feeder->feeder_liability->liability_calculate)
+				? feeder->
+					feeder_liability->
+					liability_calculate->
+					liability_entity_list
+				: NULL );
 
 	feeder->feeder_row_count =
 		feeder_row_count(
@@ -575,5 +585,38 @@ int feeder_match_days_ago(
 		return atoi( days_ago_string );
 	else
 		return feeder_match_default_days_ago;
+}
+
+FEEDER_LIABILITY *feeder_liability_new( void )
+{
+	FEEDER_LIABILITY *feeder_liability;
+
+	feeder_liability = feeder_liability_calloc();
+	feeder_liability->liability_calculate = liability_calculate_new();
+
+	return feeder_liability;
+}
+
+FEEDER_LIABILITY *feeder_liability_calloc( void )
+{
+	FEEDER_LIABILITY *feeder_liability;
+
+	if ( ! ( feeder_liability = calloc( 1, sizeof ( FEEDER_LIABILITY ) ) ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return feeder_liability;
 }
 

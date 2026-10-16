@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_matched_journal.h		*/
+/* $APPASERVER_HOME/src_predictive/feeder_journal.h			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -30,11 +30,11 @@ typedef struct
 	int check_number;
 	boolean taken;
 	char *check_update_statement;
-} FEEDER_MATCHED_JOURNAL;
+} FEEDER_JOURNAL;
 
 /* Usage */
 /* ----- */
-LIST *feeder_matched_journal_list(
+LIST *feeder_journal_list(
 		const char *feeder_row_table,
 		char *feeder_account_name,
 		boolean predictive_fund_boolean,
@@ -47,23 +47,23 @@ LIST *feeder_matched_journal_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_matched_journal_where(
+char *feeder_journal_where(
 		char *feeder_account_name,
 		char *account_uncleared_checks,
-		char *feeder_matched_journal_subquery,
+		char *feeder_journal_subquery,
 		char *feeder_match_minimum_date );
 
 /* Usage */
 /* ----- */
-FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new(
+FEEDER_JOURNAL *feeder_journal_new(
 		JOURNAL *journal );
 
 /* Process */
 /* ------- */
-FEEDER_MATCHED_JOURNAL *feeder_matched_journal_calloc(
+FEEDER_JOURNAL *feeder_journal_calloc(
 		void );
 
-double feeder_matched_journal_amount(
+double feeder_journal_amount(
 		double debit_amount,
 		double credit_amount );
 
@@ -72,20 +72,20 @@ double feeder_matched_journal_amount(
 
 /* Independent of fund */
 /* ------------------- */
-FEEDER_MATCHED_JOURNAL *feeder_matched_journal_check_seek(
+FEEDER_JOURNAL *feeder_journal_check_seek(
 		char *feeder_account_name,
 		boolean entity_contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
-		LIST *feeder_matched_journal_list );
+		LIST *feeder_journal_list );
 
 /* Usage */
 /* ----- */
-FEEDER_MATCHED_JOURNAL *
-	feeder_matched_journal_amount_seek(
+FEEDER_JOURNAL *
+	feeder_journal_amount_seek(
 		double exchange_journal_amount,
-		LIST *feeder_matched_journal_list );
+		LIST *feeder_journal_list );
 
 /* Usage */
 /* ----- */
@@ -94,7 +94,7 @@ FEEDER_MATCHED_JOURNAL *
 /* Independent of fund */
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_matched_journal_subquery(
+char *feeder_journal_subquery(
 		const char *journal_table,
 		const char *feeder_row_table,
 		char *feeder_account_name,
@@ -106,7 +106,7 @@ char *feeder_matched_journal_subquery(
 
 /* Returns static memory */
 /* --------------------- */
-char *feeder_matched_journal_contact_join(
+char *feeder_journal_contact_join(
 		const char *journal_table,
 		const char *feeder_row_table,
 		const char *entity_contact_key_column,
@@ -119,7 +119,7 @@ char *feeder_matched_journal_contact_join(
 /* Independent of fund */
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_matched_journal_check_update_statement(
+char *feeder_journal_check_update_statement(
 		const char *journal_table,
 		char *feeder_account_name,
 		boolean entity_contact_key_boolean,
