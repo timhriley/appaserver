@@ -44,24 +44,6 @@
 
 typedef struct
 {
-	LIABILITY_CALCULATE *liability_calculate;
-} FEEDER_LIABILITY;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-FEEDER_LIABILITY *feeder_liability_new(
-		void );
-
-/* Process */
-/* ------- */
-FEEDER_LIABILITY *feeder_liability_calloc(
-		void );
-
-typedef struct
-{
 	char *feeder_account_name;
 	boolean predictive_fund_boolean;
 	char *predictive_fund_name;
@@ -73,7 +55,7 @@ typedef struct
 	char *match_minimum_date;
 	char *account_uncleared_checks_string;
 	LIST *feeder_journal_list;
-	FEEDER_LIABILITY *feeder_liability;
+	LIABILITY_CALCULATE *liability_calculate;
 	LIST *liability_entity_list;
 	LIST *feeder_row_list;
 	int feeder_row_count;
