@@ -5076,14 +5076,15 @@ char *statement_account_label( ACCOUNT_JOURNAL *account_journal_latest )
 {
 	char label[ 1024 ];
 
-	if ( !account_journal_latest )
+	if ( !account_journal_latest
+	||   !account_journal_latest->account_name )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"account_journal_latest is empty." );
+			"account_journal_latest is empty or incomplete." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -5092,6 +5093,23 @@ char *statement_account_label( ACCOUNT_JOURNAL *account_journal_latest )
 			message );
 	}
 
+	if (	strlen( account_journal_latest->account_name ) >=
+		sizeof ( label ) )
+	{
+		char message[ STRING_2K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"account_name=[%s] is too big.",
+			account_journal_latest->account_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	return
 	strdup(

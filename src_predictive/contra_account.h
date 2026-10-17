@@ -4,11 +4,11 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CONTRA_ACCOUNT_H
-#define CONTRA_ACCOUNT_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
+#include "account_journal.h"
 
 #define CONTRA_ACCOUNT_TABLE	"contra_account"
 
@@ -17,31 +17,46 @@
 
 typedef struct
 {
+	LIST *list;
+	LIST *account_name_list;
+	double balance_total;
+	char *net_label;
+} CONTRA_ACCOUNT_LIST;
+
+/* Usage */
+/* ----- */
+CONTRA_ACCOUNT_LIST *contra_account_list_new(
+		boolean predictive_fund_boolean,
+		boolean entity_contact_key_boolean,
+		char *fund_name,
+		char *end_date_time_string,
+		LIST *contra_account_fetch_list
+			/* Sets each matching account_journal_latest */,
+		char *contra_to_account );
+
+/* Process */
+/* ------- */
+CONTRA_ACCOUNT_LIST *contra_account_list_calloc(
+		void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *contra_account_list_net_label(
+		char *contra_to_account,
+		LIST *account_name_list );
+
+typedef struct
+{
 	char *account_name;
 	char *contra_to_account;
-	double net_amount;
-	char *label;
+	ACCOUNT_JOURNAL *account_journal_latest;
 } CONTRA_ACCOUNT;
 
 /* Usage */
 /* ----- */
-LIST *contra_account_list(
+LIST *contra_account_fetch_list(
 		const char *contra_account_select,
-		const char *contra_account_table,
-		char *fund_name,
-		char *end_date_time_string );
-
-/* Process */
-/* ------- */
-double contra_account_net_amount(
-		double account_balance,
-		double contra_to_balance );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *contra_account_label(
-		char *account_name,
-		char *contra_to_name );
+		const char *contra_account_table );
 
 /* Usage */
 /* ----- */
@@ -62,18 +77,14 @@ CONTRA_ACCOUNT *contra_account_new(
 CONTRA_ACCOUNT *contra_account_calloc(
 		void );
 
-
 /* Usage */
 /* ----- */
 CONTRA_ACCOUNT *contra_account_seek(
 		LIST *contra_account_list,
-		char *account_name /* mutually exclusive */,
-		char *contra_to_account /* mutually exclusive */ );
+		char *account_name );
 
 /* Usage */
 /* ----- */
 boolean contra_account_boolean(
 		LIST *contra_account_list,
-		char *account_account );
-
-#endif
+		char *account_name );
