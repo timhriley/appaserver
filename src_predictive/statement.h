@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef STATEMENT_H
-#define STATEMENT_H
+#pragma once
 
 #include <stdio.h>
 #include <unistd.h>
@@ -20,6 +19,7 @@
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 #define STATEMENT_DAYS_FOR_EMPHASIS		35
+#define STATEMENT_LATEX_ACCOUNT_MAX_SIZE	45
 
 #define STATEMENT_ACCOUNT_HEADING		"Account"
 #define STATEMENT_ELEMENT_HEADING		"Element"
@@ -132,6 +132,15 @@ char *statement_account_money_string(
 /* ------------------- */
 char *statement_account_label(
 		ACCOUNT_JOURNAL *account_journal_latest );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_account_ellipsis_label(
+		char *statement_account_label,
+		int max_size );
 
 typedef struct
 {
@@ -949,5 +958,3 @@ int statement_delta_percent(
 char *statement_delta_cell_string(
 		double statement_delta_difference,
 		int statement_delta_percent );
-
-#endif

@@ -2464,6 +2464,65 @@ boolean string_mnemonic_boolean( char *string )
 	return 1;
 }
 
+char *string_left_ellipsis(
+		char *destination,
+		char *source,
+		int how_many )
+{
+	char left_ellipsis[ 1024 ];
+
+	if ( !destination
+	||   !source )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( how_many < 3 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: how_many=%d is too small.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			how_many );
+		exit( 1 );
+	}
+
+	if ( strlen( source ) >= sizeof ( left_ellipsis ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: source=%s is too big.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			source );
+		exit( 1 );
+	}
+
+	string_left(
+		left_ellipsis,
+		source,
+		how_many - 3 );
+
+	if ( strcmp( left_ellipsis, source ) != 0 )
+	{
+		sprintf(destination,
+			"%s...",
+			left_ellipsis );
+	}
+	else
+	{
+		strcpy( destination, source );
+	}
+
+	return destination;
+}
+
 char *string_left(
 		char *destination,
 		char *source,
@@ -2491,23 +2550,6 @@ char *string_left(
 		how_many );
 }
 
-char *string_substr(
-		char *destination,
-		char *source,
-		int start,
-		int how_many )
-{
-	return
-	/* ------------------- */
-	/* Returns destination */
-	/* ------------------- */
-	string_middle(
-		destination,
-		source,
-		start,
-		how_many );
-}
-
 char *string_middle(
 		char *destination,
 		char *source,
@@ -2529,6 +2571,23 @@ char *string_middle(
 	*( destination + how_many ) = '\0';
 
 	return destination;
+}
+
+char *string_substr(
+		char *destination,
+		char *source,
+		int start,
+		int how_many )
+{
+	return
+	/* ------------------- */
+	/* Returns destination */
+	/* ------------------- */
+	string_middle(
+		destination,
+		source,
+		start,
+		how_many );
 }
 
 boolean string_email_address_boolean( char *string )

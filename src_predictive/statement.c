@@ -1569,6 +1569,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 {
 	LIST *cell_list;
 	LATEX_COLUMN *latex_column;
+	char *ellipsis_label;
 
 	if ( !statement_account
 	||   !statement_account->account
@@ -1591,12 +1592,20 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
 
+	ellipsis_label =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_ellipsis_label(
+			statement_account->label,
+			STATEMENT_LATEX_ACCOUNT_MAX_SIZE );
+
 	list_set(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
 			0 /* not first_row_boolean */,
-			statement_account->label ) );
+			ellipsis_label ) );
 
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
@@ -5144,4 +5153,52 @@ char *statement_link_filespecification(
 		tex_filename );
 
 	return strdup( specification );
+}
+
+char *statement_account_ellipsis_label(
+		char *statement_account_label,
+		int max_size )
+{
+	char destination[ 1024 ];
+
+	if ( !statement_account_label
+	||   !max_size )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strlen( statement_account_label ) >= sizeof ( destination ) )
+	{
+		char message[ STRING_64K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"statement_account_label=[%s] is too big.",
+			statement_account_label );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	strdup(
+		string_left_ellipsis(
+			destination,
+			statement_account_label /* source */,
+			max_size ) );
 }

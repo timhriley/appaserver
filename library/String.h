@@ -610,7 +610,6 @@ char *string_trim(
 
 /* Usage */
 /* ----- */
-
 char *string_extract_lt_gt_delimited(
 		char *destination,
 		char *source );
@@ -628,7 +627,6 @@ int string_index(
 
 /* Usage */
 /* ----- */
-
 char *string_trim_leading_character(
 		char *data,
 		char character );
@@ -948,6 +946,16 @@ boolean string_email_address_boolean(
 /* Returns destination */
 /* ------------------- */
 char *string_left(
+		char *destination,
+		char *source,
+		int how_many );
+
+/* Usage */
+/* ----- */
+
+/* Returns destination */
+/* ------------------- */
+char *string_left_ellipsis(
 		char *destination,
 		char *source,
 		int how_many );
