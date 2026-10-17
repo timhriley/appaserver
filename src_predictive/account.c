@@ -62,11 +62,9 @@ LIST *account_statement_list(
 	if ( fetch_contra_account_boolean )
 	{
 		contra_list =
-			contra_account_list(
+			contra_account_fetch_list(
 				CONTRA_ACCOUNT_SELECT,
-				CONTRA_ACCOUNT_TABLE,
-				fund_name,
-				end_date_time_string );
+				CONTRA_ACCOUNT_TABLE );
 	}
 
 	chart_account_boolean =
@@ -110,7 +108,7 @@ LIST *account_statement_list(
 				fetch_journal_latest,
 				fetch_transaction,
 				latest_zero_balance_boolean,
-				contra_list /* contra_account_list */,
+				contra_list /* contra_account_fetch_list */,
 				input );
 
 		if ( account )
@@ -131,13 +129,13 @@ ACCOUNT *account_statement_parse(
 		char *end_date_time_string,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
-		boolean account_chart_account_boolean,
+		boolean chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
 		boolean fetch_transaction,
 		boolean latest_zero_balance_boolean,
-		LIST *contra_account_list,
+		LIST *contra_account_fetch_list,
 		char *input )
 {
 	ACCOUNT *account;
@@ -151,7 +149,7 @@ ACCOUNT *account_statement_parse(
 
 	if ( ! ( account =
 			account_parse(
-				account_chart_account_boolean,
+				chart_account_boolean,
 				fetch_subclassification,
 				fetch_element,
 				input ) ) )
@@ -159,38 +157,26 @@ ACCOUNT *account_statement_parse(
 		return NULL;
 	}
 
-	if ( list_length( contra_account_list ) )
+	if ( contra_account_boolean(
+		contra_account_fetch_list,
+		account->account_name ) )
 	{
-		CONTRA_ACCOUNT *contra_account;
-
-		if ( contra_account_boolean(
-			contra_account_list,
-			account->account_name) )
-		{
-			free( account );
-			return NULL;
-		}
-
-		contra_account =
-			contra_account_seek(
-				contra_account_list,
-				(char *)0
-				   /* account_name mutually exclusive */,
-				account->account_name
-				   /* contra_to_account mutually exclusive */ );
-
-		if ( contra_account )
-		{
-			account->account_journal_latest =
-				account_journal_new(
-					contra_account->label
-						/* account_name */,
-					contra_account->net_amount
-						/* balance */ );
-
-			fetch_journal_latest = 0;
-		}
+		free( account );
+		return NULL;
 	}
+
+	account->contra_account_fetch_list = contra_account_fetch_list;
+
+	account->contra_account_list =
+		contra_account_list_new(
+			fund_boolean,
+			contact_key_boolean,
+			fund_name,
+			end_date_time_string,
+			account->contra_account_fetch_list
+				/* Sets each matching account_journal_latest */,
+			account->account_name
+				/* contra_to_account */ );
 
 	if ( fetch_journal_latest )
 	{
@@ -211,6 +197,16 @@ ACCOUNT *account_statement_parse(
 			free( account );
 			return NULL;
 		}
+	}
+
+	if ( account->contra_account_list
+	&&   account->account_journal_latest )
+	{
+		account->account_journal_latest->account_name =
+			account->contra_account_list->net_label;
+
+		account->account_journal_latest->balance -=
+			account->contra_account_list->balance_total;
 	}
 
 	return account;
@@ -854,7 +850,7 @@ ACCOUNT *account_seek(
 }
 
 ACCOUNT *account_parse(
-		boolean account_chart_account_boolean,
+		boolean chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		char *input )
@@ -888,7 +884,7 @@ ACCOUNT *account_parse(
 		account->annual_budget =
 			atoi( piece_buffer );
 
-	if ( account_chart_account_boolean )
+	if ( chart_account_boolean )
 	{
 		piece( piece_buffer, SQL_DELIMITER, input, 4 );
 		if ( *piece_buffer )
@@ -912,6 +908,8 @@ ACCOUNT *account_fetch(
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
+	boolean chart_account_boolean;
+	char *select_string;
 	ACCOUNT *account = {0};
 	static LIST *list = {0};
 
@@ -932,9 +930,6 @@ ACCOUNT *account_fetch(
 	}
 	else
 	{
-		boolean chart_account_boolean;
-		char *select_string;
-
 		chart_account_boolean =
 			account_chart_account_boolean(
 				ACCOUNT_TABLE,
@@ -1799,7 +1794,6 @@ ACCOUNT *account_key_fetch(
 			message );
 	}
 
-
 	return account;
 }
 
@@ -1816,11 +1810,11 @@ boolean account_chart_account_boolean(
 char *account_select_string(
 		const char *account_select,
 		const char *account_chart_account,
-		boolean account_chart_account_boolean )
+		boolean chart_account_boolean )
 {
 	char select_string[ 1024 ];
 
-	if ( account_chart_account_boolean )
+	if ( chart_account_boolean )
 		snprintf(
 			select_string,
 			sizeof ( select_string ),

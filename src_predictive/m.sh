@@ -3,5 +3,5 @@
 #cd ../library
 #make
 #cd -
-make purchase_trigger
+make balance_sheet_output
 

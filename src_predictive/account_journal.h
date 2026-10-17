@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ACCOUNT_JOURNAL_H
-#define ACCOUNT_JOURNAL_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -50,4 +49,3 @@ ACCOUNT_JOURNAL *account_journal_new(
 ACCOUNT_JOURNAL *account_journal_calloc(
 		void );
 
-#endif
