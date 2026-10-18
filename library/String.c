@@ -2470,6 +2470,7 @@ char *string_left_ellipsis(
 		int how_many )
 {
 	char left_ellipsis[ 1024 ];
+	int str_len;
 
 	if ( !destination
 	||   !source )
@@ -2482,7 +2483,7 @@ char *string_left_ellipsis(
 		exit( 1 );
 	}
 
-	if ( how_many < 3 )
+	if ( how_many < 4 )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: how_many=%d is too small.\n",
@@ -2493,7 +2494,9 @@ char *string_left_ellipsis(
 		exit( 1 );
 	}
 
-	if ( strlen( source ) >= sizeof ( left_ellipsis ) )
+	str_len = strlen( source );
+
+	if ( str_len >= (int)sizeof ( left_ellipsis ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: source=%s is too big.\n",
@@ -2504,20 +2507,18 @@ char *string_left_ellipsis(
 		exit( 1 );
 	}
 
-	string_left(
-		left_ellipsis,
-		source,
-		how_many - 3 );
-
-	if ( strcmp( left_ellipsis, source ) != 0 )
+	if ( str_len <= how_many )
 	{
-		sprintf(destination,
-			"%s...",
-			left_ellipsis );
+		strcpy( destination, source );
 	}
 	else
 	{
-		strcpy( destination, source );
+		string_left(
+			left_ellipsis,
+			source,
+			how_many - 3 );
+
+		sprintf( destination, "%s...", left_ellipsis );
 	}
 
 	return destination;
