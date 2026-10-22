@@ -437,13 +437,6 @@ IMPORT_PREDICT_INPUT *import_predict_input_new(
 			APPLICATION_CLONE_NAME_PLACEHOLDER,
 			import_predict_input->entity_self->full_name );
 
-	import_predict_input->account_current_liability_name_list =
-		account_current_liability_name_list(
-			ACCOUNT_TABLE,
-			SUBCLASSIFICATION_CURRENT_LIABILITY,
-			(char *)0 /* ACCOUNT_CREDIT_CARD_KEY */,
-			(LIST *)0 /* exclude_account_name_list */ );
-
 	return import_predict_input;
 }
 
@@ -478,14 +471,13 @@ enum import_predict_input_financial_enum import_predict_input_financial_enum(
 		const char *feeder_install_financial_institution_placeholder,
 		boolean bank_of_america_boolean )
 {
-	unsigned long table_count;
+	boolean table_boolean;
 	char *full_name;
 
-	table_count = application_table_count(
+	table_boolean = appaserver_table_boolean(
 		(char *)entity_financial_institution_table );
 
-	if ( table_count != 1 )
-		return predict_financial_no_update;
+	if ( table_boolean ) return predict_financial_no_update;
 
 	full_name =
 		/* --------------------------- */
