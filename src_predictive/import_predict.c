@@ -10,6 +10,7 @@
 #include "String.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "application_clone.h"
 #include "folder.h"
 #include "float.h"
 #include "date.h"
@@ -36,6 +37,9 @@ IMPORT_PREDICT *import_predict_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		boolean bank_of_america_boolean,
+		char *bank_full_name,
+		char *your_full_name,
 		char *mount_point )
 {
 	IMPORT_PREDICT *import_predict;
@@ -44,6 +48,7 @@ IMPORT_PREDICT *import_predict_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
+	||   !your_full_name
 	||   !mount_point )
 	{
 		char message[ 128 ];
@@ -66,6 +71,7 @@ IMPORT_PREDICT *import_predict_new(
 		import_predict_input_new(
 			import_predict_sqlgz,
 			application_name,
+			bank_of_america_boolean,
 			mount_point );
 
 	if ( !import_predict->import_predict_input->entity_self )
@@ -143,9 +149,68 @@ IMPORT_PREDICT *import_predict_new(
 			message );
 	}
 
+	import_predict->bank_update_name =
+		/* -------------------------------- */
+		/* Returns either parameter or null */
+		/* -------------------------------- */
+		import_predict_bank_update_name(
+			FEEDER_INSTALL_BANK_OF_AMERICA,
+			bank_full_name,
+			import_predict->import_predict_input->financial_enum );
+
+	if ( import_predict->bank_update_name )
+	{
+		import_predict->entity_bank_financial_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				ENTITY_FINANCIAL_INSTITUTION_TABLE,
+				FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
+				import_predict->bank_update_name );
+
+		import_predict->entity_bank_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				ENTITY_TABLE,
+				FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
+				import_predict->bank_update_name );
+	}
+
+	if ( import_predict->import_predict_input->appaserver_user_boolean )
+	{
+		import_predict->entity_user_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				ENTITY_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+
+		import_predict->entity_self_user_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				ENTITY_SELF_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+
+		import_predict->appaserver_user_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				APPASERVER_USER_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+	}
+
 	return import_predict;
 }
-
 
 char *import_predict_system_string( char *filename )
 {
@@ -309,6 +374,7 @@ char *import_predict_menu_anchor_tag(
 IMPORT_PREDICT_INPUT *import_predict_input_new(
 		const char *import_predict_sqlgz,
 		char *application_name,
+		boolean bank_of_america_boolean,
 		char *mount_point )
 {
 	IMPORT_PREDICT_INPUT *import_predict_input;
@@ -360,6 +426,17 @@ IMPORT_PREDICT_INPUT *import_predict_input_new(
 		application_menu_horizontal_boolean(
 		       application_name );
 
+	import_predict_input->financial_enum =
+		import_predict_input_financial_enum(
+			ENTITY_FINANCIAL_INSTITUTION_TABLE,
+			FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
+			bank_of_america_boolean );
+
+	import_predict_input->appaserver_user_boolean =
+		import_predict_input_appaserver_user_boolean(
+			APPLICATION_CLONE_NAME_PLACEHOLDER,
+			import_predict_input->entity_self->full_name );
+
 	return import_predict_input;
 }
 
@@ -388,3 +465,83 @@ IMPORT_PREDICT_INPUT *import_predict_input_calloc( void )
 	return import_predict_input;
 }
 
+
+enum import_predict_input_financial_enum import_predict_input_financial_enum(
+		const char *entity_financial_institution_table,
+		const char *feeder_install_financial_institution_placeholder,
+		boolean bank_of_america_boolean )
+{
+	unsigned long table_count;
+	char *full_name;
+
+	table_count = application_table_count(
+		(char *)entity_financial_institution_table );
+
+	if ( table_count != 1 )
+		return predict_financial_no_update;
+
+	full_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		entity_fetch_full_name(
+			entity_financial_institution_table
+				/* entity_table */,
+			ENTITY_FULL_NAME_COLUMN );
+
+	if ( string_strcmp(
+		(char *)feeder_install_financial_institution_placeholder,
+		full_name ) != 0 )
+	{
+		return predict_financial_no_update;
+	}
+
+	if ( bank_of_america_boolean )
+		return predict_financial_bank_of_america;
+	else
+		return predict_financial_other_bank_name;
+}
+
+char *import_predict_update_statement(
+		const char *table_name,
+		const char *placeholder,
+		char *update_name )
+{
+	char update_statement[ 1024 ];
+
+	if ( !update_name ) return NULL;
+
+	snprintf(
+		update_statement,
+		sizeof ( update_statement ),
+		"update %s set full_name = '%s' where full_name = .%s.;",
+		table_name,
+		update_name,
+		placeholder );
+
+	return strdup( update_statement );
+}
+
+char *import_predict_bank_update_name(
+		const char *bank_of_america,
+		char *bank_full_name,
+		enum import_predict_input_financial_enum financial_enum )
+{
+	if ( financial_enum == predict_financial_no_update )
+		return NULL;
+	else
+	if ( financial_enum == predict_financial_bank_of_america )
+		return (char *)bank_of_america;
+	else
+		return bank_full_name;
+}
+
+boolean import_predict_input_appaserver_user_boolean(
+		const char *application_clone_name_placeholder,
+		char *full_name )
+{
+	return
+	( string_strcmp(
+		(char *)application_clone_name_placeholder,
+		full_name ) == 0 );
+}

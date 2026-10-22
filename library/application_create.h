@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef APPLICATION_CREATE_H
-#define APPLICATION_CREATE_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -69,4 +68,3 @@ boolean application_create_execute(
 		boolean execute_boolean,
 		APPLICATION_CREATE *application_create );
 
-#endif

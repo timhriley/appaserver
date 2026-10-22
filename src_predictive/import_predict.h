@@ -103,6 +103,13 @@
 	"<li>Execute: Feeder --> Initialize Feeder Account.\n"	     	     \
 	"</ol>\n"
 
+enum import_predict_input_financial_enum
+{
+	predict_financial_bank_of_america,
+	predict_financial_other_bank_name,
+	predict_financial_no_update
+};
+
 typedef struct
 {
 	boolean template_boolean;
@@ -110,6 +117,9 @@ typedef struct
 	ENTITY_SELF *entity_self;
 	char *filespecification;
 	boolean application_menu_horizontal_boolean;
+	enum import_predict_input_financial_enum
+		financial_enum;
+	boolean appaserver_user_boolean;
 } IMPORT_PREDICT_INPUT;
 
 /* Safely returns */
@@ -117,6 +127,7 @@ typedef struct
 IMPORT_PREDICT_INPUT *import_predict_input_new(
 		const char *import_predict_sqlgz,
 		char *application_name,
+		boolean bank_of_america_boolean,
 		char *mount_point );
 
 /* Process */
@@ -127,6 +138,10 @@ IMPORT_PREDICT_INPUT *import_predict_input_calloc(
 boolean import_predict_input_template_boolean(
 		const char *application_create_template_name,
 		char *application_name );
+
+boolean import_predict_input_appaserver_user_boolean(
+		const char *application_clone_name_placeholder,
+		char *entity_self_full_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -139,6 +154,13 @@ char *import_predict_input_filespecification(
 boolean import_predict_input_exists_boolean(
 		const char *transaction_table );
 
+/* Usage */
+/* ----- */
+enum import_predict_input_financial_enum import_predict_input_financial_enum(
+		const char *entity_financial_institution_table,
+		const char *feeder_install_financial_institution_placeholder,
+		boolean bank_of_america_boolean );
+
 typedef struct
 {
 	IMPORT_PREDICT_INPUT *import_predict_input;
@@ -146,6 +168,12 @@ typedef struct
 	char *delete_role_system_string;
 	char *menu_href_string;
 	char *menu_anchor_tag;
+	char *bank_update_name;
+	char *entity_bank_financial_update_statement;
+	char *entity_bank_update_statement;
+	char *entity_user_update_statement;
+	char *entity_self_user_update_statement;
+	char *appaserver_user_update_statement;
 } IMPORT_PREDICT;
 
 /* Safely returns */
@@ -156,6 +184,9 @@ IMPORT_PREDICT *import_predict_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		boolean bank_of_america_boolean,
+		char *bank_full_name,
+		char *your_full_name,
 		char *mount_point );
 
 /* Process */
@@ -186,6 +217,13 @@ char *import_predict_menu_anchor_tag(
 		const char *frameset_prompt_frame,
 		char *import_predict_menu_href_string );
 
+/* Returns either parameter or null */
+/* -------------------------------- */
+char *import_predict_bank_update_name(
+		const char *feeder_install_bank_of_america,
+		char *bank_full_name,
+		enum import_predict_input_financial_enum financial_enum );
+
 /* Usage */
 /* ----- */
 
@@ -193,4 +231,14 @@ char *import_predict_menu_anchor_tag(
 /* --------------------- */
 char *import_predict_system_string(
 		char *import_predict_filename );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *import_predict_update_statement(
+		const char *table_name,
+		const char *placeholder,
+		char *update_name );
 

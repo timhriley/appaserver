@@ -20,6 +20,9 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
+	boolean bank_of_america_boolean;
+	char *bank_full_name;
+	char *your_full_name;
 	boolean execute_boolean;
 	IMPORT_PREDICT *import_predict;
 
@@ -30,10 +33,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-		"Usage: %s session login role process execute_yn\n",
+"Usage: %s session login role process bank_of_america_yn bank_full_name your_full_name execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -43,7 +46,10 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-	execute_boolean = (*argv[ 5 ] == 'y');
+	bank_of_america_boolean = (*argv[ 5 ] == 'y');
+	bank_full_name = argv[ 6 ];
+	your_full_name = argv[ 7 ];
+	execute_boolean = (*argv[ 8 ] == 'y');
 
 	document_process_output(
 		application_name,
@@ -60,6 +66,9 @@ int main( int argc, char **argv )
 			session_key,
 			login_name,
 			role_name,
+			bank_of_america_boolean,
+			bank_full_name,
+			your_full_name,
 			appaserver_parameter_mount_point() );
 
 	if ( import_predict->import_predict_input->template_boolean )
@@ -90,6 +99,37 @@ int main( int argc, char **argv )
 		if ( system(
 			import_predict->
 				delete_role_system_string ) ){}
+
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->
+				entity_bank_financial_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->entity_bank_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->entity_user_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->entity_self_user_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->appaserver_user_update_statement );
 
 		printf( "%s\n",
 			IMPORT_PREDICT_ONCE_MESSAGE );

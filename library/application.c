@@ -771,3 +771,21 @@ char *application_not_null_system(
 	return system_string;
 }
 
+unsigned long application_table_count(
+		char *appaserver_table_name )
+{
+	char system_string[ 1024 ];
+	char *results;
+
+	sprintf(system_string,
+		"echo 'select count(1) from %s;' | sql_timeout.sh 1",
+		appaserver_table_name );
+
+	results = string_pipe_fetch( system_string );
+
+	if ( !results || !*results )
+		return 0;
+	else
+		return strtoul( results, (char **)0, 0 );
+}
+

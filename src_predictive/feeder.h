@@ -21,9 +21,14 @@
 
 /* #define FEEDER_DEBUG_MODE 1 */
 
-#define FEEDER_MATCH_DEFAULT_DAYS_AGO	366
+#define FEEDER_INSTALL_FINANCIAL_PLACEHOLDER		\
+	"Financial Institution Full Name Placeholder"
 
-#define FEEDER_DESCRIPTION_SIZE		140
+#define FEEDER_INSTALL_BANK_OF_AMERICA			\
+	"bank_of_america"
+
+#define FEEDER_MATCH_DEFAULT_DAYS_AGO		366
+#define FEEDER_DESCRIPTION_SIZE			140
 
 #define FEEDER_MATCH_ERROR_TEMPLATE \
 "<h3>Mismatched input file. Either:</h3><ol> " \

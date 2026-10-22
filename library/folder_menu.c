@@ -219,24 +219,6 @@ FOLDER_MENU_COUNT *folder_menu_count_calloc( void )
 	return folder_menu_count;
 }
 
-unsigned long folder_menu_count_fetch(
-		char *appaserver_table_name )
-{
-	char system_string[ 1024 ];
-	char *results;
-
-	sprintf(system_string,
-		"echo 'select count(1) from %s;' | sql_timeout.sh 1",
-		appaserver_table_name );
-
-	results = string_pipe_fetch( system_string );
-
-	if ( !results || !*results )
-		return 0;
-	else
-		return strtoul( results, (char **)0, 0 );
-}
-
 FOLDER_MENU_COUNT *folder_menu_count_parse( char *input )
 {
 	FOLDER_MENU_COUNT *folder_menu_count;
@@ -379,7 +361,9 @@ char *folder_menu_count_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"cat %s | table_count.e %s",
 		/* ------------------------ */
 		/* Prevent compiler warning */

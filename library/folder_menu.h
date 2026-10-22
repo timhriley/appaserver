@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FOLDER_MENU_H
-#define FOLDER_MENU_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -111,5 +110,3 @@ char *folder_menu_filename(
 /* ----- */
 void folder_menu_remove_file(
 		char *folder_menu_filename );
-
-#endif

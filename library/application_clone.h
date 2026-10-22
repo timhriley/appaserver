@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef APPLICATION_CLONE_H
-#define APPLICATION_CLONE_H
+#pragma once
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,8 +15,10 @@
 #include "appaserver_user.h"
 #include "application_create.h"
 
-#define APPLICATION_CLONE_SQL_GZ \
-	"template/mysqldump_template.sql.gz"
+#define APPLICATION_CLONE_NAME_PLACEHOLDER	"Fullname Placeholder"
+#define APPLICATION_CLONE_CONTACT_PLACEHOLDER	"1234 Set Me"
+#define APPLICATION_CLONE_DATE_FORMAT		"american"
+#define APPLICATION_CLONE_SQL_GZ	"template/mysqldump_template.sql.gz"
 
 typedef struct
 {
@@ -162,6 +163,9 @@ char *application_clone_insert_entity_system_string(
 /* Safely returns */
 /* -------------- */
 APPASERVER_USER *application_clone_appaserver_user(
+		const char *application_clone_name_placeholder,
+		const char *application_clone_contact_placeholder,
+		const char *application_clone_date_format,
 		char *login_name,
 		boolean application_clone_post_signup_boolean,
 		boolean entity_contact_key_boolean );
@@ -182,4 +186,3 @@ void application_clone_system(
 boolean application_clone_post_signup_boolean(
 		char *process_name );
 
-#endif

@@ -129,6 +129,9 @@ APPLICATION_CLONE *application_clone_new(
 		/* Safely returns */
 		/* -------------- */
 		application_clone_appaserver_user(
+			APPLICATION_CLONE_NAME_PLACEHOLDER,
+			APPLICATION_CLONE_CONTACT_PLACEHOLDER,
+			APPLICATION_CLONE_DATE_FORMAT,
 			login_name,
 			post_signup_boolean,
 			application_clone->entity_contact_key_boolean );
@@ -786,6 +789,9 @@ void application_clone_system(
 }
 
 APPASERVER_USER *application_clone_appaserver_user(
+		const char *application_clone_name_placeholder,
+		const char *application_clone_contact_placeholder,
+		const char *application_clone_date_format,
 		char *login_name,
 		boolean post_signup_boolean,
 		boolean contact_key_boolean )
@@ -840,11 +846,12 @@ APPASERVER_USER *application_clone_appaserver_user(
 		/* Safely returns */
 		/* -------------- */
 		appaserver_user_new(
-			"Fullname Placeholder" /* full_name */ );
+			(char *)application_clone_name_placeholder );
 
 	if ( contact_key_boolean )
 	{
-		appaserver_user->contact_key = "1234 Set Me";
+		appaserver_user->contact_key =
+			(char *)application_clone_contact_placeholder;
 	}
 
 	appaserver_user->login_name = login_name;
@@ -855,7 +862,8 @@ APPASERVER_USER *application_clone_appaserver_user(
 		/* ------------------- */
 		security_generate_password();
 
-	appaserver_user->user_date_format = "american";
+	appaserver_user->user_date_format =
+		(char *)application_clone_date_format;
 
 	return appaserver_user;
 }

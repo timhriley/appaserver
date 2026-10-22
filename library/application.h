@@ -239,3 +239,8 @@ void application_output_ftp_prompt(
 		char *prompt,
 		char *target,
 		char *mime_type );
+
+/* Usage */
+/* ----- */
+unsigned long application_table_count(
+		char *appaserver_table_name );

@@ -23,7 +23,7 @@
 #define ENTITY_CONTACT_KEY_COLUMN	"contact_key"
 #define ENTITY_CONTACT_KEY_DEFAULT	"unknown"
 
-#define ENTITY_FINANCIAL_INSTITUTION_TABLE \
+#define ENTITY_FINANCIAL_INSTITUTION_TABLE 			\
 					"financial_institution"
 
 #define ENTITY_CONTACT_KEY_UNKNOWN	"unknown"
@@ -302,3 +302,12 @@ LIST *entity_primary_key_list(
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
 
+/* Usage */
+/* ----- */
+
+/* --------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
+char *entity_fetch_full_name(
+		const char *entity_table,
+		const char *entity_full_name_column );

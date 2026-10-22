@@ -1053,3 +1053,21 @@ char *entity_join(
 	return strdup( join );
 }
 
+char *entity_fetch_full_name(
+		const char *entity_table,
+		const char *entity_full_name_column )
+{
+	char system_string[ 1024 ];
+
+	sprintf(
+		system_string,
+		"select.sh %s %s",
+		entity_full_name_column,
+		entity_table );
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	string_system_input( system_string );
+}
