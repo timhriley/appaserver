@@ -10,10 +10,10 @@
 #include "list.h"
 #include "account_journal.h"
 
-#define CONTRA_ACCOUNT_TABLE	"contra_account"
-
 #define CONTRA_ACCOUNT_SELECT	"account,"		\
 				"contra_to_account"
+
+#define CONTRA_ACCOUNT_TABLE	"contra_account"
 
 typedef struct
 {
@@ -88,3 +88,12 @@ CONTRA_ACCOUNT *contra_account_seek(
 boolean contra_account_boolean(
 		LIST *contra_account_list,
 		char *account_name );
+
+/* Usage */
+/* ----- */
+LIST *contra_account_insert_statement_list(
+		const char *insert_column_list_string,
+		const char *contra_account_table,
+		LIST *account_name_list,
+		char *contra_to_account );
+

@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_INIT_H
-#define FEEDER_INIT_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -328,6 +327,8 @@ typedef struct
 	JOURNAL *debit_journal;
 	JOURNAL *credit_journal;
 	FEEDER_INIT_TRANSACTION *feeder_init_transaction;
+	LIST *account_current_liability_name_list;
+	LIST *contra_account_insert_statement_list;
 } FEEDER_INIT_CHECKING;
 
 /* Usage */
@@ -575,4 +576,3 @@ void feeder_init_process(
 		char *exchange_minimum_date_string,
 		FEEDER_INIT *feeder_init );
 
-#endif

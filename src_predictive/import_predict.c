@@ -437,6 +437,13 @@ IMPORT_PREDICT_INPUT *import_predict_input_new(
 			APPLICATION_CLONE_NAME_PLACEHOLDER,
 			import_predict_input->entity_self->full_name );
 
+	import_predict_input->account_current_liability_name_list =
+		account_current_liability_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			(char *)0 /* ACCOUNT_CREDIT_CARD_KEY */,
+			(LIST *)0 /* exclude_account_name_list */ );
+
 	return import_predict_input;
 }
 

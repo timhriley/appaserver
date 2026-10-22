@@ -1425,12 +1425,13 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 		const char *account_table,
 		const char *subclassification_current_liability,
-		const char *account_credit_card_key,
+		char *account_credit_card_key,
 		LIST *exclude_account_name_list )
 {
 	char system_string[ 2048 ];
-	char where[ 1024 ];
 	char in_clause[ 512 ];
+	char credit_where[ 128 ];
+	char where[ 1024 ];
 
 	if ( list_length( exclude_account_name_list ) )
 	{
@@ -1448,15 +1449,27 @@ LIST *account_current_liability_name_list(
 		strcpy( in_clause, "1 = 1" );
 	}
 
+	if ( account_credit_card_key )
+	{
+		snprintf(
+			credit_where,
+			sizeof ( credit_where ),
+			"ifnull(hard_coded_account_key,'') <> '%s'",
+			account_credit_card_key );
+	}
+	else
+	{
+		strcpy( credit_where, "1 = 1" );
+	}
+
 	snprintf(
 		where,
 		sizeof ( where ),
-		"subclassification = '%s' and			"
-		"ifnull(hard_coded_account_key,'') <> '%s' and	"
-		"%s						",
+		"subclassification = '%s' and	"
+		"%s and %s			",
 		subclassification_current_liability,
-		account_credit_card_key,
-		in_clause );
+		in_clause,
+		credit_where );
 
 	snprintf(
 		system_string,

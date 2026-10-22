@@ -720,6 +720,24 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 			feeder_init_checking->debit_journal,
 			feeder_init_checking->credit_journal );
 
+	feeder_init_checking->account_current_liability_name_list =
+		account_current_liability_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			(char *)0 /* account_credit_card_key */,
+			(LIST *)0 /* exclude_account_name_list */ );
+
+	feeder_init_checking->contra_account_insert_statement_list =
+		contra_account_insert_statement_list(
+			CONTRA_ACCOUNT_SELECT
+				/* insert_column_list_string */,
+			CONTRA_ACCOUNT_TABLE,
+			feeder_init_checking->
+				account_current_liability_name_list
+				/* account_name_list */,
+			account_name
+				/* contra_to_account */ );
+
 	return feeder_init_checking;
 }
 
@@ -1796,6 +1814,17 @@ void feeder_init_process(
 				feeder_init->
 					feeder_init_input->
 					entity_contact_key_boolean );
+
+			(void)sql_execute(
+				SQL_EXECUTABLE,
+				"/dev/null"
+				/* appaserver_error_filespecification */,
+				feeder_init->
+					feeder_init_checking->
+					contra_account_insert_statement_list
+					/* sql_list mutually_exclusive */,
+				(char *)0
+					/* sql_statement mutually exclusive */);
 		}
 		else
 		{

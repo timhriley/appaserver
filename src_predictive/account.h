@@ -673,7 +673,7 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 		const char *account_table,
 		const char *subclassification_current_liability,
-		const char *account_credit_card_key,
+		char *account_credit_card_key,
 		LIST *exclude_account_name_list );
 
 /* Usage */

@@ -379,3 +379,40 @@ boolean contra_account_boolean(
 		contra_account_list,
 		account_name );
 }
+
+LIST *contra_account_insert_statement_list(
+		const char *insert_column_list_string,
+		const char *contra_account_table,
+		LIST *account_name_list,
+		char *contra_to_account )
+{
+	LIST *list = list_new();
+	char *account_name;
+	char insert_statement[ 1024 ];
+
+	if ( list_rewind( account_name_list ) )
+	do {
+		account_name = list_get( account_name_list );
+
+		snprintf(
+			insert_statement,
+			sizeof ( insert_statement ),
+			"insert into %s (%s) values ('%s','%s');",
+			contra_account_table,
+			insert_column_list_string,
+			account_name,
+			contra_to_account );
+
+		list_set( list, strdup( insert_statement ) );
+
+	} while ( list_next( account_name_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+

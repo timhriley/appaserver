@@ -120,6 +120,7 @@ typedef struct
 	enum import_predict_input_financial_enum
 		financial_enum;
 	boolean appaserver_user_boolean;
+	LIST *account_current_liability_name_list;
 } IMPORT_PREDICT_INPUT;
 
 /* Safely returns */
