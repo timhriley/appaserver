@@ -126,6 +126,18 @@ int main( int argc, char **argv )
 			SQL_EXECUTABLE,
 			(char *)0 /* appaserver_error_filespecification */,
 			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->entity_vendor_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->entity_feeder_phrase_update_statement );
+	
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
 			import_predict->entity_user_update_statement );
 	
 		(void)sql_execute(

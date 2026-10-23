@@ -28,6 +28,7 @@
 
 #define ENTITY_CONTACT_KEY_UNKNOWN	"unknown"
 #define ENTITY_CONTACT_KEY_NULL		"null"
+#define ENTITY_VENDOR_TABLE		"vendor"
 
 typedef struct
 {

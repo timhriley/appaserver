@@ -180,6 +180,24 @@ IMPORT_PREDICT *import_predict_new(
 				ENTITY_TABLE,
 				FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
 				import_predict->bank_update_name );
+
+		import_predict->entity_vendor_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				ENTITY_VENDOR_TABLE,
+				FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
+				import_predict->bank_update_name );
+
+		import_predict->entity_feeder_phrase_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_update_statement(
+				FEEDER_PHRASE_TABLE,
+				FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
+				import_predict->bank_update_name );
 	}
 
 	if ( import_predict->import_predict_input->appaserver_user_boolean )

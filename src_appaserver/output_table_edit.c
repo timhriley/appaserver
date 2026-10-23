@@ -72,10 +72,11 @@ int main( int argc, char **argv )
 			dictionary_string );
 
 	table_edit =
-		/* -------------------------------------------- */
-		/* Returns null if lookup permission isn't set. */
-		/* Drilldown many-to-one is affected.		*/
-		/* -------------------------------------------- */
+		/* ------------------------------------------------- */
+		/* Returns null if lookup permission isn't set.      */
+		/* Drilldown many-to-one and Change Password process */
+		/* are affected.				     */
+		/* ------------------------------------------------- */
 		table_edit_new(
 			application_name,
 			session_key,

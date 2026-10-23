@@ -169,6 +169,8 @@ typedef struct
 	char *bank_update_name;
 	char *entity_bank_financial_update_statement;
 	char *entity_bank_update_statement;
+	char *entity_vendor_update_statement;
+	char *entity_feeder_phrase_update_statement;
 	char *entity_user_update_statement;
 	char *entity_self_user_update_statement;
 	char *appaserver_user_update_statement;
