@@ -1,5 +1,6 @@
 account
 account_balance
+contra_account
 element
 feeder_account
 feeder_load_event
@@ -17,4 +18,3 @@ tax_form
 tax_form_line
 tax_form_line_account
 transaction
-contra_account

@@ -56,6 +56,15 @@ int main( int argc, char **argv )
 		(LIST *)0 /* javascript_filename_list */,
 		process_name /* title */ );
 
+	if ( !bank_of_america_boolean
+	&&   (!*bank_full_name
+	||    strcmp( bank_full_name, "bank_full_name" ) == 0 ) )
+	{
+		printf(
+"<h3>Please either select Bank of America or type in your bank's full name</h3>\n"
+		);
+	}
+
 	import_predict =
 		/* -------------- */
 		/* Safely returns */
@@ -130,6 +139,24 @@ int main( int argc, char **argv )
 			(char *)0 /* appaserver_error_filespecification */,
 			(LIST *)0 /* sql_list mutually exclusive */,
 			import_predict->appaserver_user_update_statement );
+
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->session_update_statement );
+
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->role_appaserver_user_update_statement );
+
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			(char *)0 /* appaserver_error_filespecification */,
+			(LIST *)0 /* sql_list mutually exclusive */,
+			import_predict->login_default_role_update_statement );
 
 		printf( "%s\n",
 			IMPORT_PREDICT_ONCE_MESSAGE );

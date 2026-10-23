@@ -8,6 +8,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
+#include "session.h"
+#include "login_default_role.h"
+#include "role_appaserver_user.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
 #include "application_clone.h"
@@ -203,8 +206,35 @@ IMPORT_PREDICT *import_predict_new(
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			import_predict_update_statement(
+			import_predict_appaserver_user_update_statement(
 				APPASERVER_USER_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+
+		import_predict->session_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_appaserver_user_update_statement(
+				SESSION_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+
+		import_predict->role_appaserver_user_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_appaserver_user_update_statement(
+				ROLE_APPASERVER_USER_TABLE,
+				APPLICATION_CLONE_NAME_PLACEHOLDER,
+				your_full_name /* update_name */ );
+
+		import_predict->login_default_role_update_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			import_predict_appaserver_user_update_statement(
+				LOGIN_DEFAULT_ROLE_TABLE,
 				APPLICATION_CLONE_NAME_PLACEHOLDER,
 				your_full_name /* update_name */ );
 	}
@@ -429,7 +459,6 @@ IMPORT_PREDICT_INPUT *import_predict_input_new(
 	import_predict_input->financial_enum =
 		import_predict_input_financial_enum(
 			ENTITY_FINANCIAL_INSTITUTION_TABLE,
-			FEEDER_INSTALL_FINANCIAL_PLACEHOLDER,
 			bank_of_america_boolean );
 
 	import_predict_input->appaserver_user_boolean =
@@ -465,35 +494,17 @@ IMPORT_PREDICT_INPUT *import_predict_input_calloc( void )
 	return import_predict_input;
 }
 
-
 enum import_predict_input_financial_enum import_predict_input_financial_enum(
 		const char *entity_financial_institution_table,
-		const char *feeder_install_financial_institution_placeholder,
 		boolean bank_of_america_boolean )
 {
 	boolean table_boolean;
-	char *full_name;
 
-	table_boolean = appaserver_table_boolean(
-		(char *)entity_financial_institution_table );
+	table_boolean =
+		appaserver_table_boolean(
+			(char *)entity_financial_institution_table );
 
 	if ( table_boolean ) return predict_financial_no_update;
-
-	full_name =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		entity_fetch_full_name(
-			entity_financial_institution_table
-				/* entity_table */,
-			ENTITY_FULL_NAME_COLUMN );
-
-	if ( string_strcmp(
-		(char *)feeder_install_financial_institution_placeholder,
-		full_name ) != 0 )
-	{
-		return predict_financial_no_update;
-	}
 
 	if ( bank_of_america_boolean )
 		return predict_financial_bank_of_america;
@@ -513,7 +524,29 @@ char *import_predict_update_statement(
 	snprintf(
 		update_statement,
 		sizeof ( update_statement ),
-		"update %s set full_name = '%s' where full_name = .%s.;",
+		"update %s set full_name = '%s' where full_name = '%s';",
+		table_name,
+		update_name,
+		placeholder );
+
+	return strdup( update_statement );
+}
+
+char *import_predict_appaserver_user_update_statement(
+		const char *table_name,
+		const char *placeholder,
+		char *update_name )
+{
+	char update_statement[ 1024 ];
+
+	if ( !update_name ) return NULL;
+
+	snprintf(
+		update_statement,
+		sizeof ( update_statement ),
+		"update %s "
+		"set appaserver_full_name = '%s' "
+		"where appaserver_full_name = '%s';",
 		table_name,
 		update_name,
 		placeholder );

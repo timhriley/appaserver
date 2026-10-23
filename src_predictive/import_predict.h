@@ -15,7 +15,6 @@
 #include "export_table.h"
 #include "export_process.h"
 
-/* #define IMPORT_PREDICT_SQL			"home_edition.sql" */
 #define IMPORT_PREDICT_SQLGZ			"home_edition.sql.gz"
 #define IMPORT_PREDICT_PROCESS_NAME		"import_predictbooks"
 
@@ -158,7 +157,6 @@ boolean import_predict_input_exists_boolean(
 /* ----- */
 enum import_predict_input_financial_enum import_predict_input_financial_enum(
 		const char *entity_financial_institution_table,
-		const char *feeder_install_financial_institution_placeholder,
 		boolean bank_of_america_boolean );
 
 typedef struct
@@ -174,6 +172,9 @@ typedef struct
 	char *entity_user_update_statement;
 	char *entity_self_user_update_statement;
 	char *appaserver_user_update_statement;
+	char *session_update_statement;
+	char *role_appaserver_user_update_statement;
+	char *login_default_role_update_statement;
 } IMPORT_PREDICT;
 
 /* Safely returns */
@@ -238,6 +239,16 @@ char *import_predict_system_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *import_predict_update_statement(
+		const char *table_name,
+		const char *placeholder,
+		char *update_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *import_predict_appaserver_user_update_statement(
 		const char *table_name,
 		const char *placeholder,
 		char *update_name );
