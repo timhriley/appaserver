@@ -85,14 +85,20 @@
 	"of your checking transactions that are available. "		     \
 	"The bank's download dialog box will probably give you choice "	     \
 	"of format options. PredictBooks recognizes two "		     \
-	"format options. The most current format option is "	     	     \
+	"format options. "						     \
+	"<ol>\n"							     \
+	"<li>The most current format option is "	     	     	     \
 	"called "							     \
 	"<a href=\"https://en.wikipedia.org/wiki/Open_Financial_Exchange\""  \
 	"target=_new>"							     \
-	"Open Financial eXchange</a>. However, your bank may call it by "    \
-	"the name of other bookkeeping software products. "		     \
+	"Open Financial eXchange (OFX)</a>. However, your bank may call "    \
+	"it by the name of other bookkeeping software products. "	     \
 	"Nonetheless, the downloaded filename should end with either "	     \
 	"'FX' or 'fx'."							     \
+	"<li>Bank of America doesn't support the OFX format. Therefore, "    \
+	"PredictBooks recognizes the quote-comma-delimited format. It is "   \
+	"often refered to a the Excel format."				     \
+	"</ol>\n"							     \
 	"<br />"							     \
 	"<br />"							     \
 	"The next step is to:\n"					     \

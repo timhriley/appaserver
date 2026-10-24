@@ -65,6 +65,12 @@ int main( int argc, char **argv )
 		);
 	}
 
+	if ( (!*your_full_name
+	||    strcmp( your_full_name, "your_full_name" ) == 0 ) )
+	{
+		printf( "<h3>Please type in your full name</h3>\n" );
+	}
+
 	import_predict =
 		/* -------------- */
 		/* Safely returns */
