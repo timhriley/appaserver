@@ -149,51 +149,46 @@ int main( int argc, char **argv )
 				account_end_balance /* optional */,
 				appaserver_parameter_upload_directory() );
 	}
+	else
+	{
+		exchange_csv = exchange_csv_calloc();
+	}
 
-	if ( exchange_csv
+	if ( okay_continue
 	&&   !list_length( exchange_csv->exchange_journal_list ) )
 	{
 		printf(
 "<h3>Sorry, but this CSV formatted file doesn't have any transactions.</h3>\n" );
-		okay_continue = 0;
 	}
 
 	checking_boolean = ( strcmp( account_type, "checking" ) == 0 );
 
-	if ( okay_continue )
-	{
-		feeder_init =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_init_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				fund_name,
-				full_name
-				/* financial_institution_full_name */,
-				contact_key
-				/* financial_institution_contact_key */,
-				csv_format_filename,
-				checking_boolean,
-				exchange_csv->exchange_journal_begin_amount,
-				exchange_csv->exchange_minimum_date_string );
-	}
+	feeder_init =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		feeder_init_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			fund_name,
+			full_name
+			/* financial_institution_full_name */,
+			contact_key
+			/* financial_institution_contact_key */,
+			csv_format_filename,
+			checking_boolean,
+			exchange_csv->exchange_journal_begin_amount,
+			exchange_csv->exchange_minimum_date_string );
 
 	feeder_init_process(
 		application_name,
 		login_name,
 		fund_name,
 		execute_boolean,
-		checking_boolean,
-		(exchange_csv)
-			? exchange_csv->exchange_journal_begin_amount
-			: 0.0,
-		(exchange_csv)
-			? exchange_csv->exchange_minimum_date_string
-			: NULL,
+		exchange_csv->exchange_journal_begin_amount,
+		exchange_csv->exchange_minimum_date_string,
 		feeder_init );
 
 	document_close();

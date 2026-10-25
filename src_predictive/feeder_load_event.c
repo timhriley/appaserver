@@ -37,15 +37,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_new(
 	||   !feeder_row_account_end_date
 	||   !feeder_load_date_time )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return NULL;
 	}
 
 	feeder_load_event = feeder_load_event_calloc();

@@ -33,15 +33,15 @@
 #define FEEDER_INIT_INSTITUTION_MISSING_MESSAGE	\
 	"<h3>Please select a financial institution.</h3>"
 
-#define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE				\
-	"<p style=\"margin: 3\%;\">"					\
-	"ERROR: This feeder account already exists.\n"			\
-	"<br />See: Lookup --> Feeder --> Feeder Account"
-
 #define FEEDER_INIT_ENTITY_SELF_MESSAGE				  	\
 	"<p style=\"margin: 3\%;\">"					\
 	"ERROR: your name must be inserted into the table Self.\n"	\
 	"<br />See: Insert --> Entity --> Self"
+
+#define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE				\
+	"<p style=\"margin: 3\%;\">"					\
+	"Warning: This feeder account already exists.\n"		\
+	"<br />See: Lookup --> Feeder --> Feeder Account"
 
 #define FEEDER_INIT_RECENT_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
@@ -62,8 +62,54 @@
 	"<a href=https://en.wikipedia.org/wiki/Double-entry_bookkeeping " \
 	"target=_new>double-entry bookkeeping</a>. Each transaction is "  \
 	"timestamped to the second. "					  \
-	"This opening entry is timestamped to midnight. "		  \
+	"The opening entry transaction is timestamped to midnight. "	  \
 	"No two transactions can share the same second."
+
+#define FEEDER_INIT_TRANSACTION_MESSAGE					\
+	"<h3>Transactions</h3>\n"					\
+	"<p style=\"margin: 3\%;\">"					\
+	"The opening entry transaction has two journal rows, each with "\
+	"the same amount.\n"						\
+	"<br />"							\
+	"<br />The checking row has the amount in the Debit "		\
+	"(left) column. Journal rows that increase the checking "	\
+	"account balance will have the amount in the Debit (left) "	\
+	"column.\n"							\
+	"<br />"							\
+	"<br />On the other hand, journal rows that decrease the "	\
+	"checking account balance will have the amount in the Credit "	\
+	"(right) column.\n"						\
+	"<br />"							\
+	"<br />Generally speaking, the checking account (and all "	\
+	"asset accounts) increase when the amount is on the left.\n"	\
+	"<br />"							\
+	"<br />The Net Asset row has the amount in the Credit "		\
+	"(right) column. The Net Asset is the total assets minus the "	\
+	"total liabilities. (Liabilities are credit card balances, "	\
+	"mortgages, etc.) Net Asset is also referred to as Equity. "	\
+	"Generally speaking, the Net Asset account increases when the "	\
+	"amount is on the right. "					\
+	"The Net Asset account is rarely used to record normal "	\
+	"transactions. However, an opening entry is not a normal "	\
+	"transaction.\n"						\
+	"<br />"							\
+	"<br />Accounts form the leaves in a hierarchical tree. "	\
+	"Each account is assigned to a subclassification. The "		\
+	"subclassifications form the stems of the tree. Each "		\
+	"subclassification is assigned to an element. The elements "	\
+	"form the branches of the tree. "				\
+	"<br />"							\
+	"<br /><i>Become familiar with the seven elements</i>. "	\
+	"See: Lookup --> Account --> Element\n"				\
+	"<br />The only normal activity that will post to an Equity "	\
+	"element is when you transfer money from your checking asset "	\
+	"to pay down your credit card liability. "			\
+	"The transfer activity generates two transactions. "		\
+	"One transaction posts the decrease in checking asset. "	\
+	"The other transaction posts the decrease in "			\
+	"credit card liability. The common account in both "		\
+	"transactions is called Credit Card Passthru. It is an Equity "	\
+	"element.\n"							\
 
 #define FEEDER_INIT_TRIAL_BALANCE_MESSAGE				\
 	"<h3>Trial Balance</h3>\n"					\
@@ -80,25 +126,6 @@
 	"amount (the right column) will <i>decrease</i> the checking "	\
 	"balance. The corresponding <i>debit</i> amount "		\
 	"(the left column) will probably be an expense account.\n"	\
-	"<br />"							\
-	"<br />If the journal entry above is for a checking account, "	\
-	"the <i>credit</i> amount is posted to the Net Asset account. "	\
-	"Net Asset is an Equity element. Equity elements are rarely "	\
-	"used to record normal activities. However, this opening "	\
-	"entry is not a normal activity.\n"				\
-	"<br />"							\
-	"<br /><i>Become familiar with the seven elements</i>. "	\
-	"See: Lookup --> Transaction --> Element\n"			\
-	"<br />"							\
-	"<br />The only normal activity that will post to an Equity "	\
-	"element is when you transfer money from your checking asset "	\
-	"to pay down your credit card liability. "			\
-	"The transfer activity generates two transactions. "		\
-	"One transaction posts the decrease in checking asset. "	\
-	"The other transaction posts the decrease in "			\
-	"credit card liability. The common account in both "		\
-	"transactions is called Credit Card Passthru. It is an Equity "	\
-	"element.\n"							\
 	"<br />"							\
 	"<br />Your Trial Balance follows. It contains Bookkeeping "	\
 	"rule #1.\n"							\
@@ -118,7 +145,7 @@
 	"It also summarizes the uncommon actitites of gain and loss "	\
 	"transactions.\n"						\
 	"<br />"							\
-	"<br />A note about bookkeeping jargon: "			\
+	"<br />A note about bookkeeping terminology: "			\
 	"The elements of revenue, expense, gain, and loss are known "	\
 	"as nominal elements. Therefore, the accounts assigned to "	\
 	"these elements are known as nominal accounts. "		\
@@ -152,7 +179,7 @@
 	"Banks no longer log their bookkeeping records this simply, "	\
 	"but the debit/credit terms remain."				\
 	"<br />"							\
-	"<br />In bookkeeping jargon, 'debit' "				\
+	"<br />In bookkeeping terminology, 'debit' "			\
 	"means the left column and 'credit' means the right column. "	\
 	"The checking asset account accumulates on the left; "		\
 	"the credit card liability account accumulates on the right.\n"	\
@@ -571,7 +598,6 @@ void feeder_init_process(
 		char *login_name,
 		char *fund_name,
 		boolean execute_boolean,
-		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		FEEDER_INIT *feeder_init );

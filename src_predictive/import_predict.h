@@ -60,7 +60,7 @@
 	"transactions, because most of them will be generated "		      \
 	"automatically. After you install PredictBooks, become "	      \
 	"familiar with the Feeder Phrase table. Each of your bank's "	      \
-	"transactions contain the company's name. PredictBooks calls them "   \
+	"transactions contain the vendor's name. PredictBooks calls them "   \
 	"feeder phrases. Insert these feeder phrases into the Feeder Phrase " \
 	"table. PredictBooks will seek out the phrases to generate your "     \
 	"transactions automatically."
@@ -85,7 +85,7 @@
 	"of your checking transactions that are available. "		     \
 	"The bank's download dialog box will probably give you choice "	     \
 	"of format options. PredictBooks recognizes two "		     \
-	"format options. "						     \
+	"format options.\n"						     \
 	"<ol>\n"							     \
 	"<li>The most current format option is "	     	     	     \
 	"called "							     \
@@ -93,9 +93,9 @@
 	"target=_new>"							     \
 	"Open Financial eXchange (OFX)</a>. However, your bank may call "    \
 	"it by the name of other bookkeeping software products. "	     \
-	"Nonetheless, the downloaded filename should end with either "	     \
-	"'FX' or 'fx'."							     \
-	"<li>Bank of America doesn't support the OFX format. Therefore, "    \
+	"Nonetheless, the downloaded filename should, but not always, "	     \
+	"end with either 'FX' or 'fx'."					     \
+	"<li>Bank of America does not support the OFX format. Therefore, "   \
 	"PredictBooks recognizes the quote-comma-delimited format. It is "   \
 	"often refered to a the Excel format."				     \
 	"</ol>\n"							     \

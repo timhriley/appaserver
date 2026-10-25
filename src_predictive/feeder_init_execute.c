@@ -109,58 +109,51 @@ int main( int argc, char **argv )
 				exchange_format_filename,
 				appaserver_parameter_upload_directory() );
 	}
+	else
+	{
+		exchange = exchange_calloc();
+	}
 
-	if ( exchange && !exchange->open_tag_boolean )
+	if ( okay_continue && !exchange->open_tag_boolean )
 	{
 		printf(
 	"<h3>Sorry, but this file is not in open exchange format.</h3>\n" );
-
-		okay_continue = 0;
 	}
 
-	if ( exchange && !list_length( exchange->exchange_journal_list ) )
+	if ( okay_continue && !list_length( exchange->exchange_journal_list ) )
 	{
 		printf(
 "<h3>Sorry, but this exchange formatted file doesn't have any transactions.</h3>\n" );
-		okay_continue = 0;
 	}
 
 	checking_boolean = ( strcmp( account_type, "checking" ) == 0 );
 
-	if ( okay_continue )
-	{
-		feeder_init =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_init_new(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				fund_name,
-				full_name
-				/* financial_institution_full_name */,
-				contact_key
-				/* financial_institution_contact_key */,
-				exchange_format_filename,
-				checking_boolean,
-				exchange->exchange_journal_begin_amount,
-				exchange->minimum_date_string );
-	}
+	feeder_init =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		feeder_init_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			fund_name,
+			full_name
+			/* financial_institution_full_name */,
+			contact_key
+			/* financial_institution_contact_key */,
+			exchange_format_filename,
+			checking_boolean,
+			exchange->exchange_journal_begin_amount,
+			exchange->minimum_date_string );
 
 	feeder_init_process(
 		application_name,
 		login_name,
 		fund_name,
 		execute_boolean,
-		checking_boolean,
-		(exchange)
-			? exchange->exchange_journal_begin_amount
-			: 0.0,
-		(exchange)
-			? exchange->minimum_date_string
-			: NULL,
+		exchange->exchange_journal_begin_amount,
+		exchange->minimum_date_string,
 		feeder_init );
 
 	document_close();

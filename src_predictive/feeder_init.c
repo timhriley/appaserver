@@ -556,10 +556,8 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 {
 	FEEDER_INIT_CREDIT *feeder_init_credit;
 
-	if ( !exchange_minimum_date_string
-	||   !account_name
-	||   !entity_self_full_name
-	||   !entity_self_contact_key )
+	if ( !account_name
+	||   !entity_self_full_name )
 	{
 		char message[ 128 ];
 
@@ -574,6 +572,8 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 			__LINE__,
 			message );
 	}
+
+	if ( !exchange_minimum_date_string ) return NULL;
 
 	feeder_init_credit = feeder_init_credit_calloc();
 
@@ -658,8 +658,7 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 {
 	FEEDER_INIT_CHECKING *feeder_init_checking;
 
-	if ( !exchange_minimum_date_string
-	||   !account_name
+	if ( !account_name
 	||   !entity_self_full_name )
 	{
 		char message[ 128 ];
@@ -675,6 +674,8 @@ FEEDER_INIT_CHECKING *feeder_init_checking_new(
 			__LINE__,
 			message );
 	}
+
+	if ( !exchange_minimum_date_string ) return NULL;
 
 	feeder_init_checking = feeder_init_checking_calloc();
 
@@ -778,8 +779,7 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 	FEEDER_INIT_INPUT *feeder_init_input;
 
 	if ( !application_name
-	||   !financial_institution_full_name
-	||   !exchange_minimum_date_string )
+	||   !financial_institution_full_name )
 	{
 		char message[ 128 ];
 
@@ -827,9 +827,6 @@ FEEDER_INIT_INPUT *feeder_init_input_new(
 		feeder_init_input_account_exist_boolean(
 		ACCOUNT_TABLE,
 		feeder_init_input->account_name );
-
-	if ( feeder_init_input->account_exist_boolean )
-		return feeder_init_input;
 
 	feeder_init_input->date_now_yyyy_mm_dd =
 		/* ------------------- */
@@ -946,8 +943,7 @@ boolean feeder_init_input_date_recent_boolean(
 {
 	int days_between;
 
-	if ( !exchange_minimum_date_string
-	||   !date_now_yyyy_mm_dd )
+	if ( !date_now_yyyy_mm_dd )
 	{
 		char message[ 128 ];
 
@@ -962,6 +958,8 @@ boolean feeder_init_input_date_recent_boolean(
 			__LINE__,
 			message );
 	}
+
+	if ( !exchange_minimum_date_string ) return 0;
 
 	days_between =
 		date_days_between(
@@ -1081,9 +1079,7 @@ FEEDER_INIT *feeder_init_new(
 	if ( !session_key
 	||   !login_name
 	||   !role_name
-	||   !financial_institution_full_name
-	||   !financial_institution_contact_key
-	||   !exchange_minimum_date_string )
+	||   !financial_institution_full_name )
 	{
 		char message[ 128 ];
 
@@ -1114,8 +1110,38 @@ FEEDER_INIT *feeder_init_new(
 	if ( feeder_init->feeder_init_input->institution_missing_boolean )
 		return feeder_init;
 
-	if ( feeder_init->feeder_init_input->account_exist_boolean )
-		return feeder_init;
+	feeder_init->trial_balance_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		feeder_init_trial_balance_system_string(
+			FEEDER_INIT_TRIAL_EXECUTABLE,
+			session_key,
+			login_name,
+			role_name,
+			fund_name );
+
+	feeder_init->activity_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		feeder_init_activity_system_string(
+			FEEDER_INIT_ACTIVITY_EXECUTABLE,
+			session_key,
+			login_name,
+			role_name,
+			fund_name );
+
+	feeder_init->position_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		feeder_init_position_system_string(
+			FEEDER_INIT_POSITION_EXECUTABLE,
+			session_key,
+			login_name,
+			role_name,
+			fund_name );
 
 	if ( !feeder_init->feeder_init_input->entity_self )
 		return feeder_init;
@@ -1241,39 +1267,6 @@ FEEDER_INIT *feeder_init_new(
 			feeder_init->feeder_init_passthru->insert_sql,
 			feeder_init->account_insert_sql,
 			feeder_init->feeder_account_insert_sql );
-
-	feeder_init->trial_balance_system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_init_trial_balance_system_string(
-			FEEDER_INIT_TRIAL_EXECUTABLE,
-			session_key,
-			login_name,
-			role_name,
-			fund_name );
-
-	feeder_init->activity_system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_init_activity_system_string(
-			FEEDER_INIT_ACTIVITY_EXECUTABLE,
-			session_key,
-			login_name,
-			role_name,
-			fund_name );
-
-	feeder_init->position_system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_init_position_system_string(
-			FEEDER_INIT_POSITION_EXECUTABLE,
-			session_key,
-			login_name,
-			role_name,
-			fund_name );
 
 	return feeder_init;
 }
@@ -1663,46 +1656,54 @@ void feeder_init_process(
 		char *login_name,
 		char *fund_name,
 		boolean execute_boolean,
-		boolean checking_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		FEEDER_INIT *feeder_init )
 {
-	if ( feeder_init
-	&&   feeder_init->
+	if ( !feeder_init )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_init is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	if ( feeder_init->
 		feeder_init_input->
 		institution_missing_boolean )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_INSTITUTION_MISSING_MESSAGE );
-
-		feeder_init = NULL;
+		return;
 	}
 
-	if ( feeder_init
-	&&   feeder_init->
-		feeder_init_input->
-		account_exist_boolean )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_ACCOUNT_EXIST_MESSAGE );
-
-		feeder_init = NULL;
-	}
-
-	if ( feeder_init
-	&&   !feeder_init->
+	if ( !feeder_init->
 		feeder_init_input->
 		entity_self )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_ENTITY_SELF_MESSAGE );
-
-		feeder_init = NULL;
+		return;
 	}
 
-	if ( feeder_init
-	&&   feeder_init->
+	if ( feeder_init->
+		feeder_init_input->
+		account_exist_boolean )
+	{
+		printf( "%s\n",
+			FEEDER_INIT_ACCOUNT_EXIST_MESSAGE );
+	}
+
+	if ( feeder_init->
 		feeder_init_passthru->
 		exist_boolean )
 	{
@@ -1712,8 +1713,7 @@ void feeder_init_process(
 
 	if ( !execute_boolean )
 	{
-		if ( feeder_init
-		&&   feeder_init->
+		if ( feeder_init->
 			feeder_init_input->
 			date_recent_boolean )
 		{
@@ -1724,22 +1724,16 @@ void feeder_init_process(
 		printf( "%s\n",
 			FEEDER_INIT_OPENING_MESSAGE );
 
-		if ( feeder_init )
-		{
-			feeder_init_transaction_html_display(
-				feeder_init->feeder_init_checking,
-				feeder_init->feeder_init_credit );
-		}
+		feeder_init_transaction_html_display(
+			feeder_init->feeder_init_checking,
+			feeder_init->feeder_init_credit );
 
 		printf( "%s\n",
 			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 	}
-
-	if ( execute_boolean )
+	else
 	{
 		char *error_string;
-
-		if ( !feeder_init ) goto feeder_init_display_continue;
 
 		error_string =
 			sql_execute(
@@ -1758,7 +1752,7 @@ void feeder_init_process(
 				error_string );
 		}
 
-		if ( checking_boolean )
+		if ( feeder_init->feeder_init_checking )
 		{
 			feeder_init->feeder_init_checking =
 				/* -------------- */
@@ -1782,6 +1776,7 @@ void feeder_init_process(
 						contact_key );
 		}
 		else
+		if ( feeder_init->feeder_init_credit )
 		{
 			feeder_init->feeder_init_credit =
 				/* -------------- */
@@ -1830,6 +1825,7 @@ void feeder_init_process(
 					/* sql_statement mutually exclusive */);
 		}
 		else
+		if ( feeder_init->feeder_init_credit )
 		{
 			feeder_init_transaction_insert(
 				feeder_init->
@@ -1843,81 +1839,77 @@ void feeder_init_process(
 					entity_contact_key_boolean );
 		}
 
-		feeder_load_event_insert(
-			FEEDER_LOAD_EVENT_INSERT,
-			FEEDER_LOAD_EVENT_TABLE,
-			feeder_init->
-				feeder_load_event->
-				feeder_account_name,
-			feeder_init->
-				feeder_load_event->
-				exchange_format_filename
-				/* feeder_load_filename */,
-			feeder_init->
-				feeder_load_event->
-				feeder_row_account_end_date,
-			feeder_init->
-				feeder_load_event->
-				feeder_row_account_end_balance,
-			feeder_init->
-				feeder_load_event->
-				feeder_load_date_time,
-			feeder_init->
-				feeder_load_event->
-				appaserver_user->
-				full_name,
-			feeder_init->
-				feeder_load_event->
-				appaserver_user->
-				contact_key,
-			feeder_init->
-				feeder_init_input->
-				entity_contact_key_boolean );
+		if ( feeder_init->feeder_init_checking
+		||   feeder_init->feeder_init_credit )
+		{
+			feeder_load_event_insert(
+				FEEDER_LOAD_EVENT_INSERT,
+				FEEDER_LOAD_EVENT_TABLE,
+				feeder_init->
+					feeder_load_event->
+					feeder_account_name,
+				feeder_init->
+					feeder_load_event->
+					exchange_format_filename
+					/* feeder_load_filename */,
+				feeder_init->
+					feeder_load_event->
+					feeder_row_account_end_date,
+				feeder_init->
+					feeder_load_event->
+					feeder_row_account_end_balance,
+				feeder_init->
+					feeder_load_event->
+					feeder_load_date_time,
+				feeder_init->
+					feeder_load_event->
+					appaserver_user->
+					full_name,
+				feeder_init->
+					feeder_load_event->
+					appaserver_user->
+					contact_key,
+				feeder_init->
+					feeder_init_input->
+					entity_contact_key_boolean );
+		}
 
-feeder_init_display_continue:
+		printf( "<h3>Reminder</h3>\n%s\n",
+			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 
 		printf( "%s\n",
 			FEEDER_INIT_OPENING_MESSAGE );
 
-		if ( feeder_init )
-		{
-			feeder_init_transaction_html_display(
-				feeder_init->feeder_init_checking,
-				feeder_init->feeder_init_credit );
-		}
+		feeder_init_transaction_html_display(
+			feeder_init->feeder_init_checking,
+			feeder_init->feeder_init_credit );
+
+		printf( "%s\n",
+			FEEDER_INIT_TRANSACTION_MESSAGE );
 
 		printf( "%s\n",
 			FEEDER_INIT_TRIAL_BALANCE_MESSAGE );
 
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->trial_balance_system_string );
-		}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			feeder_init->trial_balance_system_string );
 
 		printf( "%s\n",
 			FEEDER_INIT_ACTIVITY_MESSAGE );
 
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->activity_system_string );
-		}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			feeder_init->activity_system_string );
 
 		printf( "%s\n",
 			FEEDER_INIT_POSITION_MESSAGE );
 
-		if ( feeder_init )
-		{
-			security_system(
-				SECURITY_FORK_CHARACTER,
-				SECURITY_FORK_STRING,
-				feeder_init->position_system_string );
-		}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			feeder_init->position_system_string );
 
 		printf( "%s\n",
 			FEEDER_INIT_DEBIT_CREDIT_MESSAGE );
