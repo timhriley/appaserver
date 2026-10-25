@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PROCESS_PARAMETER_H
-#define PROCESS_PARAMETER_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -430,6 +429,4 @@ char *process_parameter_system_string(
 char *process_parameter_where(
 		char *process_name,
 		boolean is_drillthru );
-
-#endif
 

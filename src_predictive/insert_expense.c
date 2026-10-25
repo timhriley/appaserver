@@ -497,8 +497,7 @@ char *insert_expense_input_transaction_date_time(
 	return strdup( transaction_date_time );
 }
 
-INSERT_EXPENSE *
-	insert_expense_new(
+INSERT_EXPENSE *insert_expense_new(
 		char *fund_name,
 		char *feeder_account,
 		char *full_name,
@@ -578,6 +577,8 @@ INSERT_EXPENSE *
 				memo,
 				debit_account,
 				feeder_account /* credit_account_name */ );
+
+		insert_expense->transaction_binary->check_number = check_number;
 	}
 
 	return insert_expense;

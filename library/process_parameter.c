@@ -83,7 +83,9 @@ char *process_parameter_prompt_system_string(
 {
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\"",
 		process_parameter_prompt_select,
 		process_parameter_prompt_table,

@@ -106,7 +106,13 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 				process_parameter_list );
 
 	post_prompt_process->post_dictionary =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		post_dictionary_stdin_new(
+			/* ---------------------------------- */
+			/* Used when expecting a spooled file */
+			/* ---------------------------------- */
 			WIDGET_UPLOAD_RECALL_PREFIX,
 			application_name,
 			post_prompt_process->

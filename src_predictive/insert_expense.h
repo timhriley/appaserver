@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef INSERT_EXPENSE_H
-#define INSERT_EXPENSE_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -188,5 +187,3 @@ char *insert_expense_error_message(
 		boolean amount_empty_boolean,
 		boolean check_duplicate_boolean,
 		boolean journal_duplicate_boolean );
-
-#endif

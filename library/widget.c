@@ -4311,13 +4311,13 @@ char *widget_container_yes_no_html(
 }
 
 char *widget_yes_no_html(
-			char *widget_name,
-			char *post_change_javascript,
-			int tab_order,
-			char *state,
-			int row_number,
-			LIST *query_cell_list,
-			char *background_color )
+		char *widget_name,
+		char *post_change_javascript,
+		int tab_order,
+		char *state,
+		int row_number,
+		LIST *query_cell_list,
+		char *background_color )
 {
 	char *container_key;
 	char *container_value;
@@ -4373,7 +4373,7 @@ char *widget_yes_no_html_string(
 		int tab_order,
 		char *background_color )
 {
-	char html_string[ 1024 ];
+	char html_string[ 4096 ];
 	char *ptr = html_string;
 	LIST *option_list;
 	WIDGET_YES_NO_OPTION *widget_yes_no_option;
