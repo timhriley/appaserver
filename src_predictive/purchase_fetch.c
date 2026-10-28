@@ -25,10 +25,12 @@
 PURCHASE_FETCH *purchase_fetch_new(
 		const char *purchase_select,
 		const char *purchase_table,
+		char *preupdate_purchase_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *purchase_date_time )
+		char *purchase_date_time,
+		char *state )
 {
 	char *select;
 	char *system_string;
@@ -36,7 +38,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 	PURCHASE_FETCH *purchase_fetch;
 
 	if ( !full_name
-	||   !purchase_date_time )
+	||   !purchase_date_time
+	||   !state )
 	{
 		char message[ 1024 ];
 
@@ -192,6 +195,9 @@ PURCHASE_FETCH *purchase_fetch_new(
 			inventory_purchase_list_new(
 				INVENTORY_PURCHASE_SELECT,
 				INVENTORY_PURCHASE_TABLE,
+				preupdate_purchase_date_time,
+				purchase_date_time,
+				state,
 				purchase_fetch->predictive_fund_boolean,
 				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );

@@ -8,6 +8,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "preupdate_change.h"
 #include "cost_basis.h"
 #include "inventory_average.h"
 
@@ -130,6 +131,7 @@ INVENTORY_PURCHASE *inventory_purchase_date_seek(
 
 typedef struct
 {
+	PREUPDATE_CHANGE *preupdate_change;
 	LIST *list;
 	LIST *primary_key_list;
 	char *update_system_string;
@@ -144,6 +146,9 @@ typedef struct
 INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		const char *inventory_purchase_select,
 		const char *inventory_purchase_table,
+		char *preupdate_purchase_date_time,
+		char *purchase_date_time,
+		char *state,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		char *where );

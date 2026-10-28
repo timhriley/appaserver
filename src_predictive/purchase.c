@@ -33,6 +33,7 @@ PURCHASE *purchase_trigger_new(
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
+		char *preupdate_purchase_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
@@ -68,10 +69,12 @@ PURCHASE *purchase_trigger_new(
 		purchase_fetch_new(
 			PURCHASE_SELECT,
 			PURCHASE_TABLE,
+			preupdate_purchase_date_time,
 			fund_name,
 			full_name,
 			contact_key,
-			purchase_date_time );
+			purchase_date_time,
+			state );
 
 	if ( !purchase->purchase_fetch )
 	{

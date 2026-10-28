@@ -316,6 +316,9 @@ LIST *inventory_purchase_update_string_list(
 INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		const char *inventory_purchase_select,
 		const char *inventory_purchase_table,
+		char *preupdate_purchase_date_time,
+		char *purchase_date_time,
+		char *state,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		char *where )
@@ -327,14 +330,15 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 	INVENTORY_PURCHASE_LIST *inventory_purchase_list;
 	INVENTORY_PURCHASE *inventory_purchase;
 
-	if ( !where )
+	if ( !purchase_date_time
+	||   !where )
 	{
 		char message[ 1024 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"where is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -343,6 +347,37 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 			message );
 	}
 
+	inventory_purchase_list = inventory_purchase_list_calloc();
+	inventory_purchase_list->list = list_new();
+
+	inventory_purchase_list->preupdate_change =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		preupdate_change_new(
+			APPASERVER_INSERT_STATE,
+			APPASERVER_PREDELETE_STATE,
+			state,
+			preupdate_purchase_date_time
+				/* preupdate_datum */,
+			purchase_date_time
+				/* postupdate_datum */,
+			"purchase_date_time"
+				/* preupdate_placeholder_name */ );
+
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: preupdate_change=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	preupdate_change_state_display(
+		inventory_purchase_list->preupdate_change->state_evaluate ) );
+msg( (char *)0, message );
+}
 	select =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -371,9 +406,6 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 	input_pipe = appaserver_input_pipe( system_string );
 
 	free( system_string );
-
-	inventory_purchase_list = inventory_purchase_list_calloc();
-	inventory_purchase_list->list = list_new();
 
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{

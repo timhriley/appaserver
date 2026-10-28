@@ -43,6 +43,7 @@ PURCHASE *purchase_trigger_new(
 		char *preupdate_fund_name,
 		char *preupdate_full_name,
 		char *preupdate_contact_key,
+		char *preupdate_purchase_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,

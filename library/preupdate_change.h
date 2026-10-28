@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PREUPDATE_CHANGE_H
-#define PREUPDATE_CHANGE_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -93,6 +92,4 @@ char *preupdate_change_preupdate_datum(
 /* ---------------------- */
 char *preupdate_change_state_display(
 		enum preupdate_change_state state_evaluate );
-
-#endif
 

@@ -67,10 +67,12 @@ typedef struct
 PURCHASE_FETCH *purchase_fetch_new(
 		const char *purchase_select,
 		const char *purchase_table,
+		char *preupdate_purchase_date_time,
 		char *fund_name,
 		char *full_name,
 		char *contact_key,
-		char *purchase_date_time );
+		char *purchase_date_time,
+		char *state );
 
 /* Process */
 /* ------- */
