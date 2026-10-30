@@ -20,6 +20,7 @@
 #define APPASERVER_VIEWONLY_STATE		"viewonly"
 #define APPASERVER_DELETE_STATE			"delete"
 #define APPASERVER_PREDELETE_STATE		"predelete"
+#define APPASERVER_UNKNOWN_STATE		"unknown"
 #define APPASERVER_EXECUTE_YN			"execute_yn"
 #define APPASERVER_REALLY_YN			"really_yn"
 #define APPASERVER_STATION_TABLE		"station"

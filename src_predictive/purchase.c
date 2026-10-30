@@ -38,6 +38,7 @@ PURCHASE *purchase_trigger_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
+		char *table_name,
 		char *state )
 {
 	PURCHASE *purchase;
@@ -63,6 +64,23 @@ PURCHASE *purchase_trigger_new(
 
 	purchase = purchase_calloc();
 
+	purchase->state =
+		/* ------------------- */
+		/* Returns a parameter */
+		/* ------------------- */
+		purchase_state(
+			APPASERVER_UPDATE_STATE,
+			PURCHASE_TABLE,
+			table_name,
+			state );
+
+	if ( string_strcmp(
+		purchase->state,
+		APPASERVER_DELETE_STATE ) == 0 )
+	{
+		return NULL;
+	}
+
 	purchase->purchase_fetch =
 		/* -------------- */
 		/* Safely returns */
@@ -75,7 +93,7 @@ PURCHASE *purchase_trigger_new(
 			full_name,
 			contact_key,
 			purchase_date_time,
-			state );
+			purchase->state );
 
 	purchase->purchase_calculate =
 		/* -------------- */
@@ -121,7 +139,7 @@ PURCHASE *purchase_trigger_new(
 				full_name,
 				contact_key,
 				purchase_date_time,
-				state,
+				purchase->state,
 				purchase->
 					purchase_fetch->
 					predictive_fund_boolean,
@@ -185,7 +203,7 @@ PURCHASE *purchase_trigger_new(
 			full_name,
 			contact_key,
 			purchase_date_time,
-			state,
+			purchase->state,
 			purchase->purchase_fetch->predictive_fund_boolean,
 			purchase->purchase_fetch->entity_contact_key_boolean,
 			purchase->
@@ -269,5 +287,38 @@ char *purchase_primary_where(
 		purchase_date_time /* sale_date_time */,
 		fund_boolean,
 		contact_key_boolean );
+}
+
+char *purchase_state(
+		const char *appaserver_update_state,
+		const char *purchase_table,
+		char *table_name,
+		char *state )
+{
+	char *return_state;
+
+	if ( !table_name
+	||   !state )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp( table_name, purchase_table ) != 0 )
+		return_state = (char *)appaserver_update_state;
+	else
+		return_state = state;
+
+	return return_state;
 }
 

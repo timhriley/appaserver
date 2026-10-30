@@ -359,7 +359,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 				/* preupdate_datum */,
 			purchase_date_time
 				/* postupdate_datum */,
-			"purchase_date_time"
+			"preupdate_purchase_date_time"
 				/* preupdate_placeholder_name */ );
 
 	if ( !inventory_purchase_list->preupdate_change->no_change_boolean )
@@ -921,18 +921,6 @@ char *inventory_purchase_sql_statement(
 				inventory_name );
 	}
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: statement=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	statement );
-msg( (char *)0, message );
-}
 	return statement;
 }
 

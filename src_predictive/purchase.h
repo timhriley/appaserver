@@ -31,6 +31,7 @@
 
 typedef struct
 {
+	char *state;
 	PURCHASE_FETCH *purchase_fetch;
 	PURCHASE_CALCULATE *purchase_calculate;
 	PURCHASE_TRANSACTION *purchase_transaction;
@@ -48,6 +49,7 @@ PURCHASE *purchase_trigger_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
+		char *table_name,
 		char *state );
 
 /* Process */
@@ -68,4 +70,15 @@ char *purchase_primary_where(
 		char *purchase_date_time,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns a parameter */
+/* ------------------- */
+char *purchase_state(
+		const char *appaserver_update_state,
+		const char *purchase_table,
+		char *table_name,
+		char *state );
 
