@@ -4,10 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "all.h"
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
@@ -365,19 +362,30 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 			"purchase_date_time"
 				/* preupdate_placeholder_name */ );
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: preupdate_change=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	preupdate_change_state_display(
-		inventory_purchase_list->preupdate_change->state_evaluate ) );
-msg( (char *)0, message );
-}
+	if ( !inventory_purchase_list->preupdate_change->no_change_boolean )
+	{
+		inventory_purchase_list->name_list =
+			inventory_purchase_list_name_list(
+				INVENTORY_COLUMN,
+				INVENTORY_PURCHASE_TABLE,
+				where );
+
+		inventory_purchase_list_purchase_date_time_update(
+			INVENTORY_AVERAGE_TABLE,
+			purchase_date_time,
+			inventory_purchase_list->
+				preupdate_change->
+				state_evaluate,
+			inventory_purchase_list->
+				preupdate_change->
+				prior_datum,
+			inventory_purchase_list->
+				preupdate_change->
+				new_datum,
+			inventory_purchase_list->
+				name_list );
+	}
+
 	select =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -854,4 +862,274 @@ INVENTORY_PURCHASE *inventory_purchase_date_seek(
 	} while ( list_next( inventory_purchase_list ) );
 
 	return NULL;
+}
+
+char *inventory_purchase_sql_statement(
+		const char *inventory_average_table,
+		char *purchase_date_time,
+		enum preupdate_change_state state_evaluate,
+		char *prior_datum,
+		char *new_datum,
+		char *inventory_name )
+{
+	char *statement = {0};
+
+	if ( !purchase_date_time
+	||   !isdigit( *purchase_date_time ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_date_time is empty or invalid." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( state_evaluate == from_something_to_something_else )
+	{
+		statement =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_purchase_update_statement(
+				inventory_average_table,
+				INVENTORY_AVERAGE_DATE_COLUMN,
+				INVENTORY_COLUMN,
+				PURCHASE_DATE_TIME_COLUMN,
+				prior_datum,
+				new_datum,
+				inventory_name );
+	}
+	else
+	if ( state_evaluate == from_something_to_null )
+	{
+		statement =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_purchase_delete_statement(
+				inventory_average_table,
+				INVENTORY_AVERAGE_DATE_COLUMN,
+				INVENTORY_COLUMN,
+				purchase_date_time,
+				inventory_name );
+	}
+
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: statement=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	statement );
+msg( (char *)0, message );
+}
+	return statement;
+}
+
+char *inventory_purchase_update_statement(
+		const char *inventory_average_table,
+		const char *inventory_average_date_column,
+		const char *inventory_column,
+		const char *purchase_date_time_column,
+		char *prior_datum,
+		char *new_datum,
+		char *inventory_name )
+{
+	char *primary_where;
+	char statement[ 1024 ];
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		inventory_average_primary_where(
+			inventory_column,
+			inventory_average_date_column,
+			inventory_name,
+			prior_datum /* date_time_key */ );
+
+	snprintf(
+		statement,
+		sizeof ( statement ),
+		"update %s "
+		"set %s = '%s', %s = '%s' "
+		"where %s",
+		inventory_average_table,
+		inventory_average_date_column,
+		new_datum,
+		purchase_date_time_column,
+		new_datum,
+		primary_where );
+
+	return strdup( statement );
+}
+
+char *inventory_purchase_delete_statement(
+		const char *inventory_average_table,
+		const char *inventory_average_date_column,
+		const char *inventory_column,
+		char *purchase_date_time,
+		char *inventory_name )
+{
+	char *primary_where;
+	char statement[ 1024 ];
+
+	if ( !purchase_date_time
+	||   !inventory_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !isdigit( *purchase_date_time ) )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"invalid purchase_date_time=[%s].",
+			purchase_date_time );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		inventory_average_primary_where(
+			inventory_column,
+			inventory_average_date_column,
+			inventory_name,
+			purchase_date_time /* date_time_key */ );
+
+	snprintf(
+		statement,
+		sizeof ( statement ),
+		"delete from %s where %s",
+		inventory_average_table,
+		primary_where );
+
+	return strdup( statement );
+}
+
+void inventory_purchase_list_purchase_date_time_update(
+		const char *inventory_average_table,
+		char *purchase_date_time,
+		enum preupdate_change_state state_evaluate,
+		char *prior_datum,
+		char *new_datum,
+		LIST *inventory_name_list )
+{
+	char *inventory_name;
+	char *sql_statement;
+
+	if ( list_rewind( inventory_name_list ) )
+	do {
+		inventory_name =
+			list_get(
+				inventory_name_list );
+
+		sql_statement =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			inventory_purchase_sql_statement(
+				inventory_average_table,
+				purchase_date_time,
+				state_evaluate,
+				prior_datum,
+				new_datum,
+				inventory_name );
+
+		if ( sql_statement )
+		{
+			char *error_string = sql_execute(
+				SQL_EXECUTABLE,
+				(char *)0
+				     /* appaserver_error_filespecification */,
+				(LIST *)0
+				     /* sql_list */,
+				sql_statement );
+
+			if ( error_string )
+			{
+				char message[ 1024 ];
+
+				snprintf(
+					message,
+					sizeof ( message ),
+					"sql_statement=[%s], error_string=[%s]",
+					sql_statement,
+					error_string );
+
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
+			}
+
+		}
+
+	} while ( list_next( inventory_name_list ) );
+}
+
+LIST *inventory_purchase_list_name_list(
+		const char *inventory_column,
+		const char *inventory_purchase_table,
+		char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !where )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"where is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh %s %s \"%s\"",
+		inventory_column,
+		inventory_purchase_table,
+		where );
+
+	return list_system_string_fetch( system_string );
 }

@@ -156,10 +156,6 @@ PURCHASE_FETCH *purchase_fetch_new(
 
 	input = string_system_input( system_string );
 
-	/* May be deleted */
-	/* -------------- */
-	if ( !input ) return NULL;
-
 	free( system_string );
 
 	purchase_fetch_parse(

@@ -64,6 +64,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 PURCHASE_FETCH *purchase_fetch_new(
 		const char *purchase_select,
 		const char *purchase_table,

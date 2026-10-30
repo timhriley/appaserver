@@ -88,6 +88,42 @@ LIST *inventory_purchase_update_string_list(
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *inventory_purchase_sql_statement(
+		const char *inventory_average_table,
+		char *purchase_date_time,
+		enum preupdate_change_state state_evaluate,
+		char *prior_datum,
+		char *new_datum,
+		char *inventory_name );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_purchase_update_statement(
+		const char *inventory_average_table,
+		const char *inventory_average_date_column,
+		const char *inventory_column,
+		const char *purchase_date_time_column,
+		char *prior_datum,
+		char *new_datum,
+		char *inventory_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *inventory_purchase_delete_statement(
+		const char *inventory_average_table,
+		const char *inventory_average_date_column,
+		const char *inventory_column,
+		char *purchase_date_time,
+		char *inventory_name );
+
+/* Usage */
+/* ----- */
 #define INVENTORY_PURCHASE_EXTENDED_COST(			\
 		ordered_quantity,				\
 		unit_cost )					\
@@ -132,6 +168,7 @@ INVENTORY_PURCHASE *inventory_purchase_date_seek(
 typedef struct
 {
 	PREUPDATE_CHANGE *preupdate_change;
+	LIST *name_list;
 	LIST *list;
 	LIST *primary_key_list;
 	char *update_system_string;
@@ -218,4 +255,21 @@ void inventory_purchase_list_set_update_string_list(
 /* ----- */
 LIST *inventory_purchase_list_update_string_list(
 		LIST *inventory_purchase_list );
+
+/* Usage */
+/* ----- */
+void inventory_purchase_list_purchase_date_time_update(
+		const char *inventory_average_table,
+		char *purchase_date_time,
+		enum preupdate_change_state state_evaluate,
+		char *prior_datum,
+		char *new_datum,
+		LIST *inventory_purchase_list_name_list );
+
+/* Usage */
+/* ----- */
+LIST *inventory_purchase_list_name_list(
+		const char *inventory_column,
+		const char *inventory_purchase_table,
+		char *where );
 
