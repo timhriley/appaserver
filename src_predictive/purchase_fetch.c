@@ -182,7 +182,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 			purchase_fetch->entity_contact_key_boolean,
 			purchase_fetch->purchase_primary_where );
 
-	if ( purchase_fetch->inventory_total_boolean )
+	if (	purchase_fetch->inventory_total_boolean
+	&&	strcmp( state, APPASERVER_DELETE_STATE ) != 0 )
 	{
 		purchase_fetch->inventory_purchase_list =
 			/* -------------- */

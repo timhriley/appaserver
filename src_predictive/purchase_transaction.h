@@ -15,6 +15,7 @@
 
 typedef struct
 {
+	char *state;
 	char *transaction_date_time;
 	LIST *journal_list;
 	SUBSIDIARY_TRANSACTION_STATE *subsidiary_transaction_state;
@@ -55,6 +56,13 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 /* ------- */
 PURCHASE_TRANSACTION *purchase_transaction_calloc(
 	void );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *purchase_transaction_state(
+		const char *appaserver_predelete_state,
+		char *state,
+		double invoice_amount );
 
 /* Returns parameter, static memory, or null */
 /* ----------------------------------------- */

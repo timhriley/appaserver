@@ -1595,6 +1595,8 @@ LIST *inventory_average_list_inventory_update_string_list(
 {
 	LIST *list = list_new();
 	INVENTORY_AVERAGE *inventory_average;
+	int quantity_on_hand;
+	double average_unit_cost;
 	char *update_string;
 
 	if ( !inventory_name )
@@ -1619,7 +1621,12 @@ LIST *inventory_average_list_inventory_update_string_list(
 		/* -------------------------------- */
 		list_last( inventory_average_list );
 
-	if ( !inventory_average ) return NULL;
+	quantity_on_hand =
+		/* -------------------------------------- */
+		/* Returns component of parameter or zero */
+		/* -------------------------------------- */
+		inventory_average_list_inventory_quantity_on_hand(
+			inventory_average );
 
 	update_string =
 		/* ------------------------------------------------ */
@@ -1629,10 +1636,17 @@ LIST *inventory_average_list_inventory_update_string_list(
 			SQL_DELIMITER,
 			inventory_name /* primary_data_string */,
 			"quantity_on_hand",
-			inventory_average->inventory_average_quantity_on_hand,
+			quantity_on_hand,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
+
+	average_unit_cost =
+		/* ------------------------------------- */
+		/* Returns component of parameter or 0.0 */
+		/* ------------------------------------- */
+		inventory_average_list_inventory_average_unit_cost(
+			inventory_average );
 
 	update_string =
 		/* ------------------------------------------------ */
@@ -1642,8 +1656,7 @@ LIST *inventory_average_list_inventory_update_string_list(
 			SQL_DELIMITER,
 			inventory_name,
 			"average_unit_cost",
-			inventory_average->
-				inventory_average_unit_cost,
+			average_unit_cost,
 			1 /* set_boolean */ );
 
 	list_set( list, update_string );
@@ -1877,5 +1890,23 @@ INVENTORY_AVERAGE *inventory_average_parse( char *input )
 	if ( *buffer ) inventory_average->average_unit_cost = atof( buffer );
 
 	return inventory_average;
+}
+
+int inventory_average_list_inventory_quantity_on_hand(
+		INVENTORY_AVERAGE *inventory_average )
+{
+	if ( inventory_average )
+		return inventory_average->quantity_on_hand;
+	else
+		return 0;
+}
+
+double inventory_average_list_inventory_average_unit_cost(
+		INVENTORY_AVERAGE *inventory_average )
+{
+	if ( inventory_average )
+		return inventory_average->average_unit_cost;
+	else
+		return 0.0;
 }
 

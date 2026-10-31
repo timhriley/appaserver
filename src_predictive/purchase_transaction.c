@@ -88,6 +88,15 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 
 	purchase_transaction = purchase_transaction_calloc();
 
+	purchase_transaction->state =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		purchase_transaction_state(
+			APPASERVER_PREDELETE_STATE,
+			state,
+			purchase_invoice_amount );
+
 	purchase_transaction->transaction_date_time =
 		/* ----------------------------------------- */
 		/* Returns parameter, static memory, or null */
@@ -128,7 +137,7 @@ PURCHASE_TRANSACTION *purchase_transaction_new(
 				/* preupdate_contact_key_placeholder */,
 			"preupdate_transaction_date_time"
 				/* preupdate_foreign_date_time_placeholder */,
-			state,
+			purchase_transaction->state,
 			preupdate_fund_name,
 			preupdate_full_name,
 			preupdate_contact_key,
@@ -521,3 +530,15 @@ double purchase_transaction_inventory_total(
 	cost_basis_inventory_total +
 	cost_basis_specific_inventory_total;
 }
+
+char *purchase_transaction_state(
+		const char *appaserver_predelete_state,
+		char *state,
+		double invoice_amount )
+{
+	if ( float_money_virtually_zero( invoice_amount ) )
+		return (char *)appaserver_predelete_state;
+	else
+		return state;
+}
+

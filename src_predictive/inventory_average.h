@@ -241,6 +241,19 @@ LIST *inventory_average_list_inventory_update_string_list(
 		char *inventory_name,
 		LIST *inventory_average_list );
 
+/* Process */
+/* ------- */
+
+/* Returns component of parameter or zero */
+/* -------------------------------------- */
+int inventory_average_list_inventory_quantity_on_hand(
+		INVENTORY_AVERAGE *inventory_average );
+
+/* Returns component of parameter or 0.0 */
+/* ------------------------------------- */
+double inventory_average_list_inventory_average_unit_cost(
+		INVENTORY_AVERAGE *inventory_average );
+
 /* Usage */
 /* ----- */
 LIST *inventory_average_list_sale_update_string_list(
