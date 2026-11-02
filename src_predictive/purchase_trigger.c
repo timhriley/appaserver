@@ -55,6 +55,22 @@ int main( int argc, char **argv )
 	row_number = atoi( argv[ 11 ] );
 	row_count = atoi( argv[ 12 ] );
 
+	if ( !*table_name )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"table_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if ( row_number == row_count )
 	{
 		purchase =

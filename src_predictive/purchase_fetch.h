@@ -75,7 +75,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state );
+		char *purchase_state,
+		char *purchase_inventory_table_state );
 
 /* Process */
 /* ------- */

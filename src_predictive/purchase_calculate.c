@@ -99,6 +99,9 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 				supply_purchase_list_total );
 
 	purchase_calculate->cost_basis =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		cost_basis_new(
 			purchase_sales_tax,
 			purchase_freight_in,
@@ -110,8 +113,6 @@ PURCHASE_CALCULATE *purchase_calculate_new(
 				/* Sets each cost_basis_specific_inventory */,
 			purchase_calculate->taxable_total,
 			purchase_calculate->extended_total );
-
-	if ( !purchase_calculate->cost_basis ) return purchase_calculate;
 
 	if ( list_length( inventory_purchase_list ) )
 	{

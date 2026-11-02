@@ -27,6 +27,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 COST_BASIS *cost_basis_new(
 		double purchase_sales_tax,
 		double purchase_freight_in,

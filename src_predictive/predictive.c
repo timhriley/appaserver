@@ -230,7 +230,7 @@ char *predictive_update_system_string(
 		system_string,
 		sizeof ( system_string ),
 		"update_statement.e table=%s key=%s carrot=y | "
-		"tee_appaserver.sh | "
+/*		"tee_appaserver.sh | " */
 		"sql.e",
 		table_name,
 		delimited_string );

@@ -185,7 +185,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		const char *inventory_purchase_table,
 		char *preupdate_purchase_date_time,
 		char *purchase_date_time,
-		char *state,
+		char *purchase_inventory_table_state,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		char *where );

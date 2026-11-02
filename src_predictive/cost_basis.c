@@ -27,10 +27,10 @@ COST_BASIS *cost_basis_new(
 {
 	COST_BASIS *cost_basis;
 
-	if ( float_money_virtually_same( extended_total, 0.0 ) )
-		return NULL;
-
 	cost_basis = cost_basis_calloc();
+
+	if ( float_money_virtually_same( extended_total, 0.0 ) )
+		return cost_basis;
 
 	cost_basis->cost_basis_fixed_asset_list =
 		cost_basis_fixed_asset_list(

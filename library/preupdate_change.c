@@ -21,22 +21,6 @@ PREUPDATE_CHANGE *preupdate_change_new(
 {
 	PREUPDATE_CHANGE *preupdate_change;
 
-	if ( !state )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"state is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
 	preupdate_change = preupdate_change_calloc();
 
 	preupdate_datum =
@@ -153,6 +137,11 @@ enum preupdate_change_state preupdate_change_state_evaluate(
 		postupdate_datum = "";
 	}
 
+	if ( !state )
+	{
+		state_evaluate = no_change_null;
+	}
+	else
 	if ( strcmp( state, appaserver_insert_state ) == 0 )
 	{
 		if ( *postupdate_datum )

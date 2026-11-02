@@ -580,6 +580,7 @@ char *delete_sql_statement(
 /* ------------------- */
 char *delete_command_line(
 		const char *delete_state,
+		char *folder_name,
 		int row_number,
 		int row_count,
 		LIST *primary_query_cell_list,

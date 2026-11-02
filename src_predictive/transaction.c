@@ -855,7 +855,7 @@ FILE *transaction_insert_pipe_open(
 		system_string,
 		sizeof ( system_string ),
 		"insert_statement t=%s f=%s delimiter='^'	|"
-		"tee_appaserver.sh				|"
+/*		"tee_appaserver.sh				|" */
 		"sql 2>&1					|"
 		"html_paragraph_wrapper.e			 ",
 		transaction_table,

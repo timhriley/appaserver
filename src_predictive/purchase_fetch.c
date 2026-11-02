@@ -30,16 +30,17 @@ PURCHASE_FETCH *purchase_fetch_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state )
+		char *purchase_state,
+		char *purchase_inventory_table_state )
 {
 	char *select;
 	char *system_string;
-	char *input;
+	char *input = {0};
 	PURCHASE_FETCH *purchase_fetch;
 
 	if ( !full_name
 	||   !purchase_date_time
-	||   !state )
+	||   !purchase_state )
 	{
 		char message[ 1024 ];
 
@@ -104,22 +105,6 @@ PURCHASE_FETCH *purchase_fetch_new(
 		purchase_fetch_property_address_boolean(
 			purchase_fetch->folder_fetch->folder_attribute_list );
 
-	select =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		purchase_fetch_select(
-			purchase_select,
-			purchase_fetch->title_passage_rule_boolean,
-			purchase_fetch->shipped_date_boolean,
-			purchase_fetch->arrived_date_time_boolean,
-			purchase_fetch->inventory_total_boolean,
-			purchase_fetch->specific_inventory_total_boolean,
-			purchase_fetch->prepaid_asset_total_boolean,
-			purchase_fetch->return_total_boolean,
-			purchase_fetch->program_name_boolean,
-			purchase_fetch->property_address_boolean );
-
 	purchase_fetch->predictive_fund_boolean =
 		predictive_fund_boolean(
 			PREDICTIVE_FUND_TABLE,
@@ -143,47 +128,77 @@ PURCHASE_FETCH *purchase_fetch_new(
 			purchase_fetch->predictive_fund_boolean,
 			purchase_fetch->entity_contact_key_boolean );
 
-	system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_system_string(
-			select,
-			(char *)purchase_table,
-			purchase_fetch->purchase_primary_where );
+	if ( strcmp( purchase_state, APPASERVER_DELETE_STATE ) != 0 )
+	{
+		select =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			purchase_fetch_select(
+				purchase_select,
+				purchase_fetch->title_passage_rule_boolean,
+				purchase_fetch->shipped_date_boolean,
+				purchase_fetch->arrived_date_time_boolean,
+				purchase_fetch->inventory_total_boolean,
+				purchase_fetch->
+					specific_inventory_total_boolean,
+				purchase_fetch->prepaid_asset_total_boolean,
+				purchase_fetch->return_total_boolean,
+				purchase_fetch->program_name_boolean,
+				purchase_fetch->property_address_boolean );
 
-	free( select );
+		system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_system_string(
+				select,
+				(char *)purchase_table,
+				purchase_fetch->purchase_primary_where );
 
-	input = string_system_input( system_string );
+		free( select );
+		input = string_system_input( system_string );
+		free( system_string );
 
-	free( system_string );
+		if ( input )
+		{
+			purchase_fetch_parse(
+				purchase_fetch /* in/out */,
+				purchase_fetch->title_passage_rule_boolean,
+				purchase_fetch->shipped_date_boolean,
+				purchase_fetch->arrived_date_time_boolean,
+				purchase_fetch->inventory_total_boolean,
+				purchase_fetch->
+					specific_inventory_total_boolean,
+				purchase_fetch->prepaid_asset_total_boolean,
+				purchase_fetch->return_total_boolean,
+				purchase_fetch->program_name_boolean,
+				purchase_fetch->property_address_boolean,
+				input );
+		}
+	}
 
-	purchase_fetch_parse(
-		purchase_fetch /* in/out */,
-		purchase_fetch->title_passage_rule_boolean,
-		purchase_fetch->shipped_date_boolean,
-		purchase_fetch->arrived_date_time_boolean,
-		purchase_fetch->inventory_total_boolean,
-		purchase_fetch->specific_inventory_total_boolean,
-		purchase_fetch->prepaid_asset_total_boolean,
-		purchase_fetch->return_total_boolean,
-		purchase_fetch->program_name_boolean,
-		purchase_fetch->property_address_boolean,
-		input );
+	if ( input )
+	{
+		purchase_fetch->fixed_asset_purchase_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			fixed_asset_purchase_list_new(
+				FIXED_ASSET_PURCHASE_SELECT,
+				FIXED_ASSET_PURCHASE_TABLE,
+				purchase_fetch->predictive_fund_boolean,
+				purchase_fetch->entity_contact_key_boolean,
+				purchase_fetch->purchase_primary_where );
+	}
+	else
+	{
+		purchase_fetch->fixed_asset_purchase_list =
+			fixed_asset_purchase_list_calloc();
+	}
 
-	purchase_fetch->fixed_asset_purchase_list =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		fixed_asset_purchase_list_new(
-			FIXED_ASSET_PURCHASE_SELECT,
-			FIXED_ASSET_PURCHASE_TABLE,
-			purchase_fetch->predictive_fund_boolean,
-			purchase_fetch->entity_contact_key_boolean,
-			purchase_fetch->purchase_primary_where );
-
-	if (	purchase_fetch->inventory_total_boolean
-	&&	strcmp( state, APPASERVER_DELETE_STATE ) != 0 )
+	if ( input
+	&&   purchase_fetch->inventory_total_boolean )
 	{
 		purchase_fetch->inventory_purchase_list =
 			/* -------------- */
@@ -194,7 +209,7 @@ PURCHASE_FETCH *purchase_fetch_new(
 				INVENTORY_PURCHASE_TABLE,
 				preupdate_purchase_date_time,
 				purchase_date_time,
-				state,
+				purchase_inventory_table_state,
 				purchase_fetch->predictive_fund_boolean,
 				purchase_fetch->entity_contact_key_boolean,
 				purchase_fetch->purchase_primary_where );
@@ -205,7 +220,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 			inventory_purchase_list_calloc();
 	}
 
-	if ( purchase_fetch->specific_inventory_total_boolean )
+	if ( input
+	&&   purchase_fetch->specific_inventory_total_boolean )
 	{
 		purchase_fetch->specific_inventory_purchase_list =
 			/* -------------- */
@@ -224,21 +240,31 @@ PURCHASE_FETCH *purchase_fetch_new(
 			specific_inventory_purchase_list_calloc();
 	}
 
-	purchase_fetch->supply_purchase_list =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		supply_purchase_list_new(
-			SUPPLY_PURCHASE_SELECT,
-			SUPPLY_PURCHASE_TABLE,
-			fund_name,
-			full_name,
-			contact_key,
-			purchase_date_time,
-			purchase_fetch->predictive_fund_boolean,
-			purchase_fetch->entity_contact_key_boolean,
-			purchase_fetch->purchase_primary_where );
+	if ( input )
+	{
+		purchase_fetch->supply_purchase_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			supply_purchase_list_new(
+				SUPPLY_PURCHASE_SELECT,
+				SUPPLY_PURCHASE_TABLE,
+				fund_name,
+				full_name,
+				contact_key,
+				purchase_date_time,
+				purchase_fetch->predictive_fund_boolean,
+				purchase_fetch->entity_contact_key_boolean,
+				purchase_fetch->purchase_primary_where );
+	}
+	else
+	{
+		purchase_fetch->supply_purchase_list =
+			supply_purchase_list_calloc();
+	}
 
+	if ( input )
+	{
 /*
 	purchase_fetch->service_purchase_list =
 		service_purchase_list(
@@ -246,21 +272,24 @@ PURCHASE_FETCH *purchase_fetch_new(
 			SERVICE_PURCHASE_TABLE,
 			purchase_fetch->purchase_primary_where );
 */
+	}
 
-/*
-	if ( purchase_fetch->prepaid_asset_total_boolean )
+	if ( input
+	&&   purchase_fetch->prepaid_asset_total_boolean )
 	{
+/*
 		purchase_fetch->prepaid_asset_purchase_list =
 			prepaid_asset_purchase_list(
 				PREPAID_ASSET_PURCHASE_SELECT,
 				PREPAID_ASSET_PURCHASE_TABLE,
 				purchase_fetch->purchase_primary_where );
-	}
 */
+	}
 
-/*
-	if ( purchase_fetch->return_total_boolean )
+	if ( input
+	&&   purchase_fetch->return_total_boolean )
 	{
+/*
 		purchase_fetch->return_list =
 			purchase_return_list(
 				INVENTORY_PURCHASE_RETURN_TABLE,
@@ -268,8 +297,8 @@ PURCHASE_FETCH *purchase_fetch_new(
 				COMPONENT_INVENTORY_PURCHASE_RETURN_TABLE,
 				SUPPLY_PURCHASE_RETURN_TABLE,
 				purchase_fetch->purchase_primary_where );
-	}
 */
+	}
 
 	purchase_fetch->primary_key_list =
 		purchase_fetch_primary_key_list(

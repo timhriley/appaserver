@@ -287,6 +287,7 @@ char *delete_sql_statement(
 
 char *delete_command_line(
 		const char *delete_state,
+		char *folder_name,
 		int row_number,
 		int row_count,
 		LIST *primary_query_cell_list,
@@ -318,7 +319,7 @@ char *delete_command_line(
 		(char *)0 /* session_key */,
 		(char *)0 /* login_name */,
 		(char *)0 /* role_name */,
-		(char *)0 /* folder_name */,
+		folder_name,
 		(char *)0 /* target_frame */,
 		(char *)delete_state,
 		(char *)0 /* process_name */,
@@ -402,6 +403,7 @@ DELETE_ROOT *delete_root_new(
 			/* ------------------- */
 			delete_command_line(
 				APPASERVER_PREDELETE_STATE,
+				folder_name,
 				row_number,
 				row_count,
 				primary_query_cell_list,
@@ -414,6 +416,7 @@ DELETE_ROOT *delete_root_new(
 			/* ------------------- */
 			delete_command_line(
 				APPASERVER_DELETE_STATE,
+				folder_name,
 				row_number,
 				row_count,
 				primary_query_cell_list,
@@ -794,6 +797,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 			/* ------------------- */
 			delete_command_line(
 				APPASERVER_PREDELETE_STATE,
+				one_folder_name,
 				1 /* row_number */,
 				1 /* row_count */,
 				delete_mto1_isa->
@@ -806,6 +810,7 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 		delete_mto1_isa->command_line =
 			delete_command_line(
 				APPASERVER_DELETE_STATE,
+				one_folder_name,
 				1 /* row_number */,
 				1 /* row_count */,
 				delete_mto1_isa->
@@ -1745,6 +1750,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 			/* ------------------- */
 			delete_command_line(
 				APPASERVER_PREDELETE_STATE,
+				many_appaserver_table_name,
 				1 /* row_number */,
 				1 /* row_count */,
 				query_row_cell_list
@@ -1755,6 +1761,7 @@ DELETE_ONE2M_ROW *delete_one2m_row_new(
 		delete_one2m_row->command_line =
 			delete_command_line(
 				APPASERVER_DELETE_STATE,
+				many_appaserver_table_name,
 				1 /* row_number */,
 				1 /* row_count */,
 				query_row_cell_list

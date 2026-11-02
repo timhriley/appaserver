@@ -66,6 +66,25 @@ PURCHASE *purchase_trigger_new(
 
 	purchase = purchase_calloc();
 
+	purchase->state =
+		/* ------------------- */
+		/* Returns a parameter */
+		/* ------------------- */
+		purchase_state(
+			PURCHASE_TABLE,
+			APPASERVER_UPDATE_STATE,
+			table_name,
+			state );
+
+	purchase->inventory_table_state =
+		/* --------------------------- */
+		/* Returns a parameter or null */
+		/* --------------------------- */
+		purchase_inventory_table_state(
+			INVENTORY_PURCHASE_TABLE,
+			table_name,
+			state );
+
 	purchase->purchase_fetch =
 		/* -------------- */
 		/* Safely returns */
@@ -78,7 +97,27 @@ PURCHASE *purchase_trigger_new(
 			full_name,
 			contact_key,
 			purchase_date_time,
-			state );
+			purchase->state,
+			purchase->inventory_table_state );
+
+	if ( !purchase->purchase_fetch->fixed_asset_purchase_list
+	||   !purchase->purchase_fetch->inventory_purchase_list
+	||   !purchase->purchase_fetch->specific_inventory_purchase_list
+	||   !purchase->purchase_fetch->supply_purchase_list )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_fetch_new() returned incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	purchase->purchase_calculate =
 		/* -------------- */
@@ -113,7 +152,23 @@ PURCHASE *purchase_trigger_new(
 			purchase->purchase_fetch->return_total_boolean,
 			purchase->purchase_fetch->purchase_return_list );
 
-	if ( strcmp( state, APPASERVER_DELETE_STATE ) != 0 )
+	if ( !purchase->purchase_calculate->cost_basis )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_calculate->cost_basis is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp( purchase->state, APPASERVER_DELETE_STATE ) != 0 )
 	{
 		purchase->purchase_transaction =
 			purchase_transaction_new(
@@ -124,7 +179,7 @@ PURCHASE *purchase_trigger_new(
 				full_name,
 				contact_key,
 				purchase_date_time,
-				state,
+				purchase->state,
 				purchase->
 					purchase_fetch->
 					predictive_fund_boolean,
@@ -188,7 +243,7 @@ PURCHASE *purchase_trigger_new(
 			full_name,
 			contact_key,
 			purchase_date_time,
-			state,
+			purchase->state,
 			purchase->purchase_fetch->predictive_fund_boolean,
 			purchase->purchase_fetch->entity_contact_key_boolean,
 			purchase->
@@ -272,4 +327,35 @@ char *purchase_primary_where(
 		purchase_date_time /* sale_date_time */,
 		fund_boolean,
 		contact_key_boolean );
+}
+
+char *purchase_state(
+		const char *purchase_table,
+		const char *appaserver_update_state,
+		char *table_name,
+		char *state )
+{
+	char *return_state;
+
+	if ( strcmp( purchase_table, table_name ) == 0 )
+		return_state = state;
+	else
+		return_state = (char *)appaserver_update_state;
+
+	return return_state;
+}
+
+char *purchase_inventory_table_state(
+		const char *inventory_purchase_table,
+		char *table_name,
+		char *state )
+{
+	char *return_state;
+
+	if ( strcmp( inventory_purchase_table, table_name ) == 0 )
+		return_state = state;
+	else
+		return_state = NULL;
+
+	return return_state;
 }

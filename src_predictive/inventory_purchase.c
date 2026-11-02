@@ -315,7 +315,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		const char *inventory_purchase_table,
 		char *preupdate_purchase_date_time,
 		char *purchase_date_time,
-		char *state,
+		char *purchase_inventory_table_state,
 		boolean fund_boolean,
 		boolean contact_key_boolean,
 		char *where )
@@ -354,7 +354,7 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 		preupdate_change_new(
 			APPASERVER_INSERT_STATE,
 			APPASERVER_PREDELETE_STATE,
-			state,
+			purchase_inventory_table_state,
 			preupdate_purchase_date_time
 				/* preupdate_datum */,
 			purchase_date_time
@@ -433,19 +433,22 @@ INVENTORY_PURCHASE_LIST *inventory_purchase_list_new(
 
 	pclose( input_pipe );
 
-	inventory_purchase_list->primary_key_list =
-		inventory_purchase_list_primary_key_list(
-			INVENTORY_COLUMN,
-			fund_boolean,
-			contact_key_boolean );
+	if ( purchase_inventory_table_state )
+	{
+		inventory_purchase_list->primary_key_list =
+			inventory_purchase_list_primary_key_list(
+				INVENTORY_COLUMN,
+				fund_boolean,
+				contact_key_boolean );
 
-	inventory_purchase_list->update_system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		inventory_purchase_list_update_system_string(
-			inventory_purchase_table,
-			inventory_purchase_list->primary_key_list );
+		inventory_purchase_list->update_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			inventory_purchase_list_update_system_string(
+				inventory_purchase_table,
+				inventory_purchase_list->primary_key_list );
+	}
 
 	if ( !list_length( inventory_purchase_list->list ) )
 	{
