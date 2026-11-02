@@ -23,7 +23,8 @@ PURCHASE_UPDATE *purchase_update_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state,
+		char *purchase_state,
+		char *purchase_inventory_table_state,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		FIXED_ASSET_PURCHASE_LIST *
@@ -54,7 +55,7 @@ PURCHASE_UPDATE *purchase_update_new(
 	||   !inventory_purchase_list
 	||   !specific_inventory_purchase_list
 	||   !supply_purchase_list
-	||   !state )
+	||   !purchase_state )
 	{
 		char message[ 1024 ];
 
@@ -84,7 +85,9 @@ PURCHASE_UPDATE *purchase_update_new(
 	purchase_update->supply_purchase_list =
 		supply_purchase_list;
 
-	if ( fixed_asset_purchase_list->list )
+	if ( strcmp(
+		purchase_state,
+		APPASERVER_PREDELETE_STATE ) != 0 )
 	{
 		fixed_asset_purchase_list_set_update_string(
 			sql_delimiter,
@@ -102,7 +105,9 @@ PURCHASE_UPDATE *purchase_update_new(
 				fixed_asset_purchase_list->list );
 	}
 
-	if ( inventory_purchase_list->list )
+	if ( string_strcmp(
+		purchase_inventory_table_state,
+		APPASERVER_PREDELETE_STATE ) != 0 )
 	{
 		/* Need to set it here b/c cost basis was calculated */
 		/* ------------------------------------------------- */
@@ -122,7 +127,9 @@ PURCHASE_UPDATE *purchase_update_new(
 				inventory_purchase_list->list );
 	}
 
-	if ( specific_inventory_purchase_list->list )
+	if ( strcmp(
+		purchase_state,
+		APPASERVER_PREDELETE_STATE ) != 0 )
 	{
 		specific_inventory_purchase_list_set_update_string(
 			sql_delimiter,
@@ -142,9 +149,12 @@ PURCHASE_UPDATE *purchase_update_new(
 
 	/* Note: don't need to set each supply update_string */
 
-	if ( strcmp( state, APPASERVER_DELETE_STATE ) != 0 )
+	if ( strcmp(
+		purchase_state,
+		APPASERVER_PREDELETE_STATE ) != 0 )
 	{
 		purchase_update->system_string =
+			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			purchase_update_system_string(
@@ -202,6 +212,26 @@ char *purchase_update_execute(
 {
 	char *transaction_date_time = {0};
 
+	if ( !purchase_update
+	||   !purchase_update->fixed_asset_purchase_list
+	||   !purchase_update->inventory_purchase_list
+	||   !purchase_update->specific_inventory_purchase_list
+	||   !purchase_update->supply_purchase_list )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"purchase_update is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	if ( purchase_transaction )
 	{
 		/* ------------------------------------ */
@@ -244,6 +274,20 @@ char *purchase_update_execute(
 				update_system_string );
 	}
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	purchase_update->
+		inventory_purchase_list->
+		update_system_string );
+msg( (char *)0, message );
+}
 	if ( purchase_update->
 		inventory_purchase_list->
 		update_system_string )

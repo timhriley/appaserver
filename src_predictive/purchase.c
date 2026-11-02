@@ -244,6 +244,7 @@ PURCHASE *purchase_trigger_new(
 			contact_key,
 			purchase_date_time,
 			purchase->state,
+			purchase->inventory_table_state,
 			purchase->purchase_fetch->predictive_fund_boolean,
 			purchase->purchase_fetch->entity_contact_key_boolean,
 			purchase->

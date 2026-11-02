@@ -35,7 +35,8 @@ PURCHASE_UPDATE *purchase_update_new(
 		char *full_name,
 		char *contact_key,
 		char *purchase_date_time,
-		char *state,
+		char *purchase_state,
+		char *purchase_inventory_table_state,
 		boolean predictive_fund_boolean,
 		boolean entity_contact_key_boolean,
 		FIXED_ASSET_PURCHASE_LIST *

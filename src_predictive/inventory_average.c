@@ -1097,6 +1097,18 @@ INVENTORY_AVERAGE_LIST *inventory_average_list_new(
 			inventory_average_list->
 				inventory_primary_key_list );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: inventory_update_system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	inventory_average_list->inventory_update_system_string );
+msg( (char *)0, message );
+}
 	inventory_average_list->inventory_update_string_list =
 		inventory_average_list_inventory_update_string_list(
 			inventory_name,
@@ -1512,6 +1524,18 @@ void inventory_average_list_update(
 		purchase_update_system_string,
 		purchase_update_string_list );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: inventory_update_system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	inventory_update_system_string );
+msg( (char *)0, message );
+}
 	update_string_list_execute(
 		inventory_update_system_string,
 		inventory_update_string_list );
@@ -1628,6 +1652,18 @@ LIST *inventory_average_list_inventory_update_string_list(
 		inventory_average_list_inventory_quantity_on_hand(
 			inventory_average );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: quantity_on_hand=%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	quantity_on_hand );
+msg( (char *)0, message );
+}
 	update_string =
 		/* ------------------------------------------------ */
 		/* Returns heap memory or null (if not set_boolean) */
@@ -1648,6 +1684,18 @@ LIST *inventory_average_list_inventory_update_string_list(
 		inventory_average_list_inventory_average_unit_cost(
 			inventory_average );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: average_unit_cost=%.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	average_unit_cost );
+msg( (char *)0, message );
+}
 	update_string =
 		/* ------------------------------------------------ */
 		/* Returns heap memory or null (if not set_boolean) */
