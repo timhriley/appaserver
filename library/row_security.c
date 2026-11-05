@@ -258,18 +258,6 @@ ROW_SECURITY_REGULAR_WIDGET_LIST *
 			message );
 	}
 
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: viewonly_attribute_name_list=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	list_display( viewonly_attribute_name_list ) );
-msg( (char *)0, message );
-}
 	row_security_regular_widget_list =
 		 row_security_regular_widget_list_calloc();
 

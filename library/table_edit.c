@@ -1726,6 +1726,7 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 {
 	LIST *viewonly_attribute_name_list;
 	LIST *foreign_key_less_equal_list;
+	LIST *drillthru_viewonly_attribute_name_list;
 	RELATION_MTO1 *relation_mto1;
 
 	viewonly_attribute_name_list =
@@ -1783,101 +1784,18 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 		} while ( list_next( relation_mto1_list ) );
 	}
 
-	if ( drillthru_status_skipped_boolean
-	&&   list_rewind( relation_mto1_list ) )
+	drillthru_viewonly_attribute_name_list =
+		table_edit_input_drillthru_viewonly_attribute_name_list(
+			relation_mto1_list,
+			drillthru_status_skipped_boolean );
+
+	if ( list_length( drillthru_viewonly_attribute_name_list ) )
 	{
-		do {
-			relation_mto1 =
-				list_get(
-					relation_mto1_list );
+		list_set_list(
+			viewonly_attribute_name_list,
+			drillthru_viewonly_attribute_name_list );
 
-			if ( !relation_mto1->one_folder
-			||   !list_length(
-				relation_mto1->
-					relation_foreign_key_list ) )
-			{
-				char message[ 128 ];
-
-				sprintf(message,
-				"relation_mto1 is incomplete." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-			if ( relation_mto1->one_folder->drillthru )
-			{
-				list_set_list(
-					viewonly_attribute_name_list,
-					relation_mto1->
-						relation_foreign_key_list );
-			}
-
-		} while ( list_next( relation_mto1_list ) );
-	}
-
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: drillthru_status_skipped_boolean=%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	drillthru_status_skipped_boolean );
-msg( (char *)0, message );
-}
-	if ( !drillthru_status_skipped_boolean
-	&&   list_rewind( relation_mto1_list ) )
-	{
-		do {
-			relation_mto1 =
-				list_get(
-					relation_mto1_list );
-
-			if ( !relation_mto1->one_folder
-			||   !list_length(
-				relation_mto1->
-					relation_foreign_key_list ) )
-			{
-				char message[ 128 ];
-
-				sprintf(message,
-				"relation_mto1 is incomplete." );
-
-				appaserver_error_stderr_exit(
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					message );
-			}
-
-if ( strcmp( relation_mto1->relation->one_folder_name, "journal" ) == 0 )
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: got journal relation=[%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	relation_display( relation_mto1->relation ) );
-msg( (char *)0, message );
-}
-			if ( relation_mto1->relation->omit_drillthru )
-			{
-				list_set_list(
-					viewonly_attribute_name_list,
-					relation_mto1->
-						relation_foreign_key_list );
-			}
-
-		} while ( list_next( relation_mto1_list ) );
+		list_free_container( viewonly_attribute_name_list );
 	}
 
 	list_set_list(
@@ -2271,4 +2189,62 @@ boolean table_edit_omit_heading_delete_checkbox_boolean(
 		return 1;
 	else
 		return 0;
+}
+
+LIST *table_edit_input_drillthru_viewonly_attribute_name_list(
+		LIST *relation_mto1_list,
+		boolean skipped_boolean )
+{
+	LIST *list = list_new();
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		if ( !relation_mto1->one_folder
+		||   !relation_mto1->relation
+		||   !list_length(
+			relation_mto1->
+				relation_foreign_key_list ) )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"relation_mto1 is incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( relation_mto1->one_folder->drillthru
+		&&   skipped_boolean )
+		{
+			list_set_list(
+				list,
+				relation_mto1->
+					relation_foreign_key_list );
+		}
+		else
+		if ( relation_mto1->relation->omit_drillthru
+		&&   !skipped_boolean )
+		{
+			list_set_list(
+				list,
+				relation_mto1->
+					relation_foreign_key_list );
+		}
+
+	} while ( list_next( relation_mto1_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
 }

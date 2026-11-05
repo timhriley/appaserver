@@ -126,6 +126,12 @@ boolean table_edit_input_relation_not_used(
 
 /* Usage */
 /* ----- */
+LIST *table_edit_input_drillthru_viewonly_attribute_name_list(
+		LIST *relation_mto1_list,
+		boolean drillthru_status_skipped_boolean );
+
+/* Usage */
+/* ----- */
 int table_edit_input_max_foreign_key_list_length(
 		boolean drillthru_status_skipped_boolean,
 		char *drilldown_base_folder_name );
