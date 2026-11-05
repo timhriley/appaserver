@@ -170,9 +170,11 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 				folder_attribute_primary_key_list
 				/* many_primary_key_list */ );
 
+/*
 	table_edit_input->relation_mto1_list =
 		relation_mto1_without_omit_drillthru_list(
 			table_edit_input->relation_mto1_list );
+*/
 
 	table_edit_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
@@ -1807,6 +1809,67 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 			}
 
 			if ( relation_mto1->one_folder->drillthru )
+			{
+				list_set_list(
+					viewonly_attribute_name_list,
+					relation_mto1->
+						relation_foreign_key_list );
+			}
+
+		} while ( list_next( relation_mto1_list ) );
+	}
+
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: drillthru_status_skipped_boolean=%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	drillthru_status_skipped_boolean );
+msg( (char *)0, message );
+}
+	if ( !drillthru_status_skipped_boolean
+	&&   list_rewind( relation_mto1_list ) )
+	{
+		do {
+			relation_mto1 =
+				list_get(
+					relation_mto1_list );
+
+			if ( !relation_mto1->one_folder
+			||   !list_length(
+				relation_mto1->
+					relation_foreign_key_list ) )
+			{
+				char message[ 128 ];
+
+				sprintf(message,
+				"relation_mto1 is incomplete." );
+
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
+			}
+
+if ( strcmp( relation_mto1->relation->one_folder_name, "journal" ) == 0 )
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: got journal relation=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	relation_display( relation_mto1->relation ) );
+msg( (char *)0, message );
+}
+			if ( relation_mto1->relation->omit_drillthru )
 			{
 				list_set_list(
 					viewonly_attribute_name_list,
