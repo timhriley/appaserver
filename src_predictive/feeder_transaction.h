@@ -18,6 +18,8 @@
 #include "feeder_phrase.h"
 #include "feeder_transaction.h"
 
+#define FEEDER_TRANSACTION_CLEARED_CHECK_MEMO	"Check Cleared"
+
 typedef struct
 {
 	char *nominal_account_name;
@@ -64,4 +66,19 @@ char *feeder_transaction_contact_key(
 char *feeder_transaction_nominal_account_name(
 		FEEDER_PHRASE *feeder_phrase_seek,
 		LIABILITY_ENTITY *feeder_row_liability_entity );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FEEDER_TRANSACTION *feeder_transaction_cleared_check_new(
+		char *fund_name,
+		char *feeder_account_name,
+		char *account_uncleared_checks_string,
+		int check_number,
+		double exchange_journal_amount,
+		char *full_name,
+		char *contact_key,
+		char *feeder_row_transaction_date_time );
 

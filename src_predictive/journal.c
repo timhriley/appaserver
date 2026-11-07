@@ -568,12 +568,40 @@ LIST *journal_system_list(
 		exit( 1 );
 	}
 
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: system_string=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	system_string );
+msg( (char *)0, message );
+}
+*/
 	/* Safely returns */
 	/* -------------- */
 	pipe = appaserver_input_pipe( system_string );
 
 	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
+/*
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: input=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	input );
+msg( (char *)0, message );
+}
+*/
 		list_set(
 			system_list,
 			journal_parse(
@@ -1322,6 +1350,7 @@ void journal_list_html_display(
 		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
+		int check_number,
 		char *transaction_full_name )
 {
 	char *heading;
@@ -1352,6 +1381,7 @@ void journal_list_html_display(
 			transaction_fund_name,
 			transaction_date_time,
 			transaction_memo,
+			check_number,
 			transaction_full_name,
 			journal_list );
 	}
@@ -1452,6 +1482,7 @@ void journal_list_pipe_display(
 		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
+		int check_number,
 		char *transaction_full_name,
 		LIST *journal_list )
 {
@@ -1486,6 +1517,14 @@ void journal_list_pipe_display(
 	    	strlen( memo_buffer ),
 		"<br>%s",
 		transaction_date_time );
+
+	if ( check_number )
+	{
+		sprintf(memo_buffer +
+			strlen( memo_buffer ),
+			"<br>Check %d",
+			check_number );
+	}
 
 	if ( transaction_memo && *transaction_memo )
 	{
@@ -1636,6 +1675,7 @@ void journal_list_sum_html_display(
 		(char *)0 /* transaction_fund_name */,
 		transaction_date_time,
 		transaction_memo,
+		0 /* check_number */,
 		(char *)0 /* transaction_full_name */,
 		journal_list );
 

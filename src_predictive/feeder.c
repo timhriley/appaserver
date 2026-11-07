@@ -153,7 +153,6 @@ feeder_load_row_list_raw_display(
 			feeder->predictive_fund_name,
 			feeder_account_name,
 			reverse_order_boolean,
-			feeder->entity_contact_key_boolean,
 			feeder->
 				feeder_account->
 				financial_institution_full_name,
@@ -181,10 +180,14 @@ feeder_load_row_list_raw_display(
 		feeder_row_insert_count(
 			feeder->feeder_row_list );
 
-	feeder->feeder_load_event_prior_account_end_balance =
-		feeder_load_event_prior_account_end_balance(
+	feeder->feeder_load_event_latest_fetch =
+		feeder_load_event_latest_fetch(
 			FEEDER_LOAD_EVENT_TABLE,
 			feeder_account_name );
+
+	feeder->feeder_load_event_prior_account_end_balance =
+		feeder_load_event_prior_account_end_balance(
+			feeder->feeder_load_event_latest_fetch );
 
 	feeder_row_calculate_balance_set(
 		feeder->feeder_row_list /* sets calculate_balance */,
@@ -196,11 +199,6 @@ feeder_load_row_list_raw_display(
 
 	feeder_row_list_status_set(
 		feeder->feeder_row_list /* sets feeder_row_status */ );
-
-	feeder->feeder_load_event_latest_fetch =
-		feeder_load_event_latest_fetch(
-			FEEDER_LOAD_EVENT_TABLE,
-			feeder_account_name );
 
 	feeder->feeder_load_event_error_double =
 		feeder_load_event_error_double(
@@ -299,9 +297,6 @@ void feeder_execute(
 		fund_name,
 		feeder->predictive_fund_boolean,
 		feeder->entity_contact_key_boolean,
-		feeder->feeder_row_list );
-
-	feeder_row_check_journal_update(
 		feeder->feeder_row_list );
 
 	feeder_row_journal_propagate(

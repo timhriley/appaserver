@@ -173,6 +173,7 @@ void update_sale_completed( SALE *sale )
 		sale->sale_transaction->journal_list,
 		sale->sale_transaction->transaction_date_time,
 		sale->sale_transaction->memo,
+		sale->sale_transaction->check_number,
 		sale->sale_transaction->fund_name );
 
 	printf( "<p>Marked sale completed.\n" );

@@ -66,9 +66,9 @@ typedef struct
 	int feeder_row_count;
 	boolean feeder_row_list_non_match_boolean;
 	int feeder_row_insert_count;
+	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
 	double feeder_load_event_prior_account_end_balance;
 	boolean feeder_row_list_status_out_of_balance_boolean;
-	FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch;
 	double feeder_load_event_error_double;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;

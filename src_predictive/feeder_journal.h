@@ -29,7 +29,6 @@ typedef struct
 	/* -------------- */
 	int check_number;
 	boolean taken;
-	char *check_update_statement;
 } FEEDER_JOURNAL;
 
 /* Usage */
@@ -74,7 +73,6 @@ double feeder_journal_amount(
 /* ------------------- */
 FEEDER_JOURNAL *feeder_journal_check_seek(
 		char *feeder_account_name,
-		boolean entity_contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
@@ -82,8 +80,7 @@ FEEDER_JOURNAL *feeder_journal_check_seek(
 
 /* Usage */
 /* ----- */
-FEEDER_JOURNAL *
-	feeder_journal_amount_seek(
+FEEDER_JOURNAL *feeder_journal_amount_seek(
 		double exchange_journal_amount,
 		LIST *feeder_journal_list );
 
@@ -111,20 +108,3 @@ char *feeder_journal_contact_join(
 		const char *feeder_row_table,
 		const char *entity_contact_key_column,
 		boolean entity_contact_key_boolean );
-
-/* Usage */
-/* ----- */
-
-/* ------------------- */
-/* Independent of fund */
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_journal_check_update_statement(
-		const char *journal_table,
-		char *feeder_account_name,
-		boolean entity_contact_key_boolean,
-		char *account_uncleared_checks_string,
-		char *full_name,
-		char *contact_key,
-		char *transaction_date_time );
-

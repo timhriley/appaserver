@@ -918,6 +918,10 @@ FILE *feeder_row_display_output(
 				feeder_transaction->
 				transaction->
 				memo,
+			feeder_row->
+				feeder_transaction->
+				transaction->
+				check_number,
 			(char *)0 /* transaction_full_name */ );
 	}
 
@@ -966,12 +970,10 @@ char *feeder_row_display_results(
 			snprintf(
 				buffer,
 				sizeof ( buffer ),
-				"Matched check# %d/%s/%s; %s",
+				"Matched check# %d/%s/%s",
 				feeder_journal->check_number,
 				feeder_journal->full_name,
-				feeder_journal->transaction_date_time,
-				feeder_journal->
-					check_update_statement );
+				feeder_journal->transaction_date_time );
 		}
 		else
 		{
@@ -1173,7 +1175,6 @@ LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		LIST *feeder_load_row_list,
@@ -1213,7 +1214,6 @@ LIST *feeder_row_list(
 			feeder_row_new(
 				fund_name,
 				feeder_account_name,
-				contact_key_boolean,
 				financial_institution_full_name,
 				financial_institution_contact_key,
 				feeder_load_row,
@@ -1252,7 +1252,6 @@ LIST *feeder_row_list(
 FEEDER_ROW *feeder_row_new(
 		char *fund_name,
 		char *feeder_account_name,
-		boolean contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		FEEDER_LOAD_ROW *feeder_load_row,
@@ -1316,7 +1315,6 @@ FEEDER_ROW *feeder_row_new(
 				/* ------------------- */
 				feeder_journal_check_seek(
 					feeder_account_name,
-					contact_key_boolean,
 					account_uncleared_checks_string,
 					feeder_load_row->check_number,
 					feeder_load_row->
@@ -1324,7 +1322,45 @@ FEEDER_ROW *feeder_row_new(
 					feeder_journal_list );
 		}
 
-		if ( !feeder_row->feeder_journal )
+		if ( feeder_row->feeder_journal )
+		{
+			/* Exclude manually written checks */
+			/* ------------------------------- */
+			if ( strcmp(
+				feeder_row->feeder_journal->account_name,
+				feeder_account_name ) == 0 )
+			{
+				feeder_row->transaction_date_time =
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					feeder_row_transaction_date_time(
+						feeder_load_row->
+							international_date,
+						minimum_transaction_date_time );
+	
+				feeder_row->feeder_transaction =
+					/* -------------- */
+					/* Safely returns */
+					/* -------------- */
+					feeder_transaction_cleared_check_new(
+						fund_name,
+						feeder_account_name,
+						account_uncleared_checks_string,
+						feeder_load_row->check_number,
+						feeder_load_row->
+							exchange_journal_amount,
+						feeder_row->
+							feeder_journal->
+							full_name,
+						feeder_row->
+							feeder_journal->
+							contact_key,
+						feeder_row->
+							transaction_date_time );
+			}
+		}
+		else
 		{
 			feeder_row->feeder_journal =
 				feeder_journal_amount_seek(
@@ -1398,9 +1434,12 @@ FEEDER_ROW *feeder_row_new(
 	if ( feeder_row->feeder_journal )
 	{
 		feeder_row->transaction_date_time =
-			feeder_row->
-				feeder_journal->
-				transaction_date_time;
+			/* --------------------------------------- */
+			/* Returns a component of either parameter */
+			/* --------------------------------------- */
+			feeder_row_journal_transaction_date_time(
+				feeder_row->feeder_transaction,
+				feeder_row->feeder_journal );
 	}
 
 	return feeder_row;
@@ -1539,41 +1578,6 @@ FEEDER_ROW *feeder_row_parse(
 	}
 
 	return feeder_row;
-}
-
-void feeder_row_check_journal_update(
-		LIST *feeder_row_list )
-{
-	FILE *update_pipe;
-	FEEDER_ROW *feeder_row;
-
-	if ( !list_rewind( feeder_row_list ) ) return;
-
-	update_pipe = feeder_row_check_journal_update_pipe();
-
-	do {
-		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row->feeder_journal
-		&&   feeder_row->
-			feeder_journal->
-			check_update_statement )
-		{
-			fprintf(update_pipe,
-				"%s\n",
-				feeder_row->
-					feeder_journal->
-					check_update_statement );
-		}
-
-	} while ( list_next( feeder_row_list ) );
-
-	pclose( update_pipe );
-}
-
-FILE *feeder_row_check_journal_update_pipe( void )
-{
-	return popen( "sql", "w" );
 }
 
 char *feeder_row_maximum_transaction_date_time(
@@ -2226,3 +2230,42 @@ LIABILITY_ENTITY *feeder_row_liability_entity(
 
 	return liability_entity;
 }
+
+char *feeder_row_journal_transaction_date_time(
+		FEEDER_TRANSACTION *feeder_transaction,
+		FEEDER_JOURNAL *feeder_journal )
+{
+	char *transaction_date_time;
+
+	if  ( feeder_transaction )
+	{
+		if ( !feeder_transaction->transaction )
+		{
+			char message[ 1024 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"feeder_transaction->transaction is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		transaction_date_time =
+			feeder_transaction->
+				transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		transaction_date_time =
+			feeder_journal->transaction_date_time;
+	}
+
+	return transaction_date_time;
+}
+

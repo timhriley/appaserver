@@ -585,32 +585,15 @@ char *feeder_load_event_latest_date_time(
 }
 
 double feeder_load_event_prior_account_end_balance(
-		const char *feeder_load_event_table,
-		char *feeder_account_name )
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch )
 {
-	FEEDER_LOAD_EVENT *feeder_load_event;
 	double prior_account_end_balance = 0.0;
 
-	if ( !feeder_account_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "feeder_account_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ( feeder_load_event =
-		feeder_load_event_latest_fetch(
-			feeder_load_event_table,
-			feeder_account_name ) ) )
+	if ( feeder_load_event_latest_fetch )
 	{
 		prior_account_end_balance =
-			feeder_load_event->feeder_row_account_end_balance;
+			feeder_load_event_latest_fetch->
+				feeder_row_account_end_balance;
 	}
 
 	return prior_account_end_balance;
