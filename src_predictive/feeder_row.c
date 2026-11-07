@@ -1324,11 +1324,12 @@ FEEDER_ROW *feeder_row_new(
 
 		if ( feeder_row->feeder_journal )
 		{
+			/* ------------------------------- */
 			/* Exclude manually written checks */
 			/* ------------------------------- */
 			if ( strcmp(
 				feeder_row->feeder_journal->account_name,
-				feeder_account_name ) == 0 )
+				feeder_account_name ) != 0 )
 			{
 				feeder_row->transaction_date_time =
 					/* ------------------- */

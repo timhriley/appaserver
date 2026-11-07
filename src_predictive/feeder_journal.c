@@ -269,17 +269,6 @@ FEEDER_JOURNAL *feeder_journal_check_seek(
 			feeder_journal->amount,
 			exchange_journal_amount ) )
 		{
-			feeder_journal->account_name =
-				account_uncleared_checks_string;
-
-			feeder_journal->debit_amount =
-				-exchange_journal_amount;
-
-			feeder_journal->amount =
-				feeder_journal_amount(
-					feeder_journal->debit_amount,
-					feeder_journal->credit_amount );
-
 			return feeder_journal;
 		}
 
@@ -377,9 +366,7 @@ FEEDER_JOURNAL *feeder_journal_new( JOURNAL *journal )
 	feeder_journal->account_name = journal->account_name;
 	feeder_journal->debit_amount = journal->debit_amount;
 	feeder_journal->credit_amount = journal->credit_amount;
-
-	feeder_journal->check_number =
-		journal->transaction->check_number;
+	feeder_journal->check_number = journal->transaction->check_number;
 
 	return feeder_journal;
 }
