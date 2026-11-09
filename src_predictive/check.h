@@ -18,7 +18,6 @@ typedef struct
 {
 	double amount;
 	char *dollar_text;
-	char *escape_payable_to;
 	char *move_down_latex;
 	char *date_latex;
 	char *vendor_amount_due_latex;
@@ -37,7 +36,7 @@ typedef struct
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *transaction_memo,
+		char *memo,
 		double liability_entity_amount_due,
 		char *entity_full_name );
 
@@ -50,8 +49,8 @@ double check_amount(
 		double dialog_box_payment_amount,
 		double liability_entity_amount_due );
 			
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *check_escape_payable_to(
 		char *entity_full_name );
 
@@ -81,20 +80,30 @@ char *check_amount_due_stub_latex(
 char *check_dollar_text_latex(
 		char *check_dollar_text );
 
+/* Returns heap memory */
+/* ------------------- */
+char *check_escape_stub_memo(
+		char *check_memo_stub_trim );
+
 /* Returns static memory */
 /* --------------------- */
 char *check_memo_stub_latex(
-		char *check_memo_stub_trim );
+		char *check_escape_stub_memo );
 
 /* Returns static memory */
 /* --------------------- */
 char *check_number_stub_latex(
 		int check_number );
 
+/* Returns heap memory */
+/* ------------------- */
+char *check_escape_memo(
+		char *memo );
+
 /* Returns static memory */
 /* --------------------- */
 char *check_memo_latex(
-		char *transaction_memo );
+		char *check_escape_memo );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -130,7 +139,7 @@ char *check_dollar_text(
 char *check_memo_stub_trim(
 		const int check_stub_memo_max_length
 			/* Probably 30 */,
-		char *transaction_memo );
+		char *memo );
 
 typedef struct
 {
@@ -173,7 +182,7 @@ CHECK_LIST *check_list_new(
 		char *application_name,
 		double dialog_box_payment_amount,
 		int starting_check_number,
-		char *transaction_memo,
+		char *memo,
 		char *dappaserver_parameter_data_directory,
 		char *process_name,
 		char *session_key,
@@ -215,7 +224,7 @@ char *check_list_heading(
 /* Returns either parameter */
 /* ------------------------ */
 char *check_list_memo(
-		char *transaction_memo,
+		char *memo,
 		char *journal_list_last_memo );
 
 /* Returns program memory */

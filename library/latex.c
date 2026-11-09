@@ -580,9 +580,9 @@ char *latex_cell_formatted_datum(
 	if ( latex_column_enum == latex_column_text )
 	{
 		datum =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
+			/* ------------------------ */
+			/* Returns 2K static memory */
+			/* ------------------------ */
 			latex_cell_escape( datum );
 	}
 

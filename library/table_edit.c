@@ -170,12 +170,6 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 				folder_attribute_primary_key_list
 				/* many_primary_key_list */ );
 
-/*
-	table_edit_input->relation_mto1_list =
-		relation_mto1_without_omit_drillthru_list(
-			table_edit_input->relation_mto1_list );
-*/
-
 	table_edit_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
 			(LIST *)0 /* mto1_isa_list Pass in null */,
@@ -1794,8 +1788,6 @@ LIST *table_edit_input_viewonly_attribute_name_list(
 		list_set_list(
 			viewonly_attribute_name_list,
 			drillthru_viewonly_attribute_name_list );
-
-		list_free_container( viewonly_attribute_name_list );
 	}
 
 	list_set_list(

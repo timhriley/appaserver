@@ -353,7 +353,7 @@ function form_cookie_set_multi_drop_down_element_value(
 				move_left_right_delimiter );
 
 		value_exists =
-			timlib_multi_select_drop_down_value_exists(
+			timlib_select_drop_down_value_exists(
 				original_element.options,
 				element_value );
 
@@ -377,6 +377,8 @@ function form_cookie_set_multi_drop_down_element_value(
 
 function form_cookie_set_drop_down_element_selected( element, value )
 {
+	var field;
+
 	for( var i = 0; i < element.options.length; i++ )
 	{
 		if ( element.options[ i ].value == value )
@@ -387,8 +389,9 @@ function form_cookie_set_drop_down_element_selected( element, value )
 	}
 
 	// For [Fill] button support.
-	field = timlib_string_initial_capital( value );
-	element.options[ 3 ] = new Option( field, value, false, true );
+	// field = timlib_string_initial_capital( value );
+	// element.options[ 3 ] = new Option( field, value, false, true );
+
 	return true;
 }
 

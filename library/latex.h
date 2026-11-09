@@ -188,8 +188,8 @@ char *latex_cell_display(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns 2K static memory */
+/* ------------------------ */
 char *latex_cell_escape(
 		char *datum );
 
