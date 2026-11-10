@@ -145,7 +145,6 @@ LIST *feeder_row_list(
 		char *fund_name,
 		char *feeder_account_name,
 		boolean reverse_order_boolean,
-		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_contact_key,
 		LIST *feeder_load_row_list,
@@ -169,7 +168,6 @@ int feeder_row_feeder_row_number(
 FEEDER_ROW *feeder_row_new(
 		char *fund_name,
 		char *feeder_account_name,
-		boolean entity_contact_key_boolean,
 		char *financial_institution_full_name,
 		char *financial_institution_street_address,
 		FEEDER_LOAD_ROW *feeder_load_row,
@@ -298,6 +296,15 @@ char *feeder_row_primary_where(
 /* ------------------------------------------------------ */
 double feeder_row_account_end_balance(
 		LIST *feeder_row_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns a component of either parameter */
+/* --------------------------------------- */
+char *feeder_row_journal_transaction_date_time(
+		FEEDER_TRANSACTION *feeder_transaction,
+		FEEDER_JOURNAL *feeder_journal );
 
 /* Usage */
 /* ----- */
@@ -517,16 +524,6 @@ void feeder_row_journal_propagate(
 LIST *feeder_row_extract_transaction_list(
 		char *fund_name,
 		LIST *feeder_row_list );
-
-/* Usage */
-/* ------ */
-void feeder_row_check_journal_update(
-		LIST *feeder_row_list );
-
-/* Process */
-/* ------- */
-FILE *feeder_row_check_journal_update_pipe(
-		void );
 
 /* Usage */
 /* ----- */

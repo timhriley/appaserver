@@ -224,10 +224,8 @@ char *feeder_journal_where(
 	return strdup( where );
 }
 
-FEEDER_JOURNAL *
-	feeder_journal_check_seek(
+FEEDER_JOURNAL *feeder_journal_check_seek(
 		char *feeder_account_name,
-		boolean contact_key_boolean,
 		char *account_uncleared_checks_string,
 		int check_number,
 		double exchange_journal_amount,
@@ -238,11 +236,18 @@ FEEDER_JOURNAL *
 	if ( !feeder_account_name
 	||   !account_uncleared_checks_string
 	||   !check_number
-	||   !exchange_journal_amount )
+	||   float_virtually_zero( exchange_journal_amount ) )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message, "parameter is empty." );
+		snprintf(
+			message,
+			sizeof( message ),
+			"parameter is empty: %x, %x, %d, %.2lf.",
+			(unsigned int)(long)feeder_account_name,
+			(unsigned int)(long)account_uncleared_checks_string,
+			check_number,
+			exchange_journal_amount );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -264,23 +269,6 @@ FEEDER_JOURNAL *
 			feeder_journal->amount,
 			exchange_journal_amount ) )
 		{
-			feeder_journal->check_update_statement =
-				/* ------------------- */
-				/* Independent of fund */
-				/* Returns heap memory */
-				/* ------------------- */
-				feeder_journal_check_update_statement(
-					JOURNAL_TABLE,
-					feeder_account_name,
-					contact_key_boolean,
-					account_uncleared_checks_string,
-					feeder_journal->
-						full_name,
-					feeder_journal->
-						contact_key,
-					feeder_journal->
-						transaction_date_time );
-
 			return feeder_journal;
 		}
 
@@ -378,9 +366,7 @@ FEEDER_JOURNAL *feeder_journal_new( JOURNAL *journal )
 	feeder_journal->account_name = journal->account_name;
 	feeder_journal->debit_amount = journal->debit_amount;
 	feeder_journal->credit_amount = journal->credit_amount;
-
-	feeder_journal->check_number =
-		journal->transaction->check_number;
+	feeder_journal->check_number = journal->transaction->check_number;
 
 	return feeder_journal;
 }
@@ -393,60 +379,6 @@ double feeder_journal_amount(
 		return debit_amount;
 	else
 		return 0.0 - credit_amount;
-}
-
-char *feeder_journal_check_update_statement(
-		const char *journal_table,
-		char *feeder_account,
-		boolean contact_key_boolean,
-		char *account_uncleared_checks_string,
-		char *full_name,
-		char *contact_key,
-		char *transaction_date_time )
-{
-	char *primary_where;
-	char update_statement[ 1024 ];
-
-	if ( !feeder_account
-	||   !account_uncleared_checks_string
-	||   !full_name
-	||   !transaction_date_time )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	primary_where =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_primary_where(
-			(char *)0 /* fund_name */,
-			full_name,
-			contact_key,
-			transaction_date_time,
-			account_uncleared_checks_string,
-			0 /* not predictive_fund_boolean */,
-			contact_key_boolean );
-
-	snprintf(
-		update_statement,
-		sizeof ( update_statement ),
-		"update %s set account = '%s' where %s;",
-		journal_table,
-		feeder_account,
-		primary_where );
-
-	free( primary_where );
-
-	return strdup( update_statement );
 }
 
 char *feeder_journal_contact_join(

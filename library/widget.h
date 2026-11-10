@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef WIDGET_H
-#define WIDGET_H
+#pragma once
 
 #include <stdio.h>
 #include "list.h"
@@ -1859,4 +1858,3 @@ char *widget_hidden_key(
 char *widget_dictionary_hidden_html(
 		DICTIONARY *dictionary );
 
-#endif

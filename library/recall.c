@@ -126,14 +126,19 @@ char *recall_save_cookie_key(
 
 	if ( folder_name && state )
 	{
-		sprintf(cookie_key,
+		snprintf(
+			cookie_key,
+			sizeof ( cookie_key ),
 			"%s_%s",
 			folder_name,
 			state );
 	}
 	else
 	{
-		strcpy( cookie_key, recall_process_cookie_key );
+		string_strcpy(
+			cookie_key,
+			(char *)recall_process_cookie_key,
+			sizeof ( cookie_key ) );
 	}
 
 	return cookie_key;
@@ -147,14 +152,19 @@ char *recall_save_multi_cookie_key(
 
 	if ( folder_name && state )
 	{
-		sprintf(multi_cookie_key,
+		snprintf(
+			multi_cookie_key,
+			sizeof ( multi_cookie_key ),
 			"multi_%s_%s",
 			folder_name,
 			state );
 	}
 	else
 	{
-		strcpy( multi_cookie_key, "multi_process" );
+		string_strcpy(
+			multi_cookie_key,
+			"multi_process",
+			sizeof ( multi_cookie_key ) );
 	}
 
 	return multi_cookie_key;
@@ -221,7 +231,9 @@ char *recall_save_keystrokes_close(
 			message );
 	}
 
-	sprintf(close,
+	snprintf(
+		close,
+		sizeof ( close ),
 		"','%c','%c')",
 		recall_delimiter,
 		widget_multi_left_right_delimiter );
@@ -350,7 +362,9 @@ char *recall_save_keystrokes_multi_open(
 			message );
 	}
 
-	sprintf(open,
+	snprintf(
+		open,
+		sizeof ( open ),
 		"keystrokes_multi_save(%s,'%s','%s','%s','",
 		form_name,
 		recall_save_cookie_multi_key,
@@ -388,7 +402,9 @@ char *recall_save_keystrokes_multi_close(
 			message );
 	}
 
-	sprintf(close,
+	snprintf(
+		close,
+		sizeof ( close ),
 		"','%c','%c','%c')",
 		recall_delimiter,
 		widget_multi_left_right_delimiter,
@@ -545,7 +561,9 @@ char *recall_load_keystrokes_close(
 			message );
 	}
 
-	sprintf(close,
+	snprintf(
+		close,
+		sizeof ( close ),
 		"','%c','%c')",
 		recall_delimiter,
 		widget_multi_left_right_delimiter );
@@ -778,16 +796,20 @@ char *recall_load_javascript(
 
 	if ( recall_load_keystrokes_javascript )
 	{
-		strcpy( javascript, recall_load_keystrokes_javascript );
+		string_strcpy(
+			javascript,
+			recall_load_keystrokes_javascript,
+			sizeof ( javascript ) );
 	}
 
 	if ( recall_load_keystrokes_multi_javascript )
 	{
 		if ( !*javascript )
 		{
-			strcpy(
+			string_strcpy(
 				javascript,
-				recall_load_keystrokes_multi_javascript );
+				recall_load_keystrokes_multi_javascript,
+				sizeof ( javascript ) );
 		}
 		else
 		{
@@ -808,14 +830,19 @@ char *recall_save_cookie_multi_key(
 
 	if ( folder_name && state )
 	{
-		sprintf(multi_key,
+		snprintf(
+			multi_key,
+			sizeof ( multi_key ),
 			"multi_%s_%s",
 			folder_name,
 			state );
 	}
 	else
 	{
-		strcpy( multi_key, "multi_process" );
+		string_strcpy(
+			multi_key,
+			"multi_process",
+			sizeof ( multi_key )  );
 	}
 
 	return multi_key;
@@ -841,10 +868,12 @@ char *recall_load_keystrokes_multi_open(
 			message );
 	}
 
-	sprintf(open,
-		 "keystrokes_multi_onload(%s,'%s','",
-		 form_name,
-		 recall_save_cookie_multi_key );
+	snprintf(
+		open,
+		sizeof ( open ),
+		"keystrokes_multi_onload(%s,'%s','",
+		form_name,
+		recall_save_cookie_multi_key );
 
 	return open;
 }
@@ -869,7 +898,9 @@ char *recall_load_keystrokes_multi_close(
 			message );
 	}
 
-	sprintf(close,
+	snprintf(
+		close,
+		sizeof ( close ),
 		"','%c','%c','%c')",
 		recall_delimiter,
 		widget_multi_left_right_delimiter,

@@ -93,7 +93,7 @@ function timlib_get_multi_select_drop_down_element_populated( options )
 	return timlib_multi_drop_down_element_value( options );
 }
 
-function timlib_multi_select_drop_down_value_exists(
+function timlib_select_drop_down_value_exists(
 		options,
 		value )
 {

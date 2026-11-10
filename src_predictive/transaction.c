@@ -1090,12 +1090,14 @@ void transaction_html_display( TRANSACTION *transaction )
 		transaction->fund_name,
 		transaction->transaction_date_time,
 		transaction->memo,
+		transaction->check_number,
 		transaction->full_name );
 }
 
 char *transaction_display( TRANSACTION *transaction )
 {
 	char display[ 1024 ];
+	char memo[ 512 ];
 
 	if ( !transaction )
 	{
@@ -1110,6 +1112,17 @@ char *transaction_display( TRANSACTION *transaction )
 			message );
 	}
 
+	*memo = '\0';
+
+	if ( transaction->memo ) strcpy( memo, transaction->memo );
+
+	if ( transaction->check_number )
+	{
+		sprintf(memo + strlen( memo ),
+			"; Check=%d",
+			transaction->check_number );
+	}
+
 	snprintf(
 		display,
 		sizeof ( display ),
@@ -1120,7 +1133,7 @@ char *transaction_display( TRANSACTION *transaction )
 		transaction->full_name,
 		transaction->transaction_date_time,
 		transaction->transaction_amount,
-		(transaction->memo) ? transaction->memo : "" );
+		memo );
 
 	return strdup( display );
 }

@@ -171,8 +171,7 @@ char *feeder_load_event_insert_system_string(
 /* Usage */
 /* ----- */
 double feeder_load_event_prior_account_end_balance(
-		const char *feeder_load_event_table,
-		char *feeder_account_name );
+		FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch );
 
 /* Usage */
 /* ----- */

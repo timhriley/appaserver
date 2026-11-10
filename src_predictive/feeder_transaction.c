@@ -260,3 +260,60 @@ char *feeder_transaction_contact_key(
 	return contact_key;
 }
 
+FEEDER_TRANSACTION *feeder_transaction_cleared_check_new(
+		char *fund_name,
+		char *feeder_account_name,
+		char *account_uncleared_checks_string,
+		int check_number,
+		double exchange_journal_amount,
+		char *full_name,
+		char *contact_key,
+		char *feeder_row_transaction_date_time )
+{
+	FEEDER_TRANSACTION *feeder_transaction;
+
+	if ( !feeder_account_name
+	||   !account_uncleared_checks_string
+	||   !check_number
+	||   float_money_virtually_zero( exchange_journal_amount )
+	||   !full_name
+	||   !feeder_row_transaction_date_time )
+	{
+		char message[ 1024 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	feeder_transaction = feeder_transaction_calloc();
+
+	feeder_transaction->transaction =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		transaction_binary(
+			fund_name,
+			full_name,
+			contact_key,
+			feeder_row_transaction_date_time,
+			-exchange_journal_amount
+				/* transaction_amount */,
+			FEEDER_TRANSACTION_CLEARED_CHECK_MEMO,
+			account_uncleared_checks_string
+				/* debit_account_name */,
+			feeder_account_name
+				/* credit_account_name */ );
+
+	feeder_transaction->transaction->check_number = check_number;
+
+	return feeder_transaction;
+}
+

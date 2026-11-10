@@ -24,7 +24,6 @@ int main( int argc, char **argv )
 	if ( ( application_name =
 			environ_exit_application_name( argv[ 0 ] ) ) )
 				{}
-
 /*
 	appaserver_error_argv_append_file(
 		argc,
@@ -67,6 +66,7 @@ int main( int argc, char **argv )
 			/* ------------------- */
 			transaction_display(
 				transaction ) );
+
 		printf( "%s\n",
 			/* ------------------- */
 			/* Returns heap memory */

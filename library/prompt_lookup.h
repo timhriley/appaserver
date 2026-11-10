@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/
 
-#ifndef PROMPT_LOOKUP_H
-#define PROMPT_LOOKUP_H
+#pragma once
 
 #include "boolean.h"
 #include "list.h"
@@ -137,4 +136,3 @@ char *prompt_lookup_title_string(
 		char *state,
 		char *folder_name );
 
-#endif

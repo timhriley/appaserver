@@ -209,6 +209,7 @@ void journal_list_html_display(
 		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
+		int check_number,
 		char *fund_name );
 
 /* Usage */
@@ -249,6 +250,7 @@ void journal_list_pipe_display(
 		char *transaction_fund_name,
 		char *transaction_date_time,
 		char *transaction_memo,
+		int check_number,
 		char *transaction_full_name,
 		LIST *journal_list );
 

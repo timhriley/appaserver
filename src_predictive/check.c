@@ -222,7 +222,7 @@ CHECK_LIST *check_list_new(
 CHECK *check_new(
 		double dialog_box_payment_amount,
 		int check_number,
-		char *transaction_memo,
+		char *memo,
 		double liability_entity_amount_due,
 		char *entity_full_name )
 {
@@ -275,13 +275,6 @@ CHECK *check_new(
 		check_dollar_text(
 			check->amount );
 
-	check->escape_payable_to =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		check_escape_payable_to(
-			entity_full_name );
-
 	check->move_down_latex =
 		/* ---------------------- */
 		/* Returns program memory */
@@ -309,7 +302,11 @@ CHECK *check_new(
 		/* Returns static memory */
 		/* --------------------- */
 		check_vendor_amount_due_latex(
-			check->escape_payable_to,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			check_escape_payable_to(
+				entity_full_name ),
 			commas_money );
 
 	check->amount_due_stub_latex =
@@ -327,15 +324,23 @@ CHECK *check_new(
 			check->dollar_text );
 
 	check->memo_stub_trim =
+		/* ---------------------------------- */
+		/* Returns parameter or static memory */
+		/* ---------------------------------- */
 		check_memo_stub_trim(
 			CHECK_STUB_MEMO_MAX_LENGTH,
-			transaction_memo );
+			memo );
 
 	check->memo_stub_latex =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_memo_stub_latex( check->memo_stub_trim );
+		check_memo_stub_latex(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			check_escape_stub_memo(
+				check->memo_stub_trim ) );
 
 	check->number_stub_latex =
 		/* --------------------- */
@@ -347,7 +352,11 @@ CHECK *check_new(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		check_memo_latex( transaction_memo );
+		check_memo_latex(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			check_escape_memo( memo ) );
 
 	check->newpage_latex =
 		/* ---------------------- */
@@ -592,11 +601,11 @@ char *check_memo_stub_latex( char *stub_trim )
 	return latex;
 }
 
-char *check_memo_latex( char *transaction_memo )
+char *check_memo_latex( char *memo )
 {
 	static char latex[ 256 ];
 
-	if ( transaction_memo && *transaction_memo )
+	if ( memo && *memo )
 	{
 		snprintf(
 			latex,
@@ -604,7 +613,7 @@ char *check_memo_latex( char *transaction_memo )
 "\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
 "& & %s\n"
 "\\end{tabular}\n\n",
-			transaction_memo );
+			memo );
 	}
 	else
 	{
@@ -872,6 +881,8 @@ CHECK_LIST *check_list_calloc( void )
 
 char *check_escape_payable_to( char *full_name )
 {
+	char payable_to[ 2304 ];
+
 	if ( !full_name || !*full_name )
 	{
 		char message[ 128 ];
@@ -885,11 +896,14 @@ char *check_escape_payable_to( char *full_name )
 			message );
 	}
 
-	return
-	/* --------------------- */
-	/* Returns static memory */
-	/* --------------------- */
-	latex_cell_escape( full_name /* datum */ );
+	strcpy(
+		payable_to,
+		/* ------------------------ */
+		/* Returns 2K static memory */
+		/* ------------------------ */
+		latex_cell_escape( full_name /* datum */ ) );
+
+	return strdup( payable_to );
 }
 
 double check_amount(
@@ -908,18 +922,18 @@ double check_amount(
 
 char *check_memo_stub_trim(
 		int max_length,
-		char *transaction_memo )
+		char *memo )
 {
 	static char trim[ 128 ];
 
-	if ( string_strlen( transaction_memo ) > max_length )
+	if ( string_strlen( memo ) > max_length )
 	{
-		string_strncpy( trim, transaction_memo, max_length );
+		string_strncpy( trim, memo, max_length );
 		return trim;
 	}
 	else
 	{
-		return transaction_memo;
+		return memo;
 	}
 }
 
@@ -932,3 +946,28 @@ char *check_list_memo(
 	else
 		return journal_list_last_memo;
 }
+
+char *check_escape_memo( char *memo )
+{
+	if ( !memo ) memo = "";
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	check_escape_payable_to(
+		memo /* full_name */ );
+}
+
+char *check_escape_stub_memo( char *memo )
+{
+	if ( !memo ) memo = "";
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	check_escape_payable_to(
+		memo /* full_name */ );
+}
+
