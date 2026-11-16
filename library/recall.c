@@ -72,7 +72,7 @@ RECALL_SAVE *recall_save_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		recall_save_keystrokes_javascript(
-			RECALL_DELIMITER,
+			RECALL_BLOCK_DELIMITER,
 			WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
 			form_name,
 			widget_container_list,
@@ -84,6 +84,8 @@ RECALL_SAVE *recall_save_new(
 		/* Returns static memory */
 		/* --------------------- */
 		recall_save_cookie_multi_key(
+			RECALL_MULTI_KEY_PREFIX,
+			RECALL_PROCESS_COOKIE_KEY,
 			folder_name,
 			state );
 
@@ -92,7 +94,7 @@ RECALL_SAVE *recall_save_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		recall_save_keystrokes_multi_javascript(
-			RECALL_DELIMITER,
+			RECALL_BLOCK_DELIMITER,
 			WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
 			form_name,
 			widget_container_list,
@@ -142,32 +144,6 @@ char *recall_save_cookie_key(
 	}
 
 	return cookie_key;
-}
-
-char *recall_save_multi_cookie_key(
-		char *folder_name,
-		char *state )
-{
-	static char multi_cookie_key[ 128 ];
-
-	if ( folder_name && state )
-	{
-		snprintf(
-			multi_cookie_key,
-			sizeof ( multi_cookie_key ),
-			"multi_%s_%s",
-			folder_name,
-			state );
-	}
-	else
-	{
-		string_strcpy(
-			multi_cookie_key,
-			"multi_process",
-			sizeof ( multi_cookie_key ) );
-	}
-
-	return multi_cookie_key;
 }
 
 char *recall_save_keystrokes_open(
@@ -317,7 +293,7 @@ char *recall_save_keystrokes_javascript(
 			/* Returns static memory */
 			/* --------------------- */
 			recall_widget_component_string(
-				RECALL_DELIMITER,
+				RECALL_BLOCK_DELIMITER,
 				widget_container,
 				got_one );
 
@@ -489,7 +465,7 @@ char *recall_save_keystrokes_multi_javascript(
 			/* Returns static memory */
 			/* --------------------- */
 			recall_widget_component_string(
-				RECALL_DELIMITER,
+				RECALL_BLOCK_DELIMITER,
 				widget_container,
 				got_one );
 
@@ -642,7 +618,7 @@ char *recall_load_keystrokes_javascript(
 			/* Returns static memory */
 			/* --------------------- */
 			recall_widget_component_string(
-				RECALL_DELIMITER,
+				RECALL_BLOCK_DELIMITER,
 				widget_container,
 				got_one );
 
@@ -739,7 +715,7 @@ char *recall_load_keystrokes_multi_javascript(
 			/* Returns static memory */
 			/* --------------------- */
 			recall_widget_component_string(
-				RECALL_DELIMITER,
+				RECALL_BLOCK_DELIMITER,
 				widget_container,
 				got_one );
 
@@ -823,6 +799,8 @@ char *recall_load_javascript(
 }
 
 char *recall_save_cookie_multi_key(
+		const char *recall_multi_key_prefix,
+		const char *recall_process_cookie_key,
 		char *folder_name,
 		char *state )
 {
@@ -833,7 +811,8 @@ char *recall_save_cookie_multi_key(
 		snprintf(
 			multi_key,
 			sizeof ( multi_key ),
-			"multi_%s_%s",
+			"%s%s_%s",
+			recall_multi_key_prefix,
 			folder_name,
 			state );
 	}
@@ -841,8 +820,8 @@ char *recall_save_cookie_multi_key(
 	{
 		string_strcpy(
 			multi_key,
-			"multi_process",
-			sizeof ( multi_key )  );
+			(char *)recall_process_cookie_key,
+			sizeof ( multi_key ) );
 	}
 
 	return multi_key;
@@ -933,7 +912,7 @@ RECALL_LOAD *recall_load_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		recall_load_keystrokes_javascript(
-			RECALL_DELIMITER,
+			RECALL_BLOCK_DELIMITER,
 			WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
 			form_name,
 			widget_container_list,
@@ -944,6 +923,8 @@ RECALL_LOAD *recall_load_new(
 		/* Returns static memory */
 		/* --------------------- */
 		recall_save_cookie_multi_key(
+			RECALL_MULTI_KEY_PREFIX,
+			RECALL_PROCESS_COOKIE_KEY,
 			folder_name,
 			state );
 
@@ -952,7 +933,7 @@ RECALL_LOAD *recall_load_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		recall_load_keystrokes_multi_javascript(
-			RECALL_DELIMITER,
+			RECALL_BLOCK_DELIMITER,
 			WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
 			form_name,
 			widget_container_list,

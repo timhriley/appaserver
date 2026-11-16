@@ -827,3 +827,7 @@ function timlib_string_initial_capital( source )
 	return destination;
 }
 
+function timlib_strcmp( str1, str2 )
+{
+	return (str1 > str2) - (str1 < str2);
+}

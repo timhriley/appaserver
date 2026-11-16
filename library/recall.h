@@ -11,8 +11,9 @@
 #include "widget.h"
 
 #define RECALL_BUTTON_LABEL		"Recall"
-#define RECALL_DELIMITER		'~'
+#define RECALL_BLOCK_DELIMITER		'~'
 #define RECALL_EQUAL_DELIMITER		"!*"
+#define RECALL_MULTI_KEY_PREFIX		"mmulti_"
 #define RECALL_PROCESS_COOKIE_KEY	"process_cookie"
 
 typedef struct
@@ -51,6 +52,8 @@ char *recall_save_cookie_key(
 /* Returns static memory */
 /* --------------------- */
 char *recall_save_cookie_multi_key(
+		const char *recall_multi_key_prefix,
+		const char *recall_process_cookie_key,
 		char *folder_name,
 		char *state );
 
