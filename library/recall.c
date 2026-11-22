@@ -101,19 +101,19 @@ RECALL_SAVE *recall_save_new(
 			application_ssl_support_boolean,
 			recall_save->cookie_multi_key );
 
-	if ( recall_save->keystrokes_javascript
-	||   recall_save->keystrokes_multi_javascript )
+	if ( recall_save->javascript
+	||   recall_save->multi_javascript )
 	{
-		recall_save->javascript =
+		recall_save->apply_javascript =
 			/* --------------------------- */
 			/* Borrow RECALL_LOAD's	       */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			recall_load_javascript(
-			    recall_save->keystrokes_javascript
-				/* recall_load_keystrokes_javascript */,
-			    recall_save->keystrokes_multi_javascript
-				/* recall_load_keystrokes_multi_javascript */ );
+			recall_load_apply_javascript(
+			    recall_save->javascript
+				/* recall_load_javascript */,
+			    recall_save->multi_javascript
+				/* recall_load_multi_javascript */ );
 	}
 
 	return recall_save;
@@ -739,29 +739,29 @@ char *recall_load_keystrokes_multi_javascript(
 	return strdup( javascript );
 }
 
-char *recall_load_javascript(
-		char *recall_load_keystrokes_javascript,
-		char *recall_load_keystrokes_multi_javascript )
+char *recall_load_apply_javascript(
+		char *recall_load_javascript,
+		char *recall_load_multi_javascript )
 {
-	char javascript[ STRING_128K ];
+	char apply_javascript[ STRING_2K ];
 
-	*javascript = '\0';
+	*apply_javascript = '\0';
 
-	if ( !recall_load_keystrokes_javascript
-	&&   !recall_load_keystrokes_multi_javascript )
+	if ( !recall_load_javascript
+	&&   !recall_load_multi_javascript )
 	{
 		return (char *)0;
 	}
 
-	if (	string_strlen( recall_load_keystrokes_javascript ) +
-		string_strlen( recall_load_keystrokes_multi_javascript ) + 1
-		>= STRING_128K )
+	if (	string_strlen( recall_load_javascript ) +
+		string_strlen( recall_load_multi_javascript ) + 1
+		>= STRING_2K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_128K );
+			STRING_2K );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -770,32 +770,32 @@ char *recall_load_javascript(
 			message );
 	}
 
-	if ( recall_load_keystrokes_javascript )
+	if ( recall_load_javascript )
 	{
 		string_strcpy(
 			javascript,
 			recall_load_keystrokes_javascript,
-			sizeof ( javascript ) );
+			sizeof ( apply_javascript ) );
 	}
 
-	if ( recall_load_keystrokes_multi_javascript )
+	if ( recall_load_multi_javascript )
 	{
-		if ( !*javascript )
+		if ( !*apply_javascript )
 		{
 			string_strcpy(
-				javascript,
-				recall_load_keystrokes_multi_javascript,
-				sizeof ( javascript ) );
+				apply_javascript,
+				apply_recall_load_keystrokes_multi_javascript,
+				sizeof ( applyjavascript ) );
 		}
 		else
 		{
-			sprintf(javascript + strlen( javascript ),
+			sprintf(apply_javascript + strlen( apply_javascript ),
 				" && %s",
-				recall_load_keystrokes_multi_javascript );
+				recall_load_multi_javascript );
 		}
 	}
 
-	return strdup( javascript );
+	return strdup( apply_javascript );
 }
 
 char *recall_save_cookie_multi_key(
@@ -942,11 +942,11 @@ RECALL_LOAD *recall_load_new(
 	if ( recall_load->keystrokes_javascript
 	||   recall_load->keystrokes_multi_javascript )
 	{
-		recall_load->javascript =
+		recall_load->apply_javascript =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			recall_load_javascript(
+			recall_load_apply_javascript(
 				recall_load->keystrokes_javascript,
 				recall_load->keystrokes_multi_javascript );
 	}

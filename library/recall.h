@@ -11,9 +11,12 @@
 #include "widget.h"
 
 #define RECALL_BUTTON_LABEL		"Recall"
-#define RECALL_BLOCK_DELIMITER		'~'
-#define RECALL_EQUAL_DELIMITER		"!*"
-#define RECALL_MULTI_KEY_PREFIX		"mmulti_"
+#define RECALL_NAME_DELIMITER		','
+#define RECALL_EQUAL_DELIMITER		"=="
+#define RECALL_BLOCK_DELIMITER		"~~"
+#define RECALL_MULTI_DELIMITER		"&&"
+#define RECALL_MULTI_INDEX_DELIMITER	'|'
+#define RECALL_MULTI_KEY_PREFIX		"multi_"
 #define RECALL_PROCESS_COOKIE_KEY	"process_cookie"
 
 typedef struct

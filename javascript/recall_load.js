@@ -8,8 +8,7 @@ constructor(
 	form,
 	cookie_key,
 	recall_equal_delimiter /* Probably == */,
-	recall_block_delimiter /* Probably ~~ */,
-	recall_multi_index_delimiter /* Probably | */ )
+	recall_block_delimiter /* Probably ~~ */ )
 {
 	let cookie_string = document.cookie;
 
