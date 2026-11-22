@@ -1,0 +1,29 @@
+element_name_delimited_string=
+nno_display_subclassification
+~relation_operator_subclassification
+~subclassification
+~relation_operator_display_order
+~ffrom_display_order
+~tto_display_order
+
+subclassification_lookup=
+/* cookie_load_raw_key_string */
+nno_display_subclassification==Y
+~~relation_operator_subclassification==seems
+~~subclassification==test1
+~~relation_operator_display_order==between
+~~ffrom_display_order==1
+~~tto_display_order==6
+
+multi_subclassification_lookup=
+/* cookie_load_raw_key_string */
+element==asset&&equity
+~~another==this&&that
+
+Legend:
+cookie_key=
+~  recall_name_delimiter
+== recall_equal_delimiter
+~~ recall_block_delimiter
+&& recall_multi_delimiter
+|  recall_multi_index_delimiter
