@@ -195,7 +195,6 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 		/* -------------- */
 		recall_save_new(
 			APPASERVER_LOOKUP_STATE,
-			FORM_PROMPT_LOOKUP_NAME,
 			folder_name,
 			form_prompt_lookup->
 				form_prompt_lookup_widget_list->
@@ -1334,8 +1333,10 @@ LIST *form_prompt_lookup_button_list(
 	list_set(
 		button_list,
 		button_reset(
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
 			form_name,
-			(char *)0 /* javascript_replace */ ) );
+			(char *)0 /* javascript */ ) );
 
 	list_set(
 		button_list,

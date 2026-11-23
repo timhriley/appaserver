@@ -990,8 +990,10 @@ LIST *form_table_insert_button_list( void )
 	list_set(
 		button_list,
 		button_reset(
-			(char *)0 /* javascript_replace */,
-			0 /* form_number */ ) );
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
+			(char *)0 /* form_name */,
+			(char *)0 /* javascript */ ) );
 
 	list_set(
 		button_list,

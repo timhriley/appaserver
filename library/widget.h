@@ -783,9 +783,9 @@ char *widget_multi_drop_down_right_label(
 /* Returns heap memory */
 /* ------------------- */
 char *widget_multi_drop_down_right_action_string(
+		const char recall_multi_index_delimiter,
 		char *widget_multi_drop_down_original_name,
-		char *widget_name,
-		char widget_multi_move_left_right_delimiter );
+		char *widget_name );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -795,9 +795,9 @@ char *widget_multi_drop_down_left_label(
 /* Returns heap memory */
 /* ------------------- */
 char *widget_multi_drop_down_left_action_string(
+		const char recall_multi_index_delimiter,
 		char *widget_multi_drop_down_original_name,
-		char *widget_name,
-		char widget_multi_move_left_right_delimiter );
+		char *widget_name );
 
 /* Usage */
 /* ----- */

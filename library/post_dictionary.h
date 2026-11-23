@@ -187,7 +187,7 @@ char *post_dictionary_apache_key(
 /* Usage */
 /* ----- */
 void post_dictionary_datum_set(
-		const char widget_multi_left_right_delimiter,
+		const char recall_multi_index_delimiter,
 		DICTIONARY *original_post_dictionary /* out */,
 		char *post_dictionary_attribute_name,
 		char *post_dictionary_attribute_datum /* in/out */ );
@@ -198,8 +198,8 @@ void post_dictionary_datum_set(
 /* Example: BA|1 returns 1 and datum = BA */
 /* -------------------------------------- */
 int post_dictionary_row_number(
-		char *datum /* in/out */,
-		char widget_multi_left_right_delimiter );
+		const char recall_multi_index_delimiter,
+		char *datum /* in/out */ );
 
 /* Usage */
 /* ----- */

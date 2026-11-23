@@ -17,6 +17,7 @@
 #include "appaserver.h"
 #include "widget.h"
 #include "security.h"
+#include "recall.h"
 #include "post_dictionary.h"
 
 POST_DICTIONARY *post_dictionary_calloc( void )
@@ -90,7 +91,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 		&&   post_dictionary_attribute->datum )
 		{
 			post_dictionary_datum_set(
-				WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
+				RECALL_MULTI_INDEX_DELIMITER,
 				post_dictionary->
 					original_post_dictionary
 					/* out */,
@@ -134,7 +135,7 @@ char *post_dictionary_apache_key( char *input )
 }
 
 void post_dictionary_datum_set(
-		const char widget_multi_left_right_delimiter,
+		const char recall_multi_index_delimiter,
 		DICTIONARY *dictionary /* out */,
 		char *attribute_name,
 		char *attribute_datum /* in/out */ )
@@ -182,8 +183,8 @@ void post_dictionary_datum_set(
 
 	row_number =
 		post_dictionary_row_number(
-			attribute_datum /* in/out */,
-			widget_multi_left_right_delimiter );
+			recall_multi_index_delimiter,
+			attribute_datum /* in/out */ );
 
 	if ( row_number )
 	{
@@ -385,8 +386,8 @@ char *post_dictionary_attribute_name( char *input )
 }
 
 int post_dictionary_row_number(
-		char *datum /* in/out */,
-		char widget_multi_left_right_delimiter )
+		const char recall_multi_index_delimiter,
+		char *datum /* in/out */ )
 {
 	char *ptr;
 	int str_len = string_strlen( datum );
@@ -403,7 +404,7 @@ int post_dictionary_row_number(
 			continue;
 		}
 
-		if ( *ptr == widget_multi_left_right_delimiter )
+		if ( *ptr == recall_multi_index_delimiter )
 		{
 			int row_number = atoi( ptr + 1 ) + 1;
 			*ptr = '\0';

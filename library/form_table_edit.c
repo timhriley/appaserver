@@ -25,6 +25,7 @@
 #include "table.h"
 #include "appaserver.h"
 #include "form.h"
+#include "recall.h"
 #include "form_table_edit.h"
 
 FORM_TABLE_EDIT *form_table_edit_calloc( void )
@@ -277,6 +278,8 @@ LIST *form_table_edit_button_widget_container_list(
 		/* Safely returns everything in heap */
 		/* --------------------------------- */
 		button_reset(
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
 			form_name,
 			/* ----------------------------- */
 			/* Returns static memory or null */
@@ -355,7 +358,7 @@ LIST *form_table_edit_sort_container_list(
 	snprintf(
 		onclick,
 		sizeof ( onclick ),
-		"%s && push_button_submit('%s');",
+		"%s;push_button_submit('%s');",
 		JAVASCRIPT_WAIT_START,
 		form_name );
 

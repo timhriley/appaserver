@@ -32,6 +32,7 @@
 #include "query.h"
 #include "attribute.h"
 #include "row_security.h"
+#include "recall.h"
 #include "date_convert.h"
 #include "widget.h"
 
@@ -1151,12 +1152,12 @@ WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		widget_multi_drop_down_right_action_string(
+			RECALL_MULTI_INDEX_DELIMITER,
 			widget_multi_drop_down->
 				original_drop_down->
 				widget_name
 				/* original_name */,
-			widget_name,
-			WIDGET_MULTI_LEFT_RIGHT_DELIMITER );
+			widget_name );
 
 	widget_multi_drop_down->move_right_button->button->hover_message =
 		WIDGET_MULTI_DROP_DOWN_RIGHT_MESSAGE;
@@ -1178,16 +1179,16 @@ WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down_new(
 			widget_multi_drop_down_left_label() );
 
 	widget_multi_drop_down->move_left_button->button->action_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			widget_multi_drop_down_left_action_string(
-				widget_multi_drop_down->
-					original_drop_down->
-					widget_name
-					/* original_name */,
-				widget_name,
-				WIDGET_MULTI_LEFT_RIGHT_DELIMITER );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		widget_multi_drop_down_left_action_string(
+			RECALL_MULTI_INDEX_DELIMITER,
+			widget_multi_drop_down->
+				original_drop_down->
+				widget_name
+				/* original_name */,
+			widget_name );
 
 	widget_multi_drop_down->move_left_button->button->hover_message =
 			WIDGET_MULTI_DROP_DOWN_LEFT_MESSAGE;
@@ -1280,9 +1281,9 @@ char *widget_multi_drop_down_left_label( void )
 }
 
 char *widget_multi_drop_down_right_action_string(
-			char *original_name,
-			char *widget_name,
-			char widget_multi_move_left_right_delimiter )
+		const char recall_multi_index_delimiter,
+		char *original_name,
+		char *widget_name )
 {
 	char action_string[ 1024 ];
 
@@ -1299,19 +1300,21 @@ char *widget_multi_drop_down_right_action_string(
 		exit( 1 );
 	}
 
-	sprintf(action_string,
+	snprintf(
+		action_string,
+		sizeof ( action_string ),
 		"post_change_multi_select_move_right('%s','%s','%c');",
 		original_name,
 		widget_name,
-		widget_multi_move_left_right_delimiter );
+		recall_multi_index_delimiter );
 
 	return strdup( action_string );
 }
 
 char *widget_multi_drop_down_left_action_string(
-			char *original_name,
-			char *widget_name,
-			char widget_multi_move_left_right_delimiter )
+		const char recall_multi_index_delimiter,
+		char *original_name,
+		char *widget_name )
 {
 	char action_string[ 1024 ];
 
@@ -1328,11 +1331,13 @@ char *widget_multi_drop_down_left_action_string(
 		exit( 1 );
 	}
 
-	sprintf(action_string,
+	snprintf(
+		action_string,
+		sizeof ( action_string ),
 		"post_change_multi_select_move_left('%s','%s','%c');",
 		original_name,
 		widget_name,
-		widget_multi_move_left_right_delimiter );
+		recall_multi_index_delimiter );
 
 	return strdup( action_string );
 }
@@ -6501,8 +6506,10 @@ LIST *widget_button_submit_reset_container_list( void )
 
 	widget_container->widget_button->button =
 		button_reset(
-			(char *)0 /* javascript_replace */,
-			0 /* form_number */ );
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
+			(char *)0 /* form_name */,
+			(char *)0 /* javascript */ );
 
 	list_set(
 		widget_container_list,

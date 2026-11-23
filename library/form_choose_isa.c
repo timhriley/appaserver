@@ -12,6 +12,7 @@
 #include "appaserver_error.h"
 #include "button.h"
 #include "form.h"
+#include "recall.h"
 #include "form_choose_isa.h"
 
 FORM_CHOOSE_ISA *form_choose_isa_calloc( void )
@@ -81,8 +82,10 @@ LIST *form_choose_isa_button_widget_container_list( void )
 
 	widget_container->widget_button->button =
 		button_reset(
-			(char *)0 /* javascript_replace */,
-			0 /* form_number */ );
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
+			(char *)0 /* form_name */,
+			(char *)0 /* javascript */ );
 
 	/* Create <Back> */
 	/* ------------- */

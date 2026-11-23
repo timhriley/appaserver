@@ -601,17 +601,28 @@ char *document_head_meta_string( void )
 char *document_head_javascript_string( void )
 {
 	return
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/trim.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/form.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/timlib.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/cookie.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/null2slash.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/form_cookie.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/keystrokes.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/verify_attribute_widths.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/push_button_submit.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/post_change_multi_select.js\"></SCRIPT>\n"
-"<SCRIPT language=JavaScript1.2 src=\"/appaserver_home/javascript/validate_date.js\"></SCRIPT>";
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/trim.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/form.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/timlib.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/null2slash.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/form_cookie.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/keystrokes.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/verify_attribute_widths.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/push_button_submit.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/post_change_multi_select.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/validate_date.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/recall_save.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/recall_multi_save.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_save_element.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_save.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_multi_save.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/recall_load.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_load_raw.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_load_element.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/recall_multi_load.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_multi_load_element.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/button.js\"></SCRIPT>";
 }
 
 char *document_head_menu_setup_string( boolean menu_boolean )
@@ -625,9 +636,9 @@ char *document_head_menu_setup_string( boolean menu_boolean )
 		return
 "<link rel=stylesheet type=text/css href=\"/appaserver_home/zmenu/src/style-template.css\">\n"
 "<link rel=stylesheet type=text/css href=\"/appaserver_home/zmenu/src/skin-template.css\">\n"
-"<script language=JavaScript1.2> _dynarch_menu_url=\"/appaserver_home/zmenu/src/\";</script>\n"
-"<script language=JavaScript1.2> _dynarch_top=\"/appaserver_home/zmenu/\";</script>\n"
-"<script language=JavaScript1.2 src=\"/appaserver_home/zmenu/src/hmenu.js\"></script>";
+"<script language=JavaScript> _dynarch_menu_url=\"/appaserver_home/zmenu/src/\";</script>\n"
+"<script language=JavaScript> _dynarch_top=\"/appaserver_home/zmenu/\";</script>\n"
+"<script language=JavaScript src=\"/appaserver_home/zmenu/src/hmenu.js\"></script>";
 	}
 }
 
@@ -714,8 +725,8 @@ char *document_head_calendar_setup_string(
 "<link rel=stylesheet type=text/css href=/appaserver_home/zscal2/src/css/jscal2.css>\n"
 "<link rel=stylesheet type=text/css href=/appaserver_home/zscal2/src/css/border-radius.css>\n"
 "<link rel=stylesheet type=text/css href=/appaserver_home/zscal2/src/css/gold/gold.css>\n"
-"<script language=Javascript1.2 src=\"/appaserver_home/zscal2/src/js/jscal2.js\"></script>\n"
-"<script language=Javascript1.2 src=\"/appaserver_home/zscal2/src/js/lang/en.js\"></script>";
+"<script language=Javascript src=\"/appaserver_home/zscal2/src/js/jscal2.js\"></script>\n"
+"<script language=Javascript src=\"/appaserver_home/zscal2/src/js/lang/en.js\"></script>";
 	}
 }
 

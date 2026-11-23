@@ -763,7 +763,6 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		/* -------------- */
 		recall_save_new(
 			APPASERVER_INSERT_STATE,
-			FORM_PROMPT_INSERT_NAME,
 			folder_name,
 			form_prompt_insert->
 				form_prompt_insert_widget_list->
@@ -1020,8 +1019,10 @@ LIST *form_prompt_insert_button_container_list(
 
 	widget_container->widget_button->button =
 		button_reset(
-			(char *)0 /* javascript_replace */,
-			0 /* form_number */ );
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_RESET_MESSAGE,
+			(char *)0 /* form_name */,
+			(char *)0 /* javascript */ );
 
 	list_set(
 		button_container_list,

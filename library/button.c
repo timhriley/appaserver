@@ -227,7 +227,7 @@ char *button_submit_html(
 
 		if ( got_one )
 		{
-			ptr += sprintf( ptr, " && " );
+			ptr += sprintf( ptr, ";" );
 		}
 
 		ptr += sprintf(
@@ -259,7 +259,7 @@ char *button_submit_html(
 
 		if ( got_one )
 		{
-			ptr += sprintf( ptr, " && " );
+			ptr += sprintf( ptr, ";" );
 		}
 
 		ptr += sprintf(
@@ -272,12 +272,12 @@ char *button_submit_html(
 
 	if ( got_one )
 	{
-		ptr += sprintf( ptr, " && " );
+		ptr += sprintf( ptr, ";" );
 	}
 
 	ptr += sprintf(
 		ptr,
-		"%s && ",
+		"%s;",
 		JAVASCRIPT_WAIT_START );
 
 	ptr += sprintf(

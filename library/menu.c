@@ -2515,18 +2515,6 @@ char *menu_item_anchor_tag(
 		target_frame,
 		href_string );
 
-#ifdef NOT_DEFINED
-	snprintf(
-		anchor_tag,
-		sizeof ( anchor_tag ),
-		"<a target=%s href=\"#\" "
-		"onclick=\"%s && "
-		"location.href='%s';\">",
-		target_frame,
-		JAVASCRIPT_WAIT_START,
-		href_string );
-#endif
-
 	return anchor_tag;
 }
 

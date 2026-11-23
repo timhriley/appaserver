@@ -181,7 +181,6 @@ FORM_DRILLTHRU *form_drillthru_new(
 		/* -------------- */
 		recall_save_new(
 			APPASERVER_LOOKUP_STATE,
-			FORM_PROMPT_LOOKUP_NAME,
 			folder_name,
 			form_drillthru->
 				form_prompt_lookup_widget_list->

@@ -325,7 +325,6 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 		/* -------------- */
 		recall_save_new(
 			(char *)0 /* state */,
-			FORM_PROMPT_PROCESS_NAME,
 			(char *)0 /* folder_name */,
 			form_prompt_process->
 				form_prompt_process_widget_list->
