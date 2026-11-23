@@ -224,10 +224,7 @@ msg( (char *)0, message );
 		recall_load_new(
 			APPASERVER_LOOKUP_STATE,
 			FORM_PROMPT_LOOKUP_NAME,
-			folder_name,
-			form_prompt_lookup->
-				form_prompt_lookup_widget_list->
-				widget_container_list );
+			folder_name );
 
 /*
 {

@@ -22,10 +22,10 @@
 typedef struct
 {
 	char *cookie_key;
-	char *keystrokes_javascript;
-	char *cookie_multi_key;
-	char *keystrokes_multi_javascript;
 	char *javascript;
+	char *cookie_multi_key;
+	char *multi_javascript;
+	char *apply_javascript;
 } RECALL_SAVE;
 
 /* Usage */
@@ -35,7 +35,6 @@ typedef struct
 /* -------------- */
 RECALL_SAVE *recall_save_new(
 		char *state,
-		char *form_name,
 		char *folder_name,
 		LIST *widget_container_list,
 		boolean application_ssl_support_boolean );
@@ -65,10 +64,10 @@ char *recall_save_cookie_multi_key(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *recall_save_keystrokes_javascript(
-		const char recall_delimiter,
-		const char widget_multi_left_right_delimiter,
-		char *form_name,
+char *recall_save_javascript(
+		const char recall_name_delimiter /* Probably , */,
+		const char *recall_equal_delimiter /* Probably == */,
+		const char *recall_block_delimiter /* Probably ~~ */,
 		LIST *widget_container_list,
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_key );
@@ -78,10 +77,12 @@ char *recall_save_keystrokes_javascript(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *recall_save_keystrokes_multi_javascript(
-		const char recall_delimiter,
-		const char widget_multi_left_right_delimiter,
-		char *form_name,
+char *recall_save_multi_javascript(
+		const char recall_name_delimiter,
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char *recall_multi_delimiter,
+		const char recall_multi_index_delimiter,
 		LIST *widget_container_list,
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_multi_key );
@@ -91,8 +92,7 @@ char *recall_save_keystrokes_multi_javascript(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_save_keystrokes_open(
-		char *form_name,
+char *recall_save_open(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_key );
 
@@ -101,17 +101,17 @@ char *recall_save_keystrokes_open(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_save_keystrokes_close(
-		char recall_delimiter,
-		char widget_multi_left_right_delimiter );
+char *recall_save_close(
+		const char recall_name_delimiter,
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter );
 
 /* Usage */
 /* ----- */
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_save_keystrokes_multi_open(
-		char *form_name,
+char *recall_save_multi_open(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_multi_key );
 
@@ -120,9 +120,12 @@ char *recall_save_keystrokes_multi_open(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_save_keystrokes_multi_close(
-		char recall_delimiter,
-		char widget_multi_left_right_delimiter );
+char *recall_save_multi_close(
+		const char recall_name_delimiter,
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char *recall_multi_delimiter,
+		const char recall_multi_index_delimiter );
 
 /* Usage */
 /* ----- */
@@ -151,10 +154,11 @@ char *recall_save_display(
 typedef struct
 {
 	char *recall_save_cookie_key;
-	char *keystrokes_javascript;
-	char *recall_save_cookie_multi_key;
-	char *keystrokes_multi_javascript;
+	char *button_reset_javascript;
 	char *javascript;
+	char *recall_save_cookie_multi_key;
+	char *multi_javascript;
+	char *apply_javascript;
 } RECALL_LOAD;
 
 /* Usage */
@@ -165,8 +169,7 @@ typedef struct
 RECALL_LOAD *recall_load_new(
 		char *state,
 		char *form_name,
-		char *folder_name,
-		LIST *widget_container_list );
+		char *folder_name );
 
 /* Process */
 /* ------- */
@@ -175,20 +178,21 @@ RECALL_LOAD *recall_load_calloc(
 
 /* Returns heap memory or null */
 /* --------------------------- */
+char *recall_load_apply_javascript(
+		char *button_reset_javascript,
+		char *recall_load_javascript,
+		char *recall_load_multi_javascript );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *recall_load_javascript(
-		char *recall_load_keystrokes_javascript,
-		char *recall_load_keystrokes_multi_javascript );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *recall_load_keystrokes_javascript(
-		const char recall_delimiter,
-		const char widget_multi_left_right_delimiter,
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char recall_multi_index_delimiter,
 		char *form_name,
-		LIST *widget_container_list,
 		char *recall_save_cookie_key );
 
 /* Usage */
@@ -196,37 +200,11 @@ char *recall_load_keystrokes_javascript(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *recall_load_keystrokes_multi_javascript(
-		const char recall_delimiter,
-		const char widget_multi_left_right_delimiter,
-		char *form_name,
-		LIST *widget_container_list,
-		char *recall_save_cookie_multi_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_keystrokes_open(
-		char *form_name,
-		char *recall_save_cookie_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_keystrokes_close(
-		char recall_delimiter,
-		char widget_multi_left_right_delimiter );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_keystrokes_multi_open(
+char *recall_load_multi_javascript(
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char *recall_multi_delimiter,
+		char recall_multi_index_delimiter,
 		char *form_name,
 		char *recall_save_cookie_multi_key );
 
@@ -235,9 +213,39 @@ char *recall_load_keystrokes_multi_open(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_load_keystrokes_multi_close(
-		char recall_delimiter,
-		char widget_multi_left_right_delimiter );
+char *recall_load_open(
+		char *form_name,
+		char *recall_save_cookie_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *recall_load_close(
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char recall_multi_index_delimiter );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *recall_load_multi_open(
+		char *form_name,
+		char *recall_save_cookie_multi_key );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *recall_load_multi_close(
+		const char *recall_equal_delimiter,
+		const char *recall_block_delimiter,
+		const char *recall_multi_delimiter,
+		const char recall_multi_index_delimiter );
 
 /* Usage */
 /* ----- */
@@ -266,8 +274,8 @@ boolean recall_ignore_boolean(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_widget_component_string(
-		const char recall_delimiter,
+char *recall_widget_block_string(
+		const char *recall_block_delimiter,
 		WIDGET_CONTAINER *widget_container,
 		boolean got_one );
 
