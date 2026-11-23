@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef BUTTON_H
-#define BUTTON_H
+#pragma once
 
 #include <unistd.h>
 
@@ -88,8 +87,10 @@ char *button_submit_html(
 /* Safely returns */
 /* -------------- */
 BUTTON *button_reset(
+		const char recall_multi_index_delimiter,
+		const char *button_reset_message,
 		char *form_name,
-		char *javascript_replace );
+		char *javascript );
 
 /* Process */
 /* ------- */
@@ -97,10 +98,10 @@ BUTTON *button_reset(
 /* Returns heap memory */
 /* ------------------- */
 char *button_reset_html(
+		const char recall_multi_index_delimiter,
+		const char *button_reset_message,
 		char *form_name,
-		const char widget_multi_left_right_delimiter,
-		char *javascript_replace,
-		const char *button_reset_message );
+		char *javascript );
 
 /* Usage */
 /* ----- */
@@ -165,8 +166,8 @@ BUTTON *button_drillthru_skip(
 /* Returns heap memory */
 /* ------------------- */
 char *button_drillthru_skip_html(
-		char *button_skip_message,
-		char widget_multi_left_right_delimiter );
+		const char recall_multi_index_delimiter,
+		const char *button_skip_message );
 
 /* Usage */
 /* ----- */
@@ -239,4 +240,12 @@ char *button_list_html(
 void button_list_free(
 		LIST *button_list );
 
-#endif
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *button_reset_javascript(
+		const char recall_multi_index_delimiter,
+		char *form_name );
+

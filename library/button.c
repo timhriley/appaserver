@@ -103,32 +103,35 @@ char *button_html(
 }
 
 char *button_reset_html(
+		const char recall_multi_index_delimiter,
+		const char *button_reset_message,
 		char *form_name,
-		const char widget_multi_left_right_delimiter,
-		char *javascript_replace,
-		const char *button_reset_message )
+		char *javascript )
 {
+	char *reset_javascript;
 	char html[ STRING_4K ];
 	char *ptr = html;
 
-	if ( !form_name ) form_name = "document.forms[0]";
+	reset_javascript =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		button_reset_javascript(
+			recall_multi_index_delimiter,
+			form_name );
 
 	ptr += sprintf(
 		ptr,
-"<input type=button value=\"Reset\" title=\"%s\" onClick=\"form_reset(%s, '%c')",
+		"<input type=button "
+		"value=Reset "
+		"title=\"%s\" "
+		"onClick=\"%s\"",
 		button_reset_message,
-		form_name,
-		widget_multi_left_right_delimiter );
+		reset_javascript );
 
-	if ( javascript_replace && *javascript_replace )
-	{
-		ptr += sprintf(
-			ptr,
-			" && %s",
-			javascript_replace );
-	}
+	if ( javascript ) ptr += sprintf( ptr, "%s;", javascript );
 
-	ptr += sprintf( ptr, "\">" );
+	ptr += sprintf( ptr, ">" );
 
 	return strdup( html );
 }
@@ -402,8 +405,10 @@ BUTTON *button_forward( void )
 }
 
 BUTTON *button_reset(
+		const char recall_multi_index_delimiter,
+		const char *button_reset_message,
 		char *form_name,
-		char *javascript_replace )
+		char *javascript )
 {
 	BUTTON *button = button_calloc();
 
@@ -412,10 +417,10 @@ BUTTON *button_reset(
 		/* Returns heap memory */
 		/* ------------------- */
 		button_reset_html(
+			recall_multi_index_delimiter,
+			button_reset_message,
 			form_name,
-			WIDGET_MULTI_LEFT_RIGHT_DELIMITER,
-			javascript_replace,
-			BUTTON_RESET_MESSAGE );
+			javascript );
 
 	return button;
 }
@@ -429,22 +434,33 @@ BUTTON *button_drillthru_skip( void )
 		/* Returns heap memory */
 		/* ------------------- */
 		button_drillthru_skip_html(
-			BUTTON_SKIP_MESSAGE,
-			WIDGET_MULTI_LEFT_RIGHT_DELIMITER );
+			RECALL_MULTI_INDEX_DELIMITER,
+			BUTTON_SKIP_MESSAGE );
 
 	return button;
 }
 
 char *button_drillthru_skip_html(
-		char *button_skip_message,
-		char widget_multi_left_right_delimiter )
+		const char recall_multi_index_delimiter,
+		const char *button_skip_message )
 {
 	char html[ 1024 ];
+	char *reset_javascript;
 
-	sprintf(html,
-"<input type=button value=\"Skip Drillthru\" title=\"%s\" onClick=\"form_reset(document.forms[0], '%c'); document.forms[0].submit()\">",
+	reset_javascript =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		button_reset_javascript(
+			recall_multi_index_delimiter,
+			(char *)0 /* form_name */ );
+
+	snprintf(
+		html,
+		sizeof ( html ),
+"<input type=button value=\"Skip Drillthru\" title=\"%s\" onClick=\"%s document.forms[0].submit()\">",
 		button_skip_message,
-		widget_multi_left_right_delimiter );
+		reset_javascript );
 
 	return strdup( html );
 }
@@ -784,3 +800,20 @@ char *button_anchor_html(
 	return strdup( html );
 }
 
+char *button_reset_javascript(
+		const char recall_multi_index_delimiter,
+		char *form_name )
+{
+	static char javascript[ 128 ];
+
+	if ( !form_name ) form_name = "document.forms[0]";
+
+	snprintf(
+		javascript,
+		sizeof ( javascript ),
+		"button_reset(%s,'%c');",
+		form_name,
+		recall_multi_index_delimiter );
+
+	return javascript;
+}
