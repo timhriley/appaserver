@@ -210,44 +210,6 @@ char *recall_load_multi_javascript(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_open(
-		char *form_name,
-		char *recall_save_cookie_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_close(
-		const char *recall_equal_delimiter,
-		const char *recall_block_delimiter );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_multi_open(
-		char *form_name,
-		char *recall_save_cookie_multi_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *recall_load_multi_close(
-		const char *recall_equal_delimiter,
-		const char *recall_block_delimiter,
-		const char *recall_multi_delimiter,
-		const char recall_multi_index_delimiter );
-
-/* Usage */
-/* ----- */
-
 /* Returns heap memory */
 /* ------------------- */
 char *recall_load_display(
