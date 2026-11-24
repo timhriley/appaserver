@@ -618,6 +618,7 @@ char *document_head_javascript_string( void )
 "<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_load_element.js\"></SCRIPT>\n"
 "<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/recall_multi_load.js\"></SCRIPT>\n"
 "<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/cookie_multi_load_element.js\"></SCRIPT>\n"
+"<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/post_change_multi_select.js\"></SCRIPT>\n"
 "<SCRIPT language=JavaScript src=\"/appaserver_home/javascript/button.js\"></SCRIPT>";
 }
 
