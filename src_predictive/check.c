@@ -883,7 +883,7 @@ char *check_escape_payable_to( char *full_name )
 {
 	char payable_to[ 2304 ];
 
-	if ( !full_name || !*full_name )
+	if ( !full_name )
 	{
 		char message[ 128 ];
 
