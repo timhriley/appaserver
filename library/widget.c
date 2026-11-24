@@ -8047,7 +8047,7 @@ char *widget_upload_post_change_javascript( char *recall_widget_name )
 	snprintf(
 		javascript,
 		sizeof ( javascript ),
-		"form_cookie_upload_copy( this, '%s' )",
+		"recall_load_upload_copy( this, '%s' )",
 		recall_widget_name );
 
 	return javascript;
