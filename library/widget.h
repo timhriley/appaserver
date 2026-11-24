@@ -32,7 +32,6 @@
 /* #define WIDGET_DROP_DOWN_DASH_DELIMITER	"---" */
 
 #define WIDGET_MULTI_DISPLAY_SIZE		10
-#define WIDGET_MULTI_ORIGINAL_PREFIX		"original_"
 #define WIDGET_MULTI_SELECT_REMEMBER_DELIMITER	'~'
 
 #define WIDGET_MULTI_DROP_DOWN_RIGHT_MESSAGE	\
@@ -772,7 +771,7 @@ WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *widget_multi_drop_down_original_name(
-		char *widget_multi_original_prefix,
+		const char *appaserver_multi_original_prefix,
 		char *widget_name );
 
 /* Returns program memory */

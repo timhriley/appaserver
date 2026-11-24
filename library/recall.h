@@ -11,7 +11,7 @@
 #include "widget.h"
 
 #define RECALL_BUTTON_LABEL		"Recall"
-#define RECALL_NAME_DELIMITER		','
+#define RECALL_NAME_DELIMITER		'~'
 #define RECALL_EQUAL_DELIMITER		"=="
 #define RECALL_BLOCK_DELIMITER		"~~"
 #define RECALL_MULTI_DELIMITER		"&&"
@@ -191,7 +191,6 @@ char *recall_load_apply_javascript(
 char *recall_load_javascript(
 		const char *recall_equal_delimiter,
 		const char *recall_block_delimiter,
-		const char recall_multi_index_delimiter,
 		char *form_name,
 		char *recall_save_cookie_key );
 
@@ -224,8 +223,7 @@ char *recall_load_open(
 /* --------------------- */
 char *recall_load_close(
 		const char *recall_equal_delimiter,
-		const char *recall_block_delimiter,
-		const char recall_multi_index_delimiter );
+		const char *recall_block_delimiter );
 
 /* Usage */
 /* ----- */
@@ -274,8 +272,8 @@ boolean recall_ignore_boolean(
 
 /* Returns static memory */
 /* --------------------- */
-char *recall_widget_block_string(
-		const char *recall_block_delimiter,
+char *recall_widget_name_string(
+		const char recall_name_delimiter,
 		WIDGET_CONTAINER *widget_container,
 		boolean got_one );
 

@@ -24,12 +24,7 @@ constructor(
 			cookie_key,
 			this.cookie_load_raw_array );
 
-	if ( !this.cookie_load_raw_key_string )
-	{
-		alert(	"ERROR in recall_load(): cannot get cookie_key: " +
-			cookie_key );
-		return false;
-	}
+	if ( !this.cookie_load_raw_key_string ) return false;
 
 	this.cookie_load_element_array =
 		new cookie_load_element_array(

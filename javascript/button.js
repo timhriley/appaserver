@@ -1,4 +1,4 @@
-// $APPASERVER_HOME/javascript/button_multi.js
+// $APPASERVER_HOME/javascript/button.js
 // ---------------------------------------------------------------
 // No warranty and freely available software. Visit appaserver.org
 // ---------------------------------------------------------------
@@ -11,12 +11,16 @@ function button_multi_select_all(
 		document.getElementById(
 			original_element_name );
 
+	if ( !original_element ) return false;
+
 	for ( const option of original_element.options )
 		option.selected = false;
 
 	let element =
 		document.getElementById(
 			element_name );
+
+	if ( !element ) return false;
 
 	for ( const option of element.options )
 	{

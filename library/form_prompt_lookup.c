@@ -173,6 +173,7 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_multi_select_all_javascript(
+			APPASERVER_MULTI_ORIGINAL_PREFIX,
 			form_prompt_lookup->
 				form_prompt_lookup_widget_list->
 				widget_container_list );
@@ -248,10 +249,10 @@ msg( (char *)0, message );
 				form_multi_select_all_javascript,
 			form_prompt_lookup->
 				recall_save->
-				javascript,
+				apply_javascript,
 			form_prompt_lookup->
 				recall_load->
-				javascript );
+				apply_javascript );
 
 	form_prompt_lookup->html =
 		/* ------------------- */
@@ -1301,8 +1302,8 @@ LIST *form_prompt_lookup_button_list(
 		boolean button_drillthru_skip_boolean,
 		char *post_choose_folder_action_string,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
-		char *recall_load_javascript )
+		char *save_apply_javascript,
+		char *load_apply_javascript )
 {
 	LIST *button_list;
 
@@ -1326,7 +1327,7 @@ LIST *form_prompt_lookup_button_list(
 		button_submit(
 			form_name,
 			form_multi_select_all_javascript,
-			recall_save_javascript,
+			save_apply_javascript,
 			(char *)0
 			/* form_verify_notepad_widths_javascript */ ) );
 
@@ -1348,7 +1349,7 @@ LIST *form_prompt_lookup_button_list(
 
 	list_set(
 		button_list,
-		button_recall( recall_load_javascript ) );
+		button_recall( load_apply_javascript ) );
 
 	if ( post_choose_folder_action_string )
 	{

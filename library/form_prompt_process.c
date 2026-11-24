@@ -346,6 +346,7 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_multi_select_all_javascript(
+			APPASERVER_MULTI_ORIGINAL_PREFIX,
 			form_prompt_process->
 				form_prompt_process_widget_list->
 				widget_container_list );
@@ -358,10 +359,10 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 			form_prompt_process->form_multi_select_all_javascript,
 			form_prompt_process->
 				recall_save->
-				javascript,
+				apply_javascript,
 			form_prompt_process->
 				recall_load->
-				javascript );
+				apply_javascript );
 
 	form_prompt_process->button_list_html =
 		/* ------------------- */

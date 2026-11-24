@@ -273,6 +273,13 @@ char *widget_drop_down_select_tag(
 			" id=\"%s\"",
 			widget_drop_down_row_number_id );
 	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+			" id=\"%s\"",
+			widget_container_key );
+	}
 
 	ptr += sprintf( ptr, " size=%d", display_size );
 
@@ -1070,17 +1077,16 @@ char *widget_empty_prompt_drop_down_html(
 }
 
 char *widget_multi_drop_down_original_name(
-		char *widget_multi_original_prefix,
+		const char *appaserver_multi_original_prefix,
 		char *widget_name )
 {
 	char drop_down_name[ 256 ];
 
-	if ( !widget_multi_original_prefix
-	||   !widget_name )
+	if ( !widget_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "widget_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1091,7 +1097,7 @@ char *widget_multi_drop_down_original_name(
 
 	sprintf(drop_down_name,
 		"%s%s",
-		widget_multi_original_prefix,	
+		appaserver_multi_original_prefix,	
 		widget_name );
 
 	return strdup( drop_down_name );
@@ -1122,7 +1128,7 @@ WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		widget_multi_drop_down_original_name(
-			WIDGET_MULTI_ORIGINAL_PREFIX,
+			APPASERVER_MULTI_ORIGINAL_PREFIX,
 			widget_name );
 
 	widget_multi_drop_down->original_drop_down =

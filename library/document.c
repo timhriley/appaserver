@@ -401,7 +401,7 @@ char *document_body_onload_open_tag(
 	{
 		ptr += sprintf(
 			ptr,
-			" && %s",
+			";%s",
 			menu_onload_string );
 	}
 
@@ -409,7 +409,7 @@ char *document_body_onload_open_tag(
 	{
 		ptr += sprintf(
 			ptr,
-			" && %s",
+			";%s",
 			onload_javascript_string );
 	}
 

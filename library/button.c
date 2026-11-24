@@ -270,11 +270,6 @@ char *button_submit_html(
 		got_one = 1;
 	}
 
-	if ( got_one )
-	{
-		ptr += sprintf( ptr, ";" );
-	}
-
 	ptr += sprintf(
 		ptr,
 		"%s;",
@@ -811,7 +806,7 @@ char *button_reset_javascript(
 	snprintf(
 		javascript,
 		sizeof ( javascript ),
-		"button_reset(%s,'%c');",
+		"button_reset(%s,'%c')",
 		form_name,
 		recall_multi_index_delimiter );
 

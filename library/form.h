@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FORM_H
-#define FORM_H
+#pragma once
 
 #include <unistd.h>
 #include "boolean.h"
@@ -36,7 +35,6 @@
 #define FORM_NO_DISPLAY_HEADING 	"No Display"
 #define FORM_IGNORE_PUSH_BUTTON_HEADING "ignore"
 
-#define FORM_PROMPT_ORIGINAL_PREFIX	"original_"
 #define FORM_PROMPT_RELATION_PREFIX	"relation_"
 
 #define FORM_FROM_ATTRIBUTE_WIDTH	100
@@ -47,6 +45,7 @@
 /* Returns heap memory or null */
 /* --------------------------- */
 char *form_multi_select_all_javascript(
+		const char *appaserver_multi_original_prefix,
 		LIST *widget_container_list );
 
 /* Usage */
@@ -201,5 +200,3 @@ int form_increment_number(
 char *form_name(
 		const char *label,
 		int form_increment_number );
-
-#endif

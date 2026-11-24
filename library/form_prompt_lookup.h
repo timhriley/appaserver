@@ -270,8 +270,8 @@ LIST *form_prompt_lookup_button_list(
 		boolean button_drillthru_skip_boolean,
 		char *post_choose_folder_action_string,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
-		char *recall_load_javascript );
+		char *recall_save_apply_javascript,
+		char *recall_load_apply_javascript );
 
 /* Usage */
 /* ----- */

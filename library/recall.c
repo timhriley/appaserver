@@ -170,7 +170,7 @@ char *recall_save_open(
 	snprintf(
 		open,
 		sizeof ( open ),
-		"var result = new recall_save('%s','%s','%s','",
+		"var result = new recall_save(%s,'%s','%s',",
 		recall_save_cookie_key,
 		/* ---------------------- */
 		/* Returns program memory */
@@ -196,7 +196,7 @@ char *recall_save_close(
 	snprintf(
 		close,
 		sizeof ( close ),
-		"','%c','%s','%s');",
+		"'%c','%s','%s')",
 		recall_name_delimiter,
 		recall_equal_delimiter,
 		recall_block_delimiter );
@@ -216,7 +216,7 @@ char *recall_save_javascript(
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
-	char *block_string;
+	char *name_string;
 
 	if ( !recall_save_cookie_key )
 	{
@@ -273,16 +273,16 @@ char *recall_save_javascript(
 				message );
 		}
 
-		block_string =
+		name_string =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			recall_widget_block_string(
-				recall_block_delimiter,
+			recall_widget_name_string(
+				recall_name_delimiter,
 				widget_container,
 				got_one );
 
-		ptr += sprintf( ptr, "%s", block_string );
+		ptr += sprintf( ptr, "%s", name_string );
 		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
@@ -325,7 +325,7 @@ char *recall_save_multi_open(
 	snprintf(
 		open,
 		sizeof ( open ),
-		"var result = new recall_multi_save('%s','%s','%s','",
+		"var result = new recall_multi_save('%s','%s','%s',",
 		recall_save_cookie_multi_key,
 		/* ---------------------- */
 		/* Returns program memory */
@@ -353,7 +353,7 @@ char *recall_save_multi_close(
 	snprintf(
 		close,
 		sizeof ( close ),
-		"','%c','%s','%s','%s','%c');",
+		"'%c','%s','%s','%s','%c')",
 		recall_name_delimiter,
 		recall_equal_delimiter,
 		recall_block_delimiter,
@@ -377,7 +377,7 @@ char *recall_save_multi_javascript(
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
-	char *block_string;
+	char *name_string;
 
 	if ( !recall_save_cookie_multi_key )
 	{
@@ -434,16 +434,16 @@ char *recall_save_multi_javascript(
 				message );
 		}
 
-		block_string =
+		name_string =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			recall_widget_block_string(
-				recall_block_delimiter,
+			recall_widget_name_string(
+				recall_name_delimiter,
 				widget_container,
 				got_one );
 
-		ptr += sprintf( ptr, "%s", block_string );
+		ptr += sprintf( ptr, "%s", name_string );
 		got_one = 1;
 
 	} while ( list_next( widget_container_list ) );
@@ -489,7 +489,7 @@ char *recall_load_open(
 	snprintf(
 		open,
 		sizeof ( open ),
-		"var result = new recall_load(%s,'%s','",
+		"var result = new recall_load(%s,'%s',",
 		form_name,
 		recall_save_cookie_key );
 
@@ -498,18 +498,16 @@ char *recall_load_open(
 
 char *recall_load_close(
 		const char *recall_equal_delimiter,
-		const char *recall_block_delimiter,
-		const char recall_multi_index_delimiter )
+		const char *recall_block_delimiter )
 {
 	static char close[ 128 ];
 
 	snprintf(
 		close,
 		sizeof ( close ),
-		"','%s','%s','%c');",
+		",'%s','%s')",
 		recall_equal_delimiter,
-		recall_block_delimiter,
-		recall_multi_index_delimiter );
+		recall_block_delimiter );
 
 	return close;
 }
@@ -517,7 +515,6 @@ char *recall_load_close(
 char *recall_load_javascript(
 		const char *recall_equal_delimiter,
 		const char *recall_block_delimiter,
-		const char recall_multi_index_delimiter,
 		char *form_name,
 		char *recall_save_cookie_key )
 {
@@ -553,8 +550,7 @@ char *recall_load_javascript(
 		/* --------------------- */
 		recall_load_close(
 			recall_equal_delimiter,
-			recall_block_delimiter,
-			recall_multi_index_delimiter ) );
+			recall_block_delimiter ) );
 
 	return strdup( javascript );
 }
@@ -714,7 +710,7 @@ char *recall_load_multi_open(
 	snprintf(
 		open,
 		sizeof ( open ),
-		"var result = new recall_multi_load(%s,'%s','",
+		"var result = new recall_multi_load(%s,%s,",
 		form_name,
 		recall_save_cookie_multi_key );
 
@@ -732,7 +728,7 @@ char *recall_load_multi_close(
 	snprintf(
 		close,
 		sizeof ( close ),
-		"','%s','%s','%s','%c')",
+		",'%s','%s','%s','%c')",
 		recall_equal_delimiter,
 		recall_block_delimiter,
 		recall_multi_delimiter,
@@ -774,7 +770,6 @@ RECALL_LOAD *recall_load_new(
 		recall_load_javascript(
 			RECALL_EQUAL_DELIMITER,
 			RECALL_BLOCK_DELIMITER,
-			RECALL_MULTI_INDEX_DELIMITER,
 			form_name,
 			recall_load->recall_save_cookie_key );
 
@@ -942,8 +937,8 @@ char *recall_widget_name( WIDGET_CONTAINER *widget_container )
 	return widget_name;
 }
 
-char *recall_widget_block_string(
-		const char *recall_block_delimiter,
+char *recall_widget_name_string(
+		const char recall_name_delimiter,
 		WIDGET_CONTAINER *widget_container,
 		boolean got_one )
 {
@@ -952,7 +947,7 @@ char *recall_widget_block_string(
 
 	if ( got_one )
 	{
-		ptr += sprintf( ptr, "%s", recall_block_delimiter );
+		ptr += sprintf( ptr, "%c", recall_name_delimiter );
 	}
 
 	ptr += sprintf(

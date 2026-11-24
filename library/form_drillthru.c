@@ -171,6 +171,7 @@ FORM_DRILLTHRU *form_drillthru_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_multi_select_all_javascript(
+			APPASERVER_MULTI_ORIGINAL_PREFIX,
 			form_drillthru->
 				form_prompt_lookup_widget_list->
 				widget_container_list );
@@ -233,8 +234,8 @@ msg( (char *)0, message );
 				state ),
 			form_drillthru->post_choose_folder_action_string,
 			form_drillthru->form_multi_select_all_javascript,
-			form_drillthru->recall_save->javascript,
-			form_drillthru->recall_load->javascript );
+			form_drillthru->recall_save->apply_javascript,
+			form_drillthru->recall_load->apply_javascript );
 
 	form_drillthru->form_prompt_lookup_html =
 		/* ------------------- */

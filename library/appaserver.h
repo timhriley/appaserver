@@ -12,7 +12,7 @@
 #include "boolean.h"
 
 #define APPASERVER_CONFIG_FILESPEC		"/etc/appaserver.config"
-#define APPASERVER_DROP_DOWN_ORIGINAL_LABEL	"original_"
+#define APPASERVER_MULTI_ORIGINAL_PREFIX	"original_"
 
 #define APPASERVER_INSERT_STATE			"insert"
 #define APPASERVER_UPDATE_STATE			"update"

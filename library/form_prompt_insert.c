@@ -743,6 +743,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_multi_select_all_javascript(
+			APPASERVER_MULTI_ORIGINAL_PREFIX,
 			form_prompt_insert->
 				form_prompt_insert_widget_list->
 				widget_container_list );

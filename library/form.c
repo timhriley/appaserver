@@ -261,11 +261,13 @@ char *form_cookie_multi_key(
 }
 
 char *form_multi_select_all_javascript(
+		const char *appaserver_multi_original_prefix,
 		LIST *widget_container_list )
 {
 	WIDGET_CONTAINER *widget_container;
 	char javascript[ 1024 ];
 	char *ptr = javascript;
+	char *original_name;
 
 	if ( !list_rewind( widget_container_list ) ) return (char *)0;
 
@@ -287,10 +289,21 @@ char *form_multi_select_all_javascript(
 
 		if ( ptr != javascript ) ptr += sprintf( ptr, " && " );
 
+		original_name =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			widget_multi_drop_down_original_name(
+				appaserver_multi_original_prefix,
+				widget_container->widget_name );
+
 		ptr += sprintf(
 			ptr,
-			"post_change_multi_select_all('%s')",
+			"button_multi_select_all('%s','%s')",
+			original_name,
 			widget_container->widget_name );
+
+		free( original_name );
 
 	} while ( list_next( widget_container_list ) );
 
