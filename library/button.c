@@ -166,7 +166,7 @@ char *button_submit_html(
 		const char *javascript_wait_start,
 		char *form_name,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
+		char *recall_save_apply_javascript,
 		char *form_verify_notepad_widths_javascript )
 {
 	char html[ STRING_4K ];
@@ -176,7 +176,7 @@ char *button_submit_html(
 
 	ptr += sprintf(
 		ptr,
-"<input type=button value=\"%s\" title=\"%s\" onClick=\"",
+		"<input type=button value=\"%s\" title=\"%s\" onClick=\"",
 		button_submit_display,
 		button_submit_message );
 
@@ -224,10 +224,12 @@ char *button_submit_html(
 				message );
 		}
 
+		/* Note: recall_save_apply_javascript has a trailing ; */
+		/* --------------------------------------------------- */
 		ptr += sprintf(
 			ptr,
-			"%s;",
-			recall_save_javascript );
+			"%s",
+			recall_save_apply_javascript );
 	}
 
 	if ( form_verify_notepad_widths_javascript )

@@ -79,7 +79,7 @@ char *button_submit_html(
 		const char *javascript_wait_start,
 		char *form_name,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
+		char *recall_save_apply_javascript,
 		char *form_verify_notepad_widths_javascript );
 
 /* Usage */
