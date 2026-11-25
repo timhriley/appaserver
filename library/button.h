@@ -60,12 +60,12 @@ BUTTON *button_calloc(	void );
 /* Usage */
 /* ----- */
 
-/* Safely returns everything in heap */
-/* --------------------------------- */
+/* Safely returns */
+/* -------------- */
 BUTTON *button_submit(
 		char *form_name,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
+		char *recall_save_apply_javascript,
 		char *form_verify_notepad_widths_javascript );
 
 /* Process */
@@ -74,12 +74,13 @@ BUTTON *button_submit(
 /* Returns heap memory */
 /* ------------------- */
 char *button_submit_html(
-		char *form_name,
 		const char *button_submit_display,
+		const char *button_submit_message,
+		const char *javascript_wait_start,
+		char *form_name,
 		char *form_multi_select_all_javascript,
 		char *recall_save_javascript,
-		char *form_verify_notepad_widths_javascript,
-		const char *button_submit_message );
+		char *form_verify_notepad_widths_javascript );
 
 /* Usage */
 /* ----- */

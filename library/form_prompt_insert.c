@@ -825,10 +825,11 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 
 	form_prompt_insert->button_container_list =
 		form_prompt_insert_button_container_list(
+			FORM_PROMPT_INSERT_NAME,
 			post_choose_folder_action_string,
 			form_prompt_insert->form_multi_select_all_javascript,
-			form_prompt_insert->recall_save->javascript,
-			form_prompt_insert->recall_load->javascript,
+			form_prompt_insert->recall_save->apply_javascript,
+			form_prompt_insert->recall_load->apply_javascript,
 			form_prompt_insert->
 				form_verify_notepad_widths_javascript,
 			(form_prompt_insert->pair_one2m_prompt_insert)
@@ -945,10 +946,11 @@ char *form_prompt_insert_action_string(
 }
 
 LIST *form_prompt_insert_button_container_list(
+		const char *form_prompt_insert_name,
 		char *post_choose_folder_action_string,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
-		char *recall_load_javascript,
+		char *recall_save_apply_javascript,
+		char *recall_load_apply_javascript,
 		char *form_verify_notepad_widths_javascript,
 		LIST *pair_one2m_button_list )
 {
@@ -956,8 +958,8 @@ LIST *form_prompt_insert_button_container_list(
 	WIDGET_CONTAINER *widget_container;
 	PAIR_ONE2M_BUTTON *pair_one2m_button;
 
-	if ( !recall_save_javascript
-	||   !recall_load_javascript )
+	if ( !recall_save_apply_javascript
+	||   !recall_load_apply_javascript )
 	{
 		char message[ 128 ];
 
@@ -995,10 +997,10 @@ LIST *form_prompt_insert_button_container_list(
 
 	widget_container->widget_button->button =
 		button_submit(
+			(char *)form_prompt_insert_name /* form_name */,
 			form_multi_select_all_javascript,
-			recall_save_javascript,
-			form_verify_notepad_widths_javascript,
-			0 /* form_number */ );
+			recall_save_apply_javascript,
+			form_verify_notepad_widths_javascript );
 
 	if ( list_rewind( pair_one2m_button_list ) )
 	do {
@@ -1022,7 +1024,7 @@ LIST *form_prompt_insert_button_container_list(
 		button_reset(
 			RECALL_MULTI_INDEX_DELIMITER,
 			BUTTON_RESET_MESSAGE,
-			(char *)0 /* form_name */,
+			FORM_PROMPT_INSERT_NAME /* form_name */,
 			(char *)0 /* javascript */ );
 
 	list_set(
@@ -1047,7 +1049,7 @@ LIST *form_prompt_insert_button_container_list(
 
 	widget_container->widget_button->button =
 		button_recall(
-			recall_load_javascript );
+			recall_load_apply_javascript );
 
 	if ( widget_container->widget_button->button )
 	{

@@ -149,27 +149,28 @@ BUTTON *button_submit(
 		/* Returns heap memory */
 		/* ------------------- */
 		button_submit_html(
-			form_name,
 			BUTTON_SUBMIT_DISPLAY,
+			BUTTON_SUBMIT_MESSAGE,
+			JAVASCRIPT_WAIT_START,
+			form_name,
 			form_multi_select_all_javascript,
 			recall_save_javascript,
-			form_verify_notepad_widths_javascript,
-			BUTTON_SUBMIT_MESSAGE );
+			form_verify_notepad_widths_javascript );
 
 	return button;
 }
 
 char *button_submit_html(
-		char *form_name,
 		const char *button_submit_display,
+		const char *button_submit_message,
+		const char *javascript_wait_start,
+		char *form_name,
 		char *form_multi_select_all_javascript,
 		char *recall_save_javascript,
-		char *form_verify_notepad_widths_javascript,
-		const char *button_submit_message )
+		char *form_verify_notepad_widths_javascript )
 {
 	char html[ STRING_4K ];
 	char *ptr = html;
-	boolean got_one = 0;
 
 	if ( !form_name ) form_name = "document.forms[0]";
 
@@ -200,10 +201,8 @@ char *button_submit_html(
 
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"%s;",
 			form_multi_select_all_javascript );
-
-		got_one = 1;
 	}
 
 	if ( recall_save_javascript )
@@ -225,17 +224,10 @@ char *button_submit_html(
 				message );
 		}
 
-		if ( got_one )
-		{
-			ptr += sprintf( ptr, ";" );
-		}
-
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"%s;",
 			recall_save_javascript );
-
-		got_one = 1;
 	}
 
 	if ( form_verify_notepad_widths_javascript )
@@ -257,23 +249,16 @@ char *button_submit_html(
 				message );
 		}
 
-		if ( got_one )
-		{
-			ptr += sprintf( ptr, ";" );
-		}
-
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"%s;",
 			form_verify_notepad_widths_javascript );
-
-		got_one = 1;
 	}
 
 	ptr += sprintf(
 		ptr,
 		"%s;",
-		JAVASCRIPT_WAIT_START );
+		javascript_wait_start );
 
 	ptr += sprintf(
 		ptr,

@@ -59,10 +59,11 @@ FORM_PROMPT_INSERT_ATTRIBUTE *form_prompt_insert_attribute_calloc(
 		void );
 
 LIST *form_prompt_insert_button_container_list(
+		const char *form_prompt_insert_name,
 		char *post_choose_folder_action_string,
 		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
-		char *recall_load_javascript,
+		char *recall_save_apply_javascript,
+		char *recall_load_apply_javascript,
 		char *form_verify_notepad_widths_javascript,
 		LIST *pair_one2m_button_list );
 
