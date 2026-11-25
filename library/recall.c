@@ -196,7 +196,7 @@ char *recall_save_close(
 	snprintf(
 		close,
 		sizeof ( close ),
-		",'%c','%s','%s')",
+		",'%c','%s','%s');",
 		recall_name_delimiter,
 		recall_equal_delimiter,
 		recall_block_delimiter );
@@ -361,7 +361,7 @@ char *recall_save_multi_close(
 	snprintf(
 		close,
 		sizeof ( close ),
-		",'%c','%s','%s','%s','%c')",
+		",'%c','%s','%s','%s','%c');",
 		recall_name_delimiter,
 		recall_equal_delimiter,
 		recall_block_delimiter,
@@ -504,7 +504,7 @@ char *recall_load_javascript(
 	snprintf(
 		javascript,
 		sizeof ( javascript ),
-		"var result = new recall_load(%s,'%s','%s','%s')",
+		"var result = new recall_load(%s,'%s','%s','%s');",
 		form_name,
 		recall_save_cookie_key,
 		recall_equal_delimiter,
@@ -538,7 +538,7 @@ char *recall_load_multi_javascript(
 		javascript,
 		sizeof ( javascript ),
 		"var result = "
-		"new recall_multi_load(%s,'%s','%s','%s','%s','%c')",
+		"new recall_multi_load(%s,'%s','%s','%s','%s','%c');",
 		form_name,
 		recall_save_cookie_multi_key,
 		recall_equal_delimiter,
@@ -584,21 +584,21 @@ char *recall_load_apply_javascript(
 	if ( button_reset_javascript )
 	{
 		ptr += sprintf( ptr,
-			"%s;",
+			"%s",
 			button_reset_javascript );
 	}
 
 	if ( recall_load_javascript )
 	{
 		ptr += sprintf( ptr,
-			"%s;",
+			"%s",
 			recall_load_javascript );
 	}
 
 	if ( recall_load_multi_javascript )
 	{
 		ptr += sprintf( ptr,
-			"%s;",
+			"%s",
 			recall_load_multi_javascript );
 	}
 

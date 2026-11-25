@@ -1002,7 +1002,7 @@ char *drilldown_document_onload_string(
 		LIST *relation_one2m_list,
 		LIST *relation_mto1_list )
 {
-	char onload_string[ STRING_64K ];
+	char onload_string[ STRING_4K ];
 	char *ptr = onload_string;
 
 	if ( post_change_javascript )
@@ -1043,9 +1043,6 @@ char *drilldown_document_onload_string(
 				many_folder->
 				post_change_javascript )
 			{
-				if ( ptr != onload_string )
-					ptr += sprintf( ptr, " && " );
-
 				ptr += sprintf( ptr,
 					"%s",
 					/* --------------------- */
@@ -1087,9 +1084,6 @@ char *drilldown_document_onload_string(
 				one_folder->
 				post_change_javascript )
 			{
-				if ( ptr != onload_string )
-					ptr += sprintf( ptr, " && " );
-
 				ptr += sprintf( ptr,
 					"%s",
 					/* --------------------- */

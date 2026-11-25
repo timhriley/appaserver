@@ -1666,13 +1666,17 @@ char *table_edit_document_javascript_replace(
 
 	if ( onload_javascript_string )
 	{
-		if ( ptr != document_javascript_replace )
-			ptr += sprintf( ptr, " && " );
-
 		ptr += sprintf(
 			ptr,
 			"%s",
-			onload_javascript_string );
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			javascript_replace(
+				onload_javascript_string,
+				(char *)appaserver_update_state,
+				JAVASCRIPT_ONLOAD_ROW_NUMBER
+					/* probably -1 */ ) );
 	}
 
 	if ( *document_javascript_replace )

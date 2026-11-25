@@ -208,7 +208,7 @@ char *javascript_replace(
 		char *state,
 		int row_number )
 {
-	static char javascript[ STRING_4K ];
+	static char replace[ STRING_4K ];
 
 	if ( !post_change_javascript || !*post_change_javascript )
 		return (char *)0;
@@ -228,20 +228,23 @@ char *javascript_replace(
 			message );
 	}
 
-	strcpy( javascript, post_change_javascript );
+	string_strcpy( replace, post_change_javascript, STRING_4K );
 
 	if ( state && *state )
 	{
 		javascript_replace_state(
-			javascript,
+			replace /* post_change_javascript in/out */,
 			state );
 	}
 
 	javascript_replace_row(
-		javascript,
+		replace /* post_change_javascript in/out */,
 		row_number );
 
-	return javascript;
+	javascript_append_semicolon(
+		replace /* in/out */ );
+
+	return replace;
 }
 
 void javascript_replace_state(
@@ -517,5 +520,27 @@ char *javascript_home_script_tag( char *javascript_filename )
 		javascript_close_tag() );
 
 	return strdup( script_tag );
+}
+
+void javascript_append_semicolon( char *replace )
+{
+	char last_character;
+
+	if ( !replace )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: replace is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	last_character = string_last_character( replace );
+
+	if ( last_character != ';' )
+	{
+		sprintf( replace + strlen( replace ), ";" );
+	}
 }
 

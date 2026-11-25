@@ -700,7 +700,7 @@ char *document_close_tag( void )
 char *document_body_menu_onload_string( void )
 {
 	return
-"DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: false, scrolling: true} )";
+"DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: false, scrolling: true} );";
 }
 
 char *document_standard_string( void )

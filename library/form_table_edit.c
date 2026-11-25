@@ -358,7 +358,7 @@ LIST *form_table_edit_sort_container_list(
 	snprintf(
 		onclick,
 		sizeof ( onclick ),
-		"%s;push_button_submit('%s');",
+		"%spush_button_submit('%s');",
 		JAVASCRIPT_WAIT_START,
 		form_name );
 

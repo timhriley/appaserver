@@ -4,8 +4,7 @@
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef DRILLDOWN_H
-#define DRILLDOWN_H
+#pragma once
 
 #include "list.h"
 #include "boolean.h"
@@ -336,4 +335,3 @@ DICTIONARY *drilldown_original_post_dictionary(
 		DICTIONARY *sort_dictionary,
 		DICTIONARY *drilldown_query_dictionary );
 
-#endif

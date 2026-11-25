@@ -201,7 +201,7 @@ char *button_submit_html(
 
 		ptr += sprintf(
 			ptr,
-			"%s;",
+			"%s",
 			form_multi_select_all_javascript );
 	}
 
@@ -253,13 +253,13 @@ char *button_submit_html(
 
 		ptr += sprintf(
 			ptr,
-			"%s;",
+			"%s",
 			form_verify_notepad_widths_javascript );
 	}
 
 	ptr += sprintf(
 		ptr,
-		"%s;",
+		"%s",
 		javascript_wait_start );
 
 	ptr += sprintf(
@@ -364,7 +364,7 @@ BUTTON *button_back( void )
 		/* ------------------- */
 		button_input_html(
 			"Back" /* display */,
-			"history.back()" /* action_string */,
+			"history.back();" /* action_string */,
 			BUTTON_BACK_MESSAGE );
 
 	return button;
@@ -380,7 +380,7 @@ BUTTON *button_forward( void )
 		/* ------------------- */
 		button_input_html(
 			"Forward" /* display */,
-			"timlib_history_forward()" /* action_string */,
+			"timlib_history_forward();" /* action_string */,
 			BUTTON_FORWARD_MESSAGE );
 
 	return button;
@@ -440,7 +440,7 @@ char *button_drillthru_skip_html(
 	snprintf(
 		html,
 		sizeof ( html ),
-"<input type=button value=\"Skip Drillthru\" title=\"%s\" onClick=\"%s document.forms[0].submit()\">",
+"<input type=button value=\"Skip Drillthru\" title=\"%s\" onClick=\"%s document.forms[0].submit();\">",
 		button_skip_message,
 		reset_javascript );
 
@@ -533,8 +533,10 @@ char *button_help_html(
 				html_help_file_anchor );
 	}
 
-	sprintf(html,
-"<input type=button value=\"Help\" onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>",
+	snprintf(
+		html,
+		sizeof ( html ),
+"<input type=button value=\"Help\" onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\");'>",
 		full_pathname );
 
 	return strdup( html );
@@ -793,7 +795,7 @@ char *button_reset_javascript(
 	snprintf(
 		javascript,
 		sizeof ( javascript ),
-		"button_reset(%s,'%c')",
+		"button_reset(%s,'%c');",
 		form_name,
 		recall_multi_index_delimiter );
 

@@ -30,7 +30,7 @@
 #define APPASERVER_MAILNAME_FILESPECIFICATION	"/etc/mailname"
 
 #define APPASERVER_WINDOW_OPEN_TEMPLATE		\
-"window.open('%s','%s','menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false')"
+"window.open('%s','%s','menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');"
 
 /* Usage */
 /* ----- */

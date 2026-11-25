@@ -922,7 +922,7 @@ char *widget_checkbox_html_string(
 		boolean widget_checkbox_checked,
 		char *javascript_replace )
 {
-	char html[ STRING_1K ];
+	char html[ STRING_8K ];
 	char *ptr = html;
 	char display[ 128 ];
 
@@ -998,7 +998,7 @@ char *widget_checkbox_html_string(
 				background_color ) );
 	}
 
-	if ( javascript_replace && *javascript_replace )
+	if ( javascript_replace )
 	{
 		if (	strlen( html ) +
 			strlen( javascript_replace ) +
@@ -2229,7 +2229,7 @@ char *widget_multi_drop_down_html_string(
 char *widget_container_javascript_html(
 		char *javascript_replace )
 {
-	static char html[ 2048 ];
+	static char html[ STRING_4K ];
 
 	*html = '\0';
 
@@ -2247,13 +2247,13 @@ char *widget_container_javascript_html(
 	}
 
 	if (	strlen( javascript_replace ) +
-		13 >= 2048 )
+		13 >= STRING_4K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			2048 );
+			STRING_4K );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -4291,11 +4291,11 @@ char *widget_container_upload_html(
 }
 
 char *widget_container_yes_no_html(
-			char *state,
-			int row_number,
-			LIST *query_cell_list,
-			char *background_color,
-			WIDGET_YES_NO *yes_no )
+		char *state,
+		int row_number,
+		LIST *query_cell_list,
+		char *background_color,
+		WIDGET_YES_NO *yes_no )
 {
 	if ( !yes_no )
 	{
@@ -4408,7 +4408,7 @@ char *widget_yes_no_html_string(
 				tab_order ) );
 	}
 
-	if ( javascript_replace && *javascript_replace )
+	if ( javascript_replace )
 	{
 		ptr += sprintf(
 			ptr,

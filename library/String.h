@@ -738,7 +738,6 @@ char *string_append(
 
 /* Usage */
 /* ----- */
-
 char string_last_character(
 		char *string );
 

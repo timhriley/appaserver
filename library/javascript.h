@@ -1,3 +1,4 @@
+/* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/library/javascript.h		   		*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
@@ -8,8 +9,8 @@
 
 #define JAVASCRIPT_PROMPT_ROW_NUMBER	0
 #define JAVASCRIPT_ONLOAD_ROW_NUMBER	-1
-#define JAVASCRIPT_WAIT_START		"timlib_wait_start()"
-#define JAVASCRIPT_WAIT_OVER		"timlib_wait_over()"
+#define JAVASCRIPT_WAIT_START		"timlib_wait_start();"
+#define JAVASCRIPT_WAIT_OVER		"timlib_wait_over();"
 
 
 typedef struct
@@ -100,8 +101,8 @@ char *javascript_include_string(
 /* Usage */
 /* ----- */
 
-/* Returns static memory or null */
-/* ----------------------------- */
+/* Returns static memory of 4K or null */
+/* ----------------------------------- */
 char *javascript_replace(
 		char *post_change_javascript,
 		char *state,
@@ -110,8 +111,11 @@ char *javascript_replace(
 /* Process */
 /* ------- */
 void javascript_replace_state(
-		char *post_change_javascript,
+		char *post_change_javascript /* in/out */,
 		char *state );
+
+void javascript_append_semicolon(
+		char *replace /* in/out */ );
 
 /* Usage */
 /* ----- */
@@ -126,7 +130,7 @@ char *javascript_post_change_append(
 /* Usage */
 /* ----- */
 void javascript_replace_row(
-		char *post_change_javascript,
+		char *post_change_javascript /* in/out */,
 		int row_number );
 
 /* Usage */
