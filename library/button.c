@@ -205,10 +205,10 @@ char *button_submit_html(
 			form_multi_select_all_javascript );
 	}
 
-	if ( recall_save_javascript )
+	if ( recall_save_apply_javascript )
 	{
 		if (	strlen( html ) +
-			strlen( recall_save_javascript )
+			strlen( recall_save_apply_javascript )
 			+ 5 >= STRING_4K )
 		{
 			char message[ 128 ];
