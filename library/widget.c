@@ -2306,8 +2306,8 @@ char *widget_container_background_color_html(
 }
 
 WIDGET_CONTAINER *widget_container_name_seek(
-			char *widget_name,
-			LIST *widget_list )
+		char *widget_name,
+		LIST *widget_list )
 {
 	WIDGET_CONTAINER *widget;
 
@@ -8051,5 +8051,49 @@ char *widget_upload_post_change_javascript( char *recall_widget_name )
 		recall_widget_name );
 
 	return javascript;
+}
+
+LIST *widget_container_multi_name_list( LIST *widget_container_list )
+{
+	WIDGET_CONTAINER *widget_container;
+	LIST *list = list_new();
+
+	if ( list_rewind( widget_container_list ) )
+	do {
+		widget_container = list_get( widget_container_list );
+
+		if ( widget_container->widget_type == multi_drop_down )
+		{
+			list_set( list, widget_container->widget_name );
+		}
+
+	} while ( list_next( widget_container_list ) );
+
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
+
+	return list;
+}
+
+boolean widget_container_multi_recall_boolean( LIST *widget_container_list )
+{
+	WIDGET_CONTAINER *widget_container;
+
+	if ( list_rewind( widget_container_list ) )
+	do {
+		widget_container = list_get( widget_container_list );
+
+		if ( widget_container->widget_type == multi_drop_down
+		&&   widget_container->recall_boolean )
+		{
+			return 1;
+		}
+
+	} while ( list_next( widget_container_list ) );
+
+	return 0;
 }
 

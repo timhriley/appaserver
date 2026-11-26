@@ -1668,6 +1668,16 @@ char *widget_container_ajax_html(
 
 /* Usage */
 /* ----- */
+LIST *widget_container_multi_name_list(
+		LIST *widget_container_list );
+
+/* Usage */
+/* ----- */
+boolean widget_container_multi_recall_boolean(
+		LIST *widget_container_list );
+
+/* Usage */
+/* ----- */
 LIST *widget_container_dictionary_hidden_list(
 		DICTIONARY *dictionary );
 

@@ -212,7 +212,7 @@ char *recall_save_javascript(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_key )
 {
-	char javascript[ STRING_4K ];
+	char javascript[ STRING_64K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
@@ -262,13 +262,13 @@ char *recall_save_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_4K )
+			STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_4K );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -381,7 +381,7 @@ char *recall_save_multi_javascript(
 		boolean application_ssl_support_boolean,
 		char *recall_save_cookie_multi_key )
 {
-	char javascript[ STRING_4K ];
+	char javascript[ STRING_64K ];
 	char *ptr = javascript;
 	WIDGET_CONTAINER *widget_container;
 	boolean got_one = 0;
@@ -431,13 +431,13 @@ char *recall_save_multi_javascript(
 
 		if (	string_strlen( javascript ) +
 			string_strlen( widget_container->widget_name ) + 1 >=
-			STRING_4K )
+			STRING_64K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_4K );
+				STRING_64K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -554,7 +554,7 @@ char *recall_load_apply_javascript(
 		char *recall_load_javascript,
 		char *recall_load_multi_javascript )
 {
-	char apply_javascript[ STRING_2K ];
+	char apply_javascript[ STRING_65K ];
 	char *ptr = apply_javascript;
 
 	if ( !recall_load_javascript
@@ -566,13 +566,13 @@ char *recall_load_apply_javascript(
 	if (	string_strlen( button_reset_javascript ) +
 		string_strlen( recall_load_javascript ) +
 		string_strlen( recall_load_multi_javascript ) + 2
-		>= STRING_2K )
+		>= STRING_65K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_2K );
+			STRING_65K );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -637,7 +637,8 @@ char *recall_save_cookie_multi_key(
 RECALL_LOAD *recall_load_new(
 		char *state,
 		char *form_name,
-		char *folder_name )
+		char *folder_name,
+		boolean multi_recall_boolean )
 {
 	RECALL_LOAD *recall_load;
 
@@ -670,27 +671,30 @@ RECALL_LOAD *recall_load_new(
 			form_name,
 			recall_load->recall_save_cookie_key );
 
-	recall_load->recall_save_cookie_multi_key =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		recall_save_cookie_multi_key(
-			RECALL_MULTI_KEY_PREFIX,
-			RECALL_PROCESS_COOKIE_KEY,
-			folder_name,
-			state );
+	if ( multi_recall_boolean )
+	{
+		recall_load->recall_save_cookie_multi_key =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			recall_save_cookie_multi_key(
+				RECALL_MULTI_KEY_PREFIX,
+				RECALL_PROCESS_COOKIE_KEY,
+				folder_name,
+				state );
 
-	recall_load->multi_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		recall_load_multi_javascript(
-			RECALL_EQUAL_DELIMITER,
-			RECALL_BLOCK_DELIMITER,
-			RECALL_MULTI_DELIMITER,
-			RECALL_MULTI_INDEX_DELIMITER,
-			form_name,
-			recall_load->recall_save_cookie_multi_key );
+		recall_load->multi_javascript =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			recall_load_multi_javascript(
+				RECALL_EQUAL_DELIMITER,
+				RECALL_BLOCK_DELIMITER,
+				RECALL_MULTI_DELIMITER,
+				RECALL_MULTI_INDEX_DELIMITER,
+				form_name,
+				recall_load->recall_save_cookie_multi_key );
+	}
 
 	recall_load->apply_javascript =
 		/* --------------------------- */

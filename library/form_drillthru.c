@@ -189,20 +189,6 @@ FORM_DRILLTHRU *form_drillthru_new(
 			application_ssl_support_boolean(
 				application_name ) );
 
-/*
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: recall_save=\n%s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	recall_save_display( form_drillthru->recall_save ) );
-msg( (char *)0, message );
-}
-*/
 	form_drillthru->recall_load =
 		/* -------------- */
 		/* Safely returns */
@@ -210,22 +196,12 @@ msg( (char *)0, message );
 		recall_load_new(
 			APPASERVER_LOOKUP_STATE,
 			FORM_PROMPT_LOOKUP_NAME,
-			folder_name );
+			folder_name,
+			widget_container_multi_recall_boolean(
+				form_drillthru->
+					form_prompt_lookup_widget_list->
+					widget_container_list ) );
 
-/*
-{
-char message[ 65536 ];
-snprintf(
-	message,
-	sizeof ( message ),
-	"%s/%s()/%d: recall_load=\n%s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	recall_load_display( form_drillthru->recall_load ) );
-msg( (char *)0, message );
-}
-*/
 	form_drillthru->form_prompt_lookup_button_list =
 		form_prompt_lookup_button_list(
 			FORM_PROMPT_LOOKUP_NAME,

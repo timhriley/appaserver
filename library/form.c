@@ -264,30 +264,19 @@ char *form_multi_select_all_javascript(
 		const char *appaserver_multi_original_prefix,
 		LIST *widget_container_list )
 {
-	WIDGET_CONTAINER *widget_container;
 	char javascript[ 1024 ];
 	char *ptr = javascript;
 	char *original_name;
+	LIST *name_list;
+	char *widget_name;
 
-	if ( !list_rewind( widget_container_list ) ) return (char *)0;
+	name_list =
+		widget_container_multi_name_list(
+			widget_container_list );
 
+	if ( list_rewind( name_list ) )
 	do {
-		widget_container = list_get( widget_container_list );
-
-		if ( widget_container->widget_type != multi_drop_down )
-			continue;
-
-		if ( !widget_container->widget_name )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: widget_name is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( ptr != javascript ) ptr += sprintf( ptr, " && " );
+		widget_name = list_get( name_list );
 
 		original_name =
 			/* ------------------- */
@@ -295,17 +284,17 @@ char *form_multi_select_all_javascript(
 			/* ------------------- */
 			widget_multi_drop_down_original_name(
 				appaserver_multi_original_prefix,
-				widget_container->widget_name );
+				widget_name );
 
 		ptr += sprintf(
 			ptr,
-			"button_multi_select_all('%s','%s')",
+			"button_multi_select_all('%s','%s');",
 			original_name,
-			widget_container->widget_name );
+			widget_name );
 
 		free( original_name );
 
-	} while ( list_next( widget_container_list ) );
+	} while ( list_next( name_list ) );
 
 	if ( ptr == javascript )
 		return NULL;

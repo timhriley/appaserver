@@ -778,7 +778,11 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		recall_load_new(
 			APPASERVER_INSERT_STATE,
 			FORM_PROMPT_INSERT_NAME,
-			folder_name );
+			folder_name,
+			widget_container_multi_recall_boolean(
+				form_prompt_insert->
+					form_prompt_insert_widget_list->
+					widget_container_list ) );
 
 	if ( list_length(
 		form_prompt_insert->

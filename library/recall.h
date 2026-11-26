@@ -169,7 +169,8 @@ typedef struct
 RECALL_LOAD *recall_load_new(
 		char *state,
 		char *form_name,
-		char *folder_name );
+		char *folder_name,
+		boolean widget_container_multi_recall_boolean );
 
 /* Process */
 /* ------- */

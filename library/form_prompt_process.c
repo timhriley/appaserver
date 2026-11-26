@@ -339,7 +339,11 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 		recall_load_new(
 			(char *)0 /* state */,
 			FORM_PROMPT_PROCESS_NAME,
-			(char *)0 /* folder_name */ );
+			(char *)0 /* folder_name */,
+			widget_container_multi_recall_boolean(
+				form_prompt_process->
+					form_prompt_process_widget_list->
+					widget_container_list ) );
 
 	form_prompt_process->form_multi_select_all_javascript =
 		/* --------------------------- */
